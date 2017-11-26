@@ -174,8 +174,9 @@ function getChargesFrac(spellID,chargeMax)
 	end
 	return 0
 end
-function getRecharge(spellID)
+function getRecharge(spellID,chargeMax)
 	local charges,maxCharges,chargeStart,chargeDuration = GetSpellCharges(spellID)
+	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
 			chargeEnd = chargeStart + chargeDuration

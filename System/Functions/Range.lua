@@ -150,6 +150,7 @@ end
 
 function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
     local maxRange = select(6,GetSpellInfo(spellID))
+    if maxRange == 0 then maxRange = 5 end
     if effectRng == nil then effectRng = 5 end
     if minUnits == nil then minUnits = 1 end
     if aoeType == "rect" then

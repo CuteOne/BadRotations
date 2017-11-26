@@ -512,8 +512,8 @@ local function runRotation()
                 if cast.throwGlaive() then return end
             end
         -- Felblade
-            -- felblade,if=fury.deficit>=30
-            if powerDeficit >= 30 then
+            -- felblade,if=fury.deficit>=30&(fury<40|buff.metamorphosis.down)
+            if powerDeficit >= 30 and (power < 40 or not buff.metamorphosis.exists()) then
                 if cast.felblade() then return end
             end
         -- Eye Beam
@@ -543,8 +543,10 @@ local function runRotation()
                 if cast.chaosStrike() then return end
             end
         -- Fel Rush
-            -- fel_rush,if=!talent.momentum.enabled&(buff.metamorphosis.down|talent.demon_blades.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-            if getFacing("player","target",10) and not talent.momentum and (not buff.metamorphosis.exists() or talent.demonBlades) and charges.felRush.count() == 2 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge") then
+            -- fel_rush,if=!talent.momentum.enabled&!cooldown.eye_beam.ready&(buff.metamorphosis.down|talent.demon_blades.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
+            if getFacing("player","target",10) and not talent.momentum and cd.eyeBeam.exists() and (not buff.metamorphosis.exists() or talent.demonBlades) 
+                and charges.felRush.count() == 2 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge") 
+            then
                if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
                 elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then

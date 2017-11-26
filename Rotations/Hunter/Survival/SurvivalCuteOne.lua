@@ -195,6 +195,7 @@ local function runRotation()
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
@@ -218,6 +219,12 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
+
+    -- SimC Variables
+        -- variable,name=frizzosEquipped,value=(equipped.137043)
+        local frizzosEquipped = hasEquiped(137043)
+        -- variable,name=mokTalented,value=(talent.way_of_the_moknathal.enabled)
+        local mokTalented = talent.wayOfTheMokNathal
 
         -- ChatOverlay(tostring(units.dyn5).." | "..tostring(units.dyn40))
 
@@ -370,28 +377,30 @@ local function runRotation()
                 -- berserking,if=buff.aspect_of_the_eagle.up
                 -- blood_fury,if=buff.aspect_of_the_eagle.up
                 if isChecked("Racial") and getSpellCD(racial) == 0 then
-                    if (((br.player.race == "Orc" or br.player.race == "Troll") and buff.aspectOfTheEagle.exists())
-                        or (br.player.race == "BloodElf" and power <= 30))
+                    if (((race == "Orc" or race == "Troll") and buff.aspectOfTheEagle.exists())
+                        or (race == "BloodElf" and power <= 30))
                     then
                         if castSpell("player",racial,false,false,false) then return end
                     end
                 end                
             -- Potion
-                -- potion,if=buff.aspect_of_the_eagle.up
-                if isChecked("Potion") and inRaid and canUse(142117) and buff.aspectOfTheEagle.exists() then
+                -- potion,if=buff.aspect_of_the_eagle.up&(buff.berserking.up|buff.blood_fury.up)
+                if isChecked("Potion") and inRaid and canUse(142117) and buff.aspectOfTheEagle.exists() 
+                    and (buff.berserking.exists() or buff.bloodFury.exists() or not (race == "Orc" or race == "Troll")) 
+                then
                     useItem(142117)
                 end
             -- Snake Hunter
-                -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd&buff.aspect_of_the_eagle.down
+                -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd&(cooldown.aspect_of_the_eagle.remains>5&!buff.aspect_of_the_eagle.up)
                 if isChecked("Snake Hunter") then
-                    if charges.mongooseBite.count() == 0 and buff.mongooseFury.remain() > 3 * gcd and not buff.aspectOfTheEagle.exists() then
+                    if charges.mongooseBite.count() == 0 and buff.mongooseFury.remain() > 3 * gcd and (cd.aspectOfTheEagle.remain() > 5 and not buff.aspectOfTheEagle.exists()) then
                         if cast.snakeHunter() then return end
                     end
                 end
             -- Aspect of the Eagle
                 if isChecked("Aspect of the Eagle") then
-                    -- aspect_of_the_eagle,if=buff.mongoose_fury.stack>=2&buff.mongoose_fury.remains>3*gcd
-                    if buff.mongooseFury.stack() >= 2 and buff.mongooseFury.remain() > 3 * gcd then
+                    -- aspect_of_the_eagle,if=buff.mongoose_fury.up&(cooldown.mongoose_bite.charges=0|buff.mongoose_fury.remains<11)
+                    if buff.mongooseFury.exists() and (charges.mongooseBite.count == 0 or buff.mongooseFury.remain() < 11) then
                         if cast.aspectOfTheEagle("player") then return end
                     end
                 end
@@ -414,75 +423,20 @@ local function runRotation()
             if cast.explosiveTrap("best",nil,getOptionValue("Units To AoE"),5) then return end
         -- Carve
             -- carve,if=(talent.serpent_sting.enabled&dot.serpent_sting.refreshable)|(active_enemies>5)
-            if ((talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) or #enemies.yards5 > 5) and not talent.butchery then
+            if not talent.butchery and ((talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) or #enemies.yards5 >= getOptionValue("Units To AoE")) then
                 if cast.carve("player","cone",getOptionValue("Units To AoE"),180) then return end
-            end
-        end
-    -- Action List - Bite Fill
-        local function actionList_BiteFill()
-        -- Spitting Cobra
-            -- spitting_cobra
-            if cast.spittingCobra() then return end
-        -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
-            if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.butchery("player","aoe",1) then return end
-            end
-        -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
-            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
-                if cast.carve("player","cone",1,180) then return end
-            end
-        -- Lacerate
-            -- lacerate,if=refreshable
-            if debuff.lacerate.refresh(units.dyn5) then
-                if cast.lacerate(units.dyn5) then return end
-            end
-        -- Raptor Strike
-            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
-            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
-                if cast.raptorStrike() then return end
-            end
-        -- Steel Trap
-            -- steel_trap
-            if cast.steelTrap("best",nil,1,5) then return end
-        -- A Murder of Crows
-            -- a_murder_of_crows
-            if cast.aMurderOfCrows() then return end
-        -- Dragonsfire Grenade
-            -- dragonsfire_grenade
-            if cast.dragonsfireGrenade("best",nil,1,5) then return end
-        -- Explosive Trap
-            -- explosive_trap
-            if cast.explosiveTrap("best",nil,1,5) then return end
-        -- Caltrops
-            -- caltrops,if=!dot.caltrops.ticking
-            if not debuff.caltrops.exists(units.dyn5) then
-                if cast.caltrops("best",nil,1,5) then return end
             end
         end
     -- Action List - Bite Phase
         local function actionList_BitePhase()
-        -- Fury of the Eagle
-            -- fury_of_the_eagle,if=(!talent.way_of_the_moknathal.enabled|buff.moknathal_tactics.remains>(gcd*(8%3)))&buff.mongoose_fury.stack>3&cooldown.mongoose_bite.charges<1&!buff.aspect_of_the_eagle.up,interrupt_if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<=tick_time)|(cooldown.mongoose_bite.charges=3)
-            if mode.artifact == 1 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if (not talent.wayOfTheMokNathal or buff.mokNathalTactics.remain() > (gcd * (8 / 3))) and buff.mongooseFury.stack() > 3 and charges.mongooseBite.count() < 1 and not buff.aspectOfTheEagle.exists() then
-                    if cast.furyOfTheEagle("player") then return end
-                end
-            end
-        -- Lacerate
-            -- lacerate,if=!dot.lacerate.ticking&set_bonus.tier20_4pc&buff.mongoose_fury.duration>cooldown.mongoose_bite.charges*gcd
-            if not debuff.lacerate.exists(units.dyn5) and t20_4pc and buff.mongooseFury.duration() > charges.mongooseBite.count() * gcd then
-                if cast.lacerate() then return end
-            end
         -- Mongoose Bite
-            -- mongoose_bite,if=charges>=2&cooldown.mongoose_bite.remains<gcd*2
-            if charges.mongooseBite.count() >= 2 and cd.mongooseBite.remain() < gcd * 2 then
+            -- mongoose_bite,if=cooldown.mongoose_bite.charges=3
+            if charges.mongooseBite.count() == 3 then
                 if cast.mongooseBite() then return end
             end
         -- Flanking Strike
-            -- flanking_strike,if=((buff.mongoose_fury.remains>(gcd*(cooldown.mongoose_bite.charges+2)))&cooldown.mongoose_bite.charges<=1)&(!set_bonus.tier19_4pc|(set_bonus.tier19_4pc&!buff.aspect_of_the_eagle.up))
-            if ((buff.mongooseFury.remain() > (gcd * (charges.mongooseBite.count() + 2))) and charges.mongooseBite.count() <= 1) and (not t19_4pc or (t19_4pc and not buff.aspectOfTheEagle.exists())) then
+            -- flanking_strike,if=buff.mongoose_fury.remains>(gcd*(cooldown.mongoose_bite.charges+1))
+            if buff.mongooseFury.remain() > (gcd * (charges.mongooseBite.count() + 1)) then
                 if cast.flankingStrike() then return end
             end
         -- Mongoose Bite
@@ -490,41 +444,59 @@ local function runRotation()
             if buff.mongooseFury.exists() then
                 if cast.mongooseBite() then return end
             end
-        -- Flanking Strike
-            -- flanking_strike
-            if cast.flankingStrike() then return end
+        -- Fury of the Eagle
+            -- fury_of_the_eagle,if=(!variable.mokTalented|(buff.moknathal_tactics.remains>(gcd*(8%3))))&!buff.aspect_of_the_eagle.up,interrupt_immediate=1,interrupt_if=cooldown.mongoose_bite.charges=3
+            if mode.artifact == 1 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
+                if (not mokTalented or (buff.mokNathalTactics.remain() > (gcd * (8 / 3)))) and not buff.aspectOfTheEagle.exists() then
+                    if cast.furyOfTheEagle("player") then return end
+                end
+            end
+        -- Lacerate
+            -- lacerate,if=dot.lacerate.refreshable&(focus+35>(45-((cooldown.flanking_strike.remains%gcd)*(focus.regen*gcd))))
+            if debuff.lacerate.refresh(units.dyn5) and (power + 35 > (45 - ((cd.flankingStrike.remain() / gcd) * (powerRegen * gcd)))) then
+                if cast.lacerate() then return end
+            end
+        -- Raptor Strike
+            -- raptor_strike,if=buff.t21_2p_exposed_flank.up
+            if buff.exposedFlank.exists() then
+                if cast.raptorStrike() then return end
+            end
+        -- Spitting Cobra
+            -- spitting_cobra
+            if cast.spittingCobra() then return end
+        -- Dragonsfire Grenade
+            -- dragonsfire_grenade
+            if cast.dragonsfireGrenade("best",nil,1,5) then return end
+        -- Steel Trap
+            -- steel_trap
+            if cast.steelTrap("best",nil,1,5) then return end
+        -- A Murder of Crows
+            -- a_murder_of_crows
+            if cast.aMurderOfCrows() then return end
+        -- Caltrops
+            -- caltrops,if=!dot.caltrops.ticking
+            if not debuff.caltrops.exists(units.dyn5) then
+                if cast.caltrops("best",nil,1,5) then return end
+            end
+        -- Explosive Trap
+            -- explosive_trap
+            if cast.explosiveTrap("best",nil,1,5) then return end
+        end
+    -- Action List - Bite Trigger
+        local function actionList_BiteTrigger()
+        -- Lacerate
+            -- lacerate,if=remains<14&set_bonus.tier20_4pc&cooldown.mongoose_bite.remains<gcd*3
+            if debuff.lacerate.remain(units.dyn5) < 14 and t20_4pc and cd.mongooseBite.remain() < gcd * 3 then
+                if cast.lacerate() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=charges>=2
+            if charges.mongooseBite.count() >= 2 then
+                if cast.mongooseBite() then return end
+            end
         end
     -- Action List - Fillers
         local function actionList_Fillers()
-        -- Carve
-            -- carve,if=active_enemies>1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
-            if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 1) or (mode.rotation == 2 and #enemies.yards5 > 0)) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
-                if cast.carve("player","cone",1,180) then return end
-            end
-        -- Throwing Axes
-            -- throwing_axes
-            if cast.throwingAxes(units.dyn5) then return end
-        -- Carve
-            -- carve,if=active_enemies>2
-            if not talent.butchery and ((mode.rotation == 1 and #enemies.yards5 > 2) or (mode.rotation == 2 and #enemies.yards5 > 0)) then
-                if cast.carve("player","cone",1,180) then return end
-            end
-        -- Raptor Strike
-            -- raptor_strike,if=(talent.way_of_the_moknathal.enabled&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
-            if (talent.wayOfTheMokNathal and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) or ((level < 20 and cd.flankingStrike.remain() > 0) or level < 12) then
-                if cast.raptorStrike() then return end
-            end
-        end
-    -- Action List - Mok'Maintain
-        local function actionList_MokMaintain()
-        -- Raptor Strike
-            -- raptor_strike,if=(buff.moknathal_tactics.remains<gcd)|(buff.moknathal_tactics.stack<2)
-            if (buff.mokNathalTactics.remain() < gcdMax) or (buff.mokNathalTactics.stack() < 2) then
-                if cast.raptorStrike() then return end
-            end
-        end
-    -- Action List - Pre-Bite Phase
-        local function actionList_PreBitePhase()
         -- Flanking Strike
             -- flanking_strike,if=cooldown.mongoose_bite.charges<3
             if charges.mongooseBite.count() < 3 then
@@ -536,53 +508,59 @@ local function runRotation()
         -- Dragonsfire Grenade
             -- dragonsfire_grenade
             if cast.dragonsfireGrenade() then return end
+        -- Lacerate
+            -- lacerate,if=refreshable|!ticking
+            if debuff.lacerate.refresh(units.dyn5) or not debuff.lacerate.exists(units.dyn5) then
+                if cast.lacerate() then return end
+            end
         -- Raptor Strike
-            -- raptor_strike,if=active_enemies=1&talent.serpent_sting.enabled&dot.serpent_sting.refreshable
-            if ((mode.rotation == 1 and #enemies.yards5 == 1) or mode.rotation == 3) and talent.serpentSting and debuff.serpentSting.refresh(units.dyn5) then
+            -- raptor_strike,if=buff.t21_2p_exposed_flank.up&!variable.mokTalented
+            if buff.exposedFlank.exists() and not mokTalented then
+                if cast.raptorStrike() then return end
+            end
+            -- raptor_strike,if=(talent.serpent_sting.enabled&!dot.serpent_sting.ticking)
+            if (talent.serpentSting and not debuff.serpentSting.exists(units.dyn5)) then
                 if cast.raptorStrike() then return end
             end
         -- Steel Trap
-            -- steel_trap
-            if cast.steelTrap("best",nil,1,5) then return end
-        -- A Murder of Crows
-            -- a_murder_of_crows
-            if cast.aMurderOfCrows() then return end
+            -- steel_trap,if=refreshable|!ticking
+            if debuff.steelTrap.refresh(units.dyn5) or not debuff.steelTrap.exists(units.dyn5) then
+                if cast.steelTrap("best",nil,1,5) then return end
+            end
+        -- Caltrops
+            -- caltrops,if=refreshable|!ticking
+            if debuff.caltrops.refresh(units.dyn5) or not debuff.caltrops.exists(units.dyn5) then
+                if cast.caltrops("best",nil,1,5) then return end
+            end
         -- Explosive Trap
             -- explosive_trap
             if cast.explosiveTrap("best",nil,1,5) then return end
-        -- Lacerate
-            -- lacerate,if=refreshable
-            if debuff.lacerate.refresh(units.dyn5) then
-                if cast.lacerate() then return end
-            end
         -- Butchery
-            -- butchery,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
-            if talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
+            -- butchery,if=variable.frizzosEquipped&dot.lacerate.refreshable&(focus+40>(50-((cooldown.flanking_strike.remains%gcd)*(focus.regen*gcd))))
+            if talent.butchery and frizzosEquipped and debuff.lacerate.refresh(units.dyn5) and (power + 40 > (50 - ((cd.flankingStrike.remain() / gcd) * (powerRegen * gcd)))) then
                 if cast.butchery("player","aoe",1) then return end
             end
         -- Carve
-            -- carve,if=equipped.frizzos_fingertrap&dot.lacerate.refreshable
-            if not talent.butchery and hasEquiped(137043) and debuff.lacerate.refresh(units.dyn5) then
+            -- carve,if=variable.frizzosEquipped&dot.lacerate.refreshable&(focus+40>(50-((cooldown.flanking_strike.remains%gcd)*(focus.regen*gcd))))
+            if not talent.butchery and frizzosEquipped and debuff.lacerate.refresh(units.dyn5) and (power + 40 > (50 - ((cd.flankingStrike.remain() / gcd) * (powerRegen * gcd)))) then
                 if cast.carve("player","cone",1,180) then return end
-            end
-        -- Mongoose Bite
-            -- mongoose_bite,if=charges=3&cooldown.flanking_strike.remains>=gcd
-            if charges.mongooseBite.count() == 3 and cd.flankingStrike.remain() >= gcd then
-                if cast.mongooseBite() then return end
-            end
-        -- Caltrops
-            -- caltrops,if=!dot.caltrops.ticking
-            if not debuff.caltrops.exists(units.dyn5) then
-                if cast.caltrops("best",nil,1,5) then return end
             end
         -- Flanking Strike
             -- flanking_strike
             if cast.flankingStrike() then return end
-        -- Lacerate
-            -- lacerate,if=remains<14&set_bonus.tier20_2pc
-            if debuff.lacerate.remain(units.dyn5) < 14 and t20_2pc then
-                if cast.lacerate(units.dyn5) then return end
-            end 
+        -- Raptor Strike
+            -- raptor_strike,if=(variable.mokTalented&buff.moknathal_tactics.remains<gcd*4)|(focus>((25-focus.regen*gcd)+55))
+            if (mokTalented and buff.mokNathalTactics.remain() < gcd * 4) or (power > ((25 - powerRegen * gcd) + 55)) or ((level < 20 and cd.flankingStrike.remain() > 0) or level < 12) then
+                if cast.raptorStrike() then return end
+            end
+        end
+    -- Action List - Mok'Maintain
+        local function actionList_MokMaintain()
+        -- Raptor Strike
+            -- raptor_strike,if=(buff.moknathal_tactics.remains<gcd)|(buff.moknathal_tactics.stack<2)
+            if (buff.mokNathalTactics.remain() < gcdMax) or (buff.mokNathalTactics.stack() < 2) then
+                if cast.raptorStrike() then return end
+            end
         end
     -- Action List - Multi Target
         local function actionList_MultiTarget()    
@@ -703,18 +681,13 @@ local function runRotation()
                         StartAttack()
                     end
             -- Call Action List - Mok'Maintain
-                    -- call_action_list,name=mokMaintain,if=talent.way_of_the_moknathal.enabled
-                    if talent.wayOfTheMokNathal then
+                    -- call_action_list,name=mokMaintain,if=variable.mokTalented
+                    if mokTalented then
                         if actionList_MokMaintain() then return end
                     end
             -- Cooldowns
                     -- call_action_list,name=CDs
                     if actionList_Cooldowns() then return end
-            -- Call Action List - Pre-Bite Phase
-                    -- call_action_list,name=preBitePhase,if=!buff.mongoose_fury.up
-                    if not buff.mongooseFury.exists() then
-                        if actionList_PreBitePhase() then return end
-                    end
             -- Call Action List - AOE
                     -- call_action_list,name=aoe,if=active_enemies>=3
                     if ((mode.rotation == 1 and #enemies.yards5 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards5 > 0)) 
@@ -722,17 +695,26 @@ local function runRotation()
                     then
                         if actionList_AOE() then return end
                     end
-                    if ((mode.rotation == 1 and (#enemies.yards5 < getOptionValue("Units To AoE") or (talent.butchery and charges.butchery.count() == 0))) or (mode.rotation == 3 and #enemies.yards5 > 0)) and level >= 20 then
-            -- Call Action List - Bite Phase
-                        -- call_action_list,name=bitePhase
-                        if actionList_BitePhase() then return end
-            -- Call Action List - Bite Filler
-                        -- call_action_list,name=biteFill
-                        if actionList_BiteFill() then return end
-                    end
+                    -- if ((mode.rotation == 1 and (#enemies.yards5 < getOptionValue("Units To AoE") 
+                    --     or (talent.butchery and charges.butchery.count() == 0))) 
+                    --     or (mode.rotation == 3 and #enemies.yards5 > 0))
+                    -- then
             -- Call Action List - Filler
-                    -- call_action_list,name=fillers
-                    if actionList_Fillers() then return end
+                        -- call_action_list,name=fillers,if=!buff.mongoose_fury.up
+                        if not buff.mongooseFury.exists() then
+                            if actionList_Fillers() then return end
+                        end
+            -- Call Action List - Bite Filler
+                        -- call_action_list,name=biteTrigger,if=!buff.mongoose_fury.up
+                        if not buff.mongooseFury.exists() then
+                            if actionList_BiteTrigger() then return end
+                        end
+            -- Call Action List - Bite Phase
+                        -- call_action_list,name=bitePhase,if=buff.mongoose_fury.up
+                        if buff.mongooseFury.exists() then
+                            if actionList_BitePhase() then return end
+                        end
+                    -- end
                 end -- End SimC APL
     ------------------------
     --- Ask Mr Robot APL ---

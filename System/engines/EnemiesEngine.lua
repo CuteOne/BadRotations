@@ -384,7 +384,7 @@ end
 end--]]
 
 -- Cone Logic for Enemies
-function getEnemiesInCone(length,angle,showLines,checkNoCombat)
+function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0

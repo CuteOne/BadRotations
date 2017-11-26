@@ -1073,6 +1073,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 aspectOfTheEagle            = 186289,
+                exposedFlank                = 252094, -- Tier 21
                 mokNathalTactics            = 201081,
                 mongooseFury                = 190931,
                 spittingCobra               = 194407,
@@ -1081,6 +1082,7 @@ br.lists.spells = {
                 caltrops                    = 194277,
                 lacerate                    = 185855,
                 serpentSting                = 118253,
+                steelTrap                   = 162487,
             },
             glyphs                          = {
 

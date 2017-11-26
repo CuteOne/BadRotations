@@ -1233,7 +1233,8 @@ local function runRotation()
             end
         -- Brutal Slash
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
-            if talent.brutalSlash and buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax then
+            if talent.brutalSlash and ((buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax) 
+                or (charges.brutalSlash.recharge(true) < cd.tigersFury.remain() and charges.brutalSlash.count() == 3)) then
                 if talent.bloodtalons and not buff.bloodtalons.exists() and hasEquiped(137024) and buff.predatorySwiftness.stack() > 0 then
                     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                         cast.regrowth(br.friend[1].unit)

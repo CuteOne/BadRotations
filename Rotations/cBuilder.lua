@@ -423,8 +423,12 @@ function br.loader:new(spec,specName)
         charges.max = function()
             return getChargesFrac(v,true)
         end
-        charges.recharge = function()
-            return getRecharge(v)
+        charges.recharge = function(chargeMax)
+            if chargeMax then 
+                return getRecharge(v,true)
+            else
+                return getRecharge(v)
+            end
         end
         charges.timeTillFull = function()
             return getFullRechargeTime(v)
