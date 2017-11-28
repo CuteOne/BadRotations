@@ -5,6 +5,7 @@ br.lists.los = {
 	76585, 	-- Ragewing
 	77692, 	-- Kromog
 	77182, 	-- Oregorger
+	-- 86644, 	-- Ore Crate from Oregorger boss
 	96759, 	-- Helya
 	100360,	-- Grasping Tentacle (Helya fight)
 	100354,	-- Grasping Tentacle (Helya fight)
@@ -18,8 +19,9 @@ br.lists.los = {
 	116195, -- Bilewater Slime (Trials of Valor)
 	120436, -- Fallen Avatar (Tomb of Sargeras)
 	116939, -- Fallen Avatar (Tomb of Sargeras)
-	118462, -- Soul Queen Dejahna
-	119072, -- Desolate Host
-	118460, -- Engine of Souls
-	-- 86644, 	-- Ore Crate from Oregorger boss
+	118462, -- Soul Queen Dejahna (Tomb of Sargeras)
+	119072, -- Desolate Host (Tomb of Sargeras)
+	118460, -- Engine of Souls (Tomb of Sargeras)
+	123371, -- Garothi Worldbreaker (Antorus the Burning Throne)
+	125050, -- Kin'garoth (Antorus the Burning Throne)
 }
