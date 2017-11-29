@@ -622,10 +622,10 @@ local function runRotation()
             end
         -- Death from Above
             -- death_from_above,if=!talent.dark_shadow.enabled|(!buff.shadow_dance.up|spell_targets>=4)&(buff.symbols_of_death.up|cooldown.symbols_of_death.remains>=10+set_bonus.tier20_4pc*5)&buff.the_first_of_the_dead.remains<1&(buff.finality_eviscerate.up|spell_targets.shuriken_storm<4)
-            if isChecked("Death From Above") and charges.shadowDance.exists() then
-                if not talent.darkShadow or (not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
+            if isChecked("Death From Above") then
+                if not talent.darkShadow or ((not buff.shadowDance.exists() or #enemies.yards8t >= getOptionValue("Death From Above")) 
                     and (buff.symbolsOfDeath.exists() or cd.symbolsOfDeath.remain() >= 10 + t20pc4 * 5) and buff.theFirstOfTheDead.remain() < 1
-                    and (buff.finalityEviscerate.exists() or #enemies.yards10 < 4) 
+                    and (buff.finalityEviscerate.exists() or #enemies.yards10 < 4)) 
                 then
                     if cast.deathFromAbove() then return end
                 end
