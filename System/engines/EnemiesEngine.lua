@@ -139,19 +139,14 @@ end
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
 	local enemiesTable = {}
-	local enemyTable = {}
 	local radius = tonumber(radius)
 
-    if checkNoCombat == nil then checkNoCombat = false end
-    if checkNoCombat then
-    	enemyTable = br.units
-    else
-    	enemyTable = br.enemy
-    end
+    local enemyTable = checkNoCombat and br.units or br.enemy
+    local thisEnemy, thisGUID, distance
 	for k, v in pairs(enemyTable) do
-		local thisEnemy = enemyTable[k].unit
-		local thisGUID = enemyTable[k].guid
-		local distance =  getDistance(thisUnit,thisEnemy)
+		thisEnemy = enemyTable[k].unit
+		thisGUID = enemyTable[k].guid
+		distance =  getDistance(thisUnit,thisEnemy)
 		if not UnitIsDeadOrGhost(thisEnemy) and thisGUID == UnitGUID(thisEnemy) and distance < radius then
 			tinsert(enemiesTable,thisEnemy)
 		end
@@ -185,11 +180,12 @@ local avgTime = 0
 function findBestUnit(range,facing)
 	local startTime = debugprofilestop()
 	local bestUnitCoef = 0
+	local dynRange = "dyn"..range
 	if dynTargets == nil then dynTargets = {} end
 	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end 
-	if dynTargets["dyn"..range] ~= nil and (not isValidUnit(dynTargets["dyn"..range]) or br.timer:useTimer("dynamicUpdate"..range, updateRate)) then dynTargets["dyn"..range] = nil end
-	if dynTargets["dyn"..range] ~= nil then return dynTargets["dyn"..range] end
-	if dynTargets["dyn"..range] == nil then
+	if dynTargets[dynRange] ~= nil and (not isValidUnit(dynTargets[dynRange]) or br.timer:useTimer("dynamicUpdate"..range, updateRate)) then dynTargets[dynRange] = nil end
+	if dynTargets[dynRange] ~= nil then return dynTargets[dynRange] end
+	if dynTargets[dynRange] == nil then
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v.unit
 			local thisGUID = v.guid
@@ -201,7 +197,7 @@ function findBestUnit(range,facing)
 				if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
 					bestUnitCoef = coeficient
 					bestUnit = thisUnit
-					dynTargets["dyn"..range] = thisUnit
+					dynTargets[dynRange] = thisUnit
 					-- Debug Print
 					-- local currentTime = round2(debugprofilestop()-startTime,2)
 					-- dynamicSum = dynamicSum + currentTime
