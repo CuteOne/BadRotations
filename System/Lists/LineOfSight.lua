@@ -22,6 +22,7 @@ br.lists.los = {
 	118462, -- Soul Queen Dejahna (Tomb of Sargeras)
 	119072, -- Desolate Host (Tomb of Sargeras)
 	118460, -- Engine of Souls (Tomb of Sargeras)
+	122450, -- Garothi Worldbreaker (Antorus the Burning Throne - Confirmed in game)
 	123371, -- Garothi Worldbreaker (Antorus the Burning Throne)
 	122578, -- Kin'garoth (Antorus the Burning Throne - Confirmed in game)
 	125050, -- Kin'garoth (Antorus the Burning Throne)
