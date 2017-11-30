@@ -1154,7 +1154,7 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if isChecked("Whirling Dragon Punch") and talent.whilingDragonPunch and not cd.fistsOfFury.exists() and not cd.risingSunKick.exists() and getDistance(units.dyn5) < 5 then
+            if isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
                 if BetterThanWDP == true and lastCombo ~= spell.spinningCraneKick and not cd.whirlingDragonPunch.exists() then
                     if cast.spinningCraneKick(nil,"aoe") then return end
                 else

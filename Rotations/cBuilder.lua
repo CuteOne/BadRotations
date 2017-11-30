@@ -472,7 +472,7 @@ function br.loader:new(spec,specName)
         end
 
         self.cast.safe[k] = function(unit,effectRng,minUnits,aoeType)
-            return isSafeToAoE(v,effectRng,minUnits,aoeType)
+            return isSafeToAoE(v,unit,effectRng,minUnits,aoeType)
         end
 
         self.cast.time[k] = function()
