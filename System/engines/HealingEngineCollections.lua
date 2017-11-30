@@ -19,7 +19,11 @@ novaEngineTables.DispelID = {
 	{ id = 206651, stacks = 3}, -- Xavius Darkening Soul
 	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul
 	-- Belac
-	{ id = 233983, stacks = 0, range = 8}  -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
+	{ id = 233983, stacks = 0, range = 8}, -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
+	-- Antoran High Command (Antorus)
+	{ id = 257974, stacks = 9}, -- http://www.wowhead.com/spell=257974/chaos-pulse
+	-- Imonar the Soulhunter
+	{ id = 247552, stacks = 0, range = 15} -- http://www.wowhead.com/spell=247552/sleep-canister
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
