@@ -309,7 +309,7 @@ local function runRotation()
             return cd.global.remain() < getLatency() * 1.5
         end
         local function usePickPocket()
-            if stealthingAll and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then
+            if buff.stealth.exists() and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then
                 return true
             else
                 return false
