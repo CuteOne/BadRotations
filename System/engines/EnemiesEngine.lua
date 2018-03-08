@@ -1,6 +1,7 @@
 -- Function to create and populate table of enemies within a distance from player.
-br.enemy = {}
-br.units = {}
+br.enemy	= {}
+br.lootable = {}
+br.units 	= {}
 local findEnemiesThread = nil
 
 -- Update Pet
@@ -16,6 +17,7 @@ local function UpdatePet(thisUnit)
 	pet.numEnemies = unitCount
 end
 
+-- Add Units
 local function AddUnits(thisUnit)
 	local startTime = debugprofilestop()
 	if br.units[thisUnit] == nil then
@@ -24,9 +26,23 @@ local function AddUnits(thisUnit)
 		units.unit 			= thisUnit
 		units.name 			= UnitName(thisUnit)
 		units.guid 			= UnitGUID(thisUnit)
-		units.id 			= GetObjectID(thisUnit) 
+		units.id 			= GetObjectID(thisUnit)
 	end
 	br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
+end
+
+-- Add lootable
+local function AddLootable(thisUnit)
+	if br.lootable[thisUnit] == nil then
+		br.lootable[thisUnit] = {}
+		local lootable = br.lootable[thisUnit]
+		lootable.unit 	= thisUnit
+		lootable.name 	= UnitName(thisUnit)
+		lootable.guid 	= UnitGUID(thisUnit)
+		lootable.id 	= GetObjectID(thisUnit)
+		lootable.hasLoot = hasLoot
+		lootable.canLoot = canLoot
+	end
 end
 
 -- Adds Enemies to the enemy table
@@ -38,7 +54,7 @@ local function AddEnemy(thisUnit)
 		enemy.unit 			= thisUnit
 		enemy.name 			= UnitName(thisUnit)
 		enemy.guid 			= UnitGUID(thisUnit)
-		enemy.id 			= GetObjectID(thisUnit) 
+		enemy.id 			= GetObjectID(thisUnit)
 	end
 	br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
 end
@@ -93,15 +109,23 @@ function FindEnemy()
 	br.debug.cpu.enemiesEngine.enemy.totalIterations = br.debug.cpu.enemiesEngine.enemy.totalIterations + 1
 	br.debug.cpu.enemiesEngine.enemy.elapsedTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.enemiesEngine.enemy.averageTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime / br.debug.cpu.enemiesEngine.enemy.totalIterations
+	-- coroutine.yield()
 end
 
 function getOMUnits()
 	local startTime = debugprofilestop()
 	br.debug.cpu.enemiesEngine.units.targets = 0
 	-- Clean Up
+	-- Units
 	for k, v in pairs(br.units) do if not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
+	-- Pets
 	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
 		for k,v in pairs(br.player.pet.list) do br.player.pet.list[k] = nil end
+	end
+	-- Lootables
+	for k, v in pairs(br.lootable) do
+		local hasLoot,canLoot = CanLootUnit(br.lootable[k].guid)
+		if not hasLoot then br.lootable[k] = nil end
 	end
 	-- Cycle the Object Manager
 	local objectCount = GetObjectCount()
@@ -113,13 +137,19 @@ function getOMUnits()
 			local enemyListCheck = enemyListCheck
 			if (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492)
 			then
-				if enemyListCheck(thisUnit)	then 
+				-- Units
+				if enemyListCheck(thisUnit)	then
 					br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
-					AddUnits(thisUnit) 
+					AddUnits(thisUnit)
 				end
 				-- Pet Info
 				if UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492 then
 					AddPet(thisUnit)
+				end
+				-- Lootable
+				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
+				if hasLoot and canLoot then
+					AddLootable(thisUnit)
 				end
 			end
 			if i == objectCount then
@@ -132,6 +162,7 @@ function getOMUnits()
 	br.debug.cpu.enemiesEngine.units.totalIterations = br.debug.cpu.enemiesEngine.units.totalIterations + 1
 	br.debug.cpu.enemiesEngine.units.elapsedTime = br.debug.cpu.enemiesEngine.units.elapsedTime + debugprofilestop()-startTime
 	br.debug.cpu.enemiesEngine.units.averageTime = br.debug.cpu.enemiesEngine.units.elapsedTime / br.debug.cpu.enemiesEngine.units.totalIterations
+	-- coroutine.yield()
 end
 
 -- /dump UnitGUID("target")
@@ -169,7 +200,7 @@ function getObjectEnemies(thisObject,radius)
 			end
 		end
 	end
-	return objectsTable 
+	return objectsTable
 end
 
 local debugMax = 0
@@ -182,7 +213,7 @@ function findBestUnit(range,facing)
 	local bestUnitCoef = 0
 	local dynRange = "dyn"..range
 	if dynTargets == nil then dynTargets = {} end
-	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end 
+	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end
 	if dynTargets[dynRange] ~= nil and (not isValidUnit(dynTargets[dynRange]) or br.timer:useTimer("dynamicUpdate"..range, updateRate)) then dynTargets[dynRange] = nil end
 	if dynTargets[dynRange] ~= nil then return dynTargets[dynRange] end
 	if dynTargets[dynRange] == nil then
@@ -209,7 +240,7 @@ function findBestUnit(range,facing)
 				end
 			end
 		end
-	end	
+	end
 	br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
 	return bestUnit
 end
@@ -223,10 +254,10 @@ function dynamicTarget(range,facing)
 			bestUnit = findBestUnit(range,facing)
 		end
 	end
-	if UnitExists("target") and (not isChecked("Dynamic Targetting") or bestUnit == nil) and enemyListCheck("target") and isValidUnit("target") 
-		and getDistance("target") < range and (not facing or (facing and getFacing("player","target"))) 
-	then 
-		bestUnit = "target" 
+	if UnitExists("target") and (not isChecked("Dynamic Targetting") or bestUnit == nil) and enemyListCheck("target") and isValidUnit("target")
+		and getDistance("target") < range and (not facing or (facing and getFacing("player","target")))
+	then
+		bestUnit = "target"
 	end
 	if isChecked("Target Dynamic Target") and hasThreat(bestUnit) and (UnitExists("target") and not UnitIsUnit(bestUnit,"target")) then
 		TargetUnit(bestUnit)
@@ -365,7 +396,7 @@ end
 	local minX = math.min(rX,lX)
 	local maxY = math.max(rY,lY)
 	local minY = math.min(rY,lY)
-	for i = 1, #enemiesTable do 
+	for i = 1, #enemiesTable do
 		local thisUnit = enemiesTable[i]
 		local tX, tY, tZ = GetObjectPosition(thisUnit)
 		if isInside(tX,tY,lX,lY,rX,rY,playerX,playerY) then
@@ -384,7 +415,7 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0
-    
+
     if checkNoCombat == nil then checkNoCombat = false end
     if checkNoCombat then
     	enemiesTable = getEnemies("player",length,true)
@@ -442,7 +473,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
     	enemiesTable = getEnemies("player",length)
     end
 	local enemyCounter = 0
-	for i = 1, #enemiesTable do 
+	for i = 1, #enemiesTable do
 		local thisUnit = enemiesTable[i]
 		local tX, tY, tZ = GetObjectPosition(thisUnit)
 		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
@@ -652,7 +683,7 @@ function isSafeToAttack(unit)
 					if not UnitBuffID(unit,posBuff) or UnitDebuffID(unit,posBuff) then
 						return false
 					end
-				end					
+				end
 			end
 		end
 	end

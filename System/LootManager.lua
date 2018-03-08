@@ -60,12 +60,10 @@ end
 ------------------
 -- Loot Manager --
 ------------------
-local lootManager = { }
-local looted = looted or false
-local lootFound = lootFound or false
-lM = lootManager
+br.lootManager = { }
+lM = br.lootManager
 -- Debug
-function lootManager:debug(message)
+function br.lootManager:debug(message)
 	if lM.showDebug then
 		if message and lM.oldMessage ~= message then
 			Print("<lootManager> "..(math.floor(GetTime()*1000)/1000).. " "..message)
@@ -74,7 +72,7 @@ function lootManager:debug(message)
 	end
 end
 -- Check if availables bag slots, return true if at least 1 free bag space
-function lootManager:emptySlots()
+function br.lootManager:emptySlots()
 	local openSlots = 0
 	for i = 0, 4 do --Let's look at each bag
 		local numBagSlots = GetContainerNumSlots(i)
@@ -84,51 +82,30 @@ function lootManager:emptySlots()
 	end
 	return openSlots
 end
-function lootManager:getLoot()
-	if looted == nil then looted = 0 end
-	if lootFound == nil then lootFound = false end
+function br.lootManager:getLoot(lootUnit)
+	local looting = false
 	if lM:emptySlots() ~= 0 then
 		if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
 			-- if we have a unit to loot, check if its time to
-			if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) and lootFound then
-				if GetObjectExists(lM.canLootUnit) and looted == 0 then
-					InteractUnit(lM.canLootUnit)
-					lM:debug("Interact with "..lM.canLootUnit)
+			if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
+				if not looting then
+					looting = true
+					InteractUnit(lootUnit)
+					lM:debug("Interact with "..lootUnit)
 					-- Print("Interact with "..lM.canLootUnit)
-					looted = 1
-					lootFound = false
-					if LootFrame:IsShown() then
-					    for l=1, GetNumLootItems() do
-					       	if LootSlotHasItem(l) then
-					        	LootSlot(l)
-					   		end
-					   	end
-					    CloseLoot()
+					if GetCVar("AutoLootDefault") == "0" then
+						if LootFrame:IsShown() then
+						    for l=1, GetNumLootItems() do
+						       	if LootSlotHasItem(l) then
+						        	LootSlot(l)
+						   		end
+						   	end
+						    CloseLoot()
+						end
 					end
 				    ClearTarget()
+					looting = false
 					return
-					-- make sure the user have the auto loot selected, if its not ,we will enable it when we need it
-					-- if GetCVar("autoLootDefault") == "0" then
-					-- 	SetCVar("autoLootDefault", "1")
-					-- 	InteractUnit(lM.canLootUnit)
-					-- 	lM:debug("Interact with "..lM.canLootUnit)
-					-- 	-- Print("Interact with "..lM.canLootUnit)
-					-- 	SetCVar("autoLootDefault", "0")
-					-- 	looted = 1
-					-- 	lootFound = false
-					-- 	CloseLoot()
-					-- 	ClearTarget()
-					-- 	return
-					-- else
-					-- 	InteractUnit(lM.canLootUnit)
-					-- 	lM:debug("Interact with "..lM.canLootUnit)
-					-- 	-- Print("Interact with "..lM.canLootUnit)
-					-- 	looted = 1
-					-- 	lootFound = false
-					-- 	CloseLoot()
-					-- 	ClearTarget()
-					-- 	return
-					-- end
 				end
 			end
 		end
@@ -136,26 +113,16 @@ function lootManager:getLoot()
 		ChatOverlay("Bags are full, nothing will be looted!")
 	end
 end
-function lootManager:findLoot()
+function br.lootManager:findLoot()
 	if br.timer:useTimer("findLoot", getOptionValue("Auto Loot")) then
 		lM:debug("Find Unit")
-		-- local objectCount = GetObjectCount() or 0
-		for i = 1,GetObjectCount() do
-			local thisUnit = GetObjectIndex(i)
-			if ObjectIsType(thisUnit, ObjectTypes.Unit)  then
-				local inRange = getDistance("player",thisUnit) < 2
-				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-				if inRange then
-					-- if we can loot thisUnit we set it as unit to be looted
-					if hasLoot and canLoot then
-						looted = 0
-						lootFound = true
-						lM.canLootUnit = thisUnit
-						lM:debug("Should loot "..UnitName(thisUnit))
-						-- Print("Should loot "..UnitName(thisUnit))
-						break
-					end
-				end
+		for k, v in pairs(br.lootable) do
+			local thisUnit = br.lootable[k].unit
+			if GetObjectExists(lootUnit) and getDistance("player",thisUnit) < 2 then
+				br.lootManager:getLoot(thisUnit)
+				lM:debug("Should loot "..UnitName(thisUnit))
+				-- Print("Should loot "..UnitName(thisUnit))
+				break
 			end
 		end
 	end
@@ -166,9 +133,9 @@ function autoLoot()
 			-- start loot manager
 			if lM then
 				if not IsMounted("player") then
-					if not lootFound then lM:findLoot() else lM:getLoot() end
+					lM:findLoot()
 				end
-			end	
+			end
 		end
 	end
 end
