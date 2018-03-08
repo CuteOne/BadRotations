@@ -41,6 +41,7 @@ function canTrinket(trinketSlot)
 end
 -- if hasItem(1234) == true then
 function hasItem(itemID)
+	if PlayerHasToy(itemID) then return true end
 	local itemFound = false
 	for i = 0, 4 do --Let's look at each bag
 		local numBagSlots = GetContainerNumSlots(i)
@@ -63,20 +64,18 @@ function useItem(itemID)
 			local slotItemID = GetInventoryItemID("player",itemID)
 			if GetItemCooldown(slotItemID)==0 then
 				if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-					-- RunMacroText("/use "..select(1,GetItemInfo(slotItemID)))
-					UseItemByName((select(1,GetItemInfo(slotItemID))));
+					RunMacroText("/use "..select(1,GetItemInfo(slotItemID)))
+					-- UseItemByName((select(1,GetItemInfo(slotItemID))));
 					br.itemSpamDelay = GetTime() + 1;
 					return true
 				end
 			end
-		else
-			return false
 		end
 	elseif itemID>19 and (GetItemCount(itemID) > 0 or PlayerHasToy(itemID)) then
 		if GetItemCooldown(itemID)==0 then
 			if not br.itemSpamDelay or GetTime() > br.itemSpamDelay then
-				-- RunMacroText("/use "..select(1,GetItemInfo(itemID)))
-				UseItemByName((select(1,GetItemInfo(itemID))));
+				RunMacroText("/use "..select(1,GetItemInfo(itemID)))
+				-- UseItemByName((select(1,GetItemInfo(itemID))));
 				br.itemSpamDelay = GetTime() + 1;
 				return true
 			end
@@ -136,6 +135,7 @@ function TierScan(thisTier)
 end
 
 function hasEquiped(ItemID, Slot)
+	if PlayerHasToy(ItemID) then return true end
 	--Scan Armor Slots to see if specified item was equiped
 	local foundItem = false
 	for i=1, 19 do

@@ -317,8 +317,8 @@ function isValidTarget(Unit)
 end
 function isTargeting(Unit,MatchUnit)
 	if MatchUnit == nil then MatchUnit = "player" end
-	if GetUnit(Unit) == nil then 
-		unitTarget = nil 
+	if GetUnit(Unit) == nil then
+		unitTarget = nil
 	elseif UnitTarget(GetUnit(Unit)) ~= nil then
 		unitTarget = UnitTarget(GetUnit(Unit))
 	end
@@ -331,7 +331,7 @@ function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player")
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
-		and (not UnitIsFriend(Unit, "player") ) 
+		and (not UnitIsFriend(Unit, "player") )
 		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit) and getLineOfSight("player", Unit)
 	-- then
 	-- 	local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
@@ -351,9 +351,9 @@ function enemyListCheck(Unit)
 	-- return false
 end
 function isValidUnit(Unit)
-	local hostileOnly = isChecked("Hostiles Only") 
-	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit)) 
-		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target")))) 
+	local hostileOnly = isChecked("Hostiles Only")
+	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit))
+		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"player")
@@ -523,8 +523,8 @@ function isChecked(Value)
 end
 -- if isSelected("Stormlash Totem") then
 function isSelected(Value)
-	if br.data.settings ~= nil and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3 
-		or (isChecked(Value) and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2)))) 
+	if br.data.settings ~= nil and (br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 3
+		or (isChecked(Value) and (getValue(Value) == 3 or (getValue(Value) == 2 and br.data.settings[br.selectedSpec].toggles["Cooldowns"] == 2))))
 	then
 		return true
 	end
@@ -575,7 +575,7 @@ function getOptionText(Value)
         if selectedProfile ~= nil then
         	if selectedProfile[Value.."Data"] ~= nil then
         		if selectedProfile[Value.."Drop"] ~= nil then
-        			if selectedProfile[Value.."Data"][selectedProfile[Value.."Drop"]] ~= nil then 
+        			if selectedProfile[Value.."Data"][selectedProfile[Value.."Drop"]] ~= nil then
             			return selectedProfile[Value.."Data"][selectedProfile[Value.."Drop"]]
 					end
             	end
@@ -583,7 +583,7 @@ function getOptionText(Value)
         end
     end
     return ""
-end 
+end
 
 
 
@@ -631,8 +631,8 @@ function talentAnywhere()
     local function talentSelection(row)
     	selectedTalent = nil
     	for column = 1, 3 do
-    		if IsMouseButtonDown(1) and newTalent == nil and MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow"..row.."Talent"..column]) 
-    			and not select(4, GetTalentInfoByID(GetTalentInfo(row, column, 1), 1)) 
+    		if IsMouseButtonDown(1) and newTalent == nil and MouseIsOver(_G["PlayerTalentFrameTalentsTalentRow"..row.."Talent"..column])
+    			and not select(4, GetTalentInfoByID(GetTalentInfo(row, column, 1), 1))
     		then
     			selectedTalent = nil
     			newTalent = select(1,GetTalentInfo(row, column, 1))

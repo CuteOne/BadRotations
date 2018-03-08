@@ -26,8 +26,8 @@ function br.loader:new(spec,specName)
                         if self.spell[spellType] == nil then self.spell[spellType] = {} end
                         for spellRef, spellID in pairs(spellTypeTable) do
                             self.spell[spellType][spellRef] = spellID
-                            if not IsPassiveSpell(spellID) 
-                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents') 
+                            if not IsPassiveSpell(spellID)
+                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents')
                             then
                                 if self.spell.abilities == nil then self.spell.abilities = {} end
                                 self.spell.abilities[spellRef] = spellID
@@ -37,7 +37,7 @@ function br.loader:new(spec,specName)
                     end
                 end
             end
-        end        
+        end
     end
 
     -- Update Talent Info
@@ -63,7 +63,7 @@ function br.loader:new(spec,specName)
             end
         end
     end
-    
+
     -- Update Talent Info on Init and Talent Change
     getTalentInfo()
     local cframe = CreateFrame("FRAME")
@@ -71,7 +71,7 @@ function br.loader:new(spec,specName)
     -- Update Talent Info
     function cframe:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
         if event == "PLAYER_TALENT_UPDATE" then
-            getTalentInfo() 
+            getTalentInfo()
         end
     end
     cframe:SetScript("OnEvent", cframe.OnEvent)
@@ -82,7 +82,7 @@ function br.loader:new(spec,specName)
         if not self.artifact[k] then self.artifact[k] = {} end
         local artifact = self.artifact[k]
 
-        artifact.enabled = function() 
+        artifact.enabled = function()
             return hasPerk(v)
         end
         artifact.rank = function()
@@ -90,7 +90,7 @@ function br.loader:new(spec,specName)
         end
     end
 
-    -- Update Power       
+    -- Update Power
     if not self.power then self.power = {} end
     self.power.list     = {
         mana            = SPELL_POWER_MANA, --0,
@@ -148,7 +148,7 @@ function br.loader:new(spec,specName)
         power.percent = function()
             if getPowerMax("player",v) == 0 then
                 return 0
-            else    
+            else
                 return ((getPower("player",v) / getPowerMax("player",v)) * 100)
             end
         end
@@ -283,7 +283,7 @@ function br.loader:new(spec,specName)
             end
         end
     end
-    
+
     self.units = function(range,aoe)
         if aoe == nil then aoe = false end
         if aoe then
@@ -365,7 +365,7 @@ function br.loader:new(spec,specName)
     for k,v in pairs(self.spell.items) do
         if self.use == nil then self.use = {} end -- Use Item Functions
         if self.equiped == nil then self.equiped = {} end -- Use Item Debugging
-        if self.charges[k] == nil then self.charges[k] = {} end -- Item Charge Functions 
+        if self.charges[k] == nil then self.charges[k] = {} end -- Item Charge Functions
 
         local charges = self.charges[k]
         charges.exists = function()
@@ -383,7 +383,7 @@ function br.loader:new(spec,specName)
             end
         end
         self.equiped[k] = function(slotID)
-            if slotID == nil then 
+            if slotID == nil then
                 return hasEquiped(v)
             else
                 return hasEquiped(v,slotID)
@@ -404,10 +404,10 @@ function br.loader:new(spec,specName)
         if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
         if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
         if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
-        if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe 
+        if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe
         if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
-        if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions 
-        if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions 
+        if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions
+        if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions
 
         -- Build Spell Charges
         local charges = self.charges[k]
@@ -424,7 +424,7 @@ function br.loader:new(spec,specName)
             return getChargesFrac(v,true)
         end
         charges.recharge = function(chargeMax)
-            if chargeMax then 
+            if chargeMax then
                 return getRecharge(v,true)
             else
                 return getRecharge(v)

@@ -283,23 +283,18 @@ local function runRotation()
 
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
-            -- DE1 = false
-            -- DSB1 = false
-            -- DOOM = false
-            -- SDG = false
-            -- GRF = false
-            -- DE2 = false
-            -- DSB2 = false
-            -- DGL = false
-            -- DE3 = false
-            -- DSB3 = false
-            -- DSB4 = false
-            -- DSB5 = false
-            -- HVST = false
-            -- DRS = false
-            -- HOG = false
-            -- DE5 = false
-            -- TKC = false
+            openerCount = 0
+            OPN1 = false
+            AGN1 = false
+            COR1 = false
+            SIL1 = false
+            PHS1 = false
+            UAF1 = false
+            UAF2 = false
+            RES1 = false
+            UAF3 = false
+            SOH1 = false
+            DRN1 = false
             opener = false
         end
        
@@ -761,7 +756,7 @@ local function runRotation()
             end
         -- Seed of Corruption
             -- seed_of_corruption,if=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption>=3|spell_targets.seed_of_corruption>=5|spell_targets.seed_of_corruption>=3&dot.corruption.remains<=cast_time+travel_time
-            if mode.soc == 1 then
+            if mode.soc == 1 and ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Seed Units")) or (mode.rotation == 2 and #enemies.yards40 > 0)) then
                 if (talent.sowTheSeeds and #enemies.yards10t >= getOptionValue("Seed Units")) or #enemies.yards10t >= getOptionValue("Seed Units") 
                     or (#enemies.yards10t >= getOptionValue("Seed Units") and debuff.corruption.remain(units.dyn40) <= cast.time.seedOfCorruption()) 
                 then
@@ -937,7 +932,7 @@ local function runRotation()
             end
         -- Seed of Corruption
             -- seed_of_corruption,if=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption>=3&soul_shard=5
-            if mode.soc == 1 then
+            if mode.soc == 1 and ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Seed Units")) or (mode.rotation == 2 and #enemies.yards40 > 0)) then
                 if (talent.sowTheSeeds and #enemies.yards10t >= getOptionValue("Seed Units")) and shards == 5 then
                     if cast.seedOfCorruption() then return end
                 end
@@ -1017,7 +1012,7 @@ local function runRotation()
             end
         -- Seed of Corruption
             -- seed_of_corruption,if=(talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption>=3)|(spell_targets.seed_of_corruption>=5&dot.corruption.remains<=cast_time+travel_time)
-            if mode.soc == 1 then
+            if mode.soc == 1 and ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Seed Units")) or (mode.rotation == 2 and #enemies.yards40 > 0)) then
                 if (talent.sowTheSeeds and #enemies.yards10t >= getOptionValue("Seed Units")) 
                     or (#enemies.yards10t >= getOptionValue("Seed Units") and debuff.corruption.remain(units.dyn40) <= cast.time.seedOfCorruption()) 
                 then
@@ -1151,7 +1146,7 @@ local function runRotation()
             end
         -- Seed of Corruption
             -- seed_of_corruption,if=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption>=3&soul_shard=5
-            if mode.soc == 1 then
+            if mode.soc == 1 and ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Seed Units")) or (mode.rotation == 2 and #enemies.yards40 > 0)) then
                 if (talent.sowTheSeeds and #enemies.yards10t >= getOptionValue("Seed Units")) and shards == 5 then
                     if cast.seedOfCorruption() then return end
                 end
@@ -1222,8 +1217,10 @@ local function runRotation()
             if cast.phantomSingularity() then return end
         -- Seed of Corruption
             -- seed_of_corruption,if=(talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption>=3)|(spell_targets.seed_of_corruption>3&dot.corruption.refreshable)
-            if (talent.sowTheSeeds and #enemies.yards10t < getOptionValue("Seed Units")) or (#enemies.yards10t < getOptionValue("Seed Units") and debuff.corruption.refresh(units.dyn40)) then
-                if cast.seedOfCorruption() then return end
+            if mode.soc == 1 and ((mode.rotation == 1 and #enemies.yards40 >= getOptionValue("Seed Units")) or (mode.rotation == 2 and #enemies.yards40 > 0)) then
+                if (talent.sowTheSeeds and #enemies.yards10t < getOptionValue("Seed Units")) or (#enemies.yards10t < getOptionValue("Seed Units") and debuff.corruption.refresh(units.dyn40)) then
+                    if cast.seedOfCorruption() then return end
+                end
             end
         -- Unstable Affliction
             -- unstable_affliction,if=talent.contagion.enabled&dot.unstable_affliction_1.remains<cast_time&dot.unstable_affliction_2.remains<cast_time&dot.unstable_affliction_3.remains<cast_time&dot.unstable_affliction_4.remains<cast_time&dot.unstable_affliction_5.remains<cast_time
@@ -1376,6 +1373,82 @@ local function runRotation()
                 if cast.lifeTap() then return end
             end
         end -- End Action List - Writhe In Agony
+    -- Action List - Opener
+        local function actionList_Opener()
+            -- Start Attack
+            -- auto_attack
+            if isChecked("Opener") and isBoss("target") and opener == false then
+                if isValidUnit("target") and getDistance("target") < 40 and not isUnitCasting("player") then
+                    if not OPN1 then 
+                        Print("Starting Opener")
+                        openerCount = openerCount + 1
+                        OPN1 = true
+                    elseif OPN1 and not AGN1 then
+            -- Agony
+                        if castOpener("agony","AGN1",openerCount) then openerCount = openerCount + 1; return end
+                    elseif AGN1 and not COR1 then
+            -- Corruption
+                        if castOpener("corruption","COR1",openerCount) then openerCount = openerCount + 1; return end
+                    elseif COR1 and not SIL1 then
+            -- Siphon Life
+                        if talent.siphonLife then
+                            if castOpener("siphonLife","SIL1",openerCount) then openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Siphon Life (Uncastable)")
+                            openerCount = openerCount + 1
+                            SIL1 = true
+                        end
+                    elseif SIL1 and not PHS1 then
+            -- Phantom Singularity
+                        if talent.phantomSingularity then
+                            if castOpener("phantomSingularity","PHS1",openerCount) then openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Phantom Singularity (Uncastable)")
+                            openerCount = openerCount + 1
+                            PHS1 = true
+                        end
+                    elseif PHS1 and not UAF1 then
+            -- Unstable Affliction
+                        if castOpener("unstableAffliction","UAF1",openerCount) then openerCount = openerCount + 1; return end
+                    elseif UAF1 and not UAF2 then
+            -- Unstable Affliction
+                        if castOpener("unstableAffliction","UAF2",openerCount) then openerCount = openerCount + 1; return end
+                    elseif UAF2 and not RES1 then
+            -- Reap Souls
+                        if artifact.reapSouls.enabled() then
+                            if castOpener("reapSouls","RES1",openerCount) then openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Reap Souls (Uncastable)")
+                            openerCount = openerCount + 1
+                            RES1 = true
+                        end
+                    elseif RES1 and not UAF3 then
+            -- Unstable Affliction
+                        if castOpener("unstableAffliction","UAF3",openerCount) then openerCount = openerCount + 1; return end
+                    elseif UAF3 and not SOH1 then
+            -- Soul Harvest
+                        if talent.soulHarvest then
+                            -- if castOpener("soulHarvest","SOH1",openerCount) then openerCount = openerCount + 1; return end
+                            if cast.soulHarvest() then Print(openerCount..": Soul Harvest"); SOH1 = true; openerCount = openerCount + 1; return end
+                        else
+                            Print(openerCount..": Soul Harvest (Uncastable)")
+                            openerCount = openerCount + 1; 
+                            SOH1 = true
+                        end
+                    elseif SOH1 and not DRN1 then
+            -- Drain Soul
+                        if castOpener("drainSoul","DRN1",openerCount) then openerCount = openerCount + 1; return end
+                    elseif DRN1 then
+                        Print("Opener Complete")
+                        openerCount = 0
+                        opener = true
+                        return
+                    end
+                end
+            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+                opener = true
+            end
+        end
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Summon Pet
@@ -1466,14 +1539,8 @@ local function runRotation()
                     end
                 end
             end -- End No Combat
+            if actionList_Opener() then return end
         end -- End Action List - PreCombat
-        local function actionList_Opener()
-            if isBoss("target") and isValidUnit("target") and opener == false then
-                if (isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer")) or not isChecked("Pre-Pull Timer") then
-                    opener = true
-                end
-            end
-        end
 ---------------------
 --- Begin Profile ---
 ---------------------

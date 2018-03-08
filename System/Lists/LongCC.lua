@@ -42,5 +42,5 @@ br.lists.longCC = {
 	5782,   -- Warlock - Fear
 	5484,   -- Warlock - Howl of Terror
 	710,    -- Warlock - Banish
-	-- Warrior
+	82579,  -- Various - Chloroform (Red Ridge: Keeshan Questline)
 }
