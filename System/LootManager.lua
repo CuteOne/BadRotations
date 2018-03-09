@@ -84,33 +84,30 @@ function br.lootManager:emptySlots()
 end
 function br.lootManager:getLoot(lootUnit)
 	local looting = false
-	if lM:emptySlots() ~= 0 then
-		if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and DontMoveStartTime and GetTime() - DontMoveStartTime > 0 then
-			-- if we have a unit to loot, check if its time to
-			if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
-				if not looting then
-					looting = true
-					InteractUnit(lootUnit)
-					lM:debug("Interact with "..lootUnit)
-					-- Print("Interact with "..lM.canLootUnit)
-					if GetCVar("AutoLootDefault") == "0" then
-						if LootFrame:IsShown() then
-						    for l=1, GetNumLootItems() do
-						       	if LootSlotHasItem(l) then
-						        	LootSlot(l)
-						   		end
-						   	end
-						    CloseLoot()
-						end
-					end
-				    ClearTarget()
-					looting = false
-					return
+	-- if we have a unit to loot, check if its time to
+	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
+		if not looting then
+			looting = true
+			Print("Looting "..UnitName(lootUnit))
+			lM:debug("Looting "..UnitName(lootUnit))
+			InteractUnit(lootUnit)
+			-- Manually loot if Auto Loot Interface Option not set
+			if GetCVar("AutoLootDefault") == "0" then
+				if LootFrame:IsShown() then
+				    for l=1, GetNumLootItems() do
+				       	if LootSlotHasItem(l) then
+				        	LootSlot(l)
+				   		end
+				   	end
+				    CloseLoot()
 				end
 			end
+			-- Clean Up
+		    ClearTarget()
+			looting = false
+			br.lootable = {}
+			return
 		end
-	else
-		ChatOverlay("Bags are full, nothing will be looted!")
 	end
 end
 function br.lootManager:findLoot()
@@ -118,22 +115,42 @@ function br.lootManager:findLoot()
 		lM:debug("Find Unit")
 		for k, v in pairs(br.lootable) do
 			local thisUnit = br.lootable[k].unit
-			if GetObjectExists(lootUnit) and getDistance("player",thisUnit) < 2 then
-				br.lootManager:getLoot(thisUnit)
+			if GetObjectExists(thisUnit) and getDistance("player",thisUnit) < 2 then
+				Print("Should loot "..UnitName(thisUnit))
 				lM:debug("Should loot "..UnitName(thisUnit))
-				-- Print("Should loot "..UnitName(thisUnit))
+				lM:getLoot(thisUnit)
 				break
 			end
 		end
 	end
 end
+function br.lootManager:lootCount()
+	local lootCount = 0
+	lM.lootUnit = nil
+	for k, v in pairs(br.lootable) do
+		if br.lootable[k] ~= nil then
+			local thisUnit = br.lootable[k].unit
+			if GetObjectExists(thisUnit) and getDistance("player",thisUnit) < 2 then
+				lootCount = lootCount + 1
+				lM.lootUnit = br.lootable[lM.lootIndex].unit
+				break
+			end
+		end
+	end
+	return lootCount
+end
 function autoLoot()
 	if getOptionCheck("Auto Loot") then
 		if not isInCombat("player") then
 			-- start loot manager
-			if lM then
-				if not IsMounted("player") then
-					lM:findLoot()
+			if lM and lM:lootCount() > 0 then
+				if lM:emptySlots() ~= 0 then
+					if UnitCastingInfo("player") == nil and UnitChannelInfo("player") == nil and not IsMounted("player") and GetUnitSpeed("player") == 0 then
+						--Print("Finding loot")
+						lM:getLoot(lM.lootUnit)
+					end
+				else
+					ChatOverlay("Bags are full, nothing will be looted!")
 				end
 			end
 		end
