@@ -130,18 +130,19 @@ function getUpdateRate()
  			updateRate = (100 - FrameRate)/100
  		else
  			updateRate = 0.1
- 		end	 		
+ 		end
 --[[	 	if FrameRate ~= 0 and FrameRate < 30 and updateRate < 0.5  then
 	 		updateRate = updateRate + 0.1
 	 	elseif FrameRate > 80 and updateRate ~= 0.1 then
 	 		updateRate = updateRate - 0.1
 	 	end--]]
-	elseif getOptionValue("Bot Update Rate") == nil then 
-	 	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") 
+	elseif getOptionValue("Bot Update Rate") == nil then
+	 	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate")
 	end
-	
+
 	return updateRate
 end
+
 function BadRotationsUpdate(self)
 	-- if updateRate < 0.1 then
 	-- 	updateRate = 0.1
@@ -156,16 +157,16 @@ function BadRotationsUpdate(self)
 	--  	if not self.lastUpdateTime then
 	--  		self.lastUpdateTime = tempTime
 	--  	end
-	 	
+
 	 -- 	local FrameRate = GetFramerate() or 0
-	 -- 	if isChecked("Auto Delay") then	 		
+	 -- 	if isChecked("Auto Delay") then
 		--  	if FrameRate ~= 0 and FrameRate < 30 and updateRate < 0.5  then
 		--  		updateRate = updateRate + 0.1
 		--  	elseif FrameRate > 80 and updateRate ~= 0.1 then
 		--  		updateRate = updateRate - 0.1
 		--  	end
-		-- elseif getOptionValue("Bot Update Rate") == nil then 
-		--  	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate") 
+		-- elseif getOptionValue("Bot Update Rate") == nil then
+		--  	updateRate = 0.1 else updateRate = getOptionValue("Bot Update Rate")
 		-- end
 
 	 	-- if self.lastUpdateTime and (tempTime - self.lastUpdateTime) > getUpdateRate() then --updateRate then --0.1 then

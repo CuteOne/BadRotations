@@ -9,22 +9,17 @@ function canUse(itemID)
 	if itemID==0 or getHP("player") == 0 then return false end
 	if (GetItemCount(itemID,false,false) > 0 or PlayerHasToy(itemID) or itemID<19) then
 		if itemID<=19 then
-			if GetItemSpell(GetInventoryItemID("player",itemID))~=nil then
-				local slotItemID = GetInventoryItemID("player",itemID)
+			local slotItemID = GetInventoryItemID("player",itemID)
+			if GetItemSpell(slotItemID)~=nil then
 				if GetItemCooldown(slotItemID)==0 then
 					return true
 				end
-			else
-				return false
 			end
 		elseif itemID>19 and GetItemCooldown(itemID)==0 then
 			return true
-		else
-			return false
 		end
-	else
-		return false
 	end
+	return false
 end
 -- if canTrinket(13) then
 function canTrinket(trinketSlot)

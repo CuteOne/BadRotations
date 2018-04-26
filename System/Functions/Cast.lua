@@ -53,7 +53,7 @@ end
 function castGround(Unit,SpellID,maxDistance,minDistance)
 	if minDistance == nil then minDistance = 0 end
 	if GetUnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
-		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance 
+		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
 		and #getEnemies(Unit,maxDistance) >= #getEnemies(Unit,maxDistance,true)
 	then
 		CastSpellByName(GetSpellInfo(SpellID))
@@ -194,7 +194,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if (Unit == nil or UnitIsUnit("player",Unit)) -- Player
 			or (Unit ~= nil and UnitIsFriend("player",Unit))  -- Ally
 			or IsHackEnabled("AlwaysFacing")
-		then 
+		then
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy
 			return false
@@ -545,9 +545,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
     -- Base Spell Availablility Check
     if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and not isIncapacitated(spellID) then
         -- Attempt to determine best unit for spell's range
-        if thisUnit == nil then 
-        	if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then 
-        		thisUnit = getSpellUnit(spellCast) 
+        if thisUnit == nil then
+        	if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
+        		thisUnit = getSpellUnit(spellCast)
         	else
         		thisUnit = getSpellUnit(spellCast,true)
         	end
@@ -566,7 +566,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
             castDebug()
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
         elseif thisUnit ~= nil then
-            local distance = getDistance(thisUnit) 
+            local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
                 if debug == "rect" then
 	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") then
@@ -581,8 +581,8 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                 elseif debug == "ground" then
 			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
 	                    if getLineOfSight(thisUnit) then
-	                        if IsMouseButtonDown(2) then 
-	                            return false 
+	                        if IsMouseButtonDown(2) then
+	                            return false
 	                        else
 	                            castDebug()
 	                            return castGround(thisUnit,spellCast,maxRange,minRange)

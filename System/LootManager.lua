@@ -88,7 +88,7 @@ function br.lootManager:getLoot(lootUnit)
 	if br.timer:useTimer("getLoot", getOptionValue("Auto Loot")) then
 		if not looting then
 			looting = true
-			Print("Looting "..UnitName(lootUnit))
+			--Print("Looting "..UnitName(lootUnit))
 			lM:debug("Looting "..UnitName(lootUnit))
 			InteractUnit(lootUnit)
 			-- Manually loot if Auto Loot Interface Option not set
@@ -105,6 +105,7 @@ function br.lootManager:getLoot(lootUnit)
 			-- Clean Up
 		    ClearTarget()
 			looting = false
+			lM.lootUnit = nil
 			br.lootable = {}
 			return
 		end
@@ -116,7 +117,7 @@ function br.lootManager:findLoot()
 		for k, v in pairs(br.lootable) do
 			local thisUnit = br.lootable[k].unit
 			if GetObjectExists(thisUnit) and getDistance("player",thisUnit) < 2 then
-				Print("Should loot "..UnitName(thisUnit))
+				--Print("Should loot "..UnitName(thisUnit))
 				lM:debug("Should loot "..UnitName(thisUnit))
 				lM:getLoot(thisUnit)
 				break
@@ -132,7 +133,7 @@ function br.lootManager:lootCount()
 			local thisUnit = br.lootable[k].unit
 			if GetObjectExists(thisUnit) and getDistance("player",thisUnit) < 2 then
 				lootCount = lootCount + 1
-				lM.lootUnit = br.lootable[lM.lootIndex].unit
+				lM.lootUnit = br.lootable[k].unit
 				break
 			end
 		end

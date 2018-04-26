@@ -1,35 +1,37 @@
 function getRacial()
     local race = select(2,UnitRace("player"))
-    local class = select(2, UnitClass("player"))
 
     if race == "BloodElf" then
-        if class == "WARRIOR" then BloodElfRacial = 69179 end
-        if class == "MONK" then BloodElfRacial = 129597 end
-        if class == "MAGE" or class == "WARLOCK" then BloodElfRacial = 28730 end
-        if class == "DEATHKNIGHT" then BloodElfRacial = 50613 end
-        if class == "HUNTER" then BloodElfRacial = 80483 end
-        if class == "PALADIN" then BloodElfRacial = 155145 end
-        if class == "PRIEST" then BloodElfRacial = 232633 end
-        if class == "ROGUE" then BloodElfRacial = 25046 end
-        if class == "DEMONHUNTER" then BloodElfRacial = 202719 end
+        BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
+    end
+    if race == "Draenei" then
+        DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
+    end
+    if race == "Orc" then
+        OrcRacial = select(7, GetSpellInfo(GetSpellInfo(20572)))
     end
     local racialSpells = {
         -- Alliance
         Dwarf    = 20594, -- Stoneform
         Gnome    = 20589, -- Escape Artist
-        Draenei  = 59547, -- Gift of the Naaru
+        Draenei  = DraeneiRacial, -- Gift of the Naaru
         Human    = 59752, -- Every Man for Himself
         NightElf = 58984, -- Shadowmeld
         Worgen   = 68992, -- Darkflight
         -- Horde
         BloodElf = BloodElfRacial, -- Arcane Torrent
         Goblin   = 69041, -- Rocket Barrage
-        Orc      = 20572, -- Blood Fury
+        Orc      = OrcRacial, -- Blood Fury
         Tauren   = 20549, -- War Stomp
         Troll    = 26297, -- Berserking
         Scourge  = 7744,  -- Will of the Forsaken
         -- Both
-        Pandaren = 107079, -- Quaking Palm 
+        Pandaren = 107079, -- Quaking Palm
+        -- Allied Races
+        HighmountainTauren = 255654, -- Bull Rush
+        LightforgedDraenei = 255647, -- Light's Judgment
+        Nightborne = 260364, -- Arcane Pulse
+        VoidElf = 256948, -- Spatial Rift
     }
     return racialSpells[race]
 end
@@ -208,7 +210,7 @@ br.lists.spells = {
             abilities                       = {
                 armyoftheDead               = 42650,
                 asphyxiate                  = 108194,
-                chainsOfIce                 = 45524,                
+                chainsOfIce                 = 45524,
                 corpseShield                = 207319,
                 darkArbiter                 = 207349,
                 darkTransformation          = 63560,
@@ -225,13 +227,13 @@ br.lists.spells = {
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
-                
+
             },
             artifacts                       = {
                 apocalypse                  = 220143,
                 doubleDoom                  = 191741,
             },
-            buffs                           = {                
+            buffs                           = {
                 corpseShield                = 207319,
                 darkSuccor                  = 101568,
                 darkTransformation          = 63560,
@@ -241,7 +243,7 @@ br.lists.spells = {
                 suddenDoom                  = 49530,
             },
             debuffs                         = {
-                chainsOfIce                 = 45524,                
+                chainsOfIce                 = 45524,
                 festeringWound              = 194310,
                 necroticStrike              = 223829,
                 outbreak                    = 77575,
@@ -631,7 +633,7 @@ br.lists.spells = {
                 thrashingClaws              = 238048,
             },
             buffs                           = {
-                apexPredator                = 255984,        
+                apexPredator                = 255984,
                 berserk                     = 106951,
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,
@@ -677,7 +679,7 @@ br.lists.spells = {
         -- Guardian
         [104] = {
             abilities                       = {
-				
+
                 barkskin                    = 22812,
                 bristlingFur                = 155835,
                 frenziedRegeneration        = 22842,
@@ -990,7 +992,7 @@ br.lists.spells = {
                 piercingShot                = 198670,
                 sidewinders                 = 214579,
                 trueshot                    = 193526,
-                volley                      = 194386,                
+                volley                      = 194386,
                 windburst                   = 204147,
                 wyvernSting                 = 19386,
             },
@@ -1686,7 +1688,7 @@ br.lists.spells = {
                 avengingWrath               = 31842;
                 beaconOfLight               = 53563;
                 beaconOfFaith               = 156910;
-                blessingOfSacrifice         = 6940;             
+                blessingOfSacrifice         = 6940;
                 beaconOfVirtue              = 200025;
                 bestowFaith                 = 223306;
                 divineProtection            = 498;
@@ -1694,16 +1696,16 @@ br.lists.spells = {
                 divinePurpose               = 216411;
                 ferventMartyr               = 223316;
                 infusionOfLight             = 54149;
-                holyAvenger                 = 105809;               
+                holyAvenger                 = 105809;
                 ruleOfLaw                   = 214202;
                 theLightSaves               = 200423;
                 vindicator                  = 200376;
-                tyrsDeliverance             = 200652;               
+                tyrsDeliverance             = 200652;
 
             },
             debuffs                         = {
                 judgement                   = 214222,
-                judgmentoflight             = 196941,               
+                judgmentoflight             = 196941,
 
             },
             glyphs                          = {

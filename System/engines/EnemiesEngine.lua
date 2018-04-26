@@ -125,10 +125,10 @@ function getOMUnits()
 	-- Lootables
 	for k, v in pairs(br.lootable) do
 		local hasLoot,canLoot = CanLootUnit(br.lootable[k].guid)
-		if not hasLoot then br.lootable[k] = nil end
+		if not hasLoot or not GetObjectExists(br.lootable[k].unit) then br.lootable[k] = nil end
 	end
 	-- Cycle the Object Manager
-	local objectCount = GetObjectCount()
+	local objectCount = FireHack~=nil and GetObjectCount() or 0
 	if FireHack ~= nil and objectCount > 0 then
 		for i = 1, objectCount do
 			if i == 1 then cycleTime = debugprofilestop() end
