@@ -3,7 +3,7 @@ function castInterrupt(SpellID,Percent,Unit)
 	if GetObjectExists(Unit) then
 		local castName, _, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
 		local channelName, _, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
-		-- first make sure we will be able to cast the spell
+		-- first make sure we will be able to cast the spellID
 		if canCast(SpellID,false,false) == true then
 			-- make sure we cover melee range
 			local allowedDistance = select(6,GetSpellInfo(SpellID))
@@ -241,6 +241,21 @@ function getCastingRegen(spellID)
 	end
 	return power
 end
+function getSpellRange(spellID)
+	local _,_,_,_,_,maxRange = GetSpellInfo(spellID)
+    if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
+	return maxRange
+end
+function isSpellInSpellbook(spellID,spellType)
+    local spellSlot = FindSpellBookSlotBySpellID(spellID, spellType == "pet" and true or false)
+    if spellSlot then
+       local spellName = GetSpellBookItemName(spellSlot, spellType)
+       local link = GetSpellLink(spellName)
+       local currentSpellId = tonumber(link and link:gsub("|", "||"):match("spell:(%d+)"))
+       return currentSpellId == spellID
+    end
+	return false
+end
 -- if isKnown(106832) then
 function isKnown(spellID)
 	local spellName = GetSpellInfo(spellID)
@@ -254,5 +269,5 @@ function isKnown(spellID)
  --        return true
  --    end
 	-- return false
-	return GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID)
+	return GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID) or isSpellInSpellbook(spellID,"spell")
 end

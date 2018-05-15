@@ -106,6 +106,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Vial of Ceaseless Toxins", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
         -- Umbral Moonglaives
             br.ui:createDropdownWithout(section,"Umbral Moonglaives", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+        -- Light's Judgment
+            br.ui:createSpinner(section,"Light's Judgment", 3, 1, 5, 1, "|cffFFFFFFSet to desired targets to use Light's Judgment on. Min: 1 / Max: 5 / Interval: 1")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -202,14 +204,15 @@ local function runRotation()
 		local castable          							= br.player.cast.debug
         local clearcast                                     = br.player.buff.clearcasting.exists()
         local combatTime                                    = getCombatTime()
-        local combo                                         = br.player.power.comboPoints.amount()
-        local comboDeficit                                  = br.player.power.comboPoints.deficit()
+        local comboPoints                                   = br.player.power.comboPoints.amount()
+        local comboPointsDeficit                            = br.player.power.comboPoints.deficit()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
+        local energy, energyMax, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -232,8 +235,8 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
-        local power, powmax, powgen, powerDeficit           = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
+        local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
@@ -245,6 +248,7 @@ local function runRotation()
         local t19_4pc                                       = TierScan("T19")>=4
         local t20_4pc                                       = TierScan("T20")>=4
         local talent                                        = br.player.talent
+        local thp                                           = getHP
         local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
@@ -309,7 +313,7 @@ local function runRotation()
                 end
             end
         end
-        if power > 50 then
+        if energy > 50 then
             fbMaxEnergy = true
         else
             fbMaxEnergy = false
@@ -397,11 +401,11 @@ local function runRotation()
             if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() then
                 baseCost = baseCost * 0.5
             end
-            local costMultiplier = combo * (power / baseCost)
+            local costMultiplier = comboPoints * (energy / baseCost)
             if buff.apexPredator.exists() then costMultiplier = 5 * 2 end
             if buff.apexPredator.exists() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) then costMultiplier = costMultiplier * 1.46 end
             local damage = 1.2 * UnitAttackPower("player") * (1 - 0.3198) * costMultiplier
-            if damage >= UnitHealth(units.dyn5) and combo > 0 then
+            if damage >= UnitHealth(units.dyn5) and comboPoints > 0 then
                 return true
             end
             return false
@@ -482,11 +486,11 @@ local function runRotation()
 		        end
 	            if #enemies.yards20 > 0 then
 	            -- Tiger's Fury - Low Energy
-                    if powerDeficit > 60 then
+                    if energyDeficit > 60 then
                 	   if cast.tigersFury() then return end
                     end
 	            -- Savage Roar - Use Combo Points
-	                if combo >= 5 then
+	                if comboPoints >= 5 then
 	                	if cast.savageRoar() then return end
 	                end
 	            -- Shred - Single
@@ -683,7 +687,7 @@ local function runRotation()
     			if isChecked("Maim") then
     				for i=1, #enemies.yards5 do
                         thisUnit = enemies.yards5[i]
-    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and combo > 0 then --and isInPvP() then
+    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and comboPoints > 0 then --and isInPvP() then
     						if cast.maim(thisUnit) then return end
 		    			end
 	            	end
@@ -693,40 +697,52 @@ local function runRotation()
 	-- Action List - Cooldowns
 		local function actionList_SimC_Cooldowns()
 			if getDistance("target") < 5 then
+        -- Prowl
+                -- prowl,if=buff.incarnation.remains<0.5&buff.jungle_stalker.up
+                if useCDs() and not buff.prowl.exists() and getDistance(units.dyn5) < 5 and not solo and friendsInRange > 0 then
+                    if cast.able.prowl() and (buff.incarnationKingOfTheJungle.remain() < 0.5 and buff.jungleStalker.exists()) then
+                        if cast.prowl() then return end
+                    end
+                end
 		-- Berserk
 				-- berserk,if=energy>=30&(cooldown.tigers_fury.remains>5|buff.tigers_fury.up)
-	            if useCDs() and isChecked("Berserk/Incarnation") then
-	            	if power >= 30 and (cd.tigersFury.remain() > 5 or buff.tigersFury.exists()) and not talent.incarnationKingOfTheJungle then
-	            		if cast.berserk() then return end
-	            	end
+	            if useCDs() and isChecked("Berserk/Incarnation") and not talent.incarnationKingOfTheJungle then
+                    if cast.able.berserk() and (energy >= 30 and (cd.tigersFury.remain() > 5 or buff.tigersFury.exists())) then
+                        if cast.berserk() then return end
+                    end
 	            end
         -- Tiger's Fury
                 -- tigers_fury,if=energy.deficit>=60
                 if isChecked("Tiger's Fury") then
-                    if powerDeficit >= 60 or snipeTF() then
+                    if cast.able.tigersFury() and (energyDeficit >= 60 or snipeTF()) then
                         if cast.tigersFury() then return end
                     end
                 end
+        -- Racial: Berserking (Troll)
+                -- berserking
+                if cast.able.racial() and (race == "Troll") then
+                    if cast.racial() then return end
+                end
         -- Elune's Guidance
                 -- elunes_guidance,if=combo_points=0&energy>=50
-                if combo == 0 and power >= 50 then
+                if cast.able.elunesGuidance() and (comboPoints == 0 and energy >= 50) then
                     if cast.elunesGuidance() then return end
                 end
         -- Incarnation - King of the Jungle
                 -- incarnation,if=energy>=30&(cooldown.tigers_fury.remains>15|buff.tigers_fury.up)
-                if useCDs() and isChecked("Berserk/Incarnation") then
-                    if power >= 30 and (cd.tigersFury.remain() > 15 or buff.tigersFury.exists()) and talent.incarnationKingOfTheJungle then
+                if useCDs() and isChecked("Berserk/Incarnation") and talent.incarnationKingOfTheJungle then
+                    if cast.able.incarnationKingOfTheJungle() and (energy >= 30 and (cd.tigersFury.remain() > 15 or buff.tigersFury.exists())) then
                         if cast.incarnationKingOfTheJungle() then return end
                     end
                 end
         -- Prowl
-                if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange > 0 then
-                    if cast.prowl() then freeProwl = false; return end
-                end
+                -- if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange > 0 then
+                --     if cast.prowl() then freeProwl = false; return end
+                -- end
         -- Potion
                 -- potion,name=prolonged_power,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
                 if useCDs() and isChecked("Potion") and inRaid then
-                    if ttd(units.dyn5) < 65 or (ttd(units.dyn5) < 180 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
+                    if (ttd(units.dyn5) < 65 or (ttd(units.dyn5) < 180 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()))) then
                         if canUse(127844) then
                             useItem(127844)
                         elseif canUse(142117) then
@@ -737,18 +753,27 @@ local function runRotation()
         -- Ashamane's Frenzy
                 -- ashamanes_frenzy,if=combo_points>=2&(!talent.bloodtalons.enabled|buff.bloodtalons.up)
                 if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                    if combo >= 2 and (not talent.bloodtalons or buff.bloodtalons.exists()) then
+                    if cast.able.ashamanesFrenzy() and (comboPoints >= 2 and (not talent.bloodtalons or buff.bloodtalons.exists())) then
                         if cast.ashamanesFrenzy(units.dyn5) then return end
                     end
                 end
         -- Shadowmeld
                 -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
-                if useCDs() and isChecked("Racial") and br.player.race == "NightElf" and getSpellCD(racial) == 0 and getDistance(units.dyn5) < 5 and not solo and friendsInRange > 0 then
-                    if combo < 5 and power >= select(1, getSpellCost(spell.rake)) and debuff.rake.applied(units.dyn5) < 2.1 and buff.tigersFury.exists()
+                if useCDs() and isChecked("Racial") and race == "NightElf" and getDistance(units.dyn5) < 5 and not solo and friendsInRange > 0 then
+                    if cast.able.racial() and (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2.1 and buff.tigersFury.exists()
                         and (buff.bloodtalons.exists() or not talent.bloodtalons) and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle.remain() > 18)
-                        and not buff.incarnationKingOfTheJungle.exists()
+                        and not buff.incarnationKingOfTheJungle.exists())
                     then
                         if cast.shadowmeld() then return end
+                    end
+                end
+        -- Light's Judgment (Argus)
+                if isChecked("Light's Judgment") then
+                    if useCDs() then
+                        if cast.lightsJudgment("target","ground") then return end
+                    end
+                    if #enemies.yards8 >= getOptionValue("Light's Judgment") then
+                        if cast.lightsJudgment("best",nil,getOptionValue("Light's Judgment"),8) then return end
                     end
                 end
         -- Ring of Collapsing Futures
@@ -777,7 +802,7 @@ local function runRotation()
                     end
         -- Draught of Souls
                     if (getOptionValue("Draught of Souls") == 1 or (getOptionValue("Draught of Souls") == 2 and useCDs())) and hasEquiped(140808) and canUse(140808) and useCDs() then
-                        if ttm > 3 and comboDeficit >= 1 then
+                        if ttm > 3 and comboPointsDeficit >= 1 then
                             useItem(140808)
                         end
                     end
@@ -793,8 +818,8 @@ local function runRotation()
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                -- blood_fury,buff.tigers_fury | arcane_torrent,buff.tigers_fury
+                if useCDs() and isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "BloodElf") then
                     if buff.tigersFury.exists() and getSpellCD(racial) == 0 then
                         if castSpell("player",racial,false,false,false) then return end
                     end
@@ -806,7 +831,7 @@ local function runRotation()
         -- Tiger's Fury
                 -- if (not HasBuff(Clearcasting) and PowerToMax >= 60) or PowerToMax >= 80
                 if isChecked("Tiger's Fury") then
-                    if (not buff.clearcasting.exists() and powerDeficit >= 60) or powerDeficit >= 80 or snipeTF() then
+                    if (not buff.clearcasting.exists() and energyDeficit >= 60) or energyDeficit >= 80 or snipeTF() then
                         if cast.tigersFury() then return end
                     end
                 end
@@ -856,7 +881,7 @@ local function runRotation()
         -- Draught of Souls
                     -- if (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and PowerSecToMax > 3 and AlternatePowerToMax >= 1
                     if isChecked("Draught of Souls") and hasEquiped(140808) and canUse(140808) and useCDs() then
-                        if (buff.savageRaor.exists() or not talent.savageRoar) and ttm > 3 and comboDeficit >= 1 then
+                        if (buff.savageRaor.exists() or not talent.savageRoar) and ttm > 3 and comboPointsDeficit >= 1 then
                             useItem(140808)
                         end
                     end
@@ -933,7 +958,7 @@ local function runRotation()
                     elseif MF1 and not SR1 then
        		-- Savage Roar
                         -- savage_roar,if=!buff.savage_roar.up
-                        if talent.savageRoar and buff.savageRoar.refresh() and combo > 0 then
+                        if talent.savageRoar and buff.savageRoar.refresh() and comboPoints > 0 then
        					    if castOpener("savageRoar","SR1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Savage Roar (Uncastable)")
@@ -978,7 +1003,7 @@ local function runRotation()
 			  		elseif AF1 and not REG1 then
             -- Regrowth
                         -- regrowth,if=(talent.sabertooth.enabled|buff.predatory_swiftness.up)&talent.bloodtalons.enabled&buff.bloodtalons.down&combo_points=5
-                        if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
+                        if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and comboPoints == 5 then
                             if castOpener("regrowth","REG1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Regrowth (Uncastable)")
@@ -988,7 +1013,7 @@ local function runRotation()
 					elseif REG1 and not RIP1 then
        		-- Rip
                         -- rip,if=combo_points=5
-                        if combo == 5 then
+                        if comboPoints == 5 then
 					        if castOpener("rip","RIP1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Rip (Uncastable)")
@@ -1005,7 +1030,7 @@ local function runRotation()
                             openerCount = openerCount + 1;
                             THR1 = true
                         end
-                    elseif THR1 and (not SHR1 or combo < 5) then
+                    elseif THR1 and (not SHR1 or comboPoints < 5) then
             -- Brutal Slash / Shred
                         if talent.brutalSlash and charges.brutalSlash.exists() and getOptionValue("Brutal Slash in Opener") == 1 then --and cast.safe.brutalSlash("player",1,8) then
                             -- if cast.brutalSlash("player","aoe") then Print(openerCount..": Brutal Slash"); openerCount = openerCount + 1; SHR1 = true; return end
@@ -1014,14 +1039,14 @@ local function runRotation()
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return end
                         end
             -- Finish (rip exists)
-                    elseif SHR1 and combo == 5 then --debuff.rip.exists("target") then
+                    elseif SHR1 and comboPoints == 5 then --debuff.rip.exists("target") then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
                         return
-            --         elseif SHR1 and (not REG2 and combo == 5) then
+            --         elseif SHR1 and (not REG2 and comboPoints == 5) then
             -- -- Regrowth
-            --             if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and combo == 5 then
+            --             if not debuff.rip.exists("target") and (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and comboPoints == 5 then
             --                 if castOpener("regrowth","REG2",openerCount) then openerCount = openerCount + 1; return end
             --             else
             --                 Print(openerCount..": Regrowth (Uncastable)")
@@ -1030,7 +1055,7 @@ local function runRotation()
             --             end
             -- -- Rip
             --         elseif REG2 and not RIP2 then
-            --             if not debuff.rip.exists("target") and combo == 5 then
+            --             if not debuff.rip.exists("target") and comboPoints == 5 then
             --                 if castOpener("rip","RIP2",openerCount) then openerCount = openerCount + 1; return end
             --             else
             --                 Print(openerCount..": Rip (Uncastable)")
@@ -1055,9 +1080,8 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- savage_roar,if=!buff.savage_roar.up
             if not buff.savageRoar.exists() then
-                if power <= select(1, getSpellCost(spell.savageRoar)) then
-                    return true
-                elseif power > select(1, getSpellCost(spell.savageRoar)) then
+                if energy < cast.cost.savageRoar() then ChatOverlay("Pooling For Savage Roar") return true end
+                if cast.able.savageRoar() then
                     if cast.savageRoar("player") then return end
                 end
             end
@@ -1069,12 +1093,11 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
-                            if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and getHP(thisUnit) > 25 and not talent.sabertooth)
-                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
+                            if (not debuff.rip.exists(thisUnit) or debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth)
+                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit)) and (ttd(thisUnit) > 8 or isDummy(thisUnit)))
                             then
-                                if power <= select(1, getSpellCost(spell.rip)) then
-                                    return true
-                                elseif power > select(1, getSpellCost(spell.rip)) then
+                                if energy < cast.cost.rip() then ChatOverlay("Pooling For Rip") return true end
+                                if cast.able.rip(thisUnit) then
                                     if cast.rip(thisUnit) then return end
                                 end
                             end
@@ -1086,21 +1109,20 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- savage_roar,if=buff.savage_roar.remains<12
             if buff.savageRoar.remain() < 12 then
-                if power <= select(1, getSpellCost(spell.savageRoar)) then
-                    return true
-                elseif power > select(1, getSpellCost(spell.savageRoar)) then
+                if energy < cast.cost.savageRoar() then ChatOverlay("Pooling For Savage Roar") return true end
+                if cast.able.savageRoar() then
                     if cast.savageRoar("player") then return end
                 end
             end
         -- Maim
             -- maim,if=buff.fiery_red_maimers.up
-            if buff.fieryRedMaimers.exists() then
-                if cast.maim(units.dyn5) then return end
+            if cast.able.maim() and (buff.fieryRedMaimers.exists()) then
+                if cast.maim() then return end
             end
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
-            if fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
-                and (not debuff.rip.refresh(units.dyn5) or getHP(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20)-- or ttd(units.dyn5) <= 8)
+            if cast.able.ferociousBite() and fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
+                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20)-- or ttd(units.dyn5) <= 8)
             then
                 if cast.ferociousBite() then return end
             end
@@ -1108,36 +1130,28 @@ local function runRotation()
     -- Action List - Finisher
         local function actionList_AMR_Finisher()
         -- Rip
-            -- if (AlternatePower * FeralBleedSnapshot) > PeekSavedValue(RipBuffs) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar))
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.rip.calc() > debuff.rip.applied(thisUnit)
-                        and (buff.savageRoar.exists() or not talent.savageRoar)
-                    then
-                        if cast.rip(thisUnit) then return end
-                    end
-                end
+            -- if (AlternatePower * FeralBleedSnapshot) > PeekSavedValue(RipBuffs) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and TargetSecRemaining > DotIntervalSec(Rip) * 4
+            if debuff.rip.calc() > debuff.rip.applied(units.dyn5) and (buff.savageRoar.exists() or not talent.savageRoar) and ttd(units.dyn5) > 2 * 4 then
+                if cast.rip() then return end
             end
         -- Ferocious Bite
             -- if HasDot(Rip) and (HasTalent(Sabertooth) or TargetHealthPercent < 0.25) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar))
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if (debuff.rip.exists(thisUnit) or level < 20) and (talent.sabertooth or getHP(units.dyn5) < 25 or ttd(units.dyn5) < ttm)
-                        and (buff.savageRoar.exists() or not talent.savageRoar)
-                    then
-                        if cast.ferociousBite(thisUnit) then return end
-                    end
-                end
+            if (debuff.rip.exists(units.dyn5) or level < 20) and (talent.sabertooth or thp(units.dyn5) < 25 or ttd(units.dyn5) < ttm)
+                and (buff.savageRoar.exists() or not talent.savageRoar)
+            then
+                if cast.ferociousBite() then return end
             end
         -- Rip
-            -- if CanRefreshDot(Rip) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and not HasTalent(Sabertooth) - multi-DoT = 5
+            -- if CanRefreshDot(Rip) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and not HasTalent(Sabertooth) and
+            -- TargetSecRemaining - DotRemainingSec(Rip) > DotIntervalSec(Rip) * 2
+            -- multi-DoT = 5
             if debuff.rip.count() < 5 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if debuff.rip.refresh(thisUnit) and (buff.savageRoar.exists() or not talent.savageRoar) and not talent.sabertooth then
+                        if debuff.rip.refresh(thisUnit) and (buff.savageRoar.exists() or not talent.savageRoar) and not talent.sabertooth
+                            and ttd(thisUnit) - debuff.rip.remain(thisUnit) > 2 * 2
+                        then
                             if cast.rip(thisUnit) then return end
                         end
                     end
@@ -1154,19 +1168,9 @@ local function runRotation()
                 if cast.maim(units.dyn5) then return end
             end
         -- Ferocious Bite
-            -- if Power >= FerociousBiteMaxEnergy and (DotRemainingSec(Rip) >= 8 or not HasTalent(SavageRoar))
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if fbMaxEnergy and ((debuff.rip.remain(thisUnit) >= 8 and not isDummy(thisUnit)) or not talent.savageRoar) then
-                        if cast.ferociousBite(thisUnit) then return end
-                    end
-                end
-            end
-        -- Rip
-            -- if Power >= FerociousBiteMaxEnergy
-            if fbMaxEnergy then
-                if cast.rip() then return end
+            -- if Power >= FerociousBiteMaxEnergy or HasBuff(ApexPredator)
+            if fbMaxEnergy or buff.apexPredator.exists() then
+                if cast.ferociousBite(thisUnit) then return end
             end
         end -- End Action List - Finisher
     -- Action List - AOE
@@ -1198,8 +1202,9 @@ local function runRotation()
             -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points>=2&cooldown.ashamanes_frenzy.remains<gcd
             -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points=4&dot.rake.remains<4
             -- regrowth,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&(buff.predatory_swiftness.stack>2|(buff.predatory_swiftness.stack>1&dot.rake.remains<3))&buff.bloodtalons.down
-            if talent.bloodtalons and not buff.bloodtalons.exists() then
-                if (buff.predatorySwiftness.exists() and ((combo >= 2 and cd.ashamanesFrenzy.remain() < gcd) or (combo == 4 and debuff.rake.remain(units.dyn5) < 4)))
+            if talent.bloodtalons and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
+                if (comboPoints >= 2 and cd.ashamanesFrenzy.remain() < gcdMax)
+                    or (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4)
                     or (hasEquiped(137024) and (buff.predatorySwiftness.stack() > 2 or (buff.predatorySwiftness.stack() > 1 and debuff.rake.remain(units.dyn5) < 3)))
                 then
                     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
@@ -1220,9 +1225,8 @@ local function runRotation()
             -- thrash_cat,if=(!ticking|remains<duration*0.3)&(spell_targets.thrash_cat>2)
             if multidot then
                 if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
-                   if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
-                        return true
-                    elseif power > select(1, getSpellCost(spell.thrash)) or buff.clearcasting.exists() then
+                    if energy < cast.cost.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return end
                     end
                 end
@@ -1233,29 +1237,12 @@ local function runRotation()
             -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if ((not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
-                            or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85))
-                        --and (ttd(thisUnit) > 4 or isDummy(thisUnit))
+                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
+                        or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                     then
-                        if power <= select(1, getSpellCost(spell.rake)) then
-                            return true
-                        elseif power > select(1, getSpellCost(spell.rake)) then
-                            if cast.rake(thisUnit) then return end
-                        end
-                    end
-                end
-            end
-            if #enemies.yards5 == 0 then
-                local thisUnit = units.dyn5
-                if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if ((not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
-                            or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85))
-                        --and (ttd(thisUnit) > 4 or isDummy(thisUnit))
-                    then
-                        if power <= select(1, getSpellCost(spell.rake)) then
-                            return true
-                        elseif power > select(1, getSpellCost(spell.rake)) then
+                        if energy < cast.cost.rake() then ChatOverlay("Pooling For Rake") return true end
+                        if cast.able.rake(thisUnit) then
                             if cast.rake(thisUnit) then return end
                         end
                     end
@@ -1264,7 +1251,8 @@ local function runRotation()
         -- Brutal Slash
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
             if talent.brutalSlash and ((buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax)
-                or (charges.brutalSlash.recharge(true) < cd.tigersFury.remain() and charges.brutalSlash.count() == 3)) then
+                or (charges.brutalSlash.recharge(true) < cd.tigersFury.remain() and charges.brutalSlash.count() == 3))
+            then
                 if talent.bloodtalons and not buff.bloodtalons.exists() and hasEquiped(137024) and buff.predatorySwiftness.stack() > 0 then
                     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                         cast.regrowth(br.friend[1].unit)
@@ -1291,13 +1279,14 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=(!ticking|remains<duration*0.3)&(variable.use_thrash=2|spell_targets.thrash_cat>1)
             -- thrash_cat,if=(!ticking|remains<duration*0.3)&variable.use_thrash=1&buff.clearcasting.react
-            if multidot and (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE))
-                and ((useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
-                    or (useThrash == 1 and buff.clearcasting.exists()))
-            then
-                if power <= select(1, getSpellCost(spell.thrash)) and not buff.clearcasting.exists() then
-                    return true
-                elseif power > select(1, getSpellCost(spell.thrash)) or buff.clearcasting.exists() then
+            if multidot and (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) then
+                if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                    if energy < cast.cost.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.able.thrash() or buff.clearcasting.exists() then
+                        if cast.thrash("player","aoe") then return end
+                    end
+                end
+                if cast.able.thrash() and useThrash == 1 and buff.clearcasting.exists() then
                     if cast.thrash("player","aoe") then return end
                 end
             end
@@ -1305,30 +1294,46 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>1
             if not talent.brutalSlash and multidot and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if power <= select(1, getSpellCost(spell.swipe)) and not buff.clearcasting.exists() then
-                    return true
-                elseif power > select(1, getSpellCost(spell.swipe)) or buff.clearcasting.exists() then
+                if energy < cast.cost.swipe() then ChatOverlay("Pooling For Swipe") return true end
+                if cast.able.swipe() then
                     if cast.swipe("player","aoe") then return end
                 end
             end
         -- Shred
-            -- shred
-            if cast.able.shred() and (not debuff.rake.refresh(units.dyn5) or level < 12)
-                and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.safe.brutalSlash("player",8,getOptionValue("Brutal Slash Targets"))
-                    or (charges.brutalSlash.timeTillFull() >= gcdMax and not buff.tigersFury.exists() and #enemies.yards8 < getOptionValue("Brutal Slash Targets"))
-                    or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3))
-                    or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not cast.safe.swipe("player",8,2) or level < 32))
-                    or buff.clearcasting.exists())
-            then
+            -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
+            if cast.able.shred() and (debuff.rake.remain(units.dyn5) > (cast.cost.shred() + cast.cost.rake() - energy) / energyRegen or buff.clearcasting.exists() or level < 12) then
                 if cast.shred() then return end
             end
+            -- shred
+            -- if cast.able.shred() and (not debuff.rake.refresh(units.dyn5) or level < 12)
+            --     and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.safe.brutalSlash("player",8,getOptionValue("Brutal Slash Targets"))
+            --         or (charges.brutalSlash.timeTillFull() >= gcdMax and not buff.tigersFury.exists() and #enemies.yards8 < getOptionValue("Brutal Slash Targets"))
+            --         or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3))
+            --         or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not cast.safe.swipe("player",8,2) or level < 32))
+            --         or buff.clearcasting.exists())
+            -- then
+            --     if cast.shred() then return end
+            -- end
         end
     -- Action List - Generator
         local function actionList_AMR_Generator()
+        -- Regrowth
+            -- if CanRefreshDot(RakeBleed) and HasBuff(PredatorySwiftness) and not HasBuff(Bloodtalons) and HasTalent(Bloodtalons) and AlternatePower >= 4
+            if debuff.rake.refresh(units.dyn5) and buff.predatorySwiftness.exists() and not buff.bloodtalons.exists() and talent.bloodtalons and comboPoints >= 4 then
+                if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
+                    if cast.regrowth(br.friend[1].unit) then return end
+                end
+                if getOptionValue("Auto Heal")==2 then
+                    if cast.regrowth("player") then return end
+                end
+            end
         -- Shadowmeld
-            -- if HasBuff(TigersFury) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and CanUse(Rake)
+            -- if HasBuff(TigersFury) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and CanUse(Rake) and not HasBuff(IncarnationKingOfTheJungle)
             if isChecked("Racial") and br.player.race == "NightElf" and getSpellCD(racial) == 0 and getDistance(units.dyn5) < 5 and not solo and friendsInRange > 0 then
-                if buff.tigersFury.exists() and (buff.savageRoar.exists() or not talent.savageRoar) and (buff.bloodtalons.exists() or not talent.bloodtalons) then
+                if buff.tigersFury.exists() and (buff.savageRoar.exists() or not talent.savageRoar)
+                    and (buff.bloodtalons.exists() or not talent.bloodtalons)
+                    and cast.able.rake() and not buff.incarnationKingOfTheJungle.exists()
+                then
                     if cast.shadowmeld() then return end
                 end
             end
@@ -1338,6 +1343,7 @@ local function runRotation()
                 if cast.rake() then return end
             end
             -- if not HasTalent(Bloodtalons) and CanRefreshDot(RakeBleed)
+            -- multi-DoT = 3
             if debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
@@ -1348,42 +1354,23 @@ local function runRotation()
                     end
                 end
             end
-            -- if HasTalent(Bloodtalons) and HasBuff(Bloodtalons) and DotRemainingSec(RakeBleed) <= 5 and
-            -- TargetSecUntilDeath > DotDurationSec(RakeBleed) / 2 and
-            -- (FeralBleedSnapshot > PeekSavedValue(RakeBuffs) * 0.8 or
-            -- (FeralBleedSnapshot * 2 > PeekSavedValue(RakeBuffs) * 0.8 and HasBuff(IncarnationKingOfTheJungle)))
-            if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(units.dyn5) <= 5 --and ttd(units.dyn5) > debuff.rake.duration(units.dyn5) / 2
-                and (debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.8 or (debuff.rake.calc() * 2 > debuff.rake.applied(units.dyn5) * 0.8 and buff.incarnationKingOfTheJungle.exists()))
-            then
+            -- if HasBuff(Bloodtalons) and CanRefreshDot(RakeBleed)
+            if buff.bloodtalons.exists() and debuff.rake.refresh(units.dyn5) then
                 if cast.rake() then return end
             end
-            -- if HasTalent(Bloodtalons) and HasBuff(Bloodtalons) and DotRemainingSec(RakeBleed) <= 5 and TargetsInRadius(Swipe) > 1 and
-            -- TargetSecUntilDeath > DotDurationSec(RakeBleed) / 2 and
-            -- (FeralBleedSnapshot > PeekSavedValue(RakeBuffs) * 0.8 or
-            -- (FeralBleedSnapshot * 2 > PeekSavedValue(RakeBuffs) * 0.8 and HasBuff(IncarnationKingOfTheJungle)))
-            -- multi-DoT = 3
-            if debuff.rake.count() < 3 then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 5 --and ttd(thisUnit) > debuff.rake.duration(thisUnit) / 2
-                            and (debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.8 or (debuff.rake.calc() * 2 > debuff.rake.applied(thisUnit) * 0.8 and buff.incarnationKingOfTheJungle.exists()))
-                        then
-                            if cast.rake(thisUnit) then return end
-                        end
-                    end
-                end
-            end
         -- Brutal Slash
-            -- if Power >= SpellPowerCost(Rake) and ((ChargesRemaining(BrutalSlash) >= 2 and ChargeSecRemaining(BrutalSlash) <= GlobalCooldownSec) or
-            -- TargetsInRadius(BrutalSlash) > 1 or FightSecRemaining < ChargesRemaining(BrutalSlash) * SpellCooldownSec(BrutalSlash))
-            if talent.brutalSlash and power >= select(1, getSpellCost(spell.rake)) and ((charges.brutalSlash.frac() >= 2 + gcd)
-                or ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Brutal Slash Targets") or ttd(units.dyn8) < charges.brutalSlash.count() * cd.brutalSlash.remain())) or mode.rotation == 2))
+            -- if (not CanAoe(2,8) and (HasBuff(TigersFury) or HasBuff(Bloodtalons))) or
+            -- (ChargesRemaining(BrutalSlash) >= 2 and ChargeSecRemaining(BrutalSlash) <= GlobalCooldownSec) or
+            -- TargetsInRadius(BrutalSlash) > 1 or FightSecRemaining < ChargesRemaining(BrutalSlash) * SpellCooldownSec(BrutalSlash)
+            if talent.brutalSlash and ((#enemies.yards8 == 1 and (buff.tigersFury.exists() or buff.bloodtalons.exists()))
+                or (charges.brutalSlash >= 2 and recharge.brutalSlash <= gcdMax)
+                or (#enemies.yards8 > 1 or ttd(units.dyn8) < charges.brutalSlash * cd.brutalSlash))
             then
                 if cast.brutalSlash(units.dyn8AoE,"aoe") then return end
             end
         -- Moonfire
             -- if CanRefreshDot(MoonfireDoT) and HasDot(RakeBleed) and TargetSecUntilDeath > 10
+            -- multi-DoT = 5
             if talent.lunarInspiration and debuff.moonfire.count() < 5 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -1416,10 +1403,10 @@ local function runRotation()
                 if cast.thrash("player","aoe") then return end
             end
         -- Shred
-            -- if TargetsInRadius(Swipe) < 3 and (DotRemainingSec(RakeBleed) > DotIntervalSec(RakeBleed) or PowerToMax < 1)
-            if (((mode.rotation == 1 and (#enemies.yards8 < 3 or (talent.brutalSlash and charges.brutalSlash.count() == 0))) or mode.rotation == 3) or level < 32 or ttm < 1)
-                and (debuff.rake.remain(units.dyn5) > 2 or ttm < 1 or level < 12)
-            then
+            -- if TargetsInRadius(Swipe) < 3 and
+            -- (DotRemainingSec(RakeBleed) > DotIntervalSec(RakeBleed) or PowerToMax < 1 or HasBuff(Clearcasting) or
+            -- Power > SpellPowerCost(Shred) + SpellPowerCost(Rake) or HasTalent(Bloodtalons))
+            if (mode.rotation == 3 or #enemies.yards8 < 3 or level < 32) and ((debuff.rake.remain(units.dyn5) > 3 or level < 12) or ttm < 1 or buff.clearcasting.exists() or energy > cast.cost.shred() + cast.cost.rake() or talent.bloodtalons) then
                 if cast.shred() then return end
             end
         end
@@ -1575,11 +1562,17 @@ local function runRotation()
                     if getOptionValue("APL Mode") == 1 then
         -- Call Action List - Cooldowns
                         if actionList_SimC_Cooldowns() then return end
+        -- Ferocious Bite
+                        -- actions.single_target+=/ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(target.health.pct<25|talent.sabertooth.enabled)
+                        if cast.able.ferociousBite() and (debuff.rip.exists(units.dyn5) and debuff.rip.remain(units.dyn5) < 3
+                            and ttd(units.dyn5) > 10 and (thp(units.dyn5) < 25 or talent.sabertooth))
+                        then
+                            if cast.ferociousBite() then return end
+                        end
         -- Regrowth
-                        -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8|dot.rake.remains<5)
-                        if combo == 5 and talent.bloodtalons and not buff.bloodtalons.exists()
-                            and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(units.dyn5) < 8 or debuff.rake.remain(units.dyn5) < 5)
-                            and buff.predatorySwiftness.exists()
+                        -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8)
+                        if cast.able.regrowth() and (comboPoints == 5 and buff.predatorySwiftness.exists() and talent.bloodtalons
+                            and not buff.bloodtalons.exists() and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(unit.dyn5) < 8))
                         then
                             if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return end
@@ -1588,19 +1581,44 @@ local function runRotation()
                                 if cast.regrowth("player") then return end
                             end
                         end
+                        -- regrowth,if=combo_points>3&talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.apex_predator.up&buff.incarnation.down
+                        if cast.able.regrowth() and (comboPoints > 3 and talent.bloodtalons and buff.predatorySwiftness.exists()
+                            and buff.apexPredator.exists() and not buff.incarnationKingOfTheJungle.exists())
+                        then
+                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
+                                if cast.regrowth(br.friend[1].unit) then return end
+                            end
+                            if getOptionValue("Auto Heal")==2 then
+                                if cast.regrowth("player") then return end
+                            end
+                        end
+                        -- -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8|dot.rake.remains<5)
+                        -- if comboPoints == 5 and talent.bloodtalons and not buff.bloodtalons.exists()
+                        --     and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(units.dyn5) < 8 or debuff.rake.remain(units.dyn5) < 5)
+                        --     and buff.predatorySwiftness.exists()
+                        -- then
+                        --     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
+                        --         if cast.regrowth(br.friend[1].unit) then return end
+                        --     end
+                        --     if getOptionValue("Auto Heal")==2 then
+                        --         if cast.regrowth("player") then return end
+                        --     end
+                        -- end
         -- Ferocious Bite
-                        -- ferocious_bite,max_energy=1,if=buff.apex_predator.up
-                        if (buff.apexPredator.exists() and fbMaxEnergy) or ferociousBiteFinish() then --(ttd(units.dyn5) < ttm and combo > 0) then
+                        -- ferocious_bite,if=buff.apex_predator.up&((combo_points>4&(buff.incarnation.up|talent.moment_of_clarity.enabled))|(talent.bloodtalons.enabled&buff.bloodtalons.up&combo_points>3))
+                        if cast.able.ferociousBite() and ((buff.apexPredator.exists() and ((comboPoints > 4 and (buff.incarnationKingOfTheJungle.exists() or talent.momentOfClarity))
+                            or (talent.bloodtalons and buff.bloodtalons.exists() and comboPoints > 3))) or ferociousBiteFinish())
+                        then
                             if cast.ferociousBite() then return end
                         end
         -- Call Action List - Finisher
                         -- call_action_list,name=finisher
-                        if combo > 4 then
+                        if comboPoints > 4 then
                             if actionList_SimC_Finisher() then return end
                         end
         -- Call Action List - Generator
                         -- call_action_list,name=generator
-                        if combo <= 4 then
+                        if comboPoints <= 4 then
                             if actionList_SimC_Generator() then return end
                         end
                     end -- End SimC APL
@@ -1611,13 +1629,42 @@ local function runRotation()
     -----------------------------
     --- In Combat - Cooldowns ---
     -----------------------------
-                        if actionList_AMR_Cooldowns() then return end
+        -- Tiger's Fury
+                        -- if (not HasBuff(Clearcasting) and PowerToMax >= 60) or PowerToMax >= 80
+                        if (not buff.clearcasting.exists() and energyDeficit >= 60) or energyDeficit >= 80 then
+                            if cast.tigersFury() then return end
+                        end
+        -- Incarnation
+                        -- if HasBuff(TigersFury)
+                        if talent.incarnationKingOfTheJungle and useCDs() and buff.tigersFury.exists() then
+                            if cast.incarnationKingOfTheJungle() then return end
+                        end
+        -- Berserk
+                        -- if HasBuff(TigersFury)
+                        if not talent.incarnationKingOfTheJungle and useCDs() and buff.tigersFury.exists() then
+                            if cast.berserk() then return end
+                        end
+        -- Cooldowns
+                        -- if HasBuff(TigersFury) or BuffRemainingSec(IncarnationKingOfTheJungle) > 20 or FightSecRemaining < 30
+                        if useCDs() and (buff.tigersFury.exists() or buff.incarnationKingOfTheJungle.remain() > 20 or ttd(units.dyn5) < 30) then
+                            if actionList_AMR_Cooldowns() then return end
+                        end
+        -- Elune's Guidance
+                        -- if AlternatePower <= 1 and Power >= FerociousBiteMaxEnergy
+                        if comboPoints <= 1 and fbMaxEnergy then
+                            if cast.elunesGuidance() then return end
+                        end
+        -- Ferocious Bite
+                        -- if HasDot(Rip) and DotRemainingSec(Rip) < DotIntervalSec(Rip) and TargetSecUntilDeath > 3 and (TargetHealthPercent < 0.25 or HasTalent(Sabertooth))
+                        if debuff.rip.exists(units.dyn5) and debuff.rip.remain(units.dyn5) < 2 and ttd(units.dyn5) > 3 and (thp(units.dyn5) < 25 or talent.sabertooth) then
+                            if cast.ferociousBite() then return end
+                        end
         -- Regrowth
                         -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Bloodtalons) and
                         -- (AlternatePower >= 5 or BuffRemainingSec(PredatorySwiftness) <= GlobalCooldownSec or
                         -- (AlternatePower = 2 and CooldownSecRemaining(AshamanesFrenzy) <= GlobalCooldownSec))
                         if talent.bloodtalons and buff.predatorySwiftness.exists() and not buff.bloodtalons.exists()
-                            and (combo >= 5 or buff.predatorySwiftness.remain() <= gcd or (combo == 2 and cd.ashamanesFrenzy.remain() <= gcd
+                            and (comboPoints >= 5 or buff.predatorySwiftness.remain() <= gcdMax or (comboPoints == 2 and cd.ashamanesFrenzy.remain() <= gcdMax
                             and artifact.ashamanesFrenzy.enabled() and (getOptionValue("Artifact") == 1 or (useCDs() and getOptionValue("Artifact") == 2))))
                         then
                             if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
@@ -1638,24 +1685,40 @@ local function runRotation()
                         end
         -- Call Action List - Finisher
                         -- call_action_list,name=finisher
-                        if combo >= 5 then
+                        if comboPoints >= 5 then
                             if actionList_AMR_Finisher() then return end
                         end
         -- Ashamane's Frenzy
-                        -- if AlternatePowerToMax >= 3 and TimerSecRemaining(ElunesGuidanceTimer) = 0 and (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar))
-                        if (getOptionValue("Artifact") == 1 or (useCDs() and getOptionValue("Artifact") == 2)) and comboDeficit >= 3
+                        -- if AlternatePower >= 2 and TimerSecRemaining(ElunesGuidanceTimer) = 0 and
+                        -- (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar))
+                        if (getOptionValue("Artifact") == 1 or (useCDs() and getOptionValue("Artifact") == 2)) and comboPoints >= 2 and buff.elunesGuidance.remain() == 0
                             and (buff.bloodtalons.exists or not talent.bloodtalons) and (buff.savageRoar.exists() or not talent.savageRoar)
                         then
                             if cast.ashamanesFrenzy() then return end
                         end
+        -- Regrowth
+                        -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Bloodtalons) and HasBuff(ApexPredator) and CanUse(FerociousBite)
+                        if talent.bloodtalons and buff.predatorySwiftness.exists() and not buff.bloodtalons.exists() and buff.apexPredator.exists() and cast.able.ferociousBite() then
+                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
+                                 if cast.regrowth(br.friend[1].unit) then return end
+                             end
+                             if getOptionValue("Auto Heal")==2 then
+                                 if cast.regrowth("player") then return end
+                             end
+                         end
+        -- Ferocious Bite
+                        -- if HasBuff(ApexPredator)
+                        if buff.apexPredator.exists() then
+                            if cast.ferociousBite() then return end
+                        end
         -- Call Action List - AOE
                         -- if TargetsInRadius(Swipe) >= 5 and AlternatePower <= 4
-                        if #enemies.yards8 >= 5 and mode.rotation ~= 3 and combo <= 4 then
+                        if #enemies.yards8 >= 5 and mode.rotation ~= 3 and comboPoints <= 4 then
                             if actionList_AMR_AOE() then return end
                         end
         -- Call Action List - Generator
                         -- if AlternatePower <= 4 and TargetsInRadius(Swipe) < 5
-                        if combo <= 4 and (#enemies.yards8 < 5 or mode.rotation == 3) then
+                        if comboPoints <= 4 and (#enemies.yards8 < 5 or mode.rotation == 3) then
                             if actionList_AMR_Generator() then return end
                         end
                     end

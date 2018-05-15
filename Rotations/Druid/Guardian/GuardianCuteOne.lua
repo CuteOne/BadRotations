@@ -94,7 +94,11 @@ local function createOptions()
         -- Barkskin
             br.ui:createSpinner(section, "Barkskin", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Frenzied Regeneration
-            br.ui:createSpinner(section, "Frenzied Regeneration", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
+            br.ui:createDropdown(section, "Frenzied Regeneration", {"|cff00FF00By HP Loss Percent","|cffFF0000By HP Interval"}, 1, "|cffFFFFFFSelect FR's use behavior.")
+            br.ui:createSpinnerWithout(section, "FR - HP Loss Percent", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
+            br.ui:createSpinnerWithout(section, "FR - HP Interval (3 Charge)", 80, 0, 100, 5, "|cffFFBB00Health Interval to use at with 3 charges.")
+            br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "|cffFFBB00Health Interval to use at with 2 charges.")
+            br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "|cffFFBB00Health Interval to use at with 1 charge.")
         -- Ironfur
             br.ui:createCheckbox(section, "Ironfur")
         -- Rage of the Sleeper
@@ -331,8 +335,17 @@ local function runRotation()
                 end
         -- Frenzied Regeneration
                 if isChecked("Frenzied Regeneration") then
-                    if (snapLossHP >= getOptionValue("Frenzied Regeneration") or (snapLossHP > php and snapLossHP > 5)) and not buff.frenziedRegeneration.exists() then
+                    if getOptionValue("Frenzied Regeneration") == 1 and (snapLossHP >= getOptionValue("FR - HP Loss Percent") or (snapLossHP > php and snapLossHP > 5))
+                        and not buff.frenziedRegeneration.exists()
+                    then
                         if cast.frenziedRegeneration() then snapLossHP = 0; return end
+                    end
+                    if getOptionValue("Frenzied Regeneration") == 2 and not buff.frenziedRegeneration.exists()
+                        and ((charges.frenziedRegeneration >= 3 and php < getOptionValue("FR - HP Interval (3 Charge)"))
+                        or (charges.frenziedRegeneration >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)"))
+                        or (charges.frenziedRegeneration >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))
+                    then
+                        if cast.frenziedRegeneration() then return end
                     end
                 end
         -- Rage of the Sleeper

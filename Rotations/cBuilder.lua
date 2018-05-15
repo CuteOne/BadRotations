@@ -403,6 +403,7 @@ function br.loader:new(spec,specName)
         if self.cast.cost       == nil then self.cast.cost          = {} end        -- Cast Spell Cost
         if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
         if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
+        if self.cast.range      == nil then self.cast.range         = {} end        -- Cast Spell Range
         if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
         if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe
         if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
@@ -453,8 +454,13 @@ function br.loader:new(spec,specName)
             -- return self.cast[v](nil,"debug")
         end
 
-        self.cast.cost[k] = function()
-            return getSpellCost(v)
+        self.cast.cost[k] = function(altPower)
+            if altPower == nil then altPower = false end
+            if altPower then
+                return select(2,getSpellCost(v))
+            else
+                return select(1,getSpellCost(v))
+            end
         end
 
         self.cast.current[k] = function(spellID,unit)
@@ -465,6 +471,10 @@ function br.loader:new(spec,specName)
 
         self.cast.last[k] = function()
             return lastSpellCast == v
+        end
+
+        self.cast.range[k] = function()
+            return getSpellRange(v)
         end
 
         self.cast.regen[k] = function()

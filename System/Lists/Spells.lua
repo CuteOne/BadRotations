@@ -633,13 +633,14 @@ br.lists.spells = {
                 thrashingClaws              = 238048,
             },
             buffs                           = {
-                apexPredator                = 255984,
+                apexPredator                = 252752,
                 berserk                     = 106951,
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,
                 elunesGuidance              = 202060,
                 fieryRedMaimers             = 236757,
                 incarnationKingOfTheJungle  = 102543,
+                jungleStalker               = 252071,
                 predatorySwiftness          = 69369,
                 savageRoar                  = 52610,
                 stampedingRoar              = 77764,
@@ -3307,6 +3308,7 @@ br.lists.spells = {
                 shadowmeld                      = 58984,
                 quakingPalm                     = 107079,
                 racial                          = getRacial(),
+                lightsJudgment                  = 247427,
             },
             artifacts                           = {
                 artificialDamage                = 226829,
