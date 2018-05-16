@@ -341,9 +341,9 @@ local function runRotation()
                         if cast.frenziedRegeneration() then snapLossHP = 0; return end
                     end
                     if getOptionValue("Frenzied Regeneration") == 2 and not buff.frenziedRegeneration.exists()
-                        and ((charges.frenziedRegeneration >= 3 and php < getOptionValue("FR - HP Interval (3 Charge)"))
-                        or (charges.frenziedRegeneration >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)"))
-                        or (charges.frenziedRegeneration >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))
+                        and ((charges.frenziedRegeneration.count() >= 3 and php < getOptionValue("FR - HP Interval (3 Charge)"))
+                        or (charges.frenziedRegeneration.count() >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)"))
+                        or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))
                     then
                         if cast.frenziedRegeneration() then return end
                     end

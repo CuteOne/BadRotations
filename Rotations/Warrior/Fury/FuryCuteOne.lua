@@ -356,7 +356,7 @@ local function runRotation()
         -- Bladestorm
             -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
             if isChecked("Bladestorm") and buff.enrage.remain() > 2 then
-                if mode.rotation == 1 and #enemies.yards8 > getOptionValue("Bladestorm Units") then
+                if mode.rotation ~= 4 and #enemies.yards8 >= tonumber(getOptionValue("Bladestorm Units")) then
                     if cast.bladestorm("player","aoe",getOptionValue("Bladestorm Units")) then return end
                 end
                 if mode.rotation == 2 and #enemies.yards8 > 0 then
@@ -672,6 +672,13 @@ local function runRotation()
                         or (talent.bloodbath and (cd.bloodbath.remain() < 1 or buff.bloodbath.exists()))
                     then
                         if cast.dragonRoar("player","aoe",1) then return end
+                    end
+                end
+            -- Bladestorm
+                -- bladestorm,if=buff.enrage.remains>2&(raid_event.adds.in>90|!raid_event.adds.exists|spell_targets.bladestorm_mh>desired_targets)
+                if isChecked("Bladestorm") and buff.enrage.remain() > 2 then
+                    if mode.rotation ~= 4 and #enemies.yards8 >= getOptionValue("Bladestorm Units") then
+                        if cast.bladestorm("player","aoe",getOptionValue("Bladestorm Units")) then return end
                     end
                 end
             -- Rampage
