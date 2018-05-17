@@ -72,7 +72,9 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
+            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+        -- Auto Growl
+            br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -257,26 +259,25 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+            if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+            elseif isChecked("Auto Summon") then
+                local callPet = nil
+                for i = 1, 5 do
+                    if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
+                end
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if deadPet == true then
-                        if cast.revivePet() then return end
-                    elseif deadPet == false then
-                        local Autocall = getValue("Auto Summon");
-                        if Autocall == 1 then
-                            if cast.callPet1() then return end
-                        elseif Autocall == 2 then
-                            if cast.callPet2() then return end
-                        elseif Autocall == 3 then
-                            if cast.callPet3() then return end
-                        elseif Autocall == 4 then
-                            if cast.callPet4() then return end
-                        elseif Autocall == 5 then
-                            if cast.callPet5() then return end
-                        else
-                            Print("Auto Call Pet Error")
+                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return end
+                    elseif callPet ~= nil and not UnitExists("pet") and (not deadPet or not IsPetActive()) then
+                        if UnitIsDeadOrGhost("pet") or deadPet then
+                            if cast.able.heartOfThePhoenix and inCombat then
+                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return end
+                            else
+                                if cast.revivePet() then waitForPetToAppear = GetTime(); return end
+                            end
+                        elseif callPet ~= nil and (not deadPet or not IsPetActive()) then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return end
                         end
                     end
                 end
@@ -284,9 +285,14 @@ local function runRotation()
                     waitForPetToAppear = GetTime()
                 end
             end
-            --Revive
-            if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                if cast.revivePet() then return; end
+            -- Growl
+            if isChecked("Auto Growl") then
+                local petGrowl = GetSpellInfo(2649)
+                if isTankInRange() then
+                    DisableSpellAutocast(petGrowl)
+                else
+                    EnableSpellAutocast(petGrowl)
+                end
             end
             -- Mend Pet
             if isChecked("Mend Pet") and GetUnitExists("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
@@ -428,9 +434,9 @@ local function runRotation()
                 -- berserking,if=buff.bestial_wrath.remains>7&(!set_bonus.tier20_2pc|buff.bestial_wrath.remains<11)
                 -- blood_fury,if=buff.bestial_wrath.remains>7
                 if isChecked("Racial") and getSpellCD(racial) == 0
-                    and ((buff.bestialWrath.remain() > 7 and br.player.race == "Orc") 
-                        or (buff.bestialWrath.remain() > 7 and (not t20_2pc or buff.bestialWrath.remain() > 11) and br.player.race == "Troll") 
-                        or (powerDeficit >= 30 and br.player.race == "BloodElf")) 
+                    and ((buff.bestialWrath.remain() > 7 and br.player.race == "Orc")
+                        or (buff.bestialWrath.remain() > 7 and (not t20_2pc or buff.bestialWrath.remain() > 11) and br.player.race == "Troll")
+                        or (powerDeficit >= 30 and br.player.race == "BloodElf"))
                 then
                      if cast.racial() then return end
                 end
@@ -556,15 +562,15 @@ local function runRotation()
                     end
             -- Cobra Shot
                     -- cobra_shot,if=set_bonus.tier20_2pc&spell_targets.multishot=1&!equipped.qapla_eredun_war_order&(buff.bestial_wrath.up&buff.bestial_wrath.remains<gcd.max*2)&(!talent.dire_frenzy.enabled|pet.cat.buff.dire_frenzy.remains>gcd.max*1.2)
-                    if tier20_2pc and #enemies.yards8pet < getOptionValue("Units To AoE") and not hasEquiped(137227) 
-                        and (buff.bestialWrath.exists() and buff.bestialWrath.remain() < gcdMax * 2) and (not talent.direFrenzy or buff.direFrenzy.remain("pet") > gcdMax *1.2) 
+                    if tier20_2pc and #enemies.yards8pet < getOptionValue("Units To AoE") and not hasEquiped(137227)
+                        and (buff.bestialWrath.exists() and buff.bestialWrath.remain() < gcdMax * 2) and (not talent.direFrenzy or buff.direFrenzy.remain("pet") > gcdMax *1.2)
                     then
                         if cast.cobraShot() then return end
                     end
             -- Dire Beast
                     -- dire_beast,if=cooldown.bestial_wrath.remains>2&((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1)
-                    if not talent.direFrenzy and cd.bestialWrath.remain() > 2 and ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) or charges.direBeast.timeTillFull() < gcdMax 
-                        or cd.titansThunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE")) 
+                    if not talent.direFrenzy and cd.bestialWrath.remain() > 2 and ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) or charges.direBeast.timeTillFull() < gcdMax
+                        or cd.titansThunder.exists() or #enemies.yards8pet >= getOptionValue("Units To AoE"))
                     then
                         if cast.direBeast() then return end
                     end
@@ -578,8 +584,8 @@ local function runRotation()
             -- Dire Frenzy
                     -- dire_frenzy,if=pet.cat.buff.dire_frenzy.remains<=gcd.max*1.2|(talent.one_with_the_pack.enabled&(cooldown.bestial_wrath.remains>3&charges_fractional>1.2))|full_recharge_time<gcd.max|target.time_to_die<9
                     if talent.direFrenzy and charges.direFrenzy.count() > 0 then
-                        if buff.direFrenzy.remain("pet") <= gcdMax * 1.2 or (talent.oneWithThePack and (cd.bestialWrath.remain() > 3 and charges.direFrenzy.frac() > 1.2)) 
-                            or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9 
+                        if buff.direFrenzy.remain("pet") <= gcdMax * 1.2 or (talent.oneWithThePack and (cd.bestialWrath.remain() > 3 and charges.direFrenzy.frac() > 1.2))
+                            or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9
                         then
                             if cast.direFrenzy() then return end
                         end
@@ -596,7 +602,7 @@ local function runRotation()
                     end
             -- Kill Command
                     -- kill_command
-                    if level >= 10 then 
+                    if level >= 10 then
                         if cast.killCommand() then return end
                     end
             -- Multishot
@@ -615,7 +621,7 @@ local function runRotation()
                         if cast.cobraShot() then return end
                     end
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
-                    if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm) or ((buff.bestialWrath.exists() or level < 40) and (#enemies.yards8pet < getOptionValue("Units To AoE") 
+                    if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm) or ((buff.bestialWrath.exists() or level < 40) and (#enemies.yards8pet < getOptionValue("Units To AoE")
                         or powerRegen * cd.killCommand.remain() > select(1, getSpellCost(spell.killCommand)))) or ttd(units.dyn40) < cd.killCommand.remain() or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2) or level < 10
                     then
                         if cast.cobraShot() then return end

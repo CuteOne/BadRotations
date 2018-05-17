@@ -132,14 +132,14 @@ function getSpellUnit(spellCast,aoe)
 	local unit = br.player.units(maxRange,aoe)
     if spellType == "Helpful" then
         thisUnit = "player"
-    elseif spellType == "Harmful" or spellType == "Both" then  
-        thisUnit = unit 
+    elseif spellType == "Harmful" or spellType == "Both" then
+        thisUnit = unit
     elseif spellType == "Unknown" and getDistance(unit) < maxRange then
-        if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then 
+        if castSpell(unit,spellCast,false,false,false,false,false,false,false,true) then
             thisUnit = unit
         elseif castSpell("player",spellCast,false,false,false,false,false,false,false,true) then
             thisUnit = "player"
-        end 
+        end
     end
     return thisUnit
 end
@@ -297,8 +297,8 @@ function isBoss(unit)
 		local healthMax = UnitHealthMax(unit)
 		local pHealthMax = UnitHealthMax("player")
 		local instance = select(2,IsInInstance())
-		return isInstanceBoss(unit) or isDummy(unit) or (not UnitIsTrivial(unit) and instance ~= "party" 
-			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss" 
+		return isInstanceBoss(unit) or isDummy(unit) or (not UnitIsTrivial(unit) and instance ~= "party"
+			and ((class == "rare" and healthMax > 4 * pHealthMax) or class == "rareelite" or class == "worldboss"
 				or (class == "elite" and healthMax > 4 * pHealthMax and instance ~= "raid")	or UnitLevel(unit) < 0))
 	end
 	return false
@@ -326,7 +326,7 @@ function isDummy(Unit)
 		local dummies = br.lists.dummies
 		local objectID = GetObjectID(Unit)
 		-- if dummies[tonumber(string.match(UnitGUID(Unit),"-(%d+)-%x+$"))] then --~= nil
-		return dummies[objectID] ~= nil			
+		return dummies[objectID] ~= nil
 	end
 	return false
 end
@@ -338,4 +338,15 @@ function isEnnemy(Unit)
 	else
 		return false
 	end
+end
+function isTankInRange()
+	if #br.friend > 1 then
+		for i = 1, #br.friend do
+			local friend = br.friend[i]
+			if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 40 then
+				return true
+			end
+		end
+	end
+	return false
 end

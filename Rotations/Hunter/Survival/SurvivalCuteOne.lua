@@ -67,7 +67,9 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
+            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+        -- Auto Growl
+            br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -241,26 +243,25 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+            if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (not UnitIsDeadOrGhost("pet") or IsPetActive() == false) then
+            elseif isChecked("Auto Summon") then
+                local callPet = nil
+                for i = 1, 5 do
+                    if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
+                end
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if deadPet then
-                        if cast.revivePet() then return end
-                    elseif not deadPet then
-                        local Autocall = getValue("Auto Summon");
-                        if Autocall == 1 then
-                            if cast.callPet1() then return end
-                        elseif Autocall == 2 then
-                            if cast.callPet2() then return end
-                        elseif Autocall == 3 then
-                            if cast.callPet3() then return end
-                        elseif Autocall == 4 then
-                            if cast.callPet4() then return end
-                        elseif Autocall == 5 then
-                            if cast.callPet5() then return end
-                        else
-                            Print("Auto Call Pet Error")
+                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return end
+                    elseif callPet ~= nil and not UnitExists("pet") and (not deadPet or not IsPetActive()) then
+                        if UnitIsDeadOrGhost("pet") or deadPet then
+                            if cast.able.heartOfThePhoenix and inCombat then
+                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return end
+                            else
+                                if cast.revivePet() then waitForPetToAppear = GetTime(); return end
+                            end
+                        elseif callPet ~= nil and (not deadPet or not IsPetActive()) then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return end
                         end
                     end
                 end
@@ -268,9 +269,14 @@ local function runRotation()
                     waitForPetToAppear = GetTime()
                 end
             end
-            --Revive
-            if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                if cast.revivePet() then return; end
+            -- Growl
+            if isChecked("Auto Growl") then
+                local petGrowl = GetSpellInfo(2649)
+                if isTankInRange() then
+                    DisableSpellAutocast(petGrowl)
+                else
+                    EnableSpellAutocast(petGrowl)
+                end
             end
             -- Mend Pet
             if isChecked("Mend Pet") and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then

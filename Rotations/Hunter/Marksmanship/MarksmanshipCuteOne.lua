@@ -78,7 +78,9 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5",}, 1, "Select the pet you want to use")
+            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+        -- Auto Growl
+            br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -255,10 +257,10 @@ local function runRotation()
         -- Trueshot Cooldown
         -- variable,name=trueshot_cooldown,op=set,value=time*1.1,if=time>15&cooldown.trueshot.up&variable.trueshot_cooldown=0
         if not trueshotCD then trueshotCD = 0 end
-        if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then 
-            trueshotCD = combatTime * 1.1 
-        -- else 
-        --     trueshotCD = 0 
+        if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then
+            trueshotCD = combatTime * 1.1
+        -- else
+        --     trueshotCD = 0
         end
 
         -- Wait for Sentinel
@@ -286,7 +288,7 @@ local function runRotation()
 
         -- Can GCD
         -- can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1
-        local canGCD = vulnWindow < cast.time.aimedShot() or vulnWindow > vulnAimCast * aimedExecute + gcdMax + 0.1            
+        local canGCD = vulnWindow < cast.time.aimedShot() or vulnWindow > vulnAimCast * aimedExecute + gcdMax + 0.1
 
         function br.player.getDebuffsCount()
             local UnitDebuffID = UnitDebuffID
@@ -315,9 +317,9 @@ local function runRotation()
             for k,v in pairs(br.player.petInfo) do
                 local thisPet = br.player.petInfo[k]
                 if thisPet.id == 11492 and #getObjectEnemies(thisPet.unit,5) > 0 then
-                    -- Print("Explosions!!!!") 
+                    -- Print("Explosions!!!!")
                     CastSpellByName(GetSpellInfo(spell.explosiveShotDetonate))
-                    break 
+                    break
                 end
             end
         end
@@ -330,26 +332,25 @@ local function runRotation()
     -- Action List - Pet Management
         local function actionList_PetManagement()
             if not talent.loneWolf then
-                if IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player") then
+                if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                     waitForPetToAppear = GetTime()
-                elseif isChecked("Auto Summon") and not GetUnitExists("pet") and (UnitIsDeadOrGhost("pet") ~= nil or IsPetActive() == false) then
+                elseif isChecked("Auto Summon") then
+                    local callPet = nil
+                    for i = 1, 5 do
+                        if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
+                    end
                     if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                        if deadPet == true then
-                            if cast.revivePet() then return end
-                        elseif deadPet == false then
-                            local Autocall = getValue("Auto Summon");
-                            if Autocall == 1 then
-                                if cast.callPet1() then return end
-                            elseif Autocall == 2 then
-                                if cast.callPet2() then return end
-                            elseif Autocall == 3 then
-                                if cast.callPet3() then return end
-                            elseif Autocall == 4 then
-                                if cast.callPet4() then return end
-                            elseif Autocall == 5 then
-                                if cast.callPet5() then return end
-                            else
-                                Print("Auto Call Pet Error")
+                        if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                            if cast.dismissPet() then waitForPetToAppear = GetTime(); return end
+                        elseif callPet ~= nil and not UnitExists("pet") and (not deadPet or not IsPetActive()) then
+                            if UnitIsDeadOrGhost("pet") or deadPet then
+                                if cast.able.heartOfThePhoenix and inCombat then
+                                    if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return end
+                                else
+                                    if cast.revivePet() then waitForPetToAppear = GetTime(); return end
+                                end
+                            elseif callPet ~= nil and (not deadPet or not IsPetActive()) then
+                                if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return end
                             end
                         end
                     end
@@ -357,9 +358,14 @@ local function runRotation()
                         waitForPetToAppear = GetTime()
                     end
                 end
-                --Revive
-                if isChecked("Auto Summon") and UnitIsDeadOrGhost("pet") then
-                    if cast.revivePet() then return; end
+                -- Growl
+                if isChecked("Auto Growl") then
+                    local petGrowl = GetSpellInfo(2649)
+                    if isTankInRange() then
+                        DisableSpellAutocast(petGrowl)
+                    else
+                        EnableSpellAutocast(petGrowl)
+                    end
                 end
                 -- Mend Pet
                 if isChecked("Mend Pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
@@ -488,8 +494,8 @@ local function runRotation()
         -- Trinkets
                 if isChecked("Trinkets") then
                     -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd(units.dyn40) > 120 + 20 or isDummy("target"))) 
-                        or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) 
+                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd(units.dyn40) > 120 + 20 or isDummy("target")))
+                        or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30))
                     then
                         useItem(147017)
                     end
@@ -505,8 +511,8 @@ local function runRotation()
                 -- berserking,if=buff.trueshot.up
                 -- blood_fury,if=buff.trueshot.up
                 if isChecked("Racial") and getSpellCD(racial) == 0
-                    and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll")) 
-                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf")) 
+                    and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll"))
+                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf"))
                 then
                      if castSpell("player",racial,false,false,false) then return end
                 end
@@ -529,7 +535,7 @@ local function runRotation()
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
-    -- Action List - Target Die 
+    -- Action List - Target Die
         local function actionList_TargetDie()
             rotationDebug = "Target Die"
         -- Piercing Shot
@@ -581,13 +587,13 @@ local function runRotation()
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&(talent.trick_shot.enabled|buff.lock_and_load.up)&buff.sentinels_sight.stack=20
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot) 
-                and (talent.trickShot or buff.lockAndLoad.exists()) and buff.sentinelsSight.stack() == 20 
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot)
+                and (talent.trickShot or buff.lockAndLoad.exists()) and buff.sentinelsSight.stack() == 20
             then
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&talent.trick_shot.enabled&set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot) 
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot)
                 and talent.trickShot and t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot()
             then
                 if cast.aimedShot() then return end
@@ -604,8 +610,8 @@ local function runRotation()
             end
         -- Multi-Shot
             -- multishot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) 
-                and (buff.markingTargets.exists() or buff.trueshot.exists()) 
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2)
+                and (buff.markingTargets.exists() or buff.trueshot.exists())
             then
                 if cast.multiShot() then return end
             end
@@ -613,14 +619,14 @@ local function runRotation()
             -- sentinel,if=!debuff.hunters_mark.up
             if not debuff.huntersMark.exists(units.dyn40) then
                 if cast.sentinel() then return end
-            end 
+            end
         -- Black Arrow
             -- black_arrow,if=talent.sidewinders.enabled|spell_targets.multishot<6
             if talent.sidewinders or ((mode.rotation == 1 and #enemies.yards8t < 6) or mode.rotation == 1) then
                 if cast.blackArrow() then return end
-            end  
+            end
         -- A Murder of Crows
-            -- a_murder_of_crows,if=target.time_to_die>=cooldown+duration|target.health.pct<20  
+            -- a_murder_of_crows,if=target.time_to_die>=cooldown+duration|target.health.pct<20
             if ttd(units.dyn40) >= 60 + 15 or getHP(units.dyn40) < 20 or isDummy("target") then
                 if cast.aMurderOfCrows() then return end
             end
@@ -648,8 +654,8 @@ local function runRotation()
             end
         -- Sidewinders
             -- sidewinders,if=!variable.waiting_for_sentinel&(debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down))&((buff.marking_targets.up|buff.trueshot.up)|charges_fractional>1.8)&(focus.deficit>cast_regen)
-            if not waitForSentinel and (not debuff.huntersMark.exists(units.dyn40) or (not buff.trueshot.exists() and not buff.markingTargets.exists())) 
-                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > cast.regen.sidewinders()) --getCastingRegen(spell.sidewinders)) 
+            if not waitForSentinel and (not debuff.huntersMark.exists(units.dyn40) or (not buff.trueshot.exists() and not buff.markingTargets.exists()))
+                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > cast.regen.sidewinders()) --getCastingRegen(spell.sidewinders))
             then
                 if cast.sidewinders() then return end
             end
@@ -659,8 +665,8 @@ local function runRotation()
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(buff.lock_and_load.up&lowest_vuln_within.5>gcd.max))&(talent.trick_shot.enabled|buff.sentinels_sight.stack=20)
-            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --[[getCastTime(spell.aimedShot)--]] and (not poolForPiercing or (buff.lockAndLoad.exists() and lowestVuln > gcd)) 
-                and (talent.trickShot or buff.sentinelsSight.stack() == 20) 
+            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --[[getCastTime(spell.aimedShot)--]] and (not poolForPiercing or (buff.lockAndLoad.exists() and lowestVuln > gcd))
+                and (talent.trickShot or buff.sentinelsSight.stack() == 20)
             then
                 if cast.aimedShot() then return end
             end
@@ -710,16 +716,16 @@ local function runRotation()
                 if cast.piercingShot(units.dyn38) then return end
             end
             -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 
-                and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6)) 
+            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0
+                and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6))
             then
                 if cast.piercingShot(units.dyn38) then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() 
-                and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists() 
-                    or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot())) 
+            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot()
+                and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists()
+                    or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot()))
             then
                 if cast.aimedShot() then return end
             end
@@ -770,29 +776,29 @@ local function runRotation()
                 if cast.aimedShot() then return end
             end
             -- aimed_shot,if=spell_targets.multishot>1&debuff.vulnerability.remains>execute_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > aimedExecute 
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > aimedExecute
                 and (not poolForPiercing or (power > 100 and lowestVuln > (aimedExecute + gcdMax)))
             then
                 if cast.aimedShot() then return end
             end
         -- Multi-Shot
             -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + cast.regen.multiShot() + cast.regen.aimedShot() < powerMax 
-                and (not poolForPiercing or lowestVuln > gcdMax) 
+            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + cast.regen.multiShot() + cast.regen.aimedShot() < powerMax
+                and (not poolForPiercing or lowestVuln > gcdMax)
             then
                 if cast.multiShot() then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd)
             if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not t20_2pc or cast.last.aimedShot() or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd)
-                and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax and (not poolForPiercing or lowestVuln > gcd) 
+                and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax and (not poolForPiercing or lowestVuln > gcd)
             then
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
             -- aimed_shot,if=talent.sidewinders.enabled&(debuff.vulnerability.remains>cast_time|(buff.lock_and_load.down&action.windburst.in_flight))&(variable.vuln_window-(execute_time*variable.vuln_aim_casts)<1|focus.deficit<25|buff.trueshot.up)&(spell_targets.multishot=1|focus>100)
-            if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() or (not buff.lockAndLoad.exists() and cast.last.windburst())) 
-                and (vulnWindow - (aimedExecute * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists()) 
+            if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() or (not buff.lockAndLoad.exists() and cast.last.windburst()))
+                and (vulnWindow - (aimedExecute * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists())
                 and (((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) or power > 100)
             then
                 if cast.aimedShot() then return end
@@ -827,8 +833,8 @@ local function runRotation()
             end
         -- Sidewinders
             -- sidewinders,if=(!debuff.hunters_mark.up|(!buff.marking_targets.up&!buff.trueshot.up))&((buff.marking_targets.up&variable.vuln_aim_casts<1)|buff.trueshot.up|charges_fractional>1.9)
-            if (not debuff.huntersMark.exists(units.dyn40) or (not buff.markingTargets.exists() and not buff.trueshot.exists())) 
-                and ((buff.markingTargets.exists() and vulnAimCast < 1) or buff.trueshot.exists() or charges.sidewinders.frac() > 1.9) 
+            if (not debuff.huntersMark.exists(units.dyn40) or (not buff.markingTargets.exists() and not buff.trueshot.exists()))
+                and ((buff.markingTargets.exists() and vulnAimCast < 1) or buff.trueshot.exists() or charges.sidewinders.frac() > 1.9)
             then
                 if cast.sidewinders() then return end
             end
@@ -841,7 +847,7 @@ local function runRotation()
             -- multishot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
             if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (not poolForPiercing or lowestVuln > gcdMax) then
                 if cast.multiShot() then return end
-            end            
+            end
         end -- End Action List - Patient Sniper
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -889,7 +895,7 @@ local function runRotation()
                     StartAttack()
                 end
             end
-        end 
+        end
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -965,7 +971,7 @@ local function runRotation()
     --- Ask Mr Robot APL ---
     ------------------------
                 if getOptionValue("APL Mode") == 2 then
-                   
+
                 end
             end --End In Combat
         end --End Rotation Logic
