@@ -300,7 +300,7 @@ local function runRotation()
     -- Action List - Extras
         local function actionList_Extras()
         -- Hand of Freedom
-            if isChecked("Hand of Freedom") and hasNoControl() then
+            if isChecked("Hand of Freedom") and hasNoControl(spell.handOfFreedom) then
                 if cast.handOfFreedom() then return end
             end
         -- Hand of Hinderance
