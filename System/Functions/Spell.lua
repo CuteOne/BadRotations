@@ -199,6 +199,7 @@ function getFullRechargeTime(spellID)
 end
 -- if getSpellCD(12345) <= 0.4 then
 function getSpellCD(SpellID)
+	if SpellID == nil then return false end
 	if GetSpellCooldown(SpellID) == 0 then
 		return 0
 	else

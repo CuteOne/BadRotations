@@ -187,7 +187,7 @@ function isIncapacitated(spellID)
 		local _,_,text = C_LossOfControl.GetEventInfo(eventIndex)
 		if (text == LOSS_OF_CONTROL_DISPLAY_FEAR
 			or text == LOSS_OF_CONTROL_DISPLAY_HORROR
-			or text == LOSS_OF_CONTROL_DISPLAY_STUN 
+			or text == LOSS_OF_CONTROL_DISPLAY_STUN
 			or text == LOSS_OF_CONTROL_DISPLAY_CHARM
 			or text == LOSS_OF_CONTROL_DISPLAY_SLEEP
 			or text == LOSS_OF_CONTROL_DISPLAY_DISORIENT
@@ -300,8 +300,8 @@ end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
 	if playerUnit == nil then playerUnit = "player" end
-	if GetUnit(unit) == nil then 
-		targetUnit = "None" 
+	if GetUnit(unit) == nil then
+		targetUnit = "None"
 	elseif UnitTarget(GetUnit(unit)) ~= nil then
 		targetUnit = UnitTarget(GetUnit(unit))
 	else
@@ -315,16 +315,16 @@ function hasThreat(unit,playerUnit)
 		return targetFriend
 	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
 		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
-			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end 
-			return true 
+			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end
+			return true
 		end
 	elseif #br.friend > 1 then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
 			if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
-				if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then 
+				if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then
 					if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
-					return true 
+					return true
 				end
 			end
 		end
@@ -332,20 +332,14 @@ function hasThreat(unit,playerUnit)
 end
 -- if isAggroed("target") then
 function isAggroed(unit)
-local friend = br.friend
-local hasAggro = hasAggro
-	if hasAggro == nil then hasAggro = false end
-	for i=1,#friend do
-		local threat = select(5,UnitDetailedThreatSituation(friend[i].unit,unit))
-		if threat~=nil then
-			if threat>=0 then
-	  			hasAggro = true
+	for i = 1, #br.friend do
+		local friend = br.friend[i].unit
+		local threat = select(5,UnitDetailedThreatSituation(friend,unit))
+		if threat ~= nil then
+			if threat >= 0 then
+	  			return true
 			end
 		end
 	end
-	if hasAggro==true then
-		return true
-	else
-		return false
-	end
+	return false
 end

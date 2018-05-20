@@ -222,8 +222,8 @@ local function runRotation()
         local units                                         = units or {}
 
         units.dyn5 = br.player.units(5)
-	units.dyn8 = br.player.units(8)
-	units.dyn40 = br.player.units(40)
+	    units.dyn8 = br.player.units(8)
+        units.dyn40 = br.player.units(40)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
@@ -334,16 +334,14 @@ local function runRotation()
                     end
                 end
         -- Frenzied Regeneration
-                if isChecked("Frenzied Regeneration") then
-                    if getOptionValue("Frenzied Regeneration") == 1 and (snapLossHP >= getOptionValue("FR - HP Loss Percent") or (snapLossHP > php and snapLossHP > 5))
-                        and not buff.frenziedRegeneration.exists()
-                    then
+                if isChecked("Frenzied Regeneration") and cast.able.frenziedRegeneration() and not buff.frenziedRegeneration.exists() then
+                    if getOptionValue("Frenzied Regeneration") == 1 and (snapLossHP >= getOptionValue("FR - HP Loss Percent") or (snapLossHP > php and snapLossHP > 5)) then
                         if cast.frenziedRegeneration() then snapLossHP = 0; return end
                     end
-                    if getOptionValue("Frenzied Regeneration") == 2 and not buff.frenziedRegeneration.exists()
+                    if getOptionValue("Frenzied Regeneration") == 2
                         and ((charges.frenziedRegeneration.count() >= 3 and php < getOptionValue("FR - HP Interval (3 Charge)"))
                         or (charges.frenziedRegeneration.count() >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)"))
-                        or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))
+                        or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))                        
                     then
                         if cast.frenziedRegeneration() then return end
                     end
