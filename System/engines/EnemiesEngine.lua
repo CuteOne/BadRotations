@@ -129,14 +129,13 @@ function getOMUnits()
 	end
 	-- Cycle the Object Manager
 	local objectCount = FireHack~=nil and GetObjectCount() or 0
-	if FireHack ~= nil and objectCount > 0 then
+	if FireHack ~= nil and objectCount > 0 and br.player.cd.global.remain() == 0 then
 		for i = 1, objectCount do
 			if i == 1 then cycleTime = debugprofilestop() end
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 			local enemyListCheck = enemyListCheck
-			if (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492)
-			then
+			if (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492) then
 				-- Units
 				if enemyListCheck(thisUnit)	then
 					br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
