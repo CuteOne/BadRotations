@@ -69,6 +69,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
         -- Growl
             br.ui:createCheckbox(section,"Growl","|cffFFFFFFAuto Growl usage.")
+        -- Maul At
+            br.ui:createSpinnerWithout(section, "Maul At",  90,  5,  100,  5,  "|cffFFFFFFSet to desired rage to cast Maul. Min: 5 / Max: 100 / Interval: 5")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -341,7 +343,7 @@ local function runRotation()
                     if getOptionValue("Frenzied Regeneration") == 2
                         and ((charges.frenziedRegeneration.count() >= 3 and php < getOptionValue("FR - HP Interval (3 Charge)"))
                         or (charges.frenziedRegeneration.count() >= 2 and php < getOptionValue("FR - HP Interval (2 Charge)"))
-                        or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))                        
+                        or (charges.frenziedRegeneration.count() >= 1 and php < getOptionValue("FR - HP Interval (1 Charge)")))
                     then
                         if cast.frenziedRegeneration() then return end
                     end
@@ -661,7 +663,7 @@ local function runRotation()
                         end
                     end
         -- Maul
-                    if power > 90 then
+                    if power >= getOptionValue("Maul At") then
                         if cast.maul() then return end
                     end
         -- Swipe
