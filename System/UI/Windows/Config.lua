@@ -81,6 +81,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
         br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
         br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes.")
+        br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
         br.ui:checkSectionState(section)
     end
 

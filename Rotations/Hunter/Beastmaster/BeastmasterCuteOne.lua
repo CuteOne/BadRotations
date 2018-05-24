@@ -250,6 +250,7 @@ local function runRotation()
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
+        if opener == nil then opener = false end
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
@@ -486,7 +487,7 @@ local function runRotation()
 		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
-                if isValidUnit("target") and getDistance("target") < 5 then
+                if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
 					if not OPN1 then
                         Print("Starting Opener")
@@ -496,7 +497,7 @@ local function runRotation()
             -- A Murder of Crows
                         -- a_murder_of_crows
                         if useCDs() and isChecked("A Murder Of Crows / Barrage") then
-       					    if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return true end
+       					    if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": A Murder of Crows (Uncastable)")
                             openerCount = openerCount + 1
@@ -506,7 +507,7 @@ local function runRotation()
             -- Kill Command
                         -- kill_command
                         if cast.able.killCommand() then
-                            if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return true end
+                            if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Kill Command (Uncastable)")
                             openerCount = openerCount + 1
@@ -516,7 +517,7 @@ local function runRotation()
        		-- Cobra Shot
                         -- cobra_shot
                         if cast.able.cobraShot() then
-       					    if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return true end
+       					    if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Cobra Shot (Uncastable)")
                             openerCount = openerCount + 1
@@ -565,6 +566,8 @@ local function runRotation()
                     StartAttack()
                 end
             end
+        -- Opener
+            if actionList_Opener() then return true end
         end
 ---------------------
 --- Begin Profile ---
@@ -593,9 +596,7 @@ local function runRotation()
     ------------------
     --- Pre-Combat ---
     ------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-                if actionList_PreCombat() then return end
-            end -- End Out of Combat Rotation
+            if actionList_PreCombat() then return end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
@@ -628,14 +629,14 @@ local function runRotation()
                     end
             -- Dire Beast
                     -- dire_beast,if=((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)&(set_bonus.tier19_2pc|!buff.bestial_wrath.up))|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1
-                    if ((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (tier19_2pc or not buff.bestialWrath.exists()))
-                        or charges.direBeast.timeTillFull() < gcdMax or not cd.titansThunder.exists() or #enemies.yards40 > 1
+                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (tier19_2pc or not buff.bestialWrath.exists()))
+                        or charges.direBeast.timeTillFull() < gcdMax or not cd.titansThunder.exists() or #enemies.yards40 > 1)
                     then
                         if cast.direBeast() then return end
                     end
             -- Dire Frenzy
                     -- dire_frenzy,if=(pet.cat.buff.dire_frenzy.remains<=gcd.max*1.2)|full_recharge_time<gcd.max|target.time_to_die<9
-                    if (buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9 then
+                    if talent.direFrenzy and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9) then
                         if cast.direFrenzy() then return end
                     end
             -- Barrage
@@ -676,7 +677,7 @@ local function runRotation()
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
                     if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm)
                         or (buff.bestialWrath.exists() and (#enemies.yards40 == 1 or powerRegen * cd.killCommand.remain() > cast.cost.killCommand()))
-                        or ttd(units.dyn40) < cd.killCommand.remain() or (equiped.parselsTongue and buff.parselsTongue.remain() <= gcdMax * 2)
+                        or ttd(units.dyn40) < cd.killCommand.remain() or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2)
                     then
                         if cast.cobraShot() then return end
                     end
