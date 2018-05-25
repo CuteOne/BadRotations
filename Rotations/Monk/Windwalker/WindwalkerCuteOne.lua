@@ -101,6 +101,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- Energizing Elixir
+            br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Serenity
@@ -1085,7 +1087,7 @@ local function runRotation()
             if actionList_Cooldown() then return true end
         -- Energizing Elixir
             -- energizing_elixir,if=chi<=1&(cooldown.rising_sun_kick.remains=0|(artifact.strike_of_the_windlord.enabled().enabled&cooldown.strike_of_the_windlord.remains=0)|energy<50)
-            if isChecked("Energizing Elixir") and chi <= 1 and (cd.risingSunKick.remain() == 0 or (artifact.strikeOfTheWindlord.enabled() and cd.strikeOfTheWindlord.remain() == 0 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()))) or power < 50)
+            if (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and chi <= 1 and (cd.risingSunKick.remain() == 0 or (artifact.strikeOfTheWindlord.enabled() and cd.strikeOfTheWindlord.remain() == 0 and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()))) or power < 50)
                 and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4
             then
                 if cast.energizingElixir() then TPEETimer = GetTime(); return true end
@@ -1200,7 +1202,7 @@ local function runRotation()
             -- blackout_kick,cycle_targets=1,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<cooldown.fists_of_fury.remains))&((cooldown.rising_sun_kick.remains>1&(!artifact.strike_of_the_windlord.enabled|cooldown.strike_of_the_windlord.remains>1)|chi>2)&(cooldown.fists_of_fury.remains>1|chi>3)|prev_gcd.1.tiger_palm)&!prev_gcd.1.blackout_kick
             if (chi > 1 or buff.blackoutKick.exists() or (talent.energizingElixir and cd.energizingElixir.remain() < cd.fistsOfFury.remain()))
                 and ((cd.risingSunKick.remain() > 1 and (not artifact.strikeOfTheWindlord.enabled() or cd.strikeOfTheWindlord.remain() > 1 or chi > 2)
-                    and (cd.fistsOfFury.remain() > 1 or chi > 3)) or lastCombo == spell.tigerPalm)
+                    and (cd.fistsOfFury.remain() > 1 or chi > 3)) or lastCombo == spell.tigerPalm or level < 10)
                 and lastCombo ~= spell.blackoutKick
             then
                 if BetterThanBOK == true and lastCombo ~= spell.spinningCraneKick then
@@ -1535,7 +1537,7 @@ local function runRotation()
                         end
         -- Energizing Elixir
                         -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
-                        if isChecked("Energizing Elixir") and chi == 0 and power < powerMax and not buff.serenity.exists() then
+                        if (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and chi == 0 and power < powerMax and not buff.serenity.exists() then
                             if cast.energizingElixir() then return true end
                         end
         -- Storm, Earth, and Fire
