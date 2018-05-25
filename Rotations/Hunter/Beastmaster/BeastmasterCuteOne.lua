@@ -282,16 +282,16 @@ local function runRotation()
                 end
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
                     if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
-                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return end
-                    elseif callPet ~= nil and not UnitExists("pet") and (not deadPet or not IsPetActive()) then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
+                    elseif callPet ~= nil then
                         if UnitIsDeadOrGhost("pet") or deadPet then
-                            if cast.able.heartOfThePhoenix and inCombat then
-                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return end
+                            if cast.able.heartOfThePhoenix() and inCombat then
+                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return true end
                             else
-                                if cast.revivePet() then waitForPetToAppear = GetTime(); return end
+                                if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                             end
-                        elseif callPet ~= nil and (not deadPet or not IsPetActive()) then
-                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return end
+                        elseif not deadPet or not IsPetActive() or not UnitExists("pet") then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
                 end
