@@ -309,7 +309,7 @@ local function runRotation()
                 end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and GetUnitExists("pet") and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
                 if cast.mendPet() then return; end
             end
             -- Pet Attack / retreat

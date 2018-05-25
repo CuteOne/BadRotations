@@ -3348,6 +3348,7 @@ br.lists.spells = {
             items                               = {
                 convergenceOfFates              = 140806,
                 deceiversGrandDesign            = 147007,
+                defiledAugmentRune              = 140587,    
                 draughtOfSouls                  = 140808,
                 feloiledInfernalMachine         = 144482,
                 flaskOfTenThousandScars         = 127850,
