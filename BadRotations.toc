@@ -115,7 +115,6 @@ System\UI\Windows\Profile.lua
 
 Rotations\cCharacter.lua
 Rotations\cBuilder.lua
-Rotations\idList.lua
 
 ## DeathKnight ---------------------------------------------------
 

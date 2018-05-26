@@ -72,8 +72,6 @@ local function createOptions()
             br.ui:createSpinner(section,"CJL OOR", 100,  5,  160,  5, "Cast CJL when 0 enemies in 8 yds when at X Energy")
         -- Cancel CJL OOR
             br.ui:createSpinner(section,"CJL OOR Cancel", 30,  5,  160,  5, "Cancel CJL OOR when under X Energy")
-        -- Energizing Elixir
-            br.ui:createCheckbox(section, "Energizing Elixir")
         -- Roll
             br.ui:createCheckbox(section, "Roll")
         -- Resuscitate
@@ -86,6 +84,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
         -- SCK Damage
             br.ui:createCheckbox(section, "Calculate SCK", "Will calculate when SCK does more damage and use over other abilities.")
+        -- Spread Mark Cap
+            br.ui:createSpinnerWithout(section, "Spread Mark Cap", 5, 0, 10, 1, "|cffFFFFFFSet to limit Mark of the Crane Buffs, 0 for unlimited. Min: 0 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -102,7 +102,7 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         -- Energizing Elixir
-            br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
+            br.ui:createDropdown(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Serenity
@@ -547,11 +547,13 @@ local function runRotation()
         -- Spread the Mark of the Crane
         local function spreadMark()
             local markUnit = units.dyn5
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if debuff.markOfTheCrane.refresh(thisUnit) then
-                    markUnit = thisUnit
-                    break
+            if getOptionValue("Spread Mark Cap") == 0 or debuff.markOfTheCrane.count() <= getOptionValue("Spread Mark Cap") then
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if debuff.markOfTheCrane.refresh(thisUnit) then
+                        markUnit = thisUnit
+                        break
+                    end
                 end
             end
             return markUnit

@@ -35,6 +35,22 @@ function getRacial()
     }
     return racialSpells[race]
 end
+function getHeirloomNeck()
+    local necks = {
+        eternalAmuletOfTheRedeemed  = 122663,
+        eternalEmberfuryTalisman    = 122667,
+        eternalHorizonChoker        = 122664,
+        eternalTalismanOfEvasion    = 122662,
+        eternalWillOfTheMartyr      = 122668,
+        eternalWovenIvyNecklace     = 122666,
+        manariTrainingAmulet        = 153130,
+    }
+    for i = 1, #necks do
+        local thisNeck = necks[i]
+        if hasEquiped(thisNeck,2) then return thisNeck end
+    end
+    return 0
+end
 if br.lists == nil then br.lists = {} end
 br.lists.spells = {
     DEATHKNIGHT = {
@@ -680,7 +696,6 @@ br.lists.spells = {
         -- Guardian
         [104] = {
             abilities                       = {
-
                 barkskin                    = 22812,
                 bristlingFur                = 155835,
                 frenziedRegeneration        = 22842,
@@ -699,10 +714,10 @@ br.lists.spells = {
                 survivalInstincts           = 61336,
                 swipe                       = 213771, 106785,
                 thrash                      = 77758, --106830,
-		rake                        = 1822,
-		shred                       = 5221,
-		rip                         = 1079,
-		ferociousBite               = 22568,
+        		rake                        = 1822,
+        		shred                       = 5221,
+        		rip                         = 1079,
+        		ferociousBite               = 22568,
             },
             artifacts                       = {
                 rageOfTheSleeper            = 200851,
@@ -720,8 +735,8 @@ br.lists.spells = {
             debuffs                         = {
                 moonfireGuardian            = 164812,
                 thrash                      = 192090,
-		rake                        = 155722,
-		rip                         = 1079,
+        		rake                        = 155722,
+        		rip                         = 1079,
             },
             glyphs                          = {
 
@@ -906,8 +921,12 @@ br.lists.spells = {
                 glyphOfTheUrsolChameleon    = 107059,
             },
             items                           = {
+                ailuroPouncers              = 137024,
                 burningSeeds                = 94604,
+                chatoyantSignet             = 137040,
                 fandralsSeedPouch           = 122304,
+                luffaWrappings              = 137056,
+                theWildshapersClutch        = 137094,
             },
             talents                         = {
                 displacerBeast              = 102280,
@@ -3348,20 +3367,32 @@ br.lists.spells = {
             items                               = {
                 convergenceOfFates              = 140806,
                 deceiversGrandDesign            = 147007,
-                defiledAugmentRune              = 140587,    
+                defiledAugmentRune              = 140587,
                 draughtOfSouls                  = 140808,
+                eternalAmuletOfTheRedeemed      = 122663,
+                eternalEmberfuryTalisman        = 122667,
+                eternalHorizonChoker            = 122664,
+                eternalTalismanOfEvasion        = 122662,
+                eternalWillOfTheMartyr          = 122668,
+                eternalWovenIvyNecklace         = 122666,
                 feloiledInfernalMachine         = 144482,
                 flaskOfTenThousandScars         = 127850,
                 flaskOfTheCountlessArmies       = 127849,
                 flaskOfTheSeventhDemon          = 127848,
                 flaskOfTheWhisperedPact         = 127847,
                 healthstone                     = 5512,
+                heirloomNeck                    = getHeirloomNeck(),
                 hornOfValor                     = 133642,
 				lightforgedAugmentRune          = 153023, -- 7.3 augment rune item
+                manariTrainingAmulet            = 153130,
                 oraliusWhisperingCrystal        = 118922,
+                potionOfTheOldWar               = 127844,
                 potionOfProlongedPower          = 142117,
                 repurposedFelFocuser            = 147707,
                 ringOfCollapsingFutures         = 142173,
+                specterOfBetrayal               = 151190,
+                umbralMoonglaives               = 147012,
+                vialOfCeaselessToxins           = 147011,
             },
         },
     },
