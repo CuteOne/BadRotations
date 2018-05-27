@@ -212,7 +212,7 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local rage                                          = br.player.power.rage.amount()
+        local rage, rageDeficit                             = br.player.power.rage.amount(), br.player.power.rage.deficit()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
@@ -443,8 +443,8 @@ local function runRotation()
             end
         -- Shield Block
             -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remain()s<6&!buff.shield_block.up)|(cooldown.shield_slam.remain()s<6+buff.shield_block.remain()s&buff.shield_block.up))
-            if not buff.neltharionsFury.exists() and ((cd.shieldSlam.remain() < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam.remain() < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists())) 
-                and lastSpell ~= spell.shieldBlock 
+            if not buff.neltharionsFury.exists() and ((cd.shieldSlam.remain() < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam.remain() < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists()))
+                and lastSpell ~= spell.shieldBlock
             then
                 if cast.shieldBlock() then return end
             end
@@ -485,9 +485,9 @@ local function runRotation()
                 if cast.shieldBlock() then return end
             end
         -- Ignore Pain
-            -- ignore_pain,if=(rage>=60&!talent.vengeance.enabled)|(buff.vengeance_ignore_pain.up&rage>=39)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
-            if (rage >= 60 and not talent.vengeance) or (buff.vengeanceIgnorePain.exists() and rage >= 39)
-                or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and rage < 30 and select(1, getSpellCost(spell.revenge)) ~= 0)
+            -- ignore_pain,if=(!talent.vengeance.enabled&buff.renewed_fury.remains<=0)|(!talent.vengeance.enabled&rage.deficit>=40)|(buff.vengeance_ignore_pain.up)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
+            if cast.able.ignorePain() and ((not talent.vengeance and buff.renewedFury.remain() <= 0) or (not talent.vengeance and rageDeficit >= 40) or (buff.vengeanceIgnorePain.exists())
+                or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and rage < 30 and not buff.revenge.exists()))
             then
                 if cast.ignorePain() then return end
             end
@@ -501,8 +501,8 @@ local function runRotation()
             if cast.thunderClap() then return end
         -- Revenge
             -- revenge,if=(talent.vengeance.enabled&buff.revenge.react&!buff.vengeance_ignore_pain.up)|(buff.vengeance_revenge.up&rage>=59)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage>=69)|(!talent.vengeance.enabled&buff.revenge.react)
-            if (talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0 and not buff.vengeanceIgnorePain.exists()) 
-                or (buff.vengeanceRevenge.exists() and power >= 59) 
+            if (talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0 and not buff.vengeanceIgnorePain.exists())
+                or (buff.vengeanceRevenge.exists() and power >= 59)
                 or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and power >= 69)
                 or (not talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0)
                 or (isChecked("High Rage Revenge") and power > 90 and #enemies.yards8 >= getOptionValue("High Rage Revenge"))
