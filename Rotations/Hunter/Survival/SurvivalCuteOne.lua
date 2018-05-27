@@ -68,6 +68,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
             br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+        -- Auto Attack/Passive
+            br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
@@ -260,13 +262,42 @@ local function runRotation()
                             else
                                 if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                             end
-                        elseif not deadPet or not IsPetActive() or not UnitExists("pet") then
+                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
                             if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
                 end
                 if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
+                end
+            end
+            if isChecked("Auto Attack/Passive") then
+                -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
+                if petMode == nil then petMode = "None" end
+                if not inCombat then
+                    if petMode == "Passive" then
+                        if petMode == "Assist" then PetAssistMode() end
+                        if petMode == "Defensive" then PetDefensiveMode() end
+                    end
+                    for i = 1, NUM_PET_ACTION_SLOTS do
+                        local name, _, _, _, isActive = GetPetActionInfo(i)
+                        if isActive then
+                            if name == "PET_MODE_ASSIST" then petMode = "Assist" end
+                            if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
+                        end
+                    end
+                elseif inCombat and petMode ~= "Passive" then
+                    PetPassiveMode()
+                    petMode = "Passive"
+                end
+                -- Pet Attack / retreat
+                if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not UnitIsUnit("target","pettarget") then
+                    -- Print("Pet is switching to your target.")
+                    PetAttack()
+                end
+                if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                    PetStopAttack()
+                    PetFollow()
                 end
             end
             -- Growl
@@ -279,18 +310,8 @@ local function runRotation()
                 end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return; end
-            end
-            -- Pet Attack / retreat
-            if inCombat and isValidUnit("target") and getDistance("target") < 40 then
-                if not UnitIsUnit("target","pettarget") then
-                    PetAttack()
-                end
-            else
-                if IsPetAttackActive() then
-                    PetStopAttack()
-                end
             end
         end
     -- Action List - Extras
@@ -668,7 +689,9 @@ local function runRotation()
                 -- dragonsfire_grenade
                 if cast.dragonsfireGrenade("best",nil,1,5) then return true end
         -- Start Attack
-                StartAttack()
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") < 5 then
+                    StartAttack("target")
+                end
             end
         end -- End Action List - PreCombat
 ---------------------
@@ -678,7 +701,7 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4 then
-            if not pause() and IsPetAttackActive() then
+            if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
             end
@@ -719,8 +742,8 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     -- actions=auto_attack
-                    if getDistance(units.dyn5) < 5 then
-                        StartAttack()
+                    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                        StartAttack(units.dyn5)
                     end
             -- Call Action List - Mok'Maintain
                     -- call_action_list,name=mokMaintain,if=variable.mokTalented
@@ -762,8 +785,8 @@ local function runRotation()
     --- Ask Mr Robot APL ---
     ------------------------
                 if getOptionValue("APL Mode") == 2 then
-                    if getDistance(units.dyn5) < 5 then
-                        StartAttack()
+                    if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                        StartAttack(units.dyn5)
                     end
                     -- Harpoon
                     -- if not HasDot(OnTheTrail) and ArtifactTraitRank(EaglesBite) > 0

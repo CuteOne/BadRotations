@@ -290,13 +290,42 @@ local function runRotation()
                             else
                                 if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                             end
-                        elseif not deadPet or not IsPetActive() or not UnitExists("pet") then
+                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
                             if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
                 end
                 if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
+                end
+            end
+            if isChecked("Auto Attack/Passive") then
+                -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
+                if petMode == nil then petMode = "None" end
+                if not inCombat then
+                    if petMode == "Passive" then
+                        if petMode == "Assist" then PetAssistMode() end
+                        if petMode == "Defensive" then PetDefensiveMode() end
+                    end
+                    for i = 1, NUM_PET_ACTION_SLOTS do
+                        local name, _, _, _, isActive = GetPetActionInfo(i)
+                        if isActive then
+                            if name == "PET_MODE_ASSIST" then petMode = "Assist" end
+                            if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
+                        end
+                    end
+                elseif inCombat and petMode ~= "Passive" then
+                    PetPassiveMode()
+                    petMode = "Passive"
+                end
+                -- Pet Attack / retreat
+                if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not UnitIsUnit("target","pettarget") then
+                    -- Print("Pet is switching to your target.")
+                    PetAttack()
+                end
+                if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                    PetStopAttack()
+                    PetFollow()
                 end
             end
             -- Growl
@@ -309,18 +338,8 @@ local function runRotation()
                 end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getValue("Mend Pet") and not UnitBuffID("pet",136) then
+            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return; end
-            end
-            -- Pet Attack / retreat
-            if inCombat and isValidUnit("target") and getDistance("target") < 40 then
-                if not UnitIsUnit("target","pettarget") then
-                    PetAttack()
-                end
-            else
-                if IsPetAttackActive() then
-                    PetStopAttack()
-                end
             end
         end
     -- Action List - Extras
