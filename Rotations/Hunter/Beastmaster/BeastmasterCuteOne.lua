@@ -678,7 +678,9 @@ local function runRotation()
                     end
             -- Multishot
                     -- multishot,if=spell_targets>4&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if #enemies.yards8pet >= getOptionValue("Units To AoE") and getOptionValue("Units To AoE") > 4 and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet")) then
+                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 4) or mode.rotation == 2) 
+                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                    then
                         if cast.multiShot() then return end
                     end
             -- Kill Command
@@ -688,7 +690,9 @@ local function runRotation()
                     end
             -- Multishot
                     -- multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if #enemies.yards8pet >= getOptionValue("Units To AoE") and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet")) then
+                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 1) or mode.rotation == 2)
+                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                    then
                         if cast.multiShot() then return end
                     end
             -- Chimaera Shot

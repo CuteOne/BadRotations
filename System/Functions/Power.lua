@@ -193,11 +193,10 @@ end
 function getTimeToMax(Unit)
 	local max = UnitPowerMax(Unit)
 	local curr = UnitPower(Unit)
-	local regen = select(2,GetPowerRegen(Unit))
+	local curr2 = curr
+	local _,regen = GetPowerRegen(Unit)
 	if select(3,UnitClass("player")) == 11 and GetSpecialization() == 2 and isKnown(114107) then
 		curr2 = curr + 4*getCombo()
-	else
-		curr2 = curr
 	end
 	return (max - curr2) * (1.0 / regen)
 end
@@ -246,4 +245,3 @@ function hasResources(spell,offset)
     return true
   end
 end
-
