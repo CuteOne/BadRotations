@@ -245,6 +245,7 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
+            if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
             if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
             elseif isChecked("Auto Summon") then
@@ -311,7 +312,7 @@ local function runRotation()
             end
             -- Mend Pet
             if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
-                if cast.mendPet() then return; end
+                if cast.mendPet() then return end
             end
         end
     -- Action List - Extras

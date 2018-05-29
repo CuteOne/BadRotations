@@ -87,7 +87,7 @@ function br.ui:createConfigWindow()
 
     local function callSettingsEngine()
         section = br.ui:createSection(br.ui.window.config, "Save/Load Settings")
-        br.ui:createDropdownWithout(section, "Settings to Load", {"Dungeons", "Mythic Dungeons", "Raids", "Mythic Raids"}, 1, "Select Profile to Load.")
+        br.ui:createDropdownWithout(section, "Load Prior Saved Settings", {"Dungeons", "Mythic Dungeons", "Raids", "Mythic Raids"}, 1, "Select Profile to Load.")
         br.ui:createSaveButton(section, "Save", 40, -40)
         br.ui:createLoadButton(section, "Load", 140, -40)
         br.ui:checkSectionState(section)

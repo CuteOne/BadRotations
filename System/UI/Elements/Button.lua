@@ -32,22 +32,22 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
     saveButton:SetWidth(100)
     saveButton:SetHeight(20)
     saveButton:SetEventListener("OnClick", function()
-        if getOptionValue("Settings to Load") == 1 then
+        if getOptionValue("Load Prior Saved Settings") == 1 then
             br.dungeon = deepcopy(br.data)
             print("Dungeon Data Saved")
-        elseif getOptionValue("Settings to Load") == 2 then
+        elseif getOptionValue("Load Prior Saved Settings") == 2 then
             --raiddata = brdata
             br.mdungeon = deepcopy(br.data)
             print("Mythic Dungeon Data Saved")
-         elseif getOptionValue("Settings to Load") == 3 then
+         elseif getOptionValue("Load Prior Saved Settings") == 3 then
             --raiddata = brdata
             br.raid = deepcopy(br.data)
             print("Raid Data Saved")
-         elseif getOptionValue("Settings to Load") == 4 then
+         elseif getOptionValue("Load Prior Saved Settings") == 4 then
             --raiddata = brdata
             br.mraid = deepcopy(br.data)
             print("Mythic Raid Data Saved")
-        else 
+        else
             print("Save Error")
         end
     --    parent:Release()
@@ -70,43 +70,47 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
     loadButton:SetWidth(100)
     loadButton:SetHeight(20)
     loadButton:SetEventListener("OnClick", function()
-        if getOptionValue("Settings to Load") == 1 then
+        if getOptionValue("Load Prior Saved Settings") == 1 then
             if br.dungeon ~= nil then
                 br.data = {}
                 br.data = deepcopy(br.dungeon)
                 print("Dungeon Data Loaded")
                 br.ui:closeWindow("all")
                 br:loadSettings()
-            else 
+                ReloadUI()
+            else
                 print("Dungeon Settings do not exist.")
-            end                         
-        elseif getOptionValue("Settings to Load") == 2 then
+            end
+        elseif getOptionValue("Load Prior Saved Settings") == 2 then
             if br.mdungeon ~= nil then
                 br.data = {}
                 br.data = deepcopy(br.mdungeon)
                 print("Mythic Dungeon Data Loaded")
                 br.ui:closeWindow("all")
                 br:loadSettings()
+                ReloadUI()
             else
                 print("Mythic Dungeon settings do not exist.")
             end
-        elseif getOptionValue("Settings to Load") == 3 then
+        elseif getOptionValue("Load Prior Saved Settings") == 3 then
             if br.raid ~= nil then
                 br.data = {}
                 br.data = deepcopy(br.raid)
                 print("Raid Data Loaded")
                 br.ui:closeWindow("all")
                 br:loadSettings()
+                ReloadUI()
             else
                 print("Raid settings do not exist.")
             end
-        elseif getOptionValue("Settings to Load") == 4 then
+        elseif getOptionValue("Load Prior Saved Settings") == 4 then
             if br.mraid ~= nil then
                 br.data = {}
                 br.data = deepcopy(br.mraid)
                 print("Mythic Raid Data Loaded")
                 br.ui:closeWindow("all")
                 br:loadSettings()
+                ReloadUI()
             else
                 print("Mythic Raid settings do not exist.")
             end

@@ -79,6 +79,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
             br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+        -- Auto Attack/Passive
+            br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
@@ -398,7 +400,7 @@ local function runRotation()
                 end
                 -- Mend Pet
                 if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
-                    if cast.mendPet() then return; end
+                    if cast.mendPet() then return end
                 end
             end
         end

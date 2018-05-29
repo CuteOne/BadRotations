@@ -68,7 +68,7 @@ end
 
 -- Load saved position
 function br.ui:loadWindowPositions(window,scrollFrame)
-    local scrollFrame = scrollFrame    
+    local scrollFrame = scrollFrame
     if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
     if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings[br.selectedSpec][window] == nil then br.data.settings[br.selectedSpec][window] = {} end
@@ -156,22 +156,22 @@ function br.ui:closeWindow(windowName)
     for k, v in pairs(br.ui.window) do
         if k == windowName or windowName == "all" then
             if br.ui.window[k].parent ~= nil then
-                if k == windowName then 
-                    br.ui.window[k].parent.closeButton:Click(); 
-                    break 
+                if k == windowName then
+                    br.ui.window[k].parent.closeButton:Click();
+                    break
                 else
                     for l, w in pairs(br.data.settings) do
                         if br.data.settings[tostring(l)] ~= nil and type(w) ~= "string" and type(w) ~= "number" and type(w) ~= "boolean" then
                             for m, x in pairs(br.data.settings[tostring(l)]) do
                                 if m == k then
                                     if not getOptionCheck("Start/Stop BadRotations") or br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-                                        if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then 
-                                            br.ui.window[k].parent.closeButton:Click() 
+                                        if br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
+                                            br.ui.window[k].parent.closeButton:Click()
                                             br.data.settings[l][m].active = false
                                             if not FireHack then Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.") end
                                         end
                                     elseif br.data.settings[l][m].active == nil or br.data.settings[l][m].active then
-                                        br.ui.window[k].parent.closeButton:Click() 
+                                        br.ui.window[k].parent.closeButton:Click()
                                         br.data.settings[l][m].active = false
                                         if not FireHack then Print("|cffFFFFFFCannot Start... |cffFF1100Firehack |cffFFFFFFis not loaded. Please attach Firehack.") end
                                     end
@@ -188,7 +188,7 @@ end
 function br.ui:toggleWindow(windowName)
     for k, v in pairs(br.ui.window) do
         if k == windowName then
-            if br.ui.window[k].parent ~= nil then 
+            if br.ui.window[k].parent ~= nil then
                 if br.data.settings[br.selectedSpec][k] ~= nil then
                     if br.data.settings[br.selectedSpec][k].active == nil then
                         br.ui.window[k].parent:Show()
