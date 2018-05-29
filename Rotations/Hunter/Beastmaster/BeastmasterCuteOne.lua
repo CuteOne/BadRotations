@@ -202,6 +202,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
+        local item                                          = br.player.spell.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
@@ -224,6 +225,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
         local units                                         = units or {}
+        local use                                           = br.player.use
 
 
         units.dyn40 = br.player.units(40)
