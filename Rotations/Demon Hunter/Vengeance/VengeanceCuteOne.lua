@@ -378,6 +378,11 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
+    -- Demonic Infusion
+                -- demonic_infusion,if=cooldown.demon_spikes.charges=0&pain.deficit>60
+                if talent.demonicInfusion and cd.demonSpikes.charges() == 0 and powerDeficit > 60 then
+                    if cast.demonicInfusion() then return end
+                end
     -- Fiery Brand
                 -- fiery_brand,if=buff.demon_spikes.down&buff.metamorphosis.down
                 if isChecked("Fiery Brand") then
@@ -419,7 +424,7 @@ local function runRotation()
                 if not debuff.frailty.exists(units.dyn5) then
                     if cast.spiritBomb() then return end
                 end
-    -- Soul Carver 
+    -- Soul Carver
                 -- soul_carver,if=dot.fiery_brand.ticking
                 if debuff.fieryBrand.exists(units.dyn5) then
                     if cast.soulCarver() then return end
@@ -483,6 +488,9 @@ local function runRotation()
                 if useDefensive() and isChecked("Soul Cleave") and pain >= 80 then
                     if cast.soulCleave() then return end
                 end
+    -- Sever
+                -- sever 
+                if cast.sever() then return end
     -- Shear
                 -- shear
                 if pain < 60 or not useDefensive() or (useDefensive() and not isChecked("Soul Cleave")) then
