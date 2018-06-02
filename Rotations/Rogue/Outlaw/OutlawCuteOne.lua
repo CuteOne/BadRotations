@@ -78,6 +78,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Blade Flurry
             br.ui:createSpinnerWithout(section, "Blade Flurry", 2, 1, 10, 1, "|cffFFFFFFSet Minmal Units to use Blade Flurry on.")
+            -- Tricks of the Trade
+            br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -292,7 +294,7 @@ local function runRotation()
                 return false
             end
         end
- 
+
         local function isPicked(thisUnit)   --  Pick Pocket Testing
             if thisUnit == nil then thisUnit = "target" end
             if GetObjectExists(thisUnit) then
@@ -349,6 +351,10 @@ local function runRotation()
     -- Pistol Shot
             if isChecked("Pistol Shot - Out of Range") and isValidUnit("target") and power >= getOptionValue("Pistol Shot - Out of Range") and (not inCombat or getDistance("target") > 8) and not stealthing then
                 if cast.pistolShot("target") then return end
+            end
+    -- Tricks of the Trade
+            if isChecked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and inCombat and UnitExists("focus") and UnitIsFriend("focus") then
+                if cast.tricksOfTheTrade("focus") then return end
             end
         end -- End Action List - Extras
     -- Action List - Defensives
@@ -552,8 +558,8 @@ local function runRotation()
             rotationDebug = "Generators"
         -- Ghostly Strike
             -- ghostly_strike,if=combo_points.deficit>=1+buff.broadsides.up&!buff.curse_of_the_dreadblades.up&(debuff.ghostly_strike.remains<debuff.ghostly_strike.duration*0.3|(cooldown.curse_of_the_dreadblades.remains<3&debuff.ghostly_strike.remains<14))&(combo_points>=3|(variable.rtb_reroll&time>=10))
-            if comboDeficit >= 1 + broadUp and not debuff.curseOfTheDreadblades.exists("player") 
-                and (debuff.ghostlyStrike.refresh(units.dyn5) or (cd.curseOfTheDreadblades.remain() < 3 and debuff.ghostlyStrike.remain(units.dyn5) < 14)) 
+            if comboDeficit >= 1 + broadUp and not debuff.curseOfTheDreadblades.exists("player")
+                and (debuff.ghostlyStrike.refresh(units.dyn5) or (cd.curseOfTheDreadblades.remain() < 3 and debuff.ghostlyStrike.remain(units.dyn5) < 14))
                 and (combo >= 3 or (rtbReroll and cTime >= 10))
             then
                 if cast.ghostlyStrike() then return end
