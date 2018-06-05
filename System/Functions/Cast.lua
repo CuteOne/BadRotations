@@ -586,7 +586,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
 	                            return false
 	                        else
 	                            castDebug()
-	                            return castGround(thisUnit,spellCast,maxRange,minRange)
+	                            return castGround(thisUnit,spellCast,maxRange,minRange,effectRng)
 	                        end
 	                    end
 	                end
