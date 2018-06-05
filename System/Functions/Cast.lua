@@ -54,7 +54,7 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius)
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
 	if GetUnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
-		and getDistance("player",Unit) < radius and getDistance("player",Unit) >= minDistance
+		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
 		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
 	then
 		CastSpellByName(GetSpellInfo(SpellID))
