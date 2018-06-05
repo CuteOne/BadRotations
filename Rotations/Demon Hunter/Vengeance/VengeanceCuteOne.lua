@@ -287,11 +287,11 @@ local function runRotation()
                         end
         -- Sigil of Silence
                         if isChecked("Sigil of Silence") and cd.consumeMagic.remain() > 0 then
-                            if cast.sigilOfSilence(thisUnit,"ground") then return end
+                            if cast.sigilOfSilence(thisUnit,"ground",1,8) then return end
                         end
         -- Sigil of Misery
                         if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 then
-                            if cast.sigilOfMisery(thisUnit,"ground") then return end
+                            if cast.sigilOfMisery(thisUnit,"ground",1,8) then return end
                         end
                     end
                 end
@@ -380,7 +380,7 @@ local function runRotation()
                 end
     -- Demonic Infusion
                 -- demonic_infusion,if=cooldown.demon_spikes.charges=0&pain.deficit>60
-                if talent.demonicInfusion and cd.demonSpikes.charges() == 0 and powerDeficit > 60 then
+                if talent.demonicInfusion and charges.demonSpikes.count() == 0 and powerDeficit > 60 then
                     if cast.demonicInfusion() then return end
                 end
     -- Fiery Brand
@@ -416,12 +416,12 @@ local function runRotation()
                         and (cd.sigilOfFlame.remain() > 7 or charges.infernalStrike.count() == 2)
                     then
                         -- if cast.infernalStrike("best",false,1,6) then return end
-                        if cast.infernalStrike("player","ground") then return end
+                        if cast.infernalStrike("player","ground",1,6) then return end
                     end
                 end
     -- Spirit Bomb
                 -- spirit_bomb,if=debuff.frailty.down
-                if not debuff.frailty.exists(units.dyn5) then
+                if not debuff.frailty.exists(units.dyn5) and buff.soulFragments.stack() > 0 then
                     if cast.spiritBomb() then return end
                 end
     -- Soul Carver
@@ -489,7 +489,7 @@ local function runRotation()
                     if cast.soulCleave() then return end
                 end
     -- Sever
-                -- sever 
+                -- sever
                 if cast.sever() then return end
     -- Shear
                 -- shear

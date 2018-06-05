@@ -50,11 +50,12 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 	end
 end
 -- castGround("target",12345,40)
-function castGround(Unit,SpellID,maxDistance,minDistance)
+function castGround(Unit,SpellID,maxDistance,minDistance,radius)
+	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
 	if GetUnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
-		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
-		and #getEnemies(Unit,maxDistance) >= #getEnemies(Unit,maxDistance,true)
+		and getDistance("player",Unit) < radius and getDistance("player",Unit) >= minDistance
+		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
 	then
 		CastSpellByName(GetSpellInfo(SpellID))
 		local X,Y,Z = GetObjectPosition(Unit)
