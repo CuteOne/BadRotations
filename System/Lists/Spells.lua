@@ -2658,6 +2658,7 @@ br.lists.spells = {
                 crashLightning              = 187874,
                 doomWinds                   = 204945,
                 flametongue                 = 194084,
+                forceOfTheMountain          = 254308,
                 frostbrand                  = 196834,
                 furyOfAir                   = 197211,
                 gatheringStorms             = 198300,
@@ -2672,8 +2673,10 @@ br.lists.spells = {
             },
             debuffs                         = {
                 earthenSpike                = 188089,
+                exposedElements             = 252151,
                 frostbrand                  = 147732,
-                stormTempest                = 214265,
+                lashingFlames               = 240842,
+                stormTempests               = 214265,
             },
             glyphs                          = {
 
