@@ -99,6 +99,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Toxic Blade")
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
+            -- Vendetta
+            br.ui:createDropdownWithout(section,"Vendetta", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Vendetta.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -213,7 +215,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists()
         local stealthing                                    = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists()
-        local t18_4pc                                       = br.player.eq.t18_4pc
+        local t18_4pc                                       = TierScan("T18") >= 4
         local t19_2pc                                       = TierScan("T19") >= 2
         local t19_4pc                                       = TierScan("T19") >= 4
         local t20_4pc                                       = TierScan("T20") >= 4
@@ -348,7 +350,7 @@ local function runRotation()
                     end
                 end
             end
-        -- Tricks of the Trade 
+        -- Tricks of the Trade
             if isChecked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and inCombat and UnitExists("focus") and UnitIsFriend("focus") then
                 if cast.tricksOfTheTrade("focus") then return end
             end
@@ -477,8 +479,10 @@ local function runRotation()
                 end
         -- Vendetta
                 -- vendetta,if=!artifact.urge_to_kill.enabled().enabled|energy.deficit>=60+variable.energy_regen_combined
-                if not artifact.urgeToKill.enabled() or powerDeficit >= 60 + energyRegenCombined then
-                    if cast.vendetta() then return end
+                if getOptionValue("Vendetta") == 1 or (getOptionValue("Vendetta") == 2 and useCDs()) then
+                    if not artifact.urgeToKill.enabled() or powerDeficit >= 60 + energyRegenCombined then
+                        if cast.vendetta() then return end
+                    end
                 end
         -- Exsanguinate
                 -- exsanguinate,if=!set_bonus.tier20_4pc&(prev_gcd.1.rupture&dot.rupture.remains>4+4*cp_max_spend&!stealthed.rogue|dot.garrote.pmultiplier>1&!cooldown.vanish.up&buff.subterfuge.up)
