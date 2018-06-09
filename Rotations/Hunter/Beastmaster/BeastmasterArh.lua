@@ -38,11 +38,11 @@ local function createToggles()
     };
     CreateButton("Misdirection",4,0)
     -- TT Button
- --   TitanThunderModes = {
- --       [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
- --       [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
- --   };
- --   CreateButton("TitanThunder",5,0)
+    TitanThunderModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
+        [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
+    };
+    CreateButton("TitanThunder",5,0)
 	-- Murder of Crows button
 --    MurderofCrowsModes = {
 --        [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
@@ -535,7 +535,7 @@ local function runRotation()
                             StartAttack()
                         end
 					-- Dire Frenzy
-                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((buff.direFrenzy.exists("pet") and buff.direFrenzy.remain("pet") <= (gcd*1.2)) or not buff.direFrenzy.exists("pet")) then
+                        if talent.direFrenzy and getSpellCD(217200) == 0 and ((buff.direFrenzy.exists("pet") and buff.direFrenzy.remain("pet") <= (gcd*1.3)) or not buff.direFrenzy.exists("pet")) then
                             if cast.direFrenzy(units.dyn40) then return end
 						end
                     -- Bestial Wrath
@@ -549,7 +549,7 @@ local function runRotation()
                             end
 						end
                     -- Titan's Thunder
-                        if (talent.direFrenzy or (buff.direBeast.exists() and buff.direBeast.remain() > 7) and br.player.mode.titanthunder == 1) or (buff.bestialWrath.exists() and (talent.direFrenzy or buff.direBeast.exists()) and br.player.mode.titanthunder == 2) then
+                        if (talent.direFrenzy or (buff.direBeast.exists() and buff.direBeast.remain() > 7 and charges.direBeast.frac() <= 0.8) and br.player.mode.titanthunder == 1) or ((buff.bestialWrath.exists() and buff.bestialWrath.remain() > 6) and (talent.direFrenzy or buff.direBeast.exists()) and charges.direBeast.frac() <= 0.8 and br.player.mode.titanthunder == 2) then
                             if cast.titansThunder(units.dyn40) then return end
                         end						
                     -- Murder of Crows
