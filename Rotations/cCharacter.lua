@@ -10,7 +10,7 @@ function cCharacter:new(class)
 		Agility   = 175456,
 		Strength  = 175439,
 		Intellect = 175457,
-		Legion	  = 224001, 
+		Legion	  = 224001,
     }
     self.artifact       = {} 		-- Artifact Perk IDs
 	self.buff           = {}        -- Buffs
@@ -21,15 +21,7 @@ function cCharacter:new(class)
     self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
     self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
 	self.enemies  		= {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
-	self.eq             = {         -- Special Equip like set bonus or class trinket (archimonde)
-		--T17
-		t17_2pc = false,
-		t17_4pc = false,
-		-- T18
-		t18_2pc = false,
-		t18_4pc = false,
-		t18_classTrinket = false,
-	}
+	self.equiped 		= {} 		-- Item Equips
 	self.gcd            = 1.5       -- Global Cooldown
 	self.gcdMax 		= 1.5 		-- GLobal Max Cooldown
 	self.glyph          = {}        -- Glyphs
@@ -63,7 +55,7 @@ function cCharacter:new(class)
         strengthLow 	= 156071,
         strengthBig 	= 156080,
     }
-    self.functions 		= {} 		-- Functions
+    --self.functions 		= {} 		-- Functions
 	self.health         = 100       -- Health Points in %
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
 	self.inCombat       = false     -- if is in combat
@@ -90,7 +82,7 @@ function cCharacter:new(class)
 	self.talent         = {}        -- Talents
 	self.timeToMax		= 0			-- Time To Max Power
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
-	
+
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -105,7 +97,7 @@ function cCharacter:new(class)
 		-- Get Character Info
 		self.getCharacterInfo()
 
-		-- Get Consumables	
+		-- Get Consumables
 		if bagsUpdated then
 			self.potion.action 		= {}
 			self.potion.agility		= {}	-- Agility Potions
@@ -128,7 +120,7 @@ function cCharacter:new(class)
 
 		-- Crystal
 		self.useCrystal()
-		
+
 		-- Fel Focuser
 		self.useFelFocuser()
 
@@ -148,12 +140,13 @@ function cCharacter:new(class)
 		if canRun() ~= true then
 			return false
 		end
-		br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
+		if isChecked("Debug Timers") then
+			br.debug.cpu.rotation.baseUpdate = debugprofilestop()-startTime or 0
+		end
 	end
 
 -- Update Character Stats
 	function self.getCharacterInfo()
-
 		self.gcd 				= self.getGlobalCooldown()
 		self.gcdMax 			= max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
 		self.health 			= getHP("player")
@@ -192,13 +185,13 @@ function cCharacter:new(class)
 
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown()
-    	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization())) 
+    	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
         local gcd = getSpellCD(61304)
         local gcdMIN = 0.75
-        if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then 
+        if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
         	return 1
-        else 
-        	return gcd > gcdMIN and gcd or gcdMIN 
+        else
+        	return gcd > gcdMIN and gcd or gcdMIN
         end
     end
 
@@ -243,23 +236,21 @@ function cCharacter:new(class)
         else
         	return
         end
-        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
-		br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
+		if isChecked("Debug Timers") then
+	        br.debug.cpu.rotation.currentTime = debugprofilestop()-startTime
+			br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
+			br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
+			br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
+		end
     end
 
 -- Updates special Equipslots
 	function self.baseGetEquip()
-        if br.equipHasChanged == nil or br.equipHasChanged then
-		-- Checks T17 Set
-			local t17 = TierScan("T17")
-			self.eq.t17_2pc = t17>=2 or false
-			self.eq.t17_4pc = t17>=4 or false
-		-- Checks T18 Set
-			local t18 = TierScan("T18")
-			self.eq.t18_2pc = t18>=2 or false
-			self.eq.t18_4pc = t18>=4 or false
+		if br.equipHasChanged == nil or br.equipHasChanged then
+			for i = 17, 21 do
+				if self.equiped["t"..i] == nil then self.equiped["t"..i] = 0 end
+				self.equiped["t"..i] = TierScan("T"..i) or 0
+			end
 		-- Checks class trinket
 			local classTrinket = {
 				deathknight = 124513, -- Reaper's Harvest
@@ -274,7 +265,7 @@ function cCharacter:new(class)
 				warlock     = 124522, -- Fragment of the Dark Star
 				warrior     = 124523, -- Worldbreaker's Resolve
 			}
-			self.eq.t18_classTrinket = isTrinketEquipped(classTrinket[string.lower(self.class)])
+			self.equiped.t18_classTrinket = isTrinketEquipped(classTrinket[string.lower(self.class)])
 
             br.equipHasChanged = false
         end
@@ -283,33 +274,36 @@ function cCharacter:new(class)
 -- Sets the racial
 	function self.getRacial()
 		if self.race == "BloodElf" then
-			if self.class == "WARRIOR" then BloodElfRacial = 69179 end
-			if self.class == "MONK" then BloodElfRacial = 129597 end
-			if self.class == "MAGE" or self.class == "WARLOCK" then BloodElfRacial = 28730 end
-			if self.class == "DEATHKNIGHT" then BloodElfRacial = 50613 end
-			if self.class == "HUNTER" then BloodElfRacial = 80483 end
-			if self.class == "PALADIN" then BloodElfRacial = 155145 end
-			if self.class == "PRIEST" then BloodElfRacial = 232633 end
-			if self.class == "ROGUE" then BloodElfRacial = 25046 end
-			if self.class == "DEMONHUNTER" then BloodElfRacial = 202719 end
-		end
+	        BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
+	    end
+	    if self.race == "Draenei" then
+	        DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
+	    end
+	    if self.race == "Orc" then
+	        OrcRacial = select(7, GetSpellInfo(GetSpellInfo(20572)))
+	    end
 		local racialSpells = {
 			-- Alliance
-			Dwarf    = 20594, -- Stoneform
-			Gnome    = 20589, -- Escape Artist
-			Draenei  = 59547, -- Gift of the Naaru
-			Human    = 59752, -- Every Man for Himself
-			NightElf = 58984, -- Shadowmeld
-			Worgen   = 68992, -- Darkflight
+			Dwarf    			= 20594, -- Stoneform
+			Gnome    			= 20589, -- Escape Artist
+			Draenei  			= DraeneiRacial, -- Gift of the Naaru
+			Human    			= 59752, -- Every Man for Himself
+			NightElf 			= 58984, -- Shadowmeld
+			Worgen   			= 68992, -- Darkflight
 			-- Horde
-			BloodElf = BloodElfRacial, -- Arcane Torrent
-			Goblin   = 69041, -- Rocket Barrage
-			Orc      = 20572, -- Blood Fury
-			Tauren   = 20549, -- War Stomp
-			Troll    = 26297, -- Berserking
-			Scourge  = 7744,  -- Will of the Forsaken
+			BloodElf 			= BloodElfRacial, -- Arcane Torrent
+			Goblin   			= 69041, -- Rocket Barrage
+			Orc      			= OrcRacial, -- Blood Fury
+			Tauren  			= 20549, -- War Stomp
+			Troll    			= 26297, -- Berserking
+			Scourge  			= 7744,  -- Will of the Forsaken
 			-- Both
-			Pandaren = 107079, -- Quaking Palm 
+			Pandaren 			= 107079, -- Quaking Palm
+			-- Allied Races
+	        HighmountainTauren 	= 255654, -- Bull Rush
+	        LightforgedDraenei 	= 255647, -- Light's Judgment
+	        Nightborne 			= 260364, -- Arcane Pulse
+	        VoidElf 			= 256948, -- Spatial Rift
 		}
 		return racialSpells[self.race]
 	end
@@ -364,11 +358,11 @@ function cCharacter:new(class)
             useItem(118922)
 		end
     end
-	
+
 -- Use Fel Focuser +500 to all Stat - ID: 147707, Buff: 242551 (Fel Focus)
 	function self.useFelFocuser()
 		if canUse(147707) and not IsMounted() then cancelBuff(176151) end
-			
+
 		if self.options.useFelFocuser and getBuffRemain("player",242551) < 600 and not hasBuff(176151) and not IsMounted() and not UnitIsDeadOrGhost("player") then
             -- Check if other flask is present, if so abort here
             for _,flaskID in pairs(self.flask.wod.buff) do
@@ -376,8 +370,8 @@ function cCharacter:new(class)
             end
             useItem(147707)
 		end
-    end	
-	
+    end
+
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()
 		if self.options.useEmpoweredRune and not UnitIsDeadOrGhost("player") and not IsMounted() then
@@ -386,7 +380,7 @@ function cCharacter:new(class)
 					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
 						if self.faction == "Alliance" and self.level < 110 then
 							useItem(128482)
-						else 
+						else
 							useItem(128475)
 						end
 					end
@@ -395,7 +389,7 @@ function cCharacter:new(class)
 					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
 						if self.faction == "Alliance" and self.level < 110 then
 							useItem(128482)
-						else 
+						else
 							useItem(128475)
 						end
 					end
@@ -447,7 +441,7 @@ function cCharacter:new(class)
 					local itemID = GetContainerItemID(i,x)
 					if itemID~=nil then -- Is there and item in the slot?
 						local itemEffect = select(1,GetItemSpell(itemID))
-						if itemEffect~=nil then --Does the item provide a use effect? 
+						if itemEffect~=nil then --Does the item provide a use effect?
 							local itemInfo = { --Collect Item Data
 								itemID 		= itemID,
 								itemCD 		= GetItemCooldown(itemID),
@@ -495,15 +489,6 @@ function cCharacter:new(class)
 			end
 		end
 	end
---[[ TODO:
-	- add Flask usage
-	- add Potion usage based on class and spec (both)
-	- add pause toggle
-	- add new options frame
-	- add startRangeCombat()
-	- many more
-
-	]]
 
 -- Return
 	return self

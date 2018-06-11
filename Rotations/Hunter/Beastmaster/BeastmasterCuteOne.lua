@@ -678,7 +678,7 @@ local function runRotation()
                     end
             -- Multishot
                     -- multishot,if=spell_targets>4&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 4) or mode.rotation == 2) 
+                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 4) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
@@ -703,7 +703,7 @@ local function runRotation()
             -- Cobra Shot
                     -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
                     if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm)
-                        or (buff.bestialWrath.exists() and (#enemies.yards40 == 1 or powerRegen * cd.killCommand.remain() > cast.cost.killCommand()))
+                        or (buff.bestialWrath.exists() and ((mode.rotation == 1 and (#enemies.yards8pet == 1 or powerRegen * cd.killCommand.remain() > cast.cost.killCommand())) or mode.rotation == 3))
                         or ttd(units.dyn40) < cd.killCommand.remain() or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2)
                     then
                         if cast.cobraShot() then return end

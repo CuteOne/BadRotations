@@ -17,11 +17,21 @@ function getAgility()
 	return Agi
 end
 
+function getFallDistance()
+	local zDist
+	local _,_,position = GetObjectPosition("player")
+
+	if zCoord == nil then zCoord = position end
+	if not IsFalling() or IsFlying() then zCoord = position end
+	if position - zCoord < 0 then zDist = math.sqrt(((position-zCoord)^2)) else zDist = 0 end
+
+	return zDist
+end
 --if getFallTime() > 2 then
 function getFallTime()
 	if fallStarted==nil then fallStarted = 0 end
 	if fallTime==nil then fallTime = 0 end
-	if IsFalling() then
+	if IsFalling() and getFallDistance() < 0 then
 		if fallStarted == 0 then
 			fallStarted = GetTime()
 		end
@@ -330,25 +340,10 @@ end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player")
+
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
-		and (not UnitIsFriend(Unit, "player") )
-		and UnitCanAttack("player",Unit) and isSafeToAttack(Unit) and not isCritter(Unit) and getLineOfSight("player", Unit)
-	-- then
-	-- 	local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-	-- 	local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet"))) or isBurnTarget(Unit) > 0
-	-- 	local playerTarget = UnitIsUnit(Unit,"target")
- --        if inCombat then
- --        	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-	-- 		if (playerTarget and (#br.friend == 1 or distance < 20)) or hasThreat or (isDummy(Unit) and (distance <= 8 or playerTarget)) then return true end
-	-- 	elseif not inCombat and IsInInstance() then
-	-- 		-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-	-- 		if (#br.friend == 1 and playerTarget) or hasThreat then return true end
-	-- 	elseif not inCombat and not IsInInstance() then
-	-- 		-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-	-- 		if (playerTarget or (not GetObjectExists("target") and distance < 20 and not next(br.enemy))) then return true end
-	-- 	end
-	-- end
-	-- return false
+		and not UnitIsFriend(Unit, "player") and UnitCanAttack("player",Unit) and isSafeToAttack(Unit)
+		and not isCritter(Unit) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
@@ -361,17 +356,6 @@ function isValidUnit(Unit)
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")
 		return hasThreat or (not instance and playerTarget) or (instance and (#br.friend == 1 or inCombat) and playerTarget) or (isDummy(Unit) and distance < 8)
-		-- if inCombat then
-	 --    	-- Only consider Units that I have threat with or have targeted or are dummies within 8yrds when in Combat.
-	 --    	if hasThreat or (isDummy(Unit) and distance < 8) or playerTarget then return true end
-		-- 	-- if (playerTarget and (#br.friend == 1 or getDistance(Unit,"player","noMod") < 20)) or hasThreat or (isDummy(Unit) and (getDistance(Unit,"player","noMod") < 20 or playerTarget)) then return true end
-		-- elseif not inCombat and IsInInstance() then
-		-- 	-- Only consider Units that I have threat with or I am alone and have targeted when not in Combat and in an Instance.
-		-- 	if (#br.friend == 1 and playerTarget) or hasThreat then return true end
-		-- elseif not inCombat and not IsInInstance() then
-		-- 	-- Only consider Units that are in 20yrs or I have targeted when not in Combat and not in an Instance.
-		-- 	if (playerTarget or hasThreat --[[(not GetObjectExists("target") and distance < 20 and not next(br.enemy))--]]) then return true end
-		-- end
 	end
 	return false
 end

@@ -223,7 +223,6 @@ local function runRotation()
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.stealth.exists()
         local stealthing                                    = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists()
-        local t18_4pc                                       = br.player.eq.t18_4pc
         local talent                                        = br.player.talent
         local time                                          = getCombatTime()
         local ttd                                           = getTTD

@@ -48,6 +48,7 @@ br.debug.cpu.rotation = {
     averageTime = 0,
     baseUpdate = 0,
     inCombat = 0,
+    profile = {},
 }
 br.debug.cpu.pulse = {
     elapsedTime = 0,

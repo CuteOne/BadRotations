@@ -111,22 +111,13 @@ function TierScan(thisTier)
 	local myClass = select(2,UnitClass("player"));
 	local thisTier = string.upper(thisTier);
 	local sets = br.lists.tier
-	-- scan every items
-	for i=1, 19 do
-		-- if there is an item in that slot
-		if GetInventoryItemID("player", i) ~= nil then
-			-- compare to items in our items list
-			for j = 1, #sets[thisTier][myClass] do
-				if sets[thisTier][myClass][j] ~= nil then
-					--Print(sets[thisTier][myClass][j])
-					if GetItemInfo(GetInventoryItemID("player", i)) == GetItemInfo(sets[thisTier][myClass][j]) then
-						equippedItems = equippedItems + 1;
-					end
-				end
-			end
+	local tierList = sets[thisTier][myClass]
+	if #tierList > 0 then
+		for i = 1, #tierList do
+			if IsEquippedItem(tierList[i]) then equippedItems = equippedItems + 1; end
 		end
 	end
-	return equippedItems;
+	return equippedItems
 end
 
 function hasEquiped(ItemID, Slot)

@@ -352,9 +352,11 @@ function br.loader:new(spec,specName)
 
         -- Cycle through Items List
         for k,v in pairs(self.spell.items) do
-            if self.use == nil then self.use = {} end -- Use Item Functions
-            if self.equiped == nil then self.equiped = {} end -- Use Item Debugging
-            if self.charges[k] == nil then self.charges[k] = {} end -- Item Charge Functions
+            if self.charges[k]  == nil then self.charges[k] = {} end -- Item Charge Functions
+            if self.equiped     == nil then self.equiped    = {} end -- Use Item Debugging
+            if self.has         == nil then self.has        = {} end -- Item In Bags
+            if self.use         == nil then self.use        = {} end -- Use Item Functions
+            if self.use.able    == nil then self.use.able   = {} end -- Useable Item Check Functions
 
             local charges = self.charges[k]
             charges.exists = function()
@@ -371,6 +373,10 @@ function br.loader:new(spec,specName)
                     if canUse(slotID) then return useItem(slotID) else return end
                 end
             end
+            self.use.able[k] = function(slotID)
+                if slotID == nil then return canUse(v) else return canUse(slotID) end
+            end
+
             self.equiped[k] = function(slotID)
                 if slotID == nil then
                     return hasEquiped(v)
@@ -378,9 +384,17 @@ function br.loader:new(spec,specName)
                     return hasEquiped(v,slotID)
                 end
             end
+
+            self.has[k] = function()
+                return hasItem(v)
+            end
         end
+
         self.use.slot = function(slotID)
             if canUse(slotID) then return useItem(slotID) else return end
+        end
+        self.use.able.slot = function(slotID)
+            return canUse(slotID)
         end
 
         -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
@@ -389,7 +403,9 @@ function br.loader:new(spec,specName)
             if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
             if self.cast.debug      == nil then self.cast.debug         = {} end        -- Cast Spell Debugging
             if self.cast.able       == nil then self.cast.able          = {} end        -- Cast Spell Available
+            if self.cast.active     == nil then self.cast.active        = {} end        -- Cast Spell Active
             if self.cast.cost       == nil then self.cast.cost          = {} end        -- Cast Spell Cost
+            if self.cast.pool       == nil then self.cast.pool          = {} end        -- Cast Spell Pooling
             if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
             if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
             if self.cast.range      == nil then self.cast.range         = {} end        -- Cast Spell Range
@@ -443,6 +459,11 @@ function br.loader:new(spec,specName)
                 -- return self.cast[v](nil,"debug")
             end
 
+            self.cast.active[k] = function(unit)
+                if unit == nil then unit = "player" end
+                return isCastingSpell(v,unit)
+            end
+
             self.cast.cost[k] = function(altPower)
                 if altPower == nil then altPower = false end
                 if altPower then
@@ -450,6 +471,11 @@ function br.loader:new(spec,specName)
                 else
                     return select(1,getSpellCost(v))
                 end
+            end
+
+            self.cast.pool[k] = function(altPower)
+                local powerType = select(2,UnitPowerType("player")):lower()
+                return self.power[powerType].amount() < self.cast.cost[k](altPower)
             end
 
             self.cast.current[k] = function(spellID,unit)
@@ -513,6 +539,7 @@ function br.loader:new(spec,specName)
 
     function self.update()
         -- Call baseUpdate()
+        if not UnitAffectingCombat("player") then self.updateOOC() end
         self.baseUpdate()
         self.getBleeds()
         -- self.getPetInfo()

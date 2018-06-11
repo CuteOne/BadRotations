@@ -96,8 +96,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Engineering: Shield-o-tronic
-            br.ui:createSpinner(section, "Shield-o-tronic",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Aspect Of The Turtle
             br.ui:createSpinner(section, "Aspect Of The Turtle",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
         -- Exhilaration
@@ -204,9 +202,9 @@ local function runRotation()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
-        local t19_4pc                                       = TierScan("T19") >= 4
-        local t20_2pc                                       = TierScan("T20") >= 2
-        local t20_4pc                                       = TierScan("T20") >= 4
+        local t19_4pc                                       = br.player.equiped.t19 >= 4 --TierScan("T19") >= 4
+        local t20_2pc                                       = br.player.equiped.t20 >= 2 --TierScan("T20") >= 2
+        local t20_4pc                                       = br.player.equiped.t20 >= 4 --TierScan("T20") >= 4
         local talent                                        = br.player.talent
         local trinketProc                                   = false
         local ttd                                           = getTTD
@@ -333,28 +331,20 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
+                if isChecked("Pot/Stoned") and (use.able.healthstone() or canUse(healPot))
+                    and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone())
                 then
-                    if canUse(5512) then
-                        useItem(5512)
+                    if use.able.healthstone() then
+                        use.healthstone()
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
                 end
         -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                    if hasEquiped(122668) then
-                        if GetItemCooldown(122668)==0 then
-                            useItem(122668)
-                        end
+                    if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
+                        if use.heirloomNeck() then return true end
                     end
-                end
-        -- Engineering: Shield-o-tronic
-                if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
-                    and inCombat and canUse(118006)
-                then
-                    useItem(118006)
                 end
         -- Aspect of the Turtle
                 if isChecked("Aspect Of The Turtle") and php <= getOptionValue("Aspect Of The Turtle") then
@@ -426,10 +416,10 @@ local function runRotation()
                 end
             -- Potion
                 -- potion,if=buff.aspect_of_the_eagle.up&(buff.berserking.up|buff.blood_fury.up)
-                if isChecked("Potion") and inRaid and canUse(142117) and buff.aspectOfTheEagle.exists()
+                if isChecked("Potion") and inRaid and use.able.potionOfProlongedPower() and buff.aspectOfTheEagle.exists()
                     and (buff.berserking.exists() or buff.bloodFury.exists() or not (race == "Orc" or race == "Troll"))
                 then
-                    useItem(142117)
+                    use.potionOfProlongedPower()
                 end
             -- Snake Hunter
                 -- snake_hunter,if=cooldown.mongoose_bite.charges=0&buff.mongoose_fury.remains>3*gcd&(cooldown.aspect_of_the_eagle.remains>5&!buff.aspect_of_the_eagle.up)
@@ -702,7 +692,7 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4 then
-            if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
+            if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() and not cast.active.furyOfTheEagle() then
                 PetStopAttack()
                 PetFollow()
             end

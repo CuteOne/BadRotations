@@ -223,7 +223,7 @@ local function runRotation()
         local stealth                                                   = br.player.buff.stealth.exists()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists() or br.player.buff.subterfuge.exists()
-        local t18_4pc                                                   = br.player.eq.t18_4pc
+        local t18_4pc                                                   = TierScan("T18") >= 4
         local t19_2pc                                                   = TierScan("T19") >= 2
         local t19_4pc                                                   = TierScan("T19") >= 4
         local t20_2pc                                                   = TierScan("T20") >= 2
