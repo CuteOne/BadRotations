@@ -207,9 +207,6 @@ local function runRotation()
         local regen             = br.player.power.energy.regen()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
-        local t17_2pc           = br.player.eq.t17_2pc
-        local t18_2pc           = br.player.eq.t18_2pc
-        local t18_4pc           = br.player.eq.t18_4pc
         local talent            = br.player.talent
         local thp               = getHP(br.player.units(5))
         local trinketProc       = false --br.player.hasTrinketProc()
