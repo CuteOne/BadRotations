@@ -549,8 +549,9 @@ local function runRotation()
                             end
 						end
                     -- Titan's Thunder
-                        if (talent.direFrenzy or (buff.direBeast.exists() and buff.direBeast.remain() > 7 and charges.direBeast.frac() <= 0.8) and br.player.mode.titanthunder == 1) or ((buff.bestialWrath.exists() and buff.bestialWrath.remain() > 6) and (talent.direFrenzy or buff.direBeast.exists()) and charges.direBeast.frac() <= 0.8 and br.player.mode.titanthunder == 2) then
-                            if cast.titansThunder(units.dyn40) then return end
+                        if ((talent.direFrenzy or (buff.direBeast.exists() and buff.direBeast.remain() > 7 and charges.direBeast.frac() <= 0.8)) and br.player.mode.titanthunder == 1) 
+							or ((buff.bestialWrath.exists() and buff.bestialWrath.remain() > 6) and (talent.direFrenzy or (buff.direBeast.exists() and charges.direBeast.frac() <= 0.8)) and br.player.mode.titanthunder == 2) then
+								if cast.titansThunder(units.dyn40) then return end
                         end						
                     -- Murder of Crows
                         if talent.aMurderOfCrows and isChecked("A Murder Of Crows / Barrage") and useCDs() then
@@ -571,7 +572,7 @@ local function runRotation()
                             end
 						end
 					-- Cobra Shot during bestial wrath
-                        if power >= 105 or (not talent.aspectOfTheBeast and buff.bestialWrath.exists() and powerRegen* cd.killCommand.remain() > 30) then
+                        if (power >= 105 and cd.killCommand.remain() > gcd*0.9) or (not talent.aspectOfTheBeast and buff.bestialWrath.exists() and powerRegen* cd.killCommand.remain() > 30) then
                             if cast.cobraShot(units.dyn40) then return end			
 							end							
 					-- Multi Shot
@@ -579,7 +580,7 @@ local function runRotation()
                             if cast.multiShot(units.dyn40) then return end
 							end					
                     -- Cobra Shot
-                        if power >= 105 and cd.killCommand.remain() > gcd*0.7 then
+                        if power >= 105 and cd.killCommand.remain() > gcd*0.9 then
                             if cast.cobraShot(units.dyn40) then return end
 							end
                     end
