@@ -768,7 +768,7 @@ local function runRotation()
                     if cast.divineStorm() then return end
                 end
                 -- divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-                if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) then
+                if judgmentVar and dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) then
                     if cast.divineStorm() then return end
                 end
             end
@@ -788,7 +788,7 @@ local function runRotation()
                     end
                 end
                 -- templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-                if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade")) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+                if judgmentVar and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
                     if isChecked("Justicar's Vengeance") and php < getOptionValue("Justicar's Vengeance") and talent.justicarsVengeance then
                         if cast.justicarsVengeance() then return end
                     else
@@ -1073,7 +1073,7 @@ local function runRotation()
                             if cast.divineStorm() then return end
                         end
                         --actions.finishers+=/divine_storm,if=debuff.judgment.up&variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-                        if cast.able.divineStorm() and (debuff.judgment.exists() and variable.ds_castable and (not talent.crusade or cd.crusade.remain()>gcd*2)) then
+                        if cast.able.divineStorm() and (debuff.judgment.exists() and variable.ds_castable and (not talent.crusade or cd.crusade.remain()>gcd*2) or not isChecked("Crusade") or not useCDs()) then
                             if cast.divineStorm() then return end
                         end
                         --actions.finishers+=/justicars_vengeance,if=debuff.judgment.up&buff.divine_purpose.react&!equipped.137020&!talent.final_verdict.enabled
@@ -1085,7 +1085,7 @@ local function runRotation()
                             if cast.templarsVerdict() then return end
                         end
                         --actions.finishers+=/templars_verdict,if=debuff.judgment.up&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-                        if cast.able.templarsVerdict() and (debuff.judgment.exists() and (not talent.crusade or cd.crusade.remain()>gcd*2) and (not talent.executionSentence or cd.executionSentence.remain()>gcd)) then
+                        if cast.able.templarsVerdict() and (debuff.judgment.exists() and (not talent.crusade or cd.crusade.remain()>gcd*2 or not isChecked("Crusade") or not useCDs()) and (not talent.executionSentence or cd.executionSentence.remain()>gcd)) then
                             if cast.templarsVerdict() then return end
                         end
                     end

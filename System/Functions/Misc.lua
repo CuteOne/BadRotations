@@ -351,7 +351,7 @@ function isValidUnit(Unit)
 		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
 	then
 		local instance = IsInInstance()
-		local distance = getDistance(Unit,"player")
+		local distance = getDistance(Unit,"target")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")

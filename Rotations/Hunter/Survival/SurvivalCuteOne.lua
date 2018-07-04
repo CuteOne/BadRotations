@@ -89,6 +89,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Aspect of the Eagle")
         -- Snake Hunter
             br.ui:createCheckbox(section,"Snake Hunter")
+        -- Light's Judgment
+            br.ui:createSpinner(section,"Light's Judgment", 3, 1, 5, 1, "|cffFFFFFFSet to desired targets to use Light's Judgment on. Min: 1 / Max: 5 / Interval: 1")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -436,6 +438,15 @@ local function runRotation()
                     end
                 end
             end -- End useCooldowns check
+            -- Light's Judgment (Argus)
+            if isChecked("Light's Judgment") and cast.able.lightsJudgment() then
+                if useCDs() then
+                    if cast.lightsJudgment("target","ground",1,15) then return true end
+                end
+                if #enemies.yards8 >= getOptionValue("Light's Judgment") then
+                    if cast.lightsJudgment("best",nil,getOptionValue("Light's Judgment"),8) then return true end
+                end
+            end
         end -- End Action List - Cooldowns
     -- Action List - AOE
         local function actionList_AOE()
@@ -731,6 +742,11 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
+            -- Explosive Trap
+                    -- explosive_trap
+                    if cast.able.explosiveTrap() and combatTime < 5 then
+                        if cast.explosiveTrap("best",nil,1,5) then return true end
+                    end
             -- Start Attack
                     -- actions=auto_attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then

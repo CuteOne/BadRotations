@@ -213,7 +213,6 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        -- local enemies                                       = enemies or {}
         local energy, energyMax, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
@@ -250,7 +249,6 @@ local function runRotation()
         local trinketProc                                   = false
         local ttd                                           = getTTD --.002
         local ttm                                           = br.player.power.energy.ttm() --0.05
-        -- local units                                         = units or {} --0.0005
         local use                                           = br.player.use --0.0001
 
         -- Get Best Unit for Range
@@ -260,6 +258,8 @@ local function runRotation()
         units.dyn8AoE       = br.player.units(8,true)
         units.dyn8          = br.player.units(8)
         units.dyn5          = br.player.units(5)
+
+        -- ChatOverlay("DynUnit: "..tostring(units.dyn5).." | UnitIsTarget: "..tostring(UnitIsUnit(units.dyn5,"target")))
 
         -- Get List of Enemies for Range
         if enemies == nil then enemies = {} end
@@ -304,17 +304,28 @@ local function runRotation()
         else
             agiPot = 0
         end
-        local function findFriends()
-            friendsInRange = 0
-            if not solo then
-                for i = 1, #br.friend do
-                    if getDistance(br.friend[i].unit) < 15 then
-                        friendsInRange = friendsInRange + 1
-                    end
+
+        local friendsInRange = false
+        while not solo and not friendsInRange do
+            for i = 1, #br.friend do
+                if getDistance(br.friend[i].unit) < 15 then
+                    friendsInRange = true
                 end
             end
-            return friendsInRange
         end
+
+        -- local function findFriends()
+        --     friendsInRange = 0
+        --     if not solo then
+        --         for i = 1, #br.friend do
+        --             if getDistance(br.friend[i].unit) < 15 then
+        --                 friendsInRange = friendsInRange + 1
+        --                 break;
+        --             end
+        --         end
+        --     end
+        --     return friendsInRange
+        -- end
         if energy > 50 then
             fbMaxEnergy = true
         else
@@ -573,7 +584,7 @@ local function runRotation()
 					if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
 						if cast.removeCorruption("target") then return true end
 					end
-					if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
+					if getOptionValue("Remove Corruption - Target")==3 and UnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) then
 						if cast.removeCorruption("mouseover") then return true end
 					end
 				end
@@ -728,7 +739,7 @@ local function runRotation()
 			if getDistance("target") < 5 then
         -- Prowl
                 -- prowl,if=buff.incarnation.remains<0.5&buff.jungle_stalker.up
-                if cast.able.prowl() and useCDs() and not buff.prowl.exists() and getDistance(units.dyn5) < 5 and not solo and findFriends() > 0 then
+                if cast.able.prowl() and useCDs() and not buff.prowl.exists() and getDistance(units.dyn5) < 5 and not solo and friendsInRange then --findFriends() > 0 then
                     if cast.able.prowl() and (buff.incarnationKingOfTheJungle.remain() < 0.5 and buff.jungleStalker.exists()) then
                         if cast.prowl() then return true end
                     end
@@ -788,7 +799,7 @@ local function runRotation()
                 end
         -- Shadowmeld
                 -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
-                if isChecked("Racial") and cast.able.shadowmeld() and useCDs() and race == "NightElf" and getDistance(units.dyn5) < 5 and not solo and findFriends() > 0 then
+                if isChecked("Racial") and cast.able.shadowmeld() and useCDs() and race == "NightElf" and getDistance(units.dyn5) < 5 and not solo and friendsInRange then --findFriends() > 0 then
                     if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2.1 and buff.tigersFury.exists() and (buff.bloodtalons.exists() or not talent.bloodtalons)
                         and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle.remain() > 18) and not buff.incarnationKingOfTheJungle.exists())
                     then
@@ -807,7 +818,7 @@ local function runRotation()
         -- Ring of Collapsing Futures
                 -- use_item,slot=finger1
                 if isChecked("Ring of Collapsing Futures") and use.able.ringOfCollapsingFutures() then
-                    if debuff.temptation.stacks() < getOptionValue("Ring of Collapsing Futures") and not isInPvP() then
+                    if debuff.temptation.stack() < getOptionValue("Ring of Collapsing Futures") and not isInPvP() then
                         use.ringOfCollapsingFutures()
                     end
                 end
@@ -937,7 +948,7 @@ local function runRotation()
         -- Ring of Collapsing Futures
                     -- use_item,slot=finger1
                     if isChecked("Ring of Collapsing Futures") and use.able.ringOfCollapsingFutures() then
-                        if debuff.temptation.stacks("player") < getOptionValue("Ring of Collapsing Futures") and not isInPvP() then
+                        if debuff.temptation.stack("player") < getOptionValue("Ring of Collapsing Futures") and not isInPvP() then
                             use.ringOfCollapsingFutures()
                         end
                     end
@@ -947,7 +958,7 @@ local function runRotation()
                     end
                 end
         -- Prowl
-                if useCDs() and cast.able.prowl() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and findFriends() > 0 then
+                if useCDs() and cast.able.prowl() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange then --findFriends() > 0 then
                     if cast.prowl() then freeProwl = false; return true end
                 end
             end -- End useCooldowns check
@@ -1413,7 +1424,7 @@ local function runRotation()
             end
         -- Shadowmeld
             -- if HasBuff(TigersFury) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar)) and (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and CanUse(Rake) and not HasBuff(IncarnationKingOfTheJungle)
-            if isChecked("Racial") and cast.able.shadowmeld() and br.player.race == "NightElf" and getDistance(units.dyn5) < 5 and not solo and findFriends() > 0 then
+            if isChecked("Racial") and cast.able.shadowmeld() and br.player.race == "NightElf" and getDistance(units.dyn5) < 5 and not solo and friendsInRange then --findFriends() > 0 then
                 if buff.tigersFury.exists() and (buff.savageRoar.exists() or not talent.savageRoar)
                     and (buff.bloodtalons.exists() or not talent.bloodtalons)
                     and cast.able.rake() and not buff.incarnationKingOfTheJungle.exists()

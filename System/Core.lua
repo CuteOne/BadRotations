@@ -192,15 +192,15 @@ function BadRotationsUpdate(self)
 					br.player:update()
 				end
 			-- Enemy Engine
-				-- if br.timer:useTimer("cacheOM",1) or br.om == nil then
-				-- 	cacheOM()
-				-- end
-				if br.timer:useTimer("omUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
+				if br.timer:useTimer("cacheOM",1) or br.om == nil then
+					cacheOM()
+				end
+				--if br.timer:useTimer("omUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
 					getOMUnits()
-				end
-				if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
+				--end
+				--if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
 					FindEnemy()
-				end
+				-- end
 			-- Healing Engine
 				if isChecked("HE Active") then
 					br.friend:Update()

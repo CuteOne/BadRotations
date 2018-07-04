@@ -4,6 +4,36 @@ br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
 
+-- Cache Object Manager
+function cacheOM()
+	local inCombat = UnitAffectingCombat("player")
+	if br.om == nil then br.om = {} end
+	local omCounter = 0
+	for k, v in pairs(br.om) do
+		local thisUnit = v
+		local distance = getDistance(thisUnit)
+		omCounter = omCounter + 1;
+		if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or ((not inCombat and distance > 20) or (inCombat and distance > 50)) then
+			-- Print("Del - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
+			br.om[k] = nil
+		end
+	end
+	local objectCount = FireHack~=nil and GetObjectCount() or 0
+	if objectCount > 0 then
+		for i = 1, objectCount do
+			-- define our unit
+			local thisUnit = GetObjectWithIndex(i)
+			local distance = getDistance(thisUnit)
+			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
+				if ((ObjectIsType(thisUnit, ObjectTypes.Unit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492)  then
+					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
+					br.om[thisUnit]	= thisUnit
+				end
+			end
+		end
+	end
+end
+
 -- Update Pet
 local function UpdatePet(thisUnit)
 	if br.player.spell.buffs.demonicEmpowerment ~= nil then
@@ -28,7 +58,9 @@ local function AddUnits(thisUnit)
 		units.guid 			= UnitGUID(thisUnit)
 		units.id 			= GetObjectID(thisUnit)
 	end
-	br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
+	end
 end
 
 -- Add lootable
@@ -56,7 +88,9 @@ local function AddEnemy(thisUnit)
 		enemy.guid 			= UnitGUID(thisUnit)
 		enemy.id 			= GetObjectID(thisUnit)
 	end
-	br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
+	end
 end
 
 -- Check Critter
@@ -91,7 +125,9 @@ end
 
 function FindEnemy()
 	local startTime = debugprofilestop()
-	br.debug.cpu.enemiesEngine.enemy.targets = 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.enemy.targets = 0
+	end
 -- Clean Up
 	for k, v in pairs(br.enemy) do if not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
 	if br.units ~= nil then
@@ -99,22 +135,28 @@ function FindEnemy()
 			local thisUnit = br.units[k].unit
 			-- Enemies
 			if isValidUnit(thisUnit) then
-				br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
+				if isChecked("Debug Timers") then
+					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
+				end
 				AddEnemy(thisUnit)
 			end
 		end
 	end
 	-- Debugging
-	br.debug.cpu.enemiesEngine.enemy.currentTime = debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.enemy.totalIterations = br.debug.cpu.enemiesEngine.enemy.totalIterations + 1
-	br.debug.cpu.enemiesEngine.enemy.elapsedTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime + debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.enemy.averageTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime / br.debug.cpu.enemiesEngine.enemy.totalIterations
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.enemy.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.enemy.totalIterations = br.debug.cpu.enemiesEngine.enemy.totalIterations + 1
+		br.debug.cpu.enemiesEngine.enemy.elapsedTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.enemy.averageTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime / br.debug.cpu.enemiesEngine.enemy.totalIterations
+	end
 	-- coroutine.yield()
 end
 
 function getOMUnits()
 	local startTime = debugprofilestop()
-	br.debug.cpu.enemiesEngine.units.targets = 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.units.targets = 0
+	end
 	-- Clean Up
 	-- Units
 	for k, v in pairs(br.units) do if not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
@@ -128,39 +170,41 @@ function getOMUnits()
 		if not hasLoot or not GetObjectExists(br.lootable[k].unit) then br.lootable[k] = nil end
 	end
 	-- Cycle the Object Manager
-	local objectCount = FireHack~=nil and GetObjectCount() or 0
-	if FireHack ~= nil and objectCount > 0 and br.player.cd.global.remain() == 0 then
-		for i = 1, objectCount do
-			if i == 1 then cycleTime = debugprofilestop() end
+	local omCounter = 0;
+	if br.om ~= nil then
+		for k, v in pairs(br.om) do
+			omCounter = omCounter + 1
+			if omCounter == 1 then cycleTime = debugprofilestop() end
 			-- define our unit
-			local thisUnit = GetObjectWithIndex(i)
-			local enemyListCheck = enemyListCheck
-			if (ObjectIsType(thisUnit, ObjectTypes.Unit) or GetObjectID(thisUnit) == 11492) then
-				-- Units
-				if enemyListCheck(thisUnit)	then
-					br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
-					AddUnits(thisUnit)
-				end
-				-- Pet Info
-				if UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492 then
-					AddPet(thisUnit)
-				end
-				-- Lootable
+			local thisUnit = v
+			-- Units
+			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
+				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
+				AddUnits(thisUnit)
+			end
+			-- Pet Info
+			if br.player.pet.list[thisUnit] == nil and (UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492) then
+				AddPet(thisUnit)
+			end
+			-- Lootable
+			if br.lootable[thisUnit] == nil then
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if hasLoot and canLoot then
 					AddLootable(thisUnit)
 				end
 			end
-			if i == objectCount then
+			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.units.cycleTime = debugprofilestop()-cycleTime
 			end
 		end
 	end
 	-- Debugging
-	br.debug.cpu.enemiesEngine.units.currentTime = debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.units.totalIterations = br.debug.cpu.enemiesEngine.units.totalIterations + 1
-	br.debug.cpu.enemiesEngine.units.elapsedTime = br.debug.cpu.enemiesEngine.units.elapsedTime + debugprofilestop()-startTime
-	br.debug.cpu.enemiesEngine.units.averageTime = br.debug.cpu.enemiesEngine.units.elapsedTime / br.debug.cpu.enemiesEngine.units.totalIterations
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.units.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.units.totalIterations = br.debug.cpu.enemiesEngine.units.totalIterations + 1
+		br.debug.cpu.enemiesEngine.units.elapsedTime = br.debug.cpu.enemiesEngine.units.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.units.averageTime = br.debug.cpu.enemiesEngine.units.elapsedTime / br.debug.cpu.enemiesEngine.units.totalIterations
+	end
 	-- coroutine.yield()
 end
 
@@ -182,7 +226,9 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 		end
     end
     ---
-    br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+	if isChecked("Debug Timers") then
+    	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+	end
     ---
     return enemiesTable
 end
@@ -240,7 +286,9 @@ function findBestUnit(range,facing)
 			end
 		end
 	end
-	br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
+	end
 	return bestUnit
 end
 
@@ -263,7 +311,9 @@ function dynamicTarget(range,facing)
 	elseif UnitAffectingCombat("player") and UnitIsDeadOrGhost("target") and hasThreat(bestUnit) then
 		TargetUnit(bestUnit)
 	end
-	br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.dynamicTarget = debugprofilestop()-startTime or 0
+	end
 	return bestUnit
 end
 

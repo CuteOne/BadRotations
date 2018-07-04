@@ -243,14 +243,14 @@ local function runRotation()
         end
 
         -- Insanity Drain
-        insanityDrain = 6 + (2 / 3 * (drainStacks)) 
+        insanityDrain = 6 + (2 / 3 * (drainStacks))
         -- insanityDrain = 9 + ((drainStacks - 1) / 2)
 
 
         -- Void Bolt
         -- void_bolt
         if isValidUnit(units.dyn40) and inCombat and buff.voidForm.exists() and (cd.voidBolt.remain() == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
-            if cast.voidBolt(units.dyn40,"known") then return end
+            if cast.voidBolt(units.dyn40) then return end
         end
 
         -- ChatOverlay(tostring(cd.voidBolt.remain()))
@@ -492,7 +492,7 @@ local function runRotation()
             -- end
         -- Vampiric Touch
             -- -- vampiric_touch,if=!talent.misery.enabled&!ticking&talent.legacy_of_the_void.enabled&insanity>=70,cycle_targets=1
-            -- if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") 
+            -- if not talent.misery and talent.legacyOfTheVoid and power >= 70 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets")
             --     and not buff.void.exists() and not moving --and lastCast ~= spell.vampiricTouch and not isCastingSpell(spell.vampiricTouch)
             -- then
             --     for i = 1, #enemies.yards40 do
@@ -506,7 +506,7 @@ local function runRotation()
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2&insanity<=(85-15*talent.reaper_of_souls.enabled)
             if (((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) or (talent.reaperOfSouls and ((mode.rotation == 1 and #enemies.yards40 <= 2) or mode.rotation == 2)))
                 and charges.shadowWordDeath.count() == 2 and power <= (85 - 15 * reaperOfSouls)
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -518,14 +518,14 @@ local function runRotation()
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
             if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and lastCast ~= spell.voidEruption and not moving--and br.timer:useTimer("mbRecast", gcd)
-                and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) and not buff.void.exists() 
+                and talent.legacyOfTheVoid and (power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) and not buff.void.exists()
             then
                 if cast.mindBlast() then return end
             end
         -- Mind Blast
             -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
             if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) --[[and lastCast ~= spell.mindBlast]] and not moving
-                and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) and not buff.void.exists() 
+                and not talent.legacyOfTheVoid and (power <= 96 or (power <= 95.2 and talent.fortressOfTheMind)) and not buff.void.exists()
             then
                 if cast.mindBlast() then return end
             end
@@ -533,7 +533,7 @@ local function runRotation()
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
             if not talent.misery and ((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3)
                 and (talent.auspiciousSpirits or talent.shadowyInsight) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets")
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -547,7 +547,7 @@ local function runRotation()
             if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) 
+                    if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit)
                         and (85.2 * (1 + 0.2 + GetMastery() / 16000) * (1 + 0.2 * sanlayn) * 0.5 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1
                     then
                         if cast.vampiricTouch(thisUnit,"aoe") then return end
@@ -563,7 +563,7 @@ local function runRotation()
                        if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end
-            end 
+            end
         -- Shadow Word: Void
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity<=75-10*talent.legacy_of_the_void.enabled)
             if talent.shadowWordVoid and (power <= 75 - 10 * legacy) and not buff.void.exists() then
@@ -589,7 +589,7 @@ local function runRotation()
         --Void Bolt
             -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
             if insanityDrain < 6 and t19_4pc then
-                if cast.voidBolt(units.dyn40,"known") then return end
+                if cast.voidBolt(units.dyn40) then return end
             end
         --Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
@@ -635,14 +635,14 @@ local function runRotation()
                     if cast.powerInfusion() then return end
                 end
             end
-        --Void Bolt 
+        --Void Bolt
             -- void_bolt
-            if cast.voidBolt(units.dyn40,"known") then return end
-        --Shadow Word Death 
+            if cast.voidBolt(units.dyn40) then return end
+        --Shadow Word Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(30+30*talent.reaper_of_souls.enabled))<100
             if (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))
                 and insanityDrain * gcd > power and (power - (insanityDrain * gcd) + (30 + 30 * reaperOfSouls)) < 100
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -651,7 +651,7 @@ local function runRotation()
                     end
                 end
             end
-        --Wait for Void Bolt    
+        --Wait for Void Bolt
             -- wait,sec=action.void_bolt.usable_in,if=action.void_bolt.usable_in<gcd.max*0.28
             if cd.voidBolt.remain() < gcd * 0.28 then
                 return true
@@ -659,23 +659,23 @@ local function runRotation()
         --Dispersion
             -- dispersion,if=current_insanity_drain*gcd.max>insanity&!buff.power_infusion.up|(buff.voidform.stack>76&cooldown.shadow_word_death.charges=0&current_insanity_drain*gcd.max>insanity)
             if isChecked("Dispersion S2M") and useCDs() and not buff.void.exists() then
-                if insanityDrain * gcd > power and (not buff.powerInfusion.exists() 
-                    or (buff.voidForm.stack() >= getOptionValue("Dispersion Stacks") and charges.shadowWordDeath.count() == 0 and insanityDrain * gcd > power)) 
+                if insanityDrain * gcd > power and (not buff.powerInfusion.exists()
+                    or (buff.voidForm.stack() >= getOptionValue("Dispersion Stacks") and charges.shadowWordDeath.count() == 0 and insanityDrain * gcd > power))
                 then
                     if cast.dispersion("player") then return end
                 end
             end
-        --Mind Blast    
+        --Mind Blast
             -- mind_blast,if=active_enemies<=5
             if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and not buff.void.exists() then
                 if cast.mindBlast() then return end
             end
-        --Wait for Mind Blast   
+        --Wait for Mind Blast
             -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=5
             if ((mode.rotation == 1 and #enemies.yards40 <= 5) or mode.rotation == 3) and cd.mindBlast.remain() < gcd * 0.28 and not buff.void.exists() then
                 return true
             end
-        --Shadow Word Death 
+        --Shadow Word Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2
             if (enemies.yards40 <= 4 or (talent.reaperOfSouls and enemies.yards40 <= 2)) and charges.shadowWordDeath.count() == 2 and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
@@ -685,19 +685,19 @@ local function runRotation()
                     end
                 end
             end
-        --Shadow Fiend  
+        --Shadow Fiend
             -- shadowfiend,if=!talent.mindbender.enabled,if=buff.voidform.stack>15
             if isChecked("Shadowfiend / Mindbender") and useCDs() and not buff.void.exists() then
                 if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
                     if cast.shadowfiend() then return end
                 end
             end
-        --Shadow Word Void  
+        --Shadow Word Void
             -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+50)<100
             if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 50) < 100 and not buff.void.exists() then
                 if cast.shadowWordVoid() then return end
             end
-        --Shadow Word Pain  
+        --Shadow Word Pain
             -- shadow_word_pain,if=talent.misery.enabled&dot.shadow_word_pain.remains<gcd,moving=1,cycle_targets=1
             if talent.misery and moving and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
@@ -707,7 +707,7 @@ local function runRotation()
                     end
                 end
             end
-        --Vampiric Touch    
+        --Vampiric Touch
             -- vampiric_touch,if=talent.misery.enabled&(dot.vampiric_touch.remains<3*gcd.max|dot.shadow_word_pain.remains<3*gcd.max),cycle_targets=1
             if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
@@ -717,15 +717,15 @@ local function runRotation()
                     end
                 end
             end
-        --Shadow Word Pain  
+        --Shadow Word Pain
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&(active_enemies<5|talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled|artifact.sphere_of_insanity.rank())
             if not talent.misery and not debuff.shadowWordPain.exists()
                 and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) or talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 if cast.shadowWordPain() then return end
             end
-        --Vampiric Touch    
+        --Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank()))
             if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch)
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
@@ -737,7 +737,7 @@ local function runRotation()
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&(talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled)),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3)
                 and (talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets")
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -746,7 +746,7 @@ local function runRotation()
                     end
                 end
             end
-        --Vampiric Touch    
+        --Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank())),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
                 and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch)
@@ -759,11 +759,11 @@ local function runRotation()
                     end
                 end
             end
-        --Shadow Word Pain  
+        --Shadow Word Pain
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&target.time_to_die>10&(active_enemies<5&artifact.sphere_of_insanity.rank()),cycle_targets=1
             if not talent.misery and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3)
                 and artifact.sphereOfInsanity.enabled()) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets")
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -772,9 +772,9 @@ local function runRotation()
                     end
                 end
             end
-        --Mind Flay 
+        --Mind Flay
             -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
-            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath.count() >= 1)) 
+            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 60) < 100 and charges.shadowWordDeath.count() >= 1))
                 and (lastCast ~= spell.mindFlay or (lastCast == spell.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and (lastCast ~= spell.voidEruption or not t19_4pc)
             then
                 return true
@@ -802,8 +802,8 @@ local function runRotation()
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt.remain() == 0 or buff.void.exists() then
-                if cast.voidBolt(units.dyn40,"known") then return end
-            end 
+                if cast.voidBolt(units.dyn40) then return end
+            end
         -- Shadow Crash
             -- shadow_crash,if=talent.shadow_crash.enabled
             if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
@@ -821,7 +821,7 @@ local function runRotation()
         -- Mindbender
             -- mindbender,if=set_bonus.tier20_4pc&buff.insanity_drain_stacks.value>=(21-(3*(raid_event.movement.in<15)*((active_enemies-target.adds)=1))+2*buff.bloodlust.up+2*talent.fortress_of_the_mind.enabled+2*artifact.lash_of_insanity.rank())&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-buff.insanity_drain_stacks.value))
             if isChecked("Shadowfiend / Mindbender") and useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() and talent.mindbender then
-                if t20_4pc and drainStacks >= (21 - (3 * 0 * singleEnemy) + 2 * lusting + 2 * fortress + 2 * lash) 
+                if t20_4pc and drainStacks >= (21 - (3 * 0 * singleEnemy) + 2 * lusting + 2 * fortress + 2 * lash)
                     and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mcheck - drainStacks))
                 then
                     if cast.mindbender() then return end
@@ -829,15 +829,15 @@ local function runRotation()
             end
             -- mindbender,if=!set_bonus.tier20_4pc&buff.insanity_drain_stacks.value>=(10+2*set_bonus.tier19_2pc+5*buff.bloodlust.up+3*equipped.mangazas_madness+2*artifact.lash_of_insanity.rank())&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.value)+30))
             if isChecked("Shadowfiend / Mindbender") and useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() and talent.mindbender then
-                if not t20_4pc and drainStacks >= (10 + 2 * t19pc2 + 5 * lusting + 3 * mangaMad + 2 * lash) 
-                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 30)) 
+                if not t20_4pc and drainStacks >= (10 + 2 * t19pc2 + 5 * lusting + 3 * mangaMad + 2 * lash)
+                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 30))
                 then
                     if cast.mindbender() then return end
                 end
             end
         -- Power Infusion
             -- power_infusion,if=buff.insanity_drain_stacks.value>=(10+2*set_bonus.tier19_2pc+5*buff.bloodlust.up*(1+1*set_bonus.tier20_4pc)+3*equipped.mangazas_madness+6*set_bonus.tier20_4pc+2*artifact.lash_of_insanity.rank())&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.value)+61))
-            if isChecked("Power Infusion") and useCDs() and buff.voidForm.stack() >= getOptionValue("Power Infusion Stacks") and not buff.void.exists() then 
+            if isChecked("Power Infusion") and useCDs() and buff.voidForm.stack() >= getOptionValue("Power Infusion Stacks") and not buff.void.exists() then
                 if drainStacks >= (10 + 2 * t19pc2 + 5 * lusting * (1 + 1 * t20pc4) + 3 * mangaMad + 6 * t20pc4 + 2 * lash)
                     and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 61))
                 then
@@ -848,20 +848,20 @@ local function runRotation()
             -- berserking,if=buff.voidform.stack>=10&buff.insanity_drain_stacks.stack<=20&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
             if br.player.race == "Troll" and getSpellCD(racial) == 0 and buff.voidForm.stack() >= 10 and drainStacks <= 20
                 and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - (drainStacks) + 60))
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 if castSpell("player",racial,false,false,false) then return end
             end
         -- Void Bolt
             -- void_bolt
             if cd.voidBolt.remain() == 0 or buff.void.exists() then
-                if cast.voidBolt(units.dyn40,"known") then return end
+                if cast.voidBolt(units.dyn40) then return end
             end
         -- Shadow Word - Death
             -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
             if ((mode.rotation == 1 and (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))) or mode.rotation == 3)
                 and insanityDrain * gcd > power and (power - (insanityDrain * gcd) + (15 + 15 * reaperOfSouls)) < 100
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -931,14 +931,14 @@ local function runRotation()
             -- shadow_word_pain,if=!talent.misery.enabled&!ticking&(active_enemies<5|talent.auspicious_spirits.enabled|talent.shadowy_insight.enabled|artifact.sphere_of_insanity.rank())
             if not talent.misery and not debuff.shadowWordPain.exists()
                 and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) or talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())
-                and not buff.void.exists() 
+                and not buff.void.exists()
             then
                 if cast.shadowWordPain() then return end
             end
         -- Vampiric Touch
             -- vampiric_touch,if=!talent.misery.enabled&!ticking&(active_enemies<4|talent.sanlayn.enabled|(talent.auspicious_spirits.enabled&artifact.unleash_the_shadows.rank()))
             if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving
-                and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))   
+                and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
             then
                 if cast.vampiricTouch() then return end
             end
@@ -946,20 +946,20 @@ local function runRotation()
             if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) 
+                    if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit)
                         and (85.2 * (1 + 0.02 * buff.voidForm.stack()) * (1 + 0.2 + GetMastery() / 16000) * (1 + 0.2 * sanlayn) * 0.5 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1
                     then
                         if cast.vampiricTouch(thisUnit,"aoe") then return end
                     end
                 end
-            end 
+            end
         -- Shadow Word - Pain
             -- shadow_word_pain,if=active_enemies>1&!talent.misery.enabled&!ticking&(47.12*(1+0.02*buff.voidform.stack)*(1+0.2+stat.mastery_rating%16000)*0.75*target.time_to_die%(gcd.max*(138+80*(active_enemies-1))))>1,cycle_targets=1
             if #enemies.yards40 > 1 and not talent.misery and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) 
-                        and (47.12 * (1 + 0.02 * buff.voidForm.stack()) * (1 + 0.2 + GetMastery() / 16000) * 0.75 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1 
+                    if not debuff.shadowWordPain.exists(thisUnit)
+                        and (47.12 * (1 + 0.02 * buff.voidForm.stack()) * (1 + 0.2 + GetMastery() / 16000) * 0.75 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1
                     then
                        if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
