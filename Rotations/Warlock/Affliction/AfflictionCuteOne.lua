@@ -1221,7 +1221,7 @@ local function runRotation()
                 end
             -- Reap Souls
                 -- reap_souls,if=(buff.deadwind_harvester.remains+buff.tormented_souls.react*(5+equipped.144364))>=(12*(5+1.5*equipped.144364))
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSould.stack() > 0 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     if (buff.deadwindHarvester.remain() + tormented * (5 + reapAndSow)) >= (12 * (5 + 1.5 * reapAndSow)) then
                         if cast.reapSouls() then return end
                     end
