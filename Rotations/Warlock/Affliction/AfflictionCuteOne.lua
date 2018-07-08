@@ -237,7 +237,7 @@ local function runRotation()
         if effigied == nil then effigied = false; effigyCount = 0 end
         if effigyCount == nil then effigyCount = 0 end
         if hasEquiped(144364) then reapAndSow = 1 else reapAndSow = 0 end
-        if buff.tormentedSouls.exists() then tormented = 1 else tormented = 0 end
+        if buff.tormentedSouls.stack() > 0 then tormented = 1 else tormented = 0 end
         if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
         if hasEquiped(132394) then agonyTick = 2 * 0.9 else agonyTick = 2 / (1 + (GetHaste()/100)) end
@@ -617,7 +617,7 @@ local function runRotation()
         local function actionList_Haunt()
             if not moving then
             -- Reap Souls
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     -- reap_souls,if=!buff.deadwind_harvester.remains&time>5&(buff.tormented_souls.react>=5|target.time_to_die<=buff.tormented_souls.react*(5+1.5*equipped.144364)+(buff.deadwind_harvester.remains*(5+1.5*equipped.144364)%12*(5+1.5*equipped.144364)))
                     if not buff.deadwindHarvester.exists() and combatTime > 5 and (buff.tormentedSouls.stack() >= 5
                         or ttd(units.dyn40) <= buff.tormentedSouls.stack() * (5 + 1.5 * reapAndSow) + (buff.deadwindHarvester.remain() * (5 + 1.5 * reapAndSow) / 12 * (5 + 1.5 * reapAndSow)))
@@ -693,7 +693,7 @@ local function runRotation()
                 end
             -- Reap Souls
                 -- reap_souls,if=(buff.deadwind_harvester.remains+buff.tormented_souls.react*(5+equipped.144364))>=(12*(5+1.5*equipped.144364))
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     if (buff.deadwindHarvester.remain() + tormented * (5 + reapAndSow)) >= (12 * (5 + 1.5 * reapAndSow)) then
                         if cast.reapSouls() then return end
                     end
@@ -831,7 +831,7 @@ local function runRotation()
                 end
             -- Reap Souls
                 -- reap_souls,if=!buff.deadwind_harvester.remains&(buff.active_uas.stack>1|(prev_gcd.1.unstable_affliction&buff.tormented_souls.react>1))
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     if not buff.deadwindHarvester.exists() and (debuff.unstableAffliction.stack(units.dyn40) > 1 or (cast.last.unstableAffliction() and buff.tormentedSouls.stack() > 1)) then
                         if cast.reapSouls() then return end
                     end
@@ -901,7 +901,7 @@ local function runRotation()
             if not moving then
         -- Reap Souls
             -- reap_souls,if=!buff.deadwind_harvester.remains&time>5&((buff.tormented_souls.react>=4+active_enemies|buff.tormented_souls.react>=9)|target.time_to_die<=buff.tormented_souls.react*(5+1.5*equipped.144364)+(buff.deadwind_harvester.remains*(5+1.5*equipped.144364)%12*(5+1.5*equipped.144364)))
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                 if not buff.deadwindHarvester.exists() and combatTime > 5 and ((buff.tormentedSouls.stack() >= 4 + #enemies.yards40 or buff.tormentedSouls.stack() >= 9)
                     or ttd(units.dyn40) <= buff.tormentedSouls.stack() * (5 + 1.5 * reapAndSow) + (buff.deadwindHarvester.remain() * (5 + 1.5 * reapAndSow) / 12 * (5 + 1.5 * reapAndSow)))
                 then
@@ -1048,7 +1048,7 @@ local function runRotation()
             end
         -- Reap Souls
             -- reap_souls,if=buff.deadwind_harvester.remains<dot.unstable_affliction_1.remains|buff.deadwind_harvester.remains<dot.unstable_affliction_2.remains|buff.deadwind_harvester.remains<dot.unstable_affliction_3.remains|buff.deadwind_harvester.remains<dot.unstable_affliction_4.remains|buff.deadwind_harvester.remains<dot.unstable_affliction_5.remains&buff.active_uas.stack>1
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                 if (buff.deadwindHarvester.remain() < debuff.unstableAffliction.remain(1,units.dyn40) or buff.deadwindHarvester.remain() < debuff.unstableAffliction.remain(2,units.dyn40)
                     or buff.deadwindHarvester.remain() < debuff.unstableAffliction.remain(3,units.dyn40) or buff.deadwindHarvester.remain() < debuff.unstableAffliction.remain(4,units.dyn40)
                     or buff.deadwindHarvester.remain() < debuff.unstableAffliction.remain(5,units.dyn40)) and debuff.unstableAffliction.stack(units.dyn40) > 1
@@ -1116,7 +1116,7 @@ local function runRotation()
         local function actionList_Writhe()
             if not moving then
             -- Reap Souls
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     -- reap_souls,if=!buff.deadwind_harvester.remains&time>5&(buff.tormented_souls.react>=5|target.time_to_die<=buff.tormented_souls.react*(5+1.5*equipped.144364)+(buff.deadwind_harvester.remains*(5+1.5*equipped.144364)%12*(5+1.5*equipped.144364)))
                     if not buff.deadwindHarvester.exists() and combatTime > 5 and (buff.tormentedSouls.stack() >= 5
                         or ttd(units.dyn40) <= buff.tormentedSouls.stack() * (5 + 1.5 * reapAndSow) + (buff.deadwindHarvester.remain() * (5 + 1.5 * reapAndSow) / 12 * (5 + 1.5 * reapAndSow)))
@@ -1221,7 +1221,7 @@ local function runRotation()
                 end
             -- Reap Souls
                 -- reap_souls,if=(buff.deadwind_harvester.remains+buff.tormented_souls.react*(5+equipped.144364))>=(12*(5+1.5*equipped.144364))
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSould.stack() > 0 then
                     if (buff.deadwindHarvester.remain() + tormented * (5 + reapAndSow)) >= (12 * (5 + 1.5 * reapAndSow)) then
                         if cast.reapSouls() then return end
                     end
@@ -1261,7 +1261,7 @@ local function runRotation()
                     if cast.unstableAffliction() then return end
                 end
             -- Reap Souls
-                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 then
+                if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and mode.multidot == 1 and buff.tormentedSouls.stack() > 0 then
                     -- reap_souls,if=!buff.deadwind_harvester.remains&buff.active_uas.stack>1
                     if not buff.deadwindHarvester.exists() and debuff.unstableAffliction.stack(units.dyn40) > 1 then
                         if cast.reapSouls() then return end
