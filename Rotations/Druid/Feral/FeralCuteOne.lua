@@ -286,7 +286,7 @@ local function runRotation()
             rkTick = 3
             rpTick = 2
         end
-        if equiped.t20 >= 4 then
+        if equiped.t20 ~= nil and equiped.t20 >= 4 then
             ripDuration = 24 + 4
         elseif talent.jaggedWounds then
             rakeDuration = 12
