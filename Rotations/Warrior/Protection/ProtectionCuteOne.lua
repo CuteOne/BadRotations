@@ -501,10 +501,10 @@ local function runRotation()
             if cast.thunderClap() then return end
         -- Revenge
             -- revenge,if=(talent.vengeance.enabled&buff.revenge.react&!buff.vengeance_ignore_pain.up)|(buff.vengeance_revenge.up&rage>=59)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage>=69)|(!talent.vengeance.enabled&buff.revenge.react)
-            if (talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0 and not buff.vengeanceIgnorePain.exists())
+            if (talent.vengeance and buff.revenge.exists() and not buff.vengeanceIgnorePain.exists())
                 or (buff.vengeanceRevenge.exists() and power >= 59)
                 or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and power >= 69)
-                or (not talent.vengeance and select(1, getSpellCost(spell.revenge)) == 0)
+                or (not talent.vengeance and buff.revenge.exists())
                 or (isChecked("High Rage Revenge") and power > 90 and #enemies.yards8 >= getOptionValue("High Rage Revenge"))
             then
                 if cast.revenge() then return end
