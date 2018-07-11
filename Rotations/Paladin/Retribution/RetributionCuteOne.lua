@@ -305,8 +305,8 @@ local function runRotation()
                 distance = getDistance(thisUnit)
                 if isCastingSpell(237946,thisUnit) then
     -- Repentance
-                    if distance < 5 then
-                        if cast.rebuke(thisUnit) then return end
+                    if distance < 30 then
+                        if cast.repentance(thisUnit) then return end
                     end
     -- Hammer of Justice
                     if isChecked("Hammer of Justice") and distance < 10 then
