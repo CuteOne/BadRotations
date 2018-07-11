@@ -219,6 +219,7 @@ local function runRotation()
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
+        enemies.yards30 = br.player.enemies(30)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -303,20 +304,17 @@ local function runRotation()
                 thisUnit = enemies.yards10[i]
                 distance = getDistance(thisUnit)
                 if isCastingSpell(237946,thisUnit) then
-    -- Hammer of Justice
-                    if isChecked("Hammer of Justice") and distance < 10 and (not cast.able.rebuke() or distance >= 5) then
-                        if cast.hammerOfJustice(thisUnit) then return end
-                    end
-    -- Rebuke
-                    if isChecked("Rebuke") and distance < 5 then
+    -- Repentance
+                    if distance < 5 then
                         if cast.rebuke(thisUnit) then return end
                     end
-    -- Blinding Light
-                    if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or enemies.yards10 > 1) then
-                        if cast.blindingLight() then return end
+    -- Hammer of Justice
+                    if isChecked("Hammer of Justice") and distance < 10 then
+                        if cast.hammerOfJustice(thisUnit) then return end
                     end
-                    if isChecked("Paralysis") then
-                        if cast.paralysis(thisUnit) then return true end
+    -- Blinding Light
+                    if isChecked("Blinding Light") and distance < 10 then
+                        if cast.blindingLight() then return end
                     end
                 end
             end
