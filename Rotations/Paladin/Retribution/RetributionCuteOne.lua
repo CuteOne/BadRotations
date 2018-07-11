@@ -48,6 +48,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Opener
             br.ui:createCheckbox(section, "Opener")
+            -- Challenge Skin Helper
+            br.ui:createCheckbox(section, "Challenge Skin Helper")
             -- Greater Blessing of Might
             -- br.ui:createCheckbox(section, "Greater Blessing of Might
 			-- Greater Blessing of Kings
@@ -293,6 +295,31 @@ local function runRotation()
             -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
             --     greaterBuff = greaterBuff + 1
             -- end
+        end
+
+        -- Challenge Skin Heler
+        if isChecked("Challenge Skin Helper") then
+            for i=1, #enemies.yards10 do
+                thisUnit = enemies.yards10[i]
+                distance = getDistance(thisUnit)
+                if isCastingSpell(237946,thisUnit) then
+    -- Hammer of Justice
+                    if isChecked("Hammer of Justice") and distance < 10 and (not cast.able.rebuke() or distance >= 5) then
+                        if cast.hammerOfJustice(thisUnit) then return end
+                    end
+    -- Rebuke
+                    if isChecked("Rebuke") and distance < 5 then
+                        if cast.rebuke(thisUnit) then return end
+                    end
+    -- Blinding Light
+                    if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or enemies.yards10 > 1) then
+                        if cast.blindingLight() then return end
+                    end
+                    if isChecked("Paralysis") then
+                        if cast.paralysis(thisUnit) then return true end
+                    end
+                end
+            end
         end
 --------------------
 --- Action Lists ---
