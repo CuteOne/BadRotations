@@ -182,6 +182,7 @@ Rotations\Paladin\Holy\HolyFengshen.lua
 Rotations\Paladin\Protection\protectionPrettyBoy.lua
 
 Rotations\Paladin\Retribution\RetributionCuteOne.lua
+Rotations\Paladin\Retribution\RetributionFiskee.lua
 
 ## Priest ---------------------------------------------------
 

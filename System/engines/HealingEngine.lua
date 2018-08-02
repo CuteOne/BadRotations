@@ -56,7 +56,7 @@ if not metaTable1 then
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
 		for i=1, #novaEngineTables.BadDebuffList do
-			if UnitDebuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or UnitBuff(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) then
+			if UnitDebuffID(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or UnitBuffID(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) then
 				return false
 			end
 		end
@@ -110,8 +110,8 @@ if not metaTable1 then
 				return false
 			end
 			for i = 1, #novaEngineTables.DispelID do
-				if UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
-					if select(3,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
+				if UnitDebuffID(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
+					if select(3,UnitDebuffID(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
                     and (isChecked("Dispel delay") and
                             (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) - getDebuffRemain(o.unit, novaEngineTables.DispelID[i].id)) > (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) ))then -- Dispel Delay
 						if novaEngineTables.DispelID[i].range ~= nil then
