@@ -1,0 +1,27 @@
+tag c9fb762b14342f19e8b67f6880b7fc814457f335 2.0
+Author:	Rainrider <Rainrider@users.noreply.github.com>
+Date:	Fri Jul 27 01:01:03 2018 +0200
+
+Version 2.0
+
+Update for 8.0.1
+Not entirely backwards compatible!
+
+commit 0955f82e832903b46c397274af0427aec5c43fb7
+Author: Rainrider <Rainrider@users.noreply.github.com>
+Date:   Fri Jul 27 00:51:49 2018 +0200
+
+    Update for 8.0.1
+    
+    REMOVED API:
+    - GetArtifactKnowledge
+    - GetArtifactPowerFromItem
+    
+    NEW FIELDS:
+    - artifact: isDisabled
+    - relics: itemLevelIncrease
+    
+    REMOVED FIELDS:
+    - knowledgeLevel, knowledgeMultiplier
+    - relics: rank, canAddTalent, talents
+

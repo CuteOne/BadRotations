@@ -211,7 +211,7 @@ local function runRotation()
         lowest.range                                        = br.friend[1].range
         lowest.guid                                         = br.friend[1].guid
         local lowestTank                                    = {}    --Tank
-        local beacon                                       
+        local beacon
         local tHp                                           = 95
         local averageHealth                                 = 100
 
@@ -257,7 +257,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if UnitIsPlayer(br.friend[i].unit) then
                         for n = 1,40 do
-                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
                                 if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
                                     if cast.cleanse(br.friend[i].unit) then return end
@@ -284,7 +284,7 @@ local function runRotation()
             end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
-                if inInstance then    
+                if inInstance then
                     for i = 1, #br.friend do
                         if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                             beacon = br.friend[i].hp
@@ -294,8 +294,8 @@ local function runRotation()
                                 beacon = br.friend[i].hp
                             end
                         end
-                     end              
-                else 
+                     end
+                else
                     if inRaid then
                         if not talent.beaconOfFaith then
                             for i = 1, #br.friend do
@@ -382,7 +382,7 @@ local function runRotation()
             -- Cool downs
             if inCombat then
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
+                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns -----
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 -- Tyr's Deliverance
                 if isChecked("Tyr's Deliverance") then
@@ -397,7 +397,7 @@ local function runRotation()
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
-                        end    
+                        end
                         if cast.avengingWrath() then return end
                     end
                 end
@@ -483,7 +483,7 @@ local function runRotation()
             if isChecked("Holy Shock") then
                 if lowest.hp <= getValue("Holy Shock") then
                     if cast.holyShock(lowest.unit) then return end
-                else 
+                else
                     if not buff.infusionOfLight.exists("player") then
                         if cast.holyShock(units.dyn30) then return end
                     end
@@ -510,7 +510,7 @@ local function runRotation()
                 end
             end
             -- Holy Light
-            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) then                 
+            if isChecked("Holy Light") and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.exists("player"))) then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Holy Light") then
                         if cast.holyLight(br.friend[i].unit) then return end
@@ -525,7 +525,7 @@ local function runRotation()
                     end
                 end
             end
-            
+
         end -- NOrmal Mode Check
         if getOptionValue("Mode") == 2 and not IsMounted() and getBuffRemain("player", 192002 ) < 5 then
             if actionList_Defensive() then return end
@@ -542,7 +542,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if UnitIsPlayer(br.friend[i].unit) then
                         for n = 1,40 do
-                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
                                 if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
                                     if cast.cleanse(br.friend[i].unit) then return end
@@ -563,7 +563,7 @@ local function runRotation()
                             if isChecked("Hammer of Justice") and GetSpellCooldown(853) == 0 then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
-                                end 
+                                end
                                 if cast.hammerOfJustice(thisUnit) then return end
                             end
                         end
@@ -572,7 +572,7 @@ local function runRotation()
             end -- End Interrupt Check
             -- Beacon of Light on Tank
             if isChecked("Beacon of Light") then
-                if inInstance then    
+                if inInstance then
                     for i = 1, #br.friend do
                         if beacon == nil and not buff.beaconOfLight.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                             beacon = br.friend[i].hp
@@ -582,8 +582,8 @@ local function runRotation()
                                 beacon = br.friend[i].hp
                             end
                         end
-                     end              
-                else 
+                     end
+                else
                     if inRaid then
                         if not talent.beaconOfFaith then
                             for i = 1, #br.friend do
@@ -670,7 +670,7 @@ local function runRotation()
             -- Cool downs
             if inCombat then
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- 
+                --Cooldowns ----- Cooldowns -----Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns ----- Cooldowns -----
                 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 -- Tyr's Deliverance
                 if isChecked("Tyr's Deliverance") then
@@ -685,7 +685,7 @@ local function runRotation()
                     if getLowAllies(getValue"Avenging Wrath") >= getValue("AW Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
-                        end    
+                        end
                         if cast.avengingWrath() then return end
                     end
                 end
@@ -696,7 +696,7 @@ local function runRotation()
                             if br.friend[i].hp <= getValue ("Lay on Hands") then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
-                                end 
+                                end
                                 if cast.layOnHands(br.friend[i].unit) then return end
                             end
                         end
@@ -705,7 +705,7 @@ local function runRotation()
                             if br.friend[i].hp <= getValue ("Lay on Hands") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
-                                end 
+                                end
                                 if cast.layOnHands(br.friend[i].unit) then return end
                             end
                         end
@@ -713,7 +713,7 @@ local function runRotation()
                         if php <= getValue("Lay on Hands") then
                             if isCastingSpell(spell.holyLight) then
                                 SpellStopCasting()
-                            end 
+                            end
                             if cast.layOnHands("player") then return end
                         end
                     end
@@ -723,7 +723,7 @@ local function runRotation()
                    if getLowAllies(getValue"Holy Avenger") >= getValue("HA Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
-                        end 
+                        end
                         if cast.holyAvenger() then return end
                     end
                 end
@@ -732,7 +732,7 @@ local function runRotation()
                     if getLowAllies(getValue"Aura Mastery") >= getValue("AM Targets") then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
-                        end 
+                        end
                         if cast.auraMastery() then return end
                     end
                 end
@@ -752,7 +752,7 @@ local function runRotation()
                             if GetSpellCooldown(85222) == 0 then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
-                                end 
+                                end
                                 if cast.ruleOfLaw() then end
                                 if cast.lightOfDawn(br.friend[i].unit) then return end
                             end
@@ -791,13 +791,13 @@ local function runRotation()
                 if lowest.hp <= getValue("Holy Shock") then
                     if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
                         SpellStopCasting()
-                    end 
+                    end
                     if cast.holyShock(lowest.unit) then return end
-                else 
+                else
                     if not buff.infusionOfLight.exists("player") then
                         if isCastingSpell(spell.holyLight) and getCastTime(spell.holyLight) > 1 then
                             SpellStopCasting()
-                        end 
+                        end
                         if cast.holyShock(units.dyn30) then return end
                     end
                 end
@@ -810,7 +810,7 @@ local function runRotation()
                             if br.friend[i].hp <= getValue ("Light of the Martyr") then
                                 if isCastingSpell(spell.holyLight) then
                                     SpellStopCasting()
-                                end 
+                                end
                                 if cast.lightOfTheMartyr(br.friend[i].unit) then return end
                             end
                         end
@@ -826,10 +826,10 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Flash of Light")  then
                         if isCastingSpell(spell.holyLight) then
                             SpellStopCasting()
-                        end 
+                        end
                         if cast.flashOfLight(br.friend[i].unit) then
                         LastFoLTime = GetTime()
-                        return 
+                        return
                         end
                     end
                 end
@@ -852,7 +852,7 @@ local function runRotation()
                     end
                 end
             end
-            
+
          end -- Test Mode
     end -- End Timer
 end -- End runRotation
@@ -866,5 +866,5 @@ tinsert(br.rotations[id],{
     name = rotationName,
     toggles = createToggles,
     options = createOptions,
-    run = runRotation, 
+    run = runRotation,
 })

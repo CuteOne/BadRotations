@@ -60,15 +60,15 @@ hooksecurefunc(ItemRefTooltip, "SetHyperlink", onSetHyperlink)
 hooksecurefunc(GameTooltip, "SetHyperlink", onSetHyperlink)
 -- Spells
 hooksecurefunc(GameTooltip, "SetUnitBuff", function(self, ...)
-	local id = select(11, UnitBuff(...))
+	local id = select(10, UnitBuff(...))
 	if id then addLine(self, id, types.spell) end
 end)
 hooksecurefunc(GameTooltip, "SetUnitDebuff", function(self,...)
-	local id = select(11, UnitDebuff(...))
+	local id = select(10, UnitDebuff(...))
 	if id then addLine(self, id, types.spell) end
 end)
 hooksecurefunc(GameTooltip, "SetUnitAura", function(self,...)
-	local id = select(11, UnitAura(...))
+	local id = select(10, UnitAura(...))
 	if id then addLine(self, id, types.spell) end
 end)
 hooksecurefunc("SetItemRef", function(link, ...)
@@ -105,7 +105,7 @@ ItemRefShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
 ItemRefShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
 ShoppingTooltip1:HookScript("OnTooltipSetItem", attachItemTooltip)
 ShoppingTooltip2:HookScript("OnTooltipSetItem", attachItemTooltip)
--- Glyphs -- Commented out due to Legion 
+-- Glyphs -- Commented out due to Legion
 -- hooksecurefunc(GameTooltip, "SetGlyph", function(self, ...)
 -- 	local id = select(4, GetGlyphSocketInfo(...))
 -- 	if id then addLine(self, id, types.glyph) end

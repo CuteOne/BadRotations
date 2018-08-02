@@ -111,7 +111,7 @@ if not metaTable1 then
 			end
 			for i = 1, #novaEngineTables.DispelID do
 				if UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
-					if select(4,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
+					if select(3,UnitDebuff(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
                     and (isChecked("Dispel delay") and
                             (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) - getDebuffRemain(o.unit, novaEngineTables.DispelID[i].id)) > (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) ))then -- Dispel Delay
 						if novaEngineTables.DispelID[i].range ~= nil then
@@ -183,9 +183,9 @@ if not metaTable1 then
 			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
 			-- Malkorok shields logic
 			local SpecificHPBuffs = {
-				{buff = 142865,value = select(15,UnitDebuffID(o.unit,142865))}, -- Strong Ancient Barrier (Green)
-				{buff = 142864,value = select(15,UnitDebuffID(o.unit,142864))}, -- Ancient Barrier (Yellow)
-				{buff = 142863,value = select(15,UnitDebuffID(o.unit,142863))}, -- Weak Ancient Barrier (Red)
+				{buff = 142865,value = select(14,UnitDebuffID(o.unit,142865))}, -- Strong Ancient Barrier (Green)
+				{buff = 142864,value = select(14,UnitDebuffID(o.unit,142864))}, -- Ancient Barrier (Yellow)
+				{buff = 142863,value = select(14,UnitDebuffID(o.unit,142863))}, -- Weak Ancient Barrier (Red)
 			}
 			if UnitDebuffID(o.unit, 142861) then -- If Miasma found
 				for i = 1,#SpecificHPBuffs do -- start iteration
@@ -200,16 +200,16 @@ if not metaTable1 then
 			end
 			-- Tyrant Velhair Aura logic
 			if UnitDebuffID(o.unit, 179986) then -- If Aura of Contempt found
-				max_percentage = select(15,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
-				if max_percentage then 
+				max_percentage = select(14,UnitAura("boss1",GetSpellInfo(179986))) -- find current reduction % in healing
+				if max_percentage then
 					PercentWithIncoming = (PercentWithIncoming/max_percentage)* 100 -- Calculate Actual HP % after reduction
 				end
 			end
 			-- Debuffs HP compensation
-			local debugTimerStartTime = GetTime()			
+			local debugTimerStartTime = GetTime()
 			local HpDebuffs = novaEngineTables.SpecificHPDebuffs
 			for i = 1, #HpDebuffs do
-				local _,_,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
+				local _,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
 				if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
 					PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
 					break

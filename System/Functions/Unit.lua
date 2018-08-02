@@ -25,7 +25,7 @@ function GetUnitExists(Unit)
 end
 function GetUnitIsVisible(Unit)
 	if Unit == nil then return false end
-	return UnitIsVisible(Unit)
+	return true --UnitIsVisible(Unit)
 end
 function GetObjectFacing(Unit)
     if FireHack and GetObjectExists(Unit) then
@@ -64,7 +64,7 @@ end
 -- end
 function GetObjectID(Unit)
 	if FireHack and GetObjectExists(Unit) then
-		return ObjectID(Unit)
+		return 0 --ObjectID(Unit)
 	else
 		return 0
 	end

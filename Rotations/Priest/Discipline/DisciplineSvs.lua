@@ -1,4 +1,4 @@
-local rotationName = "Svs" 
+local rotationName = "Svs"
 
 ---------------
 --- Toggles ---
@@ -36,13 +36,13 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
         	--Rapture
-            br.ui:createSpinner(section, "Rapture",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "Rapture Targets",  3,  0,  40,  1,  "Minimum Rapture Targets") 
+            br.ui:createSpinner(section, "Rapture",  80,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Rapture Targets",  3,  0,  40,  1,  "Minimum Rapture Targets")
             --Power Word Radiance
-            br.ui:createSpinner(section, "Power Word Radiance",  75,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "PWR Targets",  3,  0,  40,  1,  "Minimum PWR Targets")   
+            br.ui:createSpinner(section, "Power Word Radiance",  75,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "PWR Targets",  3,  0,  40,  1,  "Minimum PWR Targets")
             --Halo
-            br.ui:createSpinner(section, "Halo",  80,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Halo",  80,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinner(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
         br.ui:checkSectionState(section)
     end
@@ -85,7 +85,7 @@ local function runRotation()
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -101,15 +101,15 @@ local function runRotation()
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
 
         units.dyn40 = br.player.units(40)
 
 		for i = 1, #br.friend do
-			if UnitIsDeadOrGhost(br.friend[i].unit) or getDistance(br.friend[i].unit) > 40 then 
-				br.friend[i].hp = 100 
+			if UnitIsDeadOrGhost(br.friend[i].unit) or getDistance(br.friend[i].unit) > 40 then
+				br.friend[i].hp = 100
 			end
 			averageHealth = averageHealth + br.friend[i].hp
 		end
@@ -123,7 +123,7 @@ local function runRotation()
                 atonementCount = atonementCount + 1
             end
         end
-        
+
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -133,9 +133,9 @@ local function runRotation()
         -- Action List - Pre-Combat
         function actionList_PreCombat()
             -- Power Word: Shield Body and Soul
-            if isMoving("player") then -- talent.bodyandSoul and 
+            if isMoving("player") then -- talent.bodyandSoul and
                 if cast.powerWordShield("player") then return end
-            end                
+            end
         end  -- End Action List - Pre-Combat
         --Spread Atonement
         function actionList_SpreadAtonement()
@@ -145,20 +145,20 @@ local function runRotation()
         function actionList_AOEHealing()
             --Rapture
             if isChecked("Rapture") then
-                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then    
-                    if cast.rapture() then return end    
+                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
+                    if cast.rapture() then return end
                 end
             end
           	--Power Word Radiance
             if isChecked("Power Word Radiance") then
-                if getLowAllies(getValue("Power Word Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then    
-                    if cast.powerWordRadiance(lowest.unit) then return end    
+                if getLowAllies(getValue("Power Word Radiance")) >= getValue("PWR Targets") and lastSpell ~= spell.powerWordRadiance then
+                    if cast.powerWordRadiance(lowest.unit) then return end
                 end
             end
             --Halo
             if isChecked("Halo") then
-                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then    
-                    if cast.halo(lowest.unit) then return end    
+                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+                    if cast.halo(lowest.unit) then return end
                 end
             end
         end
@@ -185,13 +185,13 @@ local function runRotation()
                     if br.friend[i].hp <= getValue("Pain Suppression") and getBuffRemain(br.friend[i].unit, spell.painSuppression, "player") < 1 then
                         if cast.painSuppression(br.friend[i].unit) then return end
                     end
-                end                    
+                end
             end
             --Purify
             if isChecked("Purify") then
             for i = 1, #br.friend do
                 for n = 1,40 do
-                        local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                        local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                         if buff then
                             if bufftype == "Curse" or bufftype == "Magic" then
                                 if cast.purify(br.friend[i].unit) then return end
@@ -202,27 +202,27 @@ local function runRotation()
             end
             --Power Word Shield
             if isChecked("Power Word Shield") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Power Word Shield") 
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Power Word Shield")
                     and getBuffRemain(br.friend[i].unit, spell.powerWordShield, "player") < 1 then
-                        if cast.powerWordShield(br.friend[i].unit) then return end     
+                        if cast.powerWordShield(br.friend[i].unit) then return end
                     end
                 end
             end
             --Shadow Mend
             if isChecked("Shadow Mend") then
-                for i = 1, #br.friend do                           
+                for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Shadow Mend") and lastSpell ~= spell.shadowMend then -- and atonementCount >= 5
-                        if cast.shadowMend(br.friend[i].unit) then return end     
+                        if cast.shadowMend(br.friend[i].unit) then return end
                     end
                 end
             end
             --Plea
             if isChecked("Plea") then
-                for i = 1, #br.friend do                           
+                for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Plea") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and lastSpell ~= spell.plea and atonementCount < 6 then
                     	--Print("Atonement Count: "..atonementCount)
-                        if cast.plea(br.friend[i].unit) then return end     
+                        if cast.plea(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -235,17 +235,17 @@ local function runRotation()
             if cast.powerWordSolace() then return end
             --MindbBender/Shadowfiend
             if isChecked("Rapture") then
-                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then    
-                    if cast.shadowfiend() then return end    
+                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
+                    if cast.shadowfiend() then return end
                 end
             end
             --Purge The Wicked
             if getDebuffRemain(units.dyn40,204213,"player") <= 4 then
-                if cast.purgeTheWicked(units.dyn40) then return end 
+                if cast.purgeTheWicked(units.dyn40) then return end
             end
             --Shadow Word: Pain
             if getDebuffRemain(units.dyn40,spell.shadowWordPain,"player") <= 4 then
-                if cast.shadowWordPain(units.dyn40) then return end 
+                if cast.shadowWordPain(units.dyn40) then return end
             end
             --Penance
             if cast.penance() then return end
@@ -272,18 +272,18 @@ local function runRotation()
             	actionList_PreCombat()
             end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat and not IsMounted() then
             	actionList_AOEHealing()
             	actionList_SingleTarget()
                 actionList_SpreadAtonement()
                 actionList_Damage()
-                
+
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 local id = 256
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

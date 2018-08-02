@@ -18,16 +18,16 @@ local function spellCastListener(self,category,...)
 				return false
 			end
 			-- commonly used locals inside listener
-			local event = select(2,...)
-			local sourceGUID = select(4,...)
-			local spellID = select(12,...)
+			local event = select(2,CombatLogGetCurrentEventInfo())
+			local sourceGUID = select(4,CombatLogGetCurrentEventInfo())
+			local spellID = select(12,CombatLogGetCurrentEventInfo())
 			local unitType = select(1,strsplit("-", sourceGUID or ""))
 			-- make sure it is a spell cast
 			if event == "SPELL_CAST_START" then
 				-- refresh enemies with current br.enemy
 				im.enemy = br.enemy
 				-- manage cast
-				return im:manageCast(...)
+				return im:manageCast(CombatLogGetCurrentEventInfo())
 			end
 			-- if its a success cast, remove unit from the casters
 			if event == "SPELL_CAST_SUCCESS" then

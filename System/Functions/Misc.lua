@@ -181,13 +181,13 @@ end
 -- if isInDraenor() then
 function isInDraenor()
 	local tContains = tContains
-	local currentMapID = GetCurrentMapAreaID()
+	local currentMapID = C_Map.GetBestMapForUnit("player")
 	local draenorMapIDs = br.lists.maps.Draenor
 	return tContains(draenorMapIDs,currentMapID)
 end
 function isInLegion()
 	local tContains = tContains
-	local currentMapID = GetCurrentMapAreaID()
+	local currentMapID = C_Map.GetBestMapForUnit("player")
 	local legionMapIDs = br.lists.maps.Legion
 	return tContains(legionMapIDs,currentMapID)
 end

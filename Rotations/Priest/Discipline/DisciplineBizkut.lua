@@ -68,9 +68,9 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Artifact")
             --Light's Wrath
-            br.ui:createSpinner(section, "Light's Wrath",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will use Velen's if available. Default: 80") 
+            br.ui:createSpinner(section, "Light's Wrath",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Will use Velen's if available. Default: 80")
             br.ui:createSpinnerWithout(section, "Light's Wrath Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Light's Wrath Targets. Default: 3")
-            br.ui:createCheckbox(section, "Light's Wrath after Rapture", "|cffFFFFFFCast Schism and Light's Wrath after Rapture and PWS spell chain. Will use Velen's if available. Default: Unchecked") 
+            br.ui:createCheckbox(section, "Light's Wrath after Rapture", "|cffFFFFFFCast Schism and Light's Wrath after Rapture and PWS spell chain. Will use Velen's if available. Default: Unchecked")
         br.ui:checkSectionState(section)
         -------------------------
         -------- UTILITY --------
@@ -164,7 +164,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Mindbender",  80,  0,  100,  5,  "|cffFFFFFFMana Percent to Cast At. Default: 80")
             --Shadowfiend
             br.ui:createSpinner(section, "Shadowfiend",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 80")
-            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets. Default: 3")  
+            br.ui:createSpinnerWithout(section, "Shadowfiend Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Shadowfiend Targets. Default: 3")
         br.ui:checkSectionState(section)
         -------------------------
         ------- COOLDOWNS -------
@@ -186,9 +186,9 @@ local function createOptions()
             --Mana Potion
             br.ui:createSpinner(section, "Mana Potion",  30,  0,  100,  5,  "|cffFFFFFFMana Percent to use Ancient Mana Potion. Default: 30")
             --Trinkets
-            br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At. Default: 70") 
+            br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At. Default: 70")
             br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  3,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you). Default: 3", true)
-            br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At. Default: 70") 
+            br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At. Default: 70")
             br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  3,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you). Default: 3", true)
             --Touch of the Void
             if hasEquiped(128318) then
@@ -299,7 +299,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mana                                          = getMana("player")
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -316,7 +316,7 @@ local function runRotation()
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
 
         units.dyn5  = br.player.units(5)
@@ -326,7 +326,7 @@ local function runRotation()
         enemies.dyn30 = br.player.enemies(30)
         enemies.dyn40 = br.player.enemies(40)
         friends.yards40 = getAllies("player",40)
-        
+
         atonementCount = 0
         if artifact.sinsOfTheMany.enabled() then
             atonementCount = getBuffStacks("player",spell.sinsOfTheMany)
@@ -426,7 +426,7 @@ local function runRotation()
                     end
                 end
             end
-            -- Light's Wrath after Rapture 
+            -- Light's Wrath after Rapture
             if (not buff.rapture.exists("player") or atonementCount >= #br.friend) and raptureLW == 1 then
                 if getSpellCD(spell.lightsWrath) > 1 or not inCombat then
                     raptureLW = nil
@@ -575,7 +575,7 @@ local function runRotation()
                             useItem(127835)
                             return true
                         end
-                    end	
+                    end
                     --Trinkets
                     if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                         useItem(13)
@@ -856,12 +856,12 @@ local function runRotation()
             end
             --Resurrection
             if isChecked("Resurrection") and not inCombat and not isMoving("player") then
-                if getOptionValue("Resurrection - Target") == 1 
+                if getOptionValue("Resurrection - Target") == 1
                     and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                 then
                     if cast.resurrection("target","dead") then return end
                 end
-                if getOptionValue("Resurrection - Target") == 2 
+                if getOptionValue("Resurrection - Target") == 2
                     and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                 then
                     if cast.resurrection("mouseover","dead") then return end
@@ -886,7 +886,7 @@ local function runRotation()
                         if cast.purify(br.friend[i].unit) then return end
                     else
                         for n = 1,40 do
-                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
                                 if (bufftype == "Disease" or bufftype == "Magic") and (mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player"))) then
                                     if getSpellCD(spell.purify) > 1 and norganBuff then
@@ -931,7 +931,7 @@ local function runRotation()
                 end
             end
             --Fade
-            if isChecked("Fade") then                         
+            if isChecked("Fade") then
                 if php <= getValue("Fade") then
                     if cast.fade() then return end
                 end
@@ -1032,7 +1032,7 @@ local function runRotation()
                         end
                         if cast.shadowfiend() then
                              healCount = 0
-                        end    
+                        end
                     end
                 end
                 --PowerWordSolace
@@ -1101,7 +1101,7 @@ local function runRotation()
                 actionList_OOCHealing()
             end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
             if inCombat and not IsMounted() then
                 actionList_Interrupts()
@@ -1116,7 +1116,7 @@ local function runRotation()
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 local id = 256
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

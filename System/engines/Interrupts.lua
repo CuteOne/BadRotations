@@ -42,7 +42,7 @@ function shouldStopCasting(Spell)
 		end
 		for i = 1,#ShouldContinue do
 			if UnitBuffID("player",ShouldContinue[i])
-				and (select(7,UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
+				and (select(6,UnitBuffID("player",ShouldContinue[i]))*1000)+50 > Boss1CastEnd then
 				ChatOverlay("\124cFFFFFFFFStopper Safety Found")
 				return false
 			end

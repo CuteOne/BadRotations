@@ -33,19 +33,19 @@ function br.read.commonReaders()
 	end
 	Frame:SetScript("OnEvent",MerchantShow)
 	--------------
-	--[[ Eclipse]]
-	local Frame = CreateFrame('Frame')
-	Frame:RegisterEvent("ECLIPSE_DIRECTION_CHANGE")
-	local function Eclipse(self, event, ...)
-		if event == "ECLIPSE_DIRECTION_CHANGE" then
-			if select(1,...) == "sun" then
-				eclipseDirection = 1
-			else
-				eclipseDirection = 0
-			end
-		end
-	end
-	Frame:SetScript("OnEvent", Eclipse)
+	-- --[[ Eclipse]] -- Errors in Patch 8.0 (BfA)
+	-- local Frame = CreateFrame('Frame')
+	-- Frame:RegisterEvent("ECLIPSE_DIRECTION_CHANGE")
+	-- local function Eclipse(self, event, ...)
+	-- 	if event == "ECLIPSE_DIRECTION_CHANGE" then
+	-- 		if select(1,...) == "sun" then
+	-- 			eclipseDirection = 1
+	-- 		else
+	-- 			eclipseDirection = 0
+	-- 		end
+	-- 	end
+	-- end
+	-- Frame:SetScript("OnEvent", Eclipse)
 	--------------------------
 	--[[ isStanding Frame --]]
 	DontMoveStartTime = nil

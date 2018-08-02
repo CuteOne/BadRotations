@@ -14,9 +14,9 @@ License: Public Domain
 -- A callback is provided for those interested in checker changes.
 -- @usage
 -- local rc = LibStub("LibRangeCheck-2.0")
--- 
+--
 -- rc.RegisterCallback(self, rc.CHECKERS_CHANGED, function() print("need to refresh my stored checkers") end)
--- 
+--
 -- local minRange, maxRange = rc:GetRange('target')
 -- if not minRange then
 --     print("cannot get range estimate for target")
@@ -25,7 +25,7 @@ License: Public Domain
 -- else
 --     print("target is between " .. minRange .. " and " .. maxRange .. " yards")
 -- end
--- 
+--
 -- local meleeChecker = rc:GetFriendMaxChecker(rc.MeleeRange) -- 5 yds
 -- for i = 1, 4 do
 --     -- TODO: check if unit is valid, etc
@@ -78,7 +78,7 @@ local MeleeRange = 5
 
 -- list of friendly spells that have different ranges
 local FriendSpells = {}
--- list of harmful spells that have different ranges 
+-- list of harmful spells that have different ranges
 local HarmSpells = {}
 
 FriendSpells["DEATHKNIGHT"] = {
@@ -138,7 +138,7 @@ HarmSpells["PALADIN"] = {
     20271, -- ["Judgement"], -- 30
     853, -- ["Hammer of Justice"], -- 10
     35395, -- ["Crusader Strike"], -- 5
-} 
+}
 
 FriendSpells["PRIEST"] = {
     527, -- ["Purify"], -- 40
@@ -490,7 +490,7 @@ local function createCheckerList(spellList, itemList, interactList)
             end
         end
     end
-    
+
     if itemList then
         for range, items in pairs(itemList) do
             for i = 1, #items do
@@ -502,7 +502,7 @@ local function createCheckerList(spellList, itemList, interactList)
             end
         end
     end
-    
+
     if interactList and not next(res) then
         for index, range in pairs(interactList) do
             addChecker(res, range, nil,  checkers_Interact[index])
@@ -638,7 +638,7 @@ lib.failedItemRequests = {}
 
 -- << Public API
 
- 
+
 
 --- The callback name that is fired when checkers are changed.
 -- @field
@@ -943,7 +943,7 @@ function lib:processItemRequests(itemRequests)
                     itemRequests[range] = nil
                     break
                 end
-                tremove(items, i)   
+                tremove(items, i)
             elseif not itemRequestTimeoutAt then
                 itemRequestTimeoutAt = GetTime() + ItemRequestTimeout
                 return true
@@ -993,9 +993,9 @@ function lib:scheduleAuraCheck()
     self.frame:Show()
 end
 
- 
 
--- << load-time initialization 
+
+-- << load-time initialization
 
 function lib:activate()
     if not self.frame then
@@ -1004,9 +1004,9 @@ function lib:activate()
         frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
         frame:RegisterEvent("CHARACTER_POINTS_CHANGED")
         frame:RegisterEvent("PLAYER_TALENT_UPDATE")
-        frame:RegisterEvent("GLYPH_ADDED")
-        frame:RegisterEvent("GLYPH_REMOVED")
-        frame:RegisterEvent("GLYPH_UPDATED")
+        -- frame:RegisterEvent("GLYPH_ADDED")
+        -- frame:RegisterEvent("GLYPH_REMOVED")
+        -- frame:RegisterEvent("GLYPH_UPDATED")
         frame:RegisterEvent("SPELLS_CHANGED")
         local _, playerClass = UnitClass("player")
         if playerClass == "MAGE" or playerClass == "SHAMAN" then

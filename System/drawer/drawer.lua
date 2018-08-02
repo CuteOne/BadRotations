@@ -36,7 +36,7 @@ LibDraw.Sync(function()
         for i=1,GetObjectCount() do
             -- Locals
             local thisObject = GetObjectWithIndex(i)
-            if ObjectIsType(thisObject, ObjectTypes.GameObject) then
+            if ObjectRawType(thisObject) == ObjectType.GameObject then
                 -- Locals
                 local guid = UnitGUID(thisObject)
                 local objectName = ObjectName(thisObject)

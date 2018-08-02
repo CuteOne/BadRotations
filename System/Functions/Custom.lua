@@ -528,7 +528,7 @@ function SalvageHelper()
                 for i=1,GetObjectCount() do
                     -- Locals
                     local thisObject = GetObjectWithIndex(i)
-                    if ObjectIsType(thisObject, ObjectTypes.Unit) then
+                    if ObjectRawType(thisObject) == ObjectType.Unit then
                         -- Locals
                         local guid = UnitGUID(thisObject)
                         local objectName = ObjectName(thisObject)
@@ -632,7 +632,7 @@ function hasBuff(spellID)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(11,UnitBuff("player", i))
+        buff = select(10,UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then return true end
         end
@@ -649,7 +649,7 @@ function cancelBuff(spellID)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(11,UnitBuff("player", i))
+        buff = select(10,UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then
                 CancelUnitBuff("player", i)

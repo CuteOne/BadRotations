@@ -65,7 +65,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Leg Sweep")
         -- Interrupt Percentage
             br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
-        br.ui:checkSectionState(section)            
+        br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
         -------------------------
@@ -92,10 +92,10 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
             -- Essence Font
-            br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")   
+            br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
             -- Revival
-            br.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
             --ChiJI
             br.ui:createSpinner(section, "Chi Ji",  80,  0,  100,  5,  "Health Percent to Cast At")
@@ -144,7 +144,7 @@ local function runRotation()
         local lowestHP                                      = br.friend[1].unit
         local mana                                          = br.player.powerPercentMana
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
         local php                                           = br.player.health
         local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -154,13 +154,13 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = units or {}
-        
+
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
         lowest.role                                         = br.friend[1].role
         lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid                      
+        lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
         local averageHealth                                 = 100
 
@@ -181,7 +181,7 @@ local function runRotation()
 
         end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
     -- Action List - Interrupts
             if useInterrupts() then
@@ -204,20 +204,20 @@ local function runRotation()
                             if cast.paralysis(thisUnit) then return end
                         end
                     end
-                end 
+                end
             end -- End Interrupt Check
 
         if inCombat then
 
             if isChecked("Healing Elixir") and talent.healingElixir then
                 if php <= getValue("Healing Elixir") then
-                    if cast.healingElixir("player") then return end     
+                    if cast.healingElixir("player") then return end
                 end
             end
 
             if isChecked("Mana Tea") and talent.manaTea then
                 if mana <= getValue("Mana Tea") then
-                    if cast.manaTea("player") then return end     
+                    if cast.manaTea("player") then return end
                 end
             end
 
@@ -232,16 +232,16 @@ local function runRotation()
                         if cast.lifeCocoon(br.friend[i].unit) then return end
                         -- elseif getValue("Life Cocoon Mode") == 2 then
                         --     if cast.lifeCocoon(br.friend[i].unit) then return end
-                        -- end 
+                        -- end
                     end
-                end                    
-            end       
+                end
+            end
             --Sheilun's Gift
             --[It's free why 65%?  ]
             if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
                 if GetSpellCount(205406) >= 5 then
-                    if lowest.hp <= getValue("Sheiluns Gift") then         
-                        if cast.sheilunsGift(lowest.unit) then return end                                    
+                    if lowest.hp <= getValue("Sheiluns Gift") then
+                        if cast.sheilunsGift(lowest.unit) then return end
                     end
                 end
             end
@@ -259,7 +259,7 @@ local function runRotation()
                 -- if getValue("Detox Mode") == 2 then -- Raid
                     for i = 1, #br.friend do
                         for n = 1,40 do
-                            local buff,_,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+                            local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
                                 if bufftype == "Curse" or bufftype == "Magic" or bufftype == "Poison" then
                                     if cast.detox(br.friend[i].unit) then return end
@@ -271,9 +271,9 @@ local function runRotation()
             end
             --Thunder Focus Tea
             if isChecked("Thunder Focus Tea") then
-                for i = 1, #br.friend do                           
+                for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Thunder Focus Tea") then
-                        if cast.thunderFocusTea() then return end     
+                        if cast.thunderFocusTea() then return end
                     end
                 end
             end
@@ -285,13 +285,13 @@ local function runRotation()
                         end
                     end
                 end
-            end                
+            end
             --Renewing Mist
             if isChecked("Renewing Mist") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Renewing Mist") 
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Renewing Mist")
                     and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
-                        if cast.renewingMist(br.friend[i].unit) then return end     
+                        if cast.renewingMist(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -299,25 +299,25 @@ local function runRotation()
             if isChecked("Enveloping Mist")
             and not isCastingSpell(spell.envelopingMist) then
                 if lowest.hp <= getValue("Enveloping Mist")
-                and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then 
-                    if cast.envelopingMist(lowest.unit) then return end 
+                and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then
+                    if cast.envelopingMist(lowest.unit) then return end
                 end
             end
             --Vivify
             if isChecked("Vivify")
             and not isCastingSpell(spell.vivify) then
-                -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify") + 10 then         
-                --     if cast.vivify(lowest.unit) then return end 
+                -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify") + 10 then
+                --     if cast.vivify(lowest.unit) then return end
                 -- else
-                if lowest.hp <= getValue("Vivify") then         
-                    if cast.vivify(lowest.unit) then return end                                    
+                if lowest.hp <= getValue("Vivify") then
+                    if cast.vivify(lowest.unit) then return end
                 end
             end
             --Effuse
-            if isChecked("Effuse") 
+            if isChecked("Effuse")
             and not isCastingSpell(spell.effuse) then
-                if lowest.hp <= getValue("Effuse") then    
-                    if cast.effuse(lowest.unit) then return end    
+                if lowest.hp <= getValue("Effuse") then
+                    if cast.effuse(lowest.unit) then return end
                 end
             end
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -325,25 +325,25 @@ local function runRotation()
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --Essence Font
             if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) then
-                if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then    
-                    if cast.essenceFont() then return end    
+                if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
+                    if cast.essenceFont() then return end
                 end
             end
             --Revival
             if isChecked("Revival") and not isCastingSpell(spell.essenceFont) then
-                if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then    
-                    if cast.revival() then return end    
+                if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then
+                    if cast.revival() then return end
                 end
             end
             --Chi Ji
             if isChecked("Chi Ji") and not isCastingSpell(spell.essenceFont) then
-                if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then    
-                    if cast.invokeChiJi(lowest.unit) then return end    
+                if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then
+                    if cast.invokeChiJi(lowest.unit) then return end
                 end
             end
         end -- End In Combat Rotation
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 
                 if isChecked("Boss Helper") then
                         bossManager()

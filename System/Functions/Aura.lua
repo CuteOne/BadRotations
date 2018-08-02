@@ -1,7 +1,7 @@
 function CancelUnitBuffID(unit,spellID,filter)
-	local spellName = GetSpellInfo(spellID)
+	-- local spellName = GetSpellInfo(spellID)
 	for i=1,40 do
-		local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+		local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
 		if buffSpellID ~= nil then
 			if buffSpellID == spellID then
 				CancelUnitBuff(unit,i);
@@ -12,26 +12,27 @@ function CancelUnitBuffID(unit,spellID,filter)
 		end
 	end
 end
-function UnitAuraID(unit,spellID)
-	local spellName = GetSpellInfo(spellID)
-	if UnitAura(unit,spellName) ~= nil then
-		return UnitAura(unit,spellName)
-	elseif UnitAura(unit,spellName,nil,"PLAYER HARMFUL") ~= nil then
-		return UnitAura(unit,spellName,nil,"PLAYER HARMFUL")
-	else
-		return nil
-	end
+function UnitAuraID(unit,spellID,filter)
+	return UnitBuffID(unit,spellID.filter)
+	-- local spellName = GetSpellInfo(spellID)
+	-- if UnitAura(unit,spellName) ~= nil then
+	-- 	return UnitAura(unit,spellName)
+	-- elseif UnitAura(unit,spellName,nil,"PLAYER HARMFUL") ~= nil then
+	-- 	return UnitAura(unit,spellName,nil,"PLAYER HARMFUL")
+	-- else
+	-- 	return nil
+	-- end
 end
 function UnitBuffID(unit,spellID,filter)
-	local spellName = GetSpellInfo(spellID)
-	if filter == nil then
-		return UnitBuff(unit,spellName)
-	else
-		local exactSearch = strfind(strupper(filter),"EXACT")
-		local playerSearch = strfind(strupper(filter),"PLAYER")
-		if exactSearch then
+	-- local spellName = GetSpellInfo(spellID)
+	-- if filter == nil then
+	-- 	return UnitBuff(unit,spellName)
+	-- else
+	-- 	local exactSearch = strfind(strupper(filter),"EXACT")
+	-- 	local playerSearch = strfind(strupper(filter),"PLAYER")
+	-- 	if exactSearch then
 			for i=1,40 do
-				local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+				local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
 				if buffSpellID ~= nil then
 					if buffSpellID == spellID then
 						if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
@@ -42,10 +43,10 @@ function UnitBuffID(unit,spellID,filter)
 					return nil
 				end
 			end
-		else
-			return UnitBuff(unit,spellName,nil,filter)
-		end
-	end
+	-- 	else
+	-- 		return UnitBuff(unit,spellName,nil,filter)
+	-- 	end
+	-- end
 end
 -- function UnitBuffID(unit,spellID)
 -- 	for i=1,40 do
@@ -60,15 +61,15 @@ end
 -- end
 
 function UnitDebuffID(unit,spellID,filter)
-	local spellName = GetSpellInfo(spellID)
-	if filter == nil then
-		return UnitDebuff(unit,spellName)
-	else
-		local exactSearch = strfind(strupper(filter),"EXACT")
-		local playerSearch = strfind(strupper(filter),"PLAYER")
-		if exactSearch then
+	-- local spellName = GetSpellInfo(spellID)
+	-- if filter == nil then
+	-- 	return UnitDebuff(unit,spellName)
+	-- else
+	-- 	local exactSearch = strfind(strupper(filter),"EXACT")
+	-- 	local playerSearch = strfind(strupper(filter),"PLAYER")
+	-- 	if exactSearch then
 			for i=1,40 do
-				local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+				local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 				if buffSpellID ~= nil then
 					if buffSpellID == spellID then
 						if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
@@ -79,10 +80,10 @@ function UnitDebuffID(unit,spellID,filter)
 					return nil
 				end
 			end
-		else
-			return UnitDebuff(unit,spellName,nil,filter)
-		end
-	end
+	-- 	else
+	-- 		return UnitDebuff(unit,spellName,nil,filter)
+	-- 	end
+	-- end
 end
 
 -- if canDispel("target",SpellID) == true then
@@ -188,9 +189,9 @@ function canDispel(Unit,spellID)
 	if UnitInPhase(Unit) then
 		if UnitIsFriend("player",Unit)then
 			while UnitDebuff(Unit,i) do
-				local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i) 
+				local _,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 				-- Blackout Debuffs
-				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
+				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker
 					for i=1, #br.friend do
 						local thisUnit = br.friend[i].unit
 						if Unit == thisUnit then
@@ -200,12 +201,12 @@ function canDispel(Unit,spellID)
 						end
 					end
 					if (dispelUnitObj == nil ) then
-						if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+						if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay"))
 						then
 							HasValidDispel = true
 							break
 						end
-					elseif dispelUnitObj == true then 
+					elseif dispelUnitObj == true then
 						HasValidDispel = true
 						dispelUnitObj = nil
 						break
@@ -215,10 +216,10 @@ function canDispel(Unit,spellID)
 			end
 		else
 			while UnitBuff(Unit,i) do
-				local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
+				local _,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
-				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker  
-					if ((isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getBuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay")) 						
+				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
+					if ((isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getBuffDuration(Unit, buffid) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay"))
 					then
 						HasValidDispel = true
 						break
@@ -232,19 +233,19 @@ function canDispel(Unit,spellID)
 end
 function getAuraDuration(Unit,AuraID,Source)
 	if UnitAuraID(Unit,AuraID,Source) ~= nil then
-		return select(6,UnitAuraID(Unit,AuraID,Source))*1
+		return select(5,UnitAuraID(Unit,AuraID,Source))*1
 	end
 	return 0
 end
 function getAuraRemain(Unit,AuraID,Source)
 	if UnitAuraID(Unit,AuraID,Source) ~= nil then
-		return (select(7,UnitAuraID(Unit,AuraID,Source)) - GetTime())
+		return (select(6,UnitAuraID(Unit,AuraID,Source)) - GetTime())
 	end
 	return 0
 end
 function getAuraStacks(Unit,AuraID,Source)
 	if UnitAuraID(Unit,AuraID,Source) ~= nil then
-		return select(4,UnitAuraID(Unit,AuraID,Source))
+		return select(3,UnitAuraID(Unit,AuraID,Source))
 	end
 	return 0
 end
@@ -252,21 +253,21 @@ end
 -- if getDebuffDuration("target",12345) < 3 then
 function getDebuffDuration(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return select(6,UnitDebuffID(Unit,DebuffID,Source))*1
+		return select(5,UnitDebuffID(Unit,DebuffID,Source))*1
 	end
 	return 0
 end
 -- if getDebuffRemain("target",12345) < 3 then
 function getDebuffRemain(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return (select(7,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
+		return (select(6,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
 	end
 	return 0
 end
 -- if getDebuffStacks("target",138756) > 0 then
 function getDebuffStacks(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) then
-		return (select(4,UnitDebuffID(Unit,DebuffID,Source)))
+		return (select(3,UnitDebuffID(Unit,DebuffID,Source)))
 	else
 		return 0
 	end
@@ -302,21 +303,21 @@ end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then
-		return select(6,UnitBuffID(Unit,BuffID,Source))*1
+		return select(5,UnitBuffID(Unit,BuffID,Source))*1
 	end
 	return 0
 end
 -- if getBuffRemain("target",12345) < 3 then
 function getBuffRemain(Unit,BuffID,Source)
 	if UnitBuffID(Unit,BuffID,Source) ~= nil then
-		return (select(7,UnitBuffID(Unit,BuffID,Source)) - GetTime())
+		return (select(6,UnitBuffID(Unit,BuffID,Source)) - GetTime())
 	end
 	return 0
 end
 -- if getBuffStacks(138756) > 0 then
 function getBuffStacks(unit,BuffID,Source)
 	if UnitBuffID(unit,BuffID,Source) then
-		return (select(4,UnitBuffID(unit,BuffID,Source)))
+		return (select(3,UnitBuffID(unit,BuffID,Source)))
 	else
 		return 0
 	end
@@ -338,21 +339,21 @@ end
 -- if getDebuffDuration("target",12345) < 3 then
 function getDebuffDuration(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return select(6,UnitDebuffID(Unit,DebuffID,Source))*1
+		return select(5,UnitDebuffID(Unit,DebuffID,Source))*1
 	end
 	return 0
 end
 -- if getDebuffRemain("target",12345) < 3 then
 function getDebuffRemain(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return (select(7,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
+		return (select(6,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
 	end
 	return 0
 end
 -- if getDebuffStacks("target",138756) > 0 then
 function getDebuffStacks(Unit,DebuffID,Source)
 	if UnitDebuffID(Unit,DebuffID,Source) then
-		return (select(4,UnitDebuffID(Unit,DebuffID,Source)))
+		return (select(3,UnitDebuffID(Unit,DebuffID,Source)))
 	else
 		return 0
 	end
@@ -482,7 +483,7 @@ function isBuffed(UnitID,SpellID,TimeLeft,Filter)
 	for i=1,#SpellID do
 		local spell,rank = GetSpellInfo(SpellID[i])
 		if spell then
-			local buff = select(7,UnitBuff(UnitID,spell,rank,Filter))
+			local buff = select(6,UnitBuff(UnitID,spell,rank,Filter))
 			if buff and ( buff == 0 or buff - GetTime() > TimeLeft ) then return true end
 		end
 	end
@@ -498,7 +499,7 @@ function isDeBuffed(UnitID,DebuffID,TimeLeft,Filter)
 	for i=1,#DebuffID do
 		local spell,rank = GetSpellInfo(DebuffID[i])
 		if spell then
-			local debuff = select(7,UnitDebuff(UnitID,spell,rank,Filter))
+			local debuff = select(6,UnitDebuff(UnitID,spell,rank,Filter))
 			if debuff and ( debuff == 0 or debuff - GetTime() > TimeLeft ) then
 				return true
 			end

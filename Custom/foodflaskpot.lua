@@ -20,11 +20,11 @@ local agilityFood = 0
 local intellectFood = 0
 local strengthFood = 0
 local staminaFood = 0
-local agilityFoodBuff = 0 
+local agilityFoodBuff = 0
 local intellectFoodBuff = 0
 local strengthFoodBuff = 0
 local staminaFoodBuff = 0
-		
+
 --playerHasBuff(x) @param spellID # returns true if player has buff x
 function playerHasBuff(spellID)
     local buffs, i = { }, 1
@@ -32,7 +32,7 @@ function playerHasBuff(spellID)
     while buff do
         buffs[#buffs + 1] = buff
         i = i + 1
-        buff = select(11,UnitBuff("player", i))
+        buff = select(10,UnitBuff("player", i))
         if buff ~= nil then
             if buff == spellID then return true end
         end
@@ -76,7 +76,7 @@ function getClassType()
 	local myClass = getClass()
 	local mySpec = GetSpecialization()
 	--Agility
-	if myClass == "Hunter" 
+	if myClass == "Hunter"
 	or myClass == "Rogue"
 	or (myClass == "Shaman" and mySpec == 2)
 	or (myClass == "Monk" and mySpec == 3)
@@ -93,7 +93,7 @@ function getClassType()
 		classType = "intellectClass"
 	--Strength
 	elseif (myClass == "Warrior" and (mySpec == 1 or mySpec == 2))
-	or (myClass == "Paladin" and mySpec == 3) 
+	or (myClass == "Paladin" and mySpec == 3)
 	or (myClass == "DeathKnight" and (mySpec == 2 or mySpec == 3)) then
 		classType = "strengthClass"
 	--Stamina

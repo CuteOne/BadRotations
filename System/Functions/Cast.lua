@@ -89,7 +89,7 @@ function shouldNotOverheal(Unit)
 	end
 	local CurShield = UnitHealth(Unit)
 	if UnitDebuffID("player",142861) then --Ancient Miasma
-		CurShield = select(15,UnitDebuffID(Unit,142863)) or select(15,UnitDebuffID(Unit,142864)) or select(15,UnitDebuffID(Unit,142865)) or (UnitHealthMax(Unit) / 2)
+		CurShield = select(14,UnitDebuffID(Unit,142863)) or select(14,UnitDebuffID(Unit,142864)) or select(14,UnitDebuffID(Unit,142865)) or (UnitHealthMax(Unit) / 2)
 		overheal = 0
 	end
 	local overhealth = 100 * (CurShield+ overheal ) / UnitHealthMax(Unit)
@@ -411,7 +411,7 @@ function castMouseoverHealing(Class)
 					if npcID == npcTable[i] then
 						-- Dispel
 						for n = 1,40 do
-							local buff,_,_,count,bufftype,duration = UnitDebuff(target,n)
+							local buff,_,count,bufftype,duration = UnitDebuff(target,n)
 							if buff then
 								if bufftype == "Magic" or bufftype == "Curse" or bufftype == "Poison" then
 									if castSpell(target,88423,true,false) then

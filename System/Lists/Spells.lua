@@ -606,7 +606,6 @@ br.lists.spells = {
         -- Feral
         [103] = {
             abilities                       = {
-                ashamanesFrenzy             = 210722,
                 berserk                     = 106951,
                 brutalSlash                 = 202028,
                 elunesGuidance              = 202060,
@@ -649,7 +648,7 @@ br.lists.spells = {
                 thrashingClaws              = 238048,
             },
             buffs                           = {
-                apexPredator                = 252752,
+                apexPredator                = 255984,
                 berserk                     = 106951,
                 bloodtalons                 = 145152,
                 clearcasting                = 135700,
@@ -664,8 +663,7 @@ br.lists.spells = {
                 tigersFury                  = 5217,
             },
             debuffs                         = {
-                ashamanesFrenzy             = 210723,
-                ashamanesRip                = 210705,
+                feralFrenzy                 = 274838,
                 moonfireFeral               = 155625,
                 rake                        = 155722,
                 rip                         = 1079,
@@ -680,11 +678,12 @@ br.lists.spells = {
                 bloodtalons                 = 155672,
                 brutalSlash                 = 202028,
                 elunesGuidance              = 202060,
+                feralFrenzy                 = 274837,
                 guardianAffinity            = 217615,
                 incarnationKingOfTheJungle  = 102543,
                 jaggedWounds                = 202032,
                 lunarInspiration            = 155580,
-                momentOfClarity             = 155577,
+                momentOfClarity             = 236068,
                 predator                    = 202021,
                 renewal                     = 108238,
                 restorationAffinity         = 197492,
@@ -929,9 +928,9 @@ br.lists.spells = {
                 theWildshapersClutch        = 137094,
             },
             talents                         = {
-                displacerBeast              = 102280,
                 massEntanglement            = 102359,
                 mightyBash                  = 5211,
+                tigerDash                   = 252216,
                 typhoon                     = 132469,
                 wildCharge                  = 102401,
             },
