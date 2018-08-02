@@ -340,7 +340,6 @@ local function runRotation()
             SR1 = false
             BER1 = false
             TF1 = false
-            AF1 = false
             REG1 = false
             MF1 = false
             RIP1 = false
@@ -405,7 +404,7 @@ local function runRotation()
                         lowestUnit = thisUnit
                     end
                 end
-                longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit), debuff.thrash.remain(lowestUnit), debuff.ashamanesFrenzy.remain(lowestUnit))
+                longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit), debuff.thrash.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
                 if ttd(lowestUnit) > 0 then timeTillDeath = ttd(lowestUnit) else timeTillDeath = 99 end
                 if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
             end
@@ -763,10 +762,10 @@ local function runRotation()
                 if isChecked("Racial") and cast.able.racial() and useCDs() and race == "Troll" then
                     if cast.racial() then return true end
                 end
-        -- Elune's Guidance
-                -- elunes_guidance,if=combo_points=0&energy>=50
-                if cast.able.elunesGuidance() and (comboPoints == 0 and energy >= 50) then
-                    if cast.elunesGuidance() then return true end
+        -- Feral Frenzy
+                -- feral_frenzy,if=combo_points=0
+                if cast.able.feralFrenzy() and (comboPoints == 0) then
+                    if cast.feralFrenzy() then return true end
                 end
         -- Incarnation - King of the Jungle
                 -- incarnation,if=energy>=30&(cooldown.tigers_fury.remains>15|buff.tigers_fury.up)
@@ -788,13 +787,6 @@ local function runRotation()
                         elseif getOptionValue("Potion") == 2 and use.able.potionOfProlongedPower() then
                             use.potionOfProlongedPower()
                         end
-                    end
-                end
-        -- Ashamane's Frenzy
-                -- ashamanes_frenzy,if=combo_points>=2&(!talent.bloodtalons.enabled|buff.bloodtalons.up)
-                if cast.able.ashamanesFrenzy() and (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                    if comboPoints >= 2 and (not talent.bloodtalons or buff.bloodtalons.exists()) then
-                        if cast.ashamanesFrenzy(units.dyn5) then return true end
                     end
                 end
         -- Shadowmeld
@@ -1044,17 +1036,7 @@ local function runRotation()
                             openerCount = openerCount + 1
                             TF1 = true
                         end
-					elseif TF1 and not AF1 then
-          	-- Ashamane's Frenzy
-                        -- ashamanes_frenzy
-						if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                			if castOpener("ashamanesFrenzy","AF1",openerCount) then openerCount = openerCount + 1; return true end
-						else
-							Print(openerCount..": Ashamane's Frenzy (Uncastable)")
-                            openerCount = openerCount + 1
-							AF1 = true
-						end
-			  		elseif AF1 and not REG1 then
+					elseif TF1 and not REG1 then
             -- Regrowth
                         -- regrowth,if=(talent.sabertooth.enabled|buff.predatory_swiftness.up)&talent.bloodtalons.enabled&buff.bloodtalons.down&combo_points=5
                         if (talent.sabertooth or buff.predatorySwiftness.exists()) and talent.bloodtalons and not buff.bloodtalons.exists() and comboPoints == 5 then
@@ -1273,12 +1255,10 @@ local function runRotation()
         local function actionList_SimC_Generator()
             local startTime = debugprofilestop()
     -- Regrowth
-            -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points>=2&cooldown.ashamanes_frenzy.remains<gcd
             -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points=4&dot.rake.remains<4
             -- regrowth,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&(buff.predatory_swiftness.stack>2|(buff.predatory_swiftness.stack>1&dot.rake.remains<3))&buff.bloodtalons.down
             if cast.able.regrowth() and talent.bloodtalons and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
-                if (comboPoints >= 2 and cd.ashamanesFrenzy.remain() < gcdMax)
-                    or (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4)
+                if (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4)
                     or (equiped.ailuroPouncers() and (buff.predatorySwiftness.stack() > 2 or (buff.predatorySwiftness.stack() > 1 and debuff.rake.remain(units.dyn5) < 3)))
                 then
                     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
@@ -1296,9 +1276,19 @@ local function runRotation()
             end
         -- Thrash
             -- pool_resource,for_next=1
-            -- thrash_cat,if=(!ticking|remains<duration*0.3)&(spell_targets.thrash_cat>2)
+            -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
             if (cast.pool.thrash() or cast.able.thrash()) and multidot then
-                if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2) then
+                if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
+                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.able.thrash() then
+                        if cast.thrash("player","aoe") then return true end
+                    end
+                end
+            end
+            -- pool_resource,for_next=1
+            -- thrash_cat,if=spell_targets.thrash_cat>3&equipped.luffa_wrappings&talent.brutal_slash.enabled
+            if (cast.pool.thrash() or cast.able.thrash()) and multidot then
+                if ((mode.rotation == 1 and #enemies.yards8 > 3) or mode.rotation == 2) and equped.luffaWrappings and talent.brutalSlash then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
@@ -1343,7 +1333,7 @@ local function runRotation()
                 if cast.brutalSlash("player","aoe") then return true end
             end
         -- Moonfire
-            -- moonfire_cat,target_if=remains<=duration*0.3
+            -- moonfire_cat,target_if=refreshable
             if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
@@ -1356,17 +1346,14 @@ local function runRotation()
             end
         -- Thrash
             -- pool_resource,for_next=1
-            -- thrash_cat,if=(!ticking|remains<duration*0.3)&(variable.use_thrash=2|spell_targets.thrash_cat>1)
-            -- thrash_cat,if=(!ticking|remains<duration*0.3)&variable.use_thrash=1&buff.clearcasting.react
+            -- thrash_cat,if=refreshable&(variable.use_thrash=2|spell_targets.thrash_cat>1)
+            -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react
             if (cast.pool.thrash() or cast.able.thrash()) and multidot and (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) then
-                if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) or (useThrash == 1 and buff.clearcasting.exists()) then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then
                         if cast.thrash("player","aoe") then return true end
                     end
-                end
-                if cast.able.thrash() and useThrash == 1 and buff.clearcasting.exists() then
-                    if cast.thrash("player","aoe") then return true end
                 end
             end
         -- Swipe
@@ -1578,20 +1565,6 @@ local function runRotation()
                             if cast.regrowth("player") then htTimer = GetTime(); return true end
                         end
                     end
-                    -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.apex_predator.up
-                    if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists() and buff.apexPredator.exists() and (htTimer == nil or htTimer < GetTime() - 1) then
-                        if GetShapeshiftForm() ~= 0 then
-                            -- CancelShapeshiftForm()
-                            RunMacroText("/CancelForm")
-                            if cast.regrowth("player") then htTimer = GetTime(); return true end
-                        else
-                            if cast.regrowth("player") then htTimer = GetTime(); return true end
-                        end
-                    end
-		-- Incarnation - King of the Jungle
-                    if cast.able.incarnationKingOfTheJungle() and talent.incarnationKingOfTheJungle then
-					   if cast.incarnationKingOfTheJungle() then return true end
-                    end
         -- Prowl
                     if cast.able.prowl("player") and buff.bloodtalons.exists() and mode.prowl == 1 and not buff.prowl.exists() then
                         if cast.prowl("player") then return true end
@@ -1697,7 +1670,7 @@ local function runRotation()
         -- Call Action List - Cooldowns
                         if actionList_SimC_Cooldowns() then return true end
         -- Ferocious Bite
-                        -- actions.single_target+=/ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(target.health.pct<25|talent.sabertooth.enabled)
+                        -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(target.health.pct<25|talent.sabertooth.enabled)
                         if cast.able.ferociousBite() and (debuff.rip.exists(units.dyn5) and debuff.rip.remain(units.dyn5) < 3
                             and ttd(units.dyn5) > 10 and (thp(units.dyn5) < 25 or talent.sabertooth))
                         then
@@ -1726,18 +1699,6 @@ local function runRotation()
                                 if cast.regrowth("player") then return true end
                             end
                         end
-                        -- -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8|dot.rake.remains<5)
-                        -- if comboPoints == 5 and talent.bloodtalons and not buff.bloodtalons.exists()
-                        --     and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(units.dyn5) < 8 or debuff.rake.remain(units.dyn5) < 5)
-                        --     and buff.predatorySwiftness.exists()
-                        -- then
-                        --     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
-                        --         if cast.regrowth(br.friend[1].unit) then return true end
-                        --     end
-                        --     if getOptionValue("Auto Heal")==2 then
-                        --         if cast.regrowth("player") then return true end
-                        --     end
-                        -- end
         -- Ferocious Bite
                         -- ferocious_bite,if=buff.apex_predator.up&((combo_points>4&(buff.incarnation.up|talent.moment_of_clarity.enabled))|(talent.bloodtalons.enabled&buff.bloodtalons.up&combo_points>3))
                         if cast.able.ferociousBite() and ((buff.apexPredator.exists() and ((comboPoints > 4 and (buff.incarnationKingOfTheJungle.exists() or talent.momentOfClarity))
@@ -1807,11 +1768,9 @@ local function runRotation()
                         end
         -- Regrowth
                         -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Bloodtalons) and
-                        -- (AlternatePower >= 5 or BuffRemainingSec(PredatorySwiftness) <= GlobalCooldownSec or
-                        -- (AlternatePower = 2 and CooldownSecRemaining(AshamanesFrenzy) <= GlobalCooldownSec))
+                        -- (AlternatePower >= 5 or BuffRemainingSec(PredatorySwiftness) <= GlobalCooldownSec)
                         if cast.able.regrowth() and talent.bloodtalons and buff.predatorySwiftness.exists() and not buff.bloodtalons.exists()
-                            and (comboPoints >= 5 or buff.predatorySwiftness.remain() <= gcdMax or (comboPoints == 2 and cd.ashamanesFrenzy.remain() <= gcdMax
-                            and artifact.ashamanesFrenzy.enabled() and (getOptionValue("Artifact") == 1 or (useCDs() and getOptionValue("Artifact") == 2))))
+                            and (comboPoints >= 5 or buff.predatorySwiftness.remain() <= gcdMax)
                         then
                             if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return true end
@@ -1833,14 +1792,6 @@ local function runRotation()
                         -- call_action_list,name=finisher
                         if comboPoints >= 5 then
                             if actionList_AMR_Finisher() then return true end
-                        end
-        -- Ashamane's Frenzy
-                        -- if AlternatePower >= 2 and TimerSecRemaining(ElunesGuidanceTimer) = 0 and
-                        -- (HasBuff(Bloodtalons) or not HasTalent(Bloodtalons)) and (HasBuff(SavageRoar) or not HasTalent(SavageRoar))
-                        if (getOptionValue("Artifact") == 1 or (useCDs() and getOptionValue("Artifact") == 2)) and cast.able.ashamanesFrenzy() and comboPoints >= 2 and buff.elunesGuidance.remain() == 0
-                            and (buff.bloodtalons.exists or not talent.bloodtalons) and (buff.savageRoar.exists() or not talent.savageRoar)
-                        then
-                            if cast.ashamanesFrenzy() then return true end
                         end
         -- Regrowth
                         -- if HasTalent(Bloodtalons) and HasBuff(PredatorySwiftness) and not HasBuff(Bloodtalons) and HasBuff(ApexPredator) and CanUse(FerociousBite)
