@@ -4,11 +4,6 @@ br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
 
-local function ObjectIsUnitBR(object)
-	local type = ObjectRawType(object)
-    return type == ObjectType.Unit or type == ObjectType.Player or type == ObjectType.ActivePlayer
-end
-
 -- Cache Object Manager
 function cacheOM()
 	local inCombat = UnitAffectingCombat("player")
@@ -29,11 +24,8 @@ function cacheOM()
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 			local distance = getDistance(thisUnit)
-			-- if ObjectIsUnitBR(thisUnit) then
-			-- 	Print("Object Exists: "..tostring(GetObjectExists(thisUnit)).." Object Visible: "..tostring(GetUnitIsVisible(thisUnit)).." Object Range: "..distance)
-			-- end
 			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
-				if ((ObjectIsUnitBR(thisUnit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492)  then
+				if ((ObjectIsUnit(thisUnit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492)  then
 					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
 					br.om[thisUnit]	= thisUnit
 				end
