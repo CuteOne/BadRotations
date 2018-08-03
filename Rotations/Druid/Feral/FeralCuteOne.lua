@@ -1288,7 +1288,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=spell_targets.thrash_cat>3&equipped.luffa_wrappings&talent.brutal_slash.enabled
             if (cast.pool.thrash() or cast.able.thrash()) and multidot then
-                if ((mode.rotation == 1 and #enemies.yards8 > 3) or mode.rotation == 2) and equped.luffaWrappings and talent.brutalSlash then
+                if ((mode.rotation == 1 and #enemies.yards8 > 3) or mode.rotation == 2) and equiped.luffaWrappings and talent.brutalSlash then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash - Luffa") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
