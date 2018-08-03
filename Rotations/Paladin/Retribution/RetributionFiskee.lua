@@ -243,38 +243,42 @@ local function runRotation()
 		local lowestTank
 		local lowestHealer
 		local lowestDps
-        local kingsUnit = "player"
-        local wisdomUnit = "player"
+        local kingsUnit
+        local wisdomUnit
 
         for i = 1, #br.friend do
             local thisUnit = br.friend[i].unit
             local thisHP = getHP(thisUnit)
             local thisRole = UnitGroupRolesAssigned(thisUnit)
-			if getDistance(thisUnit) < 40 and (lowestUnit == nil or getHP(lowestUnit) > thisHP) then
-                lowestUnit = thisUnit
-            end
-            if getDistance(thisUnit) < 40 and thisRole == "TANK" and (lowestTank == nil or getHP(lowestTank) > thisHP) then
-                lowestTank = thisUnit
-            end
-			if getDistance(thisUnit) < 40 and thisRole == "HEALER" and (lowestHealer == nil or getHP(lowestHealer) > thisHP) then
-                lowestHealer = thisUnit
-            end
-			if getDistance(thisUnit) < 40 and (thisRole == "DAMAGER" or thisRole == "NONE") and (lowestDps == nil or getHP(lowestDps) > thisHP) then
-                lowestDps = thisUnit
-            end
-            if getDistance(thisUnit) < 30 and not UnitIsDeadOrGhost(thisUnit) then
-                if (buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and buff.greaterBlessingOfKings.exists()) or (thisRole == "TANK" and not buff.greaterBlessingOfKings.exists()) then
+			if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 40 then
+				if lowestUnit == nil or getHP(lowestUnit) > thisHP then
+					lowestUnit = thisUnit
+				end
+				if thisRole == "TANK" and (lowestTank == nil or getHP(lowestTank) > thisHP) then
+					lowestTank = thisUnit
+				end
+				if thisRole == "HEALER" and (lowestHealer == nil or getHP(lowestHealer) > thisHP) then
+					lowestHealer = thisUnit
+				end
+				if (thisRole == "DAMAGER" or thisRole == "NONE") and (lowestDps == nil or getHP(lowestDps) > thisHP) then
+					lowestDps = thisUnit
+				end
+			end
+            if not UnitIsDeadOrGhost(thisUnit) then
+                if thisRole == "TANK" and ((not buff.greaterBlessingOfKings.exists(thisUnit, "any") and kingsUnit == nil and getDistance(thisUnit) < 30) or buff.greaterBlessingOfKings.exists(thisUnit)) then
                     kingsUnit = thisUnit
                 end
-                if (buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and buff.greaterBlessingOfWisdom.exists()) or (thisRole == "HEALER" and not buff.greaterBlessingOfWisdom.exists()) then
+                if thisRole == "HEALER" and ((not buff.greaterBlessingOfWisdom.exists(thisUnit, "any") and wisdomUnit == nil and getDistance(thisUnit) < 30) or buff.greaterBlessingOfWisdom.exists(thisUnit)) then
                     wisdomUnit = thisUnit
                 end
             end
         end
 		if lowestTank == nil then lowestTank = "player" end
 		if lowestHealer == nil then lowestHealer = "player" end
-		if lowestDps == nil then lowestHealer = "player" end
-		if lowestHealer == nil then lowestHealer = "player" end
+		if lowestDps == nil then lowestDps = "player" end
+		if lowestUnit == nil then lowestUnit = "player" end
+		if kingsUnit == nil then kingsUnit = "player" end
+		if wisdomUnit == nil then wisdomUnit = "player" end
 		
         -- Challenge Skin Heler
         if isChecked("Challenge Skin Helper") then
@@ -311,11 +315,11 @@ local function runRotation()
                 if cast.handOfHinderance("target") then return end
             end
 		-- Greater Blessing of Kings
-			if isChecked("Greater Blessing of Kings") and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not IsMounted() then
+			if isChecked("Greater Blessing of Kings") and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not IsMounted() and getDistance(kingsUnit) < 30 then
 				if cast.greaterBlessingOfKings(kingsUnit) then return end
 			end
 		-- Greater Blessing of Wisdom
-			if isChecked("Greater Blessing of Wisdom") and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not IsMounted() then
+			if isChecked("Greater Blessing of Wisdom") and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not IsMounted() and getDistance(wisdomUnit) < 30 then
 				if cast.greaterBlessingOfWisdom(wisdomUnit) then return end
 			end
         end -- End Action List - Extras
