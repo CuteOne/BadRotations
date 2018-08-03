@@ -116,7 +116,13 @@ local function createOptions()
             br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
             -- Lay On Hands
             br.ui:createSpinner(section, "Lay On Hands", 20, 0, 100, 5, "","Health Percentage to use at")
-            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
+            br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
+            -- Selfless Healer
+            br.ui:createSpinner(section, "Selfless Healer", 60, 0, 100, 5, "","Health Percentage to use at")
+            br.ui:createDropdownWithout(section, "Selfless Healer Target", {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Selfless Healer")
+			-- Word of Glory
+            br.ui:createSpinner(section, "Word of Glory", 60, 0, 100, 5, "","Health Percentage to use at")
+            br.ui:createDropdownWithout(section, "Word of Glory Target", {"|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Word of Glory")
             -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
@@ -196,7 +202,6 @@ local function runRotation()
         local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
-        -- local t21_4pc       = TierScan("T21") >= 4
         local talent        = br.player.talent
         local thp           = getHP("target")
         local ttd           = getTTD(br.player.units(5))
@@ -230,21 +235,32 @@ local function runRotation()
         end
      
 	    --actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
-		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2
+		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 --TO-DO Add azerite
 		--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
 		local HoW = (not talent.hammer_of_wrath or thp >= 20 and (not talent.crusade and not buff.avengingWrath.exists() or (talent.crusade and not buff.crusade.exists())))
 		
         local lowestUnit
+		local lowestTank
+		local lowestHealer
+		local lowestDps
         local kingsUnit = "player"
         local wisdomUnit = "player"
-        lowestUnit = "player"
+
         for i = 1, #br.friend do
             local thisUnit = br.friend[i].unit
             local thisHP = getHP(thisUnit)
-            local lowestHP = getHP(lowestUnit)
             local thisRole = UnitGroupRolesAssigned(thisUnit)
-            if thisHP < lowestHP then
+			if getDistance(thisUnit) < 40 and (lowestUnit == nil or getHP(lowestUnit) > thisHP) then
                 lowestUnit = thisUnit
+            end
+            if getDistance(thisUnit) < 40 and thisRole == "TANK" and (lowestTank == nil or getHP(lowestTank) > thisHP) then
+                lowestTank = thisUnit
+            end
+			if getDistance(thisUnit) < 40 and thisRole == "HEALER" and (lowestHealer == nil or getHP(lowestHealer) > thisHP) then
+                lowestHealer = thisUnit
+            end
+			if getDistance(thisUnit) < 40 and (thisRole == "DAMAGER" or thisRole == "NONE") and (lowestDps == nil or getHP(lowestDps) > thisHP) then
+                lowestDps = thisUnit
             end
             if getDistance(thisUnit) < 30 and not UnitIsDeadOrGhost(thisUnit) then
                 if (buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and buff.greaterBlessingOfKings.exists()) or (thisRole == "TANK" and not buff.greaterBlessingOfKings.exists()) then
@@ -255,7 +271,11 @@ local function runRotation()
                 end
             end
         end
-
+		if lowestTank == nil then lowestTank = "player" end
+		if lowestHealer == nil then lowestHealer = "player" end
+		if lowestDps == nil then lowestHealer = "player" end
+		if lowestHealer == nil then lowestHealer = "player" end
+		
         -- Challenge Skin Heler
         if isChecked("Challenge Skin Helper") then
             for i=1, #enemies.yards10 do
@@ -303,7 +323,7 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
 				-- Lay On Hands
-					if isChecked("Lay On Hands") and inCombat then
+					if isChecked("Lay On Hands") and inCombat and getHP(lowestUnit) <= getValue("Lay On Hands") then
 					-- Player
 						if getOptionValue("Lay on Hands Target") == 1 then
 							if php <= getValue("Lay On Hands") then
@@ -319,35 +339,128 @@ local function runRotation()
 							if getHP("mouseover") <= getValue("Lay On Hands") then
 								if cast.layOnHands("mouseover") then return true end
 							end
-					-- LowestUnit
-						elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
-							-- Tank
-								if getOptionValue("Lay on Hands Target") == 4 then
-									if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-										if cast.layOnHands(lowestUnit) then return true end
-									end
-							-- Healer
-								elseif getOptionValue("Lay on Hands Target") == 5 then
-									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" then
-										if cast.layOnHands(lowestUnit) then return true end
-									end
-							-- Healer/Tank
-								elseif getOptionValue("Lay on Hands Target") == 6 then
-									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "TANK" then
-										if cast.layOnHands(lowestUnit) then return true end
-									end
-							-- Healer/Damager
-								elseif getOptionValue("Lay on Hands Target") == 7 then
-									if UnitGroupRolesAssigned(lowestUnit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
-										if cast.layOnHands(lowestUnit) then return true end
-									end
-							-- Any
-								elseif  getOptionValue("Lay on Hands Target") == 8 then
-									if cast.layOnHands(lowestUnit) then return true end
-								end
+					-- Tank
+						elseif getOptionValue("Lay on Hands Target") == 4 then
+							if getHP(lowestTank) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.layOnHands(lowestTank) then return true end
+							end
+					-- Healer
+						elseif getOptionValue("Lay on Hands Target") == 5 then
+							if getHP(lowestHealer) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.layOnHands(lowestHealer) then return true end
+							end
+					-- Healer/Tank
+						elseif getOptionValue("Lay on Hands Target") == 6 then
+							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.layOnHands(lowestHealer) then return true end
+							elseif getHP(lowestTank) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.layOnHands(lowestTank) then return true end									
+							end							
+					-- Healer/Damager
+						elseif getOptionValue("Lay on Hands Target") == 7 then
+							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.layOnHands(lowestHealer) then return true end
+							elseif getHP(lowestDps) <= getValue("Lay On Hands") and (UnitGroupRolesAssigned(lowestDps) == "DAMAGER" or UnitGroupRolesAssigned(lowestDps) == "NONE") then
+								if cast.layOnHands(lowestDps) then return true end
+							end
+					-- Any
+						elseif getOptionValue("Lay on Hands Target") == 8 then
+							if cast.layOnHands(lowestUnit) then return true end
 						end
 					end
-				-- Divine Shield
+					-- Selfless Healer
+					if isChecked("Selfless Healer") and buff.selflessHealer.stack() == 4 and getHP(lowestUnit) <= getValue("Selfless Healer") then
+					-- Player
+						if getOptionValue("Selfless Healer Target") == 1 then
+							if php <= getValue("Selfless Healer") then
+								if cast.flashOfLight("player") then return true end
+							end
+					-- Target
+						elseif getOptionValue("Selfless Healer Target") == 2 then
+							if getHP("target") <= getValue("Selfless Healer") then
+								if cast.flashOfLight("target") then return true end
+							end
+					-- Mouseover
+						elseif getOptionValue("Selfless Healer Target") == 3 then
+							if getHP("mouseover") <= getValue("Selfless Healer") then
+								if cast.flashOfLight("mouseover") then return true end
+							end
+					-- Tank
+						elseif getOptionValue("Selfless Healer Target") == 4 then
+							if getHP(lowestTank) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.flashOfLight(lowestTank) then return true end
+							end
+					-- Healer
+						elseif getOptionValue("Selfless Healer Target") == 5 then
+							if getHP(lowestHealer) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.flashOfLight(lowestHealer) then return true end
+							end
+					-- Healer/Tank
+						elseif getOptionValue("Selfless Healer Target") == 6 then
+							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.flashOfLight(lowestHealer) then return true end
+							elseif getHP(lowestTank) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.flashOfLight(lowestTank) then return true end									
+							end							
+					-- Healer/Damager
+						elseif getOptionValue("Selfless Healer Target") == 7 then
+							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.flashOfLight(lowestHealer) then return true end
+							elseif getHP(lowestDps) <= getValue("Selfless Healer") and (UnitGroupRolesAssigned(lowestDps) == "DAMAGER" or UnitGroupRolesAssigned(lowestDps) == "NONE") then
+								if cast.flashOfLight(lowestDps) then return true end
+							end
+					-- Any
+						elseif getOptionValue("Selfless Healer Target") == 8 then
+							if cast.flashOfLight(lowestUnit) then return true end
+						end
+					end					
+					-- Word of Glory
+					if isChecked("Word of Glory") and talent.wordOfGlory and getHP(lowestUnit) <= getValue("Word of Glory") and inCombat then
+					-- Player
+						if getOptionValue("Word of Glory Target") == 1 then
+							if php <= getValue("Word of Glory") then
+								if cast.wordOfGlory("player") then return true end
+							end
+					-- Target
+						elseif getOptionValue("Word of Glory Target") == 2 then
+							if getHP("target") <= getValue("Word of Glory") then
+								if cast.wordOfGlory("target") then return true end
+							end
+					-- Mouseover
+						elseif getOptionValue("Word of Glory Target") == 3 then
+							if getHP("mouseover") <= getValue("Word of Glory") then
+								if cast.wordOfGlory("mouseover") then return true end
+							end
+							
+						elseif getOptionValue("Word of Glory Target") == 4 then
+							if getHP(lowestTank) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.wordOfGlory(lowestTank) then return true end
+							end
+					-- Healer
+						elseif getOptionValue("Word of Glory Target") == 5 then
+							if getHP(lowestHealer) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.wordOfGlory(lowestHealer) then return true end
+							end
+					-- Healer/Tank
+						elseif getOptionValue("Word of Glory Target") == 6 then
+							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
+								if cast.wordOfGlory(lowestHealer) then return true end
+							elseif getHP(lowestTank) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.wordOfGlory(lowestTank) then return true end									
+							end							
+					-- Healer/Damager
+						elseif getOptionValue("Word of Glory Target") == 7 then
+							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
+								if cast.wordOfGlory(lowestHealer) then return true end
+							elseif getHP(lowestDps) <= getValue("Word of Glory") and (UnitGroupRolesAssigned(lowestDps) == "DAMAGER" or UnitGroupRolesAssigned(lowestDps) == "NONE") then
+								if cast.wordOfGlory(lowestDps) then return true end
+							end
+					-- Any
+						elseif getOptionValue("Word of Glory Target") == 8 then
+							if cast.wordOfGlory(lowestUnit) then return true end
+						end
+					end					
+					-- Divine Shield
 					if isChecked("Divine Shield") then
 						if php <= getOptionValue("Divine Shield") and inCombat then
 							if cast.divineShield() then return end
