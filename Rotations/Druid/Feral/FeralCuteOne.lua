@@ -1279,7 +1279,7 @@ local function runRotation()
             -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
             if (cast.pool.thrash() or cast.able.thrash()) and multidot then
                 if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
-                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
                     end
@@ -1289,7 +1289,7 @@ local function runRotation()
             -- thrash_cat,if=spell_targets.thrash_cat>3&equipped.luffa_wrappings&talent.brutal_slash.enabled
             if (cast.pool.thrash() or cast.able.thrash()) and multidot then
                 if ((mode.rotation == 1 and #enemies.yards8 > 3) or mode.rotation == 2) and equped.luffaWrappings and talent.brutalSlash then
-                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash - Luffa") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
                     end
@@ -1350,7 +1350,7 @@ local function runRotation()
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react
             if (cast.pool.thrash() or cast.able.thrash()) and multidot and (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) then
                 if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) or (useThrash == 1 and buff.clearcasting.exists()) then
-                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then
                         if cast.thrash("player","aoe") then return true end
                     end

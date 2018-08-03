@@ -24,66 +24,33 @@ function UnitAuraID(unit,spellID,filter)
 	-- end
 end
 function UnitBuffID(unit,spellID,filter)
-	-- local spellName = GetSpellInfo(spellID)
-	-- if filter == nil then
-	-- 	return UnitBuff(unit,spellName)
-	-- else
-	-- 	local exactSearch = strfind(strupper(filter),"EXACT")
-	-- 	local playerSearch = strfind(strupper(filter),"PLAYER")
-	-- 	if exactSearch then
-			for i=1,40 do
-				local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
-				if buffSpellID ~= nil then
-					if buffSpellID == spellID then
-						if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
-							return UnitBuff(unit,i)
-						end
-					end
-				else
-					return nil
-				end
+	local spellName = GetSpellInfo(spellID)
+	local exactSearch = filter ~= nil and strfind(strupper(filter),"EXACT")
+	local playerSearch = filter ~= nil and strfind(strupper(filter),"PLAYER")
+	for i=1,40 do
+		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+		if buffName == nil then return nil end
+		if buffSpellID == spellID or buffName == spellName then
+			if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
+				if exactSearch or filter == nil then return UnitBuff(unit,i) else return UnitBuff(unit,i,filter) end
 			end
-	-- 	else
-	-- 		return UnitBuff(unit,spellName,nil,filter)
-	-- 	end
-	-- end
+		end
+	end
 end
--- function UnitBuffID(unit,spellID)
--- 	for i=1,40 do
--- 		local _,_,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
--- 		if buffSpellID ~= nil then
--- 			if buffSpellID == spellID then
--- 				return true
--- 			end
--- 		end
--- 	end
--- 	return false
--- end
 
 function UnitDebuffID(unit,spellID,filter)
-	-- local spellName = GetSpellInfo(spellID)
-	-- if filter == nil then
-	-- 	return UnitDebuff(unit,spellName)
-	-- else
-	-- 	local exactSearch = strfind(strupper(filter),"EXACT")
-	-- 	local playerSearch = strfind(strupper(filter),"PLAYER")
-	-- 	if exactSearch then
-			for i=1,40 do
-				local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-				if buffSpellID ~= nil then
-					if buffSpellID == spellID then
-						if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
-							return UnitDebuff(unit,i)
-						end
-					end
-				else
-					return nil
-				end
+	local spellName = GetSpellInfo(spellID)
+ 	local exactSearch = filter ~= nil and strfind(strupper(filter),"EXACT")
+ 	local playerSearch = filter ~= nil and strfind(strupper(filter),"PLAYER")
+	for i=1,40 do
+		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+		if buffSpellID == nil then return nil end
+		if buffSpellID == spellID or buffName == spellName then
+			if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
+				if exactSearch or filter == nil then return UnitDebuff(unit,i) else return UnitDebuff(unit,i,filter) end
 			end
-	-- 	else
-	-- 		return UnitDebuff(unit,spellName,nil,filter)
-	-- 	end
-	-- end
+		end
+	end
 end
 
 -- if canDispel("target",SpellID) == true then

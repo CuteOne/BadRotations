@@ -98,9 +98,9 @@ function br.loader:new(spec,specName)
             insanity        = 13, --SPELL_POWER_INSANITY, --13,
             obsolete        = 14,
             obsolete2       = 15,
-            arcaneCharges   = 15, --SPELL_POWER_ARCANE_CHARGES, --16,
-            fury            = 16, --SPELL_POWER_FURY, --17,
-            pain            = 17, --SPELL_POWER_PAIN, --18,
+            arcaneCharges   = 16, --SPELL_POWER_ARCANE_CHARGES, --16,
+            fury            = 17, --SPELL_POWER_FURY, --17,
+            pain            = 18, --SPELL_POWER_PAIN, --18,
         }
         for k, v in pairs(self.power.list) do
             if not self.power[k] then self.power[k] = {} end

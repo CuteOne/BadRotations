@@ -225,8 +225,10 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 			tinsert(enemiesTable,thisEnemy)
 		end
     end
-	if #enemyTable == 0 and isValidUnit("target") then
+	if #enemiesTable == 0 and isValidUnit("target") then
 		tinsert(enemiesTable,"target")
+	elseif enemiesTable["target"] ~= nil and (#enemiesTable > 1 or not isValidUnit("target")) then
+		tremove(enemiesTable,"target")
 	end
     ---
 	if isChecked("Debug Timers") then
