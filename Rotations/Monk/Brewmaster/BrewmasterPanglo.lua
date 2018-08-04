@@ -7,7 +7,7 @@ local function createToggles()
 -- Rotation Button
 	RotationModes = {
         [1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "Enables DPS rotation", highlight = 1, icon = br.player.spell.blackoutStrike },
-        [2] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify }
+        [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify }
     };
     CreateButton("Rotation",1,0)
 -- Defensive Button
@@ -273,7 +273,7 @@ local function runRotation()
 			if talent.blackoutCombo then 
     -- Purifying Brew
                 if isChecked("Stagger dmg % to purify") then
-                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() > 3 then
+                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
                     end
                 end
@@ -323,7 +323,7 @@ local function runRotation()
 			-------------------------------------
 			if not talent.blackoutCombo then
 			      if isChecked("Stagger dmg % to purify") then
-                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() > 3 then
+                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
                     end
                 end
