@@ -295,16 +295,16 @@ local function runRotation()
 			if useInterrupts() then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
+                     -- Disrupt
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-        -- Disrupt
                         if isChecked("Disrupt") and getDistance(thisUnit) < 20 then
                             if cast.disrupt(thisUnit) then return end
                         end
-        -- Sigil of Silence
+                        -- Sigil of Silence
                         if isChecked("Sigil of Silence") and cd.consumeMagic.remain() > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground",1,8) then return end
                         end
-        -- Sigil of Misery
+                        -- Sigil of Misery
                         if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 then
                             if cast.sigilOfMisery(thisUnit,"ground",1,8) then return end
                         end

@@ -27,16 +27,16 @@ function shouldStopCasting(Spell)
 		}
 		-- find casting informations
 		if UnitCastingInfo("boss1") then
-			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1")
+			Boss1Cast,_,_,_,Boss1CastEnd = UnitCastingInfo("boss1")
 		elseif UnitChannelInfo("boss1") then
-			Boss1Cast,_,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1")
+			Boss1Cast,_,_,_,Boss1CastEnd = UnitChannelInfo("boss1")
 		else
 			return false
 		end
 		if UnitCastingInfo("player") then
-			PlayerCastEnd = select(6,UnitCastingInfo("player"))
+			PlayerCastEnd = select(5,UnitCastingInfo("player"))
 		elseif UnitChannelInfo("player") then
-			PlayerCastEnd = select(6,UnitChannelInfo("player"))
+			PlayerCastEnd = select(5,UnitChannelInfo("player"))
 		else
 			PlayerCastEnd = MySpellCastTime
 		end

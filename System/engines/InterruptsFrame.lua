@@ -322,11 +322,11 @@ end
 function getCastingInfo(unit)
 	-- if its a spell we return casting informations
 	if UnitCastingInfo(unit) ~= nil then
-		local unitCastName,_,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitCastingInfo(unit)
+		local unitCastName,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitCastingInfo(unit)
 		return unitCastName,getCastLenght(unitCastStart,unitCastEnd),unitCastEnd*0.001,unitCastNotInteruptible,"cast"
 			-- if its achannel we return channel info
 	elseif UnitChannelInfo(unit) ~= nil then
-		local unitCastName,_,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitChannelInfo(unit)
+		local unitCastName,_,_,unitCastStart,unitCastEnd,_,unitCastID,unitCastNotInteruptible = UnitChannelInfo(unit)
 		return unitCastName,getCastLenght(unitCastStart,unitCastEnd),unitCastEnd*0.001,unitCastNotInteruptible,"chan"
 			-- otherwise we return bad dummy vars
 	else

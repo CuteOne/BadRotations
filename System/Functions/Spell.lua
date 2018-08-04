@@ -1,8 +1,8 @@
 function castInterrupt(SpellID,Percent,Unit)
 	if Unit == nil then Unit = "target" end
 	if GetObjectExists(Unit) then
-		local castName, _, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
-		local channelName, _, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
+		local castName, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
+		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
 		if canCast(SpellID,false,false) == true then
 			-- make sure we cover melee range
