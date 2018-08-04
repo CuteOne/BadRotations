@@ -235,7 +235,7 @@ local function runRotation()
         end
      
 	    --actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
-		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 --TO-DO Add azerite
+		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (not talent.righteousVerdict and talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 --TO-DO Add azerite
 		--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
 		local HoW = (not talent.hammer_of_wrath or thp >= 20 and (not talent.crusade and not buff.avengingWrath.exists() or (talent.crusade and not buff.crusade.exists())))
 		
