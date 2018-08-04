@@ -137,6 +137,10 @@ function canDispel(Unit,spellID)
 	-- 		end
 	-- 	end
 	-- end
+	if ClassNum == 12 then --Demon Hunter
+		-- Consume Magic
+		if spellID == 278326 then typesList = { "Magic" } end
+	end
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
