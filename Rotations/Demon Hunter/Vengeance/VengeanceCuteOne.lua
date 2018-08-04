@@ -429,7 +429,6 @@ local function runRotation()
                 end
 				-- Consume Magic
 				if isChecked("Consume Magic") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
-					print("consume magic")
 					if cast.consumeMagic("target") then return end
 				end
 				-- actions+=/call_action_list,name=brand,if=talent.charred_flesh.enabled
