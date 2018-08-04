@@ -172,6 +172,7 @@ Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
 ## Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
 Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
+Rotations\Monk\Brewmaster\BrewmasterPanglo.lua
 
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 
