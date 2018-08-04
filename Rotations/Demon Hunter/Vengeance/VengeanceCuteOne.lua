@@ -204,8 +204,8 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)
 
 
-   		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end
+   		  if leftCombat == nil then leftCombat = GetTime() end
+		    if profileStop == nil then profileStop = false end
         if talent.chaosCleave then chaleave = 1 else chaleave = 0 end
         if talent.prepared then prepared = 1 else prepared = 0 end
         if lastSpell == spell.vengefulRetreat then vaulted = true else vaulted = false end
@@ -358,75 +358,75 @@ local function runRotation()
         end -- End Action List - PreCombat
     -- Action List - FieryBrand
         local function actionList_FieryBrand()
-            if talent.charredFlesh then
-				-- actions.brand=sigil_of_flame,if=cooldown.fiery_brand.remains<2
-				if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 and cd.fieryBrand.remain() < 2 then
-                    if cast.sigilOfFlame("best",false,1,8) then return end
-				end
-				-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-				if charges.infernalStrike.count() == 2 and cd.fieryBrand.remain() == 0 then
-                    if cast.infernalStrike("player","ground",1,6) then return end
-                end
-				-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
-				if cast.fieryBrand() then return end
-
-				if debuff.fieryBrand.exists(units.dyn5) then
-					-- actions.brand+=/immolation_aura,if=dot.fiery_brand.ticking
-					if isChecked("Immolation Aura") then
-                        if cast.immolationAura() then return end
-                    end
-					-- actions.brand+=/fel_devastation,if=dot.fiery_brand.ticking
-					if getDistance(units.dyn20) < 20 then
-						if cast.felDevastation() then return end
-					end
-					-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
-					if charges.infernalStrike.count() == 2 then
-						if cast.infernalStrike("player","ground",1,6) then return end
-					end
-					-- actions.brand+=/sigil_of_flame,if=dot.fiery_brand.ticking
-					if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
-						if cast.sigilOfFlame("best",false,1,8) then return end
-					end
-                end
+          if talent.charredFlesh then
+  				-- actions.brand=sigil_of_flame,if=cooldown.fiery_brand.remains<2
+    				if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 and cd.fieryBrand.remain() < 2 then
+              if cast.sigilOfFlame("best",false,1,8) then return end
+    				end
+    				-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
+    				if charges.infernalStrike.count() == 2 and cd.fieryBrand.remain() == 0 then
+              if cast.infernalStrike("player","ground",1,6) then return end
             end
+    				-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
+    				if cast.fieryBrand() then return end
+
+    				if debuff.fieryBrand.exists(units.dyn5) then
+    					-- actions.brand+=/immolation_aura,if=dot.fiery_brand.ticking
+    					if isChecked("Immolation Aura") then
+                if cast.immolationAura() then return end
+              end
+    					-- actions.brand+=/fel_devastation,if=dot.fiery_brand.ticking
+    					if getDistance(units.dyn20) < 20 then
+    						if cast.felDevastation() then return end
+    					end
+    					-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
+    					if charges.infernalStrike.count() == 2 then
+    						if cast.infernalStrike("player","ground",1,6) then return end
+    					end
+    					-- actions.brand+=/sigil_of_flame,if=dot.fiery_brand.ticking
+    					if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
+    						if cast.sigilOfFlame("best",false,1,8) then return end
+    					end
+            end
+          end
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
 ---------------------
-    -- Profile Stop | Pause
-        if not inCombat and not hastar and profileStop==true then
-            profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
-            return true
-        else
+-- Profile Stop | Pause
+  if not inCombat and not hastar and profileStop==true then
+      profileStop = false
+  elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+      return true
+  else
 -----------------------
 --- Extras Rotation ---
 -----------------------
-            if actionList_Extras() then return end
+  if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
 --------------------------
-            if actionList_Defensive() then return end
+  if actionList_Defensive() then return end
 ------------------------------
 --- Out of Combat Rotation ---
 ------------------------------
-            if actionList_PreCombat() then return end
+  if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
+  if inCombat and profileStop==false and isValidUnit(units.dyn5) and not (IsMounted() or IsFlying()) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
-                if actionList_Interrupts() then return end
+    if actionList_Interrupts() then return end
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
     -- Start Attack
-                -- auto_attack
-                if getDistance(units.dyn5) < 5 then
-                    StartAttack()
-                end
+        -- auto_attack
+        if getDistance(units.dyn5) < 5 then
+          StartAttack()
+        end
 				-- Consume Magic
 				if isChecked("Consume Magic") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
 					if cast.consumeMagic("target") then return end
@@ -435,54 +435,52 @@ local function runRotation()
 				if actionList_FieryBrand() then return end
 				-- actions.normal=infernal_strike
 				if charges.infernalStrike.count() == 2  and getDistance(units.dyn5) < 5 then
-                    if cast.infernalStrike("player","ground",1,6) then return end
-                end
+          if cast.infernalStrike("player","ground",1,6) then return end
+        end
 				-- actions.normal+=/spirit_bomb,if=soul_fragments>=4
 				if buff.soulFragments.stack() >= 4 then
-                    if cast.spiritBomb() then return end
-                end
+          if cast.spiritBomb() then return end
+        end
 				-- actions.normal+=/immolation_aura,if=pain<=90
-				if isChecked("Immolation Aura") then
-                    if pain <= 90 then
-                        if cast.immolationAura() then return end
-                    end
-                end
+				if isChecked("Immolation Aura") and pain <= 90 then
+          if cast.immolationAura() then return end
+        end
 				-- actions.normal+=/felblade,if=pain<=70
 				if pain <= 70 then
-                    if cast.felblade() then return end
-                end
+          if cast.felblade() then return end
+        end
 				-- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&talent.fracture.enabled&soul_fragments=0&cooldown.fracture.charges_fractional<1.75
 				if talent.spiritBomb and talent.fracture and buff.soulFragments.stack() == 0 and charges.fracture.frac() < 1.75 then
 					if cast.soulCleave() then return end
-                end
+        end
 				-- actions.normal+=/fracture,if=soul_fragments<=3
 				if buff.soulFragments.stack() <= 3 then
-                    if cast.fracture() then return end
-                end
+          if cast.fracture() then return end
+        end
 				-- fel_devastation
-                if getDistance(units.dyn20) < 20 then
+        if getDistance(units.dyn20) < 20 then
 					if cast.felDevastation() then return end
 				end
 				-- actions.normal+=/soul_cleave,if=!talent.spirit_bomb.enabled
 				if not talent.spiritBomb then
 					if cast.soulCleave() then return end
-                end
+        end
 				-- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&soul_fragments=0
 				if talent.spiritBomb and buff.soulFragments.stack() == 0 then
-                    if cast.soulCleave() then return end
-                end
+          if cast.soulCleave() then return end
+        end
 				-- actions.normal+=/sigil_of_flame
 				if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
-                    if cast.sigilOfFlame("best",false,1,8) then return end
+          if cast.sigilOfFlame("best",false,1,8) then return end
 				end
 				-- actions.normal+=/shear
 				if cast.shear() then return end
 				-- actions.normal+=/throw_glaive
-                if cast.throwGlaive() then return end
+        if cast.throwGlaive() then return end
 
 			end --End In Combat
 		end --End Rotation Logic
-    end -- End Timer
+  end -- End Timer
 end -- End runRotation
 local id = 581
 if br.rotations[id] == nil then br.rotations[id] = {} end
