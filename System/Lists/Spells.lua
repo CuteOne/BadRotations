@@ -473,6 +473,7 @@ br.lists.spells = {
                 agonizingFlames             = 207548,
                 bladeTurning                = 247254,
                 burningAlive                = 207739,
+				charredFlesh				= 264002,
                 concentratedSigils          = 207666,
                 demonicInfusion             = 236189,
                 fallout                     = 227174,
@@ -492,7 +493,8 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
-                consumeMagic                = 183752,
+				consumeMagic             	= 278326,
+                disrupt                		= 183752,
                 felblade                    = 232893,
                 felEruption                 = 211881,
                 glide                       = 131347,
