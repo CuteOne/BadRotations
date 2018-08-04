@@ -1912,6 +1912,7 @@ br.lists.spells = {
                 holyWrath                   = 210220,
 				inquisition       	    	= 84963,
                 justicarsVengeance          = 215661,
+		righteousVerdict				= 267610,
                 theFiresOfJustice           = 203316,
                 virtuesBlade                = 202271,
 				wakeOfAshes                 = 255937,
