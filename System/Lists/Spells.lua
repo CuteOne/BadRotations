@@ -1490,7 +1490,6 @@ br.lists.spells = {
                 manaTea                     = 197908;
                 transcendence               = 101643;
                 transcendenceTransfer       = 119996;
-                vivify                      = 116670;
                 soothingMist                = 193884;
                 chiWave                     = 115098;
                 fortifyingBrew              = 243435;
@@ -1542,6 +1541,7 @@ br.lists.spells = {
                 summonJadeSerpentStatue     = 115313;
                 manaTea                     = 197908;
                 risingThunder               = 210804,
+                diffuseMagic                = 122783,
             },
         },
         -- Windwalker
@@ -1551,10 +1551,10 @@ br.lists.spells = {
                 detox                       = 218164,
                 disable                     = 116095,
                 energizingElixir            = 115288,
+                fistOfTheWhiteTiger         = 261947,
                 fistsOfFury                 = 113656,
                 flyingSerpentKick           = 101545,
                 flyingSerpentKickEnd        = 115057,
-                healingElixir               = 122281,
                 invokeXuenTheWhiteTiger     = 123904,
                 risingSunKick               = 107428,
                 rushingJadeWind             = 116847,
@@ -1563,7 +1563,6 @@ br.lists.spells = {
                 spinningCraneKick           = 101546,
                 stormEarthAndFire           = 137639,
                 stormEarthAndFireFixate     = 221771,
-                strikeOfTheWindlord         = 205320,
                 touchOfDeath                = 115080,
                 touchOfKarma                = 122470,
                 transcendence               = 101643,
@@ -1592,7 +1591,6 @@ br.lists.spells = {
                 windborneBlows              = 214922,
             },
             buffs                           = {
-                healingWinds                = 195381,
                 hitCombo                    = 196741,
                 pressurePoint               = 247255,
                 rushingJadeWind             = 116847,
@@ -1613,16 +1611,17 @@ br.lists.spells = {
             },
             talents                         = {
                 ascension                   = 115396,
-                chiOrbit                    = 196743,
-                chiWave                     = 115098,
+                diffuseMagic                = 122783,
                 energizingElixir            = 115288,
                 eyeOfTheTiger               = 196607,
-                healingElixir               = 122281,
+                fistOfTheWhiteTiger         = 261947,
+                goodKarma                   = 280195,
                 hitCombo                    = 196740,
+                innerStrength               = 261767,
                 invokeXuen                  = 123904,
-                powerStrikes                = 121817,
                 rushingJadeWind             = 116847,
                 serenity                    = 152173,
+                spiritualFocus              = 280197,
                 whirlingDragonPunch         = 152175,
             },
         },
@@ -1635,7 +1634,6 @@ br.lists.spells = {
                 cracklingJadeLightning      = 117952,
                 dampenHarm                  = 122278,
                 diffuseMagic                = 122783,
-                effuse                      = 116694,
                 legSweep                    = 119381,
                 paralysis                   = 115078,
                 provoke                     = 115546,
@@ -1644,6 +1642,7 @@ br.lists.spells = {
                 roll                        = 109132,
                 tigersLust                  = 116841,
                 tigerPalm                   = 100780,
+                vivify                      = 116670,
             },
             artifacts                       = {
 
@@ -1659,14 +1658,19 @@ br.lists.spells = {
             glyphs                          = {
 
             },
+            items                           = {
+                drinkingHornCover           = 137097,
+                hiddenMastersForbiddenTouch = 137057,
+                theEmperorsCapacitor        = 144239,
+            },
             talents                         = {
                 celerity                    = 115173,
                 chiBurst                    = 123986,
                 chiTorpedo                  = 115008,
+                chiWave                     = 115098,
                 dampenHarm                  = 122278,
-                diffuseMagic                = 122783,
-                legSweep                    = 119381,
                 ringOfPeace                 = 116844,
+                tigerTailSweep              = 264348,
                 tigersLust                  = 116841,
             },
         },
