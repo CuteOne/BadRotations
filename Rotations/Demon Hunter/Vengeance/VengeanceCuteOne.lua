@@ -249,7 +249,7 @@ local function runRotation()
                     if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
                         if cast.fieryBrand() then return end
                     end
-                end	
+                end
                 -- demon_spikes
                 if isChecked("Demon Spikes") and charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and php <= getOptionValue("Demon Spikes") then
                     if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
@@ -369,7 +369,7 @@ local function runRotation()
                 end
 				-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
 				if cast.fieryBrand() then return end
-				
+
 				if debuff.fieryBrand.exists(units.dyn5) then
 					-- actions.brand+=/immolation_aura,if=dot.fiery_brand.ticking
 					if isChecked("Immolation Aura") then
@@ -388,7 +388,7 @@ local function runRotation()
 						if cast.sigilOfFlame("best",false,1,8) then return end
 					end
                 end
-            end 
+            end
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
@@ -434,7 +434,7 @@ local function runRotation()
 				-- actions+=/call_action_list,name=brand,if=talent.charred_flesh.enabled
 				if actionList_FieryBrand() then return end
 				-- actions.normal=infernal_strike
-				if charges.infernalStrike.count() == 2 then
+				if charges.infernalStrike.count() == 2  and getDistance(units.dyn5) < 5 then
                     if cast.infernalStrike("player","ground",1,6) then return end
                 end
 				-- actions.normal+=/spirit_bomb,if=soul_fragments>=4
@@ -460,9 +460,11 @@ local function runRotation()
                     if cast.fracture() then return end
                 end
 				-- fel_devastation
-                if cast.felDevastation() then return end
+                if getDistance(units.dyn20) < 20 then
+					if cast.felDevastation() then return end
+				end
 				-- actions.normal+=/soul_cleave,if=!talent.spirit_bomb.enabled
-				if talent.spiritBomb then
+				if not talent.spiritBomb then
 					if cast.soulCleave() then return end
                 end
 				-- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&soul_fragments=0
@@ -476,7 +478,7 @@ local function runRotation()
 				-- actions.normal+=/shear
 				if cast.shear() then return end
 				-- actions.normal+=/throw_glaive
-                if cast.throwGlaive() then return end	
+                if cast.throwGlaive() then return end
 
 			end --End In Combat
 		end --End Rotation Logic
