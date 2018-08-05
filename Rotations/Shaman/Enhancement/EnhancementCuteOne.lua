@@ -76,8 +76,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- Ascendance
             br.ui:createCheckbox(section,"Ascendance")
+        -- Earth Elemental Totem
+            br.ui:createCheckbox(section,"Earth Elemental")
         -- Feral Spirit
-            br.ui:createCheckbox(section,"Feral Spirit")
+            br.ui:createDropdownWithout(section,"Feral Spirit", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Feral Spirit.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -95,15 +97,15 @@ local function createOptions()
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Cleanse Spirit
             br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+        -- Earth Shield
+            br.ui:createCheckbox(section, "Earth Shield")
         -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Lightning Surge Totem
-            br.ui:createSpinner(section, "Lightning Surge Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Lightning Surge Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+            br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         -- Purge
             br.ui:createCheckbox(section,"Purge")
-        -- Rainfall
-            br.ui:createSpinner(section, "Rainfall",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -112,7 +114,7 @@ local function createOptions()
         -- Hex
             br.ui:createCheckbox(section,"Hex")
         -- Lightning Surge Totem
-            br.ui:createCheckbox(section,"Lightning Surge Totem")
+            br.ui:createCheckbox(section,"Capacitor Totem")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -206,7 +208,7 @@ local function runRotation()
 
 
         units.dyn8 = br.player.units(8)
-        units.dyn10 = br.player.units(10)
+        units.dyn20 = br.player.units(20)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards10 = br.player.enemies(10)
@@ -216,61 +218,42 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if feralSpiritCastTime == nil then feralSpiritCastTime = 0 end
         if feralSpiritRemain == nil then feralSpiritRemain = 0 end
-        if alphaWolfCastTime == nil then alphaWolfCastTime = 0 end
-        if alphaWolfRemain == nil then alphaWolfRemain = 0 end
+        -- if alphaWolfCastTime == nil then alphaWolfCastTime = 0 end
+        -- if alphaWolfRemain == nil then alphaWolfRemain = 0 end
         if lastSpell == spell.feralSpirit then feralSpiritCastTime = GetTime() + 15 end
         if feralSpiritCastTime > GetTime() then feralSpiritRemain = feralSpiritCastTime - GetTime() else feralSpiritCastTime = 0; feralSpiritRemain = 0 end
-        if lastSpell == spell.crashLightning and feralSpiritRemain > 0 then alphaWolfCastTime = GetTime() + 8 end
-        if alphaWolfCastTime > GetTime() then alphaWolfRemain = alphaWolfCastTime - GetTime() else alphaWolfCastTime = 0; alphaWolfRemain = 0 end
-        if crashLightningCastTime == nil then crashLightningCastTime = 0 end
-        if crashingStormTimer == nil then crashingStormTimer = 0 end
-        if lastSpell == spell.crashLightning then crashLightningCastTime = GetTime() + 6 end
-        if crashLightningCastTime > GetTime() then crashingStormTimer = crashLightningCastTime - GetTime() else crashLightningCastTime = 0; crashingStormTimer = 0 end
-
-        -- ChatOverlay(tostring(cd.doomWinds.remain()))
+        -- if lastSpell == spell.crashLightning and feralSpiritRemain > 0 then alphaWolfCastTime = GetTime() + 8 end
+        -- if alphaWolfCastTime > GetTime() then alphaWolfRemain = alphaWolfCastTime - GetTime() else alphaWolfCastTime = 0; alphaWolfRemain = 0 end
+        -- if crashLightningCastTime == nil then crashLightningCastTime = 0 end
+        -- if crashingStormTimer == nil then crashingStormTimer = 0 end
+        -- if lastSpell == spell.crashLightning then crashLightningCastTime = GetTime() + 6 end
+        -- if crashLightningCastTime > GetTime() then crashingStormTimer = crashLightningCastTime - GetTime() else crashLightningCastTime = 0; crashingStormTimer = 0 end
 
 -----------------
 --- Variables ---
 -----------------
-    -- Hailstorm
-        -- variable,name=hailstormCheck,value=((talent.hailstorm.enabled&!buff.frostbrand.up)|!talent.hailstorm.enabled)
-        local hailstormCheck = ((talent.hailstorm and not buff.frostbrand.exists()) or not talent.hailstorm)
-    -- Fury of Air
-        -- variable,name=furyCheck80,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>80))
-        local furyCheck80 = (not talent.furyOfAir or (talent.furyOfAir and power > 80))
-        -- variable,name=furyCheck70,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>70))
-        local furyCheck70 = (not talent.furyOfAir or (talent.furyOfAir and power > 70))
         -- variable,name=furyCheck45,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>45))
         local furyCheck45 = (not talent.furyOfAir or (talent.furyOfAir and power > 45))
+        -- variable,name=furyCheck35,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>35))
+        local furyCheck35 = (not talent.furyOfAir or (talent.furyOfAir and power > 35))
         -- variable,name=furyCheck25,value=(!talent.fury_of_air.enabled|(talent.fury_of_air.enabled&maelstrom>25))
         local furyCheck25 = (not talent.furyOfAir or (talent.furyOfAir and power > 25))
-    -- Overcharge
-        -- variable,name=overcharge,value=(talent.overcharge.enabled&variable.furyCheck45&maelstrom>=40)
-        local overcharge = (talent.overcharge and furyCheck45 and power >= 40)
-        -- variable,name=OCPool100,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&(maelstrom>100|cooldown.lightning_bolt.remains>gcd)))
-        local ocPool100 = (not talent.overcharge or (talent.overcharge and (power > 100 or cd.lightningBolt.remain() > gcdMax)))
-        -- variable,name=OCPool80,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&(maelstrom>80|cooldown.lightning_bolt.remains>gcd)))
-        local ocPool80 = (not talent.overcharge or (talent.overcharge and (power > 80 or cd.lightningBolt.remain() > gcdMax)))
-        -- variable,name=OCPool70,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&(maelstrom>70|cooldown.lightning_bolt.remains>gcd)))
-        local ocPool70 = (not talent.overcharge or (talent.overcharge and (power > 70 or cd.lightningBolt.remain() > gcdMax)))
-        -- variable,name=OCPool60,value=(!talent.overcharge.enabled|(talent.overcharge.enabled&(maelstrom>60|cooldown.lightning_bolt.remains>gcd)))
-        local ocPool60 = (not talent.overcharge or (talent.overcharge and (power > 60 or cd.lightningBolt.remain() > gcdMax)))
-    -- Smoldering Heart
-        -- variable,name=heartEquipped,value=(equipped.151819)
-        local heartEquiped = hasEquiped(151819)
-    -- Akainu's Absolute Justice
-        -- variable,name=akainuEquipped,value=(equipped.137084)
-        local akainuEquiped = hasEquiped(137084)
-        -- variable,name=stormTempests,value=(equipped.137103&!debuff.storm_tempests.up)
-        local stormTempests = hasEquiped(137103) and not debuff.stormTempests.exists()
-        -- variable,name=akainuAS,value=(variable.akainuEquipped&buff.hot_hand.react&!buff.frostbrand.up)
-        local akainuAS = (akainuEquiped and buff.hotHand.exists() and not buff.frostbrand.exists())
-    -- Lightning Crash
-        -- variable,name=LightningCrashNotUp,value=(!buff.lightning_crash.up&set_bonus.tier20_2pc)
-        local noLightningCrash = (not buff.lightningCrash.exists() and t20pc2)
-    -- Alpha Wolf
-        -- variable,name=alphaWolfCheck,value=((pet.frost_wolf.buff.alpha_wolf.remains<2&pet.fiery_wolf.buff.alpha_wolf.remains<2&pet.lightning_wolf.buff.alpha_wolf.remains<2)&feral_spirit.remains>4)
-        local alphaWolfCheck = (alphaWolfRemain < 2 and feralSpiritRemain > 4)
+        -- variable,name=OCPool80,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>80)))
+        local ocPool80 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 80)))
+        -- variable,name=OCPool70,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>70)))
+        local ocPool70 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 70)))
+        -- variable,name=OCPool60,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>60)))
+        local ocPool60 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 60)))
+    -- Resonance Totem
+        local resonanceTotemRemain
+        if not buff.resonanceTotem.exists() or (totemTimer - GetTime()) <= 0 then
+            resonanceTotemRemain = 0
+        else
+            resonanceTotemRemain = totemTimer - GetTime()
+        end
     -- Crash Lightning
         local crashedEnemies = getEnemiesInCone(7,100)
 
@@ -297,24 +280,24 @@ local function runRotation()
                 end
             end -- End Dummy Test
         -- Ghost Wolf
-            if isChecked("Ghost Wolf") and not (IsMounted() or IsFlying()) then
+            if isChecked("Ghost Wolf") and cast.able.ghostWolf() and not (IsMounted() or IsFlying()) then
                 if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
                     if cast.ghostWolf() then return end
                 end
             end
         -- Purge
-            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+            if isChecked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
                 if cast.purge() then return end
             end
         -- Spirit Walk
-            if isChecked("Spirit Walk") and hasNoControl(spell.spiritWalk) then
+            if isChecked("Spirit Walk") and cast.able.spiritWalk() and hasNoControl(spell.spiritWalk) then
                 if cast.spiritWalk() then return end
             end
         -- Water Walking
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
             end
-            if isChecked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
+            if isChecked("Water Walking") and cast.able.waterWalking() and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
                 if cast.waterWalking() then return end
             end
         end -- End Action List - Extras
@@ -340,51 +323,51 @@ local function runRotation()
                     end
                 end
         -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if cast.giftOfTheNaaru() then return end
                 end
         -- Ancestral Spirit
                 if isChecked("Ancestral Spirit") then
-                    if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
+                    if getOptionValue("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
                         if cast.ancestralSpirit("target") then return end
                     end
-                    if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
+                    if getOptionValue("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
                         if cast.ancestralSpirit("mouseover") then return end
                     end
                 end
         -- Astral Shift
-                if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
+                if isChecked("Astral Shift") and cast.able.astralShift() and php <= getOptionValue("Astral Shift") and inCombat then
                     if cast.astralShift() then return end
                 end
         -- Cleanse Spirit
                 if isChecked("Cleanse Spirit") then
-                    if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==1 and cast.able.cleanseSpirit("player") and canDispel("player",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("player") then return; end
                     end
-                    if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==2 and cast.able.cleanseSpirit("target") and canDispel("target",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("target") then return end
                     end
-                    if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==3 and cast.able.cleanseSpirit("mouseover") and canDispel("mouseover",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("mouseover") then return end
                     end
                 end
+        -- Earthen Shield
+                if isChecked("Earth Shield") and cast.able.earthShield() and not buff.earthShield.exists() then
+                    if cast.earthShield() then return end
+                end
         -- Healing Surge
-                if isChecked("Healing Surge")
+                if isChecked("Healing Surge") and cast.able.healingSurge()
                     and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20)
                         or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving))
                 then
                     if cast.healingSurge() then return end
                 end
-        -- Lightning Surge Totem
-                if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 then
-                    if cast.lightningSurgeTotem("player","ground") then return end
+        -- Capacitor Totem
+                if isChecked("Capacitor Totem - HP") and cast.able.capacitorTotem() and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
+                    if cast.capacitorTotem("player","ground") then return end
                 end
-                if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat then
-                    if cast.lightningSurgeTotem("best",nil,getOptionValue("Lightning Surge Totem - AoE"),8) then return end
-                end
-        -- Rainfall
-                if isChecked("Rainfall") and php <= getOptionValue("Rainfall") then
-                    if cast.rainfall() then return end
+                if isChecked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat then
+                    if cast.capacitorTotem("best",nil,getOptionValue("Capacitor Totem - AoE"),8) then return end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -396,15 +379,15 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Wind Shear
                         -- wind_shear
-                        if isChecked("Wind Shear") then
+                        if isChecked("Wind Shear") and cast.able.windShear(thisUnit) then
                             if cast.windShear(thisUnit) then return end
                         end
         -- Hex
-                        if isChecked("Hex") then
+                        if isChecked("Hex") and cast.able.hex(thisUnit) then
                             if cast.hex(thisUnit) then return end
                         end
-        -- Lightning Surge Totem
-                        if isChecked("Lightning Surge Totem") and cd.windShear.remain() > gcd then
+        -- Capacitor Totem
+                        if isChecked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcd then
                             if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                                 if cast.lightningSurgeTotem(thisUnit,"ground") then return end
                             end
@@ -432,9 +415,9 @@ local function runRotation()
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- berserking,if=buff.ascendance.up|(cooldown.doom_winds.up)|level<100
+                -- berserking,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
                 -- blood_fury,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
-                if isChecked("Racial") and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or cd.doomWinds.exists() or level < 100)) and getSpellCD(racial) == 0 then
+                if isChecked("Racial") and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or feralSpiritRemain > 5 or level < 100)) and getSpellCD(racial) == 0 then
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Potion
@@ -452,24 +435,22 @@ local function runRotation()
                 end
         -- Feral Spirit
                 -- feral_spirit
-                if isChecked("Feral Spirit") then
+                if cast.able.feralSpirit() and (getOptionValue("Feral Spirit") == 1 or (getOptionValue("Feral Spirit") == 2 and useCDs())) then
                     if cast.feralSpirit() then return end
-                end
-            end
-        -- Doom Winds
-            -- doom_winds,if=cooldown.ascendance.remains>6|talent.boulderfist.enabled|debuff.earthen_spike.up
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                if ((getOptionValue("Artifact") == 1 and not isBoss()) or not isChecked("Ascencance") or cd.ascendance.remain() > 6) or talent.boulderfist or debuff.earthenSpike.exists(units.dyn5) then
-                    if cast.doomWinds() then return end
                 end
             end
             if useCDs() and getDistance("target") < 5 then
         -- Ascendance
-                -- ascendance,if=(cooldown.strike.remains>0)&buff.ascendance.down
-                if isChecked("Ascendance") then
-                    if cd.stormstrike.remain() > 0 and not buff.ascendance.exists() then
+                -- ascendance,if=cooldown.strike.remains>0
+                if isChecked("Ascendance") and cast.able.ascendance() then
+                    if cd.stormstrike.remain() > 0 then
                         if cast.ascendance() then return end
                     end
+                end
+        -- Earth Elemental
+                -- earth_elemental
+                if isChecked("Earth Elemental") and cast.able.earthElemental() then
+                    if cast.earthElemental() then return end
                 end
         -- Ring of Collapsing Futures
                 -- use_item,slot=finger1,if=buff.temptation.down
@@ -482,209 +463,158 @@ local function runRotation()
         end -- End Action List - Cooldowns
     -- Action List - Ascendance
         local function actionList_Ascendance()
-        -- Earthen Spike
-            -- earthen_spike
-            if cast.earthenSpike() then return end
-        -- Doom Winds
-            -- doom_winds,if=cooldown.windstrike.up
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) and getDistance("target") < 5 then
-                if cd.windstrike.remain() == 0 then
-                    if cast.doomWinds() then return end
-                end
-            end
         -- Crash Lightning
-            -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>=2
-            if not buff.crashLightning.exists() and ((mode.rotation == 1 and crashedEnemies >= 2) or (mode.rotation == 2 and crashedEnemies > 0)) then
+            -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>1&variable.furyCheck25
+            if cast.able.crashLightning() and not buff.crashLightning.exists() and ((mode.rotation == 1 and crashedEnemies > 1) or (mode.rotation == 2 and crashedEnemies > 0)) and furyCheck25 then
                 if cast.crashLightning() then return end
             end
+        -- Rockbiter
+            -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
+            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 then
+                if cast.rockbiter() then return end
+            end
         -- Windstrike
-            -- windstrike,target_if=variable.stormTempests
-            if stormTempests then
+            -- windstrike
+            if cast.able.windstrike() then
                 if cast.windstrike() then return end
             end
-            -- windstrike
-            if cast.windstrike() then return end
         end -- End Action List - Ascendance
     -- Action List - Buffs
         local function actionList_Buffs()
+        -- Crash Lightning
+            -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>1&variable.furyCheck25
+            if cast.able.crashLightning() and ((mode.rotation == 1 and crashedEnemies > 1) or (mode.rotation == 2 and crashedEnemies > 0)) and furyCheck25 then
+                if cast.crashLightning() then return end
+            end
         -- Rockbiter
-            -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up
-            if talent.landslide and not buff.landslide.exists() then
+            -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
+            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 then
                 if cast.rockbiter() then return end
             end
         -- Fury of Air
-            -- fury_of_air,if=!ticking&maelstrom>22
-            if not buff.furyOfAir.exists() and power > 22 then
+            -- fury_of_air,if=!ticking&maelstrom>20
+            if cast.able.furyOfAir() and not buff.furyOfAir.exists() and power > 20 then
                 if cast.furyOfAir() then return end
-            end
-        -- Crash Lightning
-            -- crash_lightning,if=artifact.alpha_wolf.rank()&prev_gcd.1.feral_spirit
-            if artifact.alphaWolf.enabled() and lastSpell == spell.feralSpirit then
-                if cast.crashLightning() then return end
             end
         -- Flametongue
             -- flametongue,if=!buff.flametongue.up
-            if not buff.flametongue.exists() then
+            if cast.able.flametongue() and not buff.flametongue.exists() then
                 if cast.flametongue() then return end
             end
         -- Frostbrand
-            -- frostbrand,if=talent.hailstorm.enabled&!buff.frostbrand.up&variable.furyCheck45
-            if talent.hailstorm and not buff.frostbrand.exists() and furyCheck45 then
+            -- frostbrand,if=talent.hailstorm.enabled&!buff.frostbrand.up&variable.furyCheck25
+            if cast.able.frostbrand() and talent.hailstorm and not buff.frostbrand.exists() and furyCheck25 then
                 if cast.frostbrand() then return end
             end
         -- Flametongue
-            -- flametongue,if=buff.flametongue.remains<6+gcd&cooldown.doom_winds.remains<gcd*2
-            if buff.flametongue.remain() < 6 + gcdMax and cd.doomWinds.remain() < gcdMax * 2 then
+            -- flametongue,if=buff.flametongue.remains<4.8+gcd
+            if cast.able.flametongue() and buff.flametongue.remain() < 4.8 + gcdMax then
                 if cast.flametongue() then return end
             end
         -- Frostbrand
-            -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<6+gcd&cooldown.doom_winds.remains<gcd*2
-            if talent.hailstorm and buff.frostbrand.remain() < 6 + gcdMax and cd.doomWinds.remain() < gcdMax * 2 then
+            -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8+gcd&variable.furyCheck25
+            if cast.able.frostbrand() and talent.hailstorm and buff.frostbrand.remain() < 4.8 + gcdMax and furyCheck25 then
                 if cast.frostbrand() then return end
+            end
+        -- Totem Mastery
+            -- totem_mastery,if=buff.resonance_totem.remains<2
+            if cast.able.totemMastery() and (resonanceTotemRemain < 2) then
+                if cast.totemMastery() then totemTimer = GetTime() + 120; return end
             end
         end -- End Action List - Buffs
     -- Action List - Core
         local function actionList_Core()
         -- Earthen Spike
             -- earthen_spike,if=variable.furyCheck25
-            if furyCheck25 then
+            if cast.able.earthenSpike() and furyCheck25 then
                 if cast.earthenSpike() then return end
-            end
-        -- Crash Lightning
-            -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>=2
-            if not buff.crashLightning.exists() and ((mode.rotation == 1 and crashedEnemies >= 2) or mode.rotation == 2) then
-                if cast.crashLightning() then return end
-            end
-        -- Windsong
-            -- windsong
-            if cast.windsong() then return end
-        -- Crash Lightning
-            -- crash_lightning,if=active_enemies>=8|(active_enemies>=6&talent.crashing_storm.enabled)
-            if ((mode.rotation == 1 and (crashedEnemies >= 8 or (crashedEnemies >= 6 and talent.crashingStorm))) or mode.rotation == 2) then
-                if cast.crashLightning() then return end
-            end
-        -- Rockbiter
-            -- rockbiter,if=buff.force_of_the_mountain.up&charges_fractional>1.7&active_enemies<=4
-            if buff.forceOfTheMountain.exists() and charges.rockbiter.frac() > 1.7 and ((mode.rotation == 1 and #enemies.yards10 <= 4) or mode.rotation == 3) then
-                if cast.rockbiter() then return end
-            end
-        -- Stormstrike/Windstrike
-            -- stormstrike,target_if=variable.stormTempests
-            if stormTempests then
-                if buff.ascendance.exists() then
-                    if cast.windstrike() then return end
-                else
-                    if cast.stormstrike() then return end
-                end
-            end
-        -- Stormstrike/Windstrike
-            -- stormstrike,if=buff.stormbringer.up&variable.furyCheck25
-            if buff.stormbringer.exists() and furyCheck25 then
-                if buff.ascendance.exists() then
-                    if cast.windstrike() then return end
-                else
-                    if cast.stormstrike() then return end
-                end
-            end
-        -- Lightning Bolt
-            -- lightning_bolt,if=variable.overcharge&debuff.exposed_elements.up
-            if overcharge and debuff.exposedElements.exists(units.dyn40) then
-                if cast.lightningBolt(units.dyn40) then return end
-            end
-        -- Crash Lightning
-            -- crash_lightning,if=active_enemies>=4|(active_enemies>=2&talent.crashing_storm.enabled)
-            if ((mode.rotation == 1 and (crashedEnemies >= 4 or (crashedEnemies >= 2 and talent.crashingStorm))) or mode.rotation == 2) then
-                if cast.crashLightning() then return end
-            end
-        -- Rockbiter
-            -- rockbiter,if=buff.force_of_the_mountain.up
-            if buff.forceOfTheMountain.exists() then
-                if cast.rockbiter() then return end
-            end
-        -- Lava Lash
-            -- lava_lash,if=buff.hot_hand.react&((variable.akainuEquipped&buff.frostbrand.up)|!variable.akainuEquipped)
-            if buff.hotHand.exists() and ((akainuEquiped and buff.frostbrand.exists()) or not akainuEquiped) then
-                if cast.lavaLash() then return end
-            end
-            -- lava_lash,if=(maelstrom>=50&variable.OCPool70&variable.furyCheck80&debuff.exposed_elements.up&debuff.lashing_flames.stack>90)
-            if power >= 50 and ocPool70 and furyCheck80 and debuff.exposedElements.exists(units.dyn5) and debuff.lashingFlames.stack(units.dyn5) > 90 then
-                if cast.lavaLash(units.dyn5) then return end
-            end
-        -- Lightning Bolt
-            -- lightning_bolt,if=variable.overcharge
-            if overcharge then
-                if cast.lightningBolt() then return end
-            end
-        -- Stormstrike/Windstrike
-            -- stormstrike,if=variable.furyCheck45&(variable.OCPool80|buff.doom_winds.up)
-            if furyCheck45 and (ocPool80 or buff.doomWinds.exists()) then
-                if buff.ascendance.exists() then
-                    if cast.windstrike() then return end
-                else
-                    if cast.stormstrike() then return end
-                end
-            end
-        -- Frostbrand
-            -- frostbrand,if=variable.akainuAS
-            if akainuAS then
-                if cast.frostbrand() then return end
             end
         -- Sundering
             -- sundering,if=active_enemies>=3
-            if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) and getDistance(units.dyn8) < 8 then
+            if cast.able.sundering() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn8) < 8 then
+                if cast.sundering() then return end
+            end
+        -- Stormstrike/Windstrike
+            -- stormstrike,if=buff.stormbringer.up|(buff.gathering_storms.up&variable.OCPool70&variable.furyCheck35)
+            if (cast.able.stormstrike() or cast.able.windstrike()) and (buff.stormbringer.exists() or (buff.gatheringStorms.exists() and ocPool70 and furyCheck35)) then
+                if buff.ascendance.exists() then
+                    if cast.windstrike() then return end
+                else
+                    if cast.stormstrike() then return end
+                end
+            end
+        -- Crash Lightning
+            -- crash_lightning,if=active_enemies>=3&variable.furyCheck25
+            if cast.able.crashLightning() and ((mode.rotation == 1 and crashedEnemies >= 2) or (mode.rotation == 2 and crashedEnemies > 0)) and furyCheck25 then
+                if cast.crashLightning() then return end
+            end
+        -- Lightning Bolt
+            -- lightning_bolt,if=talent.overcharge.enabled&active_enemies=1&variable.furyCheck45&maelstrom>=40
+            if cast.able.lightningBolt() and talent.overcharge and #enemies.yards10 == 1 and furyCheck45 and power >= 40 then
+                if cast.lightningBolt() then return end
+            end
+        -- Stormstrike
+            -- stormstrike,if=variable.OCPool70&variable.furyCheck35
+            if (cast.able.stormstrike() or cast.able.windstrike()) and ocPool70 and furyCheck35 then
+                if buff.ascendance.exists() then
+                    if cast.windstrike() then return end
+                else
+                    if cast.stormstrike() then return end
+                end
+            end
+        -- Sundering
+            -- sundering
+            if cast.able.sundering() and #enemies.yards8 > 0 and getDistance(units.dyn8) < 8 then
                 if cast.sundering() then return end
             end
         -- Crash Lightning
-            -- crash_lightning,if=active_enemies>=3|variable.LightningCrashNotUp|variable.alphaWolfCheck
-            if ((mode.rotation == 1 and (crashedEnemies >= 3 or noLightningCrash or alphaWolfCheck)) or mode.rotation == 2) then
+            -- crash_lightning,if=talent.forceful_winds.enabled&active_enemies>1&variable.furyCheck25
+            if cast.able.crashLightning() and talent.forcefulWinds and ((mode.rotation == 1 and crashedEnemies > 1) or (mode.rotation == 2 and crashedEnemies > 0)) and furyCheck25 then
+                if cast.crashLightning() then return end
+            end
+        -- Flametongue
+            -- flametongue,if=talent.searing_assault.enabled
+            if cast.able.flametongue() and talent.searingAssault then
+                if cast.flametongue() then return end
+            end
+        -- Lava Lash
+            -- lava_lash,if=buff.hot_hand.react
+            if cast.able.lavaLash() and buff.hotHand.exists() then
+                if cast.lavaLash() then return end
+            end
+        -- Crash Lightning
+            -- crash_lightning,if=active_enemies>1&variable.furyCheck25
+            if cast.able.crashLightning() and ((mode.rotation == 1 and crashedEnemies > 1) or (mode.rotation == 2 and crashedEnemies > 0)) and furyCheck25 then
                 if cast.crashLightning() then return end
             end
         end -- End Action List - Core
     -- Action List - Filler
         local function actionList_Filler()
         -- Rockbiter
-            -- rockbiter,if=maelstrom<120&charges_fractional>1.7
-            if power < 120 and charges.rockbiter.frac() > 1.7 then
+            -- rockbiter,if=maelstrom<70
+            if cast.able.rockbiter() and power < 70 then
                 if cast.rockbiter() then return end
             end
-        -- Flametongue
-            -- flametongue,if=buff.flametongue.remains<4.8
-            if buff.flametongue.remain() < 4.8 then
-                if cast.flametongue() then return end
-            end
         -- Crash Lightning
-            -- crash_lightning,if=(talent.crashing_storm.enabled|active_enemies>=2)&debuff.earthen_spike.up&maelstrom>=40&variable.OCPool60
-            if (talent.crashingStorm or ((mode.rotation == 1 and crashedEnemies >= 2) or mode.rotation == 2)) and debuff.earthenSpike.exists(units.dyn5) and power >= 40 and ocPool80 then
+            -- crash_lightning,if=talent.crashing_storm.enabled&variable.OCPool60
+            if cast.able.crashLightning() and talent.crashingStorm and crashedEnemies > 0 and ocPool60 then
                 if cast.crashLightning() then return end
             end
-        -- Frostbrand
-            -- frostbrand,if=talent.hailstorm.enabled&buff.frostbrand.remains<4.8&maelstrom>40
-            if talent.hailstorm and buff.frostbrand.remain() < 4.8 and power > 40 then
-                if cast.frostbrand() then return end
-            end
-            -- frostbrand,if=variable.akainuEquipped&!buff.frostbrand.up&maelstrom>=75
-            if akainuEquiped and not buff.frostbrand.exists() and power >= 75 then
-                if cast.frostbrand() then return end
-            end
-        -- Sundering
-            -- sundering
-            if cast.sundering() then return end
         -- Lava Lash
-            -- lava_lash,if=maelstrom>=50&variable.OCPool100&variable.furyCheck70
-            if power >= 50 and ocPool100 and furyCheck70 then
+            -- lava_lash,if=variable.OCPool80&variable.furyCheck45
+            if cast.able.lavaLash() and ocPool80 and furyCheck45 then
                 if cast.lavaLash() then return end
             end
         -- Rockbiter
             -- rockbiter
-            if cast.rockbiter() then return end
-        -- Crash Lightning
-            -- crash_lightning,if=(maelstrom>=45|talent.crashing_storm.enabled|active_enemies>=2)&variable.OCPool80
-            if ((mode.rotation == 1 and (power >= 45 or talent.crashingStorm or crashedEnemies >= 2)) or (mode.rotation == 2 and (power >= 45 or talent.crashingStorm))) and ocPool80 then
-                if cast.crashLightning() then return end
+            if cast.able.rockbiter() then
+                if cast.rockbiter() then return end
             end
         -- Flametongue
             -- flametongue
-            if cast.flametongue() then return end
+            if cast.able.flametongue() then
+                if cast.flametongue() then return end
+            end
         end -- End Action List - Filler
     -- Action List - Opener
         local function actionList_Opener()
@@ -718,7 +648,9 @@ local function runRotation()
                 end
             -- Lightning Shield
                 -- /lightning_shield
-                if cast.lightningShield() then return end
+                if cast.able.lightningShield() and not buff.lightningShield.exists() then
+                    if cast.lightningShield() then return end
+                end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
             -- Potion
                     -- potion,name=prolonged_power,if=feral_spirit.remain()s>5
@@ -773,7 +705,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and isValidUnit(units.dyn10) and profileStop==false then
+            if inCombat and isValidUnit(units.dyn20) and profileStop==false then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -852,7 +784,7 @@ local function runRotation()
                     if talent.hailstorm and buff.frostbrand.refresh() then
                         if cast.frostbrand() then return end
                     end
-            -- Windstike
+            -- Windstrike
                     if cast.windstrike() then return end
             -- Stormstrike
                     if cast.stormstrike() then return end

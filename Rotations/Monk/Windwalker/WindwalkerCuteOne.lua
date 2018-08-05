@@ -549,6 +549,11 @@ local function runRotation()
             end
         end
 
+        -- Rushing Jade Wind - Cancel
+        if cast.able.rushingJadeWind("player") and not inCombat and buff.rushingJadeWind.exists() then
+            if cast.rushingJadeWind("player") then return true end
+        end
+
         -- Spread the Mark of the Crane
         local function spreadMark()
             local markUnit = units.dyn5

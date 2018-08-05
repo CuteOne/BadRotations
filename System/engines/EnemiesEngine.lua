@@ -25,7 +25,7 @@ function cacheOM()
 			local thisUnit = GetObjectWithIndex(i)
 			local distance = getDistance(thisUnit)
 			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
-				if ((ObjectIsUnit(thisUnit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492)  then
+				if ((ObjectIsUnit(thisUnit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492 or GetObjectID(thisUnit) == 133525)  then
 					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
 					br.om[thisUnit]	= thisUnit
 				end
@@ -109,7 +109,7 @@ local function AddPet(thisUnit)
 		if br.player.pet == nil then br.player.pet = {} end
 		if br.player.pet.list == nil then br.player.pet.list = {} end
 		local unitCreator = UnitCreator(thisUnit)
-		if (unitCreator == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492) and br.player.pet.list[thisUnit] == nil then
+		if (unitCreator == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492 or GetObjectID(thisUnit) == 133525) and br.player.pet.list[thisUnit] == nil then
 			if not isCritter(GetObjectID(thisUnit)) then
 				br.player.pet.list[thisUnit] = {}
 				local pet 		= br.player.pet.list[thisUnit]
