@@ -502,7 +502,7 @@ local function runRotation()
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if useCDs() and debuff.agony.count() > 0 and debuff.corruption.count() > 0 and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or cd.phantomSingularity.remain() > 0) then
+          if useCDs() and debuff.agony.count() > 0 and debuff.corruption.count() > 0 and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return end
           end
           -- actions+=/agony,cycle_targets=1,if=remains<=gcd
