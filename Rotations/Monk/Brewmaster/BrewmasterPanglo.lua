@@ -35,6 +35,8 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+		-- Let Rotation Deal with Purifying (SIMC)
+			br.ui:createCheckbox(section,"Auto Purify")
         -- Stagger dmg % to purify
             br.ui:createSpinner(section, "Stagger dmg % to purify",  150,  0,  300,  10,  "Stagger dmg % to purify")
         -- Trinkets
@@ -271,7 +273,13 @@ local function runRotation()
 			--- Black out Combo Rotation ---
 			--------------------------------
 			if talent.blackoutCombo then 
-    -- Purifying Brew
+    -- Purifying Brew actions+=/purifying_brew,if=stagger.heavy|(stagger.moderate&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-0.5&buff.ironskin_brew.remains>=buff.ironskin_brew.duration*2.5)
+				if isChecked("Auto Purify") then
+					if debuff.heavyStagger.exists("player") or (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
+						(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5))) then
+							if cast.purifyingBrew() then return end
+						end
+                end
                 if isChecked("Stagger dmg % to purify") then
                     if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
@@ -322,6 +330,14 @@ local function runRotation()
 			-- High Tolerance / Guard Rotation --
 			-------------------------------------
 			if not talent.blackoutCombo then
+-- Purifying Brew actions+=/purifying_brew,if=stagger.heavy|(stagger.moderate&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-0.5&buff.ironskin_brew.remains>=buff.ironskin_brew.duration*2.5)
+				if isChecked("Auto Purify") then
+					if debuff.heavyStagger.exists() or ((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
+						(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5)) then
+							if cast.purifyingBrew() then return end
+						end
+                end
+
 			      if isChecked("Stagger dmg % to purify") then
                     if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
