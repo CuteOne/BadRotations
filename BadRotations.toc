@@ -220,6 +220,7 @@ Rotations\Shaman\Restoration\RestorationSvs.lua
 ## Warlock ---------------------------------------------------
 
 Rotations\Warlock\Affliction\AfflictionCuteOne.lua
+Rotations\Warlock\Affliction\AfflictionFiskee.lua
 
 Rotations\Warlock\Demonology\DemonologyCuteOne.lua
 
