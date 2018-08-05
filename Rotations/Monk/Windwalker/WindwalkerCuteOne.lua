@@ -91,8 +91,9 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-        -- SEF Timer
+        -- SEF Timer/Behavior
             br.ui:createSpinnerWithout(section, "SEF Timer",  0.3,  0,  1,  0.05,  "|cffFFFFFFDesired time in seconds to resume rotation after casting SEF so clones can get into place. This value changes based on different factors so requires some testing to find what works best for you.")
+            br.ui:createDropdownWithout(section, "SEF Behavior", {"|cff00FF00Fixate","|cffFFFF00Go Ham!"}, 1, "|cffFFFFFFStorm, Earth, and Fire Behavior.")
         -- Flask / Crystal
             br.ui:createCheckbox(section,"Flask / Crystal")
         -- Potion
@@ -642,9 +643,9 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            -- if isDummy("target") then
-            --     if cast.stormEarthAndFireFixate() then return true end
-            -- end
+            if getOptionValue("SEF Behavior") == 1 then
+                if cast.stormEarthAndFireFixate() then return true end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
