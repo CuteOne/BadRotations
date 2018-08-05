@@ -2394,6 +2394,7 @@ br.lists.spells = {
                     trueBearing             = 193359,
                 },
                 sharkInfestedWaters         = 193357,
+                skullAndCrossbones			= 199603,
                 sliceAndDice                = 5171,
                 stealth                     = 1784,
                 swordplay                   = 211669,
