@@ -944,6 +944,7 @@ br.lists.spells = {
             abilities                       = {
                 aMurderOfCrows              = 131894,
                 aspectOfTheWild             = 193530,
+                barbedShot                  = 217200,
                 barrage                     = 120360,
                 bestialWrath                = 19574,
                 bindingShot                 = 109248,
@@ -952,12 +953,12 @@ br.lists.spells = {
                 concussiveShot              = 5116,
                 counterShot                 = 147362,
                 direBeast                   = 120679,
-                direFrenzy                  = 217200,
                 disengage                   = 781,
                 intimidation                = 19577,
                 killCommand                 = 34026,
                 misdirection                = 34477,
                 multiShot                   = 2643,
+                spittingCobra               = 194407,
                 stampede                    = 201430,
                 titansThunder               = 207068,
                 volley                      = 194386
@@ -970,8 +971,9 @@ br.lists.spells = {
                 beastCleave                 = 118455,
                 bestialWrath                = 19574,
                 direBeast                   = 120694,
-                direFrenzy                  = 217200,
+                frenzy                      = 272790,
                 parselsTongue               = 248084,
+                spittingCobra               = 194407,
                 volley                      = 194386
             },
             debuffs                         = {
@@ -982,12 +984,14 @@ br.lists.spells = {
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
+                aspectOfTheBeast            = 191384,
                 barrage                     = 120360,
                 chimaeraShot                = 53209,
+                direBeast                   = 120679,
                 direFrenzy                  = 217200,
                 intimidation                = 19577,
+                spittingCobra               = 194407,
                 volley                      = 194386,
-		aspectOfTheBeast            = 191384,
             },
         },
         -- Marksmanship

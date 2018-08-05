@@ -100,6 +100,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Stampede")
         -- A Murder of Crows / Barrage
             br.ui:createCheckbox(section,"A Murder Of Crows / Barrage")
+            -- Spitting Cobra
+            br.ui:createCheckbox(section,"Spitting Cobra")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -481,28 +483,22 @@ local function runRotation()
                     useItem(142117);
                     return true
                 end
-            -- A Murder of Crows
-                -- a_murder_of_crows,if=cooldown.bestial_wrath.remains<3|target.time_to_die<16
-                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30 or ttd(units.dyn40) < 16) then
+                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30) then
                     if cast.aMurderOfCrows() then return end
                 end
-            -- Stampede
-                -- stampede,if=buff.bloodlust.up|buff.bestial_wrath.up|cooldown.bestial_wrath.remains<=2|target.time_to_die<=14
-                if isChecked("Stampede") and (hasBloodLust() or buff.bestialWrath.exists() or cd.bestialWrath.remain() <= 2 or ttd(units.dyn40) <= 14) then
+                --actions+=/spitting_cobra
+                if isChecked("Spitting Cobra") and talent.spittingCobra then
+                    if cast.spittingCobra() then return end
+                end
+                --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
+                if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-            -- Bestial Wrath
-                -- bestial_wrath,if=!buff.bestial_wrath.up
-                if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
-                    if cast.bestialWrath() then return end
-                end
-            -- Aspect of the Wild
-                -- aspect_of_the_wild,if=(equipped.call_of_the_wild&equipped.convergence_of_fates&talent.one_with_the_pack.enabled)|buff.bestial_wrath.remains>7|target.time_to_die<12
-                if isChecked("Aspect of the Wild") and ((hasEquiped(137101) and hasEquiped(140806) and talent.oneWithThePack)
-                    or buff.bestialWrath.remain() > 7 or ttd(units.dyn40) < 12)
-                then
+                -- actions+=/aspect_of_the_wild
+                if isChecked("Aspect of the Wild") then
                     if cast.aspectOfTheWild() then return end
                 end
+
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
     -- Action List - Opener
@@ -638,80 +634,55 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
-            -- Volley
-                    -- volley,toggle=on
-                    if talent.volley and not buff.volley.exists() then
-                        if cast.volley() then return end
+                    --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
+                    if buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax then
+                        if cast.barbedShot() then return end
                     end
-            -- Cooldowns
+                    --actions+=/a_murder_of_crows
+                    if isChecked("A Murder Of Crows / Barrage") and ttd(units.dyn40) < 16 then
+                        if cast.aMurderOfCrows() then return end
+                    end
+                    --Cooldowns
                     if actionList_Cooldowns() then return end
-            -- Kill Command
-                    -- kill_command,target_if=min:bestial_ferocity.remains,if=equipped.qapla_eredun_war_order
-                    if hasEquiped(137227) then
-                        if cast.killCommand(lowestUnit) then return end
+                    -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
+                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                        if cast.bestialWrath() then return end
                     end
-            -- Dire Beast
-                    -- dire_beast,if=((!equipped.qapla_eredun_war_order|cooldown.kill_command.remains>=1)&(set_bonus.tier19_2pc|!buff.bestial_wrath.up))|full_recharge_time<gcd.max|cooldown.titans_thunder.up|spell_targets>1
-                    if not talent.direFrenzy and (((not hasEquiped(137227) or cd.killCommand.remain() >= 1) and (tier19_2pc or not buff.bestialWrath.exists()))
-                        or charges.direBeast.timeTillFull() < gcdMax or not cd.titansThunder.exists() or #enemies.yards40 > 1)
-                    then
-                        if cast.direBeast() then return end
-                    end
-            -- Dire Frenzy
-                    -- dire_frenzy,if=(pet.cat.buff.dire_frenzy.remains<=gcd.max*1.2)|full_recharge_time<gcd.max|target.time_to_die<9
-                    if talent.direFrenzy and ((buff.direFrenzy.remain("pet") <= gcdMax * 1.2) or charges.direFrenzy.timeTillFull() < gcdMax or ttd(units.dyn40) < 9) then
-                        if cast.direFrenzy() then return end
-                    end
-            -- Barrage
-                    -- barrage,if=spell_targets.barrage>1
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8pet >= getOptionValue("Units To AoE") then
-                        if cast.barrage() then return end
-                    end
-            -- Titan's Thunder
-                    -- titans_thunder,if=(talent.dire_frenzy.enabled&(buff.bestial_wrath.up|cooldown.bestial_wrath.remains>35))|buff.bestial_wrath.up
-                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                        if (talent.direFrenzy and (buff.bestialWrath.exists() or cd.bestialWrath.remain() > 35))
-                            or buff.bestialWrath.exists() or (getOptionValue("Artifact") == 1 and not useCDs())
-                        then
-                            if cast.titansThunder() then return end
-                        end
-                    end
-            -- Multishot
-                    -- multishot,if=spell_targets>4&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 4) or mode.rotation == 2)
+                    -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
+                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 2) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
-            -- Kill Command
-                    -- kill_command
-                    if level >= 10 then
-                        if cast.killCommand() then return end
+                    -- actions+=/chimaera_shot
+                    if talent.chimaeraShot then
+                        if cast.chimaeraShot() then return end
                     end
-            -- Multishot
-                    -- multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
+                    -- actions+=/kill_command
+                    if cast.killCommand() then return end
+                    -- actions+=/dire_beast
+                    if talent.direBeast then
+                        if cast.direBeast() then return end
+                    end
+                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.4|full_recharge_time<gcd.max|target.time_to_die<9
+                    if (not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.4) or charges.barbedShot.timeTillFull() < gcdMax or ttd(units.dyn40) < 9 then
+                        if cast.barbedShot() then return end
+                    end
+                    -- actions+=/barrage
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8pet >= 1 then
+                        if cast.barrage() then return end
+                    end
+                    -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
-            -- Chimaera Shot
-                    -- chimaera_shot,if=focus<90
-                    if talent.chimaeraShot and power < 90 then
-                        if cast.chimaeraShot() then return end
-                    end
-            -- Cobra Shot
-                    -- cobra_shot,if=(cooldown.kill_command.remains>focus.time_to_max&cooldown.bestial_wrath.remains>focus.time_to_max)|(buff.bestial_wrath.up&(spell_targets.multishot=1|focus.regen*cooldown.kill_command.remains>action.kill_command.cost))|target.time_to_die<cooldown.kill_command.remains|(equipped.parsels_tongue&buff.parsels_tongue.remains<=gcd.max*2)
-                    if (cd.killCommand.remain() > ttm and cd.bestialWrath.remain() > ttm)
-                        or (buff.bestialWrath.exists() and ((mode.rotation == 1 and (#enemies.yards8pet == 1 or powerRegen * cd.killCommand.remain() > cast.cost.killCommand())) or mode.rotation == 3))
-                        or ttd(units.dyn40) < cd.killCommand.remain() or (hasEquiped(151805) and buff.parselsTongue.remain() <= gcdMax * 2)
+                    -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
+                    if (#enemies.yards8pet < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8pet > 1) or
+                        (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
                     then
                         if cast.cobraShot() then return end
-                    end
-            -- Dire Beast
-                    -- dire_beast,if=buff.bestial_wrath.up
-                    if not talent.direFrenzy and (buff.bestialWrath.exists() or level < 40) then
-                        if cast.direBeast() then return end
                     end
                 end -- End SimC APL
 			end --End In Combat
