@@ -102,11 +102,11 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         -- Energizing Elixir
-            br.ui:createDropdown(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
+            br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Serenity
-            br.ui:createCheckbox(section,"Serenity")
+            br.ui:createDropdownWithout(section,"Serenity", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Serenity.")
         -- Touch of Death
             br.ui:createCheckbox(section,"Touch of Death")
         -- Xuen
@@ -833,8 +833,11 @@ local function runRotation()
                             end
         -- Storm, Earth, and Fire
                         elseif ToD and not SEF then
-                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) then
+                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
                                 castOpener("stormEarthAndFire","SEF",5)
+                            else
+                                castOpener("5: Storm, Earth, and Fire (Uncastable)");
+                                SEF = true
                             end
         -- Rising Sun Kick
                         elseif SEF and not RSK1 then
@@ -844,7 +847,12 @@ local function runRotation()
                             castOpener("fistOfTheWhiteTiger","SotW",7)
         -- Energizing Elixir
                         elseif SotW and not EE then
-                            castOpener("energizingElixir","EE",8)
+                            if getOptionValue("Energizing Elixir") ~= 3 then
+                                castOpener("energizingElixir","EE",8)
+                            else
+                                Print("8: Energizing Elixir (Uncastable)");
+                                EE = true
+                            end
         -- Fists of Fury
                         elseif EE and not FoF1 then
                             castOpener("fistsOfFury","FoF1",9)
@@ -890,24 +898,29 @@ local function runRotation()
                                 ToD = true
                             end
         -- Serenity
-                        elseif ToD and not SER and GetTime() >= SerenityTest + 0.7 then
-                            castOpener("serenity","SER",4)
+                        elseif ToD and not SER then
+                            if GetTime() >= SerenityTest + 0.7 and getOptionValue("Serenity") ~= 3 then
+                                castOpener("serenity","SER",4)
+                            else
+                                Print("4: Serenity (Uncastable)");
+                                SER = true
+                            end
         -- Rising Sun Kick
                         elseif SER and not RSK1 then
-                            --if buff.serenity.exists() then
+                            if buff.serenity.exists() then
                                 castOpener("risingSunKick","RSK1",5)
-                            --[[else
+                            else
                                 Print("5: Rising Sun Kick 1 (Uncastable)");
                                 RSK1 = true
-                            end]]
+                            end
         -- Fist of the White Tiger
                         elseif RSK1 and not SotW and getDistance(units.dyn5) < 5 then
-                            --if buff.serenity.exists() then
+                            if buff.serenity.exists() then
                                 castOpener("fistOfTheWhiteTiger","SotW",6)
-                            --[[else
+                            else
                                 Print("6: Strike of the Windlord (Uncastable)");
                                 SotW = true
-                            end]]
+                            end
         -- Fists of Fury
                         elseif SotW and not FoF1 then
                             if buff.serenity.exists() then
@@ -919,12 +932,12 @@ local function runRotation()
                             end
         -- Rising Sun Kick
                         elseif FoF1 and not RSK2 and GetTime() >= FoFTimerOpener + 0.2 then
-                            --if buff.serenity.exists() then
+                            if buff.serenity.exists() then
                                 castOpener("risingSunKick","RSK2",8)
-                            --[[else
+                            else
                                 Print("8: Rising Sun Kick 2 (Uncastable)");
                                 RSK2 = true
-                            end]]
+                            end
         -- Spinning Crane Kick
                         elseif RSK2 and not SCK then
                             if buff.serenity.exists() then
@@ -961,7 +974,9 @@ local function runRotation()
             if actionList_Cooldown() then return true end
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-            if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd) then
+            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs()))
+                and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd)
+            then
                 if cast.stormEarthAndFire() then return end
             end
         -- Rushing Jade Wind
@@ -972,7 +987,7 @@ local function runRotation()
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs()))
-                and lastCast ~= spell.tigerPalm() and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4
+                and lastCast ~= spell.tigerPalm and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4
             then
                 if cast.energizingElixir() then TPEETimer = GetTime(); return true end
             end
@@ -1001,14 +1016,14 @@ local function runRotation()
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=((chi>=3&energy>=40)|chi>=5)&(talent.serenity.enabled|cooldown.serenity.remains>=6)
             if cast.able.risingSunKick(lowestMark) and ((chi >= 3 and power >= 40) or chi >= 5)
-                and (talent.serenity or cd.serenity.remain() >= 6 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs()))
+                and (talent.serenity or cd.serenity.remain() >= 6 or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())))
             then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Fists of Fury
             -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&energy.time_to_max>2
             if cast.able.fistsOfFury() and talent.serenity and not equiped.drinkingHornCover()
-                and (cd.serenity.remain() >= 5 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) and ttm > 2
+                and (cd.serenity.remain() >= 5 or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) and ttm > 2
             then
                 if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
@@ -1022,7 +1037,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>=5|(!talent.serenity.enabled)
-            if cast.able.risingSunKick(lowestMark) and (cd.serenity.remain() >= 5 or not talent.serenity or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) then
+            if cast.able.risingSunKick(lowestMark) and (cd.serenity.remain() >= 5 or not talent.serenity or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Blackout Kick
@@ -1083,7 +1098,7 @@ local function runRotation()
         -- Fists of Fury
             -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&energy.time_to_max>2
             if cast.able.fistsOfFury() and talent.serenity and not equiped.drinkingHornCover()
-                and (cd.serenity.remain() >= 5 or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) and ttm > 2
+                and (cd.serenity.remain() >= 5 or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) and ttm > 2
             then
                 if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
@@ -1210,77 +1225,75 @@ local function runRotation()
         end -- End SEF - Action List
     -- Action List - Serenity
         function actionList_Serenity()
-            if isChecked("Serenity") then
         -- Fist of the White Tiger
-                -- fist_of_the_white_tiger,if=buff.bloodlust.up&!buff.serenity.up
-                if cast.able.fistOfTheWhiteTiger() and hasBloodLust() and not buff.serenity.exists() then
-                    if cast.fistOfTheWhiteTiger() then return true end
-                end
+            -- fist_of_the_white_tiger,if=buff.bloodlust.up&!buff.serenity.up
+            if cast.able.fistOfTheWhiteTiger() and hasBloodLust() and not buff.serenity.exists() then
+                if cast.fistOfTheWhiteTiger() then return true end
+            end
         -- Tiger Palm
-                -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
-                if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and not buff.serenity.exists() and GetTime() >= TPEETimer + 0.2 then
-                    if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
-                end
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
+            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and not buff.serenity.exists() and GetTime() >= TPEETimer + 0.2 then
+                if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+            end
         -- Call Action List - Cooldowns
-                -- call_action_list,name=cd
-                if actionList_Cooldown() then return true end
+            -- call_action_list,name=cd
+            if actionList_Cooldown() then return true end
         -- Rushing Jade Wind
-                -- rushing_jade_wind,if=talent.rushing_jade_wind.enabled&!prev_gcd.1.rushing_jade_wind&buff.rushing_jade_wind.down
-                if cast.able.rushingJadeWind() and talent.rushingJadeWind and lastCast ~= spell.rushingJadeWind and not buff.rushingJadeWind.exists() then
-                    if cast.rushingJadeWind() then return true end
-                end
+            -- rushing_jade_wind,if=talent.rushing_jade_wind.enabled&!prev_gcd.1.rushing_jade_wind&buff.rushing_jade_wind.down
+            if cast.able.rushingJadeWind() and talent.rushingJadeWind and lastCast ~= spell.rushingJadeWind and not buff.rushingJadeWind.exists() then
+                if cast.rushingJadeWind() then return true end
+            end
         -- Serenity
-                -- serenity
-                if cast.able.serenity() and getDistance("target") < 5 and GetTime() >= SerenityTest + gcd then
-                    if cast.serenity() then SerenityTest = GetTime(); return true end
-                end
-                if buff.serenity.exists() then
+            -- serenity
+            if cast.able.serenity() and (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs()))
+                and getDistance("target") < 5 and GetTime() >= SerenityTest + gcd
+            then
+                if cast.serenity() then SerenityTest = GetTime(); return true end
+            end
         -- Rising Sun Kick
-                    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-                    if cast.able.risingSunKick(lowestMark) then
-                        if cast.risingSunKick(lowestMark) then return true end
-                    end
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
+                if cast.risingSunKick(lowestMark) then return true end
+            end
         -- Fists of Fury
-                    -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
-                    if cast.able.fistsOfFury() and lastCast == spell.risingSunKick and lastCast2 == spell.serenity then
-                        if cast.fistsOfFury() then return true end
-                    end
+            -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
+            if cast.able.fistsOfFury() and lastCast == spell.risingSunKick and lastCast2 == spell.serenity then
+                if cast.fistsOfFury() then return true end
+            end
         -- Rising Sun Kick
-                    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-                    if cast.able.risingSunKick(lowestMark) then
-                        if cast.risingSunKick(lowestMark) then return true end
-                    end
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
+                if cast.risingSunKick(lowestMark) then return true end
+            end
         -- Blackout Kick
-                    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
-                    if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2 then
-                        if cast.blackoutKick(lowestMark) then return end
-                    end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
+            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2 then
+                if cast.blackoutKick(lowestMark) then return end
+            end
         -- Fists of Fury
-                    -- fists_of_fury,if=((!equipped.drinking_horn_cover|buff.bloodlust.up|buff.serenity.remains<1)&(cooldown.rising_sun_kick.remains>1|active_enemies>1)),interrupt=1
-                    if cast.able.fistsOfFury() and ((not equiped.drinkingHornCover() or hasBloodLust() or buff.serenity.remain() < 1) and (cd.risingSunKick.remain() > 1 or #enemies.yards8 > 1)) then
-                        if cast.fistsOfFury(nil,"cone",1,45) then return true end
-                    end
+            -- fists_of_fury,if=((!equipped.drinking_horn_cover|buff.bloodlust.up|buff.serenity.remains<1)&(cooldown.rising_sun_kick.remains>1|active_enemies>1)),interrupt=1
+            if cast.able.fistsOfFury() and ((not equiped.drinkingHornCover() or hasBloodLust() or buff.serenity.remain() < 1) and (cd.risingSunKick.remain() > 1 or #enemies.yards8 > 1)) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return true end
+            end
         -- Spinning Crane Kick
-                    -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-                    if cast.able.spinningCraneKick() and #enemies.yards8 >= 3 and lastCast ~= spell.spinningCraneKick then
-                        if cast.spinningCraneKick(nil,"aoe") then return true end
-                    end
+            -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
+            if cast.able.spinningCraneKick() and #enemies.yards8 >= 3 and lastCast ~= spell.spinningCraneKick then
+                if cast.spinningCraneKick(nil,"aoe") then return true end
+            end
         -- Rising Sun Kick
-                    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies>=3
-                    if cast.able.risingSunKick(lowestMark) and #enemies.yards5 >= 3 then
-                        if cast.risingSunKick(lowestMark) then return true end
-                    end
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies>=3
+            if cast.able.risingSunKick(lowestMark) and #enemies.yards5 >= 3 then
+                if cast.risingSunKick(lowestMark) then return true end
+            end
         -- Spinning Crane Kick
-                    --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
-                    if cast.able.spinningCraneKick() and lastCast ~= spell.spinningCraneKick then
-                        if cast.spinningCraneKick(nil,"aoe") then return true end
-                    end
+            --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
+            if cast.able.spinningCraneKick() and lastCast ~= spell.spinningCraneKick then
+                if cast.spinningCraneKick(nil,"aoe") then return true end
+            end
         -- Blackout Kick
-                -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
-                    if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick then
-                        if cast.blackoutKick(lowestMark) then return true end
-                    end
-                end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
+            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick then
+                if cast.blackoutKick(lowestMark) then return true end
             end
         end
     -- Action List - Pre-Combat
@@ -1385,11 +1398,11 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then -- --[[and cd.global.remain() <= getLatency()]] and GetTime() >= SEFTimer + getOptionValue("SEF Timer") then
         -- Touch of Karma
                     -- touch_of_karma,interval=90,pct_health=0.5,if=!talent.Good_Karma.enabled,interval=90,pct_health=0.5
-                    if isChecked("Touch of Karma") and cast.able.touchOfKarma() and (not talent.goodKarma and php < 50) then
+                    if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and (not talent.goodKarma and php < 50) then
                         if cast.touchOfKarma() then return true end
                     end
                     -- touch_of_karma,interval=90,pct_health=1.0
-                    if isChecked("Touch of Karma") and cast.able.touchOfKarma() and php >= 100 then
+                    if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and php >= 100 then
                         if cast.touchOfKarma() then return true end
                     end
         -- Potion
@@ -1411,7 +1424,9 @@ local function runRotation()
                     end
         -- Call Action List - Serenity
                     -- call_action_list,name=serenity,if=(talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up
-                    if useCDs() and isChecked("Serenity") and ((talent.serenity and cd.serenity.remain() <= 0) or buff.serenity.exists()) then
+                    if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs()))
+                        and ((talent.serenity and cd.serenity.remain() <= 0) or buff.serenity.exists())
+                    then
                         if actionList_Serenity() then return true end
                     end
         -- Call Action List - Storm, Earth, and Fire
@@ -1497,7 +1512,7 @@ local function runRotation()
                         end
         -- Serenity
                         -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5
-                        if isChecked("Serenity") then
+                        if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) then
                             if cd.fistsOfFury.remain() < 6 and cd.strikeOfTheWindlord.remain() < 5 and cd.whirlingDragonPunch.remain() < 5 then
                                 if cast.serenity() then return true end
                             end
@@ -1536,9 +1551,9 @@ local function runRotation()
                     if isChecked("Whirling Dragon Punch") and getDistance(units.dyn5) < 5 and lastCombo ~= spell.whirlingDragonPunch then
                         if cast.whirlingDragonPunch() then return true end
                     end
-        -- Strike of the Windlord
-                    if (((talent.serenity and cd.serenity.remain() > 20) or not isChecked("Serenity") or (isChecked("Serenity") and not useCDs())) or not talent.serenity) and getDistance(units.dyn5) < 5 and lastCombo ~= spell.strikeOfTheWindlord and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs()) then
-                        if cast.strikeOfTheWindlord() then return true end
+        -- Fist of the White Tiger
+                    if ((talent.serenity and cd.serenity.remain() > 20) or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())) or not talent.serenity) and getDistance(units.dyn5) < 5 then
+                        if cast.fistOfTheWhiteTiger() then return true end
                     end
         -- Tiger Palm
                     -- if not WasLastCast(TigerPalm) and AlternatePower < 4 and Power > (MaxPower*0.9)
