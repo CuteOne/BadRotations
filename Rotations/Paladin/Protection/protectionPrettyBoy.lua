@@ -226,16 +226,7 @@ local function runRotation()
 	enemies.yards30 = br.player.enemies(30)
 	
 	if profileStop == nil then profileStop = false end
-	judgmentExists = debuff.judgment.exists(units.dyn5)
-	judgmentRemain = debuff.judgment.remain(units.dyn5)
-	if debuff.judgment.exists(units.dyn5) or level < 42 or (cd.judgment.remain() > 2 and not debuff.judgment.exists(units.dyn5)) then
-		judgmentVar = true
-	else
-		judgmentVar = false
-	end
 	
-	local greaterBuff
-	greaterBuff = 0
 	local lowestUnit
 	lowestUnit = "player"
 	for i = 1, #br.friend do
@@ -703,28 +694,30 @@ local function runRotation()
 			if not IsMounted() or buff.divineSteed.exists() then
 				if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
 					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and (charges.shieldOfTheRighteous.frac() > 2.5) then
+					if isChecked("Shield of the Righteous") and (charges.shieldOfTheRighteous.frac() > 2.5) and buff.avengersValor.exists() and getDistance(units.dyn5) <= 5 then
 						if cast.shieldOfTheRighteous() then return end
 					end
-					-- Judgment
-					if isChecked("Judgment") then
-						if cast.judgment(units.dyn30) then return end
-					end
-					-- Avenger's Shield
-					if isChecked("Avenger's Shield") then
-						if cast.avengersShield(units.dyn30) then return end
+					if getDistance(units.dyn30) < 30 and getFacing("player",units.dyn30) then
+						-- Judgment
+						if isChecked("Judgment") then
+							if cast.judgment() then return end
+						end
+						-- Avenger's Shield
+						if isChecked("Avenger's Shield") then
+							if cast.avengersShield() then return end
+						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and not isMoving("player") and #enemies.yards10 >= 1 and not buff.consecration.exists() then
+					if isChecked("Consecration") and not isMoving("player") and not buff.consecration.exists() then
 						if cast.consecration() then return end
 					end
 					-- Blessed Hammer
-					if isChecked("Blessed Hammer") and talent.blessedHammer and #enemies.yards10 >= 1 then
+					if isChecked("Blessed Hammer") and talent.blessedHammer and getDistance(units.dyn5) < 5 then
 						if cast.blessedHammer() then return end
 					end
 					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and not talent.blessedHammer then
-						if cast.hammerOfTheRighteous(units.dyn5) then return end
+					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getDistance(units.dyn5) < 5 and getFacing("player",units.dyn5) then
+						if cast.hammerOfTheRighteous() then return end
 					end
 				end
 			end
