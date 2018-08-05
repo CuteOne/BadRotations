@@ -6,7 +6,7 @@ local rotationName = "Vilt"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation", highlight = 1, icon = br.player.spell.runThrough},
+        [1] = { mode = "On", value = 1 , overlay = "DPS Rotation Enabled", tip = "Enable DPS Rotation", highlight = 1, icon = br.player.spell.dispatch},
         [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.crimsonVial}
     };
     CreateButton("Rotation",1,0)
