@@ -15,7 +15,7 @@ function TTDRefresh()
 	local ttd = enemyTable.ttd
 	local dps = enemyTable.dps
 	local health = enemyTable.health
- 
+
 	for k, v in pairs(br.enemy) do
 		local object = br.enemy[k].unit
 		if not units[object] then
