@@ -293,7 +293,8 @@ local function runRotation()
 				
                 -- Ironskin Brew
 				local ironskinBrewDuration = 7
-                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
+                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max() - 1 - ((1 + (buff.ironskinBrew.remain() <= ironskinBrewDuration and 0.5 or 0))))
+				and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
                     if cast.ironskinBrew() then return end
                 end
 			-- Chi Wave 
