@@ -1765,8 +1765,6 @@ br.lists.spells = {
                 beaconOfTheLightBringer     = 197446;
                 beaconOfVirtue              = 200025;
 
-
-
             },
         },
         -- Protection
@@ -1783,7 +1781,6 @@ br.lists.spells = {
                 cleanseToxins               = 213644,
                 consecration                = 26573,
                 divineSteed                 = 190784,
-                eyeOfTyr                    = 209202,
                 guardianOfAncientKings      = 86659,
                 hammerOfTheRighteous        = 53595,
                 handOfTheProtector          = 213652,
@@ -1792,7 +1789,6 @@ br.lists.spells = {
                 shieldOfTheRighteous        = 53600,
             },
             artifacts                       = {
-                eyeOfTyr                    = 209202,
 
             },
             buffs                           = {
@@ -1804,10 +1800,9 @@ br.lists.spells = {
                 guardianOfAncientKings      = 86659,
                 seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
-
+                avengersValor               = 197561,
             },
             debuffs                         = {
-                eyeOfTyr                    = 209202,
                 blessedHammer               = 204301,
             },
             glyphs                          = {
