@@ -1,8 +1,8 @@
 function castInterrupt(SpellID,Percent,Unit)
 	if Unit == nil then Unit = "target" end
 	if GetObjectExists(Unit) then
-		local castName, _, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
-		local channelName, _, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
+		local castName, _, _, castStartTime, castEndTime, _, _, castInterruptable = UnitCastingInfo(Unit)
+		local channelName, _, _, channelStartTime, channelEndTime, _, channelInterruptable = UnitChannelInfo(Unit)
 		-- first make sure we will be able to cast the spellID
 		if canCast(SpellID,false,false) == true then
 			-- make sure we cover melee range
@@ -67,15 +67,15 @@ function canInterrupt(unit,percentint)
 		and not UnitIsDeadOrGhost(unit)
 	then
 		-- Get Cast/Channel Info
-		if select(6,UnitCastingInfo(unit)) and not select(9,UnitCastingInfo(unit)) then --Get spell cast time
-			castStartTime = select(5,UnitCastingInfo(unit))
-			castEndTime = select(6,UnitCastingInfo(unit))
-			interruptID = select(10,UnitCastingInfo(unit))
+		if select(5,UnitCastingInfo(unit)) and not select(8,UnitCastingInfo(unit)) then --Get spell cast time
+			castStartTime = select(4,UnitCastingInfo(unit))
+			castEndTime = select(5,UnitCastingInfo(unit))
+			interruptID = select(9,UnitCastingInfo(unit))
 			interruptable = true
 			castType = "spellcast"
-		elseif select(6,UnitChannelInfo(unit)) and not select(8,UnitChannelInfo(unit)) then -- Get spell channel time
-			castStartTime = select(5,UnitChannelInfo(unit))
-			castEndTime = select(6,UnitChannelInfo(unit))
+		elseif select(5,UnitChannelInfo(unit)) and not select(7,UnitChannelInfo(unit)) then -- Get spell channel time
+			castStartTime = select(4,UnitChannelInfo(unit))
+			castEndTime = select(5,UnitChannelInfo(unit))
 			interruptID = select(7,GetSpellInfo(UnitChannelInfo(unit)))
 			interruptable = true
 			castType = "spellchannel"

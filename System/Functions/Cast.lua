@@ -438,11 +438,11 @@ end
 function isCastingTime(lagTolerance)
 	local lagTolerance = 0
 	if UnitCastingInfo("player") ~= nil then
-		if select(6,UnitCastingInfo("player")) - GetTime() <= lagTolerance then
+		if select(5,UnitCastingInfo("player")) - GetTime() <= lagTolerance then
 			return true
 		end
 	elseif UnitChannelInfo("player") ~= nil then
-		if select(6,UnitChannelInfo("player")) - GetTime() <= lagTolerance then
+		if select(5,UnitChannelInfo("player")) - GetTime() <= lagTolerance then
 			return true
 		end
 	elseif (GetSpellCooldown(GetSpellInfo(61304)) ~= nil and GetSpellCooldown(GetSpellInfo(61304)) <= lagTolerance) then
@@ -464,9 +464,9 @@ function getCastTime(spellID)
 end
 function getCastTimeRemain(unit)
 	if UnitCastingInfo(unit) ~= nil then
-		return select(6,UnitCastingInfo(unit))/1000 - GetTime()
+		return select(5,UnitCastingInfo(unit))/1000 - GetTime()
 	elseif UnitChannelInfo(unit) ~= nil then
-		return select(6,UnitChannelInfo(unit))/1000 - GetTime()
+		return select(5,UnitChannelInfo(unit))/1000 - GetTime()
 	else
 		return 0
 	end
