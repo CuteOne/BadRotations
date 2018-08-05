@@ -289,10 +289,11 @@ local function runRotation()
                 if charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                     if cast.blackoxBrew() then return end
                 end
+-- ironskin_brew,&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-1.0-(1+buff.ironskin_brew.remains<=buff.ironskin_brew.duration*0.5)
 				
                 -- Ironskin Brew
-                if ((charges.purifyingBrew.count() > 1 and buff.ironskinBrew.remain() < 3) or charges.purifyingBrew.count() == 3)  and not buff.blackoutCombo.exists() 
-                    and buff.ironskinBrew.remain() <= 14 then
+				local ironskinBrewDuration = 7
+                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
                     if cast.ironskinBrew() then return end
                 end
 			-- Chi Wave 
@@ -348,8 +349,9 @@ local function runRotation()
                     if cast.blackoxBrew() then return end
                 end
 
-            -- Ironskin Brew
-                if ((charges.purifyingBrew.count() > 1 and buff.ironskinBrew.remain() < 3) or charges.purifyingBrew.count() == 3) and buff.ironskinBrew.remain() <= 14 then
+                -- Ironskin Brew
+				local ironskinBrewDuration = 7
+                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
                     if cast.ironskinBrew() then return end
                 end
 			-- Chi Wave 
