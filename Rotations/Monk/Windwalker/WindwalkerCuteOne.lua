@@ -341,6 +341,8 @@ local function runRotation()
             opener = false
         end
 
+        if (not inCombat or ttm < 2) and lastCast == spell.tigerPalm then lastCast2 = lastCast; lastCast = 6603 end
+
         -- Last Combo Spell
         if lastCast == spell.tigerPalm
             or lastCast == spell.blackoutKick
@@ -635,7 +637,7 @@ local function runRotation()
                 if cast.cracklingJadeLightning() then return true end
              end
         -- Touch of the Void
-            if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and getDistance(units.dyn5)<5 then
+            if (useCDs() or useAoE()) and isChecked("Touch of the Void") and inCombat and #enemies.yards8 > 0 then
                 if hasEquiped(128318) then
                     if GetItemCooldown(128318)==0 then
                         useItem(128318)
@@ -1163,7 +1165,7 @@ local function runRotation()
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<cooldown.fists_of_fury.remains))&((cooldown.rising_sun_kick.remains>1&(!talent.fist_of_the_white_tiger.enabled|cooldown.fist_of_the_white_tiger.remains>1)|chi>4)&(cooldown.fists_of_fury.remains>1|chi>2)|prev_gcd.1.tiger_palm)&!prev_gcd.1.blackout_kick
             if cast.able.blackoutKick(lowestMark) and (chi > 1 or buff.blackoutKick.exists() or (talent.energizingElixir and cd.energizingElixir.remain() < cd.fistsOfFury.remain()))
                 and ((cd.risingSunKick.remain() > 1 and (not talent.fistOfTheWhiteTiger or cd.fistOfTheWhiteTiger.remain() > 1) or chi > 4)
-                    and (cd.fistOfTheWhiteTiger > 1 or chi > 2) or lastCast == spell.tigerPalm) and lastCast ~= spell.blackoutKick
+                    and (cd.fistOfTheWhiteTiger.remain() > 1 or chi > 2) or lastCast == spell.tigerPalm) and lastCast ~= spell.blackoutKick
             then
                 if cast.blackoutKick(lowestMark) then return true end
             end
