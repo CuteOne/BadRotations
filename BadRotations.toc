@@ -139,6 +139,7 @@ Rotations\Demon Hunter\Vengeance\VengeanceSaintly.lua
 
 Rotations\Druid\Feral\FeralCuteOne.lua
 
+Rotations\Druid\Guardian\GuardianPanglo.lua
 Rotations\Druid\Guardian\GuardianCuteOne.lua
 
 Rotations\Druid\Restoration\RestorationSvs.lua
@@ -171,8 +172,8 @@ Rotations\Mage\Frost\FrostLemon.lua
 Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
 ## Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
 
-Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
 Rotations\Monk\Brewmaster\BrewmasterPanglo.lua
+Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
 
 Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
 
