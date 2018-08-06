@@ -1711,8 +1711,7 @@ br.lists.spells = {
                 lightOfTheMartyr            = 183998;
                 lightsHammer                = 114158;
                 ruleOfLaw                   = 214202;
-                tyrsDeliverance             = 200652,
-
+                AvengingCrusader            = 216331;
             },
             artifacts                       = {
 
@@ -1735,8 +1734,7 @@ br.lists.spells = {
                 ruleOfLaw                   = 214202;
                 theLightSaves               = 200423;
                 vindicator                  = 200376;
-                tyrsDeliverance             = 200652;
-
+                AvengingCrusader            = 216331;
             },
             debuffs                         = {
                 judgement                   = 214222,
