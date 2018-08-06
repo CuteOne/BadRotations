@@ -283,6 +283,10 @@ local function runRotation()
 
                 end -- End Pre-Pull
                 if isValidUnit("target") and getDistance("target") < 40 then
+            -- Arcane Intellect
+                    if not buff.arcaneIntellect.exists() then
+                        cast.arcaneIntellect()
+                    end                    
             -- Mirror Image
                     if useCDs() and isChecked("Mirror Image") then
                         if cast.mirrorImage() then return end
@@ -345,15 +349,15 @@ local function runRotation()
             if actionList_ActiveTalents() then return end
         -- Combustion
             -- combustion
-            if (mode.cooldown == 1 and isBoss()) or mode.cooldown == 2 then
+            if useCDs() and (not talent.firestarter or (talent.firestarter and getHP("target") < 90)) then
                 if cast.combustion() then return end
             end
-      -- Call Action List - Cooldowns
+        -- Call Action List - Cooldowns
             if actionList_Cooldowns() then return end
         -- Pyroblast
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remains>execute_time 
             -- pyroblast,if=buff.hot_streak.up
-            if (buff.kaelthasUltimateAbility.exists() and buff.combustion.remain() > getCastTime(spell.pyroblast)) or buff.hotStreak.exists() then
+            if (buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists() and buff.combustion.remain() > getCastTime(spell.pyroblast)) or buff.hotStreak.exists() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -391,7 +395,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
-            if getHP("target") <= 25 and hasEquiped(132454) then
+            if getHP("target") <= 25 and talent.searingTouch then
                 if cast.scorch() then return end
             end
         end -- End Combustion Phase Action List
@@ -412,7 +416,7 @@ local function runRotation()
             if actionList_ActiveTalents() then return end
         -- Pyroblast
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-            if buff.kaelthasUltimateAbility.exists() then
+            if buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -427,7 +431,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
-            if getHP("target") <= 25 and hasEquiped(132454) then
+            if getHP("target") <= 25 and talent.searingTouch then
                 if cast.scorch() then return end
             end
         -- Fireball
@@ -481,7 +485,7 @@ local function runRotation()
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react
             if (buff.hotStreak.exists() and lastSpell ~= spell.pyroblast)
                 or (buff.hotStreak.exists() and getHP("target") <= 25 and hasEquiped(132454))
-                or buff.kaelthasUltimateAbility.exists() 
+                or buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists()
             then
                 if cast.pyroblast() then return end
             end
@@ -506,7 +510,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
-            if getHP("target") <= 30 and hasEquiped(132454) then
+            if getHP("target") <= 30 and talent.searingTouch then
                 if cast.scorch() then return end
             end
         -- Fireball

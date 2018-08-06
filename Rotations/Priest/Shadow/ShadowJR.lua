@@ -129,6 +129,8 @@ local function createOptions()
                 br.ui:createCheckbox(section,"Figurehead of the Naglfar")
             	br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
+            -- Dark Ascension
+            br.ui:createCheckbox(section,"Dark Ascension")
             -- Shadowfiend
             br.ui:createCheckbox(section,"Shadowfiend / Mindbender")
             br.ui:createSpinnerWithout(section, "  Shadowfiend Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at. Set to 0 for auto.")
@@ -137,9 +139,6 @@ local function createOptions()
             -- Dispersion
             br.ui:createCheckbox(section, "Dispersion S2M")
             br.ui:createSpinnerWithout(section, "  Dispersion Stacks", 10, 5, 100, 5, "Set to desired Void Form stacks to use at.")
-            -- Power Infusion
-            br.ui:createCheckbox(section,"Power Infusion")
-            br.ui:createSpinnerWithout(section, "  Power Infusion Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at. Set to 0 for auto.")
             -- Void Torrent
             br.ui:createCheckbox(section,"Void Torrent")
             br.ui:createSpinnerWithout(section, "  Void Torrent Stacks", 0, 0, 100, 1, "Set to desired Void Form stacks to use at.")
@@ -312,6 +311,8 @@ local function runRotation()
         VTmaxTargets = 1
     end
 
+	--print(tostring(cast.able.voidBolt()))
+
     -- Keep track of Drain Stacks
     -- Drain stacks will be equal to Voidform stacks, minus any time spent in diepersion and minus any time spent channeling void torrent
     if buff.voidForm.stack() == 0 then 
@@ -350,7 +351,8 @@ local function runRotation()
     -- Void Bolt
     -- void_bolt
     if isValidUnit(units.dyn40) and inCombat and buff.voidForm.exists() and (cd.voidBolt.remain() == 0 or buff.void.exists()) and not isCastingSpell(spell.voidTorrent) then
-        if cast.voidBolt(units.dyn40,"known") then return end
+        --if cast.voidBolt(units.dyn40,"known") then return end
+        if cast.voidBolt(units.dyn40) then return end
     end
 
     -- ChatOverlay(tostring(cd.voidBolt.remain()))
@@ -614,6 +616,10 @@ local function runRotation()
         if not buff.shadowform.exists() then
             cast.shadowform()
         end
+    -- Power Word: Fortitude
+        if not buff.powerWordFortitude.exists() then
+            cast.powerWordFortitude()
+        end
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
         if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
@@ -782,14 +788,20 @@ local function runRotation()
                 return 
             end
         end
+    -- Dark Ascension
+        if isChecked("Dark Ascension") and useCDs() then
+            if power <= 40 then
+                if cast.darkAscension() then return end
+            end
+        end
     -- Void Eruption
         -- void_eruption
         if mode.voidForm == 1 and not moving then
-            if cast.voidEruption("player") then return end
+            if cast.voidEruption() then return end
         end
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
-        if isChecked("Shadow Crash") and talent.shadowCrash and not mode.rotation == 3 then
+        if isChecked("Shadow Crash") and talent.shadowCrash then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     -- Shadow Word: Death
@@ -813,7 +825,7 @@ local function runRotation()
         end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4&talent.legacy_of_the_void.enabled&(insanity<=81|(insanity<=75.2&talent.fortress_of_the_mind.enabled))
-        if #searEnemies <= 4 and not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
+        if not moving and talent.legacyOfTheVoid and ((power <= 81 or (power <= 75.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
             and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
         then
             if cast.mindBlast(units.dyn40) then 
@@ -825,7 +837,7 @@ local function runRotation()
         end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4&!talent.legacy_of_the_void.enabled|(insanity<=96|(insanity<=95.2&talent.fortress_of_the_mind.enabled))
-        if #searEnemies <= 4 and not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
+        if not moving and not talent.legacyOfTheVoid and (power <= 96 or ((power <= 95.2 and talent.fortressOfTheMind)) or mode.voidForm == 2)
             and not recentlyCast(units.dyn40, spell.mindBlast, 0.9*gcdMax) 
         then
             if cast.mindBlast(units.dyn40) then 
@@ -889,14 +901,18 @@ local function runRotation()
         end
     -- Shadow Word: Void
         -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity<=75-10*talent.legacy_of_the_void.enabled)
-        if talent.shadowWordVoid and ((power <= 75 - 10 * legacyOfTheVoid) or mode.voidForm == 2) then
-            if cast.shadowWordVoid(units.dyn40) then return end
-        end
+--        if talent.shadowWordVoid and ((power <= 75 - 10 * legacyOfTheVoid) or mode.voidForm == 2) then
+--            if cast.shadowWordVoid(units.dyn40) then return end
+--        end
+--        -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+50)<100
+--        if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 12) < 100 then
+--            if cast.shadowWordVoid() then return end
+--        end
     -- Mind Flay
         -- mind_flay,interrupt=1,chain=1
         if not moving then
             if not isCastingSpell(spell.mindFlay) then
-                if cast.mindFlay(units.dyn40) then return end
+                if cast.mindFlay() then return end
             end
         end
     -- Shadow Word: Pain
@@ -957,7 +973,8 @@ local function runRotation()
     --Void Bolt
         -- void_bolt,if=buff.insanity_drain_stacks.stack<6&set_bonus.tier19_4pc
         if drainStacks < 6 and t19_4pc then
-            if cast.voidBolt(units.dyn40,"known") then return end
+            --if cast.voidBolt(units.dyn40,"known") then return end
+            if cast.voidBolt(units.dyn40) then return end
         end
     -- Mind Bomb - to proc Sephuzs
         -- mind_bomb,if=equipped.sephuzs_secret&target.is_add&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up,cycle_targets=1
@@ -1024,16 +1041,10 @@ local function runRotation()
                 end
             end
         end
-    --Power Infusion
-        -- power_infusion,if=cooldown.shadow_word_death.charges=0&buff.voidform.stack>(45+25*set_bonus.tier20_4pc)|target.time_to_die<=30
-        if isChecked("Power Infusion") and useCDs() then
-            if charges.shadowWordDeath.count() == 0 and (buff.voidForm.stack() >= getOptionValue("  Power Infusion Stacks") or ttd(units.dyn40) <= 30) then
-                if cast.powerInfusion() then return end
-            end
-        end
     --Void Bolt 
         -- void_bolt
-        if cast.voidBolt(units.dyn40,"known") then return end
+        if cast.voidBolt(units.dyn40) then return end
+        --if cast.voidBolt() then return end
     --Shadow Word Death 
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(30+30*talent.reaper_of_souls.enabled))<100
         if (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))
@@ -1089,9 +1100,9 @@ local function runRotation()
         end
     --Shadow Word Void  
         -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+50)<100
-        if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 50) < 100 then
-            if cast.shadowWordVoid() then return end
-        end
+        --if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 50) < 100 then
+        --    if cast.shadowWordVoid() then return end
+        --end
     --Shadow Word Pain  
         -- shadow_word_pain,if=talent.misery.enabled&dot.shadow_word_pain.remains<gcd,moving=1,cycle_targets=1
         if talent.misery and moving and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
@@ -1164,12 +1175,14 @@ local function runRotation()
             end
         end
     --Mind Flay 
-        -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+60)<100&cooldown.shadow_word_death.charges>=1))
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 60) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
+        --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
+        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0 then
             SpellStopCasting()
             return true               
         elseif not moving then
-            if cast.mindFlay(units.dyn40) then return end
+            if cast.mindFlay() then return end
         end
     end -- End Action List - Surrender To Madness
 -- Action List - VoidForm
@@ -1222,7 +1235,8 @@ local function runRotation()
     -- Void Bolt
         -- void_bolt
         --if cd.voidBolt.remain() == 0 or buff.void.exists() then
-            if cast.voidBolt(units.dyn40,"known") then return end
+            --if cast.voidBolt(units.dyn40,"known") then return end
+            if cast.voidBolt(units.dyn40) then return end
         --end 
     -- Mind Bomb - to proc Sephuzs
         -- mind_bomb,if=equipped.sephuzs_secret&target.is_add&cooldown.buff_sephuzs_secret.remains<1&!buff.sephuzs_secret.up&buff.insanity_drain_stacks.value>10,cycle_targets=1
@@ -1274,7 +1288,7 @@ local function runRotation()
         end
     -- Void Torrent
         -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
-        if isChecked("Void Torrent") and artifact.voidTorrent.enabled() and useCDs()
+        if isChecked("Void Torrent") and talent.voidTorrent.enabled() and useCDs()
             and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
             and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks + 60))
         then
@@ -1296,21 +1310,6 @@ local function runRotation()
                 end
             end
         end
-    -- Power Infusion
-        -- power_infusion,if=buff.insanity_drain_stacks.value>=(variable.cd_time+5*buff.bloodlust.up*(1+1*set_bonus.tier20_4pc))&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.value)+61))
-        if isChecked("Power Infusion") and talent.powerInfusion and useCDs() then
-            if getOptionValue("  Power Infusion Stacks") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Power Infusion Stacks") then
-                    if cast.powerInfusion() then return end
-                end
-            else
-                if drainStacks >= (cd_time + 5 * lusting * (1 + 1 * t20pc4)) 
-                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck + 61 - drainStacks)) 
-                then
-                    if cast.powerInfusion() then return end
-                end
-            end
-        end
     -- Berserking
         -- berserking,if=buff.voidform.stack>=10&buff.insanity_drain_stacks.stack<=20&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
         if br.player.race == "Troll" and getSpellCD(racial) == 0 and buff.voidForm.stack() >= 10 and drainStacks <= 20
@@ -1320,55 +1319,65 @@ local function runRotation()
         end
     -- Shadow Word - Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+(15+15*talent.reaper_of_souls.enabled))<100
-        if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2))
-            and insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + (15 + 15 * reaperOfSouls)) < 100
-        then
-            -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
-            if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
-                if cast.shadowWordDeath(units.dyn40) then return end
-            end
-            if not mode.rotation == 3 then
-                -- Look for any targets in execute HP range
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if getHP(thisUnit) < executeHP then
-                        if cast.shadowWordDeath(thisUnit) then return end
-                    end
-                end
-            end
-        end
+        --if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2))
+        --    and insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + (15 + 15 * reaperOfSouls)) < 100
+        --then
+        --    -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
+        --    if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
+        --        if cast.shadowWordDeath(units.dyn40) then return end
+        --    end
+        --    if not mode.rotation == 3 then
+        --        -- Look for any targets in execute HP range
+        --        for i = 1, #enemies.yards40 do
+        --            local thisUnit = enemies.yards40[i]
+        --            if getHP(thisUnit) < executeHP then
+        --                if cast.shadowWordDeath(thisUnit) then return end
+        --            end
+        --        end
+        --    end
+        --end
     -- Wait For Void Bolt
         -- wait,sec=action.void_bolt.usable_in,if=action.void_bolt.usable_in<gcd.max*0.28
         if cd.voidBolt.remain() < gcdMax * 0.28 then
             return true
         end
+    -- Shadow Word - Void
+        -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+25)<100
+        --if talent.shadowWordVoid and (power - (insanityDrain * gcdMax) + 25) < 100 then
+        --    if cast.shadowWordVoid() then return end
+        --end
+    -- Wait For Shadow Word - Void
+        -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=4
+        --if cd.shadowWordVoid.remain() < gcdMax * 0.12 then
+        --    return true
+        --end
     -- Mind Blast
         -- mind_blast,if=active_enemies<=4
-        if #searEnemies <= 4 and not moving then
+        if not moving then
             if cast.mindBlast() then return end
         end
     -- Wait For Mind Blast
         -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=4
-        if #searEnemies <= 4 and cd.mindBlast.remain() < gcdMax * 0.28 then
+        if cd.mindBlast.remain() < gcdMax * 0.28 then
             return true
         end
     -- Shadow Word - Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2
-        if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath.count() == 2 then
-            -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
-            if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
-                if cast.shadowWordDeath(units.dyn40) then return end
-            end
-            if not mode.rotation == 3 then
-                -- Look for any targets in execute HP range
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if getHP(thisUnit) < executeHP then
-                        if cast.shadowWordDeath(thisUnit) then return end
-                    end
-                end
-            end
-        end
+        --if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath.count() == 2 then
+        --    -- If Zeks Exterminatus (legendary cloak) has procced, SW:D is castable on any target, regardless of HP
+        --    if getHP(units.dyn40) < executeHP  or buff.zeksExterminatus.exists() then
+        --       if cast.shadowWordDeath(units.dyn40) then return end
+        --    end
+        --    if not mode.rotation == 3 then
+        --        -- Look for any targets in execute HP range
+        --        for i = 1, #enemies.yards40 do
+        --            local thisUnit = enemies.yards40[i]
+        --            if getHP(thisUnit) < executeHP then
+        --                if cast.shadowWordDeath(thisUnit) then return end
+        --            end
+        --        end
+        --    end
+        --end
     -- Shadowfiend
         -- shadowfiend,if=!talent.mindbender.enabled&buff.voidform.stack>15
         if isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() then
@@ -1381,11 +1390,6 @@ local function runRotation()
                     if cast.shadowfiend() then return end
                 end
             end
-        end
-    -- Shadow Word - Void
-        -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+25)<100
-        if talent.shadowWordVoid and (power - (insanityDrain * gcdMax) + 25) < 100 then
-            if cast.shadowWordVoid() then return end
         end
     -- Mouseover Dotting
         if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving and not recentlyCast("mouseover", spell.vampiricTouch, 1.1*gcdMax) then
@@ -1483,11 +1487,13 @@ local function runRotation()
         end
     -- Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
+        -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
+        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and cd.voidBolt.remain() == 0 then
             SpellStopCasting()
             return true               
         elseif not moving then
-            if cast.mindFlay(units.dyn40) then return end
+            if cast.mindFlay() then return end
         end
     -- Shadow Word - Pain
         -- shadow_word_pain

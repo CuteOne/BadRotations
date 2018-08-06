@@ -1273,14 +1273,13 @@ br.lists.spells = {
                 flamestrike                 = 2120,
                 livingBomb                  = 44457,
                 meteor                      = 153561,
-                phoenixsFlames              = 194466,
+                phoenixsFlames              = 257541,
                 pyroblast                   = 11366,
                 scorch                      = 2948,
             },
             artifacts                       = {
                 aftershocks                 = 194431,
                 phoenixReborn               = 215773,
-                phoenixsFlames              = 194466,
             },
             buffs                           = {
                 blazingBarrier              = 235313,
@@ -1289,6 +1288,7 @@ br.lists.spells = {
                 hotStreak                   = 48108,
                 iceFloes                    = 108839,
                 kaelthasUltimateAbility     = 209455,
+                pyroclasm                   = 269651,
             },
             debuffs                         = {
 
@@ -1309,7 +1309,10 @@ br.lists.spells = {
                 livingBomb                  = 44457,
                 meteor                      = 153561,
                 mirrorImage                 = 55342,
+                phoenixsFlames              = 257541,
                 pyromaniac                  = 205020,
+                pyroclasm                   = 269650,
+                searingTouch                = 269644,
             },
         },
         -- Frost
@@ -1373,6 +1376,7 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
+                arcaneIntellect             = 1459,
                 blink                       = 1953,
                 counterspell                = 2139,
                 frostNova                   = 122,
@@ -2116,11 +2120,13 @@ br.lists.spells = {
         -- Shadow
         [258] = {
             abilities                       = {
+                darkAscension               = 280711,
                 dispersion                  = 47585,
                 mindBlast                   = 8092,
                 mindBomb                    = 205369,
                 mindbender                  = 200174,
                 mindFlay                    = 15407,
+                mindSear                    = 48045,
                 mindVision                  = 2096,
                 powerInfusion               = 10060,
                 powerWordShield             = 17,
@@ -2140,12 +2146,11 @@ br.lists.spells = {
                 voidBolt                    = 205448,
                 voidEruption                = 228260,
                 voidForm                    = 228264,
-                voidTorrent                 = 205065,
             },
             artifacts                       = {
                 lashOfInsanity              = 238137,
                 massHysteria                = 194378,
-		sphereOfInsanity            = 194179,
+		        sphereOfInsanity            = 194179,
                 toThePain                   = 193644,
                 touchOfDarkness             = 194007,
                 unleashTheShadows           = 194093,
@@ -2194,6 +2199,7 @@ br.lists.spells = {
                 surrenderToMadness          = 193223,
                 twistOfFate                 = 109142,
                 voidRay                     = 205371,
+                voidTorrent                 = 263165,
             },
         },
         -- All
@@ -2205,6 +2211,7 @@ br.lists.spells = {
                 massDispel                  = 32375,
                 massResurrection            = 212036,
                 mindControl                 = 605,
+                powerWordFortitude          = 21562,
                 resurrection                = 2006,
                 shackleUndead               = 9484,
             },
@@ -2213,6 +2220,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 classHallSpeed              = 224098,
+                powerWordFortitude          = 21562,
             },
             debuffs                         = {
 
