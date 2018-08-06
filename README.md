@@ -125,7 +125,7 @@ CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
 
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
-CuteOne |   Full   |  7.2  |   100% | :white_check_mark:
+CuteOne |   Full   |  8.0  |   99%   | :white_check_mark:
 Dubwub  | Inactive |  7.1  |   100% |   :interrobang:
 
 ### Druid
@@ -134,7 +134,7 @@ Dubwub  | Inactive |  7.1  |   100% |   :interrobang:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   | 7.2   |   100% | :white_check_mark:
+CuteOne  |   Full   | 8.0   |   99% | :white_check_mark:
 
 - Guardian
 
@@ -160,6 +160,7 @@ Svs    |  Full   | 7.1.5 |   100% | :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
+Ashley   |  Full    |  8.0  |    99% | :heavy_check_mark:
 Cpoworks | Sporadic |  7.1  |    70% | :heavy_check_mark:
 Kuukuu   | Inactive |  7.2  |    90% | :white_check_mark:
 
@@ -187,7 +188,7 @@ dbtftw | Inactive |  7.1  |    90% | :interrobang:
 
 author          | support | patch | status |   raidable?
 :-------------- | :-----: | :---: | -----: | :-----------:
-winston/cryteks |  Full   | 7.1.5 |   100% | :interrobang:
+winston         |  Full   | 8.0 |   99% | :interrobang:
 
 - Frost
 
@@ -203,6 +204,7 @@ Lemon  |   Full   | 7.2.5 |   100% | :heavy_check_mark:
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
 Kuukuu | Inactive| 7.2.5 |    90% | :white_check_mark:
+Panglo | Full | 8.0 |    99% | :white_check_mark:
 
 - Mistweaver
 
@@ -215,7 +217,7 @@ Javaxio  |   Full   | 7.2.5 |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
+CuteOne |  Full   | 8.0  |   99% | :white_check_mark:
 
 ### Paladin
 
@@ -223,19 +225,19 @@ CuteOne |  Full   | 7.2   |   100% | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Fengshen |  Full   | 7.2.5 |   100% | :white_check_mark:
+Fengshen |  Full   | 8.0 |   99% | :white_check_mark:
 
 - Protection
 
 author | support  | patch | status |   raidable?
 :----- | :------: | :---: | -----: | :-----------:
-wink   | Sporadic | 7.1.5 |   100% | :interrobang:
+Fengshen   | Full | 8.0 |   99% | :interrobang:
 
 - Retribution
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne |  Full   |8.0 |   99% | :white_check_mark:
 
 ### Priest
 
@@ -257,8 +259,7 @@ JR              |  Full   |  7.3  |   100% | :white_check_mark:
 
 author           |    support    | patch | status | raidable?
 :--------------- | :-----------: | :---: | -----: | :-------:
-CuteOne          | Full          |  7.2  |    90% |    :x:
-JR               | Full          |  7.3  |   100% | :white_check_mark:
+JR/CuteOne       | Full          | 8.0  |   95% | :white_check_mark:
 
 ### Rogue
 
@@ -273,14 +274,13 @@ CuteOne |  Full   | 7.2   |   90%  | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
-Vilt    | Full (for now) | 7.2 |   100% | :white_check_mark:
+Vilt    |  Full   | 8.0   |   99%  | :white_check_mark:
 
 - Subtlety
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |    90% |        :x:
-Vilt    | Limited | 7.1.5 |   100% | :white_check_mark:
 
 ### Shaman
 
@@ -294,7 +294,7 @@ CuteOne |  Full   | 7.2   |   100% | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+CuteOne |  Full   | 8.0 |   9% | :white_check_mark:
 
 - Restoration
 
@@ -309,6 +309,7 @@ Svs    |  Full   | 7.1.5 |    100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 7.1.5 |   100% | :white_check_mark:
+Fiskee  |  Full   | 8.0 |   99% | :white_check_mark:
 
 - Demonology
 
