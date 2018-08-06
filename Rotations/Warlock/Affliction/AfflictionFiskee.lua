@@ -411,7 +411,9 @@ local function runRotation()
 
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
-          if cast.deathbolt() then return end
+          if debuff.agony.exists() then
+            if cast.deathbolt() then return end
+          end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
           if moving and buff.nightfall.exists() and not talent.drainSoul then
             if cast.shadowBolt() then return end
