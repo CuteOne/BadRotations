@@ -408,7 +408,7 @@ local function runRotation()
           -- actions.fillers=deathbolt
           if cast.deathbolt() then return end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
-          if moving and buff.nightfall.exists() then
+          if moving and buff.nightfall.exists() and not talent.drainSoul then
             if cast.shadowBolt() then return end
           end
           -- actions.fillers+=/agony,if=buff.movement.up&!(talent.siphon_life.enabled&(prev_gcd.1.agony&prev_gcd.2.agony&prev_gcd.3.agony)|prev_gcd.1.agony)
@@ -433,7 +433,7 @@ local function runRotation()
               return end
           end
           -- actions.fillers+=/shadow_bolt,cycle_targets=1,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2&!debuff.shadow_embrace.remains&!action.shadow_bolt.in_flight
-          if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 then
+          if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and not talent.drainSoul then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if not debuff.shadowEmbrace.exists(thisUnit) then
@@ -442,11 +442,11 @@ local function runRotation()
             end
           end
           -- actions.fillers+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2
-          if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 then
+          if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and not talent.drainSoul then
             if cast.shadowBolt(lowestShadowEmbrace) then return end
           end
           -- actions.fillers+=/shadow_bolt
-          if not moving then
+          if not moving and not talent.drainSoul then
             if cast.shadowBolt() then return end
           end
         end
@@ -474,7 +474,7 @@ local function runRotation()
               end
           end
           -- actions+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=execute_time*2+travel_time&!action.shadow_bolt.in_flight
-          if talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt() * 2 + travelTime and not cast.last.shadowBolt() then
+          if talent.shadowEmbrace and not talent.drainSoul and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt() * 2 + travelTime and not cast.last.shadowBolt() then
             if cast.shadowBolt() then return end
           end
           -- actions+=/phantom_singularity,if=time>40
@@ -722,7 +722,7 @@ local function runRotation()
                           if cast.haunt("target") then return end
                         end
                         -- actions.precombat+=/shadow_bolt,if=!talent.haunt.enabled&spell_targets.seed_of_corruption_aoe<3
-                        if not moving and #getEnemies("target", 10, false) < 3 and not talent.haunt then
+                        if not moving and #getEnemies("target", 10, false) < 3 and not talent.haunt and not talent.drainSoul then
                           if cast.shadowBolt("target") then return end
                         end
                         --else agony
