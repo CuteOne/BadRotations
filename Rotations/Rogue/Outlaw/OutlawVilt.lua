@@ -371,12 +371,12 @@ local function runRotation()
             end    
     -- Ghostly Strike
             -- actions.cds+=/ghostly_strike,if=variable.blade_flurry_sync&combo_points.deficit>=1+buff.broadside.up
-            if cast.able.ghostlyStrike() and isChecked("Ghostly Strike") and bladeFlurrySync and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
+            if cast.able.ghostlyStrike() and isChecked("Ghostly Strike") and bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
                 if cast.ghostlyStrike("target") then return end
             end
     -- Killing Spree
             -- killing_spree,if=variable.blade_flurry_sync&(energy.time_to_max>5|energy<15)
-            if cast.able.killingSpree() and isChecked("Killing Spree") and bladeFlurrySync and (ttm > 5 or power < 15) then
+            if cast.able.killingSpree() and isChecked("Killing Spree") and bladeFlurrySync() and (ttm > 5 or power < 15) then
                 if isChecked("Cloak Killing Spree") and cd.killingSpree.remain() == 0 then
                     if cast.cloakOfShadows() then cast.killingSpree(); return end
                 end
@@ -384,7 +384,7 @@ local function runRotation()
             end
     -- Blade Rush
             -- blade_rush,if=variable.blade_flurry_sync&energy.time_to_max>1
-            if cast.able.bladeRush() and isChecked("Blade Rush") and bladeFlurrySync and ttm > 1 and getDistance("target") <= 8 then
+            if cast.able.bladeRush() and isChecked("Blade Rush") and bladeFlurrySync() and ttm > 1 and getDistance("target") <= 8 then
                 if cast.bladeRush("target") then return end
             end
         end -- End Action List - Cooldowns
