@@ -32,6 +32,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.fear}
     };
     CreateButton("Interrupt",4,0)
+-- Multi-Dot Button
+    MultiDotModes = {
+        [1] = { mode = "On", value = 1 , overlay = "UA spam enabled", tip = "UA spam enabled, default option for raids and dungeons", highlight = 1, icon = br.player.spell.unstableAffliction},
+        [2] = { mode = "Off", value = 2 , overlay = "UA spam diabled", tip = "Will not spam UA, usefull for questing ect.", highlight = 0, icon = br.player.spell.corruption}
+    };
+    CreateButton("MultiDot",5,0)
 end
 
 ---------------
@@ -104,8 +110,6 @@ local function createOptions()
             br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
         -- Interrupts Key Toggle
             br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Multi-Dot Key Toggle
-            br.ui:createDropdown(section, "MultiDot Mode", br.dropOptions.Toggle,  6)
         -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -131,6 +135,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        br.player.mode.multidot = br.data.settings[br.selectedSpec].toggles["MultiDot"]
 
 --------------
 --- Locals ---
@@ -406,7 +411,9 @@ local function runRotation()
 
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
-          if cast.deathbolt() then return end
+          if debuff.agony.exists() then
+            if cast.deathbolt() then return end
+          end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
           if moving and buff.nightfall.exists() and not talent.drainSoul then
             if cast.shadowBolt() then return end
@@ -606,7 +613,7 @@ local function runRotation()
             if cast.phantomSingularity() then return end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
-          if (cd.summonDarkglare.remain() < timeToShard * (5 - shards) or cd.summonDarkglare.exists()) and ttd() > cd.summonDarkglare.remain() then
+          if ((cd.summonDarkglare.remain() < timeToShard * (5 - shards) or cd.summonDarkglare.exists()) and ttd() > cd.summonDarkglare.remain()) or mode.multidot == 2 then
             if actionList_Fillers() then return end
           end
           -- actions+=/seed_of_corruption,if=variable.spammable_seed
