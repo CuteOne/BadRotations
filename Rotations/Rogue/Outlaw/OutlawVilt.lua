@@ -593,8 +593,8 @@ local function runRotation()
                             local LowestTTD = units.dyn5
                             local thisUnit = enemies.yards30[i]
                             if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
-                            if ttd("thisUnit") < ThisTTD then
-                                ThisTTD = ttd("thisUnit")
+                            if ttd(thisUnit) < ThisTTD then
+                                ThisTTD = ttd(thisUnit)
                                 LowestTTD = thisUnit
                             end
                             if ttd(LowestTTD) > 0 and ttd(LowestTTD) <= 100 then
