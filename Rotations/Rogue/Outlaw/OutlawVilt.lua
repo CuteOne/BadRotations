@@ -244,10 +244,10 @@ local function runRotation()
         end
 
         local function bladeFlurrySync()
-            return not mode.bladeflurry == 1 or enemies.yards7 < 2 or buff.bladeflurry.exists()
+            return not mode.bladeflurry == 1 or #enemies.yards7 < 2 or buff.bladeflurry.exists()
         end
         -- finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
-        combospend = ComboMaxSpend()
+        local combospend = ComboMaxSpend()
         function shouldFinish()
             if br.player.talent.quickDraw and (not br.player.talent.markedForDeath or br.player.cd.markedForDeath.remain() > 1) then
                 if buff.broadside.exists() then
