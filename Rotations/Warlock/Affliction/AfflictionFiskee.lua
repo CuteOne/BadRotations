@@ -32,19 +32,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.fear}
     };
     CreateButton("Interrupt",4,0)
--- Multi-Dot Button
-    MultiDotModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Multi-Dot Only Disabled", tip = "Will use UA, Drain, and Reap.", highlight = 1, icon = br.player.spell.unstableAffliction},
-        [2] = { mode = "Off", value = 2 , overlay = "Multi-Dot Only Enabled", tip = "Does not use UA, Drain, and Reap.", highlight = 0, icon = br.player.spell.corruption}
-    };
-    CreateButton("MultiDot",5,0)
--- SoC Button
-    SeedofCorruptionModes = {
-      [1] = { mode = "On", value = 1 , overlay = "Seed of Corruption Toggle Enabled", tip = "Will Use SoC ", highlight = 1, icon = br.player.spell.seedOfCorruption},
-      [2] = { mode = "Off", value = 2 , overlay = "Seed of Corruption Toggle Disabled", tip = "Will Not Use Soc", highlight = 0, icon = br.player.spell.seedOfCorruption}
-    };
-    CreateButton("SeedofCorruption",6,0)
-
 end
 
 ---------------
@@ -72,7 +59,7 @@ local function createOptions()
         -- Mana Tap
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Multi-Dot Limit
-            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 10, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
         br.ui:checkSectionState(section)
@@ -144,9 +131,6 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("MultiDot",0.25)
-        br.player.mode.multidot = br.data.settings[br.selectedSpec].toggles["MultiDot"]
-        br.player.mode.soc = br.data.settings[br.selectedSpec].toggles["SeedofCorruption"]
 
 --------------
 --- Locals ---
@@ -215,10 +199,8 @@ local function runRotation()
 	      if profileStop == nil or not inCombat then profileStop = false end
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
-        if effigied == nil then effigied = false; effigyCount = 0 end
-        if effigyCount == nil then effigyCount = 0 end
-        if buff.tormentedSouls.stack() > 0 then tormented = 1 else tormented = 0 end
-        if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
+
+        --if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
         if hasEquiped(132394) then agonyTick = 2 * 0.9 else agonyTick = 2 / (1 + (GetHaste()/100)) end
         local corruptionTick = 2 / (1 + (GetHaste()/100))
@@ -287,39 +269,19 @@ local function runRotation()
         if summonPet == 2 then summonId = 1860 end
         if summonPet == 3 then summonId = 417 end
         if summonPet == 4 then summonId = 1863 end
-        if summonPet == 5 then summonId = 17252 end
-        if summonPet == 6 then summonId = 78158 end
-        if summonPet == 7 then summonId = 78217 end
-        if cd.grimoireOfService.remain() == 0 or prevService == nil then prevService = "None" end
 
-        local doomguard = false
-        local infernal = false
-        if br.player.pet ~= nil then
-            for i = 1, #br.player.pet do
-                local thisUnit = br.player.pet[i].id
-                if thisUnit == 11859 then doomguard = true end
-                if thisUnit == 89 then infernal = true end
-            end
-        end
+        local creepingDeathValue = 0
+        if talent.creepingDeath then creepingDeathValue = 1 end
+        local writheInAgonyValue = 0
+        if talent.writheInAgony then writheInAgonyValue = 1 end
 
         local seedTarget = units.dyn40
         local dsTarget
         local seedTargetsHit = 1
-        local lowestAgony = lowestAgony or "target"
         local lowestShadowEmbrace = lowestShadowEmbrace or "target"
 
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if debuff.agony.exists(thisUnit) then
-              if debuff.agony.exists(lowestAgony) then
-                  agonyRemaining = debuff.agony.remain(lowestAgony)
-              else
-                  agonyRemaining = 40
-              end
-              if debuff.agony.remain(thisUnit) < agonyRemaining then
-                  lowestAgony = thisUnit
-              end
-            end
             if debuff.shadowEmbrace.exists(thisUnit) then
               if debuff.shadowEmbrace.exists(lowestShadowEmbrace) then
                   shadowEmbraceRemaining = debuff.shadowEmbrace.remain(lowestShadowEmbrace)
@@ -419,9 +381,7 @@ local function runRotation()
           thisUnit = enemies.yards30[i]
           if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					  if activePetId == 417 then
-						        if cast.spellLock(thisUnit) then return end
-						elseif activePetId == 78158 then
-						        if cast.shadowLock(thisUnit) then return end
+		            if cast.spellLock(thisUnit) then return end
             end
           end
         end
@@ -490,6 +450,7 @@ local function runRotation()
             if cast.shadowBolt() then return end
           end
         end
+
         local function actionList_Rotation()
           -- actions+=/drain_soul,interrupt_global=1,chain=1,cycle_targets=1,if=target.time_to_die<=gcd&soul_shard<5
           if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 then
@@ -513,7 +474,7 @@ local function runRotation()
               end
           end
           -- actions+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=execute_time*2+travel_time&!action.shadow_bolt.in_flight
-          if talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt * 2 + travelTime and not cast.last.shadowBolt() then
+          if talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt() * 2 + travelTime and not cast.last.shadowBolt() then
             if cast.shadowBolt() then return end
           end
           -- actions+=/phantom_singularity,if=time>40
@@ -521,14 +482,10 @@ local function runRotation()
             if cast.phantomSingularity() then return end
           end
           -- actions+=/vile_taint,if=time>20
-          if combatTime > 20 then
+          if combatTime > 20 and not moving then
             if cast.vileTaint() then return end
           end
           -- actions+=/seed_of_corruption,if=dot.corruption.remains<=action.seed_of_corruption.cast_time+time_to_shard+4.2*(1-talent.creeping_death.enabled*0.15)&spell_targets.seed_of_corruption_aoe>=3+talent.writhe_in_agony.enabled&!dot.seed_of_corruption.remains&!action.seed_of_corruption.in_flight
-          local creepingDeathValue = 0
-          if talent.creepingDeath then creepingDeathValue = 1 end
-          local writheInAgonyValue = 0
-          if talent.writheInAgony then writheInAgonyValue = 1 end
           if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and not debuff.seedOfCorruption.exists(seedTarget) and not cast.last.seedOfCorruption() then
             if cast.seedOfCorruption(seedTarget) then return end
           end
@@ -632,7 +589,9 @@ local function runRotation()
             if cast.darkSoul("player") then return end
           end
           -- actions+=/vile_taint
-          if cast.vileTaint() then return end
+          if not moving then
+            if cast.vileTaint() then return end
+          end
           -- actions+=/berserking
           -- actions+=/unstable_affliction,if=soul_shard>=5
           if shards >= 5 and not moving then
@@ -685,7 +644,7 @@ local function runRotation()
         end -- End Action List - Low level
     -- Action List - Opener
         local function actionList_Opener()
-
+          opener = true
         end
     -- Action List - PreCombat
         local function actionList_PreCombat()
@@ -767,7 +726,7 @@ local function runRotation()
                           if cast.shadowBolt("target") then return end
                         end
                         --else agony
-                        if cast.agony() then return end
+                        if cast.agony("target") then return end
                         --low level
                         if level < 10 and not moving then
                             if cast.shadowBolt() then return end
@@ -802,7 +761,7 @@ local function runRotation()
 --- Opener Rotation ---
 -----------------------
             if opener == false and isChecked("Opener") and isBoss("target") then
-                --if actionList_Opener() then return end
+                if actionList_Opener() then return end
             end
 ---------------------------
 --- Pre-Combat Rotation ---
