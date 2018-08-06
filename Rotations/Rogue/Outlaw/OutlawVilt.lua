@@ -244,7 +244,7 @@ local function runRotation()
         end
 
         local function bladeFlurrySync()
-            return not mode.bladeflurry == 1 or #enemies.yards7 < 2 or buff.bladeflurry.exists()
+            return not mode.bladeflurry == 1 or #enemies.yards7 < 2 or buff.bladeFlurry.exists()
         end
         -- finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
         local combospend = ComboMaxSpend()
@@ -421,14 +421,14 @@ local function runRotation()
         local function actionList_Finishers()        
             if isChecked("RTB/Slice and Dice") then
         -- Slice and Dice
-                if cast.able.sliceAndDice() then
+                if talent.sliceAndDice and cast.able.sliceAndDice() then
                     -- slice_and_dice,if=buff.slice_and_dice.remains<target.time_to_die&buff.slice_and_dice.remains<(1+combo_points)*1.8
-                    if (buff.sliceAndDice.remain() < ttdtarget or not buff.sliceAndDice.exists()) or buff.sliceAndDice.refresh() then
+                    if buff.sliceAndDice.remain() < ttdtarget and buff.sliceAndDice.refresh() then
                         if cast.sliceAndDice() then return end
                     end
                 end
         -- Roll the Bones
-                if cast.able.rollTheBones() then
+                if not talent.sliceAndDice and cast.able.rollTheBones() then
                     -- roll_the_bones,if=(buff.roll_the_bones.remains<=3|variable.rtb_reroll)&(target.time_to_die>20|buff.roll_the_bones.remains<target.time_to_die)
                     if (buff.rollTheBones.remain < 3 or rtbReroll()) and (ttdtarget > 20 or buff.rollTheBones.remain < ttdtarget or buff.rollTheBones.remain == 0) then
                         if cast.rollTheBones() then return end
