@@ -347,7 +347,7 @@ function enemyListCheck(Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
-	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit))
+	if not pause(true) and Unit ~= nil and (br.enemy[Unit] ~= nil or enemyListCheck(Unit)) and not UnitIsTapDenied(Unit)
 		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
 	then
 		local instance = IsInInstance()

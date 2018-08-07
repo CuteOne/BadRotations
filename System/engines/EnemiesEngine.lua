@@ -25,7 +25,7 @@ function cacheOM()
 			local thisUnit = GetObjectWithIndex(i)
 			local distance = getDistance(thisUnit)
 			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
-				if ((ObjectIsUnit(thisUnit) and not UnitIsFriend(thisUnit,"player")) or GetObjectID(thisUnit) == 11492 or GetObjectID(thisUnit) == 133525)  then
+				if ObjectIsUnit(thisUnit) then
 					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
 					br.om[thisUnit]	= thisUnit
 				end
@@ -108,18 +108,15 @@ local function AddPet(thisUnit)
 	if br.player ~= nil then
 		if br.player.pet == nil then br.player.pet = {} end
 		if br.player.pet.list == nil then br.player.pet.list = {} end
-		local unitCreator = UnitCreator(thisUnit)
-		if (unitCreator == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492 or GetObjectID(thisUnit) == 133525) and br.player.pet.list[thisUnit] == nil then
-			if not isCritter(GetObjectID(thisUnit)) then
-				br.player.pet.list[thisUnit] = {}
-				local pet 		= br.player.pet.list[thisUnit]
-				pet.unit 		= thisUnit
-				pet.name 		= UnitName(thisUnit)
-				pet.guid 		= UnitGUID(thisUnit)
-				pet.id 			= GetObjectID(thisUnit)
-				if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
-			end
+		if br.player.pet.list[thisUnit] == nil then
+			br.player.pet.list[thisUnit] = {}
+			local pet 		= br.player.pet.list[thisUnit]
+			pet.unit 		= thisUnit
+			pet.name 		= UnitName(thisUnit)
+			pet.guid 		= UnitGUID(thisUnit)
+			pet.id 			= GetObjectID(thisUnit)
 		end
+		if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
 	end
 end
 
@@ -162,7 +159,7 @@ function getOMUnits()
 	for k, v in pairs(br.units) do if not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
 	-- Pets
 	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
-		for k,v in pairs(br.player.pet.list) do br.player.pet.list[k] = nil end
+		for k,v in pairs(br.player.pet.list) do if not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
 	end
 	-- Lootables
 	for k, v in pairs(br.lootable) do
@@ -183,7 +180,9 @@ function getOMUnits()
 				AddUnits(thisUnit)
 			end
 			-- Pet Info
-			if br.player.pet.list[thisUnit] == nil and (UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492) then
+			if br.player.pet.list[thisUnit] == nil and not IsCritter(GetObjectID(thisUnit))
+				and (UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492)
+			then
 				AddPet(thisUnit)
 			end
 			-- Lootable
