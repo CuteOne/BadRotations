@@ -42,7 +42,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS --- -- Define General Options
@@ -82,7 +82,7 @@ local function createOptions()
 			br.ui:createSpinner(section, "Gift of The Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		end
 		-- Divine Shield + Aura of Sacrifice
-		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFF°´ÏÂ¿ì½Ý¼ü¾Í»áÊ¹ÓÃÎÞµÐ+ÎþÉü¹â»·.", true)
+		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFï¿½ï¿½ï¿½Â¿ï¿½ï¿½Ý¼ï¿½ï¿½Í»ï¿½Ê¹ï¿½ï¿½ï¿½Þµï¿½+ï¿½ï¿½ï¿½ï¿½ï¿½â»·.", true)
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -207,7 +207,7 @@ local BOV = nil
 local function runRotation()
 	--if br.timer:useTimer("debugHoly", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
 	--Print("Running: "..rotationName)
-	
+
 	---------------
 	--- Toggles --- -- List toggles here in order to update when pressed
 	---------------
@@ -268,7 +268,7 @@ local function runRotation()
 	local units                                         = units or {}
 	local LightCount                                    = 0
 	local FaithCount                                    = 0
-	
+
 	if buff.ruleOfLaw.exists("player") then
 		lightOfDawn_distance_coff =1.5
 	else
@@ -279,7 +279,7 @@ local function runRotation()
 	else
 		master_coff =1.0
 	end
-	
+
 	units.dyn5 = br.player.units(5)
 	units.dyn15 = br.player.units(15)
 	units.dyn30 = br.player.units(30)
@@ -291,7 +291,7 @@ local function runRotation()
 	enemies.yards30 = br.player.enemies(30)
 	enemies.yards40 = br.player.enemies(40)
 	friends.yards40 = getAllies("player",40*master_coff)
-	
+
 	-- local lowest                                        = {}    --Lowest Unit
 	-- lowest.hp                                           = br.friend[1].hp
 	-- lowest.role                                         = br.friend[1].role
@@ -301,7 +301,7 @@ local function runRotation()
 	-- local lowestTank                                    = {}    --Tank
 	-- local tHp                                           = 95
 	-- local averageHealth                                 = 100
-	
+
 	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 		if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
 			if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
@@ -497,7 +497,7 @@ local function runRotation()
 	local function DPS()
 		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
 			--Consecration
-			if isChecked( "Consecration") and #enemies.yards8 >= getValue( "Consecration") and not isMoving("player") and not buff.AvengingCrusader.exists() then
+			if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
@@ -523,7 +523,7 @@ local function runRotation()
 				if cast.crusaderStrike(units.dyn5) then return end
 			end
 			--Avenging Crusader Consecration
-			if isChecked( "Consecration") and not isMoving("player") and buff.AvengingCrusader.exists() then
+			if isChecked( "Consecration") and not isMoving("player") and buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 		end

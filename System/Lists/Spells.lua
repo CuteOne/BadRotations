@@ -1694,7 +1694,7 @@ br.lists.spells = {
                 lightOfTheMartyr            = 183998;
                 lightsHammer                = 114158;
                 ruleOfLaw                   = 214202;
-                AvengingCrusader            = 216331;
+                avengingCrusader            = 216331;
             },
             artifacts                       = {
 
@@ -1717,7 +1717,7 @@ br.lists.spells = {
                 ruleOfLaw                   = 214202;
                 theLightSaves               = 200423;
                 vindicator                  = 200376;
-                AvengingCrusader            = 216331;
+                avengingCrusader            = 216331;
             },
             debuffs                         = {
                 judgement                   = 214222,
@@ -1728,6 +1728,7 @@ br.lists.spells = {
 
             },
             talents                         = {
+                avengingCrusader            = 216331;
                 bestowFaith                 = 223306;
                 lightsHammer                = 114158;
                 crusadersMight              = 196926;
@@ -2322,7 +2323,7 @@ br.lists.spells = {
                 bladeFlurry                 = 13877,
                 bladeRush                   = 271877,
                 blind                       = 2094,
-                curseOfTheDreadblades       = 202665,                
+                curseOfTheDreadblades       = 202665,
                 dispatch                    = 2098,
                 ghostlyStrike               = 196937,
                 gouge                       = 1776,
@@ -2376,7 +2377,7 @@ br.lists.spells = {
                 rollTheBones                = {
                     broadside               = 193356,
                     buriedTreasure          = 199600,
-                    grandMelee              = 193358,                   
+                    grandMelee              = 193358,
                     ruthlessPrecision       = 193357,
                     skullAndCrossbones      = 199603,
                     trueBearing             = 193359,
