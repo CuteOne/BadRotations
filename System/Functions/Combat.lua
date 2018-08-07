@@ -299,6 +299,7 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
+	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
 	if GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) or UnitIsTapDenied(unit) then
 		targetUnit = "None"
@@ -328,6 +329,8 @@ function hasThreat(unit,playerUnit)
 				end
 			end
 		end
+	elseif isBoss() and inCombat(unit) and (instance == "party" or instance == "raid") then
+		return true
 	end
 end
 -- if isAggroed("target") then
