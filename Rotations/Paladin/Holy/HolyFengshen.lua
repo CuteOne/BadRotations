@@ -82,7 +82,7 @@ local function createOptions()
 			br.ui:createSpinner(section, "Gift of The Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		end
 		-- Divine Shield + Aura of Sacrifice
-		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFF���¿��ݼ��ͻ�ʹ���޵�+�����⻷.", true)
+		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFF按下快捷键就会使用无敌+牺牲光环.", true)
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
