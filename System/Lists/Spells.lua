@@ -1395,6 +1395,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                arcaneIntellect             = 1459,
                 incantersFlow               = 1463,
                 runeOfPower                 = 116014,
             },
