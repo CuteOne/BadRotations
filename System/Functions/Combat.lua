@@ -300,7 +300,7 @@ end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
 	if playerUnit == nil then playerUnit = "player" end
-	if GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) then
+	if GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) or UnitIsTapDenied(unit) then
 		targetUnit = "None"
 	elseif UnitTarget(GetUnit(unit)) ~= nil then
 		targetUnit = UnitTarget(GetUnit(unit))
