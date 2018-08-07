@@ -25,7 +25,7 @@ function cacheOM()
 			local thisUnit = GetObjectWithIndex(i)
 			local distance = getDistance(thisUnit)
 			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
-				if ObjectIsUnit(thisUnit) then
+				if ObjectIsUnit(thisUnit) and (not UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492) then
 					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
 					br.om[thisUnit]	= thisUnit
 				end
