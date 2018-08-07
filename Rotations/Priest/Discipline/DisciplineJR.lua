@@ -207,11 +207,11 @@ local function runRotation()
             tinsert(atonements, friends.yards40[i])
         else
             tinsert(notAtonements, friends.yards40[i])
-            if friends.yards40[i].hp < getValue("Atonement Threshold") then
+            if friends.yards40[i].hp < getValue("Atonement Threshold") and not buff.powerWordShield.exists(friends.yards40[i]) then
                 tinsert(needAtonement,friends.yards40[i])
             end
         end
-        if buff.atonement.remain(friends.yards40[i].unit) < 5 then
+        if buff.atonement.remain(friends.yards40[i].unit) < 5 and not buff.powerWordShield.exists(friends.yards40[i]) then
             tinsert(shortAtonements,friends.yards40[i])
         end
         if friends.yards40[i].hp < getValue("Power Word: Radiance") then
@@ -465,7 +465,7 @@ local function runRotation()
                         end
                         return true 
                     end
-                elseif cast.plea(needAtonement[1].unit, "aoe") then
+                elseif cast.powerWordShield(needAtonement[1].unit, "aoe") then
                     if mode.spreadatonement == 2 then
                         spreadCount = spreadCount - 1
                     end
@@ -481,7 +481,7 @@ local function runRotation()
                     spreadCount = spreadCount - 1
                     return true 
                 end
-            elseif cast.plea(thisUnit, "aoe") then 
+            elseif cast.powerWordShield(thisUnit, "aoe") then 
                 spreadCount = spreadCount - 1
                 return true 
             end
