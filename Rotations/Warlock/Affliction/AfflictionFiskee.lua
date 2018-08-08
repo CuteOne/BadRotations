@@ -244,13 +244,6 @@ local function runRotation()
             end
             return duration
         end
-        if sindoreiSpiteOffCD == nil then sindoreiSpiteOffCD = true end
-        if buff.sindoreiSpite.exists() and sindoreiSpiteOffCD then
-            sindoreiSpiteOffCD = false
-            C_Timer.After(180, function()
-                sindoreiSpiteOffCD = true
-            end)
-        end
 
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
@@ -280,7 +273,7 @@ local function runRotation()
         local writheInAgonyValue = 0
         if talent.writheInAgony then writheInAgonyValue = 1 end
 
-        local seedTarget = units.dyn40
+        local seedTarget = seedTarget or "target"
         local dsTarget
         local seedHit = 0
         local seedTargetsHit = 1
