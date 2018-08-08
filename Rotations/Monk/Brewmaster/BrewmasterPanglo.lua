@@ -286,7 +286,7 @@ local function runRotation()
                     end
                 end
             -- Black Ox Brew
-                if charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
+                if (charges.purifyingBrew.frac() < 0.5) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                     if cast.blackoxBrew() then return end
                 end
 -- ironskin_brew,&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-1.0-(1+buff.ironskin_brew.remains<=buff.ironskin_brew.duration*0.5)
@@ -346,11 +346,10 @@ local function runRotation()
                     end
                 end
             -- Black Ox Brew
-                if charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
+                if (charges.purifyingBrew.frac() < 0.5) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                     if cast.blackoxBrew() then return end
                 end
-
-                -- Ironskin Brew
+            -- Ironskin Brew
 				local ironskinBrewDuration = 7
                 if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
                     if cast.ironskinBrew() then return end
