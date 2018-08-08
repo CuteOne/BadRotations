@@ -240,22 +240,22 @@ local function runRotation()
 	-- Action List - Defensive
 		local function actionList_Defensive()
 			if useDefensive() then
-				-- Soul barrier
-                if isChecked("Soul Barrier") and php < getOptionValue("Soul Barrier") then
-                    if cast.soulBarrier() then return end
-                end
-				-- fiery_brand
-                if isChecked("Fiery Brand") and php <= getOptionValue("Fiery Brand") then
-                    if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
-                        if cast.fieryBrand() then return end
-                    end
-                end
-                -- demon_spikes
-                if isChecked("Demon Spikes") and charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and php <= getOptionValue("Demon Spikes") then
-                    if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
-                        if cast.demonSpikes() then return end
-                    end
-                end
+        -- Soul barrier
+        if isChecked("Soul Barrier") and php < getOptionValue("Soul Barrier") then
+            if cast.soulBarrier() then return end
+        end
+        -- fiery_brand
+        if isChecked("Fiery Brand") and php <= getOptionValue("Fiery Brand") then
+            if not buff.demonSpikes.exists() and not buff.metamorphosis.exists() then
+                if cast.fieryBrand() then return end
+            end
+        end
+        -- demon_spikes
+        if isChecked("Demon Spikes") and charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and php <= getOptionValue("Demon Spikes") then
+            if (charges.demonSpikes.count() == 2 or not buff.demonSpikes.exists()) and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() then
+                if cast.demonSpikes() then return end
+            end
+        end
 				-- metamorphosis
 				if isChecked("Metamorphosis") and not buff.demonSpikes.exists() and not debuff.fieryBrand.exists(units.dyn5) and not buff.metamorphosis.exists() and php <= getOptionValue("Metamorphosis") then
 					if cast.metamorphosis() then return end
@@ -364,7 +364,7 @@ local function runRotation()
               if cast.sigilOfFlame("best",false,1,8) then return end
     				end
     				-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-    				if charges.infernalStrike.count() == 2 and cd.fieryBrand.remain() == 0 then
+    				if charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() then
               if cast.infernalStrike("player","ground",1,6) then return end
             end
     				-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
@@ -441,6 +441,14 @@ local function runRotation()
 				if buff.soulFragments.stack() >= 4 then
           if cast.spiritBomb() then return end
         end
+        -- actions.normal+=/soul_cleave,if=!talent.spirit_bomb.enabled
+        if not talent.spiritBomb then
+          if cast.soulCleave() then return end
+        end
+        -- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&soul_fragments=0
+        if talent.spiritBomb and buff.soulFragments.stack() == 0 then
+          if cast.soulCleave() then return end
+        end
 				-- actions.normal+=/immolation_aura,if=pain<=90
 				if isChecked("Immolation Aura") and pain <= 90 then
           if cast.immolationAura() then return end
@@ -448,10 +456,6 @@ local function runRotation()
 				-- actions.normal+=/felblade,if=pain<=70
 				if pain <= 70 then
           if cast.felblade() then return end
-        end
-				-- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&talent.fracture.enabled&soul_fragments=0&cooldown.fracture.charges_fractional<1.75
-				if talent.spiritBomb and talent.fracture and buff.soulFragments.stack() == 0 and charges.fracture.frac() < 1.75 then
-					if cast.soulCleave() then return end
         end
 				-- actions.normal+=/fracture,if=soul_fragments<=3
 				if buff.soulFragments.stack() <= 3 then
@@ -461,14 +465,8 @@ local function runRotation()
         if getDistance(units.dyn20) < 20 then
 					if cast.felDevastation() then return end
 				end
-				-- actions.normal+=/soul_cleave,if=!talent.spirit_bomb.enabled
-				if not talent.spiritBomb then
-					if cast.soulCleave() then return end
-        end
-				-- actions.normal+=/soul_cleave,if=talent.spirit_bomb.enabled&soul_fragments=0
-				if talent.spiritBomb and buff.soulFragments.stack() == 0 then
-          if cast.soulCleave() then return end
-        end
+        -- actions.normal+=/soul_cleave
+        --if cast.soulCleave() then return end
 				-- actions.normal+=/sigil_of_flame
 				if isChecked("Sigil of Flame") and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
           if cast.sigilOfFlame("best",false,1,8) then return end
