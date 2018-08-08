@@ -198,8 +198,6 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
-        local t19pc4                                        = TierScan("T19") >= 4
-        local t20pc2                                        = TierScan("T20") >= 2
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.maelstrom.ttm()

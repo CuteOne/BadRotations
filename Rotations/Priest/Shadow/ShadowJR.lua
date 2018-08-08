@@ -1288,7 +1288,7 @@ local function runRotation()
         end
     -- Void Torrent
         -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-(buff.insanity_drain_stacks.stack)+60))
-        if isChecked("Void Torrent") and talent.voidTorrent.enabled() and useCDs()
+        if isChecked("Void Torrent") and talent.voidTorrent and useCDs()
             and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
             and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks + 60))
         then
