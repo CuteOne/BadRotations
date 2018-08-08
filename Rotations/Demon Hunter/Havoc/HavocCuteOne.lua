@@ -203,6 +203,7 @@ local function runRotation()
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
         enemies.yards8r = getEnemiesInRect(10,20,false) or 0
+        enemies.yards10 = br.player.enemies(10)
         enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
         enemies.yards20 = br.player.enemies(20)
         enemies.yards30 = br.player.enemies(30)
@@ -482,7 +483,7 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if cast.able.immolationAura() and #enemies.yards8 > 0 then
                 if cast.immolationAura() then return end
             end
         -- Felblade
@@ -579,7 +580,7 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if cast.able.immolationAura() and #enemies.yards8 > 0 then
                 if cast.immolationAura() then return end
             end
         -- Eye Beam
