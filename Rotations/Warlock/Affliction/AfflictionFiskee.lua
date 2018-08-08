@@ -254,19 +254,19 @@ local function runRotation()
 
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
-            openerCount = 0
-            OPN1 = false
-            AGN1 = false
-            COR1 = false
-            SIL1 = false
-            PHS1 = false
-            UAF1 = false
-            UAF2 = false
-            RES1 = false
-            UAF3 = false
-            SOH1 = false
-            DRN1 = false
-            opener = false
+            -- openerCount = 0
+            -- OPN1 = false
+            -- AGN1 = false
+            -- COR1 = false
+            -- SIL1 = false
+            -- PHS1 = false
+            -- UAF1 = false
+            -- UAF2 = false
+            -- RES1 = false
+            -- UAF3 = false
+            -- SOH1 = false
+            -- DRN1 = false
+            -- opener = false
         end
 
         -- Pet Data
@@ -282,6 +282,7 @@ local function runRotation()
 
         local seedTarget = units.dyn40
         local dsTarget
+        local seedHit = 0
         local seedTargetsHit = 1
         local lowestShadowEmbrace = lowestShadowEmbrace or "target"
 
@@ -297,9 +298,17 @@ local function runRotation()
                   lowestShadowEmbrace = thisUnit
               end
             end
-            if getFacing("player",thisUnit) and #getEnemies(thisUnit, 10, true) > seedTargetsHit and isValidUnit(thisUnit) and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
-              seedTarget = thisUnit
-              seedTargetsHit = #getEnemies(thisUnit, 10, true)
+            enemies.yards10t = getEnemies(thisUnit, 10)
+            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and isValidUnit(thisUnit) and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
+              seedHit = 0
+              for q = 1, #enemies.yards10t do
+                local seedAoEUnit = enemies.yards10t[q]
+                if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+1 then seedHit = seedHit + 1 end
+              end
+              if seedHit > seedTargetsHit then
+                seedTarget = thisUnit
+                seedTargetsHit = seedHit
+              end
             end
             if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and isValidUnit(thisUnit) and getHP(thisUnit) < 80 then
               dsTarget = thisUnit
@@ -411,7 +420,7 @@ local function runRotation()
 
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
-          if debuff.agony.exists() then
+          if debuff.agony.exists() or debuff.corruption.exists() then
             if cast.deathbolt() then return end
           end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
@@ -493,8 +502,12 @@ local function runRotation()
             if cast.vileTaint() then return end
           end
           -- actions+=/seed_of_corruption,if=dot.corruption.remains<=action.seed_of_corruption.cast_time+time_to_shard+4.2*(1-talent.creeping_death.enabled*0.15)&spell_targets.seed_of_corruption_aoe>=3+talent.writhe_in_agony.enabled&!dot.seed_of_corruption.remains&!action.seed_of_corruption.in_flight
-          if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and not debuff.seedOfCorruption.exists(seedTarget) and not cast.last.seedOfCorruption() then
+          if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption() then
             if cast.seedOfCorruption(seedTarget) then return end
+          end
+          -- Agony on seed dot if missing
+          if not debuff.agony.exists(seedTarget) and debuff.seedOfCorruption.exists(seedTarget) then
+            if cast.agony(seedTarget) then return end
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
@@ -583,7 +596,7 @@ local function runRotation()
               end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
-          if  #enemies.yards40 < 3 + writheInAgonyValue then
+          if seedTargetsHit < 3 + writheInAgonyValue then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 and isValidUnit(units.dyn40) then
@@ -601,7 +614,7 @@ local function runRotation()
           end
           -- actions+=/berserking
           -- actions+=/unstable_affliction,if=soul_shard>=5
-          if shards >= 5 and not moving then
+          if shards >= 5 and not moving and ttd() > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
@@ -620,19 +633,28 @@ local function runRotation()
           if spammableSeed and not moving then
             if cast.seedOfCorruption(seedTarget) then return end
           end
+          --spread UA on non boss before stacking
+          if not spammableSeed and not moving and not useCDs() and debuff.unstableAffliction.stack() >= 1 and shards >= 2 then
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if debuff.unstableAffliction.stack(thisUnit) == 0 and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
+                  if cast.unstableAffliction(thisUnit) then return end
+                end
+            end
+          end
           -- actions+=/unstable_affliction,if=!prev_gcd.1.summon_darkglare&!variable.spammable_seed&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+cast_time&active_enemies=1|target.time_to_die<=8+cast_time*soul_shard)
           if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd() > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd() <= 8 + cast.time.unstableAffliction() * shards)) then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() then
+          if not spammableSeed and not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd() > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
           if not spammableSeed and not moving then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(1, thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) then
+                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(1, thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
                   if cast.unstableAffliction(thisUnit) then return end
                 end
             end

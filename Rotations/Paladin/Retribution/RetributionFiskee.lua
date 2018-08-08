@@ -233,12 +233,12 @@ local function runRotation()
             OPN8 = false
 			OPN9 = false
         end
-     
-	    --actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
+
+	    --actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|!talent.righteous_verdict.enabled&talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
 		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (not talent.righteousVerdict and talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 --TO-DO Add azerite
 		--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
 		local HoW = (not talent.hammer_of_wrath or thp >= 20 and (not talent.crusade and not buff.avengingWrath.exists() or (talent.crusade and not buff.crusade.exists())))
-		
+
         local lowestUnit
 		local lowestTank
 		local lowestHealer
@@ -279,7 +279,7 @@ local function runRotation()
 		if lowestUnit == nil then lowestUnit = "player" end
 		if kingsUnit == nil then kingsUnit = "player" end
 		if wisdomUnit == nil then wisdomUnit = "player" end
-		
+
         -- Challenge Skin Heler
         if isChecked("Challenge Skin Helper") then
             for i=1, #enemies.yards10 do
@@ -358,8 +358,8 @@ local function runRotation()
 							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
 								if cast.layOnHands(lowestHealer) then return true end
 							elseif getHP(lowestTank) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
-								if cast.layOnHands(lowestTank) then return true end									
-							end							
+								if cast.layOnHands(lowestTank) then return true end
+							end
 					-- Healer/Damager
 						elseif getOptionValue("Lay on Hands Target") == 7 then
 							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Lay On Hands") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
@@ -404,8 +404,8 @@ local function runRotation()
 							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
 								if cast.flashOfLight(lowestHealer) then return true end
 							elseif getHP(lowestTank) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
-								if cast.flashOfLight(lowestTank) then return true end									
-							end							
+								if cast.flashOfLight(lowestTank) then return true end
+							end
 					-- Healer/Damager
 						elseif getOptionValue("Selfless Healer Target") == 7 then
 							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Selfless Healer") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
@@ -417,7 +417,7 @@ local function runRotation()
 						elseif getOptionValue("Selfless Healer Target") == 8 then
 							if cast.flashOfLight(lowestUnit) then return true end
 						end
-					end					
+					end
 					-- Word of Glory
 					if isChecked("Word of Glory") and talent.wordOfGlory and getHP(lowestUnit) <= getValue("Word of Glory") and inCombat then
 					-- Player
@@ -435,7 +435,7 @@ local function runRotation()
 							if getHP("mouseover") <= getValue("Word of Glory") then
 								if cast.wordOfGlory("mouseover") then return true end
 							end
-							
+
 						elseif getOptionValue("Word of Glory Target") == 4 then
 							if getHP(lowestTank) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
 								if cast.wordOfGlory(lowestTank) then return true end
@@ -450,8 +450,8 @@ local function runRotation()
 							if lowestHealer < lowestTank and getHP(lowestHealer) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestTank) == "TANK" then
 								if cast.wordOfGlory(lowestHealer) then return true end
 							elseif getHP(lowestTank) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
-								if cast.wordOfGlory(lowestTank) then return true end									
-							end							
+								if cast.wordOfGlory(lowestTank) then return true end
+							end
 					-- Healer/Damager
 						elseif getOptionValue("Word of Glory Target") == 7 then
 							if lowestHealer < lowestDps and getHP(lowestHealer) <= getValue("Word of Glory") and UnitGroupRolesAssigned(lowestHealer) == "HEALER" then
@@ -463,7 +463,7 @@ local function runRotation()
 						elseif getOptionValue("Word of Glory Target") == 8 then
 							if cast.wordOfGlory(lowestUnit) then return true end
 						end
-					end					
+					end
 					-- Divine Shield
 					if isChecked("Divine Shield") then
 						if php <= getOptionValue("Divine Shield") and inCombat then
@@ -690,13 +690,13 @@ local function runRotation()
                         OPN1 = true
                     elseif OPN1 and not OPN2 then
                         if castOpener("shieldOfVengeance","OPN2",1) then return end
-					
+
                     elseif OPN2 and not OPN3 and getDistance("target") < 5 then
-						if castOpener("bladeOfJustice","OPN3",2) then return end 
-					
+						if castOpener("bladeOfJustice","OPN3",2) then return end
+
                     elseif OPN3 and not OPN4 then
                         if castOpener("judgment","OPN4",3) then return end
-					
+
                     elseif OPN4 and not OPN5 then
                         if talent.crusade then
                             if castOpener("crusade","OPN5",4) then return end
@@ -713,7 +713,7 @@ local function runRotation()
 						end
                     elseif OPN6 and not OPN7 then
                             if castOpener("wakeOfAshes","OPN7",6) then return end
-						
+
                     elseif OPN7 and not OPN8 then
                         if talent.hammerOfWrath then
                             if castOpener("hammerOfWrath","OPN8",7) then return end
@@ -730,8 +730,8 @@ local function runRotation()
                         opener = true;
                         Print("Opener Complete")
                         return
-                    end			
-					
+                    end
+
 				end
             elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
                 opener = true
@@ -740,7 +740,7 @@ local function runRotation()
         end -- End Action List - Opener
     -- Action List - Finisher
         local function actionList_Finisher()
-		
+
 			--actions.finishers+=/inquisition,if=buff.inquisition.down|buff.inquisition.remains<5&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3
 			if talent.inquisition and not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3) or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15) or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3) then
 				if cast.inquisition() then return end
@@ -765,11 +765,11 @@ local function runRotation()
 			if (not talent.crusade or cd.crusade.remain() > gcd*2) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
                 if cast.templarsVerdict() then return end
             end
-           
+
         end
     -- Action List - Generator
         local function actionList_Generator()
-			
+
 			-- actions.generators+=/call_action_list,name=finishers,if=holy_power>=5
 			if holyPower >= 5 then
 				if actionList_Finisher() then return end
@@ -777,7 +777,7 @@ local function runRotation()
 			-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
 			if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance(units.dyn8) < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
                     if cast.wakeOfAshes() then return end
-            end		
+            end
 			-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 			if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
                 if cast.bladeOfJustice() then return end
@@ -809,7 +809,7 @@ local function runRotation()
 			if holyPower <= 4 then
 				if cast.crusaderStrike() then return end
             end
-			-- actions.generators+=/arcane_torrent,if=(debuff.execution_sentence.up|(talent.hammer_of_wrath.enabled&(target.health.pct>=20|buff.avenging_wrath.down|buff.crusade.down))|!talent.execution_sentence.enabled|!talent.hammer_of_wrath.enabled)&holy_power<=4	
+			-- actions.generators+=/arcane_torrent,if=(debuff.execution_sentence.up|(talent.hammer_of_wrath.enabled&(target.health.pct>=20|buff.avenging_wrath.down|buff.crusade.down))|!talent.execution_sentence.enabled|!talent.hammer_of_wrath.enabled)&holy_power<=4
 			if isChecked("Racial") and race == "BloodElf" and holyPower <= 4 and (debuff.executionSentence.exists("target") or (talent.hammerOfWrath and (thp >= 20 or (talent.crusade and not buff.crusade.exists()) or (not talent.crusade and not buff.avengingWrath.exists()))) or not talent.executionSentence or not talent.hammerOfWrath) then
                     if cast.racial() then return end
             end
@@ -862,7 +862,7 @@ local function runRotation()
             -- Action List - Interrupts
                     -- rebuke
                     if actionList_Interrupts() then return end
-            -- Action List - Opener					
+            -- Action List - Opener
                     -- call_action_list,name=opener,if=time<2
                     if combatTime < 2 then
                         if actionList_Opener() then return end
