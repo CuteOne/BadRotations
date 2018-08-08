@@ -329,7 +329,7 @@ function hasThreat(unit,playerUnit)
 				end
 			end
 		end
-	elseif isBoss() and inCombat(unit) and (instance == "party" or instance == "raid") then
+	elseif isBoss() and UnitAffectingCombat(unit) and (instance == "party" or instance == "raid") then
 		return true
 	end
 end
