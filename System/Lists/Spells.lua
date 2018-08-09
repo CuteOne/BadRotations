@@ -3234,8 +3234,6 @@ br.lists.spells = {
             },
             buffs                           = {
                 defensiveStance             = 71,
-                neltharionsFury             = 203524,
-                renewedFury                 = 202289,
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
