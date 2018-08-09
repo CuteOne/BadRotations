@@ -99,6 +99,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 boneShield                  = 195181,
+                bloodShield                 = 77535,
                 crimsonScourge              = 81136,
                 dancingRuneWeapon           = 81256,
                 tombstone                   = 219809,
@@ -3219,7 +3220,7 @@ br.lists.spells = {
                 impendingVictory            = 202168,
                 intercept                   = 198304,
                 lastStand                   = 12975,
-                rallyingCry					= 97462,
+                rallyingCry                 = 97462,
                 ravager                     = 228920,
                 revenge                     = 6572,
                 shieldBlock                 = 2565,
@@ -3230,7 +3231,7 @@ br.lists.spells = {
                 victoryRush                 = 34428,
             },
             artifacts                       = {
-	    
+        
             },
             buffs                           = {
                 defensiveStance             = 71,
