@@ -1057,8 +1057,8 @@ local function runRotation()
                 end
             end
         -- Blackout Kick
-            -- blackout_kick
-            if cast.able.blackoutKick() then
+            -- blackout_kick,if=!prev_gcd.1.blackout_kick
+            if cast.able.blackoutKick() and lastCast ~= spell.blackoutKick then
                 if cast.blackoutKick() then return true end
             end
         -- Chi Wave
