@@ -191,6 +191,10 @@ function isInLegion()
 	local legionMapIDs = br.lists.maps.Legion
 	return tContains(legionMapIDs,currentMapID)
 end
+function isInProvingGround()
+	local currentMapID = C_Map.GetBestMapForUnit("player")
+	return currentMapID == 480
+end
 
 -- if IsInPvP() then
 function isInPvP()
@@ -353,7 +357,7 @@ function isValidUnit(Unit)
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
+		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")
 		return hasThreat or (not instance and playerTarget) or (instance and (#br.friend == 1 or inCombat) and playerTarget) or (isDummy(Unit) and distance < 8)
 	end
