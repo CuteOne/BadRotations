@@ -3219,7 +3219,7 @@ br.lists.spells = {
                 impendingVictory            = 202168,
                 intercept                   = 198304,
                 lastStand                   = 12975,
-				rallyingCry					= 97462,
+                rallyingCry					= 97462,
                 ravager                     = 228920,
                 revenge                     = 6572,
                 shieldBlock                 = 2565,
@@ -3229,8 +3229,13 @@ br.lists.spells = {
                 thunderClap                 = 6343,
                 victoryRush                 = 34428,
             },
+            artifacts                       = {
+	    
+            },
             buffs                           = {
                 defensiveStance             = 71,
+                neltharionsFury             = 203524,
+                renewedFury                 = 202289,
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
