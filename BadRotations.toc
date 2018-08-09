@@ -236,6 +236,7 @@ Rotations\Warrior\Fury\FuryCuteOne.lua
 Rotations\Warrior\Fury\FuryImmy.lua
 
 Rotations\Warrior\Protection\ProtectionCuteOne.lua
+Rotations\Warrior\Protection\ProtectionPanglo.lua
 
 ## Non-Class Specific Rotations ------------------------------
 
