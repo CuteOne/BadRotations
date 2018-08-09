@@ -43,6 +43,9 @@ function TTDRefresh()
 				else
 					ttd[object] = death
 				end
+				if maxHP - currentHP == 0 then
+					ttd[object] = 99
+				end
 			end
 		end
 	end
@@ -69,7 +72,7 @@ function getTTD(unit)
 			end
 		end
 	end
-	
+
 	if enemyTable then
 		if enemyTable.ttd[thisUnit] ~= nil then
 			return enemyTable.ttd[thisUnit]
