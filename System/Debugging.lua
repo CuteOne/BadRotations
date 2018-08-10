@@ -19,6 +19,15 @@ br.debug.cpu.healingEngine = {
     absorbANDhp = 0,
 }
 br.debug.cpu.enemiesEngine = {
+    objects = {
+        elapsedTime = 0,
+        totalIterations = 0,
+        currentTime = 0,
+        averageTime = 0,
+        targets = 0,
+        addTime = 0,
+        cycleTime = 0,
+    },
     units = {
         elapsedTime = 0,
         totalIterations = 0,

@@ -5,7 +5,6 @@ function br:Engine()
 	-- Hidden Frame
 	if Pulse_Engine == nil then
 		Pulse_Engine = CreateFrame("Frame", nil, UIParent)
-		-- Pulse_Engine:SetScript("OnUpdate", ThreadHelper)
 		Pulse_Engine:SetScript("OnUpdate", BadRotationsUpdate)
 		Pulse_Engine:Show()
 	end

@@ -6,33 +6,68 @@ local findEnemiesThread = nil
 
 -- Cache Object Manager
 function cacheOM()
-	local inCombat = UnitAffectingCombat("player")
-	local playerObj = GetObjectWithGUID(UnitGUID("player"))
-	if br.om == nil then br.om = {} end
-	local omCounter = 0
-	for k, v in pairs(br.om) do
-		local thisUnit = v
-		local distance = getDistance(thisUnit)
-		omCounter = omCounter + 1;
-		if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or ((not inCombat and distance > 20) or (inCombat and distance > 50)) then
-			-- Print("Del - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
-			br.om[k] = nil
-		end
-	end
-	local objectCount = FireHack~=nil and GetObjectCount() or 0
-	if objectCount > 0 then
-		for i = 1, objectCount do
-			-- define our unit
-			local thisUnit = GetObjectWithIndex(i)
-			local distance = getDistance(thisUnit)
-			if br.om[thisUnit] == nil and GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
-				if ObjectIsUnit(thisUnit) and (not UnitIsFriend(thisUnit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492) then
-					-- Print("Add - Exists: "..tostring(GetObjectExists(thisUnit)).." | Visible: "..tostring(GetUnitIsVisible(thisUnit)).." | Combat: "..tostring(inCombat).." | Range: "..distance)
-					br.om[thisUnit]	= thisUnit
+	-- local function cacheOMHelper()
+	-- 	co = coroutine.create(function ()
+			local startTime = debugprofilestop()
+			local inCombat = UnitAffectingCombat("player")
+			local omCounter = 0
+			if isChecked("Debug Timers") then
+				br.debug.cpu.enemiesEngine.objects.targets = 0
+			end
+			-- Create OM Table if not present
+			if br.om == nil then br.om = {} end
+			-- Remove entries that are no longer valid
+			for thisEntry, thisUnit in pairs(br.om) do
+				local distance = getDistance(thisUnit)
+				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or ((not inCombat and distance > 20) or (inCombat and distance > 50)) then
+					br.om[thisEntry] = nil
+					break
 				end
 			end
-		end
-	end
+			-- Cycle OM
+			local objectCount = FireHack~=nil and GetObjectCount() or 0
+			if objectCount > 0 then
+				for i = 1, objectCount do
+					omCounter = omCounter + 1
+					if omCounter == 1 then cycleTime = debugprofilestop() end
+					-- define our unit
+					local thisUnit = GetObjectWithIndex(i)
+					local distance = getDistance(thisUnit)
+					if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
+						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
+							br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
+							br.om[thisUnit]	= thisUnit
+							break
+						end
+					end
+					if isChecked("Debug Timers") then
+						br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
+					end
+				end
+			end
+			-- Debugging
+			if isChecked("Debug Timers") then
+				br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
+				br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
+				br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
+				br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
+			end
+	-- 		coroutine.yield()
+	-- 	end)
+	-- 	return co
+	-- end
+	-- if cycleOM then
+	-- 	status, result = coroutine.resume(cycleOM)
+	-- 	if coroutine.status(cycleOM) == "dead" then
+	-- 		cycleOM = cacheOMHelper()
+	-- 		status, result = coroutine.resume(cycleOM)
+	-- 	end
+	-- 	return result
+	-- else
+	-- 	cycleOM = cacheOMHelper()
+	-- 	status, result = coroutine.resume(cycleOM)
+	-- 	return result
+	-- end
 end
 
 -- Update Pet
@@ -127,7 +162,7 @@ function FindEnemy()
 		br.debug.cpu.enemiesEngine.enemy.targets = 0
 	end
 -- Clean Up
-	for k, v in pairs(br.enemy) do if not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
+	for k, v in pairs(br.enemy) do if not enemyListCheck(br.enemy[k].unit) or not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
 	if br.units ~= nil then
 		for k,v in pairs(br.units) do
 			local thisUnit = br.units[k].unit
@@ -137,6 +172,7 @@ function FindEnemy()
 					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
 				end
 				AddEnemy(thisUnit)
+				break
 			end
 		end
 	end
@@ -179,18 +215,21 @@ function getOMUnits()
 			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
 				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
 				AddUnits(thisUnit)
+				break
 			end
 			-- Pet Info
 			if br.player.pet.list[thisUnit] == nil and not IsCritter(GetObjectID(thisUnit))
 				and (UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492)
 			then
 				AddPet(thisUnit)
+				break
 			end
 			-- Lootable
 			if br.lootable[thisUnit] == nil then
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if hasLoot and canLoot then
 					AddLootable(thisUnit)
+					break
 				end
 			end
 			if isChecked("Debug Timers") then

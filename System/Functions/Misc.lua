@@ -344,10 +344,11 @@ end
 function enemyListCheck(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player")
+	local playerObj = GetObjectWithGUID(UnitGUID("player"))
 
-	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and distance < 50
-		and not UnitIsFriend(Unit, "player") and UnitCanAttack("player",Unit) and isSafeToAttack(Unit)
-		and not isCritter(Unit) and getLineOfSight("player", Unit)
+	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
+		and getLineOfSight("player", Unit) and isSafeToAttack(Unit) and not isCritter(Unit)
+		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
@@ -357,7 +358,7 @@ function isValidUnit(Unit)
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or (isInProvingGround() and not UnitIsDeadOrGhost(Unit)) or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
+		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")
 		return hasThreat or (not instance and playerTarget) or (instance and (#br.friend == 1 or inCombat) and playerTarget) or (isDummy(Unit) and distance < 8)
 	end
