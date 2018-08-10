@@ -522,10 +522,6 @@ local function runRotation()
 			elseif isChecked("Crusader Strike") and not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
 				if cast.crusaderStrike(units.dyn5) then return end
 			end
-			--Avenging Crusader Consecration
-			if isChecked( "Consecration") and not isMoving("player") and buff.avengingCrusader.exists() then
-				if cast.consecration() then return end
-			end
 		end
 	end
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
