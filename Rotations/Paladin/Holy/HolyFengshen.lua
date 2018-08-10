@@ -42,13 +42,14 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-
+	
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS --- -- Define General Options
 		-----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "General")
-		--    br.ui:createCheckbox(section, "Boss Helper")
+		-- Disables Cache Object Manager
+		br.ui:createCheckbox(section,"Disables cacheOM","|cffFFFFFFCheck to Disables Cache Object Manager.This will upgrade FPS effectively.\nReload is required to take effect")		
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
 		-- Necrotic Rot
 		br.ui:createSpinner (section, "Necrotic Rot", 30, 0, 100, 1, "","|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
@@ -82,7 +83,9 @@ local function createOptions()
 			br.ui:createSpinner(section, "Gift of The Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		end
 		-- Divine Shield + Aura of Sacrifice
-		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFF按下快捷键就会使用无敌+牺牲光环.", true)
+		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFDivine Shield + Aura of Sacrifice usage.")
+		-- Divine Shield + Hand Of Reckoning
+		br.ui:createDropdown(section,"Divine Shield + Hand Of Reckoning Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFDivine Shield + Hand Of Reckoning usage.")		
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -170,7 +173,7 @@ local function createOptions()
 		-- Light's Hammer
 		br.ui:createSpinner(section, "Light's Hammer", 80, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Light's Hammer Targets",  3,  0,  40,  1,  "","|cffFFFFFFMinimum Light's Hammer Targets", true)
-		br.ui:createDropdown(section,"Light's Hammer Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFLight's Hammer usage.", true)
+		br.ui:createDropdown(section,"Light's Hammer Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFLight's Hammer usage.")
 		br.ui:checkSectionState(section)
 		-------------------------
 		---------- DPS ----------
@@ -207,7 +210,7 @@ local BOV = nil
 local function runRotation()
 	--if br.timer:useTimer("debugHoly", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
 	--Print("Running: "..rotationName)
-
+	
 	---------------
 	--- Toggles --- -- List toggles here in order to update when pressed
 	---------------
@@ -268,7 +271,7 @@ local function runRotation()
 	local units                                         = units or {}
 	local LightCount                                    = 0
 	local FaithCount                                    = 0
-
+	
 	if buff.ruleOfLaw.exists("player") then
 		lightOfDawn_distance_coff =1.5
 	else
@@ -279,7 +282,7 @@ local function runRotation()
 	else
 		master_coff =1.0
 	end
-
+	
 	units.dyn5 = br.player.units(5)
 	units.dyn15 = br.player.units(15)
 	units.dyn30 = br.player.units(30)
@@ -291,7 +294,7 @@ local function runRotation()
 	enemies.yards30 = br.player.enemies(30)
 	enemies.yards40 = br.player.enemies(40)
 	friends.yards40 = getAllies("player",40*master_coff)
-
+	
 	-- local lowest                                        = {}    --Lowest Unit
 	-- lowest.hp                                           = br.friend[1].hp
 	-- lowest.role                                         = br.friend[1].role
@@ -301,7 +304,7 @@ local function runRotation()
 	-- local lowestTank                                    = {}    --Tank
 	-- local tHp                                           = 95
 	-- local averageHealth                                 = 100
-
+	
 	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 		if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
 			if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
@@ -320,6 +323,27 @@ local function runRotation()
 			end
 		end
 	end
+	local function key()
+		-- Divine Shield + Aura of Sacrifice
+		if isChecked("Divine Shield + Aura of Sacrifice Key") and (SpecificToggle("Divine Shield + Aura of Sacrifice Key") and not GetCurrentKeyBoardFocus()) then
+			if buff.divineShield.exists() and talent.auraOfSacrifice then
+				if cast.auraMastery() then return end
+			end
+			if cast.divineShield() then return end
+		end	
+		-- Light's Hammer
+		if isChecked("Light's Hammer Key") and (SpecificToggle("Light's Hammer Key") and not GetCurrentKeyBoardFocus()) then
+			CastSpellByName(GetSpellInfo(spell.lightsHammer),"cursor")
+			return
+		end
+		-- Divine Shield + Hand Of Reckoning
+		if isChecked("Divine Shield + Hand Of Reckoning Key") and (SpecificToggle("Divine Shield + Hand Of Reckoning Key") and not GetCurrentKeyBoardFocus()) then
+			if buff.divineShield.exists() then
+				if cast.handOfReckoning() then return end
+			end
+			if cast.divineShield() then return end
+		end		
+	end	
 	local function PrePull()
 		-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
@@ -342,13 +366,6 @@ local function runRotation()
 				elseif canUse(getHealthPot()) then
 					useItem(getHealthPot())
 				end
-			end
-			-- Divine Shield + Aura of Sacrifice
-			if (SpecificToggle("Divine Shield + Aura of Sacrifice Key") and not GetCurrentKeyBoardFocus()) then
-				if buff.divineShield.exists() and talent.auraOfSacrifice then
-					if cast.auraMastery() then return end
-				end
-				if cast.divineShield() then return end
 			end
 			-- Gift of the Naaru
 			if isChecked("Gift of The Naaru") and php <= getOptionValue("Gift of The Naaru") and php > 0 and race == "Draenei" then
@@ -497,7 +514,7 @@ local function runRotation()
 	local function DPS()
 		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
 			--Consecration
-			if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
+			if isChecked( "Consecration") and #enemies.yards8 >= getValue( "Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
@@ -656,11 +673,6 @@ local function runRotation()
 			if getLowAllies(getValue"Aura Mastery") >= getValue("Aura Mastery Targets") then
 				if cast.auraMastery() then return end
 			end
-		end
-		-- Light's Hammer
-		if (SpecificToggle("Light's Hammer Key") and not GetCurrentKeyBoardFocus()) then
-			CastSpellByName(GetSpellInfo(spell.lightsHammer),"cursor")
-			return
 		end
 		if isChecked("Light's Hammer") and talent.lightsHammer and not isMoving("player") and GetSpellCooldown(114158) == 0 then
 			if getLowAllies(getValue("Light's Hammer")) >= getValue("Light's Hammer Targets") then
@@ -972,6 +984,7 @@ local function runRotation()
 	--- Out Of Combat - Rotations ---
 	---------------------------------
 	if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and not UnitDebuffID("player",188030) then
+		key()
 		PrePull()
 		CanIRess()
 		Cleanse()
@@ -985,6 +998,7 @@ local function runRotation()
 	--- In Combat - Rotations ---
 	-----------------------------
 	if inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and not UnitDebuffID("player",188030) then
+		key()
 		BossEncounterCase()
 		overhealingcancel()
 		actionList_Defensive()
