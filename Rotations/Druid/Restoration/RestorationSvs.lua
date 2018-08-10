@@ -143,7 +143,7 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Efflorescence recast delay", 20, 1, 30, 1, colorWhite.."Delay to recast Efflo in seconds.")
 		br.ui:createDropdown(section,"Efflorescence Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFEfflorescence usage.", true)
 		-- Lifebloom
-		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFNormal","|cffFFFFFFBoss1 Target,"|cffFFFFFFAny"}, 1, "|cffFFFFFFTarget for Lifebloom")
+		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFNormal","|cffFFFFFFBoss1 Target","|cffFFFFFFAny"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
 		br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		-- Ironbark
