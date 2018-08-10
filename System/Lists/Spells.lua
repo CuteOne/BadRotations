@@ -8,7 +8,7 @@ function getRacial()
         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
     end
     if race == "Orc" then
-        OrcRacial = select(7, GetSpellInfo(GetSpellInfo(20572)))
+        OrcRacial = select(7, GetSpellInfo(GetSpellInfo(33702)))
     end
     local racialSpells = {
         -- Alliance
@@ -32,6 +32,8 @@ function getRacial()
         LightforgedDraenei = 255647, -- Light's Judgment
         Nightborne = 260364, -- Arcane Pulse
         VoidElf = 256948, -- Spatial Rift
+        DarkIronDwarf = 265221, -- Fireblood
+        ZandalariTroll = 274738, -- Ancestral Call
     }
     return racialSpells[race]
 end
@@ -3231,7 +3233,7 @@ br.lists.spells = {
                 victoryRush                 = 34428,
             },
             artifacts                       = {
-        
+
             },
             buffs                           = {
                 defensiveStance             = 71,

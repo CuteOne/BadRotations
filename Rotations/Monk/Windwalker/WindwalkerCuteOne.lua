@@ -746,7 +746,7 @@ local function runRotation()
                 end
         -- Invoke Xuen
                 -- invoke_xuen
-                if cast.able.invokeXuen and isChecked("Xuen") then
+                if isChecked("Xuen") and cast.able.invokeXuen() then
                     if cast.invokeXuenTheWhiteTiger() then return true end
                 end
         -- Specter of Betrayal
@@ -763,12 +763,14 @@ local function runRotation()
                         useItem(147011)
                     end
                 end
-        -- Racial - Blood Fury / Berserking
+        -- Racial - Blood Fury / Berserking / Arcane Torrent / Fireblood
                 -- blood_fury
                 -- berserking
                 -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
+                -- fireblood
+                -- ancestral_call
                 if isChecked("Racial") and getSpellCD(racial) == 0 then
-                    if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
+                    if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "ZandalariTroll" then
                         if castSpell("player",racial,false,false,false) then return true end
                     end
                 end
@@ -990,9 +992,9 @@ local function runRotation()
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs()))
-                and lastCast ~= spell.tigerPalm and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4
+                and lastCast ~= spell.tigerPalm and getDistance("target") < 5
             then
-                if cast.energizingElixir() then TPEETimer = GetTime(); return true end
+                if cast.energizingElixir() then return true end
             end
         -- Blackout kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1&set_bonus.tier21_4pc&buff.bok_proc.up
@@ -1002,9 +1004,9 @@ local function runRotation()
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy.time_to_max<=1&chi.max-chi>=2&!buff.serenity.up
             if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir
-                and ttm <= 1 and chiMax - chi >= 2 and not buff.serenity.exists() and GetTime() >= TPEETimer + 0.4
+                and ttm <= 1 and chiMax - chi >= 2 and not buff.serenity.exists()
             then
-                if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+                if cast.tigerPalm(lowestMark) then return true end
             end
         -- Fist of the White Tiger
             -- fist_of_the_white_tiger,if=chi.max-chi>=3
@@ -1073,8 +1075,8 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&(chi.max-chi>=2|energy.time_to_max<3)&!buff.serenity.up
-            if cast.able.tigerPalm() and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) and not buff.serenity.exists() and GetTime() >= TPEETimer + 0.4 then
-                if cast.tigerPalm() then TPEETimer = GetTime(); return true end
+            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) and not buff.serenity.exists() then
+                if cast.tigerPalm(lowestMark) then return true end
             end
         -- Chi Burst
             -- chi_burst,if=chi.max-chi>=3&energy.time_to_max>1&!talent.serenity.enabled
@@ -1088,10 +1090,10 @@ local function runRotation()
             if actionList_Cooldown() then return true end
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm&chi<=1&(cooldown.rising_sun_kick.remains=0|(talent.fist_of_the_white_tiger.enabled&cooldown.fist_of_the_white_tiger.remains=0)|energy<50)
-            if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and getDistance("target") < 5 and GetTime() >= TPEETimer + 0.4
+            if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and getDistance("target") < 5
                 and lastCast ~= spell.tigerPalm and chi <= 1 and (cd.risingSunKick.remain() == 0 or (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() == 0) or energy < 50)
             then
-                if cast.able.energizingElixir() then TPEETimer = GetTime(); return true end
+                if cast.able.energizingElixir() then return true end
             end
         -- Arcane Torrent
             -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
@@ -1124,9 +1126,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=cooldown.whirling_dragon_punch.remains>=gcd&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
-            if cast.able.risingSunKick() and (cd.whirlingDragonPunch.remain() < gcd and talent.whirlingDragonPunch and isChecked("Whirling Dragon Punch"))
-                and lastCast ~= spell.risingSunKick and cd.fistsOfFury.remain() > gcd
-            then
+            if cast.able.risingSunKick() and cd.whirlingDragonPunch.remain() <= gcd and lastCast ~= spell.risingSunKick and cd.fistsOfFury.remain() > gcd then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
                     if cast.risingSunKick(thisUnit) then return true end
@@ -1179,12 +1179,12 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&(chi.max-chi>=2|energy.time_to_max<3)
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) and GetTime() >= TPEETimer + 0.4 then
-                if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) then
+                if cast.tigerPalm(lowestMark) then return true end
             end
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy.time_to_max<=1&chi.max-chi>=2
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and ttm <= 1 and chiMax - chi >= 2 and GetTime() >= TPEETimer + 0.4 then
-                if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and ttm <= 1 and chiMax - chi >= 2 then
+                if cast.tigerPalm(lowestMark) then return true end
             end
         -- Chi Wave
             -- chi_wave,if=chi<=3&(cooldown.rising_sun_kick.remains>=5|cooldown.whirling_dragon_punch.remains>=5)&energy.time_to_max>1
@@ -1201,8 +1201,8 @@ local function runRotation()
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
         -- Tiger Palm
                 -- tiger_palm,target_if=debuff.mark_of_the_crane.down,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1
-                if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and GetTime() >= TPEETimer + 0.2 then
-                    if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+                if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 then
+                    if cast.tigerPalm(lowestMark) then return true end
                 end
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
@@ -1235,8 +1235,8 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and not buff.serenity.exists() and GetTime() >= TPEETimer + 0.2 then
-                if cast.tigerPalm(lowestMark) then TPEETimer = GetTime(); return true end
+            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and not buff.serenity.exists() then
+                if cast.tigerPalm(lowestMark) then return true end
             end
         -- Call Action List - Cooldowns
             -- call_action_list,name=cd
@@ -1261,7 +1261,7 @@ local function runRotation()
         -- Fists of Fury
             -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
             if cast.able.fistsOfFury() and lastCast == spell.risingSunKick and lastCast2 == spell.serenity then
-                if cast.fistsOfFury() then return true end
+                if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains

@@ -276,9 +276,9 @@ function cCharacter:new(class)
 		local versioncheck = select(1,GetBuildInfo())
 		local build = select(2,GetBuildInfo())
 		local vnumber = versioncheck:gsub("(%D+)","")
-		if tonumber(vnumber) > 735 or (tonumber(vnumber) == 735 and tonumber(build) >= 26972) 
+		if tonumber(vnumber) > 735 or (tonumber(vnumber) == 735 and tonumber(build) >= 26972)
 			then version = "BFA"
-		else 
+		else
 			version = "Legion"
 		end
 		if version == "Legion" then
@@ -347,6 +347,8 @@ function cCharacter:new(class)
 		        LightforgedDraenei 	= 255647, -- Light's Judgment
 		        Nightborne 			= 260364, -- Arcane Pulse
 		        VoidElf 			= 256948, -- Spatial Rift
+				DarkIronDwarf 		= 265221, -- Fireblood
+		        ZandalariTroll 		= 274738, -- Ancestral Call
 			}
 			return racialSpells[self.race]
 		end
