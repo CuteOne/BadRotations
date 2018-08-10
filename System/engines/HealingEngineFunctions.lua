@@ -308,10 +308,11 @@ function healConeAround(numUnitsp, healthp, anglep, rangeInfrontp, rangeAroundp)
     local angle         = tonumber(anglep)
     local rinfront         = tonumber(rangeInfrontp)
     local raround       = tonumber(rangeAroundp)
-    local playerX, playerY, playerZ     = ObjectPosition('player')
-    local facing         = ObjectFacing("player")
+    local playerX, playerY, playerZ     = GetObjectPosition('player')
+    local facing         = GetObjectFacing("player")
     
     for i=1,#br.friend do
+	local thisUnit = br.friend[i].unit
         if br.friend[i].hp < health then 
             -- First check around us, light of dawn do heal 5 yards around
             if br.friend[i].distance < raround then
