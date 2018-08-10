@@ -67,8 +67,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
         -- Glide Fall Time
             br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
-        -- Artifact
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -476,7 +474,11 @@ local function runRotation()
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&cooldown.eye_beam.remains>5&!cooldown.metamorphosis.ready
             if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar
-                and (cd.eyeBeam.remain() > 5 or getOptionValue("Eye Beam Usage") == 3 or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE")))
+                and (cd.eyeBeam.remain() > 5
+                    or ((mode.rotation == 1 and (getOptionValue("Eye Beam Usage") == 3
+                        or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE"))
+                        or (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r == 0)))
+                    or mode.rotation == 2))
                 and (cd.metamorphosis.remain() ~= 0 or not isChecked("Metamorphosis") or not useCDs() or not isBoss())
             then
                 if cast.bladeDance() then return end
@@ -497,7 +499,7 @@ local function runRotation()
             if cast.able.eyeBeam() and not moving and (not talent.blindFury or powerDeficit >= 70) and (not metaExtended or (equiped.t21 >= 4 and buff.metamorphosis.remain() > 16))
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+                    or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -585,7 +587,7 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                     or (mode.rotation == 2 and enemies.yards8r > 0))
@@ -600,7 +602,7 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance
-            if cast.able.bladeDance() and buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance() then return end
             end
         -- Felblade
@@ -610,7 +612,7 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                     or (mode.rotation == 2 and enemies.yards8r > 0))
@@ -634,7 +636,7 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                     or (mode.rotation == 2 and enemies.yards8r > 0))

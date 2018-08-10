@@ -167,7 +167,7 @@ function FindEnemy()
 		for k,v in pairs(br.units) do
 			local thisUnit = br.units[k].unit
 			-- Enemies
-			if isValidUnit(thisUnit) then
+			if br.enemy[thisUnit] == nil and isValidUnit(thisUnit) then
 				if isChecked("Debug Timers") then
 					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
 				end
