@@ -16,9 +16,9 @@ function getDistance(Unit1,Unit2,option)
             if br.player.talent.balanceAffinity ~= nil then
                 if br.player.talent.balanceAffinity and option ~= "noMod" then
                     if hasEquiped(137015) then
-                        rangeMod = 5 + (5 * .75)
+                        rangeMod = 3 + (3 * .75)
                     else
-                        rangeMod = 5
+                        rangeMod = 3
                     end
                 end
             end

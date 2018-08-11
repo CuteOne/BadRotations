@@ -265,7 +265,7 @@ local function runRotation()
         if enemies == nil then enemies = {} end
         enemies.yards40     = br.player.enemies(40)
         enemies.yards20     = br.player.enemies(20)
-        enemies.yards20nc   = br.player.enemies(20,"player",true)
+        -- enemies.yards20nc   = br.player.enemies(20,"player",true)
         enemies.yards13     = br.player.enemies(13)
         enemies.yards8      = br.player.enemies(8)
         enemies.yards5      = br.player.enemies(5)
@@ -1540,12 +1540,12 @@ local function runRotation()
                         end
                     end
         -- Prowl - Non-PrePull
-                    if cast.able.prowl("player") and cat and #enemies.yards20nc > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
-                        for i = 1, #enemies.yards20nc do
-                            local thisUnit = enemies.yards20nc[i]
-                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
+                    if cast.able.prowl("player") and cat and #enemies.yards20 > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            -- if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
                                 if cast.prowl("player") then return true end
-                            end
+                            -- end
                         end
                     end
                 end -- End No Stealth
