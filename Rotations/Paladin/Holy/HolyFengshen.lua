@@ -48,8 +48,6 @@ local function createOptions()
 		--- GENERAL OPTIONS --- -- Define General Options
 		-----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "General")
-		-- Disables Cache Object Manager
-		br.ui:createCheckbox(section,"Disables cacheOM","|cffFFFFFFCheck to Disables Cache Object Manager.This will upgrade FPS effectively.\nReload is required to take effect")		
 		br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
 		-- Necrotic Rot
 		br.ui:createSpinner (section, "Necrotic Rot", 30, 0, 100, 1, "","|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
@@ -515,7 +513,7 @@ local function runRotation()
 	local function DPS()
 		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
 			--Consecration
-			if isChecked("Consecration") and ((not isChecked("Disables cacheOM") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("Disables cacheOM") and getDistance(units.dyn8) < 8 ))and not isMoving("player") and not buff.avengingCrusader.exists() then
+			if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
