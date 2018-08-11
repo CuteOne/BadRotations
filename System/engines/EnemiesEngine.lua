@@ -10,13 +10,13 @@ local findEnemiesThread = nil
 function cacheOM()
 	-- local function cacheOMHelper()
 	-- 	co = coroutine.create(function ()
-			if isChecked("HE Active") then
-				if next(br.om) ~= nil then br.om = {} end
-				return
-			end 
 			local startTime = debugprofilestop()
 			local inCombat = UnitAffectingCombat("player")
 			local omCounter = 0
+			if isChecked("HE Active") and (inCombat or (not inCombat and not isChecked("Auto Loot"))) then
+				if next(br.om) ~= nil then br.om = {} end
+				return
+			end
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.targets = 0
 			end
