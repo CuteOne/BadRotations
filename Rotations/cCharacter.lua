@@ -314,7 +314,9 @@ function cCharacter:new(class)
 		        Nightborne 			= 260364, -- Arcane Pulse
 		        VoidElf 			= 256948, -- Spatial Rift
 			}
-			return racialSpells[self.race]
+			if br.player ~= nil then
+				return br.player.spell.racial or racialSpells[self.race]
+			end
 		elseif version == "BFA" then
 			if self.race == "BloodElf" then
 	        BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
@@ -350,7 +352,9 @@ function cCharacter:new(class)
 				DarkIronDwarf 		= 265221, -- Fireblood
 		        ZandalariTroll 		= 274738, -- Ancestral Call
 			}
-			return racialSpells[self.race]
+			if br.player ~= nil then
+				return br.player.spell.racial or racialSpells[self.race]
+			end
 		end
 
 	end
