@@ -373,7 +373,7 @@ local function runRotation()
         function actionList_Single()
         --Seigebreaker
             -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>28
-            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 28) then
+            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 28 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
                 if cast.siegebreaker() then return end
             end
         -- Rampage
@@ -405,14 +405,14 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=prev_gcd.1.rampage&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.bladestorm() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            if cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.bladestorm() then return end
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.enrage.up&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.dragonRoar() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            if cast.able.dragonRoar() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker))) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 and (buff.enrage.exists() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.dragonRoar() then return end
