@@ -22,8 +22,7 @@ function cacheOM()
 			end
 			-- Remove entries that are no longer valid
 			for thisEntry, thisUnit in pairs(br.om) do
-				local distance = getDistance(thisUnit)
-				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or ((not inCombat and distance > 20) or (inCombat and distance > 50)) then
+				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or getDistance(thisUnit) >= 50 then
 					br.om[thisEntry] = nil
 					break
 				end
@@ -36,12 +35,10 @@ function cacheOM()
 					if omCounter == 1 then cycleTime = debugprofilestop() end
 					-- define our unit
 					local thisUnit = GetObjectWithIndex(i)
-					local distance = getDistance(thisUnit)
 					if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
-						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance <= 20) or (inCombat and distance <= 50)) then
+						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50 then
 							br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 							br.om[thisUnit]	= thisUnit
-							break
 						end
 					end
 					if isChecked("Debug Timers") then
@@ -176,7 +173,6 @@ function FindEnemy()
 					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
 				end
 				AddEnemy(thisUnit)
-				break
 			end
 		end
 	end
@@ -219,21 +215,18 @@ function getOMUnits()
 			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
 				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
 				AddUnits(thisUnit)
-				break
 			end
 			-- Pet Info
 			if br.player.pet.list[thisUnit] == nil and not IsCritter(GetObjectID(thisUnit))
 				and (UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == GetObjectWithGUID(UnitGUID("player")) or GetObjectID(thisUnit) == 11492)
 			then
 				AddPet(thisUnit)
-				break
 			end
 			-- Lootable
 			if br.lootable[thisUnit] == nil then
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if hasLoot and canLoot then
 					AddLootable(thisUnit)
-					break
 				end
 			end
 			if isChecked("Debug Timers") then

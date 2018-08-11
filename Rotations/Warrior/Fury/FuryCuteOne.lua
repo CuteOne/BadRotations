@@ -412,7 +412,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.enrage.up&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.dragonRoar() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker))) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            if cast.able.dragonRoar() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 and (buff.enrage.exists() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.dragonRoar() then return end
