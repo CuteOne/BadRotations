@@ -747,7 +747,7 @@ local function runRotation()
                 -- fireblood
                 -- ancestral_call
                 if isChecked("Racial") and getSpellCD(racial) == 0 then
-                    if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "ZandalariTroll" then
+                    if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "MagharOrc" then
                         if castSpell("player",racial,false,false,false) then return true end
                     end
                 end

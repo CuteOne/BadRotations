@@ -33,7 +33,7 @@ function getRacial()
         Nightborne = 260364, -- Arcane Pulse
         VoidElf = 256948, -- Spatial Rift
         DarkIronDwarf = 265221, -- Fireblood
-        ZandalariTroll = 274738, -- Ancestral Call
+        MagharOrc = 274738, -- Ancestral Call
     }
     return racialSpells[race]
 end
@@ -3122,45 +3122,29 @@ br.lists.spells = {
         [72] = {
             abilities                       = {
                 bladestorm                  = 46924,
-                bloodbath                   = 12292,
                 bloodthirst                 = 23881,
-                commandingShout             = 97462,
                 dragonRoar                  = 118000,
                 enragedRegeneration         = 184364,
                 execute                     = 5308,
                 furiousSlash                = 100130,
-                heroicLeap                  = 6544,
-                odynsFury                   = 205545,
                 piercingHowl                = 12323,
                 ragingBlow                  = 85288,
                 rampage                     = 184367,
+                recklessness                = 1719,
+                siegebreaker                = 280772,
                 whirlwind                   = 190411,
             },
             artifacts                       = {
-                juggernaut                  = 200875,
-                odynsFury                   = 205545,
-                senseDeath                  = 200863,
+
             },
             buffs                           = {
-                bladestorm                  = 46924,
-                bloodbath                   = 12292,
-                dragonRoar                  = 118000,
                 enrage                      = 184362,
-                enragedRegeneration         = 184364,
-                frenzy                      = 202539,
-                frothingBerserker           = 215572,
-                fujiedasFury                = 207775,
-                intimidatingShout           = 5246,
-                juggernaut                  = 201009,
-                massacre                    = 206316,
+                furiousSlash                = 202539,
                 meatCleaver                 = 85739,
-                senseDeath                  = 200979,
-                stoneHeart                  = 225947,
-                tasteForBlood               = 206333,
-                wreckingBall                = 215570,
+                recklessness                = 1719,
             },
             debuffs                         = {
-
+                siegebreaker                = 280773,
             },
             glyphs                          = {
 
@@ -3176,13 +3160,15 @@ br.lists.spells = {
                 freshMeat                   = 215568,
                 frothingBerserker           = 215571,
                 furiousCharge               = 202224,
+                furiousSlash                = 100130,
                 innerRage                   = 215573,
                 massacre                    = 206315,
-                outburst                    = 206320,
+                meatCleaver                 = 280392,
                 recklessAbandon             = 202751,
-                warMachine                  = 215556,
+                siegebreaker                = 280772,
+                suddenDeath                 = 280721,
+                warMachine                  = 262231,
                 warpaint                    = 208154,
-                wreckingBall                = 215569,
             },
         },
         -- Protection
@@ -3264,6 +3250,7 @@ br.lists.spells = {
             buffs                           = {
                 battleShout                 = 6673,
                 berserkerRage               = 18499,
+                fujiedasFury                = 207776,
                 victorious                  = 32216,
             },
             debuffs                         = {
@@ -3274,6 +3261,7 @@ br.lists.spells = {
             },
             items                           = {
                 archavonsHeavyHand          = 137060,
+                kazzalaxFujiedasFury        = 137053,
                 weightOfTheEarth            = 137077,
             },
             talents                         = {

@@ -350,7 +350,7 @@ function cCharacter:new(class)
 		        Nightborne 			= 260364, -- Arcane Pulse
 		        VoidElf 			= 256948, -- Spatial Rift
 				DarkIronDwarf 		= 265221, -- Fireblood
-		        ZandalariTroll 		= 274738, -- Ancestral Call
+		        MagharOrc 		= 274738, -- Ancestral Call
 			}
 			if br.player ~= nil then
 				return br.player.spell.racial or racialSpells[self.race]

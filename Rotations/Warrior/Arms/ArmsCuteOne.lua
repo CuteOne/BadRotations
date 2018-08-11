@@ -61,7 +61,9 @@ local function createOptions()
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- AoE Slider
-            br.ui:createSpinnerWithout(section, "AoE Threshold",  7,  1,  10,  1,  "|cffFFFFFFSet to desired targets to start AoE Rotation. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinnerWithout(section, "AoE Threshold",  2,  1,  10,  1,  "|cffFFFFFFSet to desired targets to start AoE Rotation. Min: 1 / Max: 10 / Interval: 1")
+            -- Battle Cry
+            br.ui:createCheckbox(section, "Battle Shout")
             -- Berserker Rage
             br.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
             -- Charge
@@ -72,10 +74,6 @@ local function createOptions()
             br.ui:createDropdown(section,"Heroic Leap", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             br.ui:createSpinner(section, "Heroic Charge",  15,  8,  25,  1,  "|cffFFFFFFSet to desired yards to Heroic Leap out to. Min: 8 / Max: 25 / Interval: 1")
-            -- Shockwave
-            br.ui:createCheckbox(section, "Shockwave")
-            -- Storm Bolt
-            br.ui:createCheckbox(section, "Storm Bolt")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -93,8 +91,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Touch of the Void")
              -- Avatar
             br.ui:createCheckbox(section, "Avatar")
-            -- Battle Cry
-            br.ui:createCheckbox(section, "Battle Shout")
             -- Bladestorm
             br.ui:createSpinner(section, "Bladestorm",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
             -- Ravager
@@ -234,7 +230,7 @@ local function runRotation()
         units.dyn8 = br.player.units(8)
         enemies.yards5 = br.player.enemies(5)
         enemies.yards8 = br.player.enemies(8)
-        enemies.yards40 = br.player.enemies(40)
+        enemies.yards20 = br.player.enemies(20)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -356,8 +352,8 @@ local function runRotation()
     -- Action List - Interrupts
         function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
+                for i=1, #enemies.yards20 do
+                    thisUnit = enemies.yards20[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                     -- Pummel
@@ -397,7 +393,7 @@ local function runRotation()
                 -- actions+=/fireblood,if=debuff.colossus_smash.up
                 -- actions+=/ancestral_call,if=debuff.colossus_smash.up
                 if isChecked("Racial") and cast.able.racial() and getSpellCD(racial) == 0
-                    and ((debuff.colossusSmash.exists(units.dyn5) and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "ZandalariTroll"))
+                    and ((debuff.colossusSmash.exists(units.dyn5) and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
                     or (not debuff.colossusSmash.exists(units.dyn5) and ((race == "BloodElf" and cd.mortalStrike.remain() > 1.5 and power < 50) or race == "LightforgedDraenei")))
                 then
                     if cast.racial() then return end
@@ -796,12 +792,12 @@ local function runRotation()
                 end
             -- Action List - Execute
                 -- run_action_list,name=execute,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
-                if (talent.massacre or getHP(units.dyn5) < 20) and level >= 8 then
+                if ((talent.massacre and getHP(units.dyn5) > 35) or getHP(units.dyn5) < 20) and level >= 8 then
                     if actionList_Execute() then return end
                 end
             -- Action List - Single
                 -- run_action_list,name=single_target
-                if getHP(units.dyn5) >= 20 or level < 8 then
+                if getHP(units.dyn5) >= 35 or (not talent.massacre and getHP(units.dyn5) >= 20) or level < 8 then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
