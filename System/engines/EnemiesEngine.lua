@@ -1,21 +1,25 @@
 -- Function to create and populate table of enemies within a distance from player.
+br.om 		= {}
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
 
+
 -- Cache Object Manager
 function cacheOM()
 	-- local function cacheOMHelper()
 	-- 	co = coroutine.create(function ()
+			if isChecked("HE Active") then
+				if next(br.om) ~= nil then br.om = {} end
+				return
+			end 
 			local startTime = debugprofilestop()
 			local inCombat = UnitAffectingCombat("player")
 			local omCounter = 0
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.targets = 0
 			end
-			-- Create OM Table if not present
-			if br.om == nil then br.om = {} end
 			-- Remove entries that are no longer valid
 			for thisEntry, thisUnit in pairs(br.om) do
 				local distance = getDistance(thisUnit)

@@ -360,8 +360,8 @@ function isValidUnit(Unit)
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")
-		return hasThreat or (next(br.enemy) == nil and distance < 20) or (not instance and playerTarget)
-			or (instance and (#br.friend == 1 or inCombat) and playerTarget) or (isDummy(Unit) and getDistance(Unit,"target") < 8)
+		return hasThreat or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
+			or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20)) or (isDummy(Unit) and getDistance(Unit,"target") < 8)
 	end
 	return false
 end

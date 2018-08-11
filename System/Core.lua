@@ -191,7 +191,7 @@ function BadRotationsUpdate(self)
 					br.player:update()
 				end
 			-- Enemy Engine
-				if (br.timer:useTimer("cacheOM",1) or br.om == nil) then
+				if br.timer:useTimer("cacheOM",1) then
 					cacheOM()
 				end
 				--if br.timer:useTimer("omUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
