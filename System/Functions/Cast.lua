@@ -582,9 +582,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                 elseif debug == "ground" then
 			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
 	                    if getLineOfSight(thisUnit) then
-	                        if IsMouseButtonDown(2) then
-	                            return false
-	                        else
+	                        if not IsMouseButtonDown(2) then
 	                            castDebug()
 	                            return castGround(thisUnit,spellCast,maxRange,minRange,effectRng)
 	                        end

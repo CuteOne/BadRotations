@@ -445,7 +445,7 @@ local function runRotation()
 			if isChecked("Auto Shapeshifts") then --and br.timer:useTimer("debugShapeshift", 0.25) then
 			-- Flight Form
 				if cast.able.travelForm("player") and not inCombat and canFly() and not swimming and br.fallDist > 90--[[falling > getOptionValue("Fall Timer")]] and level>=58 and not buff.prowl.exists() then
-                    if GetShapeshiftForm() ~= 0 and lastCast ~= spell.travelForm then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return true end
@@ -455,7 +455,7 @@ local function runRotation()
 		        end
 			-- Aquatic Form
 			    if cast.able.travelForm("player") and (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and moving then
-				  	if GetShapeshiftForm() ~= 0 and lastCast ~= spell.travelForm then
+				  	if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return true end

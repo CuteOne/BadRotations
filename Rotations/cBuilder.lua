@@ -484,8 +484,14 @@ function br.loader:new(spec,specName)
                 return isCastingSpell(spellID,unit)
             end
 
-            self.cast.last[k] = function()
-                return lastSpellCast == v
+            self.cast.last[k] = function(index)
+                if index == nil then index = 1 end
+                if index == 1 then return lastCast == v end
+                if index == 2 then return lastCast2 == v end 
+                if index == 3 then return lastCast3 == v end
+                if index == 4 then return lastCast4 == v end
+                if index == 5 then return lastCast5 == v end
+                return false
             end
 
             self.cast.range[k] = function()

@@ -336,29 +336,6 @@ local function runRotation()
             opener = false
         end
 
-        if (not inCombat or ttm < 2) and lastCast == spell.tigerPalm then lastCast2 = lastCast; lastCast = 6603 end
-
-        -- Last Combo Spell
-        if lastCast == spell.tigerPalm
-            or lastCast == spell.blackoutKick
-            or lastCast == spell.flyingSerpentKick
-            or lastCast == spell.spinningCraneKick
-            or lastCast == spell.risingSunKick
-            or lastCast == spell.fistsOfFury
-            or lastCast == spell.touchOfDeath
-            or lastCast == spell.cracklingJadeLightning
-            or lastCast == spell.chiWave
-            or lastCast == spell.rushingJadeWind
-            or lastCast == spell.chiBurst
-            or lastCast == spell.whirlingDragonPunch
-            or lastCast == spell.strikeOfTheWindlord
-        then
-            if level < 78 or buff.hitCombo.stack() == 0 then
-                lastCombo = 6603
-            else
-                lastCombo = lastCast
-            end
-        end
         local AttackPower = UnitAttackPower("player")
         local ArmorRedux = (1 - 0.3198)
         local Crit = (1 + (GetCritChance() / 100))
@@ -986,24 +963,24 @@ local function runRotation()
             end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=buff.rushing_jade_wind.down&!prev_gcd.1.rushing_jade_wind
-            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and lastCast ~= spell.rushingJadeWind then
+            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not cast.last.rushingJadeWind() then
                 if cast.rushingJadeWind() then return end
             end
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs()))
-                and lastCast ~= spell.tigerPalm and getDistance("target") < 5
+                and not cast.last.tigerPalm() and getDistance("target") < 5
             then
                 if cast.energizingElixir() then return true end
             end
         -- Blackout kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1&set_bonus.tier21_4pc&buff.bok_proc.up
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and chiMax - chi >= 1 and equiped.t21 >= 4 and buff.blackoutKick.exists() then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 and equiped.t21 >= 4 and buff.blackoutKick.exists() then
                 if cast.blackoutKick(lowestMark) then return true end
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy.time_to_max<=1&chi.max-chi>=2&!buff.serenity.up
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir()
                 and ttm <= 1 and chiMax - chi >= 2 and not buff.serenity.exists()
             then
                 if cast.tigerPalm(lowestMark) then return true end
@@ -1047,7 +1024,7 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and chiMax - chi >= 1 then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 then
                 if cast.blackoutKick(lowestMark) then return true end
             end
         -- Crackling Jade Lightning
@@ -1060,7 +1037,7 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,if=!prev_gcd.1.blackout_kick
-            if cast.able.blackoutKick() and lastCast ~= spell.blackoutKick then
+            if cast.able.blackoutKick() and not cast.last.blackoutKick() then
                 if cast.blackoutKick() then return true end
             end
         -- Chi Wave
@@ -1075,7 +1052,7 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&(chi.max-chi>=2|energy.time_to_max<3)&!buff.serenity.up
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) and not buff.serenity.exists() then
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and (chiMax - chi >= 2 or ttm < 3) and not buff.serenity.exists() then
                 if cast.tigerPalm(lowestMark) then return true end
             end
         -- Chi Burst
@@ -1091,7 +1068,7 @@ local function runRotation()
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm&chi<=1&(cooldown.rising_sun_kick.remains=0|(talent.fist_of_the_white_tiger.enabled&cooldown.fist_of_the_white_tiger.remains=0)|energy<50)
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and getDistance("target") < 5
-                and lastCast ~= spell.tigerPalm and chi <= 1 and (cd.risingSunKick.remain() == 0 or (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() == 0) or energy < 50)
+                and not cast.last.tigerPalm() and chi <= 1 and (cd.risingSunKick.remain() == 0 or (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() == 0) or energy < 50)
             then
                 if cast.able.energizingElixir() then return true end
             end
@@ -1126,7 +1103,7 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=cooldown.whirling_dragon_punch.remains>=gcd&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
-            if cast.able.risingSunKick() and cd.whirlingDragonPunch.remain() <= gcd and lastCast ~= spell.risingSunKick and cd.fistsOfFury.remain() > gcd then
+            if cast.able.risingSunKick() and cd.whirlingDragonPunch.remain() <= gcd and not cast.last.risingSunKick() and cd.fistsOfFury.remain() > gcd then
                 for i = 1, #enemies.yards5 do
                     thisUnit = enemies.yards5[i]
                     if cast.risingSunKick(thisUnit) then return true end
@@ -1144,23 +1121,23 @@ local function runRotation()
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=(active_enemies>=3|(buff.bok_proc.up&chi.max-chi>=0))&!prev_gcd.1.spinning_crane_kick&set_bonus.tier21_4pc
             if cast.able.spinningCraneKick() and (((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) or (buff.blackoutKick.exists() and chiMax - chi >= 0))
-                and lastCast ~= spell.spinningCraneKick and equiped.t21 >= 4
+                and not cast.last.spinningCraneKick() and equiped.t21 >= 4
             then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
             -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.1.spinning_crane_kick
-            if cast.able.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and lastCast ~= spell.spinningCraneKick then
+            if cast.able.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not cast.last.spinningCraneKick() then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1&set_bonus.tier21_4pc&(!set_bonus.tier19_2pc|talent.serenity.enabled)
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and chiMax - chi >= 1 and equiped.t21 >= 4 and (equiped.t19 < 2 or talent.serenity) then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 and equiped.t21 >= 4 and (equiped.t19 < 2 or talent.serenity) then
                 if cast.blackoutKick(lowestMark) then return true end
             end
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(chi>1|buff.bok_proc.up|(talent.energizing_elixir.enabled&cooldown.energizing_elixir.remains<cooldown.fists_of_fury.remains))&((cooldown.rising_sun_kick.remains>1&(!talent.fist_of_the_white_tiger.enabled|cooldown.fist_of_the_white_tiger.remains>1)|chi>4)&(cooldown.fists_of_fury.remains>1|chi>2)|prev_gcd.1.tiger_palm)&!prev_gcd.1.blackout_kick
             if cast.able.blackoutKick(lowestMark) and (chi > 1 or buff.blackoutKick.exists() or (talent.energizingElixir and cd.energizingElixir.remain() < cd.fistsOfFury.remain()))
                 and ((cd.risingSunKick.remain() > 1 and (not talent.fistOfTheWhiteTiger or cd.fistOfTheWhiteTiger.remain() > 1) or chi > 4)
-                    and (cd.fistOfTheWhiteTiger.remain() > 1 or chi > 2) or lastCast == spell.tigerPalm) and lastCast ~= spell.blackoutKick
+                    and (cd.fistOfTheWhiteTiger.remain() > 1 or chi > 2) or cast.last.tigerPalm()) and not cast.last.blackoutKick()
             then
                 if cast.blackoutKick(lowestMark) then return true end
             end
@@ -1174,16 +1151,16 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1&set_bonus.tier21_4pc&buff.bok_proc.up
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and chiMax - chi >= 1 and equiped.t21 >= 4 and buff.blackoutKick.exists() then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 and equiped.t21 >= 4 and buff.blackoutKick.exists() then
                 if cast.blackoutKick(lowestMark) then return true end
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&(chi.max-chi>=2|energy.time_to_max<3)
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and (chiMax - chi >= 2 or ttm < 3) then
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and (chiMax - chi >= 2 or ttm < 3) then
                 if cast.tigerPalm(lowestMark) then return true end
             end
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy.time_to_max<=1&chi.max-chi>=2
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and ttm <= 1 and chiMax - chi >= 2 then
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and ttm <= 1 and chiMax - chi >= 2 then
                 if cast.tigerPalm(lowestMark) then return true end
             end
         -- Chi Wave
@@ -1201,7 +1178,7 @@ local function runRotation()
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
         -- Tiger Palm
                 -- tiger_palm,target_if=debuff.mark_of_the_crane.down,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1
-                if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 then
+                if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and power == powerMax and chi < 1 then
                     if cast.tigerPalm(lowestMark) then return true end
                 end
         -- Call Action List - Cooldowns
@@ -1235,7 +1212,7 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
-            if cast.able.tigerPalm(lowestMark) and lastCast ~= spell.tigerPalm and lastCast ~= spell.energizingElixir and power == powerMax and chi < 1 and not buff.serenity.exists() then
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and power == powerMax and chi < 1 and not buff.serenity.exists() then
                 if cast.tigerPalm(lowestMark) then return true end
             end
         -- Call Action List - Cooldowns
@@ -1243,7 +1220,7 @@ local function runRotation()
             if actionList_Cooldown() then return true end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=talent.rushing_jade_wind.enabled&!prev_gcd.1.rushing_jade_wind&buff.rushing_jade_wind.down
-            if cast.able.rushingJadeWind() and talent.rushingJadeWind and lastCast ~= spell.rushingJadeWind and not buff.rushingJadeWind.exists() then
+            if cast.able.rushingJadeWind() and talent.rushingJadeWind and not cast.last.rushingJadeWind() and not buff.rushingJadeWind.exists() then
                 if cast.rushingJadeWind() then return true end
             end
         -- Serenity
@@ -1260,7 +1237,7 @@ local function runRotation()
             end
         -- Fists of Fury
             -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
-            if cast.able.fistsOfFury() and lastCast == spell.risingSunKick and lastCast2 == spell.serenity then
+            if cast.able.fistsOfFury() and cast.last.risingSunKick() and cast.last.serenity(2) then
                 if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
         -- Rising Sun Kick
@@ -1270,7 +1247,7 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2 then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2 then
                 if cast.blackoutKick(lowestMark) then return end
             end
         -- Fists of Fury
@@ -1280,7 +1257,7 @@ local function runRotation()
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
-            if cast.able.spinningCraneKick() and #enemies.yards8 >= 3 and lastCast ~= spell.spinningCraneKick then
+            if cast.able.spinningCraneKick() and #enemies.yards8 >= 3 and not cast.last.spinningCraneKick()  then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Rising Sun Kick
@@ -1290,12 +1267,12 @@ local function runRotation()
             end
         -- Spinning Crane Kick
             --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
-            if cast.able.spinningCraneKick() and lastCast ~= spell.spinningCraneKick then
+            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
-            if cast.able.blackoutKick(lowestMark) and lastCast ~= spell.blackoutKick then
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() then
                 if cast.blackoutKick(lowestMark) then return true end
             end
         end
@@ -1422,7 +1399,7 @@ local function runRotation()
                     end
         -- Touch of Death
                     -- touch_of_death,if=target.time_to_die<=9
-                    if useCDs() and isChecked("Touch of Death") and ttd > 9 and lastCast ~= spell.touchOfDeath then
+                    if useCDs() and isChecked("Touch of Death") and ttd > 9 and not cast.last.touchOfDeath() then
                         if cast.touchOfDeath() then SerenityTest = GetTime(); return true end
                     end
         -- Call Action List - Serenity
@@ -1468,16 +1445,16 @@ local function runRotation()
         -- -- Commenting this out for now, sub-optimal Chi usage
         -- -- Blackout Kick
         --             -- 1 Chi and Last Spell == Tiger Palm catch
-        --             if chi == 1 and lastCombo ~= spell.blackoutKick then
+        --             if chi == 1 and not cast.last.blackoutKick() then
         --                 if cast.blackoutKick() then return true end
         --             end
         -- -- Tiger Palm
         --             -- Less than equal to 1 Chi and Last Spell == Blackout Kick
-        --             if (chi <= 1 and lastCombo ~= spell.tigerPalm) or buff.hitCombo.stack() == 0 then
+        --             if (chi <= 1 and not cast.last.tigerPalm()) or buff.hitCombo.stack() == 0 then
         --                 if cast.tigerPalm() then return true end
         --             end
         -- -- Crackling Jade Lightning
-        --             if chi == 0 and lastCombo == spell.tigerPalm then
+        --             if chi == 0 and cast.last.tigerPalm() then
         --                 if cast.cracklingJadeLightning() then return true end
         --             end
                 end -- End Simulation Craft APL

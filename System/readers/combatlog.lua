@@ -88,6 +88,9 @@ function br.read.combatLog()
                         if br.player ~= nil then
                             for k, v in pairs(br.player.spell.abilities) do
                                 if v == spell then
+                                    lastCast5 = lastCast4
+                                    lastCast4 = lastCast3
+                                    lastCast3 = lastCast2
                                     lastCast2 = lastCast
                                     lastCast = spell
                                 end
