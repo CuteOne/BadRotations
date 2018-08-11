@@ -284,6 +284,7 @@ local function runRotation()
 	end
 	
 	units.dyn5 = br.player.units(5)
+	units.dyn8 = br.player.units(8)
 	units.dyn15 = br.player.units(15)
 	units.dyn30 = br.player.units(30)
 	units.dyn40 = br.player.units(40)
@@ -514,7 +515,7 @@ local function runRotation()
 	local function DPS()
 		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
 			--Consecration
-			if isChecked( "Consecration") and #enemies.yards8 >= getValue( "Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
+			if isChecked("Consecration") and ((not isChecked("Disables cacheOM") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("Disables cacheOM") and getDistance(units.dyn8) < 8 ))and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
