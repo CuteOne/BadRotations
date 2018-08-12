@@ -306,7 +306,9 @@ local function runRotation()
 	
 	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 		if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
-			if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
+			for i=1, 10 do 
+				if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
+			end
 		end
 	end
 	-----------------
@@ -513,7 +515,7 @@ local function runRotation()
 	local function DPS()
 		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
 			--Consecration
-			if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") and not buff.avengingCrusader.exists() then
+			if isChecked("Consecration") and ((not isChecked("HE Active") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("HE Active") and getDistance(units.dyn8) < 8 ))and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
