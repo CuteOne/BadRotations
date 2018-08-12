@@ -22,9 +22,9 @@ function cacheOM()
 			end
 			-- Remove entries that are no longer valid
 			for thisEntry, thisUnit in pairs(br.om) do
-				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or getDistance(thisUnit) >= 50 then
+				local distance = getDistance(thisUnit)
+				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or (not inCombat and distance >= 20) or (inCombat and distance >= 50) then
 					br.om[thisEntry] = nil
-					break
 				end
 			end
 			-- Cycle OM
@@ -36,7 +36,8 @@ function cacheOM()
 					-- define our unit
 					local thisUnit = GetObjectWithIndex(i)
 					if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
-						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50 then
+						local distance = getDistance(thisUnit)
+						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance < 20) or (inCombat and distance < 50)) then
 							br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 							br.om[thisUnit]	= thisUnit
 						end
