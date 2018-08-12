@@ -263,6 +263,22 @@ function br.loader:new(spec,specName)
             debuff.remainCount = function(remain)
                 return tonumber(getDebuffRemainCount(v,remain))
             end
+            debuff.lowest = function(range,debuffType)
+                if range == nil then range = 5 end
+                if debuffType == nil then debuffType = "remain" end
+                if type(debuffType) ~= "string" then debuffType = tostring(debuffType) end
+                local thisRemain = 99
+                local lowestUnit = dynamicTarget(range,true)
+                local enemies =  getEnemies("player",range,false)
+                for i = 1, #enemies do
+                    local thisUnit = enemies[i]
+                    if debuff[debuffType](thisUnit) > 0 and debuff[debuffType](thisUnit) < thisRemain then
+                        thisRemain = debuff[debuffType](thisUnit)
+                        lowestUnit = thisUnit
+                    end
+                end
+                return lowestUnit
+            end
             if spec == 103 then
                 debuff.calc = function()
                     return self.getSnapshotValue(v)
@@ -487,7 +503,7 @@ function br.loader:new(spec,specName)
             self.cast.last[k] = function(index)
                 if index == nil then index = 1 end
                 if index == 1 then return lastCast == v end
-                if index == 2 then return lastCast2 == v end 
+                if index == 2 then return lastCast2 == v end
                 if index == 3 then return lastCast3 == v end
                 if index == 4 then return lastCast4 == v end
                 if index == 5 then return lastCast5 == v end
