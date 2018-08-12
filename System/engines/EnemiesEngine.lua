@@ -4,7 +4,8 @@ br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
-
+local objectIndex = 1
+local omUpdated = false
 
 -- Cache Object Manager
 function cacheOM()
@@ -22,24 +23,30 @@ function cacheOM()
 			end
 			-- Remove entries that are no longer valid
 			for thisEntry, thisUnit in pairs(br.om) do
-				local distance = getDistance(thisUnit)
-				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or (not inCombat and distance >= 20) or (inCombat and distance >= 50) then
+				-- local distance = getDistance(thisUnit)
+				if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or getDistance(thisUnit) >= 50 then
+				-- if not GetObjectExists(thisUnit) or not GetUnitIsVisible(thisUnit) or (not inCombat and distance >= 20) or (inCombat and distance >= 50) then
 					br.om[thisEntry] = nil
+					omUpdated = true
 				end
 			end
 			-- Cycle OM
 			local objectCount = FireHack~=nil and GetObjectCount() or 0
 			if objectCount > 0 then
+				--if objectIndex >= objectCount then objectIndex = 1 end
 				for i = 1, objectCount do
 					omCounter = omCounter + 1
+					--objectIndex = objectIndex + 1
 					if omCounter == 1 then cycleTime = debugprofilestop() end
 					-- define our unit
 					local thisUnit = GetObjectWithIndex(i)
 					if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
-						local distance = getDistance(thisUnit)
-						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance < 20) or (inCombat and distance < 50)) then
+						-- local distance = getDistance(thisUnit)
+						-- if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and ((not inCombat and distance < 20) or (inCombat and distance < 50)) then
+						if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50 then
 							br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 							br.om[thisUnit]	= thisUnit
+							omUpdated = true
 						end
 					end
 					if isChecked("Debug Timers") then
@@ -207,11 +214,9 @@ function getOMUnits()
 	-- Cycle the Object Manager
 	local omCounter = 0;
 	if br.om ~= nil then
-		for k, v in pairs(br.om) do
+		for k, thisUnit in pairs(br.om) do
 			omCounter = omCounter + 1
 			if omCounter == 1 then cycleTime = debugprofilestop() end
-			-- define our unit
-			local thisUnit = v
 			-- Units
 			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
 				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
@@ -262,7 +267,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 			tinsert(enemiesTable,thisEnemy)
 		end
     end
-	if #enemiesTable == 0 and isValidUnit("target") then
+	if #enemiesTable == 0 and isValidUnit("target") and getDistance("target","player") < radius then
 		tinsert(enemiesTable,"target")
 	elseif enemiesTable["target"] ~= nil and (#enemiesTable > 1 or not isValidUnit("target")) then
 		tremove(enemiesTable,"target")

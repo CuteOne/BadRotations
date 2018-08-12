@@ -9,6 +9,14 @@ function br:Engine()
 		Pulse_Engine:Show()
 	end
 end
+function br:ObjectManager()
+	-- Object Manager
+	if OM_Engine == nil then
+		OM_Engine = CreateFrame("Frame", nil, UIParent)
+		OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
+		OM_Engine:Show()
+	end
+end
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[---------          ---           --------       -------           --------------------------------------------------------------------------------------------------------------------]]
 --[[---------  -----  ----   ---------------  ----  -------  --------  ---------------------------------------------------------------------------------------------------]]
@@ -119,7 +127,6 @@ frame:SetScript("OnEvent", frame.OnEvent)
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
-
 function getUpdateRate()
 	local updateRate = updateRate or 0.1
 	if updateRate < 0.1 then
@@ -138,6 +145,15 @@ function getUpdateRate()
 	end
 
 	return updateRate
+end
+
+function ObjectManagerUpdate(self)
+	if pulse == nil then pulse = GetTime() end
+	if GetTime() > pulse then
+		pulseOffset = getUpdateRate() --0.25
+		pulse = GetTime() + pulseOffset
+		cacheOM()
+	end
 end
 
 function BadRotationsUpdate(self)
@@ -159,7 +175,7 @@ function BadRotationsUpdate(self)
 			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 				br.ui:closeWindow("all")
 				return false
-			else
+			elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
 				br.fallDist = getFallDistance() or 0
 				-- if br.fallDist > 0 then print(br.fallDist) end
 				-- if pHealth == nil then pHealth = 0 end
@@ -187,17 +203,17 @@ function BadRotationsUpdate(self)
 			        br.player:update()
 			    end
 			    -- Update Player
-			    if br.player ~= nil and not CanExitVehicle() and br.timer:useTimer("playerUpdate", getUpdateRate()) then --br.debug.cpu.pulse.currentTime/10) then
+			    if br.player ~= nil and not CanExitVehicle() then --and br.timer:useTimer("playerUpdate", getUpdateRate()) then --br.debug.cpu.pulse.currentTime/10) then
 					br.player:update()
 				end
 			-- Enemy Engine
-				if br.timer:useTimer("cacheOM",2) then
-					cacheOM()
-				end
-				--if br.timer:useTimer("omUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
+				-- if br.timer:useTimer("cacheOM",1) then
+				-- 	cacheOM()
+				-- end
+				-- if br.timer:useTimer("unitsUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
 					getOMUnits()
-				--end
-				--if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
+				-- end
+				-- if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
 					FindEnemy()
 				-- end
 			-- Healing Engine

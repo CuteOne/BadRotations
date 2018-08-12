@@ -72,6 +72,7 @@ function br:Run()
 	-- Build up pulse frame (hearth)
 	if not br.loadedIn then
 		br:Engine()
+        br:ObjectManager()
 		ChatOverlay("-= BadRotations Loaded =-")
 		Print("Loaded")
 		br.loadedIn = true
