@@ -100,17 +100,11 @@ local function createOptions()
 		------ COOL  DOWNS ------
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
-		-- The Deceiver's Grand Design
-		br.ui:createDropdown(section, "The Deceiver's Grand Design" , {"|cffFFFFFFTanks","|cffFFFFFFTanks/Healer"}, 1, "|cffFFFFFFTarget for The Deceiver's Grand Design")
-		-- Archive of Faith
-		br.ui:createSpinner(section, "Archive of Faith", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  3,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
 		br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  3,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)
-		-- Uther's Guard + Blessing of Freedom
-		br.ui:createSpinner(section, "Uther's Guard+BoL", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")
 		-- Lay on Hands
 		br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
@@ -150,7 +144,6 @@ local function createOptions()
 		br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "","|cffFFFFFFisMoving Health Percent to Cast At")
 		br.ui:createSpinner(section, "Cloak LotM", 70, 0, 100, 5, "","|cffFFFFFFIn cloak buff Health Percent to Cast At")
-		br.ui:createSpinner(section, "LotM player HP limit", 40, 0, 100, 5, "","|cffFFFFFFLight of the Martyr Self HP limit", true)
 		br.ui:checkSectionState(section)
 		-------------------------
 		------ AOE HEALING ------
@@ -604,46 +597,14 @@ local function runRotation()
 				end
 			end
 		end
-		-- Uther's Guard + Blessing of Freedom
-		if isChecked("Uther's Guard+BoL") and hasEquiped(137105) and GetSpellCooldown(1044) == 0 then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue ("Uther's Guard+BoL") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-					if cast.blessingOfFreedom(br.friend[i].unit) then return end
-				end
-			end
-		end
-		-- The Deceiver's Grand Design
-		if isChecked("The Deceiver's Grand Design") and hasEquiped(147007) and canUse(147007) then
-			for i = 1, #br.friend do
-				if getOptionValue("The Deceiver's Grand Design") == 1 then
-					if getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-						UseItemByName(147007,br.friend[i].unit)
-					end
-				elseif getOptionValue("The Deceiver's Grand Design") == 2 then
-					if getBuffRemain(br.friend[i].unit,242622) == 0 and (UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-						UseItemByName(147007,br.friend[i].unit)
-					end
-				end
-			end
-		end
-		-- Archive of Faith
-		if isChecked("Archive of Faith") and hasEquiped(147006) and canUse(147006) then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-					UseItemByName(147006,br.friend[i].unit)
-				end
-			end
-		end
 		-- Trinkets
-		if isChecked("Trinket 1") and ((getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") and not hasEquiped(144258))
-			or hasEquiped(144258) and buff.avengingWrath.exists())then
+		if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
 			if canUse(13) then
 				useItem(13)
 				return true
 			end
 		end
-		if isChecked("Trinket 2") and ((getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") and not hasEquiped(144258))
-			or hasEquiped(144258) and buff.avengingWrath.exists())then
+		if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
 			if canUse(14) then
 				useItem(14)
 				return true
@@ -707,33 +668,6 @@ local function runRotation()
 		if isChecked("Judgement") and not UnitIsFriend("target", "player") and inCombat and GetSpellCooldown(20271) == 0 then
 			if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
 				if cast.judgment(units.dyn30) then return end
-			elseif hasEquiped(137046) then
-				if cast.judgment(units.dyn30) then return end
-			end
-		end
-		-- Legendary cloak and Light of the Martyr
-		if isChecked("Cloak LotM") and hasEquiped(144273) and php >= getOptionValue("LotM player HP limit") and getBuffRemain("player",234862) ~= 0 then
-			if inRaid and isChecked("Mastery bonus") then
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cloak LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (10*master_coff) then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-					end
-				end
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cloak LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (20*master_coff) then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-					end
-				end
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cloak LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDistance(br.friend[i].unit) <= (30*master_coff) then
-						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-					end
-				end
-			end
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue("Cloak LotM") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
-					if cast.lightOfTheMartyr(br.friend[i].unit) then return end
-				end
 			end
 		end
 		-- Light of Dawn
@@ -781,9 +715,6 @@ local function runRotation()
 				if cast.holyShock(br.friend[1].unit) then return end
 			end
 			if inRaid and isChecked("Mastery bonus") then
-				if php <= getValue("Holy Shock") and hasEquiped(137076) then
-					if cast.holyShock("player") then return end
-				end
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
 						if cast.holyShock(br.friend[i].unit) then return end
