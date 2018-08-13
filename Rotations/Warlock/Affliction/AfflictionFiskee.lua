@@ -88,8 +88,8 @@ local function createOptions()
             end
         -- Dark Pact
             br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-        -- Drain Soul
-            br.ui:createSpinner(section, "Drain Soul", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        -- Drain Life
+            br.ui:createSpinner(section, "Drain Life", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Health Funnel
             br.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Unending Resolve
@@ -292,7 +292,7 @@ local function runRotation()
               end
             end
             enemies.yards10t = getEnemies(thisUnit, 10)
-            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and isValidUnit(thisUnit) and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
+            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
               seedHit = 0
               for q = 1, #enemies.yards10t do
                 local seedAoEUnit = enemies.yards10t[q]
@@ -303,7 +303,7 @@ local function runRotation()
                 seedTargetsHit = seedHit
               end
             end
-            if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and isValidUnit(thisUnit) and getHP(thisUnit) < 80 then
+            if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and getHP(thisUnit) < 80 then
               dsTarget = thisUnit
             end
         end
@@ -367,9 +367,9 @@ local function runRotation()
         if isChecked("Dark Pact") and php <= getOptionValue("Dark Pact") then
             if cast.darkPact() then return end
         end
--- Drain Soul
-        if isChecked("Drain Soul") and php <= getOptionValue("Drain Soul") and isValidTarget("target") and not moving then
-            if cast.drainSoul() then return end
+-- Drain Life
+        if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValidTarget("target") and not moving then
+            if cast.drainLife() then return end
         end
 -- Health Funnel
         if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
@@ -515,7 +515,7 @@ local function runRotation()
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
-                if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
+                if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
                   if cast.agony(thisUnit) then return end
                 end
               end
@@ -592,7 +592,7 @@ local function runRotation()
           if seedTargetsHit < 3 + writheInAgonyValue then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 and isValidUnit(units.dyn40) then
+                if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 then
                   if cast.corruption(thisUnit) then return end
                 end
             end
@@ -655,15 +655,6 @@ local function runRotation()
           -- actions+=/call_action_list,name=fillers
           if actionList_Fillers() then return end
         end -- End Action List - Haunt
-    -- Action List - Low Level
-        local function actionList_LowLevel()
-            -- Shadow Bolt (Level 1)
-            -- Corruption (Levevl 3)
-            -- Life Tap (Level 8)
-            -- Agony (Level 10)
-            -- Drain Soul (Level 13)
-            -- Unstable Affliction (Level 14)
-        end -- End Action List - Low level
     -- Action List - Opener
         local function actionList_Opener()
           opener = true
@@ -736,7 +727,7 @@ local function runRotation()
                             PetAttack("target")
                         end
                         -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3
-                        if not moving and #getEnemies("target", 10, false) >= 3 then
+                        if not moving and #getEnemies("target", 10, true) >= 3 then
                           if cast.seedOfCorruption("target") then return end
                         end
                         -- actions.precombat+=/haunt
@@ -793,8 +784,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
             if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
-                and (opener == true or not isChecked("Opener") or not isBoss("target"))
-            then
+                and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -809,10 +799,7 @@ local function runRotation()
                     end
                     -- rotation
                     if actionList_Rotation() then return end
-        -- Call Action List - Low level
-                    if not talent.haunt and not talent.maleficGrasp and not talent.writheInAgony then
-                        if actionList_LowLevel() then return end
-                    end
+
                 end -- End SimC APL
 			end --End In Combat
 		end --End Rotation Logic
