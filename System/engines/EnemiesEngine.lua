@@ -11,7 +11,8 @@ function cacheOM()
 	local startTime = debugprofilestop()
 	local inCombat = UnitAffectingCombat("player")
 	local omCounter = 0
-	if isChecked("HE Active") and (inCombat or (not inCombat and not isChecked("Auto Loot"))) then
+	local fmod = math.fmod
+	if isChecked("HE Active") and (inCombat or not isChecked("Auto Loot")) then
 		if next(br.om) ~= nil then br.om = {} end
 		return
 	end
@@ -43,7 +44,7 @@ function cacheOM()
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
 			end
-			if math.fmod(objectIndex,100) == 0 then objectIndex = objectIndex + 1; break end
+			if fmod(objectIndex,100) == 0 then objectIndex = objectIndex + 1; break end
 			if objectIndex >= objectCount then objectIndex = 1 end
 		end
 	end
@@ -282,7 +283,7 @@ function findBestUnit(range,facing)
 	local dynRange = "dyn"..range
 	if dynTargets == nil then dynTargets = {} end
 	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end
-	if dynTargets[dynRange] ~= nil and (not isValidUnit(dynTargets[dynRange]) or br.timer:useTimer("dynamicUpdate"..range, updateRate)) then dynTargets[dynRange] = nil end
+	if dynTargets[dynRange] ~= nil and (not isValidUnit(dynTargets[dynRange]) --[[or br.timer:useTimer("dynamicUpdate"..range, updateRate)]]) then dynTargets[dynRange] = nil end
 	if dynTargets[dynRange] ~= nil then return dynTargets[dynRange] end
 	if dynTargets[dynRange] == nil then
 		for k, v in pairs(br.enemy) do
@@ -324,7 +325,7 @@ function dynamicTarget(range,facing)
 			bestUnit = findBestUnit(range,facing)
 		end
 	end
-	if UnitExists("target") and (not isChecked("Dynamic Targetting") or bestUnit == nil) and enemyListCheck("target") and isValidUnit("target")
+	if UnitExists("target") and (not isChecked("Dynamic Targetting") or bestUnit == nil) and isValidUnit("target")
 		and getDistance("target") < range and (not facing or (facing and getFacing("player","target")))
 	then
 		bestUnit = "target"

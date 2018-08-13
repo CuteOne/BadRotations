@@ -1679,7 +1679,7 @@ local function runRotation()
         -- Regrowth
                         -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8)
                         if cast.able.regrowth() and (comboPoints == 5 and buff.predatorySwiftness.exists() and talent.bloodtalons
-                            and not buff.bloodtalons.exists() and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(unit.dyn5) < 8))
+                            and not buff.bloodtalons.exists() and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(units.dyn5) < 8))
                         then
                             if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                                 if cast.regrowth(br.friend[1].unit) then return true end
