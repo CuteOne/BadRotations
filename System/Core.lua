@@ -148,11 +148,33 @@ function getUpdateRate()
 end
 
 function ObjectManagerUpdate(self)
-	if pulse == nil then pulse = GetTime() end
-	if GetTime() > pulse then
-		pulseOffset = getUpdateRate() --0.25
-		pulse = GetTime() + pulseOffset
-		cacheOM()
+	-- Check for Unlocker
+	if FireHack == nil then
+	 	br.ui:closeWindow("all")
+		if getOptionCheck("Start/Stop BadRotations") then
+			ChatOverlay("Unable To Load")
+			if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
+				Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
+			end
+		end
+		return false
+	else
+		-- Check Enabled State
+		if br.loadMsg == nil then br.loadMsg = false end
+		if not br.loadMsg then ChatOverlay("Loaded") br.loadMsg = true end
+		if br.data.settings ~= nil then
+			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+				br.ui:closeWindow("all")
+				return false
+			else
+				-- Pulse Object Manager for Caching
+				if pulse == nil then pulse = GetTime() end
+				if GetTime() > pulse then
+					pulse = GetTime() + getUpdateRate()
+					cacheOM()
+				end
+			end
+		end
 	end
 end
 
