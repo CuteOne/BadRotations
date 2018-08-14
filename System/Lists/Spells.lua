@@ -2468,6 +2468,7 @@ br.lists.spells = {
             talents                         = {
                 darkShadow                  = 245687,
                 envelopingShadows           = 238104,
+                findWeakness                = 91023,
                 gloomblade                  = 200758,
                 masterOfShadows             = 196976,
                 masterOfSubtlety            = 31223,
