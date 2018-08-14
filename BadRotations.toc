@@ -224,6 +224,7 @@ Rotations\Warlock\Affliction\AfflictionCuteOne.lua
 Rotations\Warlock\Affliction\AfflictionFiskee.lua
 
 Rotations\Warlock\Demonology\DemonologyCuteOne.lua
+Rotations\Warlock\Demonology\DemonologyChem.lua
 
 Rotations\Warlock\Destruction\DestructionCuteOne.lua
 
