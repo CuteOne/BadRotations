@@ -2849,10 +2849,12 @@ br.lists.spells = {
         -- Demonology
         [266] = {
             abilities                       = {
+                bilescourgeBombers          = 267211,
                 callDreadstalkers           = 104316,
                 commandDemon                = 119898,
                 demonbolt                   = 157695,
                 demonicEmpowerment          = 193396,
+                demonicStrength             = 267171,
                 demonwrath                  = 193440,
                 doom                        = 603,
                 drainLife                   = 234153,
@@ -2860,11 +2862,16 @@ br.lists.spells = {
                 grimoireFelguard            = 111898,
                 handOfGuldan                = 105174,
                 implosion                   = 196277,
+                netherPortal                = 267217,
+                powerSiphon                 = 264130,
                 shadowbolt                  = 686,
                 shadowflame                 = 205181,
                 shadowLock                  = 171138,
+                soulStrike                  = 264057,
                 spellLock                   = 19647,
                 summonDarkglare             = 205180,
+                summonDemonicTyrant         = 265187,
+                summonVilefiend             = 264119,
                 thalkielsConsumption        = 211714,
             },
             artifacts                       = {
@@ -2873,8 +2880,11 @@ br.lists.spells = {
             },
             buffs                           = {
                 demonicCalling              = 205146,
+                demonicCore                 = 267102,
                 demonicEmpowerment          = 193396,
+                demonicPower                = 265273,
                 demonwrath                  = 193440,
+                forbiddenKnowledge          = 278738,
                 shadowyInspiration          = 196269,
             },
             debuffs                         = {
@@ -2885,13 +2895,19 @@ br.lists.spells = {
 
             },
             talents                         = {
+                bilescourgeBombers          = 267211,
                 deathsEmbrace               = 234876,
                 demonbolt                   = 157695,
+                demonicStrength             = 267171,
                 grimoireOfSynergy           = 171975,
                 handOfDoom                  = 196283,
                 implosion                   = 196277,
+                netherPortal                = 267217,
+                powerSiphon                 = 264130,
                 shadowflame                 = 205181,
                 shadowyInspiration          = 196269,
+                soulStrike                  = 264057,
+                summonVilefiend             = 264119,
 
             },
         },
@@ -3008,6 +3024,7 @@ br.lists.spells = {
             },
             pets                            = {
                 darkglare                   = 103673,
+                demonicTyrant               = 135002,
                 doomguard                   = 78158,
                 dreadstlaker                = 98035,
                 felguard                    = 17252,
