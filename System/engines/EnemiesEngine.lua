@@ -4,7 +4,6 @@ br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
-local objectIndex = 1
 
 -- Cache Object Manager
 function cacheOM()
@@ -29,6 +28,7 @@ function cacheOM()
 	local objectCount = FireHack~=nil and GetObjectCount() or 0
 	if objectCount > 0 then
 		local playerObject = GetObjectWithGUID(UnitGUID("player"))
+		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
 		for i = objectIndex, objectCount do
 			objectIndex = objectIndex + 1
 			omCounter = omCounter + 1
@@ -45,7 +45,6 @@ function cacheOM()
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
 			end
 			if fmod(objectIndex,100) == 0 then objectIndex = objectIndex + 1; break end
-			if objectIndex >= objectCount then objectIndex = 1 end
 		end
 	end
 	-- Debugging
@@ -332,7 +331,7 @@ function dynamicTarget(range,facing)
 	end
 	if isChecked("Target Dynamic Target") and hasThreat(bestUnit) and (UnitExists("target") and not UnitIsUnit(bestUnit,"target")) then
 		TargetUnit(bestUnit)
-	elseif UnitAffectingCombat("player") and UnitIsDeadOrGhost("target") and hasThreat(bestUnit) then
+	elseif --[[UnitAffectingCombat("player") and]] (UnitIsDeadOrGhost("target") or not UnitExists("target")) and hasThreat(bestUnit) then
 		TargetUnit(bestUnit)
 	end
 	if isChecked("Debug Timers") then
