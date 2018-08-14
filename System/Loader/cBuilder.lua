@@ -1,6 +1,43 @@
 br.loader = {}
+function br.loader.loadProfiles()
+    local specID = GetSpecializationInfo(GetSpecialization())
+    local self = br.loader
+    wipe(br.rotations)
+    function self.rotationsDirectory()
+	    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
+	end
+
+	function self.classDirectories()
+	    return GetSubdirectories(self.rotationsDirectory()..'*')
+	end
+
+	function self.specDirectories(class)
+	    return GetSubdirectories(self.rotationsDirectory() .. class .. '\\*')
+	end
+
+	function self.profiles(class, spec)
+	    return GetDirectoryFiles(self.rotationsDirectory() .. class .. '\\' .. spec .. '\\*.lua')
+	end
+    -- Search each Class Folder in the Rotations Folder
+    for _, class in pairs(self.classDirectories()) do
+        -- Search each Spec Folder in the Class Folder
+        for _, spec in pairs(self.specDirectories(class)) do
+            -- Search each Profile in the Spec Folder
+            for _, file in pairs(self.profiles(class, spec)) do
+                local profile = ReadFile(self.rotationsDirectory()..class.."\\"..spec.."\\"..file)
+                local start = string.find(profile,"local id = ",1,true) or 0
+                profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
+                -- Print(profileID)
+                local loadProfile, error = loadstring(profile,file)
+                if profileID == specID then loadProfile() end
+            end
+        end
+    end
+end
 function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
+
+    br.loader.loadProfiles()
     br.loader.rotations = {}
     for k, v in pairs(br.rotations) do
         if spec == k then

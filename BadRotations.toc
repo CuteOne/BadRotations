@@ -1,4 +1,4 @@
-## Interface: 70300
+## Interface: 80000
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
@@ -19,6 +19,7 @@ System\UsefulFeatures.lua
 System\SlashCommands.lua
 
 ## Lists
+
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
 System\Lists\Dummy.lua
@@ -111,152 +112,29 @@ System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
-## Rotation
+## Loader
 
-Rotations\cCharacter.lua
-Rotations\cBuilder.lua
+System\Loader\cCharacter.lua
+System\Loader\cBuilder.lua
 
-## DeathKnight ---------------------------------------------------
-
-Rotations\Death Knight\Frost\FrostCuteOne.lua
-Rotations\Death Knight\Frost\THFrost.lua
-
-Rotations\Death Knight\Blood\BloodCuteOne.lua
-
-Rotations\Death Knight\Unholy\THUnholy.lua
-Rotations\Death Knight\Unholy\UnholyLemon.lua
-
-
-## DemonHunter ---------------------------------------------------
-
-Rotations\Demon Hunter\Havoc\HavocCuteOne.lua
-
-Rotations\Demon Hunter\Vengeance\VengeanceCuteOne.lua
-## Rotations\Demon Hunter\Vengeance\VengeanceDub.lua
-Rotations\Demon Hunter\Vengeance\VengeanceSaintly.lua
-
-## Druid ---------------------------------------------------
-
-Rotations\Druid\Feral\FeralCuteOne.lua
-
-Rotations\Druid\Guardian\GuardianPanglo.lua
-Rotations\Druid\Guardian\GuardianCuteOne.lua
-
-Rotations\Druid\Restoration\RestorationSvs.lua
-
-Rotations\Druid\Balance\BalanceLyLoLoq.lua
-
-## Hunter ---------------------------------------------------
-
-Rotations\Hunter\Beastmaster\BeastmasterCuteOne.lua
-Rotations\Hunter\Beastmaster\BeastmasterKuukuu.lua
-Rotations\Hunter\Beastmaster\BeastmasterArh.lua
-
-Rotations\Hunter\Marksmanship\MarksmanshipCuteOne.lua
-Rotations\Hunter\Marksmanship\MarksmanshipAura.lua
-Rotations\Hunter\Marksmanship\MarksmanshipBroAlpha.lua
-
-Rotations\Hunter\Survival\SurvivalCuteOne.lua
-
-## Mage ---------------------------------------------------
-
-Rotations\Mage\Arcane\ArcaneCuteOne.lua
-
-Rotations\Mage\Fire\FireWinston.lua
-
-## Rotations\Mage\Frost\FrostCuteOne.lua
-Rotations\Mage\Frost\FrostLemon.lua
-
-## Monk ---------------------------------------------------
-
-Rotations\Monk\Mistweaver\MistweaverLyLoLoq.lua
-## Rotations\Monk\Mistweaver\MistweaverCpoworks.lua
-
-Rotations\Monk\Brewmaster\BrewmasterPanglo.lua
-Rotations\Monk\Brewmaster\BrewmasterKuukuu.lua
-
-Rotations\Monk\Windwalker\WindwalkerCuteOne.lua
-
-## Paladin ---------------------------------------------------
-
-Rotations\Paladin\Holy\HolyFengshen.lua
-
-Rotations\Paladin\Protection\protectionPrettyBoy.lua
-
-Rotations\Paladin\Retribution\RetributionCuteOne.lua
-Rotations\Paladin\Retribution\RetributionFiskee.lua
-
-## Priest ---------------------------------------------------
-
-Rotations\Priest\Discipline\DisciplineJR.lua
-Rotations\Priest\Discipline\DisciplineBizkut.lua
-## Rotations\Priest\Discipline\DisciplineCpoworks.lua
-## Rotations\Priest\Discipline\DisciplineSvs.lua
-
-## Rotations\Priest\Holy\HolySvs.lua
-Rotations\Priest\Holy\HolyOdan.lua
-Rotations\Priest\Holy\HolyJR.lua
-
-Rotations\Priest\Shadow\ShadowCuteOne.lua
-Rotations\Priest\Shadow\ShadowJR.lua
-
-## Rogue ---------------------------------------------------
-
-Rotations\Rogue\Assassination\AssassinationCuteOne.lua
-Rotations\Rogue\Assassination\AssLemon.lua
-
-Rotations\Rogue\Outlaw\OutlawCuteOne.lua
-Rotations\Rogue\Outlaw\OutlawVilt.lua
-
-Rotations\Rogue\Subtlety\SubtletyCuteOne.lua
-
-## Shaman  ---------------------------------------------------
-
-Rotations\Shaman\Elemental\ElementalCuteOne.lua
-
-Rotations\Shaman\Enhancement\EnhancementCuteOne.lua
-
-Rotations\Shaman\Restoration\RestorationSvs.lua
-
-## Warlock ---------------------------------------------------
-
-Rotations\Warlock\Affliction\AfflictionCuteOne.lua
-Rotations\Warlock\Affliction\AfflictionFiskee.lua
-
-Rotations\Warlock\Demonology\DemonologyCuteOne.lua
-Rotations\Warlock\Demonology\DemonologyChem.lua
-
-Rotations\Warlock\Destruction\DestructionCuteOne.lua
-
-## Warrior ---------------------------------------------------
-
-Rotations\Warrior\Arms\ArmsCuteOne.lua
-Rotations\Warrior\Arms\ArmsLemon.lua
-
-Rotations\Warrior\Fury\FuryCuteOne.lua
-Rotations\Warrior\Fury\FuryImmy.lua
-
-Rotations\Warrior\Protection\ProtectionCuteOne.lua
-Rotations\Warrior\Protection\ProtectionPanglo.lua
-
-## Non-Class Specific Rotations ------------------------------
+## Misc
 
 ## PokeRotation ----------------------------------------------
 
-Rotations\_NonClass\PokeRotation\PokeAbilities.lua
-Rotations\_NonClass\PokeRotation\PokeCollections.lua
-Rotations\_NonClass\PokeRotation\PokeData.lua
-Rotations\_NonClass\PokeRotation\PokeEngine.lua
-Rotations\_NonClass\PokeRotation\PokeSwapper.lua
-Rotations\_NonClass\PokeRotation\PokeUI.lua
-Rotations\_NonClass\PokeRotation\PokeUnitInfo.lua
+System\Misc\PokeRotation\PokeAbilities.lua
+System\Misc\PokeRotation\PokeCollections.lua
+System\Misc\PokeRotation\PokeData.lua
+System\Misc\PokeRotation\PokeEngine.lua
+System\Misc\PokeRotation\PokeSwapper.lua
+System\Misc\PokeRotation\PokeUI.lua
+System\Misc\PokeRotation\PokeUnitInfo.lua
 
 ## ProfessionHelper -----------------------------------------
 
-Rotations\_NonClass\ProfessionHelper\ProfessionHelper.lua
+System\Misc\ProfessionHelper\ProfessionHelper.lua
 
 ## Zu BossManager -------------------------------------
 
-Custom\Zu\BossManager.lua
-Custom\Zu\MawOfSouls\Helya\coverThatHole.lua
-Custom\Zu\MawOfSouls\Helya.lua
+System\Misc\Zu\BossManager.lua
+System\Misc\Zu\MawOfSouls\Helya\coverThatHole.lua
+System\Misc\Zu\MawOfSouls\Helya.lua
