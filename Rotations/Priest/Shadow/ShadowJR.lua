@@ -801,7 +801,7 @@ local function runRotation()
         end
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
-        if isChecked("Shadow Crash") and talent.shadowCrash then
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     -- Shadow Word: Death
@@ -993,7 +993,7 @@ local function runRotation()
         end
     --Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
-        if isChecked("Shadow Crash") and talent.shadowCrash then
+        if isChecked("Shadow Crash") and talent.shadowCrash not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     --Mind Bender
@@ -1013,7 +1013,7 @@ local function runRotation()
     --Void Torrent
         -- void_torrent,if=dot.shadow_word_pain.remains>5.5&dot.vampiric_touch.remains>5.5&!buff.power_infusion.up|buff.voidform.stack<5
         if isChecked("Void Torrent") then
-            if debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
+            if talent.voidTorrent and debuff.shadowWordPain.remain(units.dyn40) > 5.5 and debuff.vampiricTouch.remain(units.dyn40) > 5.5
                 and (not buff.powerInfusion.exists() or buff.voidForm.stack() < 5)
             then
                 if cast.voidTorrent() then return end
@@ -1283,7 +1283,7 @@ local function runRotation()
 -- END: Higher Priority for DOTS in Void Form (Experimental)
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
-        if isChecked("Shadow Crash") and talent.shadowCrash then
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     -- Void Torrent
@@ -1338,9 +1338,9 @@ local function runRotation()
         --end
     -- Wait For Void Bolt
         -- wait,sec=action.void_bolt.usable_in,if=action.void_bolt.usable_in<gcd.max*0.28
-        if cd.voidBolt.remain() < gcdMax * 0.28 then
-            return true
-        end
+        --if cd.voidBolt.remain() < gcdMax * 0.28 then
+        --    return true
+        --end
     -- Shadow Word - Void
         -- shadow_word_void,if=talent.shadow_word_void.enabled&(insanity-(current_insanity_drain*gcd.max)+25)<100
         --if talent.shadowWordVoid and (power - (insanityDrain * gcdMax) + 25) < 100 then
@@ -1358,9 +1358,9 @@ local function runRotation()
         end
     -- Wait For Mind Blast
         -- wait,sec=action.mind_blast.usable_in,if=action.mind_blast.usable_in<gcd.max*0.28&active_enemies<=4
-        if cd.mindBlast.remain() < gcdMax * 0.28 then
-            return true
-        end
+        --if cd.mindBlast.remain() < gcdMax * 0.28 then
+        --    return true
+        --end
     -- Shadow Word - Death
         -- shadow_word_death,if=(active_enemies<=4|(talent.reaper_of_souls.enabled&active_enemies<=2))&cooldown.shadow_word_death.charges=2
         --if (#searEnemies <= 4 or (talent.reaperOfSouls and activeEnemies <= 2)) and charges.shadowWordDeath.count() == 2 then
@@ -1489,7 +1489,7 @@ local function runRotation()
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
         --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and cd.voidBolt.remain() == 0 then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindblast.remain() == 0) then
             SpellStopCasting()
             return true
         elseif not moving then
