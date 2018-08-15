@@ -37,7 +37,9 @@ function cacheOM()
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 			if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
-				if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and (UnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject) and getDistance(thisUnit) < 50 then
+				if GetObjectExists(thisUnit) and GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
+					and (UnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject)
+				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					br.om[thisUnit]	= thisUnit
 				end
