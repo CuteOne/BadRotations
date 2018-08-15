@@ -211,17 +211,11 @@ local function runRotation()
         local power, powerMax, powerDeficit, powerRegen, powerTTM       = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.deficit(), br.player.power.energy.regen(), br.player.power.energy.ttm()
         local pullTimer                                                 = br.DBM:getPulltimer()
         local race                                                      = br.player.race
-        local racial                                                    = br.player.getRacial()
         local solo                                                      = #br.friend < 2
         local spell                                                     = br.player.spell
         local stealth                                                   = br.player.buff.stealth.exists()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists()
-        local t18_4pc                                                   = TierScan("T18") >= 4
-        local t19_2pc                                                   = TierScan("T19") >= 2
-        local t19_4pc                                                   = TierScan("T19") >= 4
-        local t20_2pc                                                   = TierScan("T20") >= 2
-        local t20_4pc                                                   = TierScan("T20") >= 4
         local talent                                                    = br.player.talent
         local time                                                      = getCombatTime()
         local ttd                                                       = getTTD
@@ -506,7 +500,7 @@ local function runRotation()
                     then
                         if cast.pool.racial() then ChatOverlay("Pooling for Shadowmeld") end
                         if cast.able.racial() then
-                            if cast.shadowmeld() then ShdMTime = GetTime(); return end
+                            if cast.racial() then ShdMTime = GetTime(); return end
                         end
                     end
                 end
@@ -753,10 +747,14 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+energy.regen
                     -- arcane_pulse
                     -- lights_judgment
-                    if useCDs() and isChecked("Racial") and cast.able.racial() and getSpellCD(racial) == 0
+                    if useCDs() and isChecked("Racial") and cast.able.racial()
                         and ((race == "BloodElf" and powerDeficit >= 15 + powerRegen) or race == "Nightborne" or race == "LightforgedDraenei")
                     then
-                        if cast.racial() then return end
+                        if race == "LightforgedDraenei" then
+                            if cast.racial("target","ground") then return true end
+                        else
+                            if cast.racial("player") then return true end
+                        end
                     end
                 end
             end -- End In Combat

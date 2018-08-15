@@ -195,7 +195,6 @@ local function runRotation()
         local php                                           = br.player.health
         local power, powmax, powgen, powerDeficit           = br.player.power.maelstrom.amount(), br.player.power.maelstrom.max(), br.player.power.maelstrom.regen(), br.player.power.maelstrom.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
@@ -415,8 +414,8 @@ local function runRotation()
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- berserking,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
                 -- blood_fury,if=buff.ascendance.up|(feral_spirit.remains>5)|level<100
-                if isChecked("Racial") and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or feralSpiritRemain > 5 or level < 100)) and getSpellCD(racial) == 0 then
-                    if castSpell("player",racial,false,false,false) then return end
+                if isChecked("Racial") and cast.able.racial() and ((br.player.race == "Orc" or br.player.race == "Troll") and (buff.ascendance.exists() or feralSpiritRemain > 5 or level < 100)) then
+                    if cast.racial() then return end
                 end
         -- Potion
                 -- potion,if=buff.ascendance.up|(!talent.ascendance.enabled&!variable.heartEquipped&feral_spirit.remains>5)|target.time_to_die<=60

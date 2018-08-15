@@ -244,7 +244,6 @@ local function runRotation()
         local pullTimer         = br.DBM:getPulltimer()
         local queue             = br.player.queue
         local race              = br.player.race
-        local racial            = br.player.getRacial()
         local regen             = br.player.power.energy.regen()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
@@ -746,9 +745,13 @@ local function runRotation()
                 -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
                 -- fireblood
                 -- ancestral_call
-                if isChecked("Racial") and getSpellCD(racial) == 0 then
+                if isChecked("Racial") and cast.able.racial() then
                     if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "MagharOrc" then
-                        if castSpell("player",racial,false,false,false) then return true end
+                        if race == "LightforgedDraenei" then
+                            if cast.racial("target","ground") then return true end
+                        else
+                            if cast.racial("player") then return true end
+                        end
                     end
                 end
         -- Touch of Death
