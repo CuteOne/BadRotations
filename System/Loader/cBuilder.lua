@@ -142,9 +142,10 @@ function br.loader:new(spec,specName)
         for k, v in pairs(self.power.list) do
             if not self.power[k] then self.power[k] = {} end
             local power = self.power[k]
+            local isDKRunes = select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5
 
             power.amount = function()
-                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                if isDKRunes then
                     local runeCount = 0
                     for i = 1, 6 do
                         runeCount = runeCount + GetRuneCount(i)
@@ -158,7 +159,7 @@ function br.loader:new(spec,specName)
                 return getPowerMax("player",v) - getPower("player",v)
             end
             power.frac = function()
-                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                if isDKRunes then
                     local runeCount = 0
                     for i = 1, 6 do
                         runeCount = runeCount + GetRuneCount(i)
@@ -181,8 +182,13 @@ function br.loader:new(spec,specName)
             power.regen = function()
                 return getRegen("player")
             end
-            power.ttm = function()
-                return getTimeToMax("player")
+            power.ttm = function(amount)
+                if amount == nil then amount = 6 end
+                if isDKRunes then
+                    return runeTimeTill(amount)
+                else
+                    return getTimeToMax("player")
+                end
             end
         end
 

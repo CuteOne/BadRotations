@@ -434,7 +434,7 @@ local function runRotation()
                 -- berserking,if=stealthed.rogue
                 -- fireblood,if=stealthed.rogue
                 -- ancestral_call,if=stealthed.rogue
-                if useCDs() and isChecked("Racial") and cast.able.racial() and getSpellCD(racial) == 0  and stealthingRogue
+                if useCDs() and isChecked("Racial") and cast.able.racial() and stealthingRogue
                     and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc")
                 then
                     if cast.racial() then return end
@@ -660,7 +660,7 @@ local function runRotation()
                     end
         -- Marked For Death
                     -- marked_for_death,if=raid_event.adds.in>40
-                    if isChecked("Marked For Death - Precombat") and cast.able.markedForDeath("target") then
+                    if isChecked("Marked For Death - Precombat") and cast.able.markedForDeath("target") and combo <= 1 then
                         if cast.markedForDeath("target") then return end
                     end
         -- Shadowstep

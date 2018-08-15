@@ -277,33 +277,22 @@ function findBestUnit(range,facing)
 	local bestUnitCoef = 0
 	local bestUnit = bestUnit or nil
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
-	-- local dynRange = "dyn"..range
-	-- local dynTargets = dynTargets or {}
-	-- if dynTargets[dynRange] ~= nil then
-	-- 	if (not isValidUnit(br.dynTargets[dynRange]) or getDistance(dynTargets[dynRange]) > range
-	-- 		or (facing and not getFacing("player",dynTargets[dynRange])))
-	-- 	then dynTargets[dynRange] = nil Print("Invalid Unit") else return dynTargets[dynRange] end
-	-- else
-		for k, v in pairs(br.enemy) do
-			local thisUnit = v.unit
-			local distance = getDistance(thisUnit)
-			if distance <= range then
-				local coeficient = getUnitCoeficient(thisUnit) or 0
-				local isFacing = getFacing("player",thisUnit)
-				if getOptionCheck("Don't break CCs") then isCC = isLongTimeCCed(thisUnit) else isCC = false end
-				if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
-					bestUnitCoef = coeficient
-					bestUnit = thisUnit
-					-- dynTargets[dynRange] = thisUnit
-					-- Print(thisUnit)
-				end
+	for k, v in pairs(br.enemy) do
+		local thisUnit = v.unit
+		local distance = getDistance(thisUnit)
+		if distance <= range then
+			local coeficient = getUnitCoeficient(thisUnit) or 0
+			local isFacing = getFacing("player",thisUnit)
+			if getOptionCheck("Don't break CCs") then isCC = isLongTimeCCed(thisUnit) else isCC = false end
+			if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
+				bestUnitCoef = coeficient
+				bestUnit = thisUnit
 			end
 		end
-	-- end
+	end
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
 	end
-	-- Print(bestUnit)
 	return bestUnit
 end
 
