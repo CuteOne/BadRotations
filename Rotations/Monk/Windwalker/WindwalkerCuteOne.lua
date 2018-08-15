@@ -1442,10 +1442,10 @@ local function runRotation()
                     end
         -- Call Action List - Single Target
                     -- call_action_list,name=st
-                    if ((mode.rotation == 1 and #enemies.yards8 <= 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
+                    -- if ((mode.rotation == 1 and #enemies.yards8 <= 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
                         if actionList_SingleTarget() then return true end
-                    end
-        -- -- Commenting this out for now, sub-optimal Chi usage
+                    -- end
+        -- Commenting this out for now, sub-optimal Chi usage
         -- -- Blackout Kick
         --             -- 1 Chi and Last Spell == Tiger Palm catch
         --             if chi == 1 and not cast.last.blackoutKick() then
@@ -1453,7 +1453,7 @@ local function runRotation()
         --             end
         -- -- Tiger Palm
         --             -- Less than equal to 1 Chi and Last Spell == Blackout Kick
-        --             if (chi <= 1 and not cast.last.tigerPalm()) or buff.hitCombo.stack() == 0 then
+        --             if (chi == 0 and not cast.last.tigerPalm()) or buff.hitCombo.stack() == 0 then
         --                 if cast.tigerPalm() then return true end
         --             end
         -- -- Crackling Jade Lightning
