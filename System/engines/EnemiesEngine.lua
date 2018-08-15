@@ -11,6 +11,7 @@ function cacheOM()
 	local inCombat = UnitAffectingCombat("player")
 	local omCounter = 0
 	local fmod = math.fmod
+	local loopSet = floor(GetFramerate()) or 0
 	if isChecked("HE Active") and (inCombat or not isChecked("Auto Loot")) then
 		if next(br.om) ~= nil then br.om = {} end
 		return
@@ -44,7 +45,7 @@ function cacheOM()
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
 			end
-			if fmod(objectIndex,100) == 0 then objectIndex = objectIndex + 1; break end
+			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
 		end
 	end
 	-- Debugging
@@ -271,47 +272,38 @@ function getObjectEnemies(thisObject,radius)
 	return objectsTable
 end
 
-local debugMax = 0
-local debugMin = 999
-local dynamicSum = 0
-local dynamicCount = 0
-local avgTime = 0
 function findBestUnit(range,facing)
 	local startTime = debugprofilestop()
 	local bestUnitCoef = 0
-	local dynRange = "dyn"..range
-	if dynTargets == nil then dynTargets = {} end
-	if getUpdateRate() > br.player.gcd then updateRate = getUpdateRate() else updateRate = br.player.gcd end
-	if dynTargets[dynRange] ~= nil and (not isValidUnit(dynTargets[dynRange]) --[[or br.timer:useTimer("dynamicUpdate"..range, updateRate)]]) then dynTargets[dynRange] = nil end
-	if dynTargets[dynRange] ~= nil then return dynTargets[dynRange] end
-	if dynTargets[dynRange] == nil then
+	local bestUnit = bestUnit or nil
+	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
+	-- local dynRange = "dyn"..range
+	-- local dynTargets = dynTargets or {}
+	-- if dynTargets[dynRange] ~= nil then
+	-- 	if (not isValidUnit(br.dynTargets[dynRange]) or getDistance(dynTargets[dynRange]) > range
+	-- 		or (facing and not getFacing("player",dynTargets[dynRange])))
+	-- 	then dynTargets[dynRange] = nil Print("Invalid Unit") else return dynTargets[dynRange] end
+	-- else
 		for k, v in pairs(br.enemy) do
 			local thisUnit = v.unit
-			local thisGUID = v.guid
 			local distance = getDistance(thisUnit)
-			if distance < range and thisGUID == UnitGUID(thisUnit) then
+			if distance <= range then
 				local coeficient = getUnitCoeficient(thisUnit) or 0
 				local isFacing = getFacing("player",thisUnit)
 				if getOptionCheck("Don't break CCs") then isCC = isLongTimeCCed(thisUnit) else isCC = false end
 				if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
 					bestUnitCoef = coeficient
 					bestUnit = thisUnit
-					dynTargets[dynRange] = thisUnit
-					-- Debug Print
-					-- local currentTime = round2(debugprofilestop()-startTime,2)
-					-- dynamicSum = dynamicSum + currentTime
-					-- dynamicCount = dynamicCount + 1
-					-- avgTime = round2(dynamicSum / dynamicCount,2)
-					-- if currentTime > debugMax then debugMax = currentTime end
-					-- if currentTime < debugMin then debugMin = currentTime end
-					-- Print("["..dynamicCount.."] - Current: "..currentTime..", Max: "..debugMax..", Min: "..debugMin..", Avg: "..avgTime.." - Range: "..range)
+					-- dynTargets[dynRange] = thisUnit
+					-- Print(thisUnit)
 				end
 			end
 		end
-	end
+	-- end
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.bestUnitFinder = debugprofilestop()-startTime or 0
 	end
+	-- Print(bestUnit)
 	return bestUnit
 end
 
@@ -319,6 +311,7 @@ function dynamicTarget(range,facing)
 	if range == nil or range > 100 then return nil end
 	local startTime = debugprofilestop()
 	local facing = facing or false
+	local bestUnit = bestUnit or nil
 	if isChecked("Dynamic Targetting") then
 		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) then
 			bestUnit = findBestUnit(range,facing)
@@ -329,9 +322,9 @@ function dynamicTarget(range,facing)
 	then
 		bestUnit = "target"
 	end
-	if isChecked("Target Dynamic Target") and hasThreat(bestUnit) and (UnitExists("target") and not UnitIsUnit(bestUnit,"target")) then
-		TargetUnit(bestUnit)
-	elseif --[[UnitAffectingCombat("player") and]] (UnitIsDeadOrGhost("target") or not UnitExists("target")) and hasThreat(bestUnit) then
+	if hasThreat(bestUnit) and (UnitIsDeadOrGhost("target") or not UnitExists("target")
+		or (isChecked("Target Dynamic Target") and UnitExists("target") and not UnitIsUnit(bestUnit,"target")))
+	then
 		TargetUnit(bestUnit)
 	end
 	if isChecked("Debug Timers") then

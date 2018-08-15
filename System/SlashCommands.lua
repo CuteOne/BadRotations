@@ -1,6 +1,7 @@
 -- Slash Commands
 ---------------------------------
 function Print(msg)
+	if msg == nil then return end
 	print(br.classColor.."[BadRotations] |cffFFFFFF"..msg)
 end
 commandHelp = "|cffFF0000Slash Commands"
@@ -62,28 +63,28 @@ local function updateRate()
 	print("Current Dynamic Target Rate: "..getEnemyUpdateRate())
 end
 
-local function forewardDisengage() -- from Stinky Twitch 
-	local s, d, e = GetSpellCooldown(781) 
+local function forewardDisengage() -- from Stinky Twitch
+	local s, d, e = GetSpellCooldown(781)
 	if s == 0 then
-		MoveForwardStart() 
-		C_Timer.After(.10, function() 
-			MoveForwardStop() 
-			MoveBackwardStop() 
-			MoveAndSteerStop() 
-			JumpOrAscendStart() 
+		MoveForwardStart()
+		C_Timer.After(.10, function()
+			MoveForwardStop()
+			MoveBackwardStop()
+			MoveAndSteerStop()
+			JumpOrAscendStart()
 			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
-		end) 
-		C_Timer.After(.25, function() 
-			CastSpellByID(781) 
 		end)
-		MoveForwardStart() 
-		C_Timer.After(.30, function() 
-			MoveForwardStop() 
-			MoveBackwardStop() 
-			MoveAndSteerStop() 
-			JumpOrAscendStart() 
+		C_Timer.After(.25, function()
+			CastSpellByID(781)
+		end)
+		MoveForwardStart()
+		C_Timer.After(.30, function()
+			MoveForwardStop()
+			MoveBackwardStop()
+			MoveAndSteerStop()
+			JumpOrAscendStart()
 			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
-		end)  
+		end)
 	end
 end
 
