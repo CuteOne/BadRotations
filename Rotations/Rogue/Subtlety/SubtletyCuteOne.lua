@@ -596,7 +596,7 @@ local function runRotation()
             end
         -- Shuriken Storm
             -- shuriken_storm,if=spell_targets.shuriken_storm>=3
-            if cast.able.shurikenStorm() and ((mode.rotation == 1 and #enemies.yards10 >= 3) or (mode.rotation == 2 and #enemeis.yards10 > 0)) then
+            if cast.able.shurikenStorm() and ((mode.rotation == 1 and #enemies.yards10 >= 3) or (mode.rotation == 2 and #enemies.yards10 > 0)) then
                 if cast.shurikenStorm() then return end
             end
         -- Shadowstrike
@@ -615,7 +615,7 @@ local function runRotation()
             end
         -- Shuriken Storm
             -- shuriken_storm,if=spell_targets.shuriken_storm>=2|buff.the_dreadlords_deceit.stack>=29
-            if cast.able.shurikenStorm() and (((mode.rotation == 1 and #enemies.yards10 >= 2) or (mode.rotation == 2 and #enemeis.yards10 > 0)) or buff.theDreadlordsDeceit.stack() >= 29) then
+            if cast.able.shurikenStorm() and (((mode.rotation == 1 and #enemies.yards10 >= 2) or (mode.rotation == 2 and #enemies.yards10 > 0)) or buff.theDreadlordsDeceit.stack() >= 29) then
                 if cast.shurikenStorm() then return end
             end
         -- Backstab / Gloomblade
