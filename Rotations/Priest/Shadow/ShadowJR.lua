@@ -1489,7 +1489,7 @@ local function runRotation()
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
         --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindblast.remain() == 0) then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0) then
             SpellStopCasting()
             return true
         elseif not moving then
