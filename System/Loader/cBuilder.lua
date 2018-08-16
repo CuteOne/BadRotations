@@ -117,36 +117,38 @@ function br.loader:new(spec,specName)
         end
 
         -- Build Azerite Trait Info
-        for k,v in pairs(self.spell.traits) do
-            if not self.traits[k] then self.traits[k] = {} end
-            local traits = self.traits[k]
-            local specID = GetSpecializationInfo(GetSpecialization())
-            self.traits[k] = function()
-                local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-                if (not azeriteItemLocation) then return end
-                local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
-                for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
-                	local item = Item:CreateFromEquipmentSlot(slot)
-                	if (not item:IsItemEmpty()) then
-                		local itemLocation = item:GetItemLocation()
-                		if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
-                			local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-                			for tier, info in next, tierInfo do
-                				if (info.unlockLevel <= azeritePowerLevel) then
-                                    for _, powerID in next, info.azeritePowerIDs do
-                                        local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
-                                        local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-                                        if (powerInfo) then
-                                            local azeriteSpellID = powerInfo["spellID"]
-                                            if isSelected and azeriteSpellID == v then return true end
-                                        end
-                					end
-                				end
-                			end
-                		end
-                	end
+        if self.spell.traits ~= nil then
+            for k,v in pairs(self.spell.traits) do
+                if not self.traits[k] then self.traits[k] = {} end
+                local traits = self.traits[k]
+                local specID = GetSpecializationInfo(GetSpecialization())
+                self.traits[k] = function()
+                    local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+                    if (not azeriteItemLocation) then return end
+                    local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
+                    for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
+                    	local item = Item:CreateFromEquipmentSlot(slot)
+                    	if (not item:IsItemEmpty()) then
+                    		local itemLocation = item:GetItemLocation()
+                    		if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
+                    			local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                    			for tier, info in next, tierInfo do
+                    				if (info.unlockLevel <= azeritePowerLevel) then
+                                        for _, powerID in next, info.azeritePowerIDs do
+                                            local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
+                                            local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                                            if (powerInfo) then
+                                                local azeriteSpellID = powerInfo["spellID"]
+                                                if isSelected and azeriteSpellID == v then return true end
+                                            end
+                    					end
+                    				end
+                    			end
+                    		end
+                    	end
+                    end
+                    return false
                 end
-                return false
             end
         end
 
