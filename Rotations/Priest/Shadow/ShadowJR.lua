@@ -790,7 +790,7 @@ local function runRotation()
         end
     -- Dark Ascension
         if isChecked("Dark Ascension") and useCDs() then
-            if power <= 40 then
+            if power <= 40 and not buff.voidForm.exists() then
                 if cast.darkAscension() then return end
             end
         end
@@ -993,7 +993,7 @@ local function runRotation()
         end
     --Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
-        if isChecked("Shadow Crash") and talent.shadowCrash not isMoving("target") then
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
         end
     --Mind Bender
