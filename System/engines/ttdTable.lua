@@ -44,7 +44,7 @@ function TTDRefresh()
 					ttd[object] = death
 				end
 				if maxHP - currentHP == 0 then
-					ttd[object] = 99
+					ttd[object] = -1
 				end
 			end
 		end
@@ -61,6 +61,7 @@ function TTDRefresh()
 end
 
 function getTTD(unit)
+	if isDummy() then return 99 end
 	TTDRefresh()
 	local thisUnit = unit
 	if thisUnit ~= nil then
@@ -78,9 +79,5 @@ function getTTD(unit)
 			return enemyTable.ttd[thisUnit]
 		end
 	end
-	if isDummy() then
-		return 99
-	else
-		return -1
-	end
+	return -1
 end

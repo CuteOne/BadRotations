@@ -89,11 +89,11 @@ local function createOptions()
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
-            br.ui:createCheckbox(section, "Shadow Blades")
+            br.ui:createDropdownWithout(section, "Shadow Blades",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},2,"|cffFFFFFFWhen to use Shadow Blades.")
             -- Shadow Dance
-            br.ui:createCheckbox(section, "Shadow Dance")
+            br.ui:createDropdownWithout(section, "Shadow Dance",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},1,"|cffFFFFFFWhen to use Shadow Dance.")
             -- Shuriken Tornado
-            br.ui:createCheckbox(section, "Shuriken Tornado")
+            br.ui:createDropdownWithout(section, "Shuriken Tornado",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},1,"|cffFFFFFFWhen to use Shuriken Tornados.")
             -- Symbols of Death
             br.ui:createCheckbox(section, "Symbols of Death")
             -- Vanish
@@ -462,12 +462,12 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=combo_points.deficit>=2+stealthed.all
-                if useCDs() and isChecked("Shadow Blades") and cast.able.shadowBlades() and (comboDeficit >= 2 + stealthedAll) then
+                if (getOptionValue("Shadow Blades") == 1 or (getOptionValue("Shadow Blades") == 2 and useCDs())) and cast.able.shadowBlades() and (comboDeficit >= 2 + stealthedAll) then
                     if cast.shadowBlades() then return end
                 end
         -- Shuriken Tornado
                 -- shuriken_tornado,if=spell_targets>=3&dot.nightblade.ticking&buff.symbols_of_death.up&buff.shadow_dance.up
-                if useCDs() and isChecked("Shuriken Tornado") and cast.able.shurikenTornado()
+                if (getOptionValue("Shuriken Tornado") == 1 or (getOptionValue("Shuriken Tornado") == 2 and useCDs())) and cast.able.shurikenTornado()
                     and ((mode.rotation == 1 and #enemies.yards10 >= 3) or (mode.rotation == 2 and #enemies.yards10 > 0))
                     and debuff.nightblade.exists(units.dyn5) and buff.symbolsOfDeath.exists() and buff.shadowDance.exists()
                 then
@@ -475,7 +475,9 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled
-                if useCDs() and isChecked("Shadow Dance") and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty) then
+                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs()))
+                    and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
+                then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
             end -- End Cooldown Usage Check
@@ -507,7 +509,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets>=4&cooldown.symbols_of_death.remains>10)
                 -- shadow_dance,if=target.time_to_die<cooldown.symbols_of_death.remains
-                if useCDs() and isChecked("Shadow Dance") and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
+                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs())) and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
                     if ((not talent.darkShadow or debuff.nightblade.remain(units.dyn5) >= 5 + subty)
                         and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2
                             or ((mode.rotation == 1 and #enemies.yards5 >= 4) or (mode.rotation == 2 and #enemies.yards5 > 0)) and cd.symbolsOfDeath.remain() > 10))

@@ -99,6 +99,22 @@ function br.read.combatLog()
                     end
                 end
             end
+            if  (param == "SPELL_MISSED" or param == "SPELL_CAST_FAILED")
+                and ((lastSucceeded == lastCast and lastStarted ~= lastCast) or (lastSucceeded == lastCast and lastStarted == lastCast and lastFinished == lastCast))
+            then
+                -- Print(tostring(param).." | "..tostring(sourceName).." | "..tostring(spellName).."("..spell..")".." | "..tostring(destName))
+                if sourceName ~= nil then
+                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                        if spell == lastCast then
+                            lastCast = lastCast2
+                            lastCast2 = lastCast3
+                            lastCast3 = lastCast4
+                            lastCast4 = lastCast5
+                            lastCast5 = 6603
+                        end
+                    end
+                end
+            end
             -- br.tracker.handleEvent(...)
             ----------------
             --[[Item locks]]

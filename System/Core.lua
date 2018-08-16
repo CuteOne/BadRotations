@@ -30,8 +30,12 @@ frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
-frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP")
 frame:RegisterUnitEvent("UNIT_SPELLCAST_SENT")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_START")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP")
+frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
 frame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
@@ -78,13 +82,47 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	if event == "PLAYER_EQUIPMENT_CHANGED" then
 		br.equipHasChanged = true
 	end
+	if event == "UNIT_SPELLCAST_CHANNEL_START" then
+		local sourceName, line, spell = arg1, arg2, arg3
+		if sourceName ~= nil then
+            if UnitIsUnit(sourceName,"player") then
+				-- if br.player ~= nil then
+				-- 	for k, v in pairs(br.player.spell.abilities) do
+				-- 		if v == spell then
+							-- Print("Started casting "..GetSpellInfo(spell))
+							lastStarted = spell
+				-- 		end
+				-- 	end
+				-- end
+			end
+		end
+	end
+	if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
+		local sourceName, line, spell = arg1, arg2, arg3
+		if sourceName ~= nil then
+            if UnitIsUnit(sourceName,"player") then
+				-- if br.player ~= nil then
+				-- 	for k, v in pairs(br.player.spell.abilities) do
+				-- 		if v == spell then
+							-- Print("Finished casting "..GetSpellInfo(spell))
+							lastFinished = spell
+				-- 		end
+				-- 	end
+				-- end
+			end
+		end
+	end
     if event == "UNIT_SPELLCAST_SUCCEEDED" then
     	-- Cast anything in spell queue
-    	local sourceName, spellName, rank, line, spell = arg1, arg2, arg3, arg4, arg5
+    	local sourceName, line, spell = arg1, arg2, arg3
     	-- Print("Source: "..sourceName..", Spell: "..spellName..", ID: "..spell)
 		if botCast == true then botCast = false end
         if sourceName ~= nil then
             if UnitIsUnit(sourceName,"player") then
+				-- Print("Succeeded in casting "..spellName)
+				lastSucceeded = spell
+				-- if spell == 100780 then Print("Tiger Palm was cast.") end
+				-- if spell == 101546 then Print("Spinning Crane Kick was cast.") end
             	if br.player ~= nil then
 	                if #br.player.queue ~= 0 then
 	                    for i = 1, #br.player.queue do
@@ -92,7 +130,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 	                            tremove(br.player.queue,i)
 	                            if IsAoEPending() then SpellStopTargeting() end
 	                            if not isChecked("Mute Queue") then
-	                            	Print("Cast Success! - Removed |cFFFF0000"..spellName.."|r from the queue.")
+	                            	Print("Cast Success! - Removed |cFFFF0000"..GetSpellInfo(spell).."|r from the queue.")
 	                            end
 	                            break
 	                        end
@@ -172,6 +210,8 @@ function ObjectManagerUpdate(self)
 				if GetTime() > pulse then
 					pulse = GetTime() + getUpdateRate()
 					cacheOM()
+					getOMUnits()
+					FindEnemy()
 				end
 			end
 		end
@@ -233,10 +273,10 @@ function BadRotationsUpdate(self)
 				-- 	cacheOM()
 				-- end
 				-- if br.timer:useTimer("unitsUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
-					getOMUnits()
+					-- getOMUnits()
 				-- end
 				-- if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
-					FindEnemy()
+					-- FindEnemy()
 				-- end
 			-- Healing Engine
 				if isChecked("HE Active") then

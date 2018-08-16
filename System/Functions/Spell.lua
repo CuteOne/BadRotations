@@ -138,13 +138,13 @@ function canInterrupt(unit,percentint)
 		-- Return when interrupt time is met
 		if ((isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid"))) or not isChecked("Interrupt Only Whitelist")) then
 			if castType == "spellcast" then
-				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTimeToDie(unit)>castTimeRemain then
+				if math.ceil((castTimeRemain/castDuration)*100) <= castPercent and interruptable == true and getTTD(unit)>castTimeRemain then
 					return true
 				end
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (GetTime() - castStartTime/1000) > channelDelay and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTimeToDie(unit)>castTimeRemain or castPercent == 100) then
+				if (GetTime() - castStartTime/1000) > channelDelay and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTTD(unit)>castTimeRemain or castPercent == 100) then
 					return true
 				end
 			end
