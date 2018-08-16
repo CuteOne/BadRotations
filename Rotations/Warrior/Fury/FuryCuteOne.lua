@@ -547,7 +547,11 @@ local function runRotation()
                     and ((buff.recklessness.exists() and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
                         or (not buff.recklessness.exists() and rage < 40 and race == "BloodElf") or (cd.recklessness.remain() < 3 and race == "LightforgedDraenei"))
                 then
-                    if cast.racial() then return end
+                    if race == "LightforgedDraenei" then
+                        if cast.racial("target","ground") then return true end
+                    else
+                        if cast.racial("player") then return true end
+                    end
                 end
             -- Trinkets
                 if isChecked("Trinkets") and buff.enrage.exists() then

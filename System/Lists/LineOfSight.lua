@@ -28,4 +28,5 @@ br.lists.los = {
 	122773, -- Decimator - Garothi Worldbreaker (Antorus the Burning Throne)
 	122578, -- Kin'garoth (Antorus the Burning Throne - Confirmed in game)
 	125050, -- Kin'garoth (Antorus the Burning Throne)
+	131863, -- Raal the Gluttonous (Waycrest Manor)
 }

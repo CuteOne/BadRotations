@@ -216,7 +216,6 @@ local function runRotation()
         local power, powerDeficit, powerMax, powerGen       = br.player.power.rage.amount(), br.player.power.rage.deficit(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
-        --local racial                                        = br.player.getRacial()
         local rage                                          = br.player.power.rage.amount()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
@@ -392,11 +391,15 @@ local function runRotation()
                 -- actions+=/lights_judgment,if=debuff.colossus_smash.down
                 -- actions+=/fireblood,if=debuff.colossus_smash.up
                 -- actions+=/ancestral_call,if=debuff.colossus_smash.up
-                if isChecked("Racial") and cast.able.racial() and getSpellCD(racial) == 0
+                if isChecked("Racial") and cast.able.racial()
                     and ((debuff.colossusSmash.exists(units.dyn5) and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
                     or (not debuff.colossusSmash.exists(units.dyn5) and ((race == "BloodElf" and cd.mortalStrike.remain() > 1.5 and power < 50) or race == "LightforgedDraenei")))
                 then
-                    if cast.racial() then return end
+                    if race == "LightforgedDraenei" then
+                        if cast.racial("target","ground") then return true end
+                    else
+                        if cast.racial("player") then return true end
+                    end
                 end
             -- Avatar
                 -- avatar,if=cooldown.colossus_smash.remains<8|(talent.warbreaker.enabled&cooldown.warbreaker.remains<8)

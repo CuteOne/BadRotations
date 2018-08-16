@@ -64,7 +64,7 @@ function br.loader:new(spec,specName)
                         for spellRef, spellID in pairs(spellTypeTable) do
                             self.spell[spellType][spellRef] = spellID
                             if not IsPassiveSpell(spellID)
-                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents')
+                                and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
                             then
                                 if self.spell.abilities == nil then self.spell.abilities = {} end
                                 self.spell.abilities[spellRef] = spellID
@@ -116,6 +116,42 @@ function br.loader:new(spec,specName)
             end
         end
 
+        -- Build Azerite Trait Info
+        if self.spell.traits ~= nil then
+            for k,v in pairs(self.spell.traits) do
+                if not self.traits[k] then self.traits[k] = {} end
+                local traits = self.traits[k]
+                local specID = GetSpecializationInfo(GetSpecialization())
+                self.traits[k] = function()
+                    local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+                    if (not azeriteItemLocation) then return end
+                    local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
+                    for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
+                    	local item = Item:CreateFromEquipmentSlot(slot)
+                    	if (not item:IsItemEmpty()) then
+                    		local itemLocation = item:GetItemLocation()
+                    		if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
+                    			local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                    			for tier, info in next, tierInfo do
+                    				if (info.unlockLevel <= azeritePowerLevel) then
+                                        for _, powerID in next, info.azeritePowerIDs do
+                                            local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
+                                            local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                                            if (powerInfo) then
+                                                local azeriteSpellID = powerInfo["spellID"]
+                                                if isSelected and azeriteSpellID == v then return true end
+                                            end
+                    					end
+                    				end
+                    			end
+                    		end
+                    	end
+                    end
+                    return false
+                end
+            end
+        end
+
         -- Update Power
         if not self.power then self.power = {} end
         self.power.list     = {
@@ -142,9 +178,10 @@ function br.loader:new(spec,specName)
         for k, v in pairs(self.power.list) do
             if not self.power[k] then self.power[k] = {} end
             local power = self.power[k]
+            local isDKRunes = select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5
 
             power.amount = function()
-                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                if isDKRunes then
                     local runeCount = 0
                     for i = 1, 6 do
                         runeCount = runeCount + GetRuneCount(i)
@@ -158,7 +195,7 @@ function br.loader:new(spec,specName)
                 return getPowerMax("player",v) - getPower("player",v)
             end
             power.frac = function()
-                if select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5 then
+                if isDKRunes then
                     local runeCount = 0
                     for i = 1, 6 do
                         runeCount = runeCount + GetRuneCount(i)
@@ -181,8 +218,13 @@ function br.loader:new(spec,specName)
             power.regen = function()
                 return getRegen("player")
             end
-            power.ttm = function()
-                return getTimeToMax("player")
+            power.ttm = function(amount)
+                if amount == nil then amount = 6 end
+                if isDKRunes then
+                    return runeTimeTill(amount)
+                else
+                    return getTimeToMax("player")
+                end
             end
         end
 
@@ -408,6 +450,7 @@ function br.loader:new(spec,specName)
             if self.charges[k]  == nil then self.charges[k] = {} end -- Item Charge Functions
             if self.equiped     == nil then self.equiped    = {} end -- Use Item Debugging
             if self.has         == nil then self.has        = {} end -- Item In Bags
+            if self.targets[k]  == nil then self.targets[k] = {} end
             if self.use         == nil then self.use        = {} end -- Use Item Functions
             if self.use.able    == nil then self.use.able   = {} end -- Useable Item Check Functions
 
@@ -417,6 +460,14 @@ function br.loader:new(spec,specName)
             end
             charges.count = function()
                 return itemCharges(v)
+            end
+
+            self.targets[k] = function(unit,checkNoCombat)
+                if unit == nil then unit = "player" end
+                if checkNoCombat == nil then checkNoCombat = false end
+                local maxRange = select(6,GetSpellInfo(v))
+                if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
+                return getEnemies(unit,maxRange,checkNoCombat)
             end
 
             self.use[k] = function(slotID)

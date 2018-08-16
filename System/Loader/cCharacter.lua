@@ -73,14 +73,16 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.queue 			= {} 		-- Table for Queued Spells
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
-	self.racial   		= nil       -- Contains racial spell id
+	--self.racial   		= nil       -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull 	= {}
 	self.rotation       = 1         -- Default: First avaiable rotation
     self.rotations 		= {} 		-- List of Rotations
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
+	self.targets 		= {}
 	self.timeToMax		= 0			-- Time To Max Power
+	self.traits 		= {}		-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
 
 
@@ -315,7 +317,7 @@ function cCharacter:new(class)
 		        VoidElf 			= 256948, -- Spatial Rift
 			}
 			if br.player ~= nil then
-				return br.player.spell.racial or racialSpells[self.race]
+				return br.player.spells.racial or racialSpells[self.race]
 			end
 		elseif version == "BFA" then
 			if self.race == "BloodElf" then
@@ -359,6 +361,7 @@ function cCharacter:new(class)
 
 	end
 	self.racial = self.getRacial()
+	if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
 
 -- Casts the racial
 	function self.castRacial()

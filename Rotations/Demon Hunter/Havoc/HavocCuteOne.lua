@@ -187,7 +187,6 @@ local function runRotation()
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.fury.amount(), br.player.power.fury.max(), br.player.power.fury.regen(), br.player.power.fury.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
@@ -372,8 +371,8 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                    if castSpell("player",racial,false,false,false) then return end
+                if isChecked("Racial") and cast.able.racial() and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+                    if cast.racial() then return end
                 end
                 if getOptionValue("APL Mode") == 1 then -- SimC
         -- Metamorphosis

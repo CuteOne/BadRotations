@@ -190,7 +190,6 @@ local function runRotation()
         local potion                                        = br.player.potion
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
-        local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
