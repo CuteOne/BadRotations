@@ -408,17 +408,17 @@ local function runRotation()
             return false
         end
 
-        local function ferociousBiteFinish()
-            local baseCost = 25
-            if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() then
-                baseCost = baseCost * 0.5
-            end
-            local costMultiplier = comboPoints * (energy / baseCost)
-            if buff.apexPredator.exists() then costMultiplier = 5 * 2 end
-            if buff.apexPredator.exists() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) then costMultiplier = costMultiplier * 1.46 end
-            local damage = 1.2 * UnitAttackPower("player") * (1 - 0.3198) * costMultiplier
-            if damage >= UnitHealth(units.dyn5) and comboPoints > 0 then
-                return true
+        function ferociousBiteFinish()
+            local desc = GetSpellDescription(spell.ferociousBite)
+            for i = 1, 5 do
+                local comboStart = desc:find(" "..i.." ",1,true)+2
+                local damageList = desc:sub(comboStart,desc:len())
+                comboStart = damageList:find(": ",1,true)+2
+                damageList = damageList:sub(comboStart,desc:len())
+                local comboEnd = damageList:find(" ",1,true)-1
+                damageList = damageList:sub(1,comboEnd)
+                local damage = damageList:gsub(",","")
+                if comboPoints == i and tonumber(damage) >= UnitHealth(units.dyn5) then return true end
             end
             return false
         end
