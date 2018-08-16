@@ -82,6 +82,7 @@ function cCharacter:new(class)
 	self.talent         = {}        -- Talents
 	self.targets 		= {}
 	self.timeToMax		= 0			-- Time To Max Power
+	self.traits 		= {}		-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
 
 
@@ -360,6 +361,7 @@ function cCharacter:new(class)
 
 	end
 	self.racial = self.getRacial()
+	if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
 
 -- Casts the racial
 	function self.castRacial()

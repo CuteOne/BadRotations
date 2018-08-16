@@ -614,25 +614,7 @@ br.lists.spells = {
                 tigersFury                  = 5217,
             },
             artifacts                       = {
-                ashamanesBite               = 210702,
-                ashamanesEnergy             = 210579,
-                ashamanesFrenzy             = 210722,
-                attunedToNature             = 210590,
-                fangsOfTheFirst             = 214911,
-                feralInstinct               = 210631,
-                feralPower                  = 210571,
-                hardenedRoots               = 210638,
-                honedInstinct               = 210557,
-                openWounds                  = 210666,
-                powerfulBite                = 210575,
-                protectionOfAshamane        = 210650,
-                razorFangs                  = 210570,
-                scentOfBlood                = 210663,
-                shadowThrash                = 210676,
-                sharpenedClaws              = 210637,
-                shredderFangs               = 214736,
-                tearTheFlesh                = 210593,
-                thrashingClaws              = 238048,
+
             },
             buffs                           = {
                 apexPredator                = 255984,
@@ -678,6 +660,10 @@ br.lists.spells = {
                 savageRoar                  = 52610,
                 soulOfTheForest             = 158476,
             },
+            traits                          = {
+                shreddingFury               = 274424,
+                vampiricSpeed               = 268599,
+            }
         },
         -- Guardian
         [104] = {
