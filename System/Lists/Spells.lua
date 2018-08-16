@@ -636,7 +636,7 @@ br.lists.spells = {
                 moonfireFeral               = 155625,
                 rake                        = 155722,
                 rip                         = 1079,
-                thrash                      = 106832,
+                thrash                      = 106830,
             },
             glyphs                          = {
 
