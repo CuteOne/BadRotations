@@ -283,8 +283,8 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.racial() and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru.remain()==0 then
-                    if cast.giftOfTheNaaru() then return end
+                if isChecked("Gift of the Naaru") and cast.able.racial() and race == "Draenei" and php <= getOptionValue("Gift of the Naaru") and php > 0 then
+                    if cast.racial() then return end
                 end
             -- Enraged Regeneration
                 if isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and inCombat and php <= getOptionValue("Enraged Regeneration") then
