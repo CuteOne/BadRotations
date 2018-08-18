@@ -80,7 +80,6 @@ function cCharacter:new(class)
     self.rotations 		= {} 		-- List of Rotations
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
-	self.targets 		= {}
 	self.timeToMax		= 0			-- Time To Max Power
 	self.traits 		= {}		-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
@@ -249,6 +248,7 @@ function cCharacter:new(class)
 -- Updates special Equipslots
 	function self.baseGetEquip()
 		if br.equipHasChanged == nil or br.equipHasChanged then
+			if self.equiped == nil then self.equiped = {} end
 			for i = 17, 21 do
 				if self.equiped["t"..i] == nil then self.equiped["t"..i] = 0 end
 				self.equiped["t"..i] = TierScan("T"..i) or 0
@@ -317,7 +317,9 @@ function cCharacter:new(class)
 		        VoidElf 			= 256948, -- Spatial Rift
 			}
 			if br.player ~= nil then
-				return br.player.spells.racial or racialSpells[self.race]
+				return br.player.spells.racial
+			else
+				return racialSpells[self.race]
 			end
 		elseif version == "BFA" then
 			if self.race == "BloodElf" then
@@ -355,7 +357,9 @@ function cCharacter:new(class)
 		        MagharOrc 		= 274738, -- Ancestral Call
 			}
 			if br.player ~= nil then
-				return br.player.spell.racial or racialSpells[self.race]
+				return br.player.spell.racial
+			else
+				return racialSpells[self.race]
 			end
 		end
 

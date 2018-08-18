@@ -450,7 +450,6 @@ function br.loader:new(spec,specName)
             if self.charges[k]  == nil then self.charges[k] = {} end -- Item Charge Functions
             if self.equiped     == nil then self.equiped    = {} end -- Use Item Debugging
             if self.has         == nil then self.has        = {} end -- Item In Bags
-            if self.targets[k]  == nil then self.targets[k] = {} end
             if self.use         == nil then self.use        = {} end -- Use Item Functions
             if self.use.able    == nil then self.use.able   = {} end -- Useable Item Check Functions
 
@@ -460,14 +459,6 @@ function br.loader:new(spec,specName)
             end
             charges.count = function()
                 return itemCharges(v)
-            end
-
-            self.targets[k] = function(unit,checkNoCombat)
-                if unit == nil then unit = "player" end
-                if checkNoCombat == nil then checkNoCombat = false end
-                local maxRange = select(6,GetSpellInfo(v))
-                if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
-                return getEnemies(unit,maxRange,checkNoCombat)
             end
 
             self.use[k] = function(slotID)
