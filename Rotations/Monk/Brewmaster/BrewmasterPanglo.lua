@@ -42,6 +42,8 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinket 1")
             br.ui:createCheckbox(section,"Trinket 2")
+        -- Blackout Switch
+            br.ui:createDropdown(section, "Black Out Combo Priority", {"|cff00FF00Tiger Palm","|cffFF0000Keg Smash"}, 1, "|cffFFFFFFBoC Priority")			
 		br.ui:checkSectionState(section)
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -312,13 +314,15 @@ local function runRotation()
                     if cast.rushingJadeWind() then return end
                 end
 			-- Keg Smash
-                if buff.blackoutCombo.exists() then
+                if (getOptionValue("Black Out Combo Priority") == 2 and buff.blackoutCombo.exists()) or
+					(getOptionValue("Black Out Combo Priority") == 1) then
                     if cast.kegSmash() then return end
                 end
             -- Blackout Strike
 				if cast.blackoutStrike() then return end
             -- Tiger Palm 
-                if not (cast.able.kegSmash() or cast.able.breathOfFire()) and power >= 50 then
+                if ((getOptionValue("Black Out Combo Priority") == 1 and buff.blackoutCombo.exists()) or (not cast.able.breathOfFire() and power > 70)) or 
+				(getOptionValue("Black Out Combo Priority") == 2 and not (cast.able.kegSmash() or cast.able.breathOfFire()) and power >= 50) then
                     if cast.tigerPalm() then return end
                 end
                 -- Breath of Fire
