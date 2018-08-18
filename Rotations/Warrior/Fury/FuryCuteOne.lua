@@ -185,7 +185,7 @@ local function runRotation()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
+        local gcd                                           = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local heirloomNeck                                  = 122667 or 122668
@@ -372,8 +372,8 @@ local function runRotation()
     -- Action List - Single
         function actionList_Single()
         --Seigebreaker
-            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>28
-            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 28 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>20
+            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 20 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
                 if cast.siegebreaker() then return end
             end
         -- Rampage
