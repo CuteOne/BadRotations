@@ -135,7 +135,7 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
-		br.ui:createCheckbox(section,"Consecration")
+		br.ui:createDropdown(section,"Consecration", {"|cffFFFFFFAny","|cffFFFFFF8Yards"}, 1, "|ccfFFFFFFConsecration method.")
 		-- Blessed Hammer
 		br.ui:createCheckbox(section,"Blessed Hammer")
 		-- Hammer of the Righteous
@@ -173,7 +173,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-	if br.timer:useTimer("debugProtection", math.random(0.15,0.3)) then
+	if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
 	--Print("Running: "..rotationName)
 	
 	---------------
@@ -262,61 +262,43 @@ local function runRotation()
 			if cast.contemplation() then return end
 		end
 		-- Blessing of Freedom
+		if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 then
+			if cast.blessingOfFreedom("player") then return end
+		end
 		for i = 1, #br.friend do
-			if getDebuffRemain(br.friend[i].unit,202615) ~= 0 or getDebuffRemain(br.friend[i].unit,211543) ~= 0 then
+			if getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
 				if cast.blessingOfFreedom(br.friend[i].unit) then return end
 			end
 		end
 		-- Blessing of Protection
 		for i = 1, #br.friend do
-			if getDebuffRemain(br.friend[i].unit,237726) ~= 0 or getDebuffRemain(br.friend[i].unit,196838) ~= 0 then
+			if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 then
 				if cast.blessingOfProtection(br.friend[i].unit) then return end
 			end
 		end
+		-- Flash of Light
+		if GetObjectID("target") == 133392 then
+			if getHP("target") < 99 and getDebuffRemain("target",274148) == 0 then
+				if cast.flashOfLight("target") then return end
+			end
+		end
+		-- Cleanse
 		for i = 1, #br.friend do
-			if getDebuffRemain(br.friend[i].unit,200238) > 1 and talent.blessingOfSpellwarding and not UnitIsUnit(br.friend[i].unit,"player") then
-				if cast.blessingOfSpellwarding(br.friend[i].unit) then return end
-			end
-		end
-		if GetObjectID("target") == 98965 then
-			if getHP("target") < 20  then
-				if cast.blessingOfProtection() then return end
+			if getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+				if cast.cleanseToxins(br.friend[i].unit) then return end
 			end
 		end
 		-- Shield of the Righteous
-		if getDebuffRemain("player",204611) > 1 and not buff.shieldOfTheRighteous.exists() then
+		if getDebuffRemain("player",255434) > 1 and not buff.shieldOfTheRighteous.exists() then
 			if cast.shieldOfTheRighteous() then return end
 		end
-		if getDebuffRemain("player",200238) > 1 and not buff.shieldOfTheRighteous.exists() then
-			if cast.shieldOfTheRighteous() then return end
-		end
-		if UnitCastingInfo("target") == GetSpellInfo(202019) and getBuffRemain("player",199368) < 1 and not buff.shieldOfTheRighteous.exists() then
-			if cast.shieldOfTheRighteous() then return end
-		end
-		if GetObjectID("target") == 99192 then
-			if getHP("target") < 50 and getHP("target") > 30 and not buff.shieldOfTheRighteous.exists() then
-				if cast.shieldOfTheRighteous() then return end
-			end
-		end
-		-- Shield of the Righteous
 		local Casting={
 		--spell_id	, spell_name
-		{197418 	, 'Vengeful Shear'}, --Black Rook Hold
-		{198245 	, 'Brutal Haymaker'}, --Black Rook Hold
-		{198379 	, 'Primal Rampage'}, --Darkheart Thicket
-		{204667 	, 'Nightmare Breath'}, --Darkheart Thicket
-		{193092 	, 'Bloodletting Sweep'}, --Halls of Valor
-		{192018 	, 'Shield of Light'}, --Halls of Valor
-		{193668 	, 'Savage Blade'}, --Halls of Valor
-		{198496 	, 'Sunder'}, --Neltharion's Lair
-		{200732 	, 'Molten Crash'}, --Neltharion's Lair
-		{193211 	, 'Dark Slash'}, --Maw of Souls
-		{204151 	, 'Darkstrikes'}, --Vault of the Wardens
-		{227493 	, 'Mortal Strike'}, --Karazhan 
-		{227832 	, 'Coat Check'}, --Karazhan 
-		{227628 	, 'Piercing Missiles'}, --Karazhan 
-		{235751 	, 'Timber Smash'}, --Cathedral of Eternal Night 
-		{233155 	, 'Carrion Swarm'}, --Cathedral of Eternal Night 
+		{267899 	, 'Hindering Cleave'}, -- Shrine of the Storm
+		{272457 	, 'Shockwave'}, -- Underrot
+		{260508 	, 'Crush'}, -- Waycrest Manor
+		{265910 	, 'Tail Thrash'}, -- King's Rest
+		{268586 	, 'Blade Combo'}, -- King's Rest
 		}
 		for i=1 , #Casting do
 			local spell_id = Casting[i][1]
@@ -350,16 +332,15 @@ local function runRotation()
 				if castSpell("player",racial,false,false,false) then return end
 			end
 			-- Light of the Protector
-			if isChecked("Light of the Protector") and php <= getOptionValue("Light of the Protector") and (not hasEquiped(144275) or (hasEquiped(144275) and (not lotpTime or GetTime() - lotpTime > 1 ))) then
+			if isChecked("Light of the Protector") and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
 				if cast.lightOfTheProtector() then return end
+			elseif isChecked("Light of the Protector") and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
 				if cast.handOfTheProtector("player") then return end
-				lotpTime = GetTime()
 			end
 			-- Hand of the Protector - Others
-			if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector and (not hasEquiped(144275) or (hasEquiped(144275) and (not hotpTime or GetTime() - hotpTime > 1 ))) then
+			if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector then
 				if lowest.hp <= getOptionValue("Hand of the Protector - Party") then
 					if cast.handOfTheProtector(lowest.unit) then return end
-					hotpTime = GetTime()
 				end
 			end
 			-- Lay On Hands
@@ -593,7 +574,7 @@ local function runRotation()
 					local thisUnit = enemies.yards30[i]
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit, 100) then
-						if distance < 30 and getFacing("player",thisUnit) then
+						if distance <= 30 and getFacing("player",thisUnit) then
 							if cast.avengersShield() then return end
 						end
 					end
@@ -604,15 +585,15 @@ local function runRotation()
 				local distance = getDistance(thisUnit)
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					-- Hammer of Justice
-					if isChecked("Hammer of Justice - INT") and distance < 10 then
+					if isChecked("Hammer of Justice - INT") and distance <= 10 then
 						if cast.hammerOfJustice(thisUnit) then return end
 					end
 					-- Rebuke
-					if isChecked("Rebuke - INT") and distance < 5 then
+					if isChecked("Rebuke - INT") and distance <= 5 then
 						if cast.rebuke(thisUnit) then return end
 					end
 					-- Blinding Light
-					if isChecked("Blinding Light - INT") and talent.blindingLight and distance < 10 then
+					if isChecked("Blinding Light - INT") and talent.blindingLight and distance <= 10 then
 						if cast.blindingLight() then return end
 					end
 				end
@@ -697,7 +678,7 @@ local function runRotation()
 					if isChecked("Shield of the Righteous") and (charges.shieldOfTheRighteous.frac() > 2.5) and buff.avengersValor.exists() and getDistance(units.dyn5) <= 5 then
 						if cast.shieldOfTheRighteous() then return end
 					end
-					if getDistance(units.dyn30) < 30 and getFacing("player",units.dyn30) then
+					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
 						-- Judgment
 						if isChecked("Judgment") then
 							if cast.judgment() then return end
@@ -708,15 +689,23 @@ local function runRotation()
 						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and not isMoving("player") and not buff.consecration.exists() then
-						if cast.consecration() then return end
+					if isChecked("Consecration") and (GetSpellCooldown(53595) < 1 or GetSpellCooldown(204019)) then
+						if getOptionValue("Consecration") == 1 then
+							if not buff.consecration.exists() then
+								if cast.consecration() then return end
+							end
+						elseif getOptionValue("Consecration") == 2 then
+							if not buff.consecration.exists() and getDistance("target") <= 8 then
+								if cast.consecration() then return end
+							end
+						end
 					end
 					-- Blessed Hammer
-					if isChecked("Blessed Hammer") and talent.blessedHammer and getDistance(units.dyn5) < 5 then
+					if isChecked("Blessed Hammer") and talent.blessedHammer and getDistance(units.dyn5) <= 5 then
 						if cast.blessedHammer() then return end
 					end
 					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getDistance(units.dyn5) < 5 and getFacing("player",units.dyn5) then
+					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getDistance(units.dyn5) <= 5 and getFacing("player",units.dyn5) then
 						if cast.hammerOfTheRighteous() then return end
 					end
 				end
