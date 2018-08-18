@@ -1,4 +1,4 @@
-function getRacial()
+function getRacialID()
     local race = select(2,UnitRace("player"))
 
     if race == "BloodElf" then
@@ -152,36 +152,16 @@ br.lists.spells = {
                 remorselessWinter           = 196770,
             },
             artifacts                       = {
-                ambidexterity               = 189092,
-                artificialStamina           = 211309,
-                badToTheBone                = 189147,
-                bladesOfFrost               = 218931,
-                blastRadius                 = 189086,
-                chillOfTheGrave             = 205209,
-                coldAsIce                   = 189080,
-                crystallineSwords           = 189186,
-                deadOfWinter                = 189164,
-                frozenCore                  = 189179,
-                frozenSkin                  = 204875,
-                frozenSoul                  = 189184,
-                hypothermia                 = 189185,
-                iceInYourVeins              = 189154,
-                mirrorBall                  = 189180,
-                nothingButTheBoots          = 189144,
-                overPowered                 = 189097,
-                sindragosasFury             = 190778,
-                soulbiter                   = 214904,
+
             },
             buffs                           = {
                 breathOfSindragosa          = 155166,
-                coldHeart                   = 235599,
+                coldHeart                   = 281210,
                 darkSuccor                  = 101568,
-                gatheringStorm              = 211805,
-                hungeringRuneWeapon         = 207127,
-                iceboundFortitude           = 48792,
+                empowerRuneWeapon           = 47568,
+                frozenPulse                 = 195750,
                 icyTalons                   = 194879,
                 killingMachine              = 51124,
-                obliteration                = 207256,
                 pillarOfFrost               = 51271,
                 remorselessWinter           = 196770,
                 rime                        = 59052,
@@ -189,8 +169,7 @@ br.lists.spells = {
             debuffs                         = {
                 breathOfSindragosa          = 155166,
                 chainsOfIce                 = 45524,
-                frostFever                  = 55095,
-                remorselessWinter           = 211793,
+                remorselessWinter           = 196771,
             },
             glyphs                          = {
 
@@ -201,28 +180,30 @@ br.lists.spells = {
                 perseveranceOfTheEbonMartyr = 132459,
             },
             talents                         = {
-                abominationsMight           = 207161,
+                asphyxiate                  = 108194,
                 avalanche                   = 207142,
                 blindingSleet               = 207167,
                 breathOfSindragosa          = 152279,
-                freezingFog                 = 207060,
+                coldHeart                   = 152279,
+                deathPact                   = 48743,
+                deathsReach                 = 276079,
                 frostscythe                 = 207230,
+                frostwyrmsFury              = 279302,
                 frozenPulse                 = 194909,
                 gatheringStorm              = 194912,
                 glacialAdvance              = 194913,
                 hornOfWinter                = 57330,
-                hungeringRuneWeapon         = 207127,
                 icecap                      = 207126,
                 icyTalons                   = 194878,
+                inexorableAssault           = 253593,
                 murderousEffeciency         = 207061,
-                obliteration                = 207256,
+                obliteration                = 281238,
                 permafrost                  = 207200,
                 runicAttenuation            = 207104,
-                shatteringStrikes           = 207057,
-                volatileShielding           = 207188,
-                whiteWalker                 = 212765,
-                winterIsComing              = 207170,
             },
+            traits                          = {
+
+            }
         },
         -- Unholy
         [252] = {
@@ -304,25 +285,26 @@ br.lists.spells = {
             abilities                       = {
                 antiMagicShell              = 48707,
                 controlUndead               = 111673,
-                corpseExplosion             = 127344,
+                corpseExploder              = 127344,
                 darkCommand                 = 56222,
                 deathGate                   = 50977,
                 deathGrip                   = 49576,
                 deathStrike                 = 49998,
+                deathsAdvance               = 48265,
                 iceboundFortitude           = 48792,
                 mindFreeze                  = 47528,
                 pathOfFrost                 = 3714,
                 raiseAlly                   = 61999,
-                wraithWalk                  = 212552,
             },
             artifacts                       = {
 
             },
             buffs                           = {
+                coldHeartItem               = 235599,
+                iceboundFortitude           = 48792,
                 pathOfFrost                 = 3714,
                 unholyStrength              = 53365,
                 wraithWalk                  = 212552,
-                coldHeart                   = 235599,
             },
             debuffs                         = {
                 bloodPlague                 = 55078,
@@ -339,7 +321,7 @@ br.lists.spells = {
                 coldHeart                   = 151796,
             },
             talents                         = {
-
+                wraithWalk                  = 212552,
             },
         },
     },
@@ -594,15 +576,11 @@ br.lists.spells = {
         [103] = {
             abilities                       = {
                 berserk                     = 106951,
-                --brutalSlash                 = 202028,
-                elunesGuidance              = 202060,
                 ferociousBite               = 22568,
-                incarnationKingOfTheJungle  = 102543,
                 maim                        = 22570,
                 moonfireFeral               = 155625,
                 rake                        = 1822,
                 removeCorruption            = 2782,
-                renewal                     = 108238,
                 rip                         = 1079,
                 savageRoar                  = 52610,
                 shred                       = 5221,
@@ -646,7 +624,6 @@ br.lists.spells = {
                 bloodScent                  = 202022,
                 bloodtalons                 = 155672,
                 brutalSlash                 = 202028,
-                elunesGuidance              = 202060,
                 feralFrenzy                 = 274837,
                 guardianAffinity            = 217615,
                 incarnationKingOfTheJungle  = 102543,
@@ -3257,7 +3234,7 @@ br.lists.spells = {
                 global                          = 61304,
                 shadowmeld                      = 58984,
                 quakingPalm                     = 107079,
-                racial                          = getRacial(),
+                racial                          = getRacialID(),
                 lightsJudgment                  = 247427,
             },
             artifacts                           = {
