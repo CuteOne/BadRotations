@@ -273,6 +273,8 @@ local function runRotation()
         local petDE = buff.demonicEmpowerment.exists("pet") --UnitBuffID("pet",spell.buffs.demonicEmpowerment,"player") ~= nil --buff.pet.demonicEmpowerment
         local demonwrathPet = false
         local missingDE = 0
+        local impsNearDeath = 0
+
         if pet ~= nil then
             for k, v in pairs(pet) do
             -- for i = 1, #br.player.pet do
@@ -289,6 +291,16 @@ local function runRotation()
                     wildImpCount = wildImpCount + 1
                     wildImpDE = hasDEbuff
                     if not hasDEbuff then wildImpNoDEcount = wildImpNoDEcount + 1 end
+
+                    local imp = pet[k]
+                    if not imp.summonTime then
+                      imp.summonTime = GetTime() + 12
+                    end
+                    imp.remainingDuration = imp.summonTime - GetTime()
+                    
+                    if imp.remainingDuration <= 3 then
+                      impsNearDeath = impsNearDeath + 1
+                    end
                 end
                 if thisUnit == 98035 then
                     dreadStalkers = true
@@ -305,6 +317,7 @@ local function runRotation()
                 end
             end
         end
+
         if wildImpCount > 0 and wildImpDuration == 0 then wildImpDuration = GetTime() + 12 end
         if wildImpCount > 0 and wildImpDuration ~= 0 then wildImpRemain = wildImpDuration - GetTime() end
         if wildImpCount == 0 then wildImpDuration = 0; wildImpRemain = 0 end
@@ -312,6 +325,9 @@ local function runRotation()
         if dreadStalkers and dreadStalkersDuration ~= 0 then dreadStalkersRemain = dreadStalkersDuration - GetTime() end
         if not dreadStalkers then dreadStalkersDuration = 0; dreadStalkersRemain = 0 end
         local petCount = wildImpCount + dreadStalkersCount + darkglareCount + doomguardCount + infernalCount + felguardCount
+
+        local halfOrMoreImpsAboutToExpire = impsNearDeath >= (wildImpCount ~= 0 and wildImpCount/2 or 1)
+
 
         -- SimC Variable
         -- variable,name=3min,value=doomguard_no_de>0|infernal_no_de>0
@@ -698,8 +714,10 @@ local function runRotation()
           if cast.able.soulStrike() then
               if cast.soulStrike() then return end
           end
-          if cast.able.shadowbolt() then
+          if cast.able.shadowbolt() and shards < 5 then
               if cast.shadowbolt() then return end
+          else
+            return
           end
         end
 
@@ -713,7 +731,7 @@ local function runRotation()
         end
 
         local function actionListImplosion()
-          if cast.able.implosion() and ((wildImpCount >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImpCount >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImpCount > 0) or (cast.last.callDreadstalkers(2) and wildImpCount > 2 and not talent.demonicCalling)) then
+          if cast.able.implosion() and halfOrMoreImpsAboutToExpire or wildImpCount >= 5 then
               if cast.implosion() then return end
           end
           if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
@@ -762,7 +780,7 @@ local function runRotation()
           if cast.able.callDreadstalkers() and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.remain()) or cd.summonDemonicTyrant.remain() > 14) then
               if cast.callDreadstalkers() then return end
           end
-          if shards == 1 and (cd.callDreadstalkers.remain() < action.shadow_bolt.cast_time or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < action.shadow_bolt.cast_time)) then
+          if shards == 1 and (cd.cwallDreadstalkers.remain() < action.shadow_bolt.cast_time or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < action.shadow_bolt.cast_time)) then
               if actionListBuildAShard() then return end
           end
           if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() > action.demonbolt.cast_time) and (cd.callDreadstalkers.remain() > action.shadow_bolt.cast_time)) and cd.netherPortal.remain() > (160 + action.hand_of_guldan.cast_time)) then
@@ -801,9 +819,9 @@ local function runRotation()
           if talent.netherPortal and #enemies.yards8t <= 2 then
               if actionListNetherPortal() then return end
           end
-          if #enemies.yards8t > 1 then
-              if actionListImplosion() then return end
-          end
+
+          if actionListImplosion() then return end
+
           if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
               if cast.grimoireFelguard() then return end
           end
