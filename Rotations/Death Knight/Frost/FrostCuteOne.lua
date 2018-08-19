@@ -54,6 +54,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section,"Path of Frost")
+            -- Remorseless Winter
+            br.ui:createSpinnerWithout(section, "Remorseless Winter",  1,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Remorseless Winter on. Min: 1 / Max: 10 / Interval: 1")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Breath of Sindragosa - Debug
@@ -109,12 +111,10 @@ local function createOptions()
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-            -- Anti-Magic Zone
-            -- br.ui:createCheckbox(section,"Anti-Magic Zone - Int")
-            -- Blinding Sleet
-            -- br.ui:createCheckbox(section,"Blinding Sleet - Int")
+            --Asphyxiate
+            br.ui:createCheckbox(section, "Asphyxiate")
             -- Mind Freeze
-            br.ui:createCheckbox(section,"Mind Freeze")
+            br.ui:createCheckbox(section, "Mind Freeze")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
@@ -203,6 +203,7 @@ local function runRotation()
         enemies.yards8f   = br.player.enemies(8,br.player.units(8,true))
         enemies.yards10t  = br.player.enemies(10,br.player.units(10,true))
         enemies.yards15   = br.player.enemies(15)
+        enemies.yards20   = br.player.enemies(20)
         enemies.yards20r  = getEnemiesInRect(10,20,false) or 0
         enemies.yards30   = br.player.enemies(30)
         enemies.yards40   = br.player.enemies(40,br.player.units(40,true))
@@ -243,7 +244,7 @@ local function runRotation()
                 end
             end
         -- Chains of Ice
-            if isChecked("Chains of Ice") then
+            if isChecked("Chains of Ice") and cast.able.chainsOfIce() then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if not debuff.chainsOfIce.exists(thisUnit) and not getFacing(thisUnit,"player") and getFacing("player",thisUnit)
@@ -254,13 +255,13 @@ local function runRotation()
                 end
             end
         -- Death Grip
-            if isChecked("Death Grip") then
+            if isChecked("Death Grip") and cast.able.deathGrip() then
                 if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) > 8 and not isDummy(units.dyn30) then
                     if cast.deathGrip(units.dyn30) then return end
                 end
             end
         -- Path of Frost
-            if isChecked("Path of Frost") then
+            if isChecked("Path of Frost") and cast.able.pathOfFrost() then
                 if not inCombat and swimming and not buff.pathOfFrost.exists() then
                     if cast.pathOfFrost() then return end
                 end
@@ -279,31 +280,31 @@ local function runRotation()
                     end
                 end
         -- Anti-Magic Shell
-                if isChecked("Anti-Magic Shell") and php < getOptionValue("Anti-Magic Shell") and inCombat then
+                if isChecked("Anti-Magic Shell") and cast.able.antiMagicShell() and php < getOptionValue("Anti-Magic Shell") and inCombat then
                     if cast.antiMagicShell() then return end
                 end
         -- Blinding Sleet
-                if isChecked("Blinding Sleet") and php < getOptionValue("Blinding Sleet") and inCombat then
+                if isChecked("Blinding Sleet") and cast.able.blindingSleet() and php < getOptionValue("Blinding Sleet") and inCombat then
                     if cast.blindingSleet() then return end
                 end
         -- Death Strike
-                if isChecked("Death Strike") and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
+                if isChecked("Death Strike") and cast.able.deathStrike() and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
                     and (not talent.breathOfSindragosa or ((cd.breathOfSindragosa.remain() > 15 and not breathOfSindragosaActive) or not useCDs() or not isChecked("Breath of Sindragosa")))
                 then
                     if cast.deathStrike() then return end
                 end
         -- Icebound Fortitude
-                if isChecked("Icebound Fortitude") and php < getOptionValue("Icebound Fortitude") and inCombat then
+                if isChecked("Icebound Fortitude") and cast.able.iceboundFortitude() and php < getOptionValue("Icebound Fortitude") and inCombat then
                     if cast.iceboundFortitude() then return end
                 end
         -- Raise Ally
                 if isChecked("Raise Ally") then
-                    if getOptionValue("Raise Ally - Target")==1
+                    if cast.able.raiseAlly("target","dead") and getOptionValue("Raise Ally - Target")==1
                         and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
                     then
                         if cast.raiseAlly("target","dead") then return end
                     end
-                    if getOptionValue("Raise Ally - Target")==2
+                    if cast.able.raiseAlly("mouseover","dead") and getOptionValue("Raise Ally - Target")==2
                         and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
                     then
                         if cast.raiseAlly("mouseover","dead") then return end
@@ -316,7 +317,7 @@ local function runRotation()
             profileDebug = "Interrupts"
             if useInterrupts() then
         -- Mind Freeze
-                if isChecked("Mind Freeze") then
+                if isChecked("Mind Freeze") and cast.able.mindFreeze() then
                     for i=1, #enemies.yards15 do
                         thisUnit = enemies.yards15[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -324,6 +325,15 @@ local function runRotation()
                         end
                     end
                 end
+        --Asphyxiate
+        if isChecked("Asphyxiate") and cast.able.asphyxiate() then
+            for i=1, #enemies.yards20 do
+                thisUnit = enemies.yards20[i]
+                if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                    if cast.asphyxiate(thisUnit) then return end
+                end
+            end
+        end
             end -- End Use Interrupts Check
         end -- End Action List - Interrupts
     -- Action List - Cold Heart
@@ -413,7 +423,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- -- glacial_advance,if=runic_power.deficit<20&cooldown.pillar_of_frost.remains>rune.time_to_4
-            if cast.able.glacialAdvance() and (runicPowerDeficit < 20 and cd.pillarOfFrost.remain() > runesTTM(4) and enemies.yards20r > 0) then
+            if cast.able.glacialAdvance() and (runicPowerDeficit < 20 and cd.pillarOfFrost.remain() > runesTTM(4) and enemies.yards20r >= getOptionValue("Glacial Advance")) then
                 if cast.glacialAdvance(nil,"rect",1,10) then return end
             end
         -- Frost Strike
@@ -455,7 +465,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enabled
-            if cast.able.remorselessWinter() and (talent.gatheringStorm) and #enemies.yards8 > 0 then
+            if cast.able.remorselessWinter() and (talent.gatheringStorm) and #enemies.yards8 >= getOptionValue("Remorseless Winter") then
                 if cast.remorselessWinter() then return end
             end
         -- Howling Blast
@@ -480,7 +490,7 @@ local function runRotation()
             end
         -- Remorseless Winter
             -- remorseless_winter
-            if cast.able.remorselessWinter() and #enemies.yards8 > 0 then
+            if cast.able.remorselessWinter() and #enemies.yards8 >= getOptionValue("Remorseless Winter") then
                 if cast.remorselessWinter() then return end
             end
         -- Frostscythe
@@ -504,7 +514,7 @@ local function runRotation()
             profileDebug = "Obliteration"
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enabled
-            if cast.able.remorselessWinter() and (talent.gatheringStorm and #enemies.yards8 > 0) then
+            if cast.able.remorselessWinter() and (talent.gatheringStorm and #enemies.yards8 >= getOptionValue("Remorseless Winter")) then
                 if cast.remorselessWinter() then return end
             end
         -- Obliterate
@@ -559,12 +569,12 @@ local function runRotation()
         local function actionList_Aoe()
         -- Remorseless Winter
             -- remorseless_winter,if=talent.gathering_storm.enabled
-            if cast.able.remorselessWinter() and (talent.gatheringStorm) and #enemies.yards8 > 0 then
+            if cast.able.remorselessWinter() and (talent.gatheringStorm) and #enemies.yards8 >= getOptionValue("Remorseless Winter") then
                 if cast.remorselessWinter() then return end
             end
         -- Glacial Advance
             -- glacial_advance,if=talent.frostscythe.enabled
-            if cast.able.glacialAdvance() and (talent.frostscythe) and enemies.yards20r > 0 then
+            if cast.able.glacialAdvance() and (talent.frostscythe) and enemies.yards20r >= getOptionValue("Glacial Advance") then
                 if cast.glacialAdvance(nil,"rect",1,10) then return end
             end
         -- Frost Strike
@@ -584,7 +594,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance,if=runic_power.deficit<(15+talent.runic_attenuation.enabled*3)
-            if cast.able.glacialAdvance() and (runicPowerDeficit < (15 + attenuation * 3) and enemies.yards20r > 0) then
+            if cast.able.glacialAdvance() and (runicPowerDeficit < (15 + attenuation * 3) and enemies.yards20r >= getOptionValue("Glacial Advance")) then
                 if cast.glacialAdvance(nil,"rect",1,10) then return end
             end
         -- Frost Strike
@@ -592,9 +602,9 @@ local function runRotation()
             if cast.able.frostStrike() and (runicPowerDeficit < (15 + attenuation * 3)) then
                 if cast.frostStrike() then return end
             end
-        -- Remoreseless Winter
+        -- Remorseless Winter
             -- remorseless_winter
-            if cast.able.remorselessWinter() and #enemies.yards8 > 0 then
+            if cast.able.remorselessWinter() and #enemies.yards8 >= getOptionValue("Remorseless Winter") then
                 if cast.remorselessWinter() then return end
             end
         -- Frostscythe
@@ -609,7 +619,7 @@ local function runRotation()
             end
         -- Glacial Advance
             -- glacial_advance
-            if cast.able.glacialAdvance() and enemies.yards20r > 0 then
+            if cast.able.glacialAdvance() and enemies.yards20r >= getOptionValue("Glacial Advance") then
                 if cast.glacialAdvance(nil,"rect",1,10) then return end
             end
         -- Frost Strike
@@ -633,7 +643,7 @@ local function runRotation()
             profileDebug = "Standard"
         -- Remorseless Winter
             -- remorseless_winter
-            if cast.able.remorselessWinter() and #enemies.yards8 > 0 then
+            if cast.able.remorselessWinter() and #enemies.yards8 >= getOptionValue("Remorseless Winter") then
                 if cast.remorselessWinter() then return end
             end
         -- Frost Strike

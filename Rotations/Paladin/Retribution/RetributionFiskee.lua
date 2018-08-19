@@ -576,7 +576,7 @@ local function runRotation()
                             if cast.rebuke(thisUnit) then return end
                         end
         -- Blinding Light
-                        if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or enemies.yards10 > 1) then
+                        if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or #enemies.yards10 > 1) then
                             if cast.blindingLight() then return end
                         end
                     end
