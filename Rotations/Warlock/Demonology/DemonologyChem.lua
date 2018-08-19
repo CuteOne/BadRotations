@@ -731,7 +731,7 @@ local function runRotation()
         end
 
         local function actionListImplosion()
-          if cast.able.implosion() and halfOrMoreImpsAboutToExpire or wildImpCount >= 5 then
+          if cast.able.implosion() and ttd("target") <= 3 or (#enemies.yards8t > 1 and wildImpCount >= 6) then
               if cast.implosion() then return end
           end
           if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
@@ -780,7 +780,7 @@ local function runRotation()
           if cast.able.callDreadstalkers() and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.remain()) or cd.summonDemonicTyrant.remain() > 14) then
               if cast.callDreadstalkers() then return end
           end
-          if shards == 1 and (cd.cwallDreadstalkers.remain() < action.shadow_bolt.cast_time or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < action.shadow_bolt.cast_time)) then
+          if shards == 1 and (cd.callDreadstalkers.remain() < action.shadow_bolt.cast_time or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < action.shadow_bolt.cast_time)) then
               if actionListBuildAShard() then return end
           end
           if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() > action.demonbolt.cast_time) and (cd.callDreadstalkers.remain() > action.shadow_bolt.cast_time)) and cd.netherPortal.remain() > (160 + action.hand_of_guldan.cast_time)) then
