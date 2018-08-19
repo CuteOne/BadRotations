@@ -390,7 +390,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==2 then
             return true
         else
 -----------------------
@@ -423,7 +423,7 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65) then
+                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 80 or buff.ironfur.remain() <1.5) then
                         if cast.ironfur() then return end
                     end
         -- Bristling Fur
@@ -434,6 +434,9 @@ local function runRotation()
         -- Lunar Beam
                     -- lunar_beam
                     if cast.lunarBeam() then return end
+        -- Mangle
+                    -- mangle
+                    if cast.mangle() then return end
         -- Pulverize
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
@@ -445,7 +448,7 @@ local function runRotation()
                     end
         -- Moonfire
                     -- moonfire,if=buff.incarnation.up=1&dot.moonfire.remains<=4.8
-                    if #enemies.yards40 < 4 then
+                    if #enemies.yards40 < 6 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if isValidUnit(thisUnit) then
@@ -462,14 +465,11 @@ local function runRotation()
                     end
         -- Thrash
                     -- thrash_bear
-                    if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 4) then
+                    if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
                         if cast.thrash() then return end
                     end
-        -- Mangle
-                    -- mangle
-                    if cast.mangle() then return end
         -- Moonfire
-                    if #enemies.yards40 < 4 then
+                    if #enemies.yards40 < 6 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if isValidUnit(thisUnit) then
