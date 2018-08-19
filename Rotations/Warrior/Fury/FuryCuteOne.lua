@@ -296,7 +296,7 @@ local function runRotation()
                 end
             -- Rallying Cry
                 if isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= getOptionValue("Rallying Cry") then
-                    if cast.commandingShout() then return end
+                    if cast.rallyingCry() then return end
                 end
             -- Storm Bolt
                 if isChecked("Storm Bolt") and cast.able.stormBolt() and inCombat and php <= getOptionValue("Storm Bolt") then
