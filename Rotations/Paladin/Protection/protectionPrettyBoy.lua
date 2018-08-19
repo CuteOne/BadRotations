@@ -602,8 +602,8 @@ local function runRotation()
 	end -- End Action List - PreCombat
 	-- Action List - Opener
 	local function actionList_Opener()
-		if isValidUnit("target") and getFacing("player",units.dyn30) then
-			if isChecked("Judgment") then
+		if isValidUnit("target") then
+			if isChecked("Judgment") and getFacing("player",units.dyn30) then
 				if cast.judgment("target") then return end
 			end
 			-- Start Attack
@@ -678,7 +678,7 @@ local function runRotation()
 						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and #enemies.yards8 >= 1 and ((GetSpellCooldown(53595) > 1 or GetSpellCooldown(204019) > 1) or not buff.consecration.exists()) then
+					if isChecked("Consecration") and #enemies.yards8 >= 1 and not buff.consecration.exists() then
 						if cast.consecration() then return end
 					end
 					-- Blessed Hammer
