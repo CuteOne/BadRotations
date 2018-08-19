@@ -135,7 +135,7 @@ local function createOptions()
 		-- Avenger's Shield
 		br.ui:createCheckbox(section,"Avenger's Shield")
 		-- Consecration
-		br.ui:createDropdown(section,"Consecration", {"|cffFFFFFFAny","|cffFFFFFF8Yards"}, 1, "|ccfFFFFFFConsecration method.")
+		br.ui:createCheckbox(section,"Consecration")
 		-- Blessed Hammer
 		br.ui:createCheckbox(section,"Blessed Hammer")
 		-- Hammer of the Righteous
@@ -222,6 +222,7 @@ local function runRotation()
 	units.dyn10 = br.player.units(10)
 	units.dyn30 = br.player.units(30)
 	enemies.yards5 = br.player.enemies(5)
+	enemies.yards8 = br.player.enemies(8)
 	enemies.yards10 = br.player.enemies(10)
 	enemies.yards30 = br.player.enemies(30)
 	
@@ -674,40 +675,34 @@ local function runRotation()
 			--------------------------------
 			if not IsMounted() or buff.divineSteed.exists() then
 				if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
-					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and (charges.shieldOfTheRighteous.frac() > 2.5) and buff.avengersValor.exists() and getDistance(units.dyn5) <= 5 then
-						if cast.shieldOfTheRighteous() then return end
-					end
-					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+					for i = 1, #enemies.yards30 do
+						local thisUnit = enemies.yards30[i]
+						local distance = getDistance(thisUnit)					
+						-- Shield of the Righteous
+						if isChecked("Shield of the Righteous") and charges.shieldOfTheRighteous.frac() > 2.5 and buff.avengersValor.exists() and distance <= 5 then
+							if cast.shieldOfTheRighteous() then return end
+						end
 						-- Judgment
-						if isChecked("Judgment") then
-							if cast.judgment() then return end
+						if isChecked("Judgment") and getFacing("player",thisUnit) then
+							if cast.judgment(thisUnit) then return end
 						end
 						-- Avenger's Shield
-						if isChecked("Avenger's Shield") then
-							if cast.avengersShield() then return end
+						if isChecked("Avenger's Shield") and getFacing("player",thisUnit) then
+							if cast.avengersShield(thisUnit) then return end
 						end
-					end
-					-- Consecration
-					if isChecked("Consecration") and (GetSpellCooldown(53595) < 1 or GetSpellCooldown(204019)) then
-						if getOptionValue("Consecration") == 1 then
-							if not buff.consecration.exists() then
-								if cast.consecration() then return end
-							end
-						elseif getOptionValue("Consecration") == 2 then
-							if not buff.consecration.exists() and getDistance("target") <= 8 then
-								if cast.consecration() then return end
-							end
+						-- Consecration
+						if isChecked("Consecration") and #enemies.yards8 >= 1 and ((GetSpellCooldown(53595) > 1 or GetSpellCooldown(204019) > 1) or not buff.consecration.exists()) then
+							if cast.consecration() then return end
 						end
-					end
-					-- Blessed Hammer
-					if isChecked("Blessed Hammer") and talent.blessedHammer and getDistance(units.dyn5) <= 5 then
-						if cast.blessedHammer() then return end
-					end
-					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getDistance(units.dyn5) <= 5 and getFacing("player",units.dyn5) then
-						if cast.hammerOfTheRighteous() then return end
-					end
+						-- Blessed Hammer
+						if isChecked("Blessed Hammer") and talent.blessedHammer and distance <= 5 then
+							if cast.blessedHammer() then return end
+						end
+						-- Hammer of the Righteous
+						if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",thisUnit) and distance <= 5 then
+							if cast.hammerOfTheRighteous(thisUnit) then return end
+						end
+					end	
 				end
 			end
 		end -- End In Combat
