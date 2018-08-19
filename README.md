@@ -315,7 +315,8 @@ Fiskee  |  Full   | 8.0 |   99% | :white_check_mark:
 
 author          | support | patch | status |     raidable?
 :-------------- | :-----: | :---: | -----: | :----------------:
-CuteOne         |  Full   | 7.2 |   100% | :white_check_mark:
+CuteOne         |  Full   | 7.2   |   100% | :white_check_mark:
+Chem         |  Full   | 8.0   |   99% | :white_check_mark:
 
 - Destruction
 
