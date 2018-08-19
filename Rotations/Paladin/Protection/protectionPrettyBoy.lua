@@ -675,34 +675,32 @@ local function runRotation()
 			--------------------------------
 			if not IsMounted() or buff.divineSteed.exists() then
 				if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
-					for i = 1, #enemies.yards30 do
-						local thisUnit = enemies.yards30[i]
-						local distance = getDistance(thisUnit)					
-						-- Shield of the Righteous
-						if isChecked("Shield of the Righteous") and charges.shieldOfTheRighteous.frac() > 2.5 and buff.avengersValor.exists() and distance <= 5 then
-							if cast.shieldOfTheRighteous() then return end
-						end
+					-- Shield of the Righteous
+					if isChecked("Shield of the Righteous") and charges.shieldOfTheRighteous.frac() > 2.5 and buff.avengersValor.exists() and getDistance(units.dyn5) <= 5 then
+						if cast.shieldOfTheRighteous() then return end
+					end
+					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
 						-- Judgment
-						if isChecked("Judgment") and getFacing("player",thisUnit) then
-							if cast.judgment(thisUnit) then return end
+						if isChecked("Judgment") then
+							if cast.judgment(units.dyn30) then return end
 						end
 						-- Avenger's Shield
-						if isChecked("Avenger's Shield") and getFacing("player",thisUnit) then
-							if cast.avengersShield(thisUnit) then return end
+						if isChecked("Avenger's Shield") then
+							if cast.avengersShield(units.dyn30) then return end
 						end
-						-- Consecration
-						if isChecked("Consecration") and #enemies.yards8 >= 1 and ((GetSpellCooldown(53595) > 1 or GetSpellCooldown(204019) > 1) or not buff.consecration.exists()) then
-							if cast.consecration() then return end
-						end
-						-- Blessed Hammer
-						if isChecked("Blessed Hammer") and talent.blessedHammer and distance <= 5 then
-							if cast.blessedHammer() then return end
-						end
-						-- Hammer of the Righteous
-						if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",thisUnit) and distance <= 5 then
-							if cast.hammerOfTheRighteous(thisUnit) then return end
-						end
-					end	
+					end
+					-- Consecration
+					if isChecked("Consecration") and #enemies.yards8 >= 1 and ((GetSpellCooldown(53595) > 1 or GetSpellCooldown(204019) > 1) or not buff.consecration.exists()) then
+						if cast.consecration() then return end
+					end
+					-- Blessed Hammer
+					if isChecked("Blessed Hammer") and talent.blessedHammer and #enemies.yards5 >= 1 then
+						if cast.blessedHammer() then return end
+					end
+					-- Hammer of the Righteous
+					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",units.dyn5) then
+						if cast.hammerOfTheRighteous(units.dyn5) then return end
+					end
 				end
 			end
 		end -- End In Combat
