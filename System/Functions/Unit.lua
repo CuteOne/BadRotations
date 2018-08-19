@@ -307,16 +307,32 @@ end
 function isCritter(Unit) -- From LibBabble
 	if Unit == nil then Unit = "target" end
 	local unitType = UnitCreatureType(Unit)
-	return unitType == "Critter"
-		or unitType == "Kleintier"
-		or unitType == "Bestiole"
-		or unitType == "동물"
-		or unitType == "Alma"
-		or unitType == "Bicho"
-		or unitType == "Animale"
-		or unitType == "Существо"
-		or unitType == "小动物"
-		or unitType == "小動物"
+	local types = {
+		"Critter",
+		"Kleintier",
+		"Bestiole",
+		"동물",
+		"Alma",
+		"Bicho",
+		"Animale",
+		"Существо",
+		"小动物",
+		"小動物",
+		"Wild Pet",
+		"Ungezähmtes Tier",
+		"Mascotte sauvage",
+		"야생 애완동물",
+		"Mascota salvaje",
+		"Mascóta Salvaje",
+		"Mascote Selvagem",
+		"Creatura Selvaggia",
+		"野生宠物",
+		"野生寵物",
+	}
+	for i = 1, #types do
+		if unitType == types[i] then return true end
+	end
+	return false
 end
 -- Dummy Check
 function isDummy(Unit)

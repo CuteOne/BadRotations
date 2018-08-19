@@ -47,6 +47,7 @@ function cacheOM()
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
 			end
+			 -- objectIndex = objectIndex + 1
 			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
 		end
 	end
@@ -151,7 +152,7 @@ function FindEnemy()
 		br.debug.cpu.enemiesEngine.enemy.targets = 0
 	end
 -- Clean Up
-	for k, v in pairs(br.enemy) do if not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
+	for k, v in pairs(br.enemy) do if br.units[k] == nil or not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
 	if br.units ~= nil then
 		for k,v in pairs(br.units) do
 			local thisUnit = br.units[k].unit
@@ -180,10 +181,10 @@ function getOMUnits()
 	end
 	-- Clean Up
 	-- Units
-	for k, v in pairs(br.units) do if not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
+	for k, v in pairs(br.units) do if br.om[thisUnit] == nil or not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
 	-- Pets
 	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
-		for k,v in pairs(br.player.pet.list) do if not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
+		for k,v in pairs(br.player.pet.list) do if br.om[thisUnit] == nil or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
 	end
 	-- Lootables
 	for k, v in pairs(br.lootable) do
@@ -203,7 +204,7 @@ function getOMUnits()
 				AddUnits(thisUnit)
 			end
 			-- Pet Info
-			if br.player.pet.list[thisUnit] == nil and not IsCritter(GetObjectID(thisUnit))
+			if br.player.pet.list[thisUnit] == nil and not isCritter(GetObjectID(thisUnit))
 				and (UnitCreator(thisUnit) == playerObject or GetObjectID(thisUnit) == 11492)
 			then
 				AddPet(thisUnit)
@@ -233,23 +234,25 @@ end
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
-	local enemiesTable = {}
+	local enemiesTable = enemiesTable or {}
 	local radius = tonumber(radius)
+	local targetDist = getDistance("target","player")
+	local enemyTable = checkNoCombat and br.units or br.enemy
+    local thisEnemy, distance
 
-    local enemyTable = checkNoCombat and br.units or br.enemy
-    local thisEnemy, thisGUID, distance
 	for k, v in pairs(enemyTable) do
 		thisEnemy = enemyTable[k].unit
-		thisGUID = enemyTable[k].guid
 		distance =  getDistance(thisUnit,thisEnemy)
-		if not UnitIsDeadOrGhost(thisEnemy) and thisGUID == UnitGUID(thisEnemy) and distance < radius then
+		if enemiesTable[thisEnemy] == nil and distance < radius then
 			tinsert(enemiesTable,thisEnemy)
+		elseif enemiesTable[thisEnemy] ~= nil and distance >= radius then
+			enemiesTable[thisEnemy] = nil
 		end
     end
-	if #enemiesTable == 0 and isValidUnit("target") and getDistance("target","player") < radius then
+	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") then
 		tinsert(enemiesTable,"target")
-	elseif enemiesTable["target"] ~= nil and #enemiesTable > 1 then
-		tremove(enemiesTable,"target")
+	elseif enemiesTable["target"] ~= nil and (#enemiesTable > 1 or targetDist >= radius) then
+		enemiesTable["target"] = nil
 	end
     ---
 	if isChecked("Debug Timers") then
@@ -285,7 +288,7 @@ function findBestUnit(range,facing)
 		if distance <= range then
 			local coeficient = getUnitCoeficient(thisUnit) or 0
 			local isFacing = getFacing("player",thisUnit)
-			if getOptionCheck("Don't break CCs") then isCC = isLongTimeCCed(thisUnit) else isCC = false end
+			local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
 			if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
 				bestUnitCoef = coeficient
 				bestUnit = thisUnit
@@ -308,14 +311,12 @@ function dynamicTarget(range,facing)
 			bestUnit = findBestUnit(range,facing)
 		end
 	end
-	if UnitExists("target") and (not isChecked("Dynamic Targetting") or bestUnit == nil) and isValidUnit("target")
-		and getDistance("target") < range and (not facing or (facing and getFacing("player","target")))
+	if (not isChecked("Dynamic Targetting") or bestUnit == nil) and getDistance("target") < range
+		and (not facing or (facing and getFacing("player","target"))) and isValidUnit("target")
 	then
 		bestUnit = "target"
 	end
-	if hasThreat(bestUnit) and (UnitIsDeadOrGhost("target") or not UnitExists("target")
-		or (isChecked("Target Dynamic Target") and UnitExists("target") and not UnitIsUnit(bestUnit,"target")))
-	then
+	if (UnitIsDeadOrGhost("target")	or (isChecked("Target Dynamic Target") and UnitExists("target") and not UnitIsUnit(bestUnit,"target")))	then
 		TargetUnit(bestUnit)
 	end
 	if isChecked("Debug Timers") then
