@@ -311,7 +311,7 @@ local function runRotation()
                 if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff; darkglareCount = darkglareCount + 1 end
                 if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff; doomguardCount = doomguardCount + 1 end
                 if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff; infernalCount = infernalCount + 1 end
-                if thisUnit == 17252 then felguard = true; felguardEnemies = pet[k].numEnemies; felguardCount = felguardCount + 1 end
+                if thisUnit == 17252 or 58965 then felguard = true; felguardEnemies = pet[k].numEnemies; felguardCount = felguardCount + 1 end
                 if not pet[k].deBuff then
                     missingDE = missingDE + 1
                 end
@@ -472,7 +472,7 @@ local function runRotation()
                     if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
                         if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
                     end
-                    if summonPet == 5 and (lastSpell ~= spell.summonFelguard or activePetId == 0) then
+                    if summonPet == 5 and (lastSpell ~= spell.summonFelguard and lastSpell ~= spell.summonWrathguard or activePetId == 0) then
                         if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
                     if summonPet == 6 then return end

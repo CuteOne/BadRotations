@@ -2969,6 +2969,7 @@ br.lists.spells = {
                 summonInfernal              = 1122,
                 summonSuccubus              = 712,
                 summonVoidwalker            = 697,
+                summonWrathguard            = 112870,
                 unendingResolve             = 104773,
             },
             artifacts                       = {
@@ -2997,6 +2998,7 @@ br.lists.spells = {
                 succubus                    = 1863,
                 voidwalker                  = 1860,
                 wildImp                     = 55659,
+                wrathguard                  = 58965,
             },
             talents                         = {
                 burningRush                 = 111400,
