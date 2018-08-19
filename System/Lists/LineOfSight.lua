@@ -29,4 +29,5 @@ br.lists.los = {
 	122578, -- Kin'garoth (Antorus the Burning Throne - Confirmed in game)
 	125050, -- Kin'garoth (Antorus the Burning Throne)
 	131863, -- Raal the Gluttonous (Waycrest Manor)
+	134691, -- Static-charged Dervish (Temple of Sethraliss)
 }
