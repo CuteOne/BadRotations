@@ -210,7 +210,6 @@ local function runRotation()
 	local php           = br.player.health
 	local race          = br.player.race
 	local racial        = br.player.getRacial()
-	local t20_2pc       = TierScan("T20") >= 2
 	local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
 	local solo          = GetNumGroupMembers() == 0
 	local spell         = br.player.spell
@@ -218,9 +217,9 @@ local function runRotation()
 	local ttd           = getTTD(br.player.units(5))
 	local units         = units or {}
 	
-	units.dyn5 = br.player.units(5)
+	units.dyn5 = br.player.units(5,true)
 	units.dyn10 = br.player.units(10)
-	units.dyn30 = br.player.units(30)
+	units.dyn30 = br.player.units(30,true)
 	enemies.yards5 = br.player.enemies(5)
 	enemies.yards8 = br.player.enemies(8)
 	enemies.yards10 = br.player.enemies(10)
@@ -258,10 +257,6 @@ local function runRotation()
 		end
 	end -- End Action List - Extras
 	local function BossEncounterCase()
-		-- Contemplation
-		if getDebuffRemain("player",200904) ~= 0 then
-			if cast.contemplation() then return end
-		end
 		-- Blessing of Freedom
 		if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 then
 			if cast.blessingOfFreedom("player") then return end
@@ -607,16 +602,9 @@ local function runRotation()
 	end -- End Action List - PreCombat
 	-- Action List - Opener
 	local function actionList_Opener()
-		if isValidUnit("target") then
-			-- Avenger's Shield
-			if t20_2pc then
-				if isChecked("Avenger's Shield") then
-					if cast.avengersShield("target") then return end
-				end
-			else
-				if isChecked("Judgment") then
-					if cast.judgment("target") then return end
-				end
+		if isValidUnit("target") and getFacing("player",units.dyn30) then
+			if isChecked("Judgment") then
+				if cast.judgment("target") then return end
 			end
 			-- Start Attack
 			if getDistance("target") < 5 then
@@ -698,7 +686,7 @@ local function runRotation()
 						if cast.blessedHammer() then return end
 					end
 					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",units.dyn5) then
+					if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 						if cast.hammerOfTheRighteous(units.dyn5) then return end
 					end
 				end
