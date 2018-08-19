@@ -170,6 +170,7 @@ local function createOptions()
 		---------- DPS ----------
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "DPS")
+		br.ui:createCheckbox(section, "Auto Focus target")
 		br.ui:createSpinner(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
 		-- Consecration
 		br.ui:createSpinner(section, "Consecration",  1,  0,  40,  1,  "","|cffFFFFFFMinimum Consecration Targets")
@@ -402,22 +403,21 @@ local function runRotation()
 	-- BossEncounterCase ----------- BossEncounterCase ----------- BossEncounterCase ----------- BossEncounterCase ----------- BossEncounterCase ----------- BossEncounterCase -------
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local function BossEncounterCase()
-		-- Contemplation
-		if getDebuffRemain("player",200904) ~= 0 then
-			if cast.contemplation() then return end
-		end
 		-- Blessing of Freedom
 		if GetSpellCooldown(1044) == 0 then
+			if getDebuffRemain("TANK",267899) ~= 0 then
+				if cast.blessingOfFreedom("TANK") then return end
+			end
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,202615) ~= 0 or getDebuffRemain(br.friend[i].unit,211543) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
 					if cast.blessingOfFreedom(br.friend[i].unit) then return end
 				end
-			end
+			end	
 		end
 		-- Blessing of Protection
 		if GetSpellCooldown(1022) == 0 then
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,237726) ~= 0 or getDebuffRemain(br.friend[i].unit,196838) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 then
 					if cast.blessingOfProtection(br.friend[i].unit) then return end
 				end
 			end
@@ -506,7 +506,14 @@ local function runRotation()
 	-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local function DPS()
-		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) and not UnitIsFriend("target", "player") then
+		if mode.DPS == 1 and isChecked("DPS") and (br.friend[1].hp > getValue("DPS") or buff.avengingCrusader.exists()) then
+			if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
+				TargetUnit("focustarget")
+			end
+			-- Start Attack
+			if getDistance("target") < 5 then
+				StartAttack(units.dyn5)
+			end			
 			--Consecration
 			if isChecked("Consecration") and ((not isChecked("HE Active") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("HE Active") and getDistance(units.dyn8) < 8 ))and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
