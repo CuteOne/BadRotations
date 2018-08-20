@@ -520,7 +520,7 @@ local function runRotation()
 				StartAttack(units.dyn5)
 			end			
 			--Consecration
-			if isChecked("Consecration") and ((not isChecked("HE Active") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("HE Active") and getDistance(units.dyn8) < 8 ))and not isMoving("player") and not buff.avengingCrusader.exists() then
+			if isChecked("Consecration") and ((not isChecked("HE Active") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("HE Active") and getDistance(units.dyn5) <= 5 and getDebuffRemain(units.dyn5,204242) == 0))and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
 			end
 			-- Holy Prism
@@ -622,14 +622,6 @@ local function runRotation()
 				return true
 			end
 		end
-		-- Rule of Law
-		if isChecked("Rule of Law") and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-			for i = 1, #br.friend do
-				if getLowAllies(getValue"Rule of Law") >= getValue("RoL Targets") or (br.friend[i].hp <= 80 and not UnitInRange(br.friend[i].unit) and getDistance(br.friend[i].unit) < 60) then
-					if cast.ruleOfLaw() then return end
-				end
-			end
-		end
 		-- Holy Avenger
 		if isChecked("Holy Avenger") and talent.holyAvenger then
 			if getLowAllies(getValue"Holy Avenger") >= getValue("Holy Avenger Targets") then
@@ -658,6 +650,14 @@ local function runRotation()
 	--AOEHealing ------ AOEHealing ------AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ----- AOEHealing -----
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	local function AOEHealing()
+		-- Rule of Law
+		if isChecked("Rule of Law") and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
+			for i = 1, #br.friend do
+				if getLowAllies(getValue"Rule of Law") >= getValue("RoL Targets") or (br.friend[i].hp <= 80 and not UnitInRange(br.friend[i].unit) and getDistance(br.friend[i].unit) < 60) then
+					if cast.ruleOfLaw() then return end
+				end
+			end
+		end		
 		-- Holy Prism
 		if isChecked("Holy Prism") and talent.holyPrism and inCombat then
 			for i = 1, #enemies.yards40 do
