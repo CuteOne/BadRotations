@@ -430,8 +430,13 @@ local function runRotation()
 		-- Cleanse
 		if br.player.mode.cleanse == 1 then
 			for i = 1, #friends.yards40 do
-				if canDispel(br.friend[i].unit,spell.cleanse) then
+				if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,5) <= 1 then
 					if cast.cleanse(br.friend[i].unit) then return end
+				end
+				if getDebuffRemain(br.friend[i].unit,275014) == 0 then
+					if canDispel(br.friend[i].unit,spell.cleanse) then
+						if cast.cleanse(br.friend[i].unit) then return end
+					end
 				end
 			end
 		end
