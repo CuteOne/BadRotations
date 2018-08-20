@@ -36,6 +36,12 @@ local function createToggles()
 	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.shieldOfTheRighteous }
 	};
 	CreateButton("BossCase",5,0)
+	-- Consecration
+	ConsecrationModes = {
+	[2] = { mode = "On", value = 1 , overlay = "Consecration Enabled", tip = "There is no limit to cast Consecration", highlight = 1, icon = br.player.spell.consecration },
+	[1] = { mode = "Off", value = 2 , overlay = "Consecration Disabled", tip = "Disabled.", highlight = 0, icon = br.player.spell.consecration }
+	};
+	CreateButton("Consecration",6,0)
 end
 ---------------
 --- OPTIONS ---
@@ -151,13 +157,15 @@ local function createOptions()
 		----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "Toggle Keys")
 		-- Single/Multi Toggle
-		br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  4)
+		br.ui:createDropdown(section,  "Rotation Mode", br.dropOptions.Toggle,  6)
 		--Cooldown Key Toggle
-		br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
+		br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  6)
 		--Defensive Key Toggle
 		br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
 		-- Interrupts Key Toggle
 		br.ui:createDropdown(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
+		-- Consecration Key Toggle
+		br.ui:createDropdown(section, "Consecration Mode", br.dropOptions.Toggle,  6)
 		-- Pause Toggle
 		br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
 		br.ui:checkSectionState(section)
@@ -184,7 +192,9 @@ local function runRotation()
 	UpdateToggle("Defensive",0.25)
 	UpdateToggle("Interrupt",0.25)
 	UpdateToggle("BossCase",0.25)
+	UpdateToggle("Consecration",0.25)	
 	br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
+	br.player.mode.Consecration = br.data.settings[br.selectedSpec].toggles["Consecration"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 	
 	--------------
@@ -243,8 +253,8 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Blessing of Freedom
-		if isChecked("Blessing of Freedom") and hasNoControl() then
-			if cast.blessingOfFreedom() then return end
+		if isChecked("Blessing of Freedom") and hasNoControl(spell.blessingOfFreedom) then
+			if cast.blessingOfFreedom("player") then return end
 		end
 		-- Taunt
 		if isChecked("Taunt") and inInstance then
@@ -272,6 +282,14 @@ local function runRotation()
 				if cast.blessingOfProtection(br.friend[i].unit) then return end
 			end
 		end
+		-- Hammer of Justice
+		for i = 1, #enemies.yards10 do
+			local thisUnit = enemies.yards10[i]
+			local distance = getDistance(thisUnit)
+			if GetObjectID(thisUnit) == 131009 and distance <= 10 then
+				if cast.hammerOfJustice(thisUnit) then return end
+			end
+		end	
 		-- Flash of Light
 		if GetObjectID("target") == 133392 then
 			if getHP("target") < 99 and getDebuffRemain("target",274148) == 0 then
@@ -280,14 +298,23 @@ local function runRotation()
 		end
 		-- Cleanse
 		for i = 1, #br.friend do
-			if getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+			if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
 				if cast.cleanseToxins(br.friend[i].unit) then return end
 			end
 		end
 		-- Shield of the Righteous
-		if getDebuffRemain("player",255434) > 1 and not buff.shieldOfTheRighteous.exists() then
-			if cast.shieldOfTheRighteous() then return end
-		end
+		local Debuff={
+		--debuff_id
+		{255434},
+		{265881},
+		{264556},
+		}
+		for i=1 , #Debuff do
+			local debuff_id = Debuff[i]
+			if getDebuffRemain("player",debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
+				if cast.shieldOfTheRighteous() then return end
+			end
+		end		
 		local Casting={
 		--spell_id	, spell_name
 		{267899 	, 'Hindering Cleave'}, -- Shrine of the Storm
@@ -508,7 +535,7 @@ local function runRotation()
 				if castSpell("player",racial,false,false,false) then return end
 			end
 			-- Hammer of Justice
-			if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
+			if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) then
 				if cast.hammerOfJustice(units.dyn10) then return end
 			end
 			-- Flash of Light
@@ -581,7 +608,7 @@ local function runRotation()
 				local distance = getDistance(thisUnit)
 				if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 					-- Hammer of Justice
-					if isChecked("Hammer of Justice - INT") and distance <= 10 then
+					if isChecked("Hammer of Justice - INT") and distance <= 10 and not isBoss(thisUnit) then
 						if cast.hammerOfJustice(thisUnit) then return end
 					end
 					-- Rebuke
@@ -678,7 +705,7 @@ local function runRotation()
 						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and #enemies.yards8 >= 1 and not buff.consecration.exists() then
+					if isChecked("Consecration") and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
 						if cast.consecration() then return end
 					end
 					-- Blessed Hammer
