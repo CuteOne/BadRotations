@@ -292,7 +292,7 @@ local function runRotation()
 		end	
 		-- Flash of Light
 		if GetObjectID("target") == 133392 then
-			if getHP("target") < 99 and getDebuffRemain("target",274148) == 0 then
+			if getHP("target") < 99 then
 				if cast.flashOfLight("target") then return end
 			end
 		end
@@ -596,9 +596,9 @@ local function runRotation()
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit, 100) then
+					if canInterrupt(thisUnit, 95) then
 						if distance <= 30 and getFacing("player",thisUnit) then
-							if cast.avengersShield() then return end
+							if cast.avengersShield(thisUnit) then return end
 						end
 					end
 				end
