@@ -1268,7 +1268,7 @@ br.lists.spells = {
                 iceBarrier                  = 11426,
             },
             artifacts                       = {
-                ebonbolt                    = 214634,
+                ebonbolt                    = 257537,
                 icyHand                     = 220817,
             },
             buffs                           = {
