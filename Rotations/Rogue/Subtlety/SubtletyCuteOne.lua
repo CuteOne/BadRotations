@@ -38,7 +38,7 @@ local function createToggles()
     };
     CreateButton("Cleave",5,0)
     -- Shadow Dance Button
-    RotationModes = {
+    ShadowDanceModes = {
         [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Enables Shadow Dance in the rotation.", highlight = 1, icon = br.player.spell.shadowDance },
         [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Disables Shadow Dance in the rotation. Useful for saving SD charges for Dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
         };
@@ -485,8 +485,8 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled
-                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs()))
-                    and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty) and mode.shadowDance == 1
+                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs())) and mode.shadowDance == 1
+                    and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
                 then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
