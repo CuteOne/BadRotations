@@ -37,13 +37,19 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.backstab }
     };
     CreateButton("Cleave",5,0)
+    -- Shadow Dance Button
+    ShadowDanceModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Enables Shadow Dance in the rotation.", highlight = 1, icon = br.player.spell.shadowDance },
+        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Disables Shadow Dance in the rotation. Useful for saving SD charges for Dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
+        };
+    CreateButton("ShadowDance",6,0)
 -- Pick Pocket Button
     PickPocketModes = {
       [1] = { mode = "Auto", value = 1 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
       [2] = { mode = "Only", value = 2 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
-    CreateButton("PickPocket",6,0)
+    CreateButton("PickPocket",7,0)
 end
 
 ---------------
@@ -149,6 +155,8 @@ local function createOptions()
             br.ui:createDropdown(section,  "PickPocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            -- Shadow Dance On/Off Toggle
+            br.ui:createDropdown(section,  "ShadowDance Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -176,6 +184,8 @@ local function runRotation()
         br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("PickPocket",0.25)
         br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
+        UpdateToggle("ShadowDance",0.25)
+        br.player.mode.shadowDance = br.data.settings[br.selectedSpec].toggles["ShadowDance"]
 
 --------------
 --- Locals ---
@@ -475,7 +485,7 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled
-                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs()))
+                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs())) and mode.shadowDance == 1
                     and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
                 then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
