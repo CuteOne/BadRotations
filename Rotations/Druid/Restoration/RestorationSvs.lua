@@ -280,7 +280,20 @@ local function runRotation()
 		friends.yards40 = getAllies("player",40)
 		
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
-		
+		-- Temple of Sethraliss
+		if GetObjectID("target") == 133392 and inCombat then
+			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+				if talent.germination and not buff.rejuvenationGermination.exists("target") then
+					if CastSpellByName(GetSpellInfo(774),"target") then return end
+				end	
+				if not buff.rejuvenation.exists("target") then
+					if CastSpellByName(GetSpellInfo(774),"target") then return end
+				end
+				if buff.rejuvenation.exists("target") then
+					if CastSpellByName(GetSpellInfo(8936),"target") then return end
+				end	
+			end
+		end		
 		--ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
 		local function getAllHotCnt(time_remain)
 			hotCnt = 0
@@ -660,8 +673,13 @@ local function runRotation()
 			-- Nature's Cure
 			if br.player.mode.decurse == 1 then
 				for i = 1, #friends.yards40 do
-					if canDispel(br.friend[i].unit,spell.naturesCure) then
+					if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,5) <= 1 then
 						if cast.naturesCure(br.friend[i].unit) then return end
+					end
+					if getDebuffRemain(br.friend[i].unit,275014) == 0 then
+						if canDispel(br.friend[i].unit,spell.naturesCure) then
+							if cast.naturesCure(br.friend[i].unit) then return end
+						end
 					end
 				end
 			end
