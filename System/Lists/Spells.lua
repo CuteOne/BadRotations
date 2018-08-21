@@ -2848,7 +2848,6 @@ br.lists.spells = {
                 demonicPower                = 265273,
                 demonwrath                  = 193440,
                 forbiddenKnowledge          = 278738,
-                netherPortal                = 267218,
                 shadowyInspiration          = 196269,
             },
             debuffs                         = {
@@ -3143,7 +3142,8 @@ br.lists.spells = {
                 shieldBlock                 = 2565,
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
-                spellReflection             = 23920,
+                shockwave					= 46968,
+				spellReflection             = 23920,
                 thunderClap                 = 6343,
             },
             artifacts                       = {
@@ -3177,6 +3177,7 @@ br.lists.spells = {
                 neverSurrender              = 202561,
                 ravager                     = 228920,
                 renewedFury                 = 202288,
+                shockwave					= 46968,
                 safeguard                   = 223657,
                 ultimatum                   = 122509,
                 vengeance                   = 202572,
