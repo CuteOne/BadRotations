@@ -223,6 +223,7 @@ local function runRotation()
         local t19_2pc                                       = TierScan("T19") >= 2
         local t20_2pc                                       = TierScan("T20") >= 2
         local talent                                        = br.player.talent
+        local trait                                         = br.player.traits
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
@@ -495,7 +496,7 @@ local function runRotation()
                     if cast.stampede() then return end
                 end
                 -- actions+=/aspect_of_the_wild
-                if isChecked("Aspect of the Wild") then
+                if isChecked("Aspect of the Wild") and (not trait.primalInstincts or (trait.primalInstincts and charges.barbedShot.frac() < 0.8)) then
                     if cast.aspectOfTheWild() then return end
                 end
 
@@ -639,7 +640,7 @@ local function runRotation()
                         if cast.barbedShot() then return end
                     end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd(units.dyn40) < 16 then
+                    if isChecked("A Murder Of Crows / Barrage") and ttd() < 16 and ttd() > 5 then
                         if cast.aMurderOfCrows() then return end
                     end
                     --Cooldowns
