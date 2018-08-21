@@ -291,9 +291,9 @@ local function runRotation()
 			end
 		end	
 		-- Flash of Light
-		if GetObjectID("target") == 133392 then
-			if getHP("target") < 99 then
-				if cast.flashOfLight("target") then return end
+		if GetObjectID("target") == 133392 and inCombat then
+			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+				if CastSpellByName(GetSpellInfo(19750),"target") then return end
 			end
 		end
 		-- Cleanse
@@ -308,6 +308,7 @@ local function runRotation()
 		{255434},
 		{265881},
 		{264556},
+		{270487},
 		}
 		for i=1 , #Debuff do
 			local debuff_id = Debuff[i]
@@ -596,7 +597,7 @@ local function runRotation()
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit, 95) then
+					if canInterrupt(thisUnit,95) then
 						if distance <= 30 and getFacing("player",thisUnit) then
 							if cast.avengersShield(thisUnit) then return end
 						end
