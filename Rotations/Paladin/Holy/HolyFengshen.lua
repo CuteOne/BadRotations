@@ -298,6 +298,7 @@ local function runRotation()
 	-- local tHp                                           = 95
 	-- local averageHealth                                 = 100
 	
+	--Beacon of Virtue
 	if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 		if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
 			for i=1, 10 do 
@@ -305,6 +306,17 @@ local function runRotation()
 			end
 		end
 	end
+	-- Temple of Sethraliss
+	if GetObjectID("target") == 133392 and inCombat then
+		if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+			if GetSpellCooldown(20473) == 0 then
+				if CastSpellByName(GetSpellInfo(20473),"target") then return end
+			end	
+			if GetSpellCooldown(20473) ~= 0 then
+				if CastSpellByName(GetSpellInfo(19750),"target") then return end
+			end	
+		end
+	end	
 	-----------------
 	--- Rotations ---
 	-----------------
@@ -518,7 +530,7 @@ local function runRotation()
 			-- Start Attack
 			if getDistance("target") < 5 then
 				StartAttack(units.dyn5)
-			end			
+			end
 			--Consecration
 			if isChecked("Consecration") and ((not isChecked("HE Active") and #enemies.yards8 >= getValue("Consecration")) or (isChecked("HE Active") and getDistance(units.dyn5) <= 5 and getDebuffRemain(units.dyn5,204242) == 0))and not isMoving("player") and not buff.avengingCrusader.exists() then
 				if cast.consecration() then return end
@@ -657,7 +669,7 @@ local function runRotation()
 					if cast.ruleOfLaw() then return end
 				end
 			end
-		end		
+		end	
 		-- Holy Prism
 		if isChecked("Holy Prism") and talent.holyPrism and inCombat then
 			for i = 1, #enemies.yards40 do
