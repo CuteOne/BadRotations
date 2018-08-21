@@ -364,7 +364,7 @@ local function runRotation()
                     if cast.cloakOfShadows() then return end
                 end
             -- Crimson Vial
-                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.remain() then
                     if cast.crimsonVial() then return end
                 end
             -- Evasion
@@ -749,7 +749,7 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+energy.regen
                     -- arcane_pulse
                     -- lights_judgment
-                    if useCDs() and isChecked("Racial") and cast.able.racial()
+                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.remain()
                         and ((race == "BloodElf" and powerDeficit >= 15 + powerRegen) or race == "Nightborne" or race == "LightforgedDraenei")
                     then
                         if race == "LightforgedDraenei" then
