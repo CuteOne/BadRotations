@@ -187,6 +187,7 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local thp                                           = getHP("target")
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
@@ -429,12 +430,13 @@ local function runRotation()
             if cast.siphonLife() then return end
           end
           -- actions.fillers+=/corruption,if=buff.movement.up&!prev_gcd.1.corruption&!talent.absolute_corruption.enabled
-          if moving and not cast.last.corruption() and not talent.absoluteCorruption then
+          if moving and not cast.last.corruption() and (not talent.absoluteCorruption or not debuff.corruption.exists()) then
             if cast.corruption() then return end
           end
           -- actions.fillers+=/drain_life,if=(buff.inevitable_demise.stack=100|buff.inevitable_demise.stack>60&target.time_to_die<=10)&(target.health.pct>=20|!talent.drain_soul.enabled)
-          --TO-DO add the azerite stuff inevitable_demise is azerite buff
-
+          if not moving and not cast.last.drainLife() and (buff.inevitableDemise.stack() == 100 or (isBoss() and buff.inevitableDemise.stack() > 60 and ttd() <= 10)) and (thp >= 20 or not talent.drainSoul) and ttd() > 5 then
+            if cast.drainLife() then return end
+          end
           -- actions.fillers+=/drain_soul,interrupt_global=1,chain=1
           if not moving and not cast.current.drainSoul() then
             if cast.drainSoul() then
@@ -794,7 +796,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if isChecked("Pet Management") and UnitIsUnit("target",units.dyn40) and not UnitIsUnit("pettarget",units.dyn40) then
+                    if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
                     -- rotation

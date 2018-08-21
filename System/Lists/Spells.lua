@@ -923,6 +923,9 @@ br.lists.spells = {
                 spittingCobra               = 194407,
                 volley                      = 194386,
             },
+            traits                          = {
+                primalInstincts             = 279806,
+            },
         },
         -- Marksmanship
         [254] = {
@@ -2768,6 +2771,7 @@ br.lists.spells = {
                 nightfall                   = 264571,
                 tormentedSouls              = 216695,
                 wrathOfConsumption          = 199646,
+                inevitableDemise            = 273525,
             },
             debuffs                         = {
                 agony                       = 980,
