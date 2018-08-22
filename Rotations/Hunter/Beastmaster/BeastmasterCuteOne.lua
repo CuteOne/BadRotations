@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Pet Attacks
+            br.ui:createCheckbox(section, "Pet Attacks")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -189,7 +191,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadPet                                       = deadPet
+        local deadPets                                      = deadPet
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = enemies or {}
@@ -291,7 +293,8 @@ local function runRotation()
                     if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
                         if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPet then
+                        if UnitIsDeadOrGhost("pet") or deadPets then
+                            deadPet = false
                             if cast.able.heartOfThePhoenix() and inCombat then
                                 if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime() return true end
                             else
@@ -635,9 +638,16 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
-                    --Claw
-                    if not UnitIsDeadOrGhost("pet") and not deadPet then
+
+                    if not UnitIsDeadOrGhost("pet") and not deadPet and isChecked("Pet Attacks") then
+                      --Claw
                       castSpell("target",16827,true,false,false,false,true,true)
+                      --Bite
+                      castSpell("target",17253,true,false,false,false,true,true)
+                      --Smack
+                      castSpell("target",49966,true,false,false,false,true,true)
+                      --PetAttack
+                      PetAttack()
                     end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
                     if buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax then
