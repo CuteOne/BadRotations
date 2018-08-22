@@ -519,7 +519,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets>=4&cooldown.symbols_of_death.remains>10)
                 -- shadow_dance,if=target.time_to_die<cooldown.symbols_of_death.remains
-                if (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs())) and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
+                if (getOptionValue("Shadow Dance") == 1 and mode.shadowDance == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs ())) and mode.shadowDance == 1 and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
                     if ((not talent.darkShadow or debuff.nightblade.remain(units.dyn5) >= 5 + subty)
                         and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2
                             or ((mode.rotation == 1 and #enemies.yards5 >= 4) or (mode.rotation == 2 and #enemies.yards5 > 0)) and cd.symbolsOfDeath.remain() > 10))
