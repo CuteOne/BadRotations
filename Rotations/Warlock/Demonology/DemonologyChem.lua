@@ -514,9 +514,6 @@ local function runRotation()
                             PetAssistMode()
                             PetAttack("target")
                         end
-        -- Demonbolt
-                        -- demonbolt
-                        -- if cast.demonbolt("target") then return end
         -- Shadowbolt
                         -- shadow_bolt
                         if cast.shadowbolt("target") then return end
