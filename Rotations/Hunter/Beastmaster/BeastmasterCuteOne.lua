@@ -638,14 +638,16 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
-
+                    --Pet Attacks
                     if not UnitIsDeadOrGhost("pet") and not deadPet and isChecked("Pet Attacks") then
-                      --Claw
-                      castSpell("target",16827,true,false,false,false,true,true)
-                      --Bite
-                      castSpell("target",17253,true,false,false,false,true,true)
-                      --Smack
-                      castSpell("target",49966,true,false,false,false,true,true)
+                      if getDistance("pettarget","pet") < 5 then
+                        --Claw
+                        cast.claw("pettarget")
+                        --Bite
+                        cast.bite("pettarget")
+                        --Smack
+                        cast.smack("pettarget")
+                      end
                       --PetAttack
                       PetAttack()
                     end
@@ -674,7 +676,7 @@ local function runRotation()
                         if cast.chimaeraShot() then return end
                     end
                     -- actions+=/kill_command
-                    if cast.killCommand() then return end
+                    if cast.killCommand("pettarget") then return end
                     -- actions+=/dire_beast
                     if talent.direBeast then
                         if cast.direBeast() then return end
