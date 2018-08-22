@@ -252,7 +252,7 @@ local function runRotation()
             resonanceTotemRemain = totemTimer - GetTime()
         end
     -- Crash Lightning
-        local crashedEnemies = getEnemiesInCone(7,100)
+        local crashedEnemies = getEnemiesInCone(100,7)
 
         -- Fury of Air
         if buff.furyOfAir.exists() and (power < 12 or #enemies.yards8 == 0 or not inCombat) then

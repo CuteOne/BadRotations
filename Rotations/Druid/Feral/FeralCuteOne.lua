@@ -1113,7 +1113,7 @@ local function runRotation()
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
                             if (not debuff.rip.exists(thisUnit) or debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth)
-                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit)) and (ttd(thisUnit) > 8 or isDummy(thisUnit)))
+                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
                             then
                                 if cast.pool.rip() then ChatOverlay("Pooling For Rip") return true end
                                 if cast.able.rip(thisUnit) then
@@ -1299,7 +1299,7 @@ local function runRotation()
             if (cast.pool.rake() or cast.able.rake()) and debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then --and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
                         if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                         then
