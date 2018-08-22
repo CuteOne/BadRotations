@@ -58,6 +58,14 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
+        -- Cat-like Reflexes
+            br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
+        -- Claw
+            br.ui:createCheckbox(section, "Claw")
+        -- Dash
+            br.ui:createCheckbox(section, "Dash")
+        -- Prowl
+            br.ui:createCheckbox(section, "Prowl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -176,6 +184,7 @@ local function runRotation()
         units.dyn40 = br.player.units(40)
         if enemies == nil then enemies = {} end
         enemies.yards5 = br.player.enemies(5)
+        enemies.yards20 = br.player.enemies(20,"pet")
         enemies.yards40 = br.player.enemies(40)
         enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
@@ -282,6 +291,22 @@ local function runRotation()
                     PetStopAttack()
                     PetFollow()
                 end
+            end
+            -- Cat-like Refelexes
+            if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
+                if cast.able.catlikeReflexes() then return end
+            end
+            -- Claw
+            if isChecked("Claw") and cast.able.claw("target") and getDistance("target","pet") < 5 then
+                if cast.claw("target") then Print("Kitty claws the target viciously!"); return end
+            end
+            -- Dash
+            if isChecked("Dash") and cast.able.dash() and hasThreat("target") and getDistance("target","pet") > 10 then
+                if cast.dash() then return end
+            end
+            -- Prowl
+            if isChecked("Prowl") and cast.able.prowl() and #enemies.yards20 > 0 and not buff.prowl.exists("pet") and not IsResting() then
+                if cast.prowl() then return end
             end
             -- Growl
             if isChecked("Auto Growl") then
@@ -460,7 +485,7 @@ local function runRotation()
             end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3
-            if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
+            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
                 if cast.killCommand() then return end
             end
         -- Chakrams
@@ -558,7 +583,7 @@ local function runRotation()
             end
         -- Kill Command
             -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-            if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax) then
+            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax) then
                 if cast.killCommand() then return end
             end
         -- Butchery
@@ -641,7 +666,7 @@ local function runRotation()
             end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3
-            if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
+            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
                 if cast.killCommand() then return end
             end
         -- Raptor Strike
