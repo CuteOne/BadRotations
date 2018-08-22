@@ -39,24 +39,17 @@ local function createToggles()
     CreateButton("Cleave",5,0)
     -- Shadow Dance Button
     ShadowDanceModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
-        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Rotation will not use Shadow Dance. Useful for pooling SD charges as you near dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
+        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Enables Shadow Dance in the rotation.", highlight = 1, icon = br.player.spell.shadowDance },
+        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Disables Shadow Dance in the rotation. Useful for saving SD charges for Dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
         };
     CreateButton("ShadowDance",6,0)
-	-- MFD Modes
-	    MFDModes = {
-        [1] = { mode = "Tgt", value = 1 , overlay = "Target", tip = "Will MFD Target", highlight = 1, icon = br.player.spell.markedForDeath},
-        [2] = { mode = "Adds", value = 2 , overlay = "Adds", tip = "Will MFD Adds", highlight = 1, icon = br.player.spell.markedForDeath},
-        [3] = { mode = "Off", value = 2 , overlay = "Off", tip = "Will not MFD", highlight = 0, icon = br.player.spell.markedForDeath}
-    };
-    CreateButton("MFD",7,0)
 -- Pick Pocket Button
     PickPocketModes = {
       [1] = { mode = "Auto", value = 1 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
       [2] = { mode = "Only", value = 2 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
-    CreateButton("PickPocket",8,0)
+    CreateButton("PickPocket",7,0)
 end
 
 ---------------
@@ -100,7 +93,7 @@ local function createOptions()
             -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
             -- Marked For Death
-            --br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
             br.ui:createDropdownWithout(section, "Shadow Blades",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},2,"|cffFFFFFFWhen to use Shadow Blades.")
             -- Shadow Dance
@@ -139,8 +132,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             -- Kidney Shot
             br.ui:createCheckbox(section, "Kidney Shot")
-            -- Cheap Shot
-            br.ui:createCheckbox(section, "Cheap Shot")
             -- Blind
             br.ui:createCheckbox(section, "Blind")
             -- Interrupt Percentage
@@ -195,8 +186,6 @@ local function runRotation()
         br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
         UpdateToggle("ShadowDance",0.25)
         br.player.mode.shadowDance = br.data.settings[br.selectedSpec].toggles["ShadowDance"]
-		UpdateToggle("MFD",0.25)
-        br.player.mode.mfd = br.data.settings[br.selectedSpec].toggles["MFD"]
 
 --------------
 --- Locals ---
@@ -385,7 +374,7 @@ local function runRotation()
                     if cast.cloakOfShadows() then return end
                 end
             -- Crimson Vial
-                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.exists() then
+                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.remain() then
                     if cast.crimsonVial() then return end
                 end
             -- Evasion
@@ -393,7 +382,7 @@ local function runRotation()
                     if cast.evasion() then return end
                 end
             -- Feint
-                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() and not buff.shadowDance.exists() then
+                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
                     if cast.feint() then return end
                 end
             end
@@ -406,6 +395,7 @@ local function runRotation()
                     local distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
             -- Kick
+                        -- kick
                         if isChecked("Kick") and distance < 5 then
                             if cast.kick(thisUnit) then return end
                         end
@@ -415,15 +405,11 @@ local function runRotation()
                                 if cast.kidneyShot(thisUnit) then return end
                             end
                         end
+                        if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
             -- Blind
-                        if isChecked("Blind") and not buff.shadowDance.exists() and (cd.kick.remain() ~= 0 or distance >= 5) and not buff.shadowDance.exists() then
                             if cast.blind(thisUnit) then return end
                         end
                     end
-			 -- Cheap Shot 
-                        if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0 then
-                            if cast.cheapShot(thisUnit) then return end
-                        end
                 end
             end -- End Interrupt and No Stealth Check
         end -- End Action List - Interrupts
@@ -464,30 +450,26 @@ local function runRotation()
                         if cast.symbolsOfDeath() then return end
                     end
                 end
--- Marked for Death
-                    if cast.able.markedForDeath() then
-                        if mode.mfd == 1 then                            
-                            if comboDeficit >= ComboMaxSpend() - 1 then
-                                if cast.markedForDeath("target") then return end
-                            end
-                        elseif mode.mfd == 2 then
-                            for i = 1, #enemies.yards30 do
-                            local ThisTTD = 99
-                            local LowestTTD = units.dyn5
+        -- Marked For Death
+                -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit
+                -- marked_for_death,if=raid_event.adds.in>40&!stealthed.all&combo_points.deficit>=cp_max_spend
+                if isChecked("Marked For Death") and cast.able.markedForDeath() then
+                    if getOptionValue("Marked For Death") == 1 then
+                        if ttd("target") < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
+                            if cast.markedForDeath("target") then return end
+                        end
+                    end
+                    if getOptionValue("Marked For Death") == 2 then
+                        for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
-                            if comboDeficit >= 6 then comboDeficit = ComboMaxSpend() end
-                            if ttd(thisUnit) < ThisTTD then
-                                ThisTTD = ttd(thisUnit)
-                                LowestTTD = thisUnit
-                            end
-                            if ttd(LowestTTD) > 0 and ttd(LowestTTD) <= 100 then
-                                if ttd(LowestTTD) < comboDeficit * getOptionValue("MFD Sniping") then
-                                    if cast.markedForDeath(LowestTTD) then return end
+                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                                if ttd(thisUnit) < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
+                                    if cast.markedForDeath(thisUnit) then return end
                                 end
                             end
                         end
-                        end
                     end
+                end
         -- Shadow Blades
                 -- shadow_blades,if=combo_points.deficit>=2+stealthed.all
                 if (getOptionValue("Shadow Blades") == 1 or (getOptionValue("Shadow Blades") == 2 and useCDs())) and cast.able.shadowBlades() and (comboDeficit >= 2 + stealthedAll) then
@@ -682,10 +664,10 @@ local function runRotation()
                             end
                         end
                     end
-        -- Marked For Death Pre-Combat
+        -- Marked For Death
                     -- marked_for_death,if=raid_event.adds.in>40
-            if cast.able.markedForDeath() and not inCombat and isChecked("Marked For Death - Precombat") and getDistance("target") < 15 and isValidUnit("target") then
-                if cast.markedForDeath("target") then return end
+                    if isChecked("Marked For Death - Precombat") and cast.able.markedForDeath("target") and combo <= 1 then
+                        if cast.markedForDeath("target") then return end
                     end
         -- Shadowstep
                     if isChecked("Shadowstep") and cast.able.shadowstep("target") and (not stealthingAll or power < 40 or getDistance("target") > getOptionValue("SS Range"))
@@ -777,7 +759,7 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+energy.regen
                     -- arcane_pulse
                     -- lights_judgment
-                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.exists()
+                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.remain()
                         and ((race == "BloodElf" and powerDeficit >= 15 + powerRegen) or race == "Nightborne" or race == "LightforgedDraenei")
                     then
                         if race == "LightforgedDraenei" then
