@@ -280,7 +280,7 @@ function getDebuffMinMax(spell, range, debuffType, returnType)
 		local thisUnit = br.enemy[k].unit
         local distance = getDistance(thisUnit)
         local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
-        if distance < range and thisDebuff > 0
+        if distance < range and thisDebuff >= 0
             and ((returnType == "min" and thisDebuff < thisMin)
                 or (returnType == "max" and thisDebuff > thisMax))
         then

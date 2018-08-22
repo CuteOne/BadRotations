@@ -5,6 +5,7 @@ function getDistance(Unit1,Unit2,option)
         Unit2 = Unit1
         Unit1 = "player"
     end
+    if Unit1 == nil or Unit2 == nil then return 100 end
     if option == nil then option = "none" end
     -- Check if objects exists and are visible
     if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true))
