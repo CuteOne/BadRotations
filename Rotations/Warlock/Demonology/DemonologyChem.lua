@@ -519,7 +519,7 @@ local function runRotation()
                         -- if cast.demonbolt("target") then return end
         -- Shadowbolt
                         -- shadow_bolt
-                        -- if cast.shadowbolt("target") then return end
+                        if cast.shadowbolt("target") then return end
                     end
                 end
             end -- End No Combat
