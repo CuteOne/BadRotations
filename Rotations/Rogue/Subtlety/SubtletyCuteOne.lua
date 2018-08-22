@@ -39,8 +39,8 @@ local function createToggles()
     CreateButton("Cleave",5,0)
     -- Shadow Dance Button
     ShadowDanceModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Enables Shadow Dance in the rotation.", highlight = 1, icon = br.player.spell.shadowDance },
-        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Disables Shadow Dance in the rotation. Useful for saving SD charges for Dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
+        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
+        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Rotation will not use Shadow Dance. Useful for pooling SD charges as you near dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
         };
     CreateButton("ShadowDance",6,0)
 -- Pick Pocket Button
@@ -132,6 +132,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             -- Kidney Shot
             br.ui:createCheckbox(section, "Kidney Shot")
+            -- Cheap Shot
+            br.ui:createCheckbox(section, "Cheap Shot")
             -- Blind
             br.ui:createCheckbox(section, "Blind")
             -- Interrupt Percentage
@@ -374,7 +376,7 @@ local function runRotation()
                     if cast.cloakOfShadows() then return end
                 end
             -- Crimson Vial
-                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.remain() then
+                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.exists() then
                     if cast.crimsonVial() then return end
                 end
             -- Evasion
@@ -382,7 +384,7 @@ local function runRotation()
                     if cast.evasion() then return end
                 end
             -- Feint
-                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() and not buff.shadowDance.exists() then
                     if cast.feint() then return end
                 end
             end
@@ -395,7 +397,6 @@ local function runRotation()
                     local distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
             -- Kick
-                        -- kick
                         if isChecked("Kick") and distance < 5 then
                             if cast.kick(thisUnit) then return end
                         end
@@ -405,11 +406,15 @@ local function runRotation()
                                 if cast.kidneyShot(thisUnit) then return end
                             end
                         end
-                        if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
             -- Blind
+                        if isChecked("Blind") and not buff.shadowDance.exists() and (cd.kick.remain() ~= 0 or distance >= 5) and not buff.shadowDance.exists() then
                             if cast.blind(thisUnit) then return end
                         end
                     end
+			 -- Cheap Shot 
+                        if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() = 0 then
+                            if cast.cheapShot(thisUnit) then return end
+                        end
                 end
             end -- End Interrupt and No Stealth Check
         end -- End Action List - Interrupts
@@ -759,7 +764,7 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+energy.regen
                     -- arcane_pulse
                     -- lights_judgment
-                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.remain()
+                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.exists()
                         and ((race == "BloodElf" and powerDeficit >= 15 + powerRegen) or race == "Nightborne" or race == "LightforgedDraenei")
                     then
                         if race == "LightforgedDraenei" then
