@@ -288,17 +288,17 @@ local function runRotation()
                     if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
                 end
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
-                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
+                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
                     elseif callPet ~= nil then
                         if UnitIsDeadOrGhost("pet") or deadPet then
                             if cast.able.heartOfThePhoenix() and inCombat then
-                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return true end
+                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime() return true end
                             else
-                                if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
+                                if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
                             end
                         elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
-                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime() return true end
                         end
                     end
                 end
@@ -635,6 +635,10 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
+                    --Claw
+                    if not UnitIsDeadOrGhost("pet") and not deadPet then
+                      castSpell("target",16827,true,false,false,false,true,true)
+                    end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
                     if buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax then
                         if cast.barbedShot() then return end

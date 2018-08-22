@@ -479,7 +479,7 @@ function br.read.commonReaders()
 		end
 		if event == "UI_ERROR_MESSAGE" then
 			local errorMsg = select(1,...)
-			if errorMsg == 277 then
+			if errorMsg == 277 or errorMsg == 275 then
 				if deadPet == false then
 					deadPet = true
 				elseif deadPet == true then
