@@ -498,10 +498,9 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-                -- actions+=/aspect_of_the_wild
-                if isChecked("Aspect of the Wild") and (not trait.primalInstincts or (trait.primalInstincts and charges.barbedShot.frac() < 0.8)) then
-                    if cast.aspectOfTheWild() then return end
-                end
+				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts or (trait.primalInstincts and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+					if cast.aspectOfTheWild() then return end
+				end
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -652,15 +651,15 @@ local function runRotation()
                       PetAttack()
                     end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
+					--Cooldowns
+                    if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
                     if isChecked("A Murder Of Crows / Barrage") and ttd() < 16 and ttd() > 5 then
                         if cast.aMurderOfCrows() then return end
                     end
-                    --Cooldowns
-                    if actionList_Cooldowns() then return end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
                     if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
                         if cast.bestialWrath() then return end
@@ -681,8 +680,8 @@ local function runRotation()
                     if talent.direBeast then
                         if cast.direBeast() then return end
                     end
-                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.4|full_recharge_time<gcd.max|target.time_to_die<9
-                    if (not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.4) or charges.barbedShot.timeTillFull() < gcdMax or ttd(units.dyn40) < 9 then
+                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.timeTillFull() < gcd then
                         if cast.barbedShot() then return end
                     end
                     -- actions+=/barrage
