@@ -245,19 +245,12 @@ function isLongTimeCCed(Unit)
 end
 -- if isLooting() then
 function isLooting()
-	if GetNumLootItems() > 0 then
-		return true
-	else
-		return false
-	end
+	return GetNumLootItems() > 0
 end
 -- if not isMoving("target") then
 function isMoving(Unit)
-	if GetUnitSpeed(Unit) > 0 then
-		return true
-	else
-		return false
-	end
+	if Unit == nil then return false end
+	return GetUnitSpeed(Unit) > 0
 end
 -- if IsMovingTime(5) then
 function IsMovingTime(time)
