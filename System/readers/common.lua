@@ -257,11 +257,21 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
+	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
+	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 	local function SuperReader(self,event,...)
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end
+		-- Update Talent Info
+        if event == "PLAYER_TALENT_UPDATE" then
+            br.updateTalents = true
+        end
+        -- Update Function Info
+        if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
+            br.updateFunctions = true
+        end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then

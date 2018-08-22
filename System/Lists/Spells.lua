@@ -1014,9 +1014,12 @@ br.lists.spells = {
                 killCommand                 = 259489,
                 mongooseBite                = 259387,
                 muzzle                      = 187707,
+                pheromoneBomb               = 270323,
                 raptorStrike                = 186270,
                 serpentSting                = 259491,
+                shrapnelBomb                = 270335,
                 steelTrap                   = 162488,
+                volatileBomb                = 271045,
                 wildfireBomb                = 259495,
                 wingClip                    = 195645,
             },
@@ -1034,6 +1037,7 @@ br.lists.spells = {
             debuffs                         = {
                 bloodseeker                 = 259277,
                 internalBleeding            = 270343,
+                latentPoison                = 273286,
                 serpentSting                = 259491,
                 shrapnelBomb                = 270339,
                 wildfireBomb                = 269747,
@@ -1057,6 +1061,10 @@ br.lists.spells = {
                 vipersVenom                 = 268501,
                 wildfireInfusion            = 271014,
             },
+            traits                          = {
+                upCloseAndPersonal          = 278533,
+                venomousFangs               = 274590,
+            }
         },
         -- All
         Shared = {
@@ -3147,7 +3155,7 @@ br.lists.spells = {
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
                 shockwave					= 46968,
-				spellReflection             = 23920,
+                spellReflection             = 23920,
                 thunderClap                 = 6343,
             },
             artifacts                       = {
@@ -3181,8 +3189,8 @@ br.lists.spells = {
                 neverSurrender              = 202561,
                 ravager                     = 228920,
                 renewedFury                 = 202288,
-                shockwave					= 46968,
                 safeguard                   = 223657,
+                shockwave					= 46968,
                 ultimatum                   = 122509,
                 vengeance                   = 202572,
                 warbringer                  = 103828,

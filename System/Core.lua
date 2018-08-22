@@ -41,33 +41,14 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-	if FireHack == nil then
-	 	br.ui:closeWindow("all")
-		if getOptionCheck("Start/Stop BadRotations") then
-			ChatOverlay("Unable To Load")
-			if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
-				Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
-			end
-		end
-		return false
-	else
-		-- Check Enabled State
-		if br.loadMsg == nil then br.loadMsg = false end
-		if not br.loadMsg then ChatOverlay("Loaded") br.loadMsg = true end
-		if br.data.settings ~= nil then
-			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-				br.ui:closeWindow("all")
-				return false
-			else
-				-- Pulse Object Manager for Caching
-				if pulse == nil then pulse = GetTime() end
-				if GetTime() > pulse then
-					pulse = GetTime() + getUpdateRate()
-					cacheOM()
-					getOMUnits()
-					FindEnemy()
-				end
-			end
+	if FireHack ~= nil then
+		-- Pulse Object Manager for Caching
+		if pulse == nil then pulse = GetTime() end
+		if GetTime() > pulse then
+			pulse = GetTime() + getUpdateRate()
+			cacheOM()
+			getOMUnits()
+			FindEnemy()
 		end
 	end
 end
@@ -93,11 +74,6 @@ function BadRotationsUpdate(self)
 				return false
 			elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
 				br.fallDist = getFallDistance() or 0
-				-- if br.fallDist > 0 then print(br.fallDist) end
-				-- if pHealth == nil then pHealth = 0 end
-				-- if printed == nil then printed = false end
-				-- if pHealth == 0 and UnitHealth("player") < UnitHealthMax("player") then pHealth = UnitHealth("player") end
-				-- if pHealth > 0 and printed == false then print (pHealth) printed = true end
 				if isChecked("Talent Anywhere") then
 					talentAnywhere()
 				end
@@ -111,27 +87,20 @@ function BadRotationsUpdate(self)
 			    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
 			    local playerSpec = GetSpecializationInfo(GetSpecialization())
 			    -- Initialize Player
-				if br.player == nil or br.player.profile ~= br.selectedSpec then
+				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
+					brLoaded = false
 			        br.player = br.loader:new(playerSpec,br.selectedSpec)
 			        setmetatable(br.player, {__index = br.loader})
 			        br.player:createOptions()
 			        br.player:createToggles()
 			        br.player:update()
+					Print("Loaded Profile: "..br.player.rotation.name)
+					br.rotationChanged = false
 			    end
 			    -- Update Player
-			    if br.player ~= nil and not CanExitVehicle() then --and br.timer:useTimer("playerUpdate", getUpdateRate()) then --br.debug.cpu.pulse.currentTime/10) then
+			    if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 					br.player:update()
 				end
-			-- Enemy Engine
-				-- if br.timer:useTimer("cacheOM",1) then
-				-- 	cacheOM()
-				-- end
-				-- if br.timer:useTimer("unitsUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
-					-- getOMUnits()
-				-- end
-				-- if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
-					-- FindEnemy()
-				-- end
 			-- Healing Engine
 				if isChecked("HE Active") then
 					br.friend:Update()

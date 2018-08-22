@@ -244,32 +244,52 @@ function getDebuffStacks(Unit,DebuffID,Source)
 	end
 end
 function getDebuffCount(spellID)
-  local counter = 0
-  for k, v in pairs(br.enemy) do
-    local thisUnit = br.enemy[k].unit
-    -- check if unit is valid
-    if GetObjectExists(thisUnit) then
-      -- increase counter for each occurences
-      if UnitDebuffID(thisUnit,spellID,"player") then
-        counter = counter + 1
-      end
-    end
-  end
-  return tonumber(counter)
+	local counter = 0
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
+		-- check if unit is valid
+		if GetObjectExists(thisUnit) then
+			-- increase counter for each occurences
+			if UnitDebuffID(thisUnit,spellID,"player") then
+				counter = counter + 1
+			end
+		end
+	end
+	return tonumber(counter)
 end
 function getDebuffRemainCount(spellID,remain)
-  local counter = 0
-  for k, v in pairs(br.enemy) do
-    local thisUnit = br.enemy[k].unit
-    -- check if unit is valid
-    if GetObjectExists(thisUnit) then
-      -- increase counter for each occurences
-      if UnitDebuffID(thisUnit,spellID,"player") and getDebuffRemain(thisUnit,spellID,"player") >= remain then
-        counter = counter + 1
-      end
+	local counter = 0
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
+		-- check if unit is valid
+		if GetObjectExists(thisUnit) then
+			-- increase counter for each occurences
+			if UnitDebuffID(thisUnit,spellID,"player") and getDebuffRemain(thisUnit,spellID,"player") >= remain then
+				counter = counter + 1
+			end
+		end
+	end
+	return tonumber(counter)
+end
+function getDebuffMinMax(spell, range, debuffType, returnType)
+	local thisMin = 99
+    local thisMax = 0
+    local lowestUnit = "target"
+    local maxUnit = "target"
+	for k, v in pairs(br.enemy) do
+		local thisUnit = br.enemy[k].unit
+        local distance = getDistance(thisUnit)
+        local thisDebuff = br.player.debuff[spell][debuffType](thisUnit)
+        if distance < range and thisDebuff > 0
+            and ((returnType == "min" and thisDebuff < thisMin)
+                or (returnType == "max" and thisDebuff > thisMax))
+        then
+            if returnType == "min" then lowestUnit = thisUnit; thisMin = thisDebuff end
+            if returnType == "max" then maxUnit = thisUnit; thisMax = thisDebuff end
+        end
     end
-  end
-  return tonumber(counter)
+    if returnType == "min" then return lowestUnit end
+    if returnType == "max" then return maxUnit end
 end
 -- if getBuffDuration("target",12345) < 3 then
 function getBuffDuration(Unit,BuffID,Source)

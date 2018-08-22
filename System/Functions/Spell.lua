@@ -225,7 +225,7 @@ function getCastingRegen(spellID)
 
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = getCastTime(spellID) or 0
-	local gcd = br.player.gcd
+	local gcd = br.player.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
 	power = power + regenRate * castSeconds
 

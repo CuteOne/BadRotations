@@ -47,7 +47,7 @@ function cacheOM()
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
 			end
-			 -- objectIndex = objectIndex + 1
+			-- objectIndex = objectIndex + 1
 			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
 		end
 	end
@@ -67,7 +67,7 @@ local function UpdatePet(thisUnit)
 	else
 		demoEmpBuff = false
 	end
-	local unitCount = #br.player.enemies(10,thisUnit) or 0
+	local unitCount = #getEnemies(thisUnit,10) or 0
 	local pet 		= br.player.pet.list[thisUnit]
 	pet.deBuff = demoEmpBuff
 	pet.numEnemies = unitCount
@@ -181,10 +181,10 @@ function getOMUnits()
 	end
 	-- Clean Up
 	-- Units
-	for k, v in pairs(br.units) do if br.om[thisUnit] == nil or not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
+	for k, v in pairs(br.units) do if br.om[k] == nil or not enemyListCheck(br.units[k].unit) then br.units[k] = nil end end
 	-- Pets
 	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
-		for k,v in pairs(br.player.pet.list) do if br.om[thisUnit] == nil or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
+		for k,v in pairs(br.player.pet.list) do if br.om[k] == nil or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
 	end
 	-- Lootables
 	for k, v in pairs(br.lootable) do
@@ -197,17 +197,19 @@ function getOMUnits()
 		local playerObject = GetObjectWithGUID(UnitGUID("player"))
 		for k, thisUnit in pairs(br.om) do
 			omCounter = omCounter + 1
-			if omCounter == 1 then cycleTime = debugprofilestop() end
+			if isChecked("Debug Timers") and omCounter == 1 then cycleTime = debugprofilestop() end
 			-- Units
 			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
 				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
 				AddUnits(thisUnit)
 			end
 			-- Pet Info
-			if br.player.pet.list[thisUnit] == nil and not isCritter(GetObjectID(thisUnit))
-				and (UnitCreator(thisUnit) == playerObject or GetObjectID(thisUnit) == 11492)
-			then
-				AddPet(thisUnit)
+			if br.player ~= nil then
+				if br.player.pet.list[thisUnit] == nil and not isCritter(GetObjectID(thisUnit))
+					and (UnitCreator(thisUnit) == playerObject or GetObjectID(thisUnit) == 11492)
+				then
+					AddPet(thisUnit)
+				end
 			end
 			-- Lootable
 			if br.lootable[thisUnit] == nil then
@@ -316,7 +318,7 @@ function dynamicTarget(range,facing)
 	then
 		bestUnit = "target"
 	end
-	if (UnitIsDeadOrGhost("target")	or (isChecked("Target Dynamic Target") and UnitExists("target") and not UnitIsUnit(bestUnit,"target")))	then
+	if (UnitIsDeadOrGhost("target")	or (not UnitExists("target") and hasThreat(bestUnit)) or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not UnitIsUnit(bestUnit,"target")))	then
 		TargetUnit(bestUnit)
 	end
 	if isChecked("Debug Timers") then
@@ -373,21 +375,6 @@ function getBestAoEInterupt(Range)
 	return bestAoEInteruptTarget
 end
 
-function getDebuffCount(spellID)
-	local counter = 0
-	for k, v in pairs(br.enemy) do
-		local thisUnit = br.enemy[k].unit
-		-- check if unit is valid
-		if GetObjectExists(thisUnit) then
-			-- increase counter for each occurences
-			if UnitDebuffID(thisUnit,spellID,"player") then
-				counter = counter + 1
-			end
-		end
-	end
-	return tonumber(counter)
-end
-
 -- to enlight redundant checks in getDistance within getEnemies
 function getDistanceXYZ(unit1,unit2)
 	-- check if unit is valid
@@ -399,15 +386,15 @@ function getDistanceXYZ(unit1,unit2)
 end
 
 function getTableEnemies(unit,Range,table)
-	local getTableEnemies = { }
-	if table == nil then return getTableEnemies end
+	local tableEnemies = { }
+	if table == nil then return tableEnemies end
 	for i = 1, #table do
 		local thisUnit = table[i]
 		if getDistance(unit,thisUnit) <= Range then
-			tinsert(getTableEnemies,thisUnit)
+			tinsert(tableEnemies,thisUnit)
 		end
 	end
-	return getTableEnemies
+	return tableEnemies
 end
 
 function isInside(x,y,ax,ay,bx,by,dx,dy)
@@ -424,61 +411,14 @@ function isInside(x,y,ax,ay,bx,by,dx,dy)
 	return true
 end
 
---[[function getEnemiesInCone(degrees,length,showLines,checkNoCombat)
-	local LibDraw = LibStub("LibDraw-1.0")
-	local playerX, playerY, playerZ = GetObjectPosition("player")
-	local facing = ObjectFacing("player") or 0
-	-- Left
-	local lX, lY, lZ = GetPositionFromPosition(playerX, playerY, playerZ, 0, facing + math.rad(90+(degrees)), 0)
-	-- Right
-	local rX, rY, rZ = GetPositionFromPosition(playerX, playerY, playerZ, 0, facing + math.rad(90*2+(degrees)), 0)
-
-	if showLines then
-		-- Left
-		LibDraw.Line(lX, lY, lZ, playerX, playerY, playerZ)
-		-- Right
-		LibDraw.Line(rX, rY, rZ, playerX, playerY, playerZ)
-		-- Cone Complete
-		LibDraw.Line(lX, lY, lZ, rX, rY, rZ)
-	end
-
-	if checkNoCombat == nil then checkNoCombat = false end
-    if checkNoCombat then
-    	enemiesTable = getEnemies("player",length,true)
-    else
-    	enemiesTable = getEnemies("player",length)
-    end
-	local enemyCounter = 0
-	local maxX = math.max(rX,lX)
-	local minX = math.min(rX,lX)
-	local maxY = math.max(rY,lY)
-	local minY = math.min(rY,lY)
-	for i = 1, #enemiesTable do
-		local thisUnit = enemiesTable[i]
-		local tX, tY, tZ = GetObjectPosition(thisUnit)
-		if isInside(tX,tY,lX,lY,rX,rY,playerX,playerY) then
-			if showLines then
-				LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
-			end
-			enemyCounter = enemyCounter + 1
-		end
-		-- end
-	end
-	return enemyCounter
-end--]]
-
 -- Cone Logic for Enemies
 function getEnemiesInCone(angle,length,showLines,checkNoCombat)
+	if angle == nil then angle = 0 end
+	if length == nil then length = 0 end
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0
-
-    if checkNoCombat == nil then checkNoCombat = false end
-    if checkNoCombat then
-    	enemiesTable = getEnemies("player",length,true)
-    else
-    	enemiesTable = getEnemies("player",length)
-    end
+	local enemiesTable = getEnemies("player",length,checkNoCombat)
 
     for i = 1, #enemiesTable do
         local thisUnit = enemiesTable[i]
@@ -488,58 +428,63 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
             local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
             local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
             local finalAngle = shortestAngle/math.pi*180
-            if finalAngle < angle then
+            if finalAngle < angle/2 then
                 units = units + 1
             end
         end
     end
+	-- ChatOverlay(units)
     return units
+end
+
+function getRect(width,length,showLines)
+	local width = width or 10
+	local length = length or 20
+	local px, py, pz = GetObjectPosition("player")
+	local facing = ObjectFacing("player") or 0
+	local halfWidth = width/2
+	-- Near Left
+	local nlX, nlY, nlZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(90), 0)
+	-- Near Right
+	local nrX, nrY, nrZ = GetPositionFromPosition(px, py, pz, halfWidth, facing + math.rad(270), 0)
+	-- Far Left
+	--local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
+	-- Far Right
+	local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+
+	-- if showLines then
+	-- 	-- Near Left
+	-- 	LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
+	-- 	-- Near Right
+	-- 	LibDraw.Line(nrX, nrY, nrZ, playerX, playerY, playerZ)
+	-- 	-- Far Left
+	-- 	LibDraw.Line(flX, flY, flZ, nlX, nlY, nlZ)
+	-- 	-- Far Right
+	-- 	LibDraw.Line(frX, frY, frZ, nrX, nrY, nrZ)
+	-- 	-- Box Complete
+	-- 	LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
+	-- end
+
+	return nlX, nlY, nrX, nrY, frX, frY
 end
 
 function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local LibDraw = LibStub("LibDraw-1.0")
-	local playerX, playerY, playerZ = GetObjectPosition("player")
-	local facing = ObjectFacing("player") or 0
-
-	-- Near Left
-	local nlX, nlY, nlZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(90), 0)
-	-- Near Right
-	local nrX, nrY, nrZ = GetPositionFromPosition(playerX, playerY, playerZ, width/2, facing + math.rad(270), 0)
-	-- Far Left
-	local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing + math.rad(0), 0)
-	-- Far Right
-	local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing + math.rad(0), 0)
-
-	if showLines then
-		-- Near Left
-		LibDraw.Line(nlX, nlY, nlZ, playerX, playerY, playerZ)
-		-- Near Right
-		LibDraw.Line(nrX, nrY, nrZ, playerX, playerY, playerZ)
-		-- Far Left
-		LibDraw.Line(flX, flY, flZ, nlX, nlY, nlZ)
-		-- Far Right
-		LibDraw.Line(frX, frY, frZ, nrX, nrY, nrZ)
-		-- Box Complete
-		LibDraw.Line(frX, frY, frZ, flX, flY, flZ)
-	end
-
-	if checkNoCombat == nil then checkNoCombat = false end
-    if checkNoCombat then
-    	enemiesTable = getEnemies("player",length,true)
-    else
-    	enemiesTable = getEnemies("player",length)
-    end
+	local checkNoCombat = checkNoCombat or false
+	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
 	local enemyCounter = 0
-	for i = 1, #enemiesTable do
-		local thisUnit = enemiesTable[i]
-		local tX, tY, tZ = GetObjectPosition(thisUnit)
-		if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
-			if showLines then
-				LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
+	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	if #enemiesTable > 0 then
+		for i = 1, #enemiesTable do
+			local thisUnit = enemiesTable[i]
+			local tX, tY, tZ = GetObjectPosition(thisUnit)
+			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+				if showLines then
+					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
+				end
+				enemyCounter = enemyCounter + 1
 			end
-			enemyCounter = enemyCounter + 1
 		end
-		-- end
 	end
 	return enemyCounter
 end

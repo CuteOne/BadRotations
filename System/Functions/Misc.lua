@@ -55,17 +55,43 @@ function getLineOfSight(Unit1,Unit2)
 		end
 	end
 	local skipLoSTable = br.lists.los
-	local obj1ID = GetObjectID(Unit1)
-	local obj2ID = GetObjectID(Unit2)
-	if skipLoSTable[obj1ID] ~= nil or skipLoSTable[obj2ID] ~= nil then return true end
+	for i = 1,#skipLoSTable do
+		if GetObjectID(Unit1) == skipLoSTable[i] or GetObjectID(Unit2) == skipLoSTable[i] then
+			return true
+		end
+	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
-		local los = TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10)
-		return los == nil
+		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
+			return true
+		else
+			return false
+		end
+	else
+		return false
 	end
-	return true
 end
+-- function getLineOfSight(Unit1,Unit2)
+-- 	if Unit2 == nil then
+-- 		if Unit1 == "player" then
+-- 			Unit1 = "target"
+-- 		end
+-- 		Unit2 = "player"
+-- 	end
+-- 	local skipLoSTable = br.lists.los
+-- 	local obj1ID = GetObjectID(Unit1)
+-- 	local obj2ID = GetObjectID(Unit2)
+-- 	if skipLoSTable[obj1ID] ~= nil or skipLoSTable[obj2ID] ~= nil then return true end
+-- 	if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1)))
+-- 		and (UnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2)))
+-- 	then
+-- 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+-- 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+-- 		return TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil
+-- 	end
+-- 	return false
+-- end
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
 	if GetObjectExists(Unit) and GetUnitIsVisible(Unit) then
@@ -337,9 +363,9 @@ function enemyListCheck(Unit)
 	local distance = getDistance(Unit,"player")
 	local playerObj = GetObjectWithGUID(UnitGUID("player"))
 
-	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and not isCritter(Unit) and UnitCanAttack("player",Unit)
-		and (UnitReaction(Unit,"player") < 5 or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492)
-		and getLineOfSight("player", Unit) and isSafeToAttack(Unit)
+	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
+	 and isSafeToAttack(Unit) and not isCritter(Unit)
+		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
@@ -351,8 +377,8 @@ function isValidUnit(Unit)
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
 		local playerTarget = UnitIsUnit(Unit,"target")
-		return (hasThreat or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
-			or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20)) or (isDummy(Unit) and getDistance(Unit,"target") < 8))
+		return hasThreat or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
+			or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20)) or (isDummy(Unit) and getDistance(Unit,"target") < 8)
 	end
 	return false
 end

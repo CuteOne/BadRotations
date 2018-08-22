@@ -130,7 +130,8 @@ function getSpellUnit(spellCast,aoe)
 	local spellType = getSpellType(spellName)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 end
 	if aoe == nil then aoe = false end
-	local unit = br.player.units(maxRange,aoe)
+	local facing = not aoe
+	local unit = dynamicTarget(maxRange,facing)
     if spellType == "Helpful" then
         thisUnit = "player"
     elseif spellType == "Harmful" or spellType == "Both" then

@@ -73,11 +73,11 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.queue 			= {} 		-- Table for Queued Spells
 	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
-	--self.racial   		= nil       -- Contains racial spell id
+	self.racial   		= getRacialID()       -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull 	= {}
-	self.rotation       = 1         -- Default: First avaiable rotation
-    self.rotations 		= {} 		-- List of Rotations
+	self.selectedRotation = 1         -- Default: First avaiable rotation
+    self.rotation 		= {} 		-- List of Rotations
 	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
 	self.timeToMax		= 0			-- Time To Max Power
@@ -215,14 +215,12 @@ function cCharacter:new(class)
 
 -- Rotation selection update
     function self.getRotation()
-        self.rotation = br.selectedProfile
+        self.selectedRotation = br.selectedProfile
 
-        if br.rotation_changed then
+        if br.rotationChanged then
             self.createOptions()
             self.createToggles()
             br.ui.window.profile.parent:Show()
-
-            br.rotation_changed = false
         end
     end
 
@@ -232,8 +230,8 @@ function cCharacter:new(class)
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
         if pause(true) then return end
 
-        if self.rotations[br.selectedProfile] ~= nil then
-        	self.rotations[br.selectedProfile].run()
+        if self.rotation ~= nil then
+        	self.rotation.run()
         else
         	return
         end
@@ -242,13 +240,20 @@ function cCharacter:new(class)
 			br.debug.cpu.rotation.totalIterations = br.debug.cpu.rotation.totalIterations + 1
 			br.debug.cpu.rotation.elapsedTime = br.debug.cpu.rotation.elapsedTime + debugprofilestop()-startTime
 			br.debug.cpu.rotation.averageTime = br.debug.cpu.rotation.elapsedTime / br.debug.cpu.rotation.totalIterations
+			if not self.inCombat then
+				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeOoC then br.debug.cpu.rotation.maxTimeOoC = br.debug.cpu.rotation.currentTime end
+				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeOoC then br.debug.cpu.rotation.minTimeOoC = br.debug.cpu.rotation.currentTime end
+			else
+				if br.debug.cpu.rotation.currentTime > br.debug.cpu.rotation.maxTimeInC then br.debug.cpu.rotation.maxTimeInC = br.debug.cpu.rotation.currentTime end
+				if br.debug.cpu.rotation.currentTime < br.debug.cpu.rotation.minTimeInC then br.debug.cpu.rotation.minTimeInC = br.debug.cpu.rotation.currentTime end
+			end
 		end
     end
 
 -- Updates special Equipslots
 	function self.baseGetEquip()
-		if br.equipHasChanged == nil or br.equipHasChanged then
-			if self.equiped == nil then self.equiped = {} end
+		if self.equiped == nil then self.equiped = {} end
+		if self.equiped.t17 == nil or br.equipHasChanged == nil or br.equipHasChanged then
 			for i = 17, 21 do
 				if self.equiped["t"..i] == nil then self.equiped["t"..i] = 0 end
 				self.equiped["t"..i] = TierScan("T"..i) or 0

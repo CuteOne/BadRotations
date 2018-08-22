@@ -7,8 +7,8 @@ function getDistance(Unit1,Unit2,option)
     end
     if option == nil then option = "none" end
     -- Check if objects exists and are visible
-    if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true
-        and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true
+    if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true))
+        and (UnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true))
     then
         -- Modifier for Balance Affinity range change (Druid - Not Balance)
         local rangeMod = 0
