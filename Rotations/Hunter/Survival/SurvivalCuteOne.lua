@@ -297,15 +297,15 @@ local function runRotation()
                 if cast.able.catlikeReflexes() then return end
             end
             -- Claw
-            if isChecked("Claw") and cast.able.claw("target") and getDistance("target","pet") < 5 then
-                if cast.claw("target") then return end
+            if isChecked("Claw") and cast.able.claw("target") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
+                if cast.claw("pettarget") then return end
             end
             -- Dash
-            if isChecked("Dash") and cast.able.dash() and hasThreat("target") and getDistance("target","pet") > 10 then
+            if isChecked("Dash") and cast.able.dash() and isValidUnit("pettarget") and getDistance("pettarget","pet") > 10 then
                 if cast.dash() then return end
             end
             -- Prowl
-            if isChecked("Prowl") and cast.able.prowl() and #enemies.yards20 > 0 and not buff.prowl.exists("pet") and not IsResting() then
+            if isChecked("Prowl") and not inCombat and cast.able.prowl() and #enemies.yards20 > 0 and not buff.prowl.exists("pet") and not IsResting() then
                 if cast.prowl() then return end
             end
             -- Growl

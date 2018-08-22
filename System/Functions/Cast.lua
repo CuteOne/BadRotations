@@ -566,6 +566,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
         elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
             castDebug()
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
+		elseif thisUnit == "pettarget" and (getDistance("pettarget","pet") < maxRange or IsSpellInRange(spellName,"pettarget") == 1) then
+			castDebug()
+			return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
         elseif thisUnit ~= nil then
             local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
