@@ -298,7 +298,7 @@ local function runRotation()
             end
             -- Claw
             if isChecked("Claw") and cast.able.claw("target") and getDistance("target","pet") < 5 then
-                if cast.claw("target") then Print("Kitty claws the target viciously!"); return end
+                if cast.claw("target") then return end
             end
             -- Dash
             if isChecked("Dash") and cast.able.dash() and hasThreat("target") and getDistance("target","pet") > 10 then
