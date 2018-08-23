@@ -363,10 +363,12 @@ local function runRotation()
                         end
                     end
                 end
-            -- Pot/Stoned
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
-                    if canUse(5512) then
-                        useItem(5512)
+        -- Pot/Stoned
+                if isChecked("Pot/Stoned") and (use.able.healthstone() or canUse(healPot))
+                    and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone())
+                then
+                    if use.able.healthstone() then
+                        use.healthstone()
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
@@ -686,7 +688,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if getDistance("target") < 5 and not stealthingAll then
+                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()
                         StartAttack()
                     end
                 end
