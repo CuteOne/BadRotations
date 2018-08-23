@@ -112,7 +112,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Pot/Stone",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
            -- Cloak of Shadows
@@ -363,10 +363,12 @@ local function runRotation()
                         end
                     end
                 end
-            -- Pot/Stoned
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
-                    if canUse(5512) then
-                        useItem(5512)
+        -- Pot/Stone
+                if isChecked("Pot/Stone") and (use.able.healthstone() or canUse(healPot))
+                    and php <= getOptionValue("Pot/Stone") and inCombat and (hasHealthPot() or has.healthstone())
+                then
+                    if use.able.healthstone() then
+                        use.healthstone()
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
@@ -425,9 +427,9 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|(buff.vanish.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=30))
-                if useCDs() and isChecked("Agi-Pot") and canUse(127844) and inRaid then
+                if useCDs() and isChecked("Agi-Pot") and canUse(163223) and inRaid then
                     if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.vanish.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 30)) then
-                        useItem(127844)
+                        useItem(163223)
                     end
                 end
         -- Trinkets
@@ -686,7 +688,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if getDistance("target") < 5 and not stealthingAll then
+                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()
                         StartAttack()
                     end
                 end
