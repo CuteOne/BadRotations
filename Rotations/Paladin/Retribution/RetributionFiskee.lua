@@ -773,11 +773,11 @@ local function runRotation()
 			-- actions.generators+=/call_action_list,name=finishers,if=holy_power>=5
 			if holyPower >= 5 then
 				if actionList_Finisher() then return end
-            end
+      end
 			-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
 			if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance(units.dyn8) < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
-                    if cast.wakeOfAshes() then return end
-            end
+        if cast.wakeOfAshes() then return end
+      end
 			-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 			if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
                 if cast.bladeOfJustice() then return end
@@ -791,7 +791,7 @@ local function runRotation()
                 if cast.hammerOfWrath() then return end
             end
 			-- actions.generators+=/consecration,if=holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2
-			if talent.consecration and holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower <= 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2) and getDistance(units.dyn5) < 5 and not isMoving("player") then
+			if talent.consecration and holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower <= 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2) and #enemies.yards8 >= 1 and not isMoving("player") then
                 if cast.consecration() then return end
             end
 			-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)&(buff.divine_purpose.up|buff.crusade.stack<10)
