@@ -200,11 +200,11 @@ local function runRotation()
             return ((amount-focus)/focusRegen)+0.5
         end
 
-        function castRegen(spellID)
+        local function castRegen(spellID)
             if GetSpellInfo(spellID) ~= nil then
                 local desc = GetSpellDescription(spellID)
-                local generates = desc:find("Generates",1,true)+10
-                local amount = desc:sub(generates,generates+1)
+                local generates = desc:gsub("%D+", "")
+                local amount = generates:sub(-2)
                 return tonumber(amount)
             else
                 return 0
