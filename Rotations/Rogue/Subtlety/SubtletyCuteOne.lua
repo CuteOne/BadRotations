@@ -33,13 +33,13 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
 -- Cleave Button
     CleaveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spell.shurikenStorm },
+        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will use Cleave.", highlight = 1, icon = br.player.spell.shurikenStorm },
         [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.backstab }
     };
     CreateButton("Cleave",5,0)
     -- Shadow Dance Button
     ShadowDanceModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Enables Shadow Dance in the rotation.", highlight = 1, icon = br.player.spell.shadowDance },
+        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
         [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Rotation will not use Shadow Dance. Useful for pooling SD charges as you near dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
         };
     CreateButton("ShadowDance",6,0)
@@ -688,7 +688,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()
+                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists() then
                         StartAttack()
                     end
                 end
