@@ -294,7 +294,7 @@ local function runRotation()
                     if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
                         if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPets or pethp == 0 then
+                        if UnitIsDeadOrGhost("pet") or deadPets or (UnitExists("pet") and pethp == 0) then
                             deadPet = false
                             if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
                         elseif not deadPets and not (IsPetActive() or UnitExists("pet")) then
