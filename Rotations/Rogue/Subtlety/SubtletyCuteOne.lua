@@ -233,6 +233,7 @@ local function runRotation()
         local ttd                                                       = getTTD
         local ttm                                                       = br.player.power.energy.ttm()
         local units                                                     = units or {}
+    	  local use                                                       = br.player.use
 
         units.dyn5 = br.player.units(5)
         units.dyn30 = br.player.units(30)
