@@ -667,6 +667,7 @@ br.lists.spells = {
                 shred                       = 5221,
                 rip                         = 1079,
                 ferociousBite               = 22568,
+                growl						= 6795,
             },
             artifacts                       = {
                 rageOfTheSleeper            = 200851,

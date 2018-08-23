@@ -49,6 +49,8 @@ local function createOptions()
 			br.ui:createCheckbox(section,"Auto Maul (SIMC)")
 		-- Maul At
             br.ui:createSpinnerWithout(section, "Maul At",  90,  5,  100,  5,  "|cffFFFFFFSet to desired rage to cast Maul. Min: 5 / Max: 100 / Interval: 5")
+		-- Auto Maul
+			br.ui:createCheckbox(section,"Taunt")			
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -231,7 +233,18 @@ local function runRotation()
                     end
                 end
             end -- End Shapeshift Form Management
-        end -- End Action List - Extras
+			        -- Torment
+            if isChecked("Taunt") then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                        if cast.growl(thisUnit) then return end
+                    end
+                end
+
+            end
+
+		end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() and not buff.prowl.exists() and not flight then
@@ -442,8 +455,10 @@ local function runRotation()
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if debuff.thrash.stack(thisUnit) >= 3 then
-                                if cast.pulverize(thisUnit) then return end
-                            end
+                                if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrash())) then
+									if cast.pulverize(thisUnit) then return end
+								end
+							end
                         end
                     end
         -- Moonfire
