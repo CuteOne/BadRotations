@@ -293,7 +293,7 @@ local function runRotation()
               end
             end
             enemies.yards10t = getEnemies(thisUnit, 10)
-            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
+            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
               seedHit = 0
               for q = 1, #enemies.yards10t do
                 local seedAoEUnit = enemies.yards10t[q]
@@ -508,7 +508,7 @@ local function runRotation()
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and ttd(thisUnit) > 10 then
+              if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
                 if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
                   if cast.agony(thisUnit) then return end
                 end
@@ -594,7 +594,7 @@ local function runRotation()
           if seedTargetsHit < 3 + writheInAgonyValue then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 then
+                if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
                   if cast.corruption(thisUnit) then return end
                 end
             end

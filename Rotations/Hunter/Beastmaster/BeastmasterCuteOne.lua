@@ -131,7 +131,7 @@ local function createOptions()
 	-- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -213,6 +213,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local perk                                          = br.player.perk
+        local pethp                                         = getHP("pet")
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
@@ -293,14 +294,10 @@ local function runRotation()
                     if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
                         if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPets then
+                        if UnitIsDeadOrGhost("pet") or deadPets or pethp == 0 then
                             deadPet = false
-                            if cast.able.heartOfThePhoenix() and inCombat then
-                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime() return true end
-                            else
-                                if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
-                            end
-                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
+                            if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
+                        elseif not deadPets and not (IsPetActive() or UnitExists("pet")) then
                             if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime() return true end
                         end
                     end
@@ -348,7 +345,7 @@ local function runRotation()
                 end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
+            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return end
             end
         end
@@ -448,10 +445,9 @@ local function runRotation()
                     end
                 end
             -- Intimidation
-                if isChecked("Intimidation") and talent.intimidation and cd.intimidation.remain() == 0 and
-                GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and not deadPets then
                     for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
+                        thisUnit = enemies.yards40[i]
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if cast.intimidation(thisUnit) then return end
                         end
@@ -498,7 +494,7 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts or (trait.primalInstincts and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts() or (trait.primalInstincts() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
 					if cast.aspectOfTheWild() then return end
 				end
 
@@ -638,7 +634,7 @@ local function runRotation()
             -- Start Attack
                     StartAttack()
                     --Pet Attacks
-                    if not UnitIsDeadOrGhost("pet") and not deadPet and isChecked("Pet Attacks") then
+                    if not UnitIsDeadOrGhost("pet") and not deadPets and isChecked("Pet Attacks") then
                       if getDistance("pettarget","pet") < 5 then
                         --Claw
                         cast.claw("pettarget")
@@ -651,13 +647,13 @@ local function runRotation()
                       PetAttack()
                     end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
 					--Cooldowns
                     if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd() < 16 and ttd() > 5 then
+                    if isChecked("A Murder Of Crows / Barrage") and ttd() < 16 and ttd() > 3 then
                         if cast.aMurderOfCrows() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
