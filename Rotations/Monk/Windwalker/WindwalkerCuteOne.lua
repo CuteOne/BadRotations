@@ -668,10 +668,15 @@ local function runRotation()
                 if isChecked("Touch of Karma") and php <= getOptionValue("Touch of Karma") and inCombat then
                     if cast.touchOfKarma() then return true end
                 end
+				
         -- Vivify
-                if isChecked("Vivify") and php <= getOptionValue("Vivify") and not inCombat and cast.able.vivify() then
+		 if isChecked("Vivify") and php <= getOptionValue("Vivify") and not inCombat and cast.able.vivify() then
+               --     if cast.vivify() then return true end
+				else
+                if isChecked("Vivify") and php <= getOptionValue("Vivify") and inCombat and not debuff.controlTheMists.exists("player") and cast.able.vivify() then
                     if cast.vivify() then return true end
                 end
+			end
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -963,11 +968,7 @@ local function runRotation()
             then
                 if cast.stormEarthAndFire() then return end
             end
-        -- Rushing Jade Wind
-            -- rushing_jade_wind,if=buff.rushing_jade_wind.down&!prev_gcd.1.rushing_jade_wind
-            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not cast.last.rushingJadeWind() then
-                if cast.rushingJadeWind() then return end
-            end
+        
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs()))
@@ -1073,6 +1074,11 @@ local function runRotation()
                 and not cast.last.tigerPalm() and chi <= 1 and (cd.risingSunKick.remain() == 0 or (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() == 0) or energy < 50)
             then
                 if cast.able.energizingElixir() then return true end
+            end
+			-- Rushing Jade Wind
+            -- rushing_jade_wind,if=buff.rushing_jade_wind.down&!prev_gcd.1.rushing_jade_wind
+            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not cast.last.rushingJadeWind() then
+                if cast.rushingJadeWind() then return end
             end
         -- Arcane Torrent
             -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
