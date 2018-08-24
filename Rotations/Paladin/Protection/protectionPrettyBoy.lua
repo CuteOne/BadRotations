@@ -48,7 +48,7 @@ end
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		-----------------------
 		--- GENERAL OPTIONS ---
@@ -74,7 +74,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Avenging Wrath",  0,  0,  200,  5,  "|cffFFFFFFEnemy TTD")
 		-- Bastion of Light
 		br.ui:createCheckbox(section,"Bastion of Light")
-		
+
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -150,7 +150,7 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Judgment")
 		-- Shield of the Righteous
 		br.ui:createCheckbox(section,"Shield of the Righteous")
-		
+
 		br.ui:checkSectionState(section)
 		----------------------
 		--- TOGGLE OPTIONS ---
@@ -183,7 +183,7 @@ end
 local function runRotation()
 	if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
 	--Print("Running: "..rotationName)
-	
+
 	---------------
 	--- Toggles ---
 	---------------
@@ -192,11 +192,11 @@ local function runRotation()
 	UpdateToggle("Defensive",0.25)
 	UpdateToggle("Interrupt",0.25)
 	UpdateToggle("BossCase",0.25)
-	UpdateToggle("Consecration",0.25)	
+	UpdateToggle("Consecration",0.25)
 	br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
 	br.player.mode.Consecration = br.data.settings[br.selectedSpec].toggles["Consecration"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
-	
+
 	--------------
 	--- Locals ---
 	--------------
@@ -226,7 +226,7 @@ local function runRotation()
 	local talent        = br.player.talent
 	local ttd           = getTTD(br.player.units(5))
 	local units         = units or {}
-	
+
 	units.dyn5 = br.player.units(5,true)
 	units.dyn10 = br.player.units(10)
 	units.dyn30 = br.player.units(30,true)
@@ -234,9 +234,9 @@ local function runRotation()
 	enemies.yards8 = br.player.enemies(8)
 	enemies.yards10 = br.player.enemies(10)
 	enemies.yards30 = br.player.enemies(30)
-	
+
 	if profileStop == nil then profileStop = false end
-	
+
 	local lowestUnit
 	lowestUnit = "player"
 	for i = 1, #br.friend do
@@ -286,10 +286,10 @@ local function runRotation()
 		for i = 1, #enemies.yards10 do
 			local thisUnit = enemies.yards10[i]
 			local distance = getDistance(thisUnit)
-			if GetObjectID(thisUnit) == 131009 and distance <= 10 then
+			if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388) and distance <= 10 then
 				if cast.hammerOfJustice(thisUnit) then return end
 			end
-		end	
+		end
 		-- Flash of Light
 		if GetObjectID("target") == 133392 and inCombat then
 			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
@@ -300,6 +300,9 @@ local function runRotation()
 		for i = 1, #br.friend do
 			if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
 				if cast.cleanseToxins(br.friend[i].unit) then return end
+			end
+			if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,5) <= 1 then
+				if cast.cleanse(br.friend[i].unit) then return end
 			end
 		end
 		-- Shield of the Righteous
@@ -315,12 +318,13 @@ local function runRotation()
 			if getDebuffRemain("player",debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then return end
 			end
-		end		
+		end
 		local Casting={
 		--spell_id	, spell_name
 		{267899 	, 'Hindering Cleave'}, -- Shrine of the Storm
 		{272457 	, 'Shockwave'}, -- Underrot
 		{260508 	, 'Crush'}, -- Waycrest Manor
+		{249919 	, 'Skewer'}, -- Atal'Dazar
 		{265910 	, 'Tail Thrash'}, -- King's Rest
 		{268586 	, 'Blade Combo'}, -- King's Rest
 		}
@@ -384,7 +388,7 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Lay On Hands") then
 						if cast.layOnHands("mouseover") then return true end
 					end
-				elseif getHP(lowestUnit) <= getValue("Lay On Hands") then
+				elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) then
 					-- Tank
 					if getOptionValue("Lay on Hands Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -428,7 +432,7 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Blessing of Protection") then
 						if cast.blessingOfProtection("mouseover") then return true end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") then
+				elseif getHP(lowestUnit) <= getValue("Blessing of Protection") and UnitInRange(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing of Protection Target") == 4 then
 						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -467,10 +471,10 @@ local function runRotation()
 					if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 						if cast.blessingOfSacrifice("mouseover") then return true end
 					end
-				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") then
+				elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and UnitInRange(lowestUnit) then
 					-- Tank
 					if getOptionValue("Blessing Of Sacrifice Target") == 3 then
-						if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
+						if UnitGroupRolesAssigned(lowestUnit) == "TANK" and not UnitIsUnit(lowestUnit,"player") then
 							if cast.blessingOfSacrifice(lowestUnit) then return true end
 						end
 						-- Healer
@@ -574,7 +578,7 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 			end
-			if getDistance(units.dyn5) < 5 then
+			if getDistance(units.dyn5) <= 5 then
 				-- Seraphim
 				if isChecked("Seraphim") and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
 					if cast.seraphim() then return end
@@ -692,7 +696,7 @@ local function runRotation()
 			if not IsMounted() or buff.divineSteed.exists() then
 				if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
 					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and charges.shieldOfTheRighteous.frac() > 2.5 and buff.avengersValor.exists() and getDistance(units.dyn5) <= 5 then
+					if isChecked("Shield of the Righteous") and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
 						if cast.shieldOfTheRighteous() then return end
 					end
 					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
