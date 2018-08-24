@@ -1567,6 +1567,7 @@ br.lists.spells = {
             debuffs                         = {
                 markOfTheCrane              = 228287,
                 risingFist                  = 242259,
+                controlTheMists         	= 233765,
                 touchOfDeath                = 115080,
             },
             glyphs                          = {
