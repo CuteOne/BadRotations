@@ -393,8 +393,8 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Freedom
-			if isChecked("Blessing of Freedom") and hasNoControl() and GetSpellCooldown(1044) == 0 then
-				if cast.blessingOfFreedom() then return end
+			if isChecked("Blessing of Freedom") and hasNoControl(spell.blessingOfFreedom) then
+				if cast.blessingOfFreedom("player") then return end
 			end
 		end
 	end
@@ -434,6 +434,10 @@ local function runRotation()
 				end
 			end
 		end
+		-- Hammer of Justice
+		if (GetObjectID("target") == 131009 or GetObjectID("target") == 134388) and getDistance("target") <= 10 then
+			if cast.hammerOfJustice("target") then return end
+		end	
 	end
 	----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	-- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse -------
@@ -442,10 +446,10 @@ local function runRotation()
 		-- Cleanse
 		if br.player.mode.cleanse == 1 then
 			for i = 1, #friends.yards40 do
-				if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,5) <= 1 then
+				if (getDebuffRemain(br.friend[i].unit,275014) >= 2 or getDebuffRemain(br.friend[i].unit,261440) >= 2) and #getAllies(br.friend[i].unit,5) <= 1 then
 					if cast.cleanse(br.friend[i].unit) then return end
 				end
-				if getDebuffRemain(br.friend[i].unit,275014) == 0 then
+				if getDebuffRemain(br.friend[i].unit,275014) == 0 and getDebuffRemain(br.friend[i].unit,261440) == 0 then
 					if canDispel(br.friend[i].unit,spell.cleanse) then
 						if cast.cleanse(br.friend[i].unit) then return end
 					end
