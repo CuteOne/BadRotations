@@ -467,8 +467,8 @@ local function runRotation()
             end
         -- Raptor Strike
             -- raptor_strike_eagle,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&buff.coordinated_assault.remains<gcd
-            if cast.able.raptorStrikeEagle() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
-                if cast.raptorStrikeEagle() then return end
+            if cast.able.raptorStrike() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
+                if cast.raptorStrike() then return end
             end
             -- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&buff.coordinated_assault.remains<gcd
             if cast.able.raptorStrike() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
@@ -476,8 +476,8 @@ local function runRotation()
             end
         -- Mongoose Bite
             -- mongoose_bite_eagle,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&buff.coordinated_assault.remains<gcd
-            if cast.able.mongooseBiteEagle() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
-                if cast.mongooseBiteEagle() then return end
+            if cast.able.mongooseBite() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
+                if cast.mongooseBite() then return end
             end
             -- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&buff.coordinated_assault.remains<gcd
             if cast.able.mongooseBite() and (talent.birdsOfPrey and buff.coordinatedAssault.exists() and buff.coordinatedAssault.remain() < gcdMax) then
@@ -636,7 +636,7 @@ local function runRotation()
         -- Mongoose Bite
             -- mongoose_bite_eagle,target_if=max:debuff.latent_poison.stack
             if cast.able.mongooseBite(maxLatentPoison40) and talent.mongooseBite and buff.aspectOfTheEagle.exists() then
-                if cast.mongooseBiteEagle(maxLatentPoison40) then return end
+                if cast.mongooseBite(maxLatentPoison40) then return end
             end
             -- mongoose_bite,target_if=max:debuff.latent_poison.stack
             if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and not buff.aspectOfTheEagle.exists() then
