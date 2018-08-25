@@ -183,60 +183,38 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local hasMouse                                      = GetObjectExists("mouseover")
-        local healPot                                       = getHealthPot()
+        local hastar                                        = hastar or GetObjectExists("target")
         local heirloomNeck                                  = 122667 or 122668
         local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
-        local inRaid                                        = br.player.instance=="raid"
+        local inRaid                                        = br.player.instance == "raid"
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerDeficit, powerMax, powerGen       = br.player.power.rage.amount(), br.player.power.rage.deficit(), br.player.power.rage.max(), br.player.power.rage.regen()
+        local power                                         = br.player.power.rage.amount()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local rage                                          = br.player.power.rage.amount()
-        local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units(5))
-        local ttd                                           = getTTD
-        local ttm                                           = br.player.power.rage.ttm()
-        local units                                         = units or {}
+        local thp                                           = getHP("target")
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards20 = br.player.enemies(20)
+        units.get(5)
+        units.get(8)
+        enemies.get(8)
+        enemies.get(20)
 
-        if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if focusTimer == nil then focusTimer = 0 end
-
-        -- ChatOverlay(tostring(isInstanceBoss("target")))
-        -- ChatOverlay(#enemies.yards5)
 
         -- Heroic Leap for Charge (Credit: TitoBR)
         local function heroicLeapCharge()

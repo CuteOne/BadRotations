@@ -638,6 +638,7 @@ br.lists.spells = {
                 soulOfTheForest             = 158476,
             },
             traits                          = {
+                daggerInTheBack             = 280284,
                 shreddingFury               = 274424,
                 vampiricSpeed               = 268599,
             }
@@ -1029,6 +1030,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 aspectOfTheEagle            = 186289,
+                blurOfTalons                = 277969,
                 coordinatedAssault          = 266779,
                 exposedFlank                = 252094, -- Tier 21
                 mongooseFury                = 259388,
@@ -1063,6 +1065,7 @@ br.lists.spells = {
                 wildfireInfusion            = 271014,
             },
             traits                          = {
+                blurOfTalons                = 277653,
                 upCloseAndPersonal          = 278533,
                 venomousFangs               = 274590,
             }
@@ -1534,25 +1537,7 @@ br.lists.spells = {
                 transcendenceTransfer       = 119996,
             },
             artifacts                       = {
-                crosswinds                  = 195650,
-                darkSkies                   = 195265,
-                deathArt                    = 195266,
-                ferocityOfTheBrokenTemple   = 241136,
-                fistsOfTheWind              = 195291,
-                galeBurst                   = 195399,
-                goodKarma                   = 195295,
-                healingWinds                = 195380,
-                innerPeace                  = 195243,
-                lightOnYourFeet             = 195244,
-                powerOfAThousandCranes      = 195269,
-                risingWinds                 = 195263,
-                spiritualFocus              = 195298,
-                strengthOfXuen              = 195267,
-                strikeOfTheWindlord         = 205320,
-                tigerClaws                  = 218607,
-                tornadoKicks                = 196082,
-                transferOfPower             = 195300,
-                windborneBlows              = 214922,
+
             },
             buffs                           = {
                 hitCombo                    = 196741,
@@ -1560,6 +1545,7 @@ br.lists.spells = {
                 rushingJadeWind             = 116847,
                 serenity                    = 152173,
                 stormEarthAndFire           = 137639,
+                swiftRoundhouse             = 278710,
                 theEmperorsCapacitor        = 235054,
                 touchOfKarma                = 122470,
                 transcendence               = 101643,
@@ -1588,6 +1574,9 @@ br.lists.spells = {
                 spiritualFocus              = 280197,
                 whirlingDragonPunch         = 152175,
             },
+            traits                          = {
+                swiftRoundhouse             = 277669,
+            }
         },
         -- All
         Shared = {

@@ -192,36 +192,24 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
-        local addsExist                                                 = false
-        local addsIn                                                    = 999
-        local artifact                                                  = br.player.artifact
-        local attacktar                                                 = UnitCanAttack("target","player")
         local buff                                                      = br.player.buff
         local cast                                                      = br.player.cast
         local cd                                                        = br.player.cd
         local charges                                                   = br.player.charges
         local combatTime                                                = getCombatTime()
         local combo, comboDeficit, comboMax                             = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
-        local deadtar                                                   = UnitIsDeadOrGhost("target")
         local debuff                                                    = br.player.debuff
-        local enemies                                                   = enemies or {}
-        local flaskBuff, canFlask                                       = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
+        local enemies                                                   = br.player.enemies
         local gcd                                                       = br.player.gcd
         local gcdMax                                                    = br.player.gcdMax
-        local glyph                                                     = br.player.glyph
+        local has                                                       = br.player.has
         local hastar                                                    = GetObjectExists("target")
         local healPot                                                   = getHealthPot()
         local inCombat                                                  = br.player.inCombat
-        local lastSpell                                                 = lastSpellCast
-        local level                                                     = br.player.level
         local mode                                                      = br.player.mode
         local multidot                                                  = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
-        local perk                                                      = br.player.perk
         local php                                                       = br.player.health
-        local power, powerMax, powerDeficit, powerRegen, powerTTM       = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.deficit(), br.player.power.energy.regen(), br.player.power.energy.ttm()
-        local pullTimer                                                 = br.DBM:getPulltimer()
+        local power, powerDeficit, powerRegen                           = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                                      = br.player.race
         local solo                                                      = #br.friend < 2
         local spell                                                     = br.player.spell
@@ -229,21 +217,19 @@ local function runRotation()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists()
         local talent                                                    = br.player.talent
-        local time                                                      = getCombatTime()
         local ttd                                                       = getTTD
-        local ttm                                                       = br.player.power.energy.ttm()
-        local units                                                     = units or {}
-    	  local use                                                       = br.player.use
-        local has                                                       = br.player.has
+        local units                                                     = br.player.units
+	    local use                                                       = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        units.dyn30 = br.player.units(30)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        units.get(30)
+
+        enemies.get(5)
+        enemies.get(10)
+        enemies.get(20)
+        enemies.get(30)
+
+        if profileStop == nil then profileStop = false end
 
         -- Opener Variables
         -- if opener == nil then opener = false end
@@ -343,7 +329,7 @@ local function runRotation()
                         if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
                             if cast.sap(units.dyn5) then return end
                         end
-                        if lastSpell ~= spell.vanish then
+                        if cast.last.vanish() then
                             if cast.pickPocket() then return end
                         end
                     end
@@ -416,7 +402,7 @@ local function runRotation()
                             if cast.blind(thisUnit) then return end
                         end
                     end
-            -- Cheap Shot 
+            -- Cheap Shot
                         if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0 then
                             if cast.cheapShot(thisUnit) then return end
                         end

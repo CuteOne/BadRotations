@@ -191,17 +191,21 @@ local function runRotation()
         local units             = units or {}
         local use               = br.player.use
 
-    -- Enemies
-        units.dyn5        = br.player.units(5)
-        units.dyn30       = br.player.units(30)
-        units.dyn40       = br.player.units(40)
-        enemies.yards8    = br.player.enemies(8)
+    -- Dynamic Units
+        units.get(5)
+        units.get(30)
+        units.get(40)
+
+    -- Enemies Tables
+        enemies.get(8)
+        enemies.get(10,"target")
+        enemies.get(15)
+        enemies.get(20)
+        enemies.get(30)
+
+    -- Special Enemy Counts
         enemies.yards8f   = getEnemiesInCone(180,8)
-        enemies.yards10t  = br.player.enemies(10,units.dyn40)
-        enemies.yards15   = br.player.enemies(15)
-        enemies.yards20   = br.player.enemies(20)
         enemies.yards20r  = getEnemiesInRect(10,20,false) or 0
-        enemies.yards30   = br.player.enemies(30)
         enemies.yards40r  = getEnemiesInRect(10,40,false) or 0
 
         if breathOfSindragosaActive == nil then breathOfSindragosaActive = false end
