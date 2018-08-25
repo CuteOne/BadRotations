@@ -847,8 +847,8 @@ local function runRotation()
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.whirling_dragon_punch.remains<gcd&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
-            if cast.able.risingSunKick(lowestMark) and cd.whirlingDragonPunch.remain() < gcd and not cast.last.risingSunKick() and cd.fistsOfFury.remain() > gcd then
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<gcd)&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
+            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < gcd) and not cast.last.risingSunKick() and cd.fistsOfFury.remain() > gcd then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Chi Burst

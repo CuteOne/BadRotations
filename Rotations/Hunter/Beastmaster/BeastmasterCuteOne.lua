@@ -238,9 +238,7 @@ local function runRotation()
         enemies.get(40)
 
         if GetObjectExists("pet") then
-            enemies.get(8,"pet") = enemies.yards8p
-        --else
-          --  enemies.yards8p = {}
+            enemies.get(8,"pet")
         end
 
         local lowestUnit = lowestUnit or units.dyn40
@@ -653,7 +651,7 @@ local function runRotation()
 					--Cooldowns
                     if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd() < 16 and ttd() > 3 then
+                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
                         if cast.aMurderOfCrows() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
@@ -661,7 +659,7 @@ local function runRotation()
                         if cast.bestialWrath() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 2) or mode.rotation == 2)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
@@ -681,17 +679,17 @@ local function runRotation()
                         if cast.barbedShot() then return end
                     end
                     -- actions+=/barrage
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8pet >= 1 then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p >= 1 then
                         if cast.barrage() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 1) or mode.rotation == 2)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
-                    if (#enemies.yards8pet < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8pet > 1) or
+                    if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or
                         (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
                     then
                         if cast.cobraShot() then return end

@@ -467,17 +467,16 @@ local function runRotation()
                 if cast.immolationAura() then return end
             end
         -- Felblade
-            -- felblade,if=fury.deficit>=30&(fury<40|buff.metamorphosis.down)
             -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
             if cast.able.felblade() and (power < 40 or (not buff.metamorphosis.exists() and powerDeficit >= 40)) then
                 if cast.felblade() then return end
             end
         -- Eye Beam
             -- eye_beam,if=(!talent.blind_fury.enabled|fury.deficit>=70)&(!buff.metamorphosis.extended_by_demonic|(set_bonus.tier21_4pc&buff.metamorphosis.remains>16))
-            if cast.able.eyeBeam() and not moving and (not talent.blindFury or powerDeficit >= 70) and (not metaExtended or (equiped.t21 >= 4 and buff.metamorphosis.remain() > 16))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and not moving and (not talent.blindFury or powerDeficit >= 70) and (not metaExtended or (equiped.t21 >= 4 and buff.metamorphosis.remain() > 16)) and enemies.yards8r > 0
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -496,6 +495,16 @@ local function runRotation()
             -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
             if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
                 and talent.demonBlades and cd.eyeBeam.remain() ~= 0 and charges.felRush.count() == 2
+            then
+                if mode.mover == 1 and getDistance("target") < 8 then
+                    cancelRushAnimation()
+                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                    if cast.felRush() then return end
+                end
+            end
+            -- fel_rush,if=!talent.demon_blades.enabled&!cooldown.eye_beam.ready&azerite.unbound_chaos.rank>0
+            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+                and not talent.demonBlades and cd.eyeBeam.remain() > 0 and traits.unboundChaos.rank() > 0
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -566,9 +575,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -583,6 +592,17 @@ local function runRotation()
             if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance() then return end
             end
+        -- Fel Rush
+            -- /fel_rush,if=!talent.momentum.enabled&!talent.demon_blades.enabled&azerite.unbound_chaos.rank>0
+            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+                and not talent.momentum and not talent.demonBlades and traits.unboundChaos.rank() > 0
+            then
+                if mode.mover == 1 and getDistance("target") < 8 then
+                    cancelRushAnimation()
+                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                    if cast.felRush() then return end
+                end
+            end
         -- Felblade
             -- felblade,if=fury.deficit>=40
             if cast.able.felblade() and powerDeficit >= 40 then
@@ -591,9 +611,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -615,9 +635,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
