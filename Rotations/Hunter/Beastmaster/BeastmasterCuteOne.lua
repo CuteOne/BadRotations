@@ -228,7 +228,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trait                                         = br.player.traits
         local trinketProc                                   = false
-        local ttd                                           = getTTD("target")
+        local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
