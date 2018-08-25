@@ -307,12 +307,12 @@ local function runRotation()
 			if blessingOfProtectionCase ~= nil then
 				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
 			end
-			-- Cleanse
+			-- Cleanse Toxins
 			if cleanseToxinsCase ~= nil then
 				if cast.cleanseToxins(cleanseToxinsCase) then return end
 			end
 			if cleanseToxinsCase2 ~= nil then
-				if cast.cleanse(cleanseToxinsCase2) then return end
+				if cast.cleanseToxins(cleanseToxinsCase2) then return end
 			end
 			-- Shield of the Righteous
 			local Debuff={
@@ -509,7 +509,7 @@ local function runRotation()
 				end
 				-- Cleanse Toxins
 				if isChecked("Clease Toxin") then
-					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) then
+					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffStacks("player",261440) == 0 then
 						if cast.cleanseToxins("player") then return end
 					end
 					if getOptionValue("Clease Toxin")==2 and canDispel("target",spell.cleanseToxins) then
