@@ -168,7 +168,7 @@ local function runRotation()
     local cd                                            = br.player.cd
     local charges                                       = br.player.charges
     local debuff                                        = br.player.debuff
-    local enemies                                       = enemies or {}
+    local enemies                                       = br.player.enemies
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
     local gcd                                           = br.player.gcd
     local healPot                                       = getHealthPot()
@@ -190,19 +190,19 @@ local function runRotation()
     local spell                                         = br.player.spell
     local talent                                        = br.player.talent
     local ttm                                           = br.player.timeToMax
-    local units                                         = units or {}
+    local units                                         = br.player.units
     local ttd                                           = getTTD
-    
-    units.dyn5 = br.player.units(5)
-    units.dyn8 = br.player.units(8)
-    units.dyn30 = br.player.units(30)
-    enemies.yards5 = br.player.enemies(5)
-    enemies.yards8 = br.player.enemies(8)
-    enemies.yards10 = br.player.enemies(10)
-    enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
-    enemies.yards15 = br.player.enemies(15)
-    enemies.yards30 = br.player.enemies(30)
-    enemies.yards40 = br.player.enemies(40)
+
+    units.get(5)
+    units.get(8)
+    units.get(30)
+    enemies.get(5)
+    enemies.get(8)
+    enemies.get(10)
+    enemies.get(10,"target")
+    enemies.get(15)
+    enemies.get(30)
+    enemies.get(40)
     
     if lastSpell == nil or not inCombat then lastSpell = 0 end
     if profileStop == nil then profileStop = false end

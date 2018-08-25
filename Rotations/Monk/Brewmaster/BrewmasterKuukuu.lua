@@ -210,17 +210,17 @@ local function runRotation()
         local talent            = br.player.talent
         local thp               = getHP("target")
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD("target")
+        local ttd               = getTTD
         local ttm               = br.player.power.energy.ttm()
         local units             = br.player.units
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
-        units.dyn5 = units.get(5)
-        enemies.yards5 = enemies.get(5)
-        enemies.yards8 = enemies.get(8)
-        enemies.yards8t = enemies.get(8,"target")
-        enemies.yards30 = enemies.get(30)
+        units.get(5)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(8,"target")
+        enemies.get(30)
 
 
         if opener == nil then opener = false end

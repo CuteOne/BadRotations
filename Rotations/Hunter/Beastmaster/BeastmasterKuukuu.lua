@@ -212,12 +212,8 @@ local function runRotation()
         local t19_2pc                                       = TierScan("T19") >= 2
         local units                                         = br.player.units
 
-        if units.dyn40 == nil then
             units.get(40)
-        end
-        if enemies.yards40 == nil then
             enemies.get(40)
-        end
 
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)

@@ -238,9 +238,9 @@ local function runRotation()
         enemies.get(40)
 
         if GetObjectExists("pet") then
-            enemies.get(8,"pet")
-        else
-            enemies.yards8pet = {}
+            enemies.get(8,"pet") = enemies.yards8p
+        --else
+          --  enemies.yards8p = {}
         end
 
         local lowestUnit = lowestUnit or units.dyn40

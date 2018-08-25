@@ -166,7 +166,7 @@ local function runRotation()
         local charges           = br.player.charges
         local deadtar           = UnitIsDeadOrGhost("target") or isDummy()
         local debuff            = br.player.debuff
-        local enemies           = enemies or {}
+        local enemies           = br.player.enemies
         local equiped           = br.player.equiped
         local gcdMax            = br.player.gcdMax
         local glyph             = br.player.glyph
@@ -188,7 +188,7 @@ local function runRotation()
         local swimming          = IsSwimming()
         local talent            = br.player.talent
         local ttd               = getTTD
-        local units             = units or {}
+        local units             = br.player.units
         local use               = br.player.use
 
     -- Dynamic Units
