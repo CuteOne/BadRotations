@@ -1389,7 +1389,8 @@ br.lists.spells = {
                 purifyingBrew               = 119582,
                 rushingJadeWind             = 116847,
                 spearHandStrike             = 116705,
-            },
+				provoke						= 115546,
+			},
             artifacts                       = {
 
             },
@@ -3165,7 +3166,8 @@ br.lists.spells = {
                 shockwave					= 46968,
                 spellReflection             = 23920,
                 thunderClap                 = 6343,
-            },
+				taunt						= 355,
+			},
             artifacts                       = {
 
             },
@@ -3178,7 +3180,8 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
-            },
+				ignorePain					= 190456,
+			},
             debuffs                         = {
                 demoralizingShout           = 1160,
                 thunderClap                 = 6343,
