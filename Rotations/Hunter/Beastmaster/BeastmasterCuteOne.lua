@@ -194,7 +194,7 @@ local function runRotation()
         local deadPets                                      = deadPet
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -228,17 +228,17 @@ local function runRotation()
         local talent                                        = br.player.talent
         local trait                                         = br.player.traits
         local trinketProc                                   = false
-        local ttd                                           = getTTD
+        local ttd                                           = getTTD("target")
         local ttm                                           = br.player.power.focus.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
         local use                                           = br.player.use
 
 
-        units.dyn40 = br.player.units(40)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(40)
+        enemies.get(40)
 
         if GetObjectExists("pet") then
-            enemies.yards8pet = br.player.enemies(8,GetUnit("pet"))
+            enemies.get(8,"pet")
         else
             enemies.yards8pet = {}
         end
