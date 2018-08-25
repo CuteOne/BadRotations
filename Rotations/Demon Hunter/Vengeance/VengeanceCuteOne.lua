@@ -301,11 +301,11 @@ local function runRotation()
                             if cast.disrupt(thisUnit) then return end
                         end
                         -- Sigil of Silence
-                        if isChecked("Sigil of Silence") and cd.consumeMagic.remain() > 0 then
+                        if isChecked("Sigil of Silence") and cd.disrupt.remain() > 0 then
                             if cast.sigilOfSilence(thisUnit,"ground",1,8) then return end
                         end
                         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.consumeMagic.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 then
+                        if isChecked("Sigil of Misery") and cd.disrupt.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45 then
                             if cast.sigilOfMisery(thisUnit,"ground",1,8) then return end
                         end
                     end
