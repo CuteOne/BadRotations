@@ -177,7 +177,7 @@ local function runRotation()
         local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
         local cTime                                         = getCombatTime()
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local gcd                                           = br.player.gcd
         local hastar                                        = GetObjectExists("target")
         local healPot                                       = getHealthPot()
@@ -199,7 +199,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttdtarget                                     = HeroLib and HeroLib.Unit.Target:TimeToDie(5) or getTTD("target")
         local ttm                                           = br.player.power.energy.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
         local lootDelay                                     = getOptionValue("LootDelay")
 
         local HeroLibEnabled = HeroLib and true or false
@@ -210,13 +210,13 @@ local function runRotation()
             HeroLibNotified = true
         end
 
-        units.dyn5 = br.player.units(5)
-        units.dyn30 = br.player.units(30)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards7 = br.player.enemies(7)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        units.get(30)
+        enemies.get(5)
+        enemies.get(7)
+        enemies.get(8)
+        enemies.get(20)
+        enemies.get(30)
 
         if talent.acrobaticStikes then rangeMod = 3 else rangeMod = 0 end
         if leftCombat == nil then leftCombat = GetTime() end

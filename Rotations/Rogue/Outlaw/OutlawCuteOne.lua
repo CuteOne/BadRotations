@@ -200,7 +200,7 @@ local function runRotation()
         local cTime                                         = getCombatTime()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
         local gcd                                           = br.player.gcd
         local gcd                                           = br.player.gcdMax
@@ -227,15 +227,15 @@ local function runRotation()
         local time                                          = getCombatTime()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.energy.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn10 = br.player.units(10)
-        units.dyn30 = br.player.units(30)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards35 = br.player.enemies(35)
+        units.get(5)
+        units.get(10)
+        units.get(30)
+        enemies.get(5)
+        enemies.get(20)
+        enemies.get(30)
+        enemies.get(35)
 
         if talent.deeperStrategem then dStrat = 1 else dStrat = 0 end
         if talent.quickDraw then qDraw = 1 else qDraw = 0 end
