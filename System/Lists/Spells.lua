@@ -1066,6 +1066,7 @@ br.lists.spells = {
             },
             traits                          = {
                 blurOfTalons                = 277653,
+                latentPoison                = 273283,
                 upCloseAndPersonal          = 278533,
                 venomousFangs               = 274590,
             }
@@ -1713,7 +1714,7 @@ br.lists.spells = {
             },
             traits                          = {
                 breakingDawn                = 278594;
-            },			
+            },
         },
         -- Protection
         [66] = {
