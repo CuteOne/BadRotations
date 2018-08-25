@@ -492,7 +492,7 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts() or (trait.primalInstincts() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
 					if cast.aspectOfTheWild() then return end
 				end
 
