@@ -645,7 +645,7 @@ local function runRotation()
                       PetAttack()
                     end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
 					--Cooldowns
