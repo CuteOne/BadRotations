@@ -44,6 +44,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinket 2")
         -- Blackout Switch
             br.ui:createDropdown(section, "Black Out Combo Priority", {"|cff00FF00Tiger Palm","|cffFF0000Keg Smash"}, 1, "|cffFFFFFFBoC Priority")			
+		-- Taunt
+			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -167,6 +169,18 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+	-- Action List - Extras
+	local function actionList_Extras()
+		-- Taunt
+		if isChecked("Taunt") and inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+					if cast.provoke(thisUnit) then return end
+				end
+			end
+		end
+	end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
@@ -248,6 +262,11 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
             return true
         else
+-----------------------
+--- Extras Rotation ---
+-----------------------
+			if actionList_Extras() then return end
+
 --------------------------
 --- Defensive Rotation ---
 --------------------------
