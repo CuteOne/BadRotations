@@ -204,6 +204,7 @@ local function runRotation()
         local spell         = br.player.spell
         local talent        = br.player.talent
         local thp           = getHP("target")
+        local trait         = br.player.traits
         local ttd           = getTTD("target")
         local units         = br.player.units
         local use           = br.player.use
@@ -235,9 +236,9 @@ local function runRotation()
         end
 
 	    --actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|!talent.righteous_verdict.enabled&talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
-		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (not talent.righteousVerdict and talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 --TO-DO Add azerite
+		local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (not talent.righteousVerdict and talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 or (trait.divineRight.active() and thp <= 20 and not buff.divineRight.exists())
 		--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
-		local HoW = (not talent.hammer_of_wrath or thp >= 20 and (not talent.crusade and not buff.avengingWrath.exists() or (talent.crusade and not buff.crusade.exists())))
+		local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (talent.crusade and not buff.crusade.exists())))
 
         local lowestUnit
 		local lowestTank
@@ -739,81 +740,81 @@ local function runRotation()
             end
         end -- End Action List - Opener
     -- Action List - Finisher
-        local function actionList_Finisher()
+    local function actionList_Finisher()
 
 			--actions.finishers+=/inquisition,if=buff.inquisition.down|buff.inquisition.remains<5&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3
 			if talent.inquisition and not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3) or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15) or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3) then
 				if cast.inquisition() then return end
-            end
+      end
 			-- actions.finishers+=/execution_sentence,if=spell_targets.divine_storm<=3&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or cd.crusade.remain() > gcd*2)) then
-                if cast.executionSentence() then return end
-            end
+      if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or cd.crusade.remain() > gcd*2)) then
+          if cast.executionSentence() then return end
+      end
 			-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
  			if dsCastable and buff.divinePurpose.exists() then
-                if cast.divineStorm() then return end
-            end
+          if cast.divineStorm() then return end
+      end
 			-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2) then
-                if cast.divineStorm() then return end
-            end
+      if dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2) then
+          if cast.divineStorm() then return end
+      end
 			-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-            if buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
-                if cast.templarsVerdict() then return end
-            end
+      if buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+          if cast.templarsVerdict() then return end
+      end
 			-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
 			if (not talent.crusade or cd.crusade.remain() > gcd*2) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
-                if cast.templarsVerdict() then return end
-            end
+          if cast.templarsVerdict() then return end
+      end
 
-        end
+    end
     -- Action List - Generator
-        local function actionList_Generator()
+    local function actionList_Generator()
 
 			-- actions.generators+=/call_action_list,name=finishers,if=holy_power>=5
 			if holyPower >= 5 then
-				if actionList_Finisher() then return end
+				  if actionList_Finisher() then return end
       end
 			-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
 			if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance(units.dyn8) < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
-        if cast.wakeOfAshes() then return end
+          if cast.wakeOfAshes() then return end
       end
 			-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 			if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
-                if cast.bladeOfJustice() then return end
-            end
+          if cast.bladeOfJustice() then return end
+      end
 			-- actions.generators+=/judgment,if=holy_power<=2|(holy_power<=4&(cooldown.blade_of_justice.remains>gcd*2|variable.HoW))
 			if holyPower <= 2 or (holyPower <= 4 and (cd.hammerOfJustice.remain() > gcd*2 or HoW)) then
-                if cast.judgment() then return end
-            end
+          if cast.judgment() then return end
+      end
 			-- actions.generators+=/hammer_of_wrath,if=holy_power<=4
 			if talent.hammerOfWrath and holyPower <= 4 and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) then
-                if cast.hammerOfWrath() then return end
-            end
+          if cast.hammerOfWrath() then return end
+      end
 			-- actions.generators+=/consecration,if=holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2
 			if talent.consecration and holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower <= 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2) and #enemies.yards8 >= 1 and not isMoving("player") then
-                if cast.consecration() then return end
-            end
+          if cast.consecration() then return end
+      end
 			-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)&(buff.divine_purpose.up|buff.crusade.stack<10)
 			if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) and (buff.divinePurpose.exists() or (buff.crusade.exists() and buff.crusade.stack() <10)) then
-                if actionList_Finisher() then return end
-            end
+          if actionList_Finisher() then return end
+      end
 			-- actions.generators+=/crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2&cooldown.consecration.remains>gcd*2)
 			if charges.crusaderStrike.frac() >= 1.75 and (holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2 and cd.consecration.remain() > gcd*2))
-            then
-                if cast.crusaderStrike() then return end
-            end
+        then
+            if cast.crusaderStrike() then return end
+      end
 			-- actions.generators+=/call_action_list,name=finishers
-            if actionList_Finisher() then return end
+      if actionList_Finisher() then return end
 			-- actions.generators+=/crusader_strike,if=holy_power<=4
 			if holyPower <= 4 then
-				if cast.crusaderStrike() then return end
-            end
+				    if cast.crusaderStrike() then return end
+      end
 			-- actions.generators+=/arcane_torrent,if=(debuff.execution_sentence.up|(talent.hammer_of_wrath.enabled&(target.health.pct>=20|buff.avenging_wrath.down|buff.crusade.down))|!talent.execution_sentence.enabled|!talent.hammer_of_wrath.enabled)&holy_power<=4
 			if isChecked("Racial") and race == "BloodElf" and holyPower <= 4 and (debuff.executionSentence.exists("target") or (talent.hammerOfWrath and (thp >= 20 or (talent.crusade and not buff.crusade.exists()) or (not talent.crusade and not buff.avengingWrath.exists()))) or not talent.executionSentence or not talent.hammerOfWrath) then
-                    if cast.racial() then return end
-            end
-        end
+          if cast.racial() then return end
+      end
+    end
 ---------------------
 --- Begin Profile ---
 ---------------------
