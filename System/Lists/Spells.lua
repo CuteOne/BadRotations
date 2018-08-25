@@ -1721,8 +1721,10 @@ br.lists.spells = {
                 beaconOfFaith               = 156910;
                 beaconOfTheLightBringer     = 197446;
                 beaconOfVirtue              = 200025;
-
             },
+            traits                          = {
+                breakingDawn                = 278594;
+            },			
         },
         -- Protection
         [66] = {
