@@ -260,7 +260,6 @@ local function runRotation()
     local t20_4pc                                       = TierScan("T20")>=4
     local t21_4pc                                       = TierScan("T21")>=4
     local talent                                        = br.player.talent
-    local thp                                           = getHP(br.player.units(40))
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.insanity.ttm()
     local units                                         = br.player.units 
