@@ -213,7 +213,7 @@ local function runRotation()
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-					if cast.Taunt(thisUnit) then return end
+					if cast.taunt(thisUnit) then return end
 				end
 			end
 		end
