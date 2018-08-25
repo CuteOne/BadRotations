@@ -165,7 +165,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies 
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
@@ -199,17 +199,17 @@ local function runRotation()
         local thp                                           = getHP(br.player.units(40))
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.insanity.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units 
 
         local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
         local VTmaxTargets                                  = getOptionValue("VT Max Targets")
         local mindFlayChannel                               = 3 / (1 + GetHaste()/100)
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        units.dyn40 = br.player.units(40)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(8)
+        units.get(40)
+        enemies.get(8)
+        enemies.get(40)
 
         if useMindBlast == nil then useMindBlast = false end
         if leftCombat == nil then leftCombat = GetTime() end

@@ -255,12 +255,12 @@ local function runRotation()
 	-------------
 	-- Enemies
 	-------------
-	local enemies                                       = enemies or {}
+	local enemies                                       = br.player.enemies
 	local lastSpell                                     = lastSpellCast
 	local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
 	local mode                                          = br.player.mode
 	local pullTimer                                     = br.DBM:getPulltimer()
-	local units                                         = units or {}
+	local units                                         = br.player.units
 	local LightCount                                    = 0
 	local FaithCount                                    = 0
 	
@@ -275,17 +275,17 @@ local function runRotation()
 		master_coff =1.0
 	end
 	
-	units.dyn5 = br.player.units(5)
-	units.dyn8 = br.player.units(8)
-	units.dyn15 = br.player.units(15)
-	units.dyn30 = br.player.units(30)
-	units.dyn40 = br.player.units(40)
-	units.dyn30AoE = br.player.units(30,true)
-	enemies.yards8 = br.player.enemies(8)
-	enemies.yards10 = br.player.enemies(10)
-	enemies.yards15 = br.player.enemies(15)
-	enemies.yards30 = br.player.enemies(30)
-	enemies.yards40 = br.player.enemies(40)
+	units.get(5)
+	units.get(8)
+	units.get(15)
+	units.get(30)
+	units.get(40)
+	units.get(30,true)
+	enemies.get(8)
+	enemies.get(10)
+	enemies.get(15)
+	enemies.get(30)
+	enemies.get(40)
 	friends.yards40 = getAllies("player",40*master_coff)
 	
 	-- local lowest                                        = {}    --Lowest Unit

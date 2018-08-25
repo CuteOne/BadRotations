@@ -178,11 +178,11 @@ local function runRotation()
     lowest.range                                        = br.friend[1].range
     lowest.guid                                         = br.friend[1].guid    
 
-    local units                                         = units or {}
-    units.dyn40 = br.player.units(40)
-    local enemies                                       = enemies or {}
-    enemies.yards12 = br.player.enemies(12)
-    enemies.yards40 = br.player.enemies(40)
+    local units                                         = br.player.units
+    units.get(40)
+    local enemies                                       = br.player.enemies
+    enemies.get(12)
+    enemies.get(40)
 
     local friends                                       = friends or {}                  
     friends.yards40 = getAllies("player",40)

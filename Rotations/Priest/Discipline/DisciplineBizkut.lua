@@ -285,7 +285,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friends                                       = friends or {}
         local gcd                                           = br.player.gcd
@@ -310,7 +310,7 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units 
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
         lowest.role                                         = br.friend[1].role
@@ -319,12 +319,12 @@ local function runRotation()
         lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
 
-        units.dyn5  = br.player.units(5)
-        units.dyn30 = br.player.units(30)
-        units.dyn40 = br.player.units(40)
-        enemies.dyn24 = br.player.enemies(24)
-        enemies.dyn30 = br.player.enemies(30)
-        enemies.dyn40 = br.player.enemies(40)
+        units.get(5)
+        units.get(30)
+        units.get(40)
+        enemies.get(24)
+        enemies.get(30)
+        enemies.get(40)
         friends.yards40 = getAllies("player",40)
 
         atonementCount = 0
