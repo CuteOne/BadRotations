@@ -235,7 +235,7 @@ local function runRotation()
 		-- local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
-		local enemies                                       = enemies or {}
+		local enemies                                       = br.player.enemies
 		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		-- local gcd                                           = br.player.gcd
@@ -265,18 +265,18 @@ local function runRotation()
 		local talent                                        = br.player.talent
 		local travel, flight, cat, moonkin, bear, noform    = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), br.player.buff.moonkinForm.exists(), br.player.buff.bearForm.exists(), GetShapeshiftForm()==0
 		-- local ttm                                           = br.player.power.mana.ttm()
-		local units                                         = units or {}
+		local units                                         = br.player.units
 		-- local lowestTank                                    = {}    --Tank
 		local bloomCount                                    = 0
 		-- local tHp                                           = 95
 		
-		units.dyn5 = br.player.units(5)
-		units.dyn8    = br.player.units(8)
-		units.dyn40 = br.player.units(40)
+		units.get(5)
+		units.get(8)
+		units.get(40)
 		
-		enemies.yards5  = br.player.enemies(5)
-		enemies.yards8  = br.player.enemies(8)
-		enemies.yards40 = br.player.enemies(40)
+		enemies.get(5)
+		enemies.get(8)
+		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
 		
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end

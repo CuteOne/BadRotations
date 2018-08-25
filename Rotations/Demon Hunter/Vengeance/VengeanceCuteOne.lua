@@ -165,7 +165,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
@@ -195,13 +195,13 @@ local function runRotation()
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.pain.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8AoE = br.player.units(8,true)
-        units.dyn20 = br.player.units(20)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        units.get(8,true)
+        units.get(20)
+        enemies.get(8)
+        enemies.get(30)
 
 
    		  if leftCombat == nil then leftCombat = GetTime() end
