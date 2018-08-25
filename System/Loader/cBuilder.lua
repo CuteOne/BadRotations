@@ -114,38 +114,46 @@ function br.loader:new(spec,specName)
             end
         end
 
+        local function getAzeriteTraitInfo(traitID)
+            local rank = 0
+            local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+            if (not azeriteItemLocation) then return end
+            local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
+            for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
+                local item = Item:CreateFromEquipmentSlot(slot)
+                if (not item:IsItemEmpty()) then
+                    local itemLocation = item:GetItemLocation()
+                    if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
+                        local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                        for tier, info in next, tierInfo do
+                            if (info.unlockLevel <= azeritePowerLevel) then
+                                for _, powerID in next, info.azeritePowerIDs do
+                                    local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
+                                    local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                                    if (powerInfo) then
+                                        local azeriteSpellID = powerInfo["spellID"]
+                                        if isSelected and azeriteSpellID == traitID then rank = rank + 1 end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if rank > 0 then return true, rank else return false, rank end
+        end
+
         -- Build Azerite Trait Info
         if self.spell.traits ~= nil then
             for k,v in pairs(self.spell.traits) do
                 if not self.traits[k] then self.traits[k] = {} end
                 local traits = self.traits[k]
                 local specID = GetSpecializationInfo(GetSpecialization())
-                self.traits[k] = function()
-                    local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-                    if (not azeriteItemLocation) then return end
-                    local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
-                    for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
-                    	local item = Item:CreateFromEquipmentSlot(slot)
-                    	if (not item:IsItemEmpty()) then
-                    		local itemLocation = item:GetItemLocation()
-                    		if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
-                    			local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-                    			for tier, info in next, tierInfo do
-                    				if (info.unlockLevel <= azeritePowerLevel) then
-                                        for _, powerID in next, info.azeritePowerIDs do
-                                            local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
-                                            local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-                                            if (powerInfo) then
-                                                local azeriteSpellID = powerInfo["spellID"]
-                                                if isSelected and azeriteSpellID == v then return true end
-                                            end
-                    					end
-                    				end
-                    			end
-                    		end
-                    	end
-                    end
-                    return false
+                self.traits[k].active = function()
+                    return select(1, getAzeriteTraitInfo(v)) or false
+                end
+                self.traits[k].rank = function()
+                    return select(2, getAzeriteTraitInfo(v)) or 0
                 end
             end
         end
@@ -360,19 +368,30 @@ function br.loader:new(spec,specName)
             end
         end
 
-        self.units = function(range,aoe)
+        self.units.get = function(range,aoe)
             if aoe == nil then aoe = false end
             if aoe then
-                return dynamicTarget(range, false)
+                if self.units["dyn"..range.."AOE"] == nil then self.units["dyn"..range.."AOE"] = {} end
+                self.units["dyn"..range.."AOE"] =  dynamicTarget(range, false)
             else
-                return dynamicTarget(range, true)
+                if self.units["dyn"..range] == nil then self.units["dyn"..range] = {} end
+                self.units["dyn"..range] =  dynamicTarget(range, false)
             end
+            return aoe and dynamicTarget(range, false) or dynamicTarget(range, true)
         end
 
-        self.enemies = function(range,unit,checkNoCombat)
+        self.enemies.get = function(range,unit,checkNoCombat)
             if unit == nil then unit = "player" end
             if checkNoCombat == nil then checkNoCombat = false end
-            return getEnemies(unit,range,checkNoCombat)
+            local enemyTable = getEnemies(unit,range,checkNoCombat)
+            if unit ~= "player" then
+                if checkNoCombat then insertTable = "yards"..range..unit:sub(1,1).."nc" else insertTable = "yards"..range..unit:sub(1,1) end
+            else
+                if checkNoCombat then insertTable = "yards"..range.."nc" else insertTable = "yards"..range end
+            end
+            if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else wipe(self.enemies[insertTable]) end
+            if #enemyTable > 0 then insertTableIntoTable(self.enemies[insertTable],enemyTable) end
+            return enemyTable
         end
 
         if self.spell.pets ~= nil then
@@ -751,7 +770,7 @@ function br.loader:new(spec,specName)
 
     function useAoE()
         local rotation = self.mode.rotation
-        if (rotation == 1 and #self.enemies(8) >= 3) or rotation == 2 then
+        if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then
             return true
         else
             return false

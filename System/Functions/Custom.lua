@@ -96,7 +96,7 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
     if radius == nil then radius = maxRange end
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = br.player.enemies(maxRange,"player",true) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",40) else allUnitsInRange = getEnemies("player",maxRange,true) end
 
     if getUnits(unit,allUnitsInRange, radius - 3) >= minUnits and #getEnemies(unit,radius) >= #getEnemies(unit,radius,true) then
         local X1,Y1,Z1 = GetObjectPosition(unit)
@@ -152,7 +152,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",radius) else allUnitsInRange = br.player.enemies(radius,"player",false) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",radius) else allUnitsInRange = getEnemies("player",radius,false) end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
