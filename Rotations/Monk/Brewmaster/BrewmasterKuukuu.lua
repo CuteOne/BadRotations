@@ -9,7 +9,7 @@ local function createToggles()
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.blackoutStrike },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.breathOfFire },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.effuse}
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -97,8 +97,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-        -- Effuse
-            br.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Vivify
+            br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
             br.ui:createCheckbox(section,"Detox")
         -- Healing Elixir
@@ -341,9 +341,9 @@ local function runRotation()
                         end
                     end
                 end
-        -- Effuse
-                if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) --[[or (inCombat and php <= getOptionValue("Effuse") / 2)]]) then
-                    if cast.effuse() then return end
+        -- Vivify
+                if isChecked("Vivify") and ((not inCombat and php <= getOptionValue("Vivify")) --[[or (inCombat and php <= getOptionValue("Vivify") / 2)]]) then
+                    if cast.vivify() then return end
                 end
         -- Healing Elixir
                 if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
