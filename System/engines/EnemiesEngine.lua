@@ -5,6 +5,39 @@ br.lootable = {}
 br.units 	= {}
 local findEnemiesThread = nil
 
+local function AddUnit(thisUnit,thisTable)
+	local unit = {
+		unit = thisUnit,
+		name = UnitName(thisUnit),
+		guid = UnitGUID(thisUnit),
+		id = GetObjectID(thisUnit),
+	}
+	rawset(thisTable, thisUnit, unit)
+end
+
+-- Update Pet
+local function UpdatePet(thisUnit)
+	if br.player.spell.buffs.demonicEmpowerment ~= nil then
+		demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
+	else
+		demoEmpBuff = false
+	end
+	local unitCount = #getEnemies(thisUnit,10) or 0
+	local pet 		= br.player.pet.list[thisUnit]
+	pet.deBuff = demoEmpBuff
+	pet.numEnemies = unitCount
+end
+
+-- Check Critter
+local function IsCritter(checkID)
+	local numPets = C_PetJournal.GetNumPets(false)
+	for i=1,numPets do
+		local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
+		if checkID == petID then return true end
+	end
+	return false
+end
+
 -- Cache Object Manager
 function cacheOM()
 	local startTime = debugprofilestop()
@@ -60,120 +93,6 @@ function cacheOM()
 	end
 end
 
--- Update Pet
-local function UpdatePet(thisUnit)
-	if br.player.spell.buffs.demonicEmpowerment ~= nil then
-		demoEmpBuff = UnitBuffID(thisUnit,br.player.spell.buffs.demonicEmpowerment) ~= nil
-	else
-		demoEmpBuff = false
-	end
-	local unitCount = #getEnemies(thisUnit,10) or 0
-	local pet 		= br.player.pet.list[thisUnit]
-	pet.deBuff = demoEmpBuff
-	pet.numEnemies = unitCount
-end
-
--- Add Units
-local function AddUnits(thisUnit)
-	local startTime = debugprofilestop()
-	if br.units[thisUnit] == nil then
-		br.units[thisUnit] 	= {}
-		local units 		= br.units[thisUnit]
-		units.unit 			= thisUnit
-		units.name 			= UnitName(thisUnit)
-		units.guid 			= UnitGUID(thisUnit)
-		units.id 			= GetObjectID(thisUnit)
-	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
-	end
-end
-
--- Add lootable
-local function AddLootable(thisUnit)
-	if br.lootable[thisUnit] == nil then
-		br.lootable[thisUnit] = {}
-		local lootable = br.lootable[thisUnit]
-		lootable.unit 	= thisUnit
-		lootable.name 	= UnitName(thisUnit)
-		lootable.guid 	= UnitGUID(thisUnit)
-		lootable.id 	= GetObjectID(thisUnit)
-		lootable.hasLoot = hasLoot
-		lootable.canLoot = canLoot
-	end
-end
-
--- Adds Enemies to the enemy table
-local function AddEnemy(thisUnit)
-	local startTime = debugprofilestop()
-	if br.enemy[thisUnit] == nil then
-		br.enemy[thisUnit] 	= {}
-		local enemy 		= br.enemy[thisUnit]
-		enemy.unit 			= thisUnit
-		enemy.name 			= UnitName(thisUnit)
-		enemy.guid 			= UnitGUID(thisUnit)
-		enemy.id 			= GetObjectID(thisUnit)
-	end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
-	end
-end
-
--- Check Critter
-local function IsCritter(checkID)
-	local numPets = C_PetJournal.GetNumPets(false)
-	for i=1,numPets do
-		local _, _, _, _, _, _, _, name, _, _, petID = C_PetJournal.GetPetInfoByIndex(i, false)
-		if checkID == petID then return true end
-	end
-	return false
-end
-
--- Add Pet
-local function AddPet(thisUnit)
-	if br.player ~= nil then
-		if br.player.pet == nil then br.player.pet = {} end
-		if br.player.pet.list == nil then br.player.pet.list = {} end
-		if br.player.pet.list[thisUnit] == nil then
-			br.player.pet.list[thisUnit] = {}
-			local pet 		= br.player.pet.list[thisUnit]
-			pet.unit 		= thisUnit
-			pet.name 		= UnitName(thisUnit)
-			pet.guid 		= UnitGUID(thisUnit)
-			pet.id 			= GetObjectID(thisUnit)
-		end
-		if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
-	end
-end
-
-function FindEnemy()
-	local startTime = debugprofilestop()
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.enemy.targets = 0
-	end
--- Clean Up
-	for k, v in pairs(br.enemy) do if br.units[k] == nil or not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
-	if br.units ~= nil then
-		for k,v in pairs(br.units) do
-			local thisUnit = br.units[k].unit
-			-- Enemies
-			if br.enemy[thisUnit] == nil and isValidUnit(thisUnit) then
-				if isChecked("Debug Timers") then
-					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
-				end
-				AddEnemy(thisUnit)
-			end
-		end
-	end
-	-- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.enemy.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.enemy.totalIterations = br.debug.cpu.enemiesEngine.enemy.totalIterations + 1
-		br.debug.cpu.enemiesEngine.enemy.elapsedTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.enemy.averageTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime / br.debug.cpu.enemiesEngine.enemy.totalIterations
-	end
-end
-
 function getOMUnits()
 	local startTime = debugprofilestop()
 	if isChecked("Debug Timers") then
@@ -201,23 +120,30 @@ function getOMUnits()
 			-- Units
 			if br.units[thisUnit] == nil and enemyListCheck(thisUnit) then
 				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
-				AddUnits(thisUnit)
+				AddUnit(thisUnit,br.units)
+				if isChecked("Debug Timers") then
+					br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
+				end
 			end
 			-- Pet Info
 			if br.player ~= nil then
+				if br.player.pet == nil then br.player.pet = {} end
+				if br.player.pet.list == nil then br.player.pet.list = {} end
 				if br.player.pet.list[thisUnit] == nil and not isCritter(GetObjectID(thisUnit))
 					and (UnitCreator(thisUnit) == playerObject or GetObjectID(thisUnit) == 11492)
 				then
-					AddPet(thisUnit)
+					AddUnit(thisUnit,br.player.pet.list)
+					if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
 				end
 			end
 			-- Lootable
 			if br.lootable[thisUnit] == nil then
 				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
 				if hasLoot and canLoot then
-					AddLootable(thisUnit)
+					AddUnit(thisUnit,br.lootable)
 				end
 			end
+			-- Debug Cycle Time
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.units.cycleTime = debugprofilestop()-cycleTime
 			end
@@ -232,29 +158,60 @@ function getOMUnits()
 	end
 end
 
+function FindEnemy()
+	local startTime = debugprofilestop()
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.enemy.targets = 0
+	end
+-- Clean Up
+	for k, v in pairs(br.enemy) do if br.units[k] == nil or not isValidUnit(br.enemy[k].unit) then br.enemy[k] = nil end end
+	if br.units ~= nil then
+		for k,v in pairs(br.units) do
+			local thisUnit = br.units[k].unit
+			-- Enemies
+			if br.enemy[thisUnit] == nil and isValidUnit(thisUnit) then
+				AddUnit(thisUnit,br.enemy)
+				if isChecked("Debug Timers") then
+					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
+					br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
+				end
+			end
+		end
+	end
+	-- Debugging
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.enemy.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.enemy.totalIterations = br.debug.cpu.enemiesEngine.enemy.totalIterations + 1
+		br.debug.cpu.enemiesEngine.enemy.elapsedTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.enemy.averageTime = br.debug.cpu.enemiesEngine.enemy.elapsedTime / br.debug.cpu.enemiesEngine.enemy.totalIterations
+	end
+end
+
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
-	local enemiesTable = enemiesTable or {}
 	local radius = tonumber(radius)
 	local targetDist = getDistance("target","player")
 	local enemyTable = checkNoCombat and br.units or br.enemy
+	local enemiesTable = {}
     local thisEnemy, distance
 
 	for k, v in pairs(enemyTable) do
-		thisEnemy = enemyTable[k].unit
+		thisEnemy = v.unit
 		distance =  getDistance(thisUnit,thisEnemy)
-		if enemiesTable[thisEnemy] == nil and distance < radius then
+		if distance < radius then
 			tinsert(enemiesTable,thisEnemy)
-		elseif enemiesTable[thisEnemy] ~= nil and distance >= radius then
-			enemiesTable[thisEnemy] = nil
 		end
     end
+	-- for _, enemy in pairs(enemyTable) do
+    --     distance =  getDistance(thisUnit, enemy.unit)
+    --     if enemiesTable[enemy.unit] == nil and distance < radius then
+    --         rawset(enemiesTable, enemy.unit, enemy.unit)
+    --     end
+    -- end
 	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") then
 		tinsert(enemiesTable,"target")
-	elseif enemiesTable["target"] ~= nil and (#enemiesTable > 1 or targetDist >= radius) then
-		enemiesTable["target"] = nil
 	end
     ---
 	if isChecked("Debug Timers") then

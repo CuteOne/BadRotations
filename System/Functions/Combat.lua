@@ -308,7 +308,9 @@ function hasThreat(unit,playerUnit)
 	else
 		targetUnit = "None"
 	end
-	if targetUnit == "None" then targetFriend = false else targetFriend = (UnitName(targetUnit) == UnitName("player") or UnitInParty(targetUnit) or UnitInRaid(targetUnit)) end
+	if targetUnit == "None" then targetFriend = false
+	else targetFriend = (UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
+	end
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
 	if unit == nil or not GetObjectExists(targetUnit) then return false end
 	if targetFriend then

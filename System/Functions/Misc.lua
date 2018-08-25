@@ -366,12 +366,13 @@ function isValidUnit(Unit)
 		and (not hostileOnly or (hostileOnly and (UnitReaction(Unit,"player") < 4 or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
 	then
 		local instance = IsInInstance()
-		local distance = getDistance(Unit,"player")
+		local distance = getDistance(Unit,"target") --getDistance(Unit,"player")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
+		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or isBurnTarget(Unit) > 0
 		local playerTarget = UnitIsUnit(Unit,"target")
-		return hasThreat or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
-			or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20)) or (isDummy(Unit) and getDistance(Unit,"target") < 8)
+		return hasThreat or (not instance and (playerTarget or distance < 8)) or (instance and playerTarget and (getDistance(Unit,"player") < 20 or #br.friend == 1))
+			--or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
+			--or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20))
 	end
 	return false
 end
