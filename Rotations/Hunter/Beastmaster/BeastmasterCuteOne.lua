@@ -219,7 +219,6 @@ local function runRotation()
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -468,8 +467,15 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
-                if isChecked("Racial") and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) or (powerDeficit >= 30 and br.player.race == "BloodElf")) then
-                     if cast.racial() then return end
+                if isChecked("Racial") then
+                    if race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or (powerDeficit >= 30 and race == "BloodElf")
+                    then
+                        if race == "LightforgedDraenei" then
+                            if cast.racial("target","ground") then return true end
+                        else
+                            if cast.racial("player") then return true end
+                        end
+                    end
                 end
             -- Potion
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
