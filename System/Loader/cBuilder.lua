@@ -620,7 +620,7 @@ function br.loader:new(spec,specName)
         end
     end
 
-
+    if self.talent == nil or self.cast == nil then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -639,7 +639,7 @@ function br.loader:new(spec,specName)
         if not UnitAffectingCombat("player") then self.updateOOC() end
         self.baseUpdate()
         -- Update Player Info on Init, Talent, and Level Change
-        if self.talent == nil or self.cast == nil or br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
+        if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
         self.getBleeds()
         self.getToggleModes()
         -- Start selected rotation
