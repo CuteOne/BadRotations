@@ -379,7 +379,7 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            if getOptionValue("SEF Behavior") == 1 then
+            if getOptionValue("SEF Behavior") == 1 and not talent.serenity then
                 if cast.stormEarthAndFireFixate() then return true end
             end
         end -- End Action List - Extras
@@ -683,7 +683,7 @@ local function runRotation()
             if actionList_Cooldowns() then return true end
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs()))
+            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity
                 and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd)
             then
                 if cast.stormEarthAndFire() then return end
@@ -935,7 +935,7 @@ local function runRotation()
                 if getDistance("target") < 5 then
         -- Storm, Earth, and Fire
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd) then
+                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and not talent.serenity and br.timer:useTimer("delaySEF1", gcd) then
                         if cast.stormEarthAndFire() then return true end
                     end
                 end
