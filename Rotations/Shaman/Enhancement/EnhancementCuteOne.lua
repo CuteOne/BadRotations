@@ -178,6 +178,7 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local trait                                         = br.player.traits
         local ttd                                           = getTTD
         local units                                         = br.player.units
         local use                                           = br.player.use
@@ -506,7 +507,7 @@ local function runRotation()
             end
         -- Stormstrike/Windstrike
             -- stormstrike,cycle_targets=1,if=azerite.lightning_conduit.enabled&!debuff.lightning_conduit.up&active_enemies>1&(buff.stormbringer.up|(variable.OCPool70&variable.furyCheck35))
-            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit() and #enemies.yards10 > 1 and (buff.stormbringer.exists() or (OCPool70 and furyCheck35)) then
+            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit.active() and #enemies.yards10 > 1 and (buff.stormbringer.exists() or (OCPool70 and furyCheck35)) then
                 for i = 1, #enemies.yards10 do
                     local thisunit = enemies.yards10[i]
                     if not debuff.lightningConduit.exists(thisUnit) then
