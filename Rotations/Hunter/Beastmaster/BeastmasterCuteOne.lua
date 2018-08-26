@@ -364,21 +364,19 @@ local function runRotation()
             end -- End Dummy Test
         -- Misdirection
             if mode.misdirection == 1 then
-                if cd.misdirection.remain() <= 0.1 then
-                    if isValidUnit("target") then
-                        if inInstance or inRaid then
-                            for i = 1, #br.friend do
-                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                    if cast.misdirection(br.friend[i].unit) then return end
-                                end
-                            end
-                        else
-                            if GetUnitExists("pet") then
-                                if cast.misdirection("pet") then return end
-                            end
-                        end
-                    end
-                end
+                  if isValidUnit("target") then
+                      if inInstance or inRaid then
+                          for i = 1, #br.friend do
+                              if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                  if cast.misdirection(br.friend[i].unit) then return end
+                              end
+                          end
+                      else
+                          if GetUnitExists("pet") then
+                              if cast.misdirection("pet") then return end
+                          end
+                      end
+                  end
             end
         end -- End Action List - Extras
     -- Action List - Defensive
@@ -470,9 +468,7 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
-                if isChecked("Racial") and getSpellCD(racial) == 0
-                    and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) or (powerDeficit >= 30 and br.player.race == "BloodElf"))
-                then
+                if isChecked("Racial") and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) or (powerDeficit >= 30 and br.player.race == "BloodElf")) then
                      if cast.racial() then return end
                 end
             -- Potion
@@ -492,9 +488,9 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
-					if cast.aspectOfTheWild() then return end
-				end
+        				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+        					  if cast.aspectOfTheWild() then return end
+        				end
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -625,6 +621,10 @@ local function runRotation()
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
+    ------------------------------
+    --- In Combat - Interrupts ---
+    ------------------------------
+                if actionList_Extras() then return end
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
