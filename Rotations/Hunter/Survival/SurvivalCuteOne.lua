@@ -484,9 +484,9 @@ local function runRotation()
             end
         -- Wildfire Bomb
             -- wildfire_bomb,if=full_recharge_time<gcd
-            if cast.able.wildfireBomb() and charge.wildfireBomb.timeTillFull() < gcdMax then
+            if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < gcdMax then
                 if cast.wildfireBomb() then return end
-            end 
+            end
         -- Serpent Sting
             -- serpent_sting,if=refreshable&buff.mongoose_fury.stack=5
             if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and buff.mongooseFury.stack() == 5 then
