@@ -219,6 +219,7 @@ local function runRotation()
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local race                                          = br.player.race
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
@@ -455,7 +456,7 @@ local function runRotation()
             if useCDs() then
             -- Trinkets
                 -- use_items
-                if useCDs() and getOptionValue("Trinkets") ~= 4 then
+                if getOptionValue("Trinkets") ~= 4 then
                     if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
                         useItem(13)
                     end
@@ -468,7 +469,7 @@ local function runRotation()
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
                 if isChecked("Racial") then
-                    if race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or (powerDeficit >= 30 and race == "BloodElf")
+                    if (buff.bestialWrath.remain() > 7 and (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei")) or (powerDeficit >= 30 and race == "BloodElf")
                     then
                         if race == "LightforgedDraenei" then
                             if cast.racial("target","ground") then return true end
