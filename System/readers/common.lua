@@ -264,13 +264,9 @@ function br.read.commonReaders()
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end
-		-- Update Talent Info
-        if event == "PLAYER_TALENT_UPDATE" then
-            br.updateTalents = true
-        end
-        -- Update Function Info
+        -- Update Player Info
         if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
-            br.updateFunctions = true
+			br.updatePlayerInfo = true
         end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
