@@ -171,7 +171,6 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.spell.items
         local mode                                          = br.player.mode
-        local opener                                        = opener or false
         local petCombat                                     = UnitAffectingCombat("pet")
         local php                                           = br.player.health
         local potion                                        = br.player.potion
@@ -231,7 +230,9 @@ local function runRotation()
         end
 
         -- Opener Reset
-        if not inCombat and not GetObjectExists("target") then
+        if opener == nil then opener = false end
+        if openerCount == nil then openerCount = 0 end
+        if not inCombat and not GetObjectExists("target") and opener == true then
 			openerCount = 0
             OP1 = false
             CA1 = false
@@ -241,10 +242,6 @@ local function runRotation()
             KC1 = false
             opener = false
         end
-
-    -- SimC Variables
-        -- variable,name=can_gcd,value=!talent.mongoose_bite.enabled|buff.mongoose_fury.down|(buff.mongoose_fury.remains-(((buff.mongoose_fury.remains*focus.regen+focus)%action.mongoose_bite.cost)*gcd.max)>gcd.max)
-        local canGCD = not talent.mongooseBite or not buff.mongooseFury.exists() or (buff.mongooseFury.remain() - (((buff.mongooseFury.remain() * focusRegen + focus) / cast.cost.mongooseBite()) * gcdMax) > gcdMax)
 
 --------------------
 --- Action Lists ---
@@ -780,7 +777,7 @@ local function runRotation()
 		-- Start Attack
             -- auto_attack
             if (getOptionValue("Opener") == 1 or (getOptionValue("Opener") == 2 and useCDs())) and opener == false then
-                if isValidUnit("target") and getDistance("target") < 5 then
+                if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
 					if not OP1 then
                         Print("Starting Opener")
@@ -815,13 +812,12 @@ local function runRotation()
                         if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return true end
                     elseif KC1 then
             -- End
-                        Print("Opener Complete")
-                        openerCount = 0
-                        opener = true
-                        return
+                        opener = true;
+                        openerCount = 0;
+                        Print("Opener Complete");
        				end
                 end
-			elseif (UnitExists("target") and not isBoss("target")) or getOptionValue("Opener") == 3 or (getOptionValue("Opener") == 2 and not useCDs()) then
+			elseif (getOptionValue("Opener") == 3 or (getOptionValue("Opener") == 2 and not useCDs())) then
 				opener = true
 			end
         end -- End Action List - Opener
@@ -851,7 +847,7 @@ local function runRotation()
         -- Potion
             -- potion,name=prolonged_power
         -- Init Combat
-            if not inCombat and getDistance("target") < 40 and isValidUnit("target") and opener then
+            if not inCombat and getDistance("target") < 40 and isValidUnit("target") and opener == true then
         -- Steel Trap
                 -- steel_trap
                 if cast.able.steelTrap("target") then
@@ -900,7 +896,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn5) and opener then
+            if inCombat and isValidUnit(units.dyn5) and opener == true then
     -----------------
     --- Pet Logic ---
     -----------------
