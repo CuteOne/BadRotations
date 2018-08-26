@@ -1026,7 +1026,7 @@ local function runRotation()
 			CanIRess()
 			Cleanse()
 			if isChecked("OOC Healing") then
-				if isChecked("Auto Beacon") and talent.beaconOfVirtue then Beacon() end
+				if isChecked("Auto Beacon") and not talent.beaconOfVirtue then Beacon() end
 				AOEHealing()
 				SingleTarget()
 			end
@@ -1041,7 +1041,7 @@ local function runRotation()
 			actionList_Defensive()
 			Cleanse()
 			Interrupt()
-			if isChecked("Auto Beacon") and talent.beaconOfVirtue then Beacon() end
+			if isChecked("Auto Beacon") and not talent.beaconOfVirtue then Beacon() end
 			if useCDs() then Cooldowns() end
 			DPS()
 			AOEHealing()
