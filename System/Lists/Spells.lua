@@ -2635,6 +2635,9 @@ br.lists.spells = {
                 sundering                   = 197214,
                 totemMastery                = 262395,
             },
+            traits                          = {
+                lightningConduit            = 275389,
+            },
         },
         -- Restoration
         [264] = {
