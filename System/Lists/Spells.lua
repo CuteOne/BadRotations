@@ -2144,6 +2144,7 @@ br.lists.spells = {
                 reaperOfSouls               = 199853,
                 sanlayn                     = 199855,
                 shadowCrash                 = 205385,
+                shadowWordDeath             = 32379,
                 shadowWordVoid              = 205351,
                 shadowyInsight              = 162452,
                 surrenderToMadness          = 193223,
