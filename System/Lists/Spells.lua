@@ -3160,10 +3160,9 @@ br.lists.spells = {
                 shieldBlock                 = 2565,
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
-                shockwave					= 46968,
+                shockwave					          = 46968,
                 spellReflection             = 23920,
                 thunderClap                 = 6343,
-				taunt						= 355,
 			},
             artifacts                       = {
 
@@ -3177,7 +3176,7 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
-				ignorePain					= 190456,
+				        ignorePain					        = 190456,
 			},
             debuffs                         = {
                 demoralizingShout           = 1160,
@@ -3198,7 +3197,7 @@ br.lists.spells = {
                 ravager                     = 228920,
                 renewedFury                 = 202288,
                 safeguard                   = 223657,
-                shockwave					= 46968,
+                shockwave				           	= 46968,
                 ultimatum                   = 122509,
                 vengeance                   = 202572,
                 warbringer                  = 103828,
