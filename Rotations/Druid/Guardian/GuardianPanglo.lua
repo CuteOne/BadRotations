@@ -233,17 +233,15 @@ local function runRotation()
                     end
                 end
             end -- End Shapeshift Form Management
-			        -- Torment
-            if isChecked("Taunt") then
-                for i = 1, #enemies.yards30 do
-                    local thisUnit = enemies.yards30[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
-                        if cast.growl(thisUnit) then return end
-                    end
-                end
-
-            end
-
+		-- Taunt
+		if isChecked("Taunt") and inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+					if cast.growl(thisUnit) then return end
+				end
+			end
+		end
 		end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()

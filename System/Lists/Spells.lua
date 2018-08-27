@@ -388,6 +388,9 @@ br.lists.spells = {
                 trailOfRuin                 = 258881,
                 unleashedPower              = 206477,
             },
+            traits                          = {
+                unboundChaos                = 275144,
+            }
         },
         -- Vengeance
         [581] = {
@@ -1951,6 +1954,7 @@ br.lists.spells = {
                 rapture                     = 47536,
                 schism                      = 214621,
                 shadowCovenant              = 204065,
+                shadowfiend                 = 34433,
                 shadowMend                  = 186263,
                 shadowWordPain              = 589,
                 shiningForce                = 204263,

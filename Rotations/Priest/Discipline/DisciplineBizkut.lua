@@ -13,7 +13,7 @@ local colorWhite    = "|cffFFFFFF"
 local function createToggles()
     -- Healer Button
     HealerModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Auto Rotation", tip = "HPS and DPS rotation used.", highlight = 1, icon = br.player.spell.plea},
+        [1] = { mode = "Auto", value = 1 , overlay = "Auto Rotation", tip = "HPS and DPS rotation used.", highlight = 1, icon = br.player.spell.shadowMend},
         [2] = { mode = "ATO", value = 2 , overlay = "Atonement Rotation", tip = "Atonement will keep applied within limit regardless of HP threshold.", highlight = 0, icon = br.player.spell.shiningForce},
         [3] = { mode = "DPS", value = 3 , overlay = "DPS Rotation", tip = "DPS only rotation used.", highlight = 0, icon = br.player.spell.penance},
         [4] = { mode = "Off", value = 4 , overlay = "Atonement Disabled", tip = "Disable Atonement", highlight = 0, icon = br.player.spell.penance}
@@ -105,7 +105,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
             --Atonement
-            br.ui:createSpinnerWithout(section, "Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield, Plea and Power Word: Radiance. Health Percent to Cast At. Default: 95")
+            br.ui:createSpinnerWithout(section, "Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
             --Alternate Heal & Damage
             br.ui:createSpinner(section, "Alternate Heal & Damage",  1,  1,  5,  1,  "|cffFFFFFFAlternate Heal & Damage. How many Atonement applied before back to doing damage. Default: 1")
             --Power Word: Shield
@@ -372,7 +372,7 @@ local function runRotation()
                 end
                 if norganBuff then
                     if talent.grace and getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 then
-                        if cast.plea(br.friend[u].unit) then
+                        if cast.powerWordShield(br.friend[u].unit) then
                             if cast.shadowMend(br.friend[u].unit) then
                                 healCount = healCount + 1
                             end
@@ -384,16 +384,14 @@ local function runRotation()
                     if cast.penance(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
-                elseif cast.plea(br.friend[u].unit) then
-                    healCount = healCount + 1
                 end
             end
         end
         -- Action List - Interrupts
         function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #enemies.dyn40 do
-                    thisUnit = enemies.dyn40[i]
+                for i=1, #enemies.get(40) do
+                    thisUnit = enemies.get(40)[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                 -- Shining Force - Int
                         if isChecked("Shining Force - Int") and getDistance(thisUnit) < 40 then
@@ -460,8 +458,8 @@ local function runRotation()
             if not buff.rapture.exists("player") and mode.burst == 1 and freeMana then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                            if cast.plea(br.friend[i].unit) then return end
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
+                            if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
                 end
@@ -502,9 +500,9 @@ local function runRotation()
                         healCount = healCount + 1
                     end
                 end
-                --Plea
-                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) then
-                    if cast.plea(br.friend[u].unit) then
+                --Power Word Shield
+                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) then
+                    if cast.powerWordShield(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
                 elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
@@ -684,13 +682,13 @@ local function runRotation()
                         flagDebuff = br.friend[i].guid
                     end
                     if norganBuff and (br.friend[i].hp < 90 or flagDebuff == br.friend[i].guid) and lastSpell ~= spell.shadowMend then
-                        if talent.grace and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                            if cast.plea(br.friend[i].unit) then
+                        if talent.grace and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
+                            if cast.powerWordShield(br.friend[i].unit) then
                                 if cast.shadowMend(br.friend[i].unit) then return true end
                             end
                         elseif cast.shadowMend(br.friend[i].unit) then return true end
-                    elseif (br.friend[i].hp < 95 or flagDebuff == br.friend[i].guid) then
-                        if cast.plea(br.friend[i].unit) then return true end
+                    elseif (br.friend[i].hp < 95 or flagDebuff == br.friend[i].guid) and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        if cast.powerWordShield(br.friend[i].unit) then return true end
                     end
                     flagDebuff = nil
                 end
@@ -958,8 +956,8 @@ local function runRotation()
                         end
                     end
                     if not talent.purgeTheWicked and (lastSpell ~= spell.shadowWordPain or debuff.shadowWordPain.count() == 0) then
-                        for i = 1, #enemies.dyn40 do
-                            local thisUnit = enemies.dyn40[i]
+                        for i = 1, #enemies.get(40) do
+                            local thisUnit = enemies.get(40)[i]
                             if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.shadowWordPain.remain(thisUnit) < gcd then
                                     if cast.shadowWordPain(thisUnit,"aoe") then
