@@ -741,13 +741,12 @@ local function runRotation()
         end -- End Action List - Opener
     -- Action List - Finisher
     local function actionList_Finisher()
-
 			--actions.finishers+=/inquisition,if=buff.inquisition.down|buff.inquisition.remains<5&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3
 			if talent.inquisition and not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3) or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15) or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3) then
 				if cast.inquisition() then return end
       end
 			-- actions.finishers+=/execution_sentence,if=spell_targets.divine_storm<=3&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-      if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or cd.crusade.remain() > gcd*2)) then
+      if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2))) then
           if cast.executionSentence() then return end
       end
 			-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
@@ -755,7 +754,7 @@ local function runRotation()
           if cast.divineStorm() then return end
       end
 			-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-      if dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2) then
+      if dsCastable and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) then
           if cast.divineStorm() then return end
       end
 			-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
@@ -763,7 +762,7 @@ local function runRotation()
           if cast.templarsVerdict() then return end
       end
 			-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
-			if (not talent.crusade or cd.crusade.remain() > gcd*2) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
+			if (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
           if cast.templarsVerdict() then return end
       end
 
@@ -796,7 +795,7 @@ local function runRotation()
           if cast.consecration() then return end
       end
 			-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)&(buff.divine_purpose.up|buff.crusade.stack<10)
-			if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) and (buff.divinePurpose.exists() or (buff.crusade.exists() and buff.crusade.stack() <10)) then
+			if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) and (buff.divinePurpose.exists() or (buff.crusade.exists() and buff.crusade.stack() < 10)) then
           if actionList_Finisher() then return end
       end
 			-- actions.generators+=/crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2&cooldown.consecration.remains>gcd*2)
