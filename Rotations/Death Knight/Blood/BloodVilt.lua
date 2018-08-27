@@ -324,10 +324,10 @@ local function runRotation()
             if ShouldMitigate() then
                 if isCastingSpell(spell.blooddrinker) then StopCasting() end
                 if buff.boneShield.stack >= 7 then
-                    if cast.deathStrike() then DSCastTime = GetTime(); return end
+                    if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS"); return end
                 end
-                if cast.marrowrend() then MRCastTime = GetTime(); return end
-                if cast.deathStrike() then DSCastTime = GetTime(); return end
+                if cast.marrowrend() then MRCastTime = GetTime(); Print("AM: MR"); return end
+                if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS2"); return end
             end
         end
     -- Action List - Extras
@@ -420,7 +420,7 @@ local function runRotation()
                             if cast.deathGrip(thisUnit) then return end
                         end
         -- Asphyxiate
-                        if isChecked("Asphyxiate") and getDistance(thisUnit) < 20 then
+                        if isChecked("Asphyxiate") and getDistance(thisUnit) < 20 and cd.mindFreeze() > 0 then
                             if cast.asphyxiate(thisUnit) then return end
                         end
         -- Mind Freeze
@@ -531,7 +531,7 @@ local function runRotation()
                         if cast.deathAndDecay("player","ground",getOptionValue("Death and Decay"),8) then return end
                     end]]
                     if mode.DND == 1 and not isMoving("player") and not isMoving("target") and ((#enemies.yards8 >= 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists())) then
-                        if cast.deathAndDecay("player") then return end
+                        if cast.deathAndDecay("player") then Print("DND1"); return end
                     end
                     --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and runicPowerDeficit <= 30 then
@@ -577,14 +577,14 @@ local function runRotation()
                     end
 
                     if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
-                        if cast.deathAndDecay("player") then return end
+                        if cast.deathAndDecay("player") then Print("DND2"); return end
                     end
 
                     if runeTimeTill(3) <= gcd and buff.boneShield.stack() >= 5 then
                         if cast.heartStrike() then return end
                     end
                     if mode.DND == 1 and not isMoving("player") and not isMoving("target") and #enemies.yards8 >= 1 and buff.crimsonScourge.exists() and not talent.rapidDecomposition then
-                        if cast.deathAndDecay("player") then return end
+                        if cast.deathAndDecay("player") then Print("DND3"); return end
                     end
                     if talent.consumption and useCDs() then
                         if getEnemiesInCone(105,5) >= 1 then
@@ -599,14 +599,14 @@ local function runRotation()
     -------- Aethys APL -------
     ---------------------------
                 elseif getOptionValue("APL Mode") == 2 then
-				-- Bone Shield
+                    -- Bone Shield
                     shouldMR = (buff.boneShield.remain("player") <= 6 or (ttd("target") < 5 and buff.boneShield.remain() < 10 and #enemies.yards8 == 1)) and true or false
                     if (buff.boneShield.remain("player") <= 6 or (ttd("target") < 5 and buff.boneShield.remain() < 10 and #enemies.yards8 == 1)) then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
                     -- Healing
                     if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
+                        if cast.deathstrike() then DSCastTime = GetTime(); return end
                     end
 
                     -- APL
@@ -620,7 +620,7 @@ local function runRotation()
                     end
                     -- DnD Crimson Scourge
                     if not isMoving("player") and not isMoving("target") and mode.DND == 1 and ((#enemies.yards8 == 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists)) then
-                        if cast.deathAndDecay("player") then return end
+                        if cast.deathAndDecay("player") then Print("DND 1") return end
                     end
                     -- Blooddrinker
                     if isChecked("Blooddrinker") and not buff.dancingRuneWeapon.exists() and buff.boneShield.remain() > 3 and runicPowerDeficit >= 15 then
@@ -640,7 +640,7 @@ local function runRotation()
                     end
                     -- DND ST Rapid Decomp / AoE
                     if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
-                        if cast.deathAndDecay("player") then return end
+                        if cast.deathAndDecay("player") then Print("DND2"); return end
                     end
                     -- Heart Strike
                     if ((runeTimeTill(3) <= gcd or runes >= 3) and runicPowerDeficit >= 15) or (talent.heartbreaker and buff.deathAndDecay.exists() and runicPowerDeficit >= (15 + (math.min(#br.player.enemies(5), 5) * 2))) then
