@@ -3,7 +3,8 @@ br.om 		= {}
 br.enemy	= {}
 br.lootable = {}
 br.units 	= {}
-local findEnemiesThread = nil
+br.storedTables = {}
+local refreshStored
 
 local function AddUnit(thisUnit,thisTable)
 	local unit = {
@@ -84,6 +85,7 @@ function cacheOM()
 			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
 		end
 	end
+	refreshStored = true
 	-- Debugging
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
@@ -196,6 +198,19 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
     local thisEnemy, distance
+    if checkNoCombat == nil then checkNoCombat = false end
+    if refreshStored == true then
+    	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
+    	refreshStored = false
+    end
+    if br.storedTables[checkNoCombat] ~= nil then
+		if br.storedTables[checkNoCombat][radius] ~= nil then    				
+			if br.storedTables[checkNoCombat][radius][thisUnit] ~= nil then
+				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
+				return br.storedTables[checkNoCombat][radius][thisUnit]
+			end
+		end
+	end
 
 	for k, v in pairs(enemyTable) do
 		thisEnemy = v.unit
@@ -218,6 +233,12 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
+    if #enemiesTable > 0 then
+		br.storedTables[checkNoCombat] = {}
+		br.storedTables[checkNoCombat][radius] = {}
+		br.storedTables[checkNoCombat][radius][thisUnit] = enemiesTable
+		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
+	end
     return enemiesTable
 end
 
