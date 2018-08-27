@@ -133,7 +133,7 @@ local function createOptions()
             -- Kidney Shot
             br.ui:createCheckbox(section, "Kidney Shot")
             -- Cheap Shot
-            --br.ui:createCheckbox(section, "Cheap Shot")
+            br.ui:createCheckbox(section, "Cheap Shot")
             -- Blind
             br.ui:createCheckbox(section, "Blind")
             -- Interrupt Percentage
@@ -403,10 +403,10 @@ local function runRotation()
                         end
                     end
             -- Cheap Shot
-                        --[[if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0 then
+                        if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0 then
                             if cast.cheapShot(thisUnit) then return end
                         end
-                end]]
+                end
             end -- End Interrupt and No Stealth Check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
