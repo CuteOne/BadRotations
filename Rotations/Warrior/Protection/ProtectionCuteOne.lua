@@ -14,9 +14,9 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleShout },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleShout },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleShout }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -59,9 +59,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- Artifact
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Defensive","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
-            br.ui:createSpinner(section, "Artifact HP",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- High Rage Revenge
             br.ui:createSpinner(section, "High Rage Revenge", 3, 1, 10, 1, "|cffFFFFFF Set to number of units to use Revenge at when above 90 Rage.")
         br.ui:checkSectionState(section)
@@ -182,7 +179,6 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
@@ -191,7 +187,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies 
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
@@ -216,16 +212,16 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units(5))
+        local thp                                           = getHP("target")
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.rage.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(8)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -352,7 +348,7 @@ local function runRotation()
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
                 if isChecked("Avatar") then
-                    if buff.battleCry.exists() or (ttd(units.dyn5) < (cd.battleCry.remain() + 10)) then
+                    if buff.battleShout.exists() or (ttd(units.dyn5) < (cd.battleShout.remain() + 10)) then
                         if cast.avatar() then return end
                     end
                 end
@@ -361,7 +357,7 @@ local function runRotation()
                 -- berserking,if=buff.battle_cry.up
                 -- arcane_torrent,if=rage<rage.max-40
                 if isChecked("Racial") then
-                    if ((race == "Orc" or race == "Troll") and buff.battleCry.exists()) or (race == "BloodElf" and power < powerMax - 40) then
+                    if ((race == "Orc" or race == "Troll") and buff.battleShout.exists()) or (race == "BloodElf" and power < powerMax - 40) then
                         if castSpell("target",racial,false,false,false) then return end
                     end
                 end
@@ -442,8 +438,8 @@ local function runRotation()
                 end
             end
         -- Shield Block
-            -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remain()s<6&!buff.shield_block.up)|(cooldown.shield_slam.remain()s<6+buff.shield_block.remain()s&buff.shield_block.up))
-            if not buff.neltharionsFury.exists() and ((cd.shieldSlam.remain() < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam.remain() < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists()))
+            -- shield_block,if=((cooldown.shield_slam.remain()s<6&!buff.shield_block.up)|(cooldown.shield_slam.remain()s<6+buff.shield_block.remain()s&buff.shield_block.up))
+            if ((cd.shieldSlam.remain() < 6 and not buff.shieldBlock.exists()) or (cd.shieldSlam.remain() < 6 + buff.shieldBlock.remain() and buff.shieldBlock.exists()))
                 and lastSpell ~= spell.shieldBlock
             then
                 if cast.shieldBlock() then return end
@@ -455,38 +451,31 @@ local function runRotation()
             -- battle_cry,if=cooldown.shield_slam.remain()s=0
             if useCDs() and isChecked("Battle Cry") then
                 if cd.shieldSlam.remain() == 0 then
-                    if cast.battleCry() then return end
+                    if cast.battleShout() then return end
                 end
             end
         -- Demoralizing Shout
             -- demoralizing_shout,if=talent.booming_voice.enabled&buff.battle_cry.up
             if useCDs() and isChecked("Demoralizing Shout - CD") then
-                if talent.boomingVoice and buff.battleCry.exists() then
+                if talent.boomingVoice and buff.battleShout.exists() then
                     if cast.demoralizingShout() then return end
                 end
             end
         -- Ravager
             -- ravager,if=talent.ravager.enabled&buff.battle_cry.up
             if useCDs() and isChecked("Ravager") then
-                if talent.ravager and buff.battleCry.exists() then
+                if talent.ravager and buff.battleShout.exists() then
                     if cast.ravager("best",false,1,8) then return end
                 end
             end
-        -- Neltharion's Fury
-            -- neltharions_fury,if=!buff.shield_block.up&cooldown.shield_block.remains>3&((cooldown.shield_slam.remains>3&talent.heavy_repercussions.enabled)|(!talent.heavy_repercussions.enabled))
-            if getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useDefensive()) and php < getOptionValue("Artifact HP") and inCombat then
-                if not buff.shieldBlock.exists() and cd.shieldBlock.remain() > 3 and ((cd.shieldSlam.remain() > 3 and talent.heavyRepercussions) or (not talent.heavyRepercussions)) then
-                    if cast.neltharionsFury("player") then return end
-                end
-            end
         -- Shield Block
-            -- shield_block,if=!buff.neltharions_fury.up&((cooldown.shield_slam.remains=0&talent.heavy_repercussions.enabled)|action.shield_block.charges=2|!talent.heavy_repercussions.enabled)
-            if not buff.neltharionsFury and ((cd.shieldSlam.remain() == 0 and talent.heavyRepercussions) or charges.shieldBlock.count() == 2 or not talent.heavyRepercussions) then
+            -- shield_block,if=((cooldown.shield_slam.remains=0&talent.heavy_repercussions.enabled)|action.shield_block.charges=2|!talent.heavy_repercussions.enabled)
+            if ((cd.shieldSlam.remain() == 0 and talent.heavyRepercussions) or charges.shieldBlock.count() == 2 or not talent.heavyRepercussions) then
                 if cast.shieldBlock() then return end
             end
         -- Ignore Pain
-            -- ignore_pain,if=(!talent.vengeance.enabled&buff.renewed_fury.remains<=0)|(!talent.vengeance.enabled&rage.deficit>=40)|(buff.vengeance_ignore_pain.up)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
-            if cast.able.ignorePain() and ((not talent.vengeance and buff.renewedFury.remain() <= 0) or (not talent.vengeance and rageDeficit >= 40) or (buff.vengeanceIgnorePain.exists())
+            -- ignore_pain,if=((!talent.vengeance.enabled&rage.deficit>=40)|(buff.vengeance_ignore_pain.up)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
+            if cast.able.ignorePain() and ((not talent.vengeance and rageDeficit >= 40) or (buff.vengeanceIgnorePain.exists())
                 or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and rage < 30 and not buff.revenge.exists()))
             then
                 if cast.ignorePain() then return end

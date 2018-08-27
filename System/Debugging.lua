@@ -57,6 +57,10 @@ br.debug.cpu.rotation = {
     averageTime = 0,
     baseUpdate = 0,
     inCombat = 0,
+    maxTimeOoC = 0,
+    minTimeOoC = 999,
+    maxTimeInC = 0,
+    minTimeInC = 999,
     profile = {},
 }
 br.debug.cpu.pulse = {

@@ -256,7 +256,18 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
+	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
+	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
+	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
 	local function SuperReader(self,event,...)
+		if event == "PLAYER_EQUIPMENT_CHANGED" then
+			br.equipHasChanged = true
+		end
+        -- Update Player Info
+        if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
+			br.updatePlayerInfo = true
+        end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then
@@ -266,6 +277,10 @@ function br.read.commonReaders()
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
 			local MyClass = UnitClass("player")
 			if SourceUnit == "player" then
+				-- Blizz CastSpellByName bug bypass
+				if spell == "Metamorphosis" then
+		    		CastSpellByID(191427,"player")
+		    	end
 			end
 		end
 
@@ -324,7 +339,30 @@ function br.read.commonReaders()
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
 			local SourceUnit 	= select(1,...)
 			local SpellID 		= select(5,...)
+			if botCast == true then botCast = false end
+	        if sourceName ~= nil then
+	            if UnitIsUnit(sourceName,"player") then
+
+	            end
+	        end
 			if SourceUnit == "player" then
+				lastSucceeded = spell -- Used for lastCast tracking
+				-- Queue Casting
+				if br.player ~= nil then
+					if #br.player.queue ~= 0 then
+						for i = 1, #br.player.queue do
+							if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
+								tremove(br.player.queue,i)
+								if IsAoEPending() then SpellStopTargeting() end
+								if not isChecked("Mute Queue") then
+									Print("Cast Success! - Removed |cFFFF0000"..GetSpellInfo(spell).."|r from the queue.")
+								end
+								break
+							end
+						end
+					end
+				end
+				---
 				local MyClass = UnitClass("player")
 				-- Hunter
 				if MyClass == 3 then
@@ -417,6 +455,7 @@ function br.read.commonReaders()
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
 			--Print("Channel Start")
+				lastStarted = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
@@ -424,6 +463,7 @@ function br.read.commonReaders()
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
 			--Print("Channel STOP")
+				lastFinished = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
@@ -431,6 +471,16 @@ function br.read.commonReaders()
 			local SpellID 		= select(5,...)
 			if SourceUnit == "player" then
 			--Print("Channel Update")
+			end
+		end
+		if event == "UI_ERROR_MESSAGE" then
+			local errorMsg = select(1,...)
+			if errorMsg == 277 or errorMsg == 275 then
+				if deadPet == false then
+					deadPet = true
+				elseif deadPet == true then
+					deadPet = false
+				end
 			end
 		end
 	end

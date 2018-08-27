@@ -9,7 +9,7 @@ local function createToggles()
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.blackoutStrike },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.breathOfFire },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.tigerPalm },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.effuse}
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.vivify}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -97,8 +97,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-        -- Effuse
-            br.ui:createSpinner(section, "Effuse",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Vivify
+            br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
             br.ui:createCheckbox(section,"Detox")
         -- Healing Elixir
@@ -185,7 +185,7 @@ local function runRotation()
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
-        local enemies           = enemies or {}
+        local enemies           = br.player.enemies
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
@@ -208,19 +208,19 @@ local function runRotation()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local talent            = br.player.talent
-        local thp               = getHP(br.player.units(5))
+        local thp               = getHP("target")
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.units(5))
+        local ttd               = getTTD
         local ttm               = br.player.power.energy.ttm()
-        local units             = units or {}
+        local units             = br.player.units
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
-        units.dyn5 = br.player.units(5)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(8,"target")
+        enemies.get(30)
 
 
         if opener == nil then opener = false end
@@ -341,9 +341,9 @@ local function runRotation()
                         end
                     end
                 end
-        -- Effuse
-                if isChecked("Effuse") and ((not inCombat and php <= getOptionValue("Effuse")) --[[or (inCombat and php <= getOptionValue("Effuse") / 2)]]) then
-                    if cast.effuse() then return end
+        -- Vivify
+                if isChecked("Vivify") and ((not inCombat and php <= getOptionValue("Vivify")) --[[or (inCombat and php <= getOptionValue("Vivify") / 2)]]) then
+                    if cast.vivify() then return end
                 end
         -- Healing Elixir
                 if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then

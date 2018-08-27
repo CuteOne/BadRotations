@@ -28,7 +28,6 @@ function br.debug:Print(message)
 end
 -- Run
 function br:Run()
-
 	if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
 	-- rc = LibStub("LibRangeCheck-2.0")
 	-- minRange, maxRange = rc:GetRange('target')
@@ -108,3 +107,51 @@ function br:loadSettings()
     end
     if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 end
+local frame = CreateFrame("FRAME")
+frame:RegisterEvent("ADDON_LOADED");
+frame:RegisterEvent("PLAYER_LOGOUT")
+frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
+function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
+	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
+		-- Load Settings
+		br.data = deepcopy(brdata)
+		br.dungeon = deepcopy(dungeondata)
+		br.mdungeon = deepcopy(mdungeondata)
+		br.raid = deepcopy(raiddata)
+		br.mraid = deepcopy(mraiddata)
+	end
+    if event == "PLAYER_LOGOUT" then
+        br.ui:saveWindowPosition()
+        if getOptionCheck("Reset Options") then
+        	-- Reset Settings
+        	brdata = {}
+		elseif getOptionCheck("Reset Saved Profiles") then
+			dungeondata = {}
+        	raiddata = {}
+        	mdungeondata = {}
+        	mraiddata = {}
+        	br.dungeon = {}
+			br.mdungeon = {}
+			br.raid = {}
+			br.mraid = {}
+        else
+        	-- Save Settings
+        	brdata = deepcopy(br.data)
+        	dungeondata = deepcopy(br.dungeon)
+        	mdungeondata = deepcopy(br.mdungeon)
+        	raiddata = deepcopy(br.raid)
+        	mraiddata = deepcopy(br.mraid)
+        end
+    end
+    if event == "PLAYER_ENTERING_WORLD" then
+    	-- Update Selected Spec
+        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+        br.activeSpecGroup = GetActiveSpecGroup()
+		br.equipHasChanged = true
+    	if not br.loadedIn then
+    		bagsUpdated = true
+        	br:Run()
+        end
+    end
+end
+frame:SetScript("OnEvent", frame.OnEvent)

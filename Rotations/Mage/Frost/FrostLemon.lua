@@ -1081,8 +1081,8 @@ local function runRotation()
     
 end -- End Timer
 
-local id = 64
-
+--local id = 64
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 
 tinsert(br.rotations[id],{

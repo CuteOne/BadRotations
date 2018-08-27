@@ -189,7 +189,7 @@ local function runRotation()
         local charges       = br.player.charges
         local combatTime    = getCombatTime()
         local debuff        = br.player.debuff
-        local enemies       = enemies or {}
+        local enemies       = br.player.enemies
         local gcd           = br.player.gcd
         local hastar        = GetObjectExists("target")
         local healPot       = getHealthPot()
@@ -209,17 +209,17 @@ local function runRotation()
         local t20_4pc       = TierScan("T20") >= 4
         local t21_4pc       = TierScan("T21") >= 4
         local talent        = br.player.talent
-        local thp           = getHP(br.player.units(5))
-        local ttd           = getTTD(br.player.units(5))
-        local units         = units or {}
+        local thp           = getHP("target")
+        local ttd           = getTTD
+        local units         = br.player.units
         local use           = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        units.get(8)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(30)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -511,7 +511,7 @@ local function runRotation()
                             if cast.rebuke(thisUnit) then return end
                         end
         -- Blinding Light
-                        if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or enemies.yards10 > 1) then
+                        if isChecked("Blinding Light") and distance < 10 and (not cast.able.rebuke() or distance >= 5 or #enemies.yards10 > 1) then
                             if cast.blindingLight() then return end
                         end
                     end
@@ -1067,7 +1067,7 @@ local function runRotation()
                             if cast.racial() then return end
                         end
                         --actions.cooldowns+=/lights_judgment,if=spell_targets.lights_judgment>=2|(!raid_event.adds.exists|raid_event.adds.in>15)&cooldown.judgment.remains>gcd&(cooldown.divine_hammer.remains>gcd|cooldown.blade_of_justice.remains>gcd)&(buff.avenging_wrath.up|buff.crusade.stack>=15)
-                        if cast.able.racial() and (enemies.yards5>=2 --[[or (not raid_event.adds.exists or raid_event.adds.in>15)]] and cd.judgment.remain()>gcd and (cd.divineHammer.remain()>gcd or cd.bladeOfJustice.remain()>gcd) and (buff.avengingWrath.exists() or buff.crusade.stack()>=15) and race == "LightforgedDraenei") then
+                        if cast.able.racial() and (#enemies.yards5>=2 --[[or (not raid_event.adds.exists or raid_event.adds.in>15)]] and cd.judgment.remain()>gcd and (cd.divineHammer.remain()>gcd or cd.bladeOfJustice.remain()>gcd) and (buff.avengingWrath.exists() or buff.crusade.stack()>=15) and race == "LightforgedDraenei") then
                             if cast.racial() then return end
                         end
                         --actions.cooldowns+=/holy_wrath
@@ -1090,7 +1090,7 @@ local function runRotation()
                     end
                     local function actionList_FinishersParse()
                         --actions.finishers=execution_sentence,if=spell_targets.divine_storm<=3&(cooldown.judgment.remains<gcd*4.25|debuff.judgment.remains>gcd*4.25)
-                        if cast.able.executionSentence() and (enemies.yards<=3 and (cd.judgment.remain()<gcd*4.25 or debuff.judgment.remain()>gcd*4.25)) then
+                        if cast.able.executionSentence() and (#enemies.yards5<=3 and (cd.judgment.remain()<gcd*4.25 or debuff.judgment.remain()>gcd*4.25)) then
                             if cast.executionSentence() then return end
                         end
                         --actions.finishers+=/divine_storm,if=debuff.judgment.up&variable.ds_castable&buff.divine_purpose.react
@@ -1117,7 +1117,7 @@ local function runRotation()
 
                     local function actionList_GeneratorsParse()
                         --actions.generators=variable,name=ds_castable,value=spell_targets.divine_storm>=2|(buff.scarlet_inquisitors_expurgation.stack>=29&(equipped.144358&(dot.wake_of_ashes.ticking&time>10|dot.wake_of_ashes.remains<gcd))|(buff.scarlet_inquisitors_expurgation.stack>=29&(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>15&!buff.crusade.up)|cooldown.avenging_wrath.remains>15)&!equipped.144358)
-                        local ds_castable = enemies.yards8>=2 or (buff.scarletInquisitorsExpurgation.stack()>=29 and (equipped[144358]
+                        local ds_castable = #enemies.yards8>=2 or (buff.scarletInquisitorsExpurgation.stack()>=29 and (equipped[144358]
                             and (debuff.wakeOfAshes.exists() and combatTime>10 or debuff.wakeOfAshes.remain()<gcd)) or (buff.scarletInquisitorsExpurgation.stack()>=29
                             and (buff.avengingWrath.exists() or buff.crusade.exists() and buff.crusade.stack()>=15 or cd.crusade.remain()>15 and not buff.crusade.exists())
                             or cd.avengingWrath.remain()>15) and not equipped[144358])

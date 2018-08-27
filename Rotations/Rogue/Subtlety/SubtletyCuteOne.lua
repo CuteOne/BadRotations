@@ -37,13 +37,19 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.backstab }
     };
     CreateButton("Cleave",5,0)
+    -- Shadow Dance Button
+    ShadowDanceModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Shadow Dance Enabled", tip = "Rotation will use Shadow Dance.", highlight = 1, icon = br.player.spell.shadowDance },
+        [2] = { mode = "Off", value = 2 , overlay = "Shadow Dance Disabled", tip = "Rotation will not use Shadow Dance. Useful for pooling SD charges as you near dungeon bosses.", highlight = 0, icon = br.player.spell.shadowDance },
+        };
+    CreateButton("ShadowDance",6,0)
 -- Pick Pocket Button
     PickPocketModes = {
       [1] = { mode = "Auto", value = 1 , overlay = "Auto Pick Pocket Enabled", tip = "Profile will attempt to Pick Pocket prior to combat.", highlight = 1, icon = br.player.spell.pickPocket},
       [2] = { mode = "Only", value = 2 , overlay = "Only Pick Pocket Enabled", tip = "Profile will attempt to Sap and only Pick Pocket, no combat.", highlight = 0, icon = br.player.spell.pickPocket},
       [3] = { mode = "Off", value = 3, overlay = "Pick Pocket Disabled", tip = "Profile will not use Pick Pocket.", highlight = 0, icon = br.player.spell.pickPocket}
     };
-    CreateButton("PickPocket",6,0)
+    CreateButton("PickPocket",7,0)
 end
 
 ---------------
@@ -89,11 +95,11 @@ local function createOptions()
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Shadow Blades
-            br.ui:createCheckbox(section, "Shadow Blades")
+            br.ui:createDropdownWithout(section, "Shadow Blades",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},2,"|cffFFFFFFWhen to use Shadow Blades.")
             -- Shadow Dance
-            br.ui:createCheckbox(section, "Shadow Dance")
+            br.ui:createDropdownWithout(section, "Shadow Dance",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},1,"|cffFFFFFFWhen to use Shadow Dance.")
             -- Shuriken Tornado
-            br.ui:createCheckbox(section, "Shuriken Tornado")
+            br.ui:createDropdownWithout(section, "Shuriken Tornado",{"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"},1,"|cffFFFFFFWhen to use Shuriken Tornados.")
             -- Symbols of Death
             br.ui:createCheckbox(section, "Symbols of Death")
             -- Vanish
@@ -106,7 +112,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
             -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Pot/Stone",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
            -- Cloak of Shadows
@@ -126,6 +132,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kick")
             -- Kidney Shot
             br.ui:createCheckbox(section, "Kidney Shot")
+            -- Cheap Shot
+            br.ui:createCheckbox(section, "Cheap Shot")
             -- Blind
             br.ui:createCheckbox(section, "Blind")
             -- Interrupt Percentage
@@ -149,6 +157,8 @@ local function createOptions()
             br.ui:createDropdown(section,  "PickPocket Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+            -- Shadow Dance Toggle
+            br.ui:createDropdown(section,  "ShadowDance Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -176,40 +186,30 @@ local function runRotation()
         br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
         UpdateToggle("PickPocket",0.25)
         br.player.mode.pickPocket = br.data.settings[br.selectedSpec].toggles["PickPocket"]
+        UpdateToggle("ShadowDance",0.25)
+        br.player.mode.shadowDance = br.data.settings[br.selectedSpec].toggles["ShadowDance"]
 
 --------------
 --- Locals ---
 --------------
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
-        local addsExist                                                 = false
-        local addsIn                                                    = 999
-        local artifact                                                  = br.player.artifact
-        local attacktar                                                 = UnitCanAttack("target","player")
         local buff                                                      = br.player.buff
         local cast                                                      = br.player.cast
         local cd                                                        = br.player.cd
         local charges                                                   = br.player.charges
         local combatTime                                                = getCombatTime()
         local combo, comboDeficit, comboMax                             = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
-        local deadtar                                                   = UnitIsDeadOrGhost("target")
         local debuff                                                    = br.player.debuff
-        local enemies                                                   = enemies or {}
-        local flaskBuff, canFlask                                       = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
+        local enemies                                                   = br.player.enemies
         local gcd                                                       = br.player.gcd
         local gcdMax                                                    = br.player.gcdMax
-        local glyph                                                     = br.player.glyph
+        local has                                                       = br.player.has
         local hastar                                                    = GetObjectExists("target")
         local healPot                                                   = getHealthPot()
         local inCombat                                                  = br.player.inCombat
-        local lastSpell                                                 = lastSpellCast
-        local level                                                     = br.player.level
         local mode                                                      = br.player.mode
         local multidot                                                  = (br.player.mode.cleave == 1 or br.player.mode.rotation ~= 3)
-        local perk                                                      = br.player.perk
         local php                                                       = br.player.health
-        local power, powerMax, powerDeficit, powerRegen, powerTTM       = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.deficit(), br.player.power.energy.regen(), br.player.power.energy.ttm()
-        local pullTimer                                                 = br.DBM:getPulltimer()
+        local power, powerDeficit, powerRegen                           = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
         local race                                                      = br.player.race
         local solo                                                      = #br.friend < 2
         local spell                                                     = br.player.spell
@@ -217,19 +217,19 @@ local function runRotation()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists()
         local talent                                                    = br.player.talent
-        local time                                                      = getCombatTime()
         local ttd                                                       = getTTD
-        local ttm                                                       = br.player.power.energy.ttm()
-        local units                                                     = units or {}
+        local units                                                     = br.player.units
+	    local use                                                       = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        units.dyn30 = br.player.units(30)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        units.get(30)
+
+        enemies.get(5)
+        enemies.get(10)
+        enemies.get(20)
+        enemies.get(30)
+
+        if profileStop == nil then profileStop = false end
 
         -- Opener Variables
         -- if opener == nil then opener = false end
@@ -329,7 +329,7 @@ local function runRotation()
                         if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
                             if cast.sap(units.dyn5) then return end
                         end
-                        if lastSpell ~= spell.vanish then
+                        if cast.last.vanish() then
                             if cast.pickPocket() then return end
                         end
                     end
@@ -351,10 +351,12 @@ local function runRotation()
                         end
                     end
                 end
-            -- Pot/Stoned
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasHealthPot() then
-                    if canUse(5512) then
-                        useItem(5512)
+        -- Pot/Stone
+                if isChecked("Pot/Stone") and (use.able.healthstone() or canUse(healPot))
+                    and php <= getOptionValue("Pot/Stone") and inCombat and (hasHealthPot() or has.healthstone())
+                then
+                    if use.able.healthstone() then
+                        use.healthstone()
                     elseif canUse(healPot) then
                         useItem(healPot)
                     end
@@ -364,7 +366,7 @@ local function runRotation()
                     if cast.cloakOfShadows() then return end
                 end
             -- Crimson Vial
-                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+                if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") and not buff.shadowDance.exists() then
                     if cast.crimsonVial() then return end
                 end
             -- Evasion
@@ -372,7 +374,7 @@ local function runRotation()
                     if cast.evasion() then return end
                 end
             -- Feint
-                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+                if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() and not buff.shadowDance.exists() then
                     if cast.feint() then return end
                 end
             end
@@ -395,11 +397,15 @@ local function runRotation()
                                 if cast.kidneyShot(thisUnit) then return end
                             end
                         end
-                        if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
             -- Blind
+                        if isChecked("Blind") and not buff.shadowDance.exists() and (cd.kick.remain() ~= 0 or distance >= 5) and not buff.shadowDance.exists() then
                             if cast.blind(thisUnit) then return end
                         end
                     end
+            -- Cheap Shot
+                        if isChecked("Cheap Shot") and buff.shadowDance.exists() and distance < 5 and cd.kick.remain() ~= 0 and cd.kidneyShot.remain() == 0 and cd.blind.remain() == 0 then
+                            if cast.cheapShot(thisUnit) then return end
+                        end
                 end
             end -- End Interrupt and No Stealth Check
         end -- End Action List - Interrupts
@@ -409,9 +415,9 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|(buff.vanish.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=30))
-                if useCDs() and isChecked("Agi-Pot") and canUse(127844) and inRaid then
+                if useCDs() and isChecked("Agi-Pot") and canUse(163223) and inRaid then
                     if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.vanish.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 30)) then
-                        useItem(127844)
+                        useItem(163223)
                     end
                 end
         -- Trinkets
@@ -462,12 +468,12 @@ local function runRotation()
                 end
         -- Shadow Blades
                 -- shadow_blades,if=combo_points.deficit>=2+stealthed.all
-                if useCDs() and isChecked("Shadow Blades") and cast.able.shadowBlades() and (comboDeficit >= 2 + stealthedAll) then
+                if (getOptionValue("Shadow Blades") == 1 or (getOptionValue("Shadow Blades") == 2 and useCDs())) and cast.able.shadowBlades() and (comboDeficit >= 2 + stealthedAll) then
                     if cast.shadowBlades() then return end
                 end
         -- Shuriken Tornado
                 -- shuriken_tornado,if=spell_targets>=3&dot.nightblade.ticking&buff.symbols_of_death.up&buff.shadow_dance.up
-                if useCDs() and isChecked("Shuriken Tornado") and cast.able.shurikenTornado()
+                if (getOptionValue("Shuriken Tornado") == 1 or (getOptionValue("Shuriken Tornado") == 2 and useCDs())) and cast.able.shurikenTornado()
                     and ((mode.rotation == 1 and #enemies.yards10 >= 3) or (mode.rotation == 2 and #enemies.yards10 > 0))
                     and debuff.nightblade.exists(units.dyn5) and buff.symbolsOfDeath.exists() and buff.shadowDance.exists()
                 then
@@ -475,7 +481,9 @@ local function runRotation()
                 end
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled
-                if useCDs() and isChecked("Shadow Dance") and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty) then
+                if (getOptionValue("Shadow Dance") == 1 and mode.shadowDance == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs())) and mode.shadowDance == 1
+                    and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
+                then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
             end -- End Cooldown Usage Check
@@ -507,7 +515,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets>=4&cooldown.symbols_of_death.remains>10)
                 -- shadow_dance,if=target.time_to_die<cooldown.symbols_of_death.remains
-                if useCDs() and isChecked("Shadow Dance") and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
+                if (getOptionValue("Shadow Dance") == 1 and mode.shadowDance == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs ())) and mode.shadowDance == 1 and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
                     if ((not talent.darkShadow or debuff.nightblade.remain(units.dyn5) >= 5 + subty)
                         and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2
                             or ((mode.rotation == 1 and #enemies.yards5 >= 4) or (mode.rotation == 2 and #enemies.yards5 > 0)) and cd.symbolsOfDeath.remain() > 10))
@@ -668,7 +676,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if getDistance("target") < 5 and not stealthingAll then
+                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists() then
                         StartAttack()
                     end
                 end
@@ -747,7 +755,7 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+energy.regen
                     -- arcane_pulse
                     -- lights_judgment
-                    if useCDs() and isChecked("Racial") and cast.able.racial()
+                    if useCDs() and isChecked("Racial") and cast.able.racial() and not buff.shadowDance.exists()
                         and ((race == "BloodElf" and powerDeficit >= 15 + powerRegen) or race == "Nightborne" or race == "LightforgedDraenei")
                     then
                         if race == "LightforgedDraenei" then

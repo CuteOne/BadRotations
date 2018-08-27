@@ -214,7 +214,7 @@ local function runRotation()
         local deadtar			= UnitIsDeadOrGhost("target") or isDummy()
         local playertar			= UnitIsPlayer("target")
         local debuff            = br.player.debuff
-        local enemies           = enemies or {}
+        local enemies           = br.player.enemies
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
         local inCombat          = br.player.inCombat
@@ -234,17 +234,17 @@ local function runRotation()
         local t19_2pc           = TierScan("T19") >= 2
         local t19_4pc           = TierScan("T19") >= 4
         local ttd               = getTTD
-        local units             = units or {}
+        local units             = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        units.dyn30 = br.player.units(30)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
-        enemies.yards15 = br.player.enemies(15)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(8)
+        units.get(30)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(10,"target")
+        enemies.get(15)
+        enemies.get(30)
+        enemies.get(40)
        
         if lastSpell == nil or not inCombat then lastSpell = 0 end
         if waitforNextIoC == nil then waitforNextIoC = 0 end

@@ -171,7 +171,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local healPot                                       = getHealthPot()
@@ -191,18 +191,18 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn15 = br.player.units(15)
-        units.dyn30 = br.player.units(30)
-        units.dyn40 = br.player.units(40)
-        units.dyn30AoE = br.player.units(30,true)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards15 = br.player.enemies(15)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(15)
+        units.get(30)
+        units.get(40)
+        units.get(30,true)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(15)
+        enemies.get(30)
+        enemies.get(40)
 
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp

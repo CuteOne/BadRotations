@@ -178,7 +178,7 @@ local function runRotation()
         local deadPet                                       = deadPet
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -207,17 +207,13 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local trinketProc                                   = false
-        local ttd                                           = getTTD
+        local ttd                                           = getTTD("target")
         local ttm                                           = br.player.power.focus.ttm()
         local t19_2pc                                       = TierScan("T19") >= 2
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        if units.dyn40 == nil then
-            units.dyn40 = br.player.units(40)
-        end
-        if enemies.yards40 == nil then
-            enemies.yards40 = br.player.units(40)
-        end
+            units.get(40)
+            enemies.get(40)
 
         -- BeastCleave 118445
         local beastCleaveTimer                              = getBuffDuration("pet", 118445)

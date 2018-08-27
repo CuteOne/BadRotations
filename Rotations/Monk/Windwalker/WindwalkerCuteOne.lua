@@ -60,8 +60,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
         -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
-        -- Challenge Skin Helper
-            br.ui:createCheckbox(section, "Challenge Skin Helper")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Opener
@@ -82,8 +80,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
         -- Provoke
             br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
-        -- SCK Damage
-            -- br.ui:createCheckbox(section, "Calculate SCK", "Will calculate when SCK does more damage and use over other abilities.")
         -- Spread Mark Cap
             br.ui:createSpinnerWithout(section, "Spread Mark Cap", 5, 0, 10, 1, "|cffFFFFFFSet to limit Mark of the Crane Buffs, 0 for unlimited. Min: 0 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
@@ -91,41 +87,27 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-        -- SEF Timer/Behavior
-            br.ui:createSpinnerWithout(section, "SEF Timer",  0.3,  0,  1,  0.05,  "|cffFFFFFFDesired time in seconds to resume rotation after casting SEF so clones can get into place. This value changes based on different factors so requires some testing to find what works best for you.")
-            br.ui:createDropdownWithout(section, "SEF Behavior", {"|cff00FF00Fixate","|cffFFFF00Go Ham!"}, 1, "|cffFFFFFFStorm, Earth, and Fire Behavior.")
         -- Flask / Crystal
             br.ui:createCheckbox(section,"Flask / Crystal")
         -- Potion
             br.ui:createCheckbox(section,"Potion")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
+        -- Touch of the Void
+            br.ui:createCheckbox(section,"Touch of the Void")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
         -- Energizing Elixir
             br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
-        -- Touch of the Void
-            br.ui:createCheckbox(section,"Touch of the Void")
+        -- SEF Timer/Behavior
+            br.ui:createSpinnerWithout(section, "SEF Timer",  0.3,  0,  1,  0.05,  "|cffFFFFFFDesired time in seconds to resume rotation after casting SEF so clones can get into place. This value changes based on different factors so requires some testing to find what works best for you.")
+            br.ui:createDropdownWithout(section, "SEF Behavior", {"|cff00FF00Fixate","|cffFFFF00Go Ham!"}, 1, "|cffFFFFFFStorm, Earth, and Fire Behavior.")
         -- Serenity
             br.ui:createDropdownWithout(section,"Serenity", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Serenity.")
         -- Touch of Death
             br.ui:createCheckbox(section,"Touch of Death")
         -- Xuen
             br.ui:createCheckbox(section,"Xuen")
-        -- Draught of Souls
-            br.ui:createCheckbox(section,"Draught of Souls")
-        -- Gnawed Thumb Ring
-            br.ui:createCheckbox(section,"Gnawed Thumb Ring")
-        -- Ring of Collapsing Futures
-            br.ui:createCheckbox(section,"Ring of Collapsing Futures")
-        -- Specter of Betrayal
-            br.ui:createCheckbox(section,"Specter of Betrayal")
-        -- Vial of Ceaseless Toxins
-            br.ui:createCheckbox(section,"Vial of Ceaseless Toxins")
-        -- Artifact
-            -- br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
-        -- Experimental BoK Code Checkbox :P
-            -- br.ui:createCheckbox(section,"Experimental BoK Logic", "Should provide a dps gain, however not fully tested. Disable if causing issues.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -139,13 +121,13 @@ local function createOptions()
             br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
             br.ui:createCheckbox(section,"Detox")
+        -- Diffuse Magic/Dampen Harm
+            br.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Leg Sweep
             br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         -- Touch of Karma
             br.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Diffuse Magic/Dampen Harm
-            br.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -210,56 +192,43 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local agility           = UnitStat("player", 2)
-        local artifact          = br.player.artifact
-        local baseAgility       = 0
-        local baseMultistrike   = 0
         local buff              = br.player.buff
-        local canFlask          = canUse(br.player.flask.wod.agilityBig)
         local cast              = br.player.cast
-        local castable          = br.player.cast.debug
-        local castTimeFoF       = 4-(4*UnitSpellHaste("player")/100)
-        local castTimeHS        = 2-(2*UnitSpellHaste("player")/100)
         local cd                = br.player.cd
         local charges           = br.player.charges
         local chi               = br.player.power.chi.amount()
+        local chiDeficit        = br.player.power.chi.deficit()
         local chiMax            = br.player.power.chi.max()
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
-        local enemies           = enemies or {}
+        local enemies           = br.player.enemies
         local energy            = br.player.power.energy.amount()
         local equiped           = br.player.equiped
-        local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
-        local gcd               = br.player.gcd
-        local glyph             = br.player.glyph
+        local gcd               = br.player.gcdMax
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
-        local level             = br.player.level
         local mode              = br.player.mode
         local moving            = GetUnitSpeed("player")>0
         local php               = br.player.health
         local power             = br.player.power.energy.amount()
         local powerMax          = br.player.power.energy.max()
         local pullTimer         = br.DBM:getPulltimer()
-        local queue             = br.player.queue
         local race              = br.player.race
-        local regen             = br.player.power.energy.regen()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local talent            = br.player.talent
-        local thp               = getHP(br.player.units(5))
-        local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.units(5))
+        local thp               = getHP("target")
+        local traits            = br.player.traits
+        local ttd               = getTTD("target")
         local ttm               = br.player.power.energy.ttm()
-        local units             = units or {}
+        local units             = br.player.units
+        local use               = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        -- enemies.yards9c = getEnemiesInCone(45,9,false) or 0
-
-        -- ChatOverlay("All: "..getEnemiesInRect(10,40,false,true).." | Valid: "..getEnemiesInRect(10,40,false))
+        units.get(5)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.yards12r = getEnemiesInRect(10,12,false) or 0
 
         if not inCombat or lastCombo == nil or not buff.hitCombo.exists() then lastCombo = 6603 end
         if leftCombat == nil then leftCombat = GetTime() end
@@ -268,11 +237,7 @@ local function runRotation()
         if SerenityTest == nil then SerenityTest = GetTime() end
         if SEFTimer == nil then SEFTimer = GetTime() end
         if FoFTimerOpener == nil then FoFTimerOpener = GetTime() end
-        if TPEETimer == nil then TPEETimer = GetTime() end
-        if hasEquiped(137029) then FoFCost = 2 else FoFCost = 3 end
-
-        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
-
+        if castFSK == nil then castFSK = false end
 
         if isCastingSpell(spell.cracklingJadeLightning)
             and (getDistance(units.dyn5) <= 5 or (#enemies.yards8 == 0 and power <= getOptionValue("CJL OOR Cancel") and isChecked("CJL OOR Cancel")))
@@ -283,35 +248,7 @@ local function runRotation()
             SpellStopCasting()
         end
 
-        local thisToDRemain = 99
-        local thisMarkRemain = 99
-        local lowestToD = units.dyn5
-        local lowestMark = units.dyn5
-        if inCombat then
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if debuff.touchOfDeath.exists(thisUnit) and debuff.touchOfDeath.remain(thisUnit) < thisToDRemain then
-                    thisToDRemain = debuff.touchOfDeath.remain(thisUnit)
-                    lowestToD = thisUnit
-                end
-                if debuff.markOfTheCrane.exists(thisUnit) and debuff.markOfTheCrane.remain(thisUnit) < thisMarkRemain then
-                    thisMarkRemain = debuff.markOfTheCrane.remain(thisUnit)
-                    lowestMark = thisUnit
-                end
-            end
-        end
-
-        -- function HoldBoK()
-        --     if isChecked("Experimental BoK Logic") then
-        --         if (chi >= FoFCost and cd.fistsOfFury.remain() <= gcd and cd.fistsOfFury.remain() ~= 0) or (chi >= 2 and ((cd.risingSunKick.remain() <= gcd and cd.risingSunKick.remain() ~= 0) or (cd.strikeOfTheWindlord.remain() <= gcd and cd.strikeOfTheWindlord.remain() ~= 0 and getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())))) or ((cd.whirlingDragonPunch.remain() <= gcd and cd.risingSunKick.remain() >= gcd and cd.fistsOfFury.remain() >= gcd) and cd.whirlingDragonPunch.remain() ~= 0) then
-        --             return true
-        --         else
-        --             return false
-        --         end
-        --     else
-        --         return false
-        --     end
-        -- end
+        local lowestMark = debuff.markOfTheCrane.lowest(5,"remain")
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
@@ -335,142 +272,6 @@ local function runRotation()
             opener = false
         end
 
-        local AttackPower = UnitAttackPower("player")
-        local ArmorRedux = (1 - 0.3198)
-        local Crit = (1 + (GetCritChance() / 100))
-        local Mastery = (1 + (GetMasteryEffect("player") / 100))
-        local Versatility = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
-
-        -- Mark of the Crane Count
-        local markOfTheCraneCount = debuff.markOfTheCrane.count()
-
-        local function windborneFerocity()
-            return ((1 + (artifact.ferocityOfTheBrokenTemple.rank() * 0.05)) * (1 + (artifact.windborneBlows.rank() * 0.1)))
-        end
-
-        local function blackoutKickDmg()
-            if chi >= 1 then
-                return  (
-                            (4.697 * AttackPower * ArmorRedux) -- Base Dmg
-                            * ((1 + (artifact.darkSkies.rank() * 0.2)) * windborneFerocity()) -- + Traits
-                            * (Mastery * Versatility * Crit) -- + Stats
-                            * ((1 + (buff.hitCombo.stack() * 0.02)) * 1.26) -- + Buffs
-                        )
-            else
-                return 0
-            end
-        end
-
-        local function risingSunKickDmg()
-            if chi >= 2 and cd.risingSunKick.remain() == 0 then
-                return  (
-                            (11.102 * AttackPower * ArmorRedux) -- Base Dmg
-                            * ((1 + (artifact.risingWinds.rank() * 0.05)) * (1 + (artifact.tornadoKicks.rank() * 0.25)) * windborneFerocity()) -- + Traits
-                            * (Mastery * Versatility * Crit) -- + Stats
-                            * ((1 + (buff.hitCombo.stack() * 0.02)) * 1.26) -- + Buffs
-                        )
-            else
-                return 0
-            end
-        end
-
-        local function whirlingDragonPunchDmg()
-            if #enemies.yards8 == 0 then wdpEnemies = 1 else wdpEnemies = #enemies.yards8 end
-            if cd.whirlingDragonPunch.remain() == 0 then
-                return  (
-                            ((3 * 5.063) * AttackPower * ArmorRedux) -- Base Dmg
-                            * windborneFerocity() -- + Traits
-                            * (Mastery * Versatility * Crit) -- + Stats
-                            * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                            * wdpEnemies
-                        )
-            else
-                return 0
-            end
-        end
-
-        local function crosswindsDmg()
-            if artifact.crosswinds.enabled() then
-                return  (
-                            (8 * AttackPower * ArmorRedux) -- Base Damage
-                            * windborneFerocity() -- + Traits
-                            * Versatility -- + Versatility
-                            * Crit -- + Crit
-                            * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                        )
-            else
-                return 0
-            end
-        end
-
-        local function fistsOfFuryDmg()
-            local chiCost = hasEquiped(137029) and 2 or 3
-            if getEnemiesInCone(5,90) == 0 then fofEnemies = 1 else fofEnemies = getEnemiesInCone(5,90) end
-            if chi >= chiCost and cd.fistsOfFury.remain() == 0 then
-                return  ((
-                            ((5.734 * 5 ) * AttackPower * ArmorRedux) -- Base Damage
-                            * ((1 + (artifact.fistsOfTheWind.rank() * 0.05)) * (1 + (buff.transferThePower.stack() * 0.03)) * windborneFerocity()) -- + Traits
-                            * (Mastery * Versatility * Crit) -- + Stats
-                            * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                            * fofEnemies
-                        )
-                            + crosswindsDmg()
-                        )
-            else
-                return 0
-            end
-        end
-
-        local function strikeOfTheWindlordDmg()
-            -- local minMain, maxMain, minOff, maxOff, _, _, dmgMulti = UnitDamage("player")
-            -- local multiplier = dmgMulti * Versatility
-            -- local mainDmg = (((minMain + maxMain) / 2) + AttackPower / 3.5 * 2.6) * multiplier
-            -- local offDmg = mainDmg * 0.5
-            -- local weapDmg = (mainDmg + offDmg) * ArmorRedux
-            -- -- print(weapDmg)
-            -- if hasEquiped(151811) then wlCD = 32 else wlCD = 40 end
-            -- -- if artifact.strikeOfTheWindlord.enabled() and chi >= 2 and cd.strikeOfTheWindlord.remain() == 0 then
-            --     return  (
-            --                 ((weapDmg + (0.74 * AttackPower)) * 41.175 * ArmorRedux) -- Base Damage
-            --             )
-            -- -- else
-                return 0
-            -- end
-        end
-
-        local function spinningCraneKickDmg()
-            if #enemies.yards8 == 0 then sckEnemies = 1 else sckEnemies = #enemies.yards8 end
-            if chi >= 3 and isChecked("Calculate SCK") then
-                return  (
-                            (4.88 * AttackPower * ArmorRedux) -- Base Dmg
-                            * (1 + (0.03 * artifact.powerOfAThousandCranes.rank() + math.floor(artifact.powerOfAThousandCranes.rank() / 3) * 0.01)) * windborneFerocity() -- + Traits
-                            * (Mastery * Versatility * Crit) -- + Stats
-                            * (1 + (buff.hitCombo.stack() * 0.02)) -- + Buffs
-                            * (sckEnemies * (1 + (debuff.markOfTheCrane.count() * 0.4))) --  + Mark of the Crane
-                        )
-            else
-                return 0
-            end
-        end
-
-        -- Print("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", WDP: "..round2(whirlingDragonPunchDmg(),0)..", RSK: "..round2(risingSunKickDmg(),0).."BOK: "..round2(blackoutKickDmg(),0))
-
-        -- Spinning Crane Kick Stuff
-        if level >= 40 then
-            -- if markOfTheCraneCount >= 16 then
-            BetterThanWDP = spinningCraneKickDmg() > whirlingDragonPunchDmg()
-            -- if (markOfTheCraneCount >= 13 and #enemies.yards5 >= 3) or (markOfTheCraneCount >= 14 and #enemies.yards5 == 2) or markOfTheCraneCount >= 16 then
-            BetterThanFoF = spinningCraneKickDmg() > fistsOfFuryDmg()
-            -- if #enemies.yards8 >= 4 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 3) or markOfTheCraneCount >= 9 then
-            BetterThanRSK = spinningCraneKickDmg() > risingSunKickDmg()
-            -- if #enemies.yards8 >= 3 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 2) or markOfTheCraneCount >= 6 then
-            BetterThanBOK = spinningCraneKickDmg() > blackoutKickDmg()
-            BetterThanSOTW = (#enemies.yards8 >= 13 or (markOfTheCraneCount >= 2 and #enemies.yards8 == 10)
-                or (markOfTheCraneCount >= 3 and #enemies.yards8 == 8) or (markOfTheCraneCount >= 4 and #enemies.yards8 == 6)
-                or (markOfTheCraneCount >= 7 and #enemies.yards8 == 4) or (markOfTheCraneCount >= 9 and #enemies.yards8 == 3)
-                or (markOfTheCraneCount >= 13 and #enemies.yards8 == 2) or markOfTheCraneCount >= 14)
-        end
-
         -- Touch of Deathable
         if not canToD then canToD = false end
         if ToDTime == nil then ToDTimer = GetTime() end
@@ -484,48 +285,9 @@ local function runRotation()
             end
         end
 
-        -- Challenge Skin Heler
-        if isChecked("Challenge Skin Helper") then
-            for i=1, #getEnemies("player",20) do
-                thisUnit = getEnemies("player",20)[i]
-                distance = getDistance(thisUnit)
-                if distance < 5 then
-                    if isChecked("Leg Sweep") then
-                        if cast.legSweep(thisUnit) then return true end
-                    end
-                end
-                if isCastingSpell(242733,thisUnit) then
-                    Print("Fel Burst is Casting!")
-                    if distance < 5 then
-    -- Quaking Palm
-                        if isChecked("Quaking Palm") then
-                            if cast.quakingPalm(thisUnit) then return true end
-                        end
-    -- Spear Hand Strike
-                        if isChecked("Spear Hand Strike") then
-                            if cast.spearHandStrike(thisUnit) then return true end
-                        end
-    -- Leg Sweep
-                        if isChecked("Leg Sweep") then
-                            if cast.legSweep(thisUnit) then return true end
-                        end
-                    end
-    -- Paralysis
-                    if isChecked("Paralysis") then
-                        if cast.paralysis(thisUnit) then return true end
-                    end
-                end
-                if isCastingSpell(241687,thisUnit) then
-                    if isChecked("Paralysis") then
-                        if cast.paralysis(thisUnit) then return true end
-                    end
-                end
-            end
-        end
-
         -- Rushing Jade Wind - Cancel
-        if cast.able.rushingJadeWind("player") and not inCombat and buff.rushingJadeWind.exists() then
-            if cast.rushingJadeWind("player") then return true end
+        if not inCombat and buff.rushingJadeWind.exists() then
+            if buff.rushingJadeWind.cancel() then return true end
         end
 
         -- Spread the Mark of the Crane
@@ -544,7 +306,6 @@ local function runRotation()
         end
 
         -- ChatOverlay("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", > FoF: "..tostring(BetterThanFoF))
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -584,7 +345,9 @@ local function runRotation()
         -- Flying Serpent Kick
             if mode.fsk == 1 then
                 -- if cast.flyingSerpentKick() then return true end
-                -- if cast.flyingSerpentKickEnd() then return true end
+                if castFSK then
+                    if cast.flyingSerpentKickEnd() then castFSK = false; return true end
+                end
             end
         -- Roll
             if isChecked("Roll") and getDistance("target") > 10 and isValidUnit("target") and getFacingDistance() < 5 and getFacing("player","target",10) then
@@ -616,7 +379,7 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            if getOptionValue("SEF Behavior") == 1 then
+            if getOptionValue("SEF Behavior") == 1 and not talent.serenity then
                 if cast.stormEarthAndFireFixate() then return true end
             end
         end -- End Action List - Extras
@@ -699,7 +462,7 @@ local function runRotation()
             end -- End Interrupt Check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
-        function actionList_Cooldown()
+        function actionList_Cooldowns()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
@@ -710,39 +473,16 @@ local function runRotation()
                         useItem(14)
                     end
                 end
-        -- Gnawed Thumb Ring
-                if isChecked("Gnawed Thumb Ring") and hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
-                    if buff.touchOfKarma.exists() or buff.serenity.exists() or buff.stormEarthAndFire.exists() then
-                        useItem(134526)
-                    end
-                end
-        -- Ring of Collapsing Futures
-                if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
-                    useItem(142173)
-                end
         -- Invoke Xuen
-                -- invoke_xuen
-                if isChecked("Xuen") and cast.able.invokeXuen() then
+                -- invoke_xuen_the_white_tiger
+                if isChecked("Xuen") and cast.able.invokeXuenTheWhiteTiger() then
                     if cast.invokeXuenTheWhiteTiger() then return true end
-                end
-        -- Specter of Betrayal
-                -- use_item,name=specter_of_betrayal,if=(cooldown.serenity.remains>10|buff.serenity.up)|!talent.serenity.enabled
-                if isChecked("Specter of Betrayal") and hasEquiped(151190) and canUse(151190) then
-                    if (cd.serenity.remain() > 10 or buff.serenity.exists()) or not talent.serenity then
-                        useItem(151190)
-                    end
-                end
-        -- Vial of Ceaseless Toxins
-                -- use_item,name=vial_of_ceaseless_toxins,if=(buff.serenity.up&!equipped.specter_of_betrayal)|(equipped.specter_of_betrayal&(time<5|cooldown.serenity.remains<=8))|!talent.serenity.enabled|target.time_to_die<=cooldown.serenity.remains
-                if isChecked("Vial of Ceaseless Toxins") and hasEquiped(147011) and canUse(147011) then
-                    if (buff.serenity.exists() and not hasEquiped(151190)) or (hasEquiped(151190) and (combatTime < 5 or cd.serenity.remain() <= 8)) or not talent.serenity or ttd <= cd.serenity.remain() then
-                        useItem(147011)
-                    end
                 end
         -- Racial - Blood Fury / Berserking / Arcane Torrent / Fireblood
                 -- blood_fury
                 -- berserking
                 -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
+                -- lightsJudgment
                 -- fireblood
                 -- ancestral_call
                 if isChecked("Racial") and cast.able.racial() then
@@ -755,33 +495,15 @@ local function runRotation()
                     end
                 end
         -- Touch of Death
-                if isChecked("Touch of Death") then
-                    -- touch_of_death,target_if=min:dot.touch_of_death.remains,if=equipped.hidden_masters_forbidden_touch&!prev_gcd.1.touch_of_death
-                    if cast.able.touchOfDeath(lowestToD) and equiped.hiddenMastersForbiddenTouch() and lastCombo ~= spell.touchOfDeath then
-                        if cast.touchOfDeath(lowestToD) then canToD = false; SerenityTest = GetTime(); return true end
-                    end
-                    -- touch_of_death,target_if=min:dot.touch_of_death.remains,if=((talent.serenity.enabled&cooldown.serenity.remains<=1)&cooldown.fists_of_fury.remains<=4)&cooldown.rising_sun_kick.remains<7&!prev_gcd.1.touch_of_death
-                    if cast.able.touchOfDeath(lowestToD) and ((talent.serenity and cd.serenity.remain() <= 1) and cd.fistsOfFury.remain() <= 4) and cd.risingSunKick.remain() < 7 and canToD and lastCombo ~= spell.touchOfDeath then
-                        if cast.touchOfDeath(lowestToD) then canToD = false; SerenityTest = GetTime(); return true end
-                    end
-                    -- touch_of_death,target_if=min:dot.touch_of_death.remains,if=((!talent.serenity.enabled&cooldown.storm_earth_and_fire.remains<=1)|chi>=2)&cooldown.fists_of_fury.remains<=4&cooldown.rising_sun_kick.remains<7&!prev_gcd.1.touch_of_death
-                    if cast.able.touchOfDeath(lowestToD) and ((not talent.serenity and cd.stormEarthAndFire.remain() <= 1) or chi >= 2) and cd.fistsOfFury.remain() <= 4 and cd.risingSunKick.remain() < 7 and canToD and lastCombo ~= spell.touchOfDeath then
-                        if cast.touchOfDeath(lowestToD) then canToD = false; SerenityTest = GetTime(); return true end
-                    end
-                -- Draught of Souls
-                    -- use_item,name=draught_of_souls,if=talent.serenity.enabled&!buff.serenity.up&energy.time_to_max>3
-                    -- use_item,name=draught_of_souls,if=!talent.serenity.enabled&!buff.storm_earth_and_fire.up&energy.time_to_max>3
-                    if isChecked("Draught of Souls") and hasEquiped(140808) and canUse(140808) then
-                        if (talent.serenity and not buff.serenity.exists() and ttm > 3) or (not talent.serenity and not buff.stormEarthAndFire.exists() and ttm > 3) then
-                            useItem(140808)
-                        end
-                    end
+                -- touch_of_death
+                if isChecked("Touch of Death") and cast.able.touchOfDeath() then
+                    if cast.touchOfDeath() then return true end
                 end
             end
         end -- End Cooldown - Action List
     -- Action List - Opener
         function actionList_Opener()
-            if isBoss("target") and isValidUnit("target") and opener == false then
+            if isChecked("Opener") and isBoss("target") and isValidUnit("target") and not opener then
         -- Potion
                 -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                 -- Agility Proc
@@ -950,19 +672,26 @@ local function runRotation()
                     opener = true;
                     return
                 end
+            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+				opener = true
             end -- End Boss and Opener Check
         end -- End Action List - Opener
     -- Action List - Single Target
         function actionList_SingleTarget()
         -- Action List - Cooldown
             -- call_action_list,name=cd
-            if actionList_Cooldown() then return true end
+            if actionList_Cooldowns() then return true end
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs()))
+            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity
                 and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd)
             then
                 if cast.stormEarthAndFire() then return end
+            end
+        -- Rising Sun Kick
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=azerite.swift_roundhouse.enabled&buff.swift_roundhouse.stack=2
+            if cast.able.risingSunKick(lowestMark) and (traits.swiftRoundhouse.active() and buff.swiftRoundhouse.stack() == 2) then
+                if cast.risingSunKick(lowestMark) then return end
             end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=buff.rushing_jade_wind.down&!prev_gcd.1.rushing_jade_wind
@@ -981,67 +710,80 @@ local function runRotation()
             if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 and equiped.t21 >= 4 and buff.blackoutKick.exists() then
                 if cast.blackoutKick(lowestMark) then return true end
             end
+        -- Fist of the White Tiger
+            -- fist_of_the_white_tiger,if=(chi<=2)
+            if cast.able.fistOfTheWhiteTiger() and chi <= 2 then
+                if cast.fistOfTheWhiteTiger() then return true end
+            end
         -- Tiger Palm
-            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy.time_to_max<=1&chi.max-chi>=2&!buff.serenity.up
-            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir()
-                and ttm <= 1 and chiMax - chi >= 2 and not buff.serenity.exists()
-            then
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi<=3&energy.time_to_max<2
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and chi <= 3 and ttm < 2 then
                 if cast.tigerPalm(lowestMark) then return true end
             end
-        -- Fist of the White Tiger
-            -- fist_of_the_white_tiger,if=chi.max-chi>=3
-            if cast.able.fistOfTheWhiteTiger() and chiMax - chi >= 3 then
-                if cast.fistOfTheWhiteTiger() then return true end
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2&buff.serenity.down&cooldown.fist_of_the_white_tiger.remains>energy.time_to_max
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and chiMax - chi >= 2 and not buff.serenity.exists() and cd.fistOfTheWhiteTiger.remain() > ttm then
+                if cast.tigerPalm(lowestMark) then return true end
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
             if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
+        -- Fists of Fury
+            -- fists_of_fury,if=chi>=3&energy.time_to_max>2.5&azerite.swift_roundhouse.rank<3
+            if cast.able.fistsOfFury() and chi >= 3 and ttm > 2.5 and traits.swiftRoundhouse.rank() < 3 then
+                if cast.fistsOfFury() then return end
+            end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=((chi>=3&energy>=40)|chi>=5)&(talent.serenity.enabled|cooldown.serenity.remains>=6)
-            if cast.able.risingSunKick(lowestMark) and ((chi >= 3 and power >= 40) or chi >= 5)
-                and (talent.serenity or cd.serenity.remain() >= 6 or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())))
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=((chi>=3&energy>=40)|chi>=5)&(talent.serenity.enabled|cooldown.serenity.remains>=6)&!azerite.swift_roundhouse.enabled
+            if cast.able.risingSunKick(lowestMark) and ((chi >= 3 and power >= 40) or chi >= 5) and (talent.serenity or cd.serenity.remain() >= 6
+                or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) and not traits.swiftRoundhouse.active()
             then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Fists of Fury
-            -- fists_of_fury,if=talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.serenity.remains>=5&energy.time_to_max>2
-            if cast.able.fistsOfFury() and talent.serenity and not equiped.drinkingHornCover()
-                and (cd.serenity.remain() >= 5 or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) and ttm > 2
+            -- fists_of_fury,if=!talent.serenity.enabled&(azerite.swift_roundhouse.rank<2|cooldown.whirling_dragon_punch.remains<13)
+            if cast.able.fistsOfFury() and ((not talent.serenity or getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))
+                and (traits.swiftRoundhouse.rank() < 2 or cd.whirlingDragonPunch.remain() < 13))
             then
-                if cast.fistsOfFury(nil,"cone",1,45) then return true end
-            end
-            -- fists_of_fury,if=talent.serenity.enabled&equipped.drinking_horn_cover&(cooldown.serenity.remains>=15|cooldown.serenity.remains<=4)&energy.time_to_max>2
-            if cast.able.fistsOfFury() and talent.serenity and equiped.drinkingHornCover() and (cd.serenity.remain() >= 15 or cd.serenity.remain() <= 4) and ttm > 2 then
-                if cast.fistsOfFury(nil,"cone",1,45) then return true end
-            end
-            -- fists_of_fury,if=!talent.serenity.enabled
-            if cast.able.fistsOfFury() and not talent.serenity then
-                if cast.fistsOfFury(nil,"cone",1,45) then return true end
+                if cast.fistsOfFury() then return end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>=5|(!talent.serenity.enabled)
-            if cast.able.risingSunKick(lowestMark) and (cd.serenity.remain() >= 5 or not talent.serenity or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) then
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.serenity.remains>=5|(!talent.serenity.enabled)&!azerite.swift_roundhouse.enabled
+            if cast.able.risingSunKick(lowestMark) and (cd.serenity.remain() >= 5 or not talent.serenity
+                or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs()))) and not traits.swiftRoundhouse.active()
+            then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Blackout Kick
-            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&chi.max-chi>=1
-            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and chiMax - chi >= 1 then
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=cooldown.fists_of_fury.remains>2&!prev_gcd.1.blackout_kick&energy.time_to_max>1&azerite.swift_roundhouse.rank>2
+            if cast.able.blackoutKick(lowestMark) and cd.fistsOfFury.remain() > 2 and not cast.last.blackoutKick() and ttm > 1 and traits.swiftRoundhouse.rank() > 2 then
                 if cast.blackoutKick(lowestMark) then return true end
+            end
+        -- Flying Serpent Kick
+            -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&energy.time_to_max>2&chi>1,interrupt=1
+            if mode.fsk == 1 and cast.able.flyingSerpentKick() and (cast.last.blackoutKick(1) and ttm > 2 and chi > 1) then
+                if cast.flyingSerpentKick() then castFSK = true; return end
+            end
+        -- Blackout Kick
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=buff.swift_roundhouse.stack<2&!prev_gcd.1.blackout_kick
+            if cast.able.blackoutKick(lowestMark) and (buff.swiftRoundhouse.stack() < 2 and not cast.last.blackoutKick(1)) then
+                if cast.blackoutKick(lowestMark) then return end
             end
         -- Crackling Jade Lightning
             -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=19&energy.time_to_max>3
             -- crackling_jade_lightning,if=equipped.the_emperors_capacitor&buff.the_emperors_capacitor.stack>=14&cooldown.serenity.remains<13&talent.serenity.enabled&energy.time_to_max>3
             if cast.able.cracklingJadeLightning() and equiped.theEmperorsCapacitor() and ttm > 3 then
-                if buff.theEmperorsCapacitor.stack() >= 19 or (buff.theEmperorsCapacitor.stack() >= 14 and cd.serenity.remain() < 13 and talent.serenity) then
+                if buff.theEmperorsCapacitor.stack() >= 19 or (buff.theEmperorsCapacitor.stack() >= 14 and cd.serenity.remain() < 13
+                    and (talent.serenity or getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())))
+                then
                     if cast.cracklingJadeLightning() then return true end
                 end
             end
         -- Blackout Kick
-            -- blackout_kick,if=!prev_gcd.1.blackout_kick
-            if cast.able.blackoutKick() and not cast.last.blackoutKick() then
-                if cast.blackoutKick() then return true end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
+            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() then
+                if cast.blackoutKick(lowestMark) then return true end
             end
         -- Chi Wave
             -- chi_wave
@@ -1050,7 +792,7 @@ local function runRotation()
             end
         -- Chi Burst
             -- chi_burst,if=energy.time_to_max>1&talent.serenity.enabled
-            if cast.able.chiBurst() and ttm > 1 and talent.serenity then
+            if cast.able.chiBurst() and ttm > 1 and (talent.serenity or getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())) then
                 if cast.chiBurst(nil,"rect",1,12) then return true end
             end
         -- Tiger Palm
@@ -1060,14 +802,14 @@ local function runRotation()
             end
         -- Chi Burst
             -- chi_burst,if=chi.max-chi>=3&energy.time_to_max>1&!talent.serenity.enabled
-            if cast.able.chiBurst() and ttm > 1 and not talent.serenity then
+            if cast.able.chiBurst() and chiMax - chi >= 3 and ttm > 1 and not talent.serenity then
                 if cast.chiBurst(nil,"rect",1,12) then return true end
             end
         end -- End Action List - Single Target
     -- Action List - AoE
         function actionList_AoE()
         -- Call Action List - Cooldown
-            if actionList_Cooldown() then return true end
+            if actionList_Cooldowns() then return true end
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm&chi<=1&(cooldown.rising_sun_kick.remains=0|(talent.fist_of_the_white_tiger.enabled&cooldown.fist_of_the_white_tiger.remains=0)|energy<50)
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and getDistance("target") < 5
@@ -1105,12 +847,9 @@ local function runRotation()
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=cooldown.whirling_dragon_punch.remains>=gcd&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
-            if cast.able.risingSunKick() and cd.whirlingDragonPunch.remain() <= gcd and not cast.last.risingSunKick() and cd.fistsOfFury.remain() > gcd then
-                for i = 1, #enemies.yards5 do
-                    thisUnit = enemies.yards5[i]
-                    if cast.risingSunKick(thisUnit) then return true end
-                end
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<gcd)&!prev_gcd.1.rising_sun_kick&cooldown.fists_of_fury.remains>gcd
+            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < gcd) and not cast.last.risingSunKick() and cd.fistsOfFury.remain() > gcd then
+                if cast.risingSunKick(lowestMark) then return true end
             end
         -- Chi Burst
             -- chi_burst,if=chi<=3&(cooldown.rising_sun_kick.remains>=5|cooldown.whirling_dragon_punch.remains>=5)&energy.time_to_max>1
@@ -1128,8 +867,10 @@ local function runRotation()
             then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
-            -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.1.spinning_crane_kick
-            if cast.able.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not cast.last.spinningCraneKick() then
+            -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.1.spinning_crane_kick&cooldown.fists_of_fury.remains>gcd
+            if cast.able.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
+                and not cast.last.spinningCraneKick() and cd.fistsOfFury.remain() > gcd
+            then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Blackout Kick
@@ -1175,22 +916,26 @@ local function runRotation()
             if cast.able.chiWave() then
                 if cast.chiWave(nil,"aoe") then return true end
             end
+        -- Blackout Kick
+            if cast.able.blackoutKick(lowestMark) and buff.blackoutKick.exists() then
+                if cast.blackoutKick(lowestMark) then return end
+            end
         end -- End Action List - AoE
     -- Action List - Storm, Earth, and Fire
         function actionList_StormEarthAndFire()
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
         -- Tiger Palm
-                -- tiger_palm,target_if=debuff.mark_of_the_crane.down,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1
+                -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1
                 if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and power == powerMax and chi < 1 then
                     if cast.tigerPalm(lowestMark) then return true end
                 end
         -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
-                if actionList_Cooldown() then return true end
+                if actionList_Cooldowns() then return true end
                 if getDistance("target") < 5 then
         -- Storm, Earth, and Fire
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd) then
+                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and not talent.serenity and br.timer:useTimer("delaySEF1", gcd) then
                         if cast.stormEarthAndFire() then return true end
                     end
                 end
@@ -1206,13 +951,59 @@ local function runRotation()
                 end
             end
         end -- End SEF - Action List
+    -- Action List - Serenity Opener
+        function actionList_SerenityOpener()
+        -- Fist of the White Tiger
+            -- fist_of_the_white_tiger,if=buff.serenity.down
+            if cast.able.fistOfTheWhiteTiger() and (not buff.serenity.exists()) then
+                if cast.fistOfTheWhiteTiger() then return end
+            end
+        -- Tiger Palm
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&buff.serenity.down&chi<4
+            if cast.able.tigerPalm() and (not cast.last.tigerPalm(1) and not buff.serenity.exists() and chi < 4) then
+                if cast.tigerPalm() then return end
+            end
+        -- Call Action List - Cooldowns
+            -- call_action_list,name=cd,if=buff.serenity.down
+            if not buff.serenity.exists() then
+                if actionList_Cooldowns() then return end
+            end
+        -- Call Action List - Serenity
+            -- call_action_list,name=serenity,if=buff.bloodlust.down
+            if not hasBloodLust() then
+                if actionList_Serenity() then return end
+            end
+        -- Serenity
+            -- serenity
+            if cast.able.serenity() and (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) then
+                if cast.serenity() then return end
+            end
+        -- Rising Sun Kick
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
+                if cast.risingSunKick(lowestMark) then return end
+            end
+        -- Fists of Fury
+            -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
+            if cast.able.fistsOfFury() and (cast.last.risingSunKick(1) and cast.last.serenity(2)) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return end
+            end
+            -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.blackout_kick
+            if cast.able.fistsOfFury() and (cast.last.risingSunKick(1) and cast.last.blackoutKick(2)) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return end
+            end
+        -- Blackout Kick
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
+            if cast.able.blackoutKick(lowestMark) and (not cast.last.blackoutKick(1) and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
+            if cast.able.blackoutKick(lowestMark) and (not cast.last.blackoutKick(1)) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
+        end -- End Action List - Serenity Opener
     -- Action List - Serenity
         function actionList_Serenity()
-        -- Fist of the White Tiger
-            -- fist_of_the_white_tiger,if=buff.bloodlust.up&!buff.serenity.up
-            if cast.able.fistOfTheWhiteTiger() and hasBloodLust() and not buff.serenity.exists() then
-                if cast.fistOfTheWhiteTiger() then return true end
-            end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
             if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and not cast.last.energizingElixir() and power == powerMax and chi < 1 and not buff.serenity.exists() then
@@ -1220,43 +1011,45 @@ local function runRotation()
             end
         -- Call Action List - Cooldowns
             -- call_action_list,name=cd
-            if actionList_Cooldown() then return true end
+            if actionList_Cooldowns() then return true end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=talent.rushing_jade_wind.enabled&!prev_gcd.1.rushing_jade_wind&buff.rushing_jade_wind.down
             if cast.able.rushingJadeWind() and talent.rushingJadeWind and not cast.last.rushingJadeWind() and not buff.rushingJadeWind.exists() then
                 if cast.rushingJadeWind() then return true end
             end
         -- Serenity
-            -- serenity
+            -- serenity,if=cooldown.rising_sun_kick.remains<=2&cooldown.fists_of_fury.remains<=4
             if cast.able.serenity() and (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs()))
                 and getDistance("target") < 5 and GetTime() >= SerenityTest + gcd
+                and cd.risingSunKick.remain() <= 2 and cd.fistsOfFury.remain() <= 4
             then
                 if cast.serenity() then SerenityTest = GetTime(); return true end
             end
-        -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-            if cast.able.risingSunKick(lowestMark) then
-                if cast.risingSunKick(lowestMark) then return true end
-            end
         -- Fists of Fury
             -- fists_of_fury,if=prev_gcd.1.rising_sun_kick&prev_gcd.2.serenity
-            if cast.able.fistsOfFury() and cast.last.risingSunKick() and cast.last.serenity(2) then
-                if cast.fistsOfFury(nil,"cone",1,45) then return true end
+            -- fists_of_fury,if=buff.serenity.remains<=1.05
+            if cast.able.fistsOfFury() and ((cast.last.risingSunKick(1) and cast.last.serenity(2)) or buff.serenity.remain() <= 1.05) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return end
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
             if cast.able.risingSunKick(lowestMark) then
                 if cast.risingSunKick(lowestMark) then return true end
+            end
+        -- Fist of the White Tiger
+            -- fist_of_the_white_tiger,if=prev_gcd.1.blackout_kick&prev_gcd.2.rising_sun_kick&chi.max-chi>2
+            if cast.able.fistOfTheWhiteTiger() and (cast.last.blackoutKick(1) and cast.last.risingSunKick(2) and chiMax - chi > 2) then
+                if cast.fistOfTheWhiteTiger() then return end
+            end
+        -- Tiger Palm
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=prev_gcd.1.blackout_kick&prev_gcd.2.rising_sun_kick&chi.max-chi>1
+            if cast.able.tigerPalm(lowestMark) and (cast.last.blackoutKick(1) and cast.last.risingSunKick(2) and chiMax - chi > 1) then
+                if cast.tigerPalm(lowestMark) then return end
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
-            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2 then
+            if cast.able.blackoutKick(lowestMark) and (not cast.last.blackoutKick(1) and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2) then
                 if cast.blackoutKick(lowestMark) then return end
-            end
-        -- Fists of Fury
-            -- fists_of_fury,if=((!equipped.drinking_horn_cover|buff.bloodlust.up|buff.serenity.remains<1)&(cooldown.rising_sun_kick.remains>1|active_enemies>1)),interrupt=1
-            if cast.able.fistsOfFury() and ((not equiped.drinkingHornCover() or hasBloodLust() or buff.serenity.remain() < 1) and (cd.risingSunKick.remain() > 1 or #enemies.yards8 > 1)) then
-                if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=active_enemies>=3&!prev_gcd.spinning_crane_kick
@@ -1264,8 +1057,8 @@ local function runRotation()
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies>=3
-            if cast.able.risingSunKick(lowestMark) and #enemies.yards5 >= 3 then
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Spinning Crane Kick
@@ -1278,35 +1071,110 @@ local function runRotation()
             if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() then
                 if cast.blackoutKick(lowestMark) then return true end
             end
+        end -- End Action List - Serenity
+    -- Action List - Serenity Opener (Swift Roundhouse)
+        function actionList_SerenityOpenerSR()
+        -- Fist of the White Tiger
+            -- fist_of_the_white_tiger,if=buff.serenity.down
+            if cast.able.fistOfTheWhiteTiger() and (not buff.serenity.exists()) then
+                if cast.fistOfTheWhiteTiger() then return end
+            end
+        -- Tiger Palm
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=buff.serenity.down&chi<4
+            if cast.able.tigerPalm() and (not buff.serenity.exists() and chi < 4) then
+                if cast.tigerPalm() then return end
+            end
+        -- Call Action List - Cooldowns
+            -- call_action_list,name=cd,if=buff.serenity.down
+            if not buff.serenity.exists() then
+                if actionList_Cooldowns() then return end
+            end
+        -- Call Action List - Serenity
+            -- call_action_list,name=serenity,if=buff.bloodlust.down
+            if not hasBloodLust() then
+                if actionList_Serenity() then return end
+            end
+        -- Serenity
+            -- serenity
+            if cast.able.serenity() and (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) then
+                if cast.serenity() then return end
+            end
+        -- Rising Sun Kick
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
+                if cast.risingSunKick(lowestMark) then return end
+            end
+        -- Fists of Fury
+            -- fists_of_fury,if=buff.serenity.remains<1
+            if cast.able.fistsOfFury() and (buff.serenity.remain() < 1) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return end
+            end
+        -- Blackout Kick
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
+            if cast.able.blackoutKick(lowestMark) and (not cast.last.blackoutKick(1) and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.blackoutKick(lowestMark) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
         end
+    -- Action List - Serenity (Swift Roundhouse)
+        function actionList_SerenitySR()
+        -- Tiger Palm
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&!prev_gcd.1.energizing_elixir&energy=energy.max&chi<1&!buff.serenity.up
+            if cast.able.tigerPalm(lowestMark) and (not cast.last.tigerPalm(1) and not cast.last.energizingElixir(1) and energy == energyMax and chi < 1 and not buff.serenity.exists()) then
+                if cast.tigerPalm(lowestMark) then return end
+            end
+        -- Call Action List - Cooldowns
+            -- call_action_list,name=cd
+            if actionList_Cooldowns() then return end
+        -- Call Action List - Serenity
+            -- serenity,if=cooldown.rising_sun_kick.remains<=2
+            if cast.able.serenity() and (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) and (cd.risingSunKick.remain() <= 2) then
+                if cast.serenity() then return end
+            end
+        -- Fists of Fury
+            -- fists_of_fury,if=buff.serenity.remains<=1.05
+            if cast.able.fistsOfFury() and (buff.serenity.remain() <= 1.05) then
+                if cast.fistsOfFury(nil,"cone",1,45) then return end
+            end
+        -- Rising Sun Kick
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
+                if cast.risingSunKick() then return end
+            end
+        -- Blackout Kick
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&cooldown.rising_sun_kick.remains>=2&cooldown.fists_of_fury.remains>=2
+            if cast.able.blackoutKick(lowestMark) and (not cast.last.blackoutKick(1) and cd.risingSunKick.remain() >= 2 and cd.fistsOfFury.remain() >= 2) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.blackoutKick(lowestMark) then
+                if cast.blackoutKick(lowestMark) then return end
+            end
+        end -- End Action List - Serenity (Swift Roundhouse)
     -- Action List - Pre-Combat
         function actionList_PreCombat()
             if not inCombat then
         -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
-                if isChecked("Flask / Crystal") then
-                    if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",188033) then
-                        useItem(br.player.flask.wod.agilityBig)
-                        return true
-                    end
-                    if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
-                            useItem(118922)
-                            return true
-                        end
-                    end
+                if getOptionValue("Flask/Crystal") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and use.able.flaskOfTheSeventhDemon() then
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.flaskOfTheSeventhDemon() then return true end
                 end
-        -- Food
-                -- food,type=salty_squid_roll
-        -- Snapshot Stats
-                -- snapshot_stats
-                if baseAgility == 0 then
-                    baseAgility = UnitStat("player", 2)
+                if getOptionValue("Flask/Crystal") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() and not buff.flaskOfTheSeventhDemon.exists() then
+                    -- if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                    if use.repurposedFelFocuser() then return true end
                 end
-                if baseMultistrike == 0 then
-                    -- baseMultistrike = GetMultistrike()
+                if getOptionValue("Flask/Crystal") == 3 and not buff.whispersOfInsanity.exists() and use.able.oraliusWhisperingCrystal() then
+                    if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                    if buff.felFocus.exists() then buff.felFocus.cancel() end
+                    if use.oraliusWhisperingCrystal() then return true end
                 end
-                if isValidUnit("target") and getDistance("target") < 5 then
+                if isValidUnit("target") and getDistance("target") < 5 and opener then
         -- Chi Burst
                 -- chi_burst
                     if cast.chiBurst(nil,"rect",1,12) then return true end
@@ -1322,6 +1190,8 @@ local function runRotation()
                     end
                 end
             end -- End No Combat Check
+        -- Opener
+            if actionList_Opener() then return true end
         end --End Action List - Pre-Combat
 ---------------------
 --- Begin Profile ---
@@ -1340,28 +1210,15 @@ local function runRotation()
 --- Defensive Rotation ---
 --------------------------
             if actionList_Defensive() then return true end
-------------------------------
+---------------------------
 --- Pre-Combat Rotation ---
-------------------------------
-            if opener == true or not isChecked("Opener") or not isBoss("target") then
-                if actionList_PreCombat() then return true end
-            end
------------------------
---- Opener Rotation ---
------------------------
-            if opener == false and isChecked("Opener") and isBoss("target") then
-                -- if isChecked("Pre-Pull Timer") and inCombat then
-                --     opener = true;
-                --     return
-                -- end
-                StartAttack()
-                if actionList_Opener() then return true end
-            end
+---------------------------
+            if actionList_PreCombat() then return true end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
         -- FIGHT!
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and (opener == true or not isChecked("Opener") or not isBoss("target")) and not isCastingSpell(spell.spinningCraneKick) then
+            if inCombat and profileStop==false and isValidUnit(units.dyn5) and opener and not isCastingSpell(spell.spinningCraneKick) then
     ------------------
     --- Interrupts ---
     ------------------
@@ -1384,8 +1241,8 @@ local function runRotation()
                     if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and (not talent.goodKarma and php < 50) then
                         if cast.touchOfKarma() then return true end
                     end
-                    -- touch_of_karma,interval=90,pct_health=1.0
-                    if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and php >= 100 then
+                    -- touch_of_karma,interval=90,pct_health=1.0,if=talent.good_karma.enabled&buff.bloodlust.down&time>1
+                    if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and php >= 100 and talent.goodKarma and not hasBloodLust() and combatTime > 1 then
                         if cast.touchOfKarma() then return true end
                     end
         -- Potion
@@ -1405,35 +1262,52 @@ local function runRotation()
                     if useCDs() and isChecked("Touch of Death") and ttd > 9 and not cast.last.touchOfDeath() then
                         if cast.touchOfDeath() then SerenityTest = GetTime(); return true end
                     end
+                    if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) then
+        -- Call Action List - Serenity (Swift Roundhouse)
+                        -- call_action_list,name=serenitySR,if=((talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up)&azerite.swift_roundhouse.enabled&time>30
+                        if ((talent.serenity and cd.serenity.remain() <= 0) or buff.serenity.exists()) and traits.swiftRoundhouse.active() and combatTime > 30 then
+                            if actionList_SerenitySR() then return end
+                        end
         -- Call Action List - Serenity
-                    -- call_action_list,name=serenity,if=(talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up
-                    if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs()))
-                        and ((talent.serenity and cd.serenity.remain() <= 0) or buff.serenity.exists())
-                    then
-                        if actionList_Serenity() then return true end
+                        -- call_action_list,name=serenity,if=((!azerite.swift_roundhouse.enabled&talent.serenity.enabled&cooldown.serenity.remains<=0)|buff.serenity.up)&time>30
+                        if ((not traits.swiftRoundhouse.active() and talent.serenity and cd.serenity.remain() <= 0) or buff.serenity.exists()) and combatTime > 30 then
+                            if actionList_Serenity() then return end
+                        end
+        -- Call Action List -Serenity Opener (Swift Roundhouse)
+                        -- call_action_list,name=serenity_openerSR,if=(talent.serenity.enabled&cooldown.serenity.remains<=0|buff.serenity.up)&time<30&azerite.swift_roundhouse.enabled
+                        if (talent.serenity and cd.serenity.remain() <= 0 or buff.serenity.exists()) and combatTime < 30 and traits.swiftRoundhouse.active() then
+                            if actionList_SerenityOpenerSR() then return end
+                        end
+        -- Call Action List - Serenity Opener
+                        -- call_action_list,name=serenity_opener,if=(!azerite.swift_roundhouse.enabled&talent.serenity.enabled&cooldown.serenity.remains<=0|buff.serenity.up)&time<30
+                        if (not traits.swiftRoundhouse.active() and talent.serenity and cd.serenity.remain() <= 0 or buff.serenity.exists()) and combatTime < 30 then
+                            if actionList_SerenityOpener() then return end
+                        end
                     end
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
         -- Call Action List - Storm, Earth, and Fire
-                    -- call_action_list,name=sef,if=!talent.serenity.enabled&(buff.storm_earth_and_fire.up|cooldown.storm_earth_and_fire.charges=2)
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity and (buff.stormEarthAndFire.exists() or charges.stormEarthAndFire.count() == 2) then
-                        if actionList_StormEarthAndFire() then return true end
-                    end
-                    -- call_action_list,name=sef,if=(!talent.serenity.enabled&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=25|cooldown.touch_of_death.remains>112
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and ((not talent.serenity and cd.fistsOfFury.remain() <= 12 and chi >= 3 and cd.risingSunKick.remain() <= 1)
-                        or ttd <= 25 or cd.touchOfDeath.remain() > 112)
-                    then
-                        if actionList_StormEarthAndFire() then return true end
-                    end
-                    -- call_action_list,name=sef,if=(!talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15|cooldown.touch_of_death.remains>112&cooldown.storm_earth_and_fire.charges=1
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and ((not talent.serenity and not equiped.drinkingHornCover and cd.fistsOfFury.remain() <= 6 and chi >= 3
-                        and cd.risingSunKick.remain() <= 1) or ttd <= 15 or cd.touchOfDeath.remain() > 112) and charges.stormEarthAndFire.count() == 1
-                    then
-                        if actionList_StormEarthAndFire() then return true end
-                    end
-                    -- call_action_list,name=sef,if=(!talent.serenity.enabled&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=25|cooldown.touch_of_death.remains>112&cooldown.storm_earth_and_fire.charges=1
-                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and ((not talent.serenity and cd.fistsOfFury.remain() <= 12 and chi >= 3 and cd.risingSunKick.remain() <= 1)
-                        or ttd <= 25 or cd.touchOfDeath.remain() > 112 ) and charges.stormEarthAndFire.count() == 1
-                    then
-                        if actionList_StormEarthAndFire() then return true end
+                        -- call_action_list,name=sef,if=!talent.serenity.enabled&(buff.storm_earth_and_fire.up|cooldown.storm_earth_and_fire.charges=2)
+                        if not talent.serenity and (buff.stormEarthAndFire.exists() or charges.stormEarthAndFire.count() == 2) then
+                            if actionList_StormEarthAndFire() then return true end
+                        end
+                        -- call_action_list,name=sef,if=(!talent.serenity.enabled&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=25|cooldown.touch_of_death.remains>112
+                        if ((not talent.serenity and cd.fistsOfFury.remain() <= 12 and chi >= 3 and cd.risingSunKick.remain() <= 1)
+                            or ttd <= 25 or cd.touchOfDeath.remain() > 112)
+                        then
+                            if actionList_StormEarthAndFire() then return true end
+                        end
+                        -- call_action_list,name=sef,if=(!talent.serenity.enabled&!equipped.drinking_horn_cover&cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15|cooldown.touch_of_death.remains>112&cooldown.storm_earth_and_fire.charges=1
+                        if ((not talent.serenity and not equiped.drinkingHornCover and cd.fistsOfFury.remain() <= 6 and chi >= 3
+                            and cd.risingSunKick.remain() <= 1) or ttd <= 15 or cd.touchOfDeath.remain() > 112) and charges.stormEarthAndFire.count() == 1
+                        then
+                            if actionList_StormEarthAndFire() then return true end
+                        end
+                        -- call_action_list,name=sef,if=(!talent.serenity.enabled&cooldown.fists_of_fury.remains<=12&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=25|cooldown.touch_of_death.remains>112&cooldown.storm_earth_and_fire.charges=1
+                        if ((not talent.serenity and cd.fistsOfFury.remain() <= 12 and chi >= 3 and cd.risingSunKick.remain() <= 1)
+                            or ttd <= 25 or cd.touchOfDeath.remain() > 112 ) and charges.stormEarthAndFire.count() == 1
+                        then
+                            if actionList_StormEarthAndFire() then return true end
+                        end
                     end
         -- Call Action List - AoE
                     -- call_action_list,name=aoe,if=active_enemies>3
@@ -1441,134 +1315,137 @@ local function runRotation()
                         if actionList_AoE() then return end
                     end
         -- Call Action List - Single Target
-                    -- call_action_list,name=st
-                    -- if ((mode.rotation == 1 and #enemies.yards8 <= 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
+                    -- call_action_list,name=st,if=active_enemies<=3
+                    if ((mode.rotation == 1 and #enemies.yards8 <= 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
                         if actionList_SingleTarget() then return true end
-                    -- end
-        -- Commenting this out for now, sub-optimal Chi usage
-        -- -- Blackout Kick
-        --             -- 1 Chi and Last Spell == Tiger Palm catch
-        --             if chi == 1 and not cast.last.blackoutKick() then
-        --                 if cast.blackoutKick() then return true end
-        --             end
-        -- -- Tiger Palm
-        --             -- Less than equal to 1 Chi and Last Spell == Blackout Kick
-        --             if (chi == 0 and not cast.last.tigerPalm()) or buff.hitCombo.stack() == 0 then
-        --                 if cast.tigerPalm() then return true end
-        --             end
-        -- -- Crackling Jade Lightning
-        --             if chi == 0 and cast.last.tigerPalm() then
-        --                 if cast.cracklingJadeLightning() then return true end
-        --             end
+                    end
                 end -- End Simulation Craft APL
     ----------------------------
     --- APL Mode: AskMrRobot ---
     ----------------------------
                 if getOptionValue("APL Mode") == 2 then
-                    if useCDs() then
-        -- Touch of Death
-                        if not debuff.touchOfDeath.exists(units.dyn5) and lastCombo ~= spell.touchOfDeath then
-                            if cast.touchOfDeath() then return true end
-                        end
-        -- Trinkets
-                        if isChecked("Trinkets") and getDistance(units.dyn5) < 5 then
-                            if canUse(13) then
-                                useItem(13)
-                            end
-                            if canUse(14) then
-                                useItem(14)
-                            end
-                        end
-        -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                        if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and getSpellCD(racial) == 0 then
-                            if castSpell("player",racial,false,false,false) then return true end
-                        end
         -- Potion
-                        if canUse(109217) and inRaid and isChecked("Potion") and useCDs() and getDistance("target") < 5  then
-                            if hasBloodLust() or ttd <= 60 then
-                                useItem(109217)
+                    if canUse(109217) and inRaid and isChecked("Potion") and useCDs() and getDistance("target") < 5  then
+                        if hasBloodLust() or ttd <= 60 then
+                            useItem(109217)
+                        end
+                    end
+        -- Racial - Blood Fury / Berserking / Arcane Torrent / Fireblood
+                    -- blood_fury
+                    -- berserking
+                    -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
+                    -- fireblood
+                    -- ancestral_call
+                    if isChecked("Racial") and cast.able.racial() then
+                        if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "MagharOrc" then
+                            if race == "LightforgedDraenei" then
+                                if cast.racial("target","ground") then return true end
+                            else
+                                if cast.racial("player") then return true end
                             end
                         end
-        --  Invoke Xuen
-                        if isChecked("Xuen") then
-                            if cast.invokeXuenTheWhiteTiger() then return true end
-                        end
-        -- Serenity
-                        -- if CooldownSecRemaining(FistsOfFury) < 6 and CooldownSecRemaining(StrikeOfTheWindlord) < 5 and CooldownSecRemaining(WhirlingDragonPunch) < 5
-                        if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) then
-                            if cd.fistsOfFury.remain() < 6 and cd.strikeOfTheWindlord.remain() < 5 and cd.whirlingDragonPunch.remain() < 5 then
-                                if cast.serenity() then return true end
-                            end
-                        end
-        -- Energizing Elixir
-                        -- if AlternatePower = 0 and Power < MaxPower and not HasBuff(Serenity)
-                        if (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) and chi == 0 and power < powerMax and not buff.serenity.exists() then
-                            if cast.energizingElixir() then return true end
-                        end
-        -- Storm, Earth, and Fire
-                        -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
-                        if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
-                            if br.timer:useTimer("delaySEF2", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury.remain() < 11 and cd.whirlingDragonPunch.remain() < 14 and cd.strikeOfTheWindlord.remain() < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then return true end
-                            end
-                        end
-                    end -- End Cooldown Check
-                    if useAoE() then
-        -- Storm, Earth, and Fire
-                        -- if not HasBuff(StormEarthAndFire) and CooldownSecRemaining(FistsOfFury) < 11 and CooldownSecRemaining(WhirlingDragonPunch) < 14 and CooldownSecRemaining(StrikeOfTheWindlord) < 14
-                        if (mode.sef == 2 or (mode.sef == 1 and useCDs())) then
-                            if br.timer:useTimer("delaySEF3", gcd) and not buff.stormEarthAndFire.exists() and cd.fistsOfFury.remain() < 11 and cd.whirlingDragonPunch.remain() < 14 and cd.strikeOfTheWindlord.remain() < 14 and getDistance("target") < 5 then
-                                if cast.stormEarthAndFire() then return true end
-                            end
-                        end
-        -- Spinning Crane Kick
-                        if lastCombo ~= spell.spinningCraneKick then
-                            if cast.spinningCraneKick() then return true end
-                        end
                     end
-        -- Fists of Fury
-                    if lastCombo ~= spell.fistsOfFury then
-                        if cast.fistsOfFury() then return true end
-                    end
-        -- Whirling Dragon Punch
-                    if isChecked("Whirling Dragon Punch") and getDistance(units.dyn5) < 5 and lastCombo ~= spell.whirlingDragonPunch then
-                        if cast.whirlingDragonPunch() then return true end
-                    end
-        -- Fist of the White Tiger
-                    if ((talent.serenity and cd.serenity.remain() > 20) or (getOptionValue("Serenity") == 3 or (getOptionValue("Serenity") == 2 and not useCDs())) or not talent.serenity) and getDistance(units.dyn5) < 5 then
-                        if cast.fistOfTheWhiteTiger() then return true end
-                    end
-        -- Tiger Palm
-                    -- if not WasLastCast(TigerPalm) and AlternatePower < 4 and Power > (MaxPower*0.9)
-                    if lastCombo ~= spell.tigerPalm and chi < 4 and power > (powerMax * 0.9) then
-                        if cast.tigerPalm() then return true end
-                    end
-        -- Rising Sun Kick
-                    if lastCombo ~= spell.risingSunKick then
-                        if cast.risingSunKick() then return true end
+        -- Trinkets
+                    if isChecked("Trinkets") and getDistance(units.dyn5) < 5 and (buff.stormEarthAndFire.exists() or buff.serenity.exists() or not isBoss()) then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
                     end
         -- Rushing Jade Wind
-                    -- if AlternatePower > 1 or HasBuff(Serenity)
-                    if (chi > 1 or buff.serenity.exists()) and lastCombo ~= spell.rushingJadeWind then
-                        if cast.rushingJadeWind() then return true end
+                    -- if TargetsInRadius(RushingJadeWind) < 3
+                    if ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 2 and #enemies.yards8 == 0) or mode.rotation == 3) and buff.rushingJadeWind.exists() then
+                        if buff.rushingJadeWind.cancel() then return true end
+                    end
+        -- Touch of Karma
+                    -- if FightDurationSec - FightSecRemain > 10
+                    if cast.able.touchOfKarma() and combatTime > 10 then
+                        if cast.touchOfKarma() then return true end
+                    end
+        --  Invoke Xuen
+                    if isChecked("Xuen") and cast.able.invokeXuenTheWhiteTiger() and useCDs() then
+                        if cast.invokeXuenTheWhiteTiger() then return true end
+                    end
+        -- Rushing Jade Wind
+                    -- if TargetsInRadius(RushingJadeWind) >= 3
+                    if cast.able.rushingJadeWind("player") and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and not buff.rushingJadeWind.exists() then
+                        if cast.rushingJadeWind("player") then return true end
+                    end
+        -- Touch of Death
+                    -- TargetSecUnitDeath
+                    if useCDs() and isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 8 then
+                        if cast.touchOfDeath() then return true end
+                    end
+        -- Serenity
+                    if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) and cast.able.serenity() and useCDs() and talent.serernity then
+                        if cast.serenity() then return true end
+                    end
+        -- Storm, Earth, and Fire
+                    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire() and useCDs() and not talent.serenity then
+                        if cast.stormEarthAndFire() then return true end
+                    end
+        -- Whirling Dragon Punch
+                    if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
+                        Print("Casting Whirling Dragon Punch")
+                        if cast.whirlingDragonPunch("player","aoe") then return true end
+                    end
+        -- Spinning Crane Kick
+                    -- if not WasLastCast(SpinningCraneKick) and HasBuff(Serenity) and TargetsInRadius(SpinningCraneKick) >= 3
+                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                        Print("Casting Spinning Crane Kick")
+                        if cast.spinningCraneKick(nil,"aoe") then return true end
+                    end
+        -- Rising Sun Kick
+                    if cast.able.risingSunKick() then
+                        if cast.risingSunKick() then return true end
+                    end
+        -- Fists of Fury
+                    if cast.able.fistsOfFury() then
+                        if cast.fistsOfFury(nil,"cone",1,45) then return true end
+                    end
+        -- Spinning Crane Kick
+                    -- if not WasLastCast(SpinningCraneKick) and TargetsInRadius(SpinningCraneKick) >= 3 and CooldownSecRemain(FistsOfFury) > 3
+                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cd.fistsOfFury.remain() > 3 then
+                        Print("Casting Spinning Crane Kick 2")
+                        if cast.spinningCraneKick(nil,"aoe") then return true end
+                    end
+        -- Blackout Kick
+                    -- if not WasLastCast(BlackoutKick) and HasBuff(Serenity)
+                    if cast.able.blackoutKick() and not cast.last.blackoutKick() and buff.serenity.exists() then
+                        if cast.blackoutKick() then return true end
+                    end
+                    -- if not WasLastCast(BlackoutKick) and (AlternatePower >= 2 or HasBuff(ComboBreaker))
+                    if cast.able.blackoutKick() and not cast.last.blackoutKick() and (chi >= 2 or buff.blackoutKick.exists()) then
+                        if cast.blackoutKick() then return true end
+                    end
+        -- Spinning Crane Kick
+                    -- if not WasLastCast(SpinningCraneKick) and HasBuff(Serenity)
+                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() then
+                        if cast.spinningCraneKick(nil,"aoe") then return true end
+                    end
+        -- Fist of the White Tiger
+                    -- if AlternatePowerToMax >= 3
+                    if cast.able.fistOfTheWhiteTiger() and chiDeficit >= 3 then
+                        if cast.fistOfTheWhiteTiger() then return true end
                     end
         -- Chi Burst
-                    if ttd > cast.time.chiBurst() then
+                    if cast.able.chiBurst() and ((mode.rotation == 1 and enemies.yards12r > 2) or (mode.rotation == 2 and enemies.yards12r > 0)) then
                         if cast.chiBurst(nil,"rect",1,12) then return true end
                     end
         -- Chi Wave
-                    if lastCombo ~= spell.chiWave then
-                        if cast.chiWave() then return true end
-                    end
-        -- Blackout Kick
-                    -- if not WasLastCast(BlackoutKick) and (HasBuff(ComboBreaker) or AlternatePower > 1 or HasBuff(Serenity))
-                    if lastCombo ~= spell.blackoutKick  and (buff.blackoutKick.exists() or chi > 1 or buff.serenity.exists()) then
-                        if cast.blackoutKick() then return true end
+                    if cast.able.chiWave() then
+                        if cast.chiWave(nil,"aoe") then return true end
                     end
         -- Tiger Palm
-                    -- if not WasLastCast(TigerPalm) or AlternatePower < 2
-                    if lastCombo ~= spell.tigerPalm or chi < 2 then
+                    -- if not WasLastCast(TigerPalm)
+                    if cast.able.tigerPalm() and not cast.last.tigerPalm() then
                         if cast.tigerPalm() then return true end
+                    end
+        -- Energizing Elixir
+                    if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs())) then
+                        if cast.energizingElixir() then return true end
                     end
                 end -- End AskMrRobot APL
             end -- End Combat Check

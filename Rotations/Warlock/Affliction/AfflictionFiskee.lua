@@ -154,6 +154,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
+        local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -187,18 +188,18 @@ local function runRotation()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local thp                                           = getHP("target")
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
+        local units                                         = br.player.units
 
-        if units == nil then units = {} end
-        units.dyn40 = br.player.units(40)
+        units.get(40)
 
-        if enemies == nil then enemies = {} end
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        enemies.get(8,"target")
+        enemies.get(10,"target")
+        enemies.get(30)
+        enemies.get(40)
 
 		    if leftCombat == nil then leftCombat = GetTime() end
 	      if profileStop == nil or not inCombat then profileStop = false end
@@ -292,7 +293,7 @@ local function runRotation()
               end
             end
             enemies.yards10t = getEnemies(thisUnit, 10)
-            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and ttd(thisUnit) > cast.time.seedOfCorruption()+1 then
+            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
               seedHit = 0
               for q = 1, #enemies.yards10t do
                 local seedAoEUnit = enemies.yards10t[q]
@@ -429,12 +430,13 @@ local function runRotation()
             if cast.siphonLife() then return end
           end
           -- actions.fillers+=/corruption,if=buff.movement.up&!prev_gcd.1.corruption&!talent.absolute_corruption.enabled
-          if moving and not cast.last.corruption() and not talent.absoluteCorruption then
+          if moving and not cast.last.corruption() and (not talent.absoluteCorruption or not debuff.corruption.exists()) then
             if cast.corruption() then return end
           end
           -- actions.fillers+=/drain_life,if=(buff.inevitable_demise.stack=100|buff.inevitable_demise.stack>60&target.time_to_die<=10)&(target.health.pct>=20|!talent.drain_soul.enabled)
-          --TO-DO add the azerite stuff inevitable_demise is azerite buff
-
+          if not moving and not cast.last.drainLife() and (buff.inevitableDemise.stack() == 100 or (useCDs() and buff.inevitableDemise.stack() > 60 and ttd("target") <= 10)) and (thp >= 20 or not talent.drainSoul) and ttd("target") > 5 then
+            if cast.drainLife() then return end
+          end
           -- actions.fillers+=/drain_soul,interrupt_global=1,chain=1
           if not moving and not cast.current.drainSoul() then
             if cast.drainSoul() then
@@ -506,7 +508,7 @@ local function runRotation()
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and ttd(thisUnit) > 10 then
+              if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
                 if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
                   if cast.agony(thisUnit) then return end
                 end
@@ -592,7 +594,7 @@ local function runRotation()
           if seedTargetsHit < 3 + writheInAgonyValue then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 then
+                if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
                   if cast.corruption(thisUnit) then return end
                 end
             end
@@ -794,7 +796,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if isChecked("Pet Management") and UnitIsUnit("target",units.dyn40) and not UnitIsUnit("pettarget",units.dyn40) then
+                    if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
                     -- rotation

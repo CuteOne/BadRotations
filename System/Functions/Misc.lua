@@ -45,9 +45,6 @@ function getFallTime()
 	end
 	return fallTime
 end
-
-
-
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
 	if Unit2 == nil then
@@ -72,9 +69,29 @@ function getLineOfSight(Unit1,Unit2)
 			return false
 		end
 	else
-		return true
+		return false
 	end
 end
+-- function getLineOfSight(Unit1,Unit2)
+-- 	if Unit2 == nil then
+-- 		if Unit1 == "player" then
+-- 			Unit1 = "target"
+-- 		end
+-- 		Unit2 = "player"
+-- 	end
+-- 	local skipLoSTable = br.lists.los
+-- 	local obj1ID = GetObjectID(Unit1)
+-- 	local obj2ID = GetObjectID(Unit2)
+-- 	if skipLoSTable[obj1ID] ~= nil or skipLoSTable[obj2ID] ~= nil then return true end
+-- 	if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1)))
+-- 		and (UnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2)))
+-- 	then
+-- 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
+-- 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+-- 		return TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil
+-- 	end
+-- 	return false
+-- end
 -- if getGround("target"[,"target"]) then
 function getGround(Unit)
 	if GetObjectExists(Unit) and GetUnitIsVisible(Unit) then
@@ -228,19 +245,12 @@ function isLongTimeCCed(Unit)
 end
 -- if isLooting() then
 function isLooting()
-	if GetNumLootItems() > 0 then
-		return true
-	else
-		return false
-	end
+	return GetNumLootItems() > 0
 end
 -- if not isMoving("target") then
 function isMoving(Unit)
-	if GetUnitSpeed(Unit) > 0 then
-		return true
-	else
-		return false
-	end
+	if Unit == nil then return false end
+	return GetUnitSpeed(Unit) > 0
 end
 -- if IsMovingTime(5) then
 function IsMovingTime(time)
@@ -347,21 +357,22 @@ function enemyListCheck(Unit)
 	local playerObj = GetObjectWithGUID(UnitGUID("player"))
 
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
-		and getLineOfSight("player", Unit) and isSafeToAttack(Unit) and not isCritter(Unit)
-		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492)
+	 and isSafeToAttack(Unit) and not isCritter(Unit)
+		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or enemyListCheck(Unit)) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and (not hostileOnly or (hostileOnly and (UnitIsEnemy(Unit, "player") or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
+		and (not hostileOnly or (hostileOnly and (UnitReaction(Unit,"player") < 4 or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
 	then
 		local instance = IsInInstance()
-		local distance = getDistance(Unit,"player")
+		local distance = getDistance(Unit,"target") --getDistance(Unit,"player")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or (GetObjectExists("pet") and (hasThreat(Unit,"pet") or isTargeting(Unit,"pet")))--[[ or isBurnTarget(Unit) > 0--]]
+		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or isBurnTarget(Unit) > 0
 		local playerTarget = UnitIsUnit(Unit,"target")
-		return hasThreat or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
-			or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20)) or (isDummy(Unit) and getDistance(Unit,"target") < 8)
+		return hasThreat or (not instance and (playerTarget or distance < 8)) or (instance and playerTarget and (getDistance(Unit,"player") < 20 or #br.friend == 1))
+			--or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
+			--or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20))
 	end
 	return false
 end
@@ -598,7 +609,7 @@ function bossHPLimit(unit,hp)
     -- Boss Active/Health Max
     local bossHPMax = bossHPMax or 0
     local inBossFight = inBossFight or false
-    local enemyList = br.player.enemies(40)
+    local enemyList = getEnemies("player",40)
     for i = 1, #enemyList do
         local thisUnit = enemyList[i]
         if isBoss(thisUnit) then

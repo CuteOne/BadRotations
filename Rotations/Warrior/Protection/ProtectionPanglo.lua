@@ -57,7 +57,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- High Rage Revenge
             br.ui:createSpinner(section, "High Rage Revenge", 3, 1, 10, 1, "|cffFFFFFF Set to number of units to use Revenge at when above 90 Rage.")
-        br.ui:checkSectionState(section)
+			-- Taunt
+			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+		br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
@@ -157,7 +159,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
@@ -178,20 +180,21 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local racial                                        = br.player.getRacial()
-        local rage, rageDeficit                             = br.player.power.rage.amount(), br.player.power.rage.deficit()
+        local rage, powerDeficit                            = br.player.power.rage.amount(), br.player.power.rage.deficit()
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units(5))
+        local thp                                           = getHP("target")
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.rage.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(8)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(30)
+        enemies.get(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -207,7 +210,17 @@ local function runRotation()
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
             end
-        end -- End Action List - Extra
+            --Taunt
+          	if isChecked("Taunt") and inInstance then
+          		for i = 1, #enemies.yards30 do
+          			local thisUnit = enemies.yards30[i]
+          			if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+          				if cast.taunt(thisUnit) then return end
+          			end
+          		end
+          	end
+
+			end -- End Action List - Extra
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
@@ -261,7 +274,7 @@ local function runRotation()
                 if inCombat and isChecked("Victory Rush") and php <= getOptionValue("Victory Rush") then
                     if cast.victoryRush() then return end
                 end
-				
+
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts
@@ -293,10 +306,10 @@ local function runRotation()
             if useCDs() and getDistance("target") < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canTrinket(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canTrinket(14) then
                         useItem(14)
                     end
                 end
@@ -386,7 +399,7 @@ local function runRotation()
             end
         -- Demoralizing Shout
             -- demoralizing_shout,if=talent.booming_voice.enabled&buff.battle_cry.up
-            if useCDs() and isChecked("Demoralizing Shout - CD") then
+            if isChecked("Demoralizing Shout - CD") and powerDeficit >= 45 then
                 if talent.boomingVoice then
                     if cast.demoralizingShout() then return end
                 end
@@ -400,9 +413,9 @@ local function runRotation()
             end
         -- Ignore Pain
             -- ignore_pain,if=(!talent.vengeance.enabled&buff.renewed_fury.remains<=0)|(!talent.vengeance.enabled&rage.deficit>=40)|(buff.vengeance_ignore_pain.up)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage<30&!buff.revenge.react)
-            if cast.able.ignorePain() and ((buff.vengeanceIgnorePain.exists())
+            if (talent.vengeance and cast.able.ignorePain() and ((buff.vengeanceIgnorePain.exists())
                 or (talent.vengeance and not buff.vengeanceIgnorePain.exists() and not buff.vengeanceRevenge.exists() and rage < 50 and not buff.revenge.exists())
-				or (php <= 25 and power > 45))
+				or (php <= 25 and power > 45))) or (power >= 55 and not buff.ignorePain.exists())
             then
                 if cast.ignorePain() then return end
             end

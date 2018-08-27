@@ -42,6 +42,10 @@ local function createOptions()
         -- Trinkets
             br.ui:createCheckbox(section,"Trinket 1")
             br.ui:createCheckbox(section,"Trinket 2")
+        -- Blackout Switch
+            br.ui:createDropdown(section, "Black Out Combo Priority", {"|cff00FF00Tiger Palm","|cffFF0000Keg Smash"}, 1, "|cffFFFFFFBoC Priority")			
+		-- Taunt
+			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -112,7 +116,7 @@ local function runRotation()
         local combatTime        = getCombatTime()
         local debuff            = br.player.debuff
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
-        local enemies           = enemies or {}
+        local enemies           = br.player.enemies
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
         local glyph             = br.player.glyph
@@ -135,19 +139,19 @@ local function runRotation()
         local solo              = select(2,IsInInstance())=="none"
         local spell             = br.player.spell
         local talent            = br.player.talent
-        local thp               = getHP(br.player.units(5))
+        local thp               = getHP("target")
         local trinketProc       = false --br.player.hasTrinketProc()
-        local ttd               = getTTD(br.player.units(5))
+        local ttd               = getTTD
         local ttm               = br.player.power.energy.ttm()
-        local units             = units or {}
+        local units             = br.player.units
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
-        units.dyn5 = br.player.units(5)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards30 = br.player.enemies(30)
+        units.get(5)
+        enemies.get(5)
+        enemies.get(8) 
+        enemies.get(8,"target")
+        enemies.get(30)
 
 
         if opener == nil then opener = false end
@@ -165,6 +169,18 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+	-- Action List - Extras
+	local function actionList_Extras()
+		-- Taunt
+		if isChecked("Taunt") and inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+					if cast.provoke(thisUnit) then return end
+				end
+			end
+		end
+	end -- End Action List - Extras
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
@@ -246,6 +262,11 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
             return true
         else
+-----------------------
+--- Extras Rotation ---
+-----------------------
+			if actionList_Extras() then return end
+
 --------------------------
 --- Defensive Rotation ---
 --------------------------
@@ -312,13 +333,15 @@ local function runRotation()
                     if cast.rushingJadeWind() then return end
                 end
 			-- Keg Smash
-                if buff.blackoutCombo.exists() then
+                if (getOptionValue("Black Out Combo Priority") == 2 and buff.blackoutCombo.exists()) or
+					(getOptionValue("Black Out Combo Priority") == 1) then
                     if cast.kegSmash() then return end
                 end
             -- Blackout Strike
 				if cast.blackoutStrike() then return end
             -- Tiger Palm 
-                if not (cast.able.kegSmash() or cast.able.breathOfFire()) and power >= 50 then
+                if ((getOptionValue("Black Out Combo Priority") == 1 and buff.blackoutCombo.exists()) or (not cast.able.breathOfFire() and power > 70)) or 
+				(getOptionValue("Black Out Combo Priority") == 2 and not (cast.able.kegSmash() or cast.able.breathOfFire()) and power >= 50) then
                     if cast.tigerPalm() then return end
                 end
                 -- Breath of Fire

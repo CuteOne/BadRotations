@@ -1,13 +1,14 @@
 function GetObjectExists(Unit)
 	if Unit == nil then return false end
-	if FireHack then
-        if Unit == "target" or Unit == "targettarget" then
-            if not GetUnitExists(Unit) then return false end
-        end
-		return ObjectExists(Unit)
-	else
-		return false
-	end
+	-- if FireHack then
+    --     if Unit == "target" or Unit == "targettarget" then
+    --         if not GetUnitExists(Unit) then return false end
+    --     end
+	-- 	return ObjectExists(Unit)
+	-- else
+	-- 	return false
+	-- end
+	return UnitExists(Unit)
 end
 function GetUnit(Unit)
 	if Unit ~= nil and GetObjectExists(Unit) then
@@ -129,7 +130,8 @@ function getSpellUnit(spellCast,aoe)
 	local spellType = getSpellType(spellName)
 	if maxRange == nil or maxRange == 0 then maxRange = 5 end
 	if aoe == nil then aoe = false end
-	local unit = br.player.units(maxRange,aoe)
+	local facing = not aoe
+	local unit = dynamicTarget(maxRange,facing)
     if spellType == "Helpful" then
         thisUnit = "player"
     elseif spellType == "Harmful" or spellType == "Both" then
@@ -306,16 +308,32 @@ end
 function isCritter(Unit) -- From LibBabble
 	if Unit == nil then Unit = "target" end
 	local unitType = UnitCreatureType(Unit)
-	return unitType == "Critter"
-		or unitType == "Kleintier"
-		or unitType == "Bestiole"
-		or unitType == "동물"
-		or unitType == "Alma"
-		or unitType == "Bicho"
-		or unitType == "Animale"
-		or unitType == "Существо"
-		or unitType == "小动物"
-		or unitType == "小動物"
+	local types = {
+		"Critter",
+		"Kleintier",
+		"Bestiole",
+		"동물",
+		"Alma",
+		"Bicho",
+		"Animale",
+		"Существо",
+		"小动物",
+		"小動物",
+		"Wild Pet",
+		"Ungezähmtes Tier",
+		"Mascotte sauvage",
+		"야생 애완동물",
+		"Mascota salvaje",
+		"Mascóta Salvaje",
+		"Mascote Selvagem",
+		"Creatura Selvaggia",
+		"野生宠物",
+		"野生寵物",
+	}
+	for i = 1, #types do
+		if unitType == types[i] then return true end
+	end
+	return false
 end
 -- Dummy Check
 function isDummy(Unit)

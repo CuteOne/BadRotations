@@ -170,57 +170,38 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local hastar                                        = hastar or GetObjectExists("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
-        local hasMouse                                      = GetObjectExists("mouseover")
-        local healPot                                       = getHealthPot()
+        local gcd                                           = br.player.gcdMax
         local heirloomNeck                                  = 122667 or 122668
         local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk
+        local moving                                        = GetUnitSpeed("player")>0
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powerMax, powerGen                     = br.player.power.rage.amount(), br.player.power.rage.max(), br.player.power.rage.regen()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local rage                                          = br.player.power.rage.amount()
-        local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local thp                                           = getHP(br.player.units(5))
-        local ttd                                           = getTTD
-        local ttm                                           = br.player.power.rage.ttm()
-        local units                                         = units or {}
+        local thp                                           = getHP("target")
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-        units.dyn8 = br.player.units(8)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards15 = br.player.enemies(15)
-        enemies.yards20 = br.player.enemies(20)
+        units.get(5)
+        units.get(8)
+        enemies.get(8)
+        enemies.get(15)
+        enemies.get(20)
 
-        if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-
-        -- ChatOverlay(round2(getDistance2("target"),2)..", "..round2(getDistance3("target"),2)..", "..round2(getDistance4("target"),2)..", "..round2(getDistance("target"),2))
 
 --------------------
 --- Action Lists ---
@@ -283,8 +264,8 @@ local function runRotation()
                     end
                 end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.racial() and php <= getOptionValue("Gift of the Naaru") and php > 0 and cd.giftOfTheNaaru.remain()==0 then
-                    if cast.giftOfTheNaaru() then return end
+                if isChecked("Gift of the Naaru") and cast.able.racial() and race == "Draenei" and php <= getOptionValue("Gift of the Naaru") and php > 0 then
+                    if cast.racial() then return end
                 end
             -- Enraged Regeneration
                 if isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and inCombat and php <= getOptionValue("Enraged Regeneration") then
@@ -296,7 +277,7 @@ local function runRotation()
                 end
             -- Rallying Cry
                 if isChecked("Rallying Cry") and cast.able.rallyingCry() and inCombat and php <= getOptionValue("Rallying Cry") then
-                    if cast.commandingShout() then return end
+                    if cast.rallyingCry() then return end
                 end
             -- Storm Bolt
                 if isChecked("Storm Bolt") and cast.able.stormBolt() and inCombat and php <= getOptionValue("Storm Bolt") then
@@ -372,8 +353,8 @@ local function runRotation()
     -- Action List - Single
         function actionList_Single()
         --Seigebreaker
-            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>28
-            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 28 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>20
+            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 20 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
                 if cast.siegebreaker() then return end
             end
         -- Rampage

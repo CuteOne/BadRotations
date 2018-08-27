@@ -1,30 +1,30 @@
 br.loader = {}
 function br.loader.loadProfiles()
     local specID = GetSpecializationInfo(GetSpecialization())
-    local self = br.loader
     wipe(br.rotations)
-    function self.rotationsDirectory()
+    local function rotationsDirectory()
 	    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
 	end
 
-	function self.classDirectories()
-	    return GetSubdirectories(self.rotationsDirectory()..'*')
+	local function classDirectories()
+	    return GetSubdirectories(rotationsDirectory()..'*')
 	end
 
-	function self.specDirectories(class)
-	    return GetSubdirectories(self.rotationsDirectory() .. class .. '\\*')
+	local function specDirectories(class)
+	    return GetSubdirectories(rotationsDirectory() .. class .. '\\*')
 	end
 
-	function self.profiles(class, spec)
-	    return GetDirectoryFiles(self.rotationsDirectory() .. class .. '\\' .. spec .. '\\*.lua')
+	local function profiles(class, spec)
+	    return GetDirectoryFiles(rotationsDirectory() .. class .. '\\' .. spec .. '\\*.lua')
 	end
+
     -- Search each Class Folder in the Rotations Folder
-    for _, class in pairs(self.classDirectories()) do
+    for _, class in pairs(classDirectories()) do
         -- Search each Spec Folder in the Class Folder
-        for _, spec in pairs(self.specDirectories(class)) do
+        for _, spec in pairs(specDirectories(class)) do
             -- Search each Profile in the Spec Folder
-            for _, file in pairs(self.profiles(class, spec)) do
-                local profile = ReadFile(self.rotationsDirectory()..class.."\\"..spec.."\\"..file)
+            for _, file in pairs(profiles(class, spec)) do
+                local profile = ReadFile(rotationsDirectory()..class.."\\"..spec.."\\"..file)
                 local start = string.find(profile,"local id = ",1,true) or 0
                 profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
                 -- Print(profileID)
@@ -34,41 +34,40 @@ function br.loader.loadProfiles()
         end
     end
 end
+
 function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
-
-    br.loader.loadProfiles()
-    br.loader.rotations = {}
-    for k, v in pairs(br.rotations) do
-        if spec == k then
-            for i = 1, #v do
-                tinsert(br.loader.rotations, v[i])
-            end
-        end
-    end
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
+
+    if not brLoaded then
+        br.loader.loadProfiles()
+        brLoaded = true
+    end
 
     self.profile = specName
 
     -- Mandatory !
-    self.rotations = br.loader.rotations
+    self.rotation = br.rotations[spec][br.selectedProfile]
 
     -- Spells From Spell Table
-    for unitClass , classTable in pairs(br.lists.spells) do
-        if unitClass == select(2,UnitClass('player')) or unitClass == 'Shared' then
-            for spec, specTable in pairs(classTable) do
-                if spec == GetSpecializationInfo(GetSpecialization()) or spec == 'Shared' then
-                    for spellType, spellTypeTable in pairs(specTable) do
-                        if self.spell[spellType] == nil then self.spell[spellType] = {} end
-                        for spellRef, spellID in pairs(spellTypeTable) do
-                            self.spell[spellType][spellRef] = spellID
-                            if not IsPassiveSpell(spellID)
-                                and (spellType == 'abilities' or spellType == 'artifacts' or spellType == 'talents')
-                            then
-                                if self.spell.abilities == nil then self.spell.abilities = {} end
-                                self.spell.abilities[spellRef] = spellID
-                                self.spell[spellRef] = spellID
+    local function getSpellsForSpec(spec)
+        local playerClass = select(2,UnitClass('player'))
+        for unitClass , classTable in pairs(br.lists.spells) do
+            if unitClass == playerClass or unitClass == 'Shared' then
+                for specID, specTable in pairs(classTable) do
+                    if specID == spec or specID == 'Shared' then
+                        for spellType, spellTypeTable in pairs(specTable) do
+                            if self.spell[spellType] == nil then self.spell[spellType] = {} end
+                            for spellRef, spellID in pairs(spellTypeTable) do
+                                self.spell[spellType][spellRef] = spellID
+                                if not IsPassiveSpell(spellID)
+                                    and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
+                                then
+                                    if self.spell.abilities == nil then self.spell.abilities = {} end
+                                    self.spell.abilities[spellRef] = spellID
+                                    self.spell[spellRef] = spellID
+                                end
                             end
                         end
                     end
@@ -76,7 +75,6 @@ function br.loader:new(spec,specName)
             end
         end
     end
-
     -- Update Talent Info
     local function getTalentInfo()
         br.activeSpecGroup = GetActiveSpecGroup()
@@ -113,6 +111,50 @@ function br.loader:new(spec,specName)
             end
             artifact.rank = function()
                 return getPerkRank(v)
+            end
+        end
+
+        local function getAzeriteTraitInfo(traitID)
+            local rank = 0
+            local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+            if (not azeriteItemLocation) then return end
+            local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
+            for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
+                local item = Item:CreateFromEquipmentSlot(slot)
+                if (not item:IsItemEmpty()) then
+                    local itemLocation = item:GetItemLocation()
+                    if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
+                        local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                        for tier, info in next, tierInfo do
+                            if (info.unlockLevel <= azeritePowerLevel) then
+                                for _, powerID in next, info.azeritePowerIDs do
+                                    local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
+                                    local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                                    if (powerInfo) then
+                                        local azeriteSpellID = powerInfo["spellID"]
+                                        if isSelected and azeriteSpellID == traitID then rank = rank + 1 end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            if rank > 0 then return true, rank else return false, rank end
+        end
+
+        -- Build Azerite Trait Info
+        if self.spell.traits ~= nil then
+            for k,v in pairs(self.spell.traits) do
+                if not self.traits[k] then self.traits[k] = {} end
+                local traits = self.traits[k]
+                local specID = GetSpecializationInfo(GetSpecialization())
+                self.traits[k].active = function()
+                    return select(1, getAzeriteTraitInfo(v)) or false
+                end
+                self.traits[k].rank = function()
+                    return select(2, getAzeriteTraitInfo(v)) or 0
+                end
             end
         end
 
@@ -307,20 +349,14 @@ function br.loader:new(spec,specName)
                 return tonumber(getDebuffRemainCount(v,remain))
             end
             debuff.lowest = function(range,debuffType)
-                if range == nil then range = 5 end
+                if range == nil then range = 40 end
                 if debuffType == nil then debuffType = "remain" end
-                if type(debuffType) ~= "string" then debuffType = tostring(debuffType) end
-                local thisRemain = 99
-                local lowestUnit = dynamicTarget(range,true)
-                local enemies =  getEnemies("player",range,false)
-                for i = 1, #enemies do
-                    local thisUnit = enemies[i]
-                    if debuff[debuffType](thisUnit) > 0 and debuff[debuffType](thisUnit) < thisRemain then
-                        thisRemain = debuff[debuffType](thisUnit)
-                        lowestUnit = thisUnit
-                    end
-                end
-                return lowestUnit
+                return getDebuffMinMax(k, range, debuffType, "min")
+            end
+            debuff.max = function(range,debuffType)
+                if range == nil then range = 40 end
+                if debuffType == nil then debuffType = "remain" end
+                return getDebuffMinMax(k, range, debuffType, "max")
             end
             if spec == 103 then
                 debuff.calc = function()
@@ -332,19 +368,30 @@ function br.loader:new(spec,specName)
             end
         end
 
-        self.units = function(range,aoe)
+        self.units.get = function(range,aoe)
             if aoe == nil then aoe = false end
             if aoe then
-                return dynamicTarget(range, false)
+                if self.units["dyn"..range.."AOE"] == nil then self.units["dyn"..range.."AOE"] = {} end
+                self.units["dyn"..range.."AOE"] =  dynamicTarget(range, false)
             else
-                return dynamicTarget(range, true)
+                if self.units["dyn"..range] == nil then self.units["dyn"..range] = {} end
+                self.units["dyn"..range] =  dynamicTarget(range, false)
             end
+            return aoe and dynamicTarget(range, false) or dynamicTarget(range, true)
         end
 
-        self.enemies = function(range,unit,checkNoCombat)
+        self.enemies.get = function(range,unit,checkNoCombat)
             if unit == nil then unit = "player" end
             if checkNoCombat == nil then checkNoCombat = false end
-            return getEnemies(unit,range,checkNoCombat)
+            local enemyTable = getEnemies(unit,range,checkNoCombat)
+            if unit ~= "player" then
+                if checkNoCombat then insertTable = "yards"..range..unit:sub(1,1).."nc" else insertTable = "yards"..range..unit:sub(1,1) end
+            else
+                if checkNoCombat then insertTable = "yards"..range.."nc" else insertTable = "yards"..range end
+            end
+            if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else wipe(self.enemies[insertTable]) end
+            if #enemyTable > 0 then insertTableIntoTable(self.enemies[insertTable],enemyTable) end
+            return enemyTable
         end
 
         if self.spell.pets ~= nil then
@@ -535,6 +582,7 @@ function br.loader:new(spec,specName)
             self.cast.pool[k] = function(altPower,specificAmt)
                 local powerType = select(2,UnitPowerType("player")):lower()
                 specificAmt = specificAmt or 0
+                if altPower == nil then altPower = false end
                 return self.power[powerType].amount() < self.cast.cost[k](altPower) or self.power[powerType].amount() < specificAmt
             end
 
@@ -572,24 +620,7 @@ function br.loader:new(spec,specName)
         end
     end
 
-    -- Update Talent Info on Init and Talent Change
-    if talent == nil then getTalentInfo() end
-    if cast == nil then getFunctions() end
-    local cframe = CreateFrame("FRAME")
-    cframe:RegisterUnitEvent("PLAYER_LEVEL_UP")
-    cframe:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
-    function cframe:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
-        -- Update Talent Info
-        if event == "PLAYER_TALENT_UPDATE" then
-            getTalentInfo()
-        end
-        -- Update Function Info
-        if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
-            getFunctions()
-        end
-    end
-    cframe:SetScript("OnEvent", cframe.OnEvent)
-
+    if self.talent == nil or self.cast == nil then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -607,11 +638,12 @@ function br.loader:new(spec,specName)
         -- Call baseUpdate()
         if not UnitAffectingCombat("player") then self.updateOOC() end
         self.baseUpdate()
+        -- Update Player Info on Init, Talent, and Level Change
+        if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
         self.getBleeds()
-        -- self.getPetInfo()
         self.getToggleModes()
         -- Start selected rotation
-        self:startRotation()
+        self.startRotation()
     end
 
 ---------------
@@ -649,8 +681,8 @@ function br.loader:new(spec,specName)
     -- Create the toggle defined within rotation files
     function self.createToggles()
         GarbageButtons()
-        if self.rotations[br.selectedProfile] ~= nil then
-            self.rotations[br.selectedProfile].toggles()
+        if self.rotation ~= nil then
+            self.rotation.toggles()
         else
             return
         end
@@ -690,10 +722,9 @@ function br.loader:new(spec,specName)
 
         -- Get the names of all profiles and create rotation dropdown
         local names = {}
-        for i=1,#self.rotations do
-            -- if spec == self.rotations[i].spec then
-                tinsert(names, self.rotations[i].name)
-            -- end
+        for i=1,#br.rotations[spec] do
+            local thisName = br.rotations[spec][i].name
+            tinsert(names, thisName)
         end
 
         br.ui:createRotationDropdown(br.ui.window.profile.parent, names)
@@ -710,18 +741,20 @@ function br.loader:new(spec,specName)
             -- },
         }
 
-        -- Get profile defined options
-        local profileTable = profileTable
-        if self.rotations[br.selectedProfile] ~= nil then
-            profileTable = self.rotations[br.selectedProfile].options()
-        else
-            return
-        end
+        -- -- Get profile defined options
+        -- local profileTable = profileTable
+        -- if self.rotation~= nil then
+        --     profileTable = self.rotation.options()
+        -- else
+        --     return
+        -- end
+        --
+        -- -- Only add profile pages if they are found
+        -- if profileTable then
+            insertTableIntoTable(optionTable, self.rotation.options())
+        -- end
 
-        -- Only add profile pages if they are found
-        if profileTable then
-            insertTableIntoTable(optionTable, profileTable)
-        end
+
 
         -- Create pages dropdown
         br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
@@ -736,7 +769,7 @@ function br.loader:new(spec,specName)
 
     function useAoE()
         local rotation = self.mode.rotation
-        if (rotation == 1 and #self.enemies(8) >= 3) or rotation == 2 then
+        if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then
             return true
         else
             return false

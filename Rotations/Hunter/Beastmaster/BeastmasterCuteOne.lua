@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Pet Attacks
+            br.ui:createCheckbox(section, "Pet Attacks")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -129,7 +131,7 @@ local function createOptions()
 	-- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -189,10 +191,10 @@ local function runRotation()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadPet                                       = deadPet
+        local deadPets                                      = deadPet
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
@@ -211,32 +213,32 @@ local function runRotation()
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local perk                                          = br.player.perk
+        local pethp                                         = getHP("pet")
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
+        local race                                          = br.player.race
         local solo                                          = #br.friend < 2
         local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
         local t19_2pc                                       = TierScan("T19") >= 2
         local t20_2pc                                       = TierScan("T20") >= 2
         local talent                                        = br.player.talent
+        local trait                                         = br.player.traits
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
         local use                                           = br.player.use
 
 
-        units.dyn40 = br.player.units(40)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(40)
+        enemies.get(40)
 
         if GetObjectExists("pet") then
-            enemies.yards8pet = br.player.enemies(8,GetUnit("pet"))
-        else
-            enemies.yards8pet = {}
+            enemies.get(8,"pet")
         end
 
         local lowestUnit = lowestUnit or units.dyn40
@@ -287,17 +289,14 @@ local function runRotation()
                     if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
                 end
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
-                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
+                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPet then
-                            if cast.able.heartOfThePhoenix() and inCombat then
-                                if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return true end
-                            else
-                                if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
-                            end
-                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
-                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
+                        if UnitIsDeadOrGhost("pet") or deadPets or (UnitExists("pet") and pethp == 0) then
+                            deadPet = false
+                            if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
+                        elseif not deadPets and not (IsPetActive() or UnitExists("pet")) then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime() return true end
                         end
                     end
                 end
@@ -344,7 +343,7 @@ local function runRotation()
                 end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
+            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return end
             end
         end
@@ -365,21 +364,19 @@ local function runRotation()
             end -- End Dummy Test
         -- Misdirection
             if mode.misdirection == 1 then
-                if cd.misdirection.remain() <= 0.1 then
-                    if isValidUnit("target") then
-                        if inInstance or inRaid then
-                            for i = 1, #br.friend do
-                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                    if cast.misdirection(br.friend[i].unit) then return end
-                                end
-                            end
-                        else
-                            if GetUnitExists("pet") then
-                                if cast.misdirection("pet") then return end
-                            end
-                        end
-                    end
-                end
+                  if isValidUnit("target") then
+                      if inInstance or inRaid then
+                          for i = 1, #br.friend do
+                              if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                  if cast.misdirection(br.friend[i].unit) then return end
+                              end
+                          end
+                      else
+                          if GetUnitExists("pet") then
+                              if cast.misdirection("pet") then return end
+                          end
+                      end
+                  end
             end
         end -- End Action List - Extras
     -- Action List - Defensive
@@ -444,10 +441,9 @@ local function runRotation()
                     end
                 end
             -- Intimidation
-                if isChecked("Intimidation") and talent.intimidation and cd.intimidation.remain() == 0 and
-                GetUnitExists("pet") and (UnitIsDead("pet") ~= nil or UnitIsDead("pet") == false) then
+                if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and not deadPets then
                     for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
+                        thisUnit = enemies.yards40[i]
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if cast.intimidation(thisUnit) then return end
                         end
@@ -460,7 +456,7 @@ local function runRotation()
             if useCDs() then
             -- Trinkets
                 -- use_items
-                if useCDs() and getOptionValue("Trinkets") ~= 4 then
+                if getOptionValue("Trinkets") ~= 4 then
                     if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
                         useItem(13)
                     end
@@ -472,10 +468,15 @@ local function runRotation()
                 -- arcane_torrent,if=focus.deficit>=30
                 -- berserking,if=buff.bestial_wrath.remains>7
                 -- blood_fury,if=buff.bestial_wrath.remains>7
-                if isChecked("Racial") and getSpellCD(racial) == 0
-                    and ((buff.bestialWrath.remain() > 7 and (br.player.race == "Orc" or br.player.race == "Troll")) or (powerDeficit >= 30 and br.player.race == "BloodElf"))
-                then
-                     if cast.racial() then return end
+                if isChecked("Racial") then
+                    if (buff.bestialWrath.remain() > 7 and (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei")) or (powerDeficit >= 30 and race == "BloodElf")
+                    then
+                        if race == "LightforgedDraenei" then
+                            if cast.racial("target","ground") then return true end
+                        else
+                            if cast.racial("player") then return true end
+                        end
+                    end
                 end
             -- Potion
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
@@ -494,10 +495,9 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-                -- actions+=/aspect_of_the_wild
-                if isChecked("Aspect of the Wild") then
-                    if cast.aspectOfTheWild() then return end
-                end
+        				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+        					  if cast.aspectOfTheWild() then return end
+        				end
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -628,28 +628,45 @@ local function runRotation()
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
+    ------------------------------
+    --- In Combat - Interrupts ---
+    ------------------------------
+                if actionList_Extras() then return end
     ---------------------------
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
+                    --Pet Attacks
+                    if not UnitIsDeadOrGhost("pet") and not deadPets and isChecked("Pet Attacks") then
+                      if getDistance("pettarget","pet") < 5 then
+                        --Claw
+                        cast.claw("pettarget")
+                        --Bite
+                        cast.bite("pettarget")
+                        --Smack
+                        cast.smack("pettarget")
+                      end
+                      --PetAttack
+                      PetAttack()
+                    end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
+					--Cooldowns
+                    if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd(units.dyn40) < 16 then
+                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
                         if cast.aMurderOfCrows() then return end
                     end
-                    --Cooldowns
-                    if actionList_Cooldowns() then return end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
                     if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
                         if cast.bestialWrath() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 2) or mode.rotation == 2)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
@@ -659,27 +676,27 @@ local function runRotation()
                         if cast.chimaeraShot() then return end
                     end
                     -- actions+=/kill_command
-                    if cast.killCommand() then return end
+                    if cast.killCommand("pettarget") then return end
                     -- actions+=/dire_beast
                     if talent.direBeast then
                         if cast.direBeast() then return end
                     end
-                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.4|full_recharge_time<gcd.max|target.time_to_die<9
-                    if (not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.4) or charges.barbedShot.timeTillFull() < gcdMax or ttd(units.dyn40) < 9 then
+                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.timeTillFull() < gcd then
                         if cast.barbedShot() then return end
                     end
                     -- actions+=/barrage
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8pet >= 1 then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p >= 1 then
                         if cast.barrage() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8pet >= getOptionValue("Units To AoE") and #enemies.yards8pet > 1) or mode.rotation == 2)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
-                    if (#enemies.yards8pet < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8pet > 1) or
+                    if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or
                         (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
                     then
                         if cast.cobraShot() then return end

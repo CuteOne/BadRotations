@@ -235,7 +235,7 @@ local function runRotation()
 		-- local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
-		local enemies                                       = enemies or {}
+		local enemies                                       = br.player.enemies
 		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		-- local gcd                                           = br.player.gcd
@@ -265,22 +265,35 @@ local function runRotation()
 		local talent                                        = br.player.talent
 		local travel, flight, cat, moonkin, bear, noform    = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), br.player.buff.moonkinForm.exists(), br.player.buff.bearForm.exists(), GetShapeshiftForm()==0
 		-- local ttm                                           = br.player.power.mana.ttm()
-		local units                                         = units or {}
+		local units                                         = br.player.units
 		-- local lowestTank                                    = {}    --Tank
 		local bloomCount                                    = 0
 		-- local tHp                                           = 95
 		
-		units.dyn5 = br.player.units(5)
-		units.dyn8    = br.player.units(8)
-		units.dyn40 = br.player.units(40)
+		units.get(5)
+		units.get(8)
+		units.get(40)
 		
-		enemies.yards5  = br.player.enemies(5)
-		enemies.yards8  = br.player.enemies(8)
-		enemies.yards40 = br.player.enemies(40)
+		enemies.get(5)
+		enemies.get(8)
+		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
 		
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
-		
+		-- Temple of Sethraliss
+		if GetObjectID("target") == 133392 and inCombat then
+			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+				if talent.germination and not buff.rejuvenationGermination.exists("target") then
+					if CastSpellByName(GetSpellInfo(774),"target") then return end
+				end	
+				if not buff.rejuvenation.exists("target") then
+					if CastSpellByName(GetSpellInfo(774),"target") then return end
+				end
+				if buff.rejuvenation.exists("target") then
+					if CastSpellByName(GetSpellInfo(8936),"target") then return end
+				end	
+			end
+		end		
 		--ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
 		local function getAllHotCnt(time_remain)
 			hotCnt = 0
@@ -631,8 +644,8 @@ local function runRotation()
 			-- Wild Growth
 			if isChecked("Wild Growth") then
 				for i=1, #br.friend do
-					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
-					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit,30,getValue("Soul of the Forest + Wild Growth"),#br.friend)
+					local lowHealthCandidates = getUnitsToHealAround(br.friend[i],30,getValue("Wild Growth"),#br.friend)
+					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i],30,getValue("Soul of the Forest + Wild Growth"),#br.friend)
 					if #lowHealthCandidates >= getValue("Wild Growth Targets") and (talent.soulOfTheForest or hasEquiped(151636)) and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 and GetSpellCooldown(48438) <= 1 then
 						if cast.swiftmend(lowestHP) then return end
 					elseif #lowHealthCandidates2 >= getValue("Soul of the Forest + Wild Growth Targets") and buff.soulOfTheForest.exists() and not moving and getDebuffRemain("player",240447) == 0 then
@@ -660,8 +673,13 @@ local function runRotation()
 			-- Nature's Cure
 			if br.player.mode.decurse == 1 then
 				for i = 1, #friends.yards40 do
-					if canDispel(br.friend[i].unit,spell.naturesCure) then
+					if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,5) <= 1 then
 						if cast.naturesCure(br.friend[i].unit) then return end
+					end
+					if getDebuffRemain(br.friend[i].unit,275014) == 0 then
+						if canDispel(br.friend[i].unit,spell.naturesCure) then
+							if cast.naturesCure(br.friend[i].unit) then return end
+						end
 					end
 				end
 			end

@@ -17,115 +17,7 @@ function br:ObjectManager()
 		OM_Engine:Show()
 	end
 end
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[---------          ---           --------       -------           --------------------------------------------------------------------------------------------------------------------]]
---[[---------  -----  ----   ---------------  ----  -------  --------  ---------------------------------------------------------------------------------------------------]]
---[[---------  ----  -----           ------  ------  ------  ---------  ----------------------------------------------------------------------------------------------------------]]
---[[---------       ------  --------------             ----  ---------  -------------------------------------------------------------------------------------------------------------]]
---[[---------  ----  -----  -------------  ----------  ----  --------  -------------------------------------------------------------------------------------------------]]
---[[---------  -----  ----           ---  ------------  ---            -------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-local frame = CreateFrame("FRAME")
-frame:RegisterEvent("ADDON_LOADED");
-frame:RegisterEvent("PLAYER_LOGOUT")
-frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
-frame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
-frame:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED")
-frame:RegisterUnitEvent("UNIT_SPELLCAST_SENT")
-frame:RegisterUnitEvent("UI_ERROR_MESSAGE")
-function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
-	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
-		-- Load Settings
-		br.data = deepcopy(brdata)
-		br.dungeon = deepcopy(dungeondata)
-		br.mdungeon = deepcopy(mdungeondata)
-		br.raid = deepcopy(raiddata)
-		br.mraid = deepcopy(mraiddata)
-	end
-    if event == "PLAYER_LOGOUT" then
-        br.ui:saveWindowPosition()
-        if getOptionCheck("Reset Options") then
-        	-- Reset Settings
-        	brdata = {}
-		elseif getOptionCheck("Reset Saved Profiles") then
-			dungeondata = {}
-        	raiddata = {}
-        	mdungeondata = {}
-        	mraiddata = {}
-        	br.dungeon = {}
-			br.mdungeon = {}
-			br.raid = {}
-			br.mraid = {}
-        else
-        	-- Save Settings
-        	brdata = deepcopy(br.data)
-        	dungeondata = deepcopy(br.dungeon)
-        	mdungeondata = deepcopy(br.mdungeon)
-        	raiddata = deepcopy(br.raid)
-        	mraiddata = deepcopy(br.mraid)
-        end
-    end
-    if event == "PLAYER_ENTERING_WORLD" then
-    	-- Update Selected Spec
-        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-        br.activeSpecGroup = GetActiveSpecGroup()
-		br.equipHasChanged = true
-    	if not br.loadedIn then
-    		bagsUpdated = true
-        	br:Run()
-        end
-    end
-	if event == "PLAYER_EQUIPMENT_CHANGED" then
-		br.equipHasChanged = true
-	end
-    if event == "UNIT_SPELLCAST_SUCCEEDED" then
-    	-- Cast anything in spell queue
-    	local sourceName, spellName, rank, line, spell = arg1, arg2, arg3, arg4, arg5
-    	-- Print("Source: "..sourceName..", Spell: "..spellName..", ID: "..spell)
-		if botCast == true then botCast = false end
-        if sourceName ~= nil then
-            if UnitIsUnit(sourceName,"player") then
-            	if br.player ~= nil then
-	                if #br.player.queue ~= 0 then
-	                    for i = 1, #br.player.queue do
-	                        if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
-	                            tremove(br.player.queue,i)
-	                            if IsAoEPending() then SpellStopTargeting() end
-	                            if not isChecked("Mute Queue") then
-	                            	Print("Cast Success! - Removed |cFFFF0000"..spellName.."|r from the queue.")
-	                            end
-	                            break
-	                        end
-	                    end
-	                end
-	            end
-            end
-        end
-    end
-    -- Blizz CastSpellByName bug bypass
-    if event == "UNIT_SPELLCAST_SENT" then
-    	local unitID, spell, rank, target, lineID = arg1, arg2, arg3, arg4, arg5
-    	if unitID == "player" and spell == "Metamorphosis" then
-    		CastSpellByID(191427,"player")
-    	end
-    end
-	if event == "UI_ERROR_MESSAGE" then
-		local arg1 = arg1
-		if arg1 == 275 then
-			if deadPet == false then
-				deadPet = true
-			elseif deadPet == true then
-				deadPet = false
-			end
-		end
-	end
-end
-frame:SetScript("OnEvent", frame.OnEvent)
 
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 function getUpdateRate()
 	local updateRate = updateRate or 0.1
@@ -149,31 +41,14 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-	if FireHack == nil then
-	 	br.ui:closeWindow("all")
-		if getOptionCheck("Start/Stop BadRotations") then
-			ChatOverlay("Unable To Load")
-			if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
-				Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
-			end
-		end
-		return false
-	else
-		-- Check Enabled State
-		if br.loadMsg == nil then br.loadMsg = false end
-		if not br.loadMsg then ChatOverlay("Loaded") br.loadMsg = true end
-		if br.data.settings ~= nil then
-			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-				br.ui:closeWindow("all")
-				return false
-			else
-				-- Pulse Object Manager for Caching
-				if pulse == nil then pulse = GetTime() end
-				if GetTime() > pulse then
-					pulse = GetTime() + getUpdateRate()
-					cacheOM()
-				end
-			end
+	if FireHack ~= nil then
+		-- Pulse Object Manager for Caching
+		if pulse == nil then pulse = GetTime() end
+		if GetTime() > pulse then
+			pulse = GetTime() + getUpdateRate()
+			cacheOM()
+			getOMUnits()
+			FindEnemy()
 		end
 	end
 end
@@ -199,11 +74,6 @@ function BadRotationsUpdate(self)
 				return false
 			elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
 				br.fallDist = getFallDistance() or 0
-				-- if br.fallDist > 0 then print(br.fallDist) end
-				-- if pHealth == nil then pHealth = 0 end
-				-- if printed == nil then printed = false end
-				-- if pHealth == 0 and UnitHealth("player") < UnitHealthMax("player") then pHealth = UnitHealth("player") end
-				-- if pHealth > 0 and printed == false then print (pHealth) printed = true end
 				if isChecked("Talent Anywhere") then
 					talentAnywhere()
 				end
@@ -217,27 +87,20 @@ function BadRotationsUpdate(self)
 			    br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation".."Drop"] or 1
 			    local playerSpec = GetSpecializationInfo(GetSpecialization())
 			    -- Initialize Player
-				if br.player == nil or br.player.profile ~= br.selectedSpec then
+				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
+					brLoaded = false
 			        br.player = br.loader:new(playerSpec,br.selectedSpec)
 			        setmetatable(br.player, {__index = br.loader})
 			        br.player:createOptions()
 			        br.player:createToggles()
 			        br.player:update()
+					Print("Loaded Profile: "..br.player.rotation.name)
+					br.rotationChanged = false
 			    end
 			    -- Update Player
-			    if br.player ~= nil and not CanExitVehicle() then --and br.timer:useTimer("playerUpdate", getUpdateRate()) then --br.debug.cpu.pulse.currentTime/10) then
+			    if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 					br.player:update()
 				end
-			-- Enemy Engine
-				-- if br.timer:useTimer("cacheOM",1) then
-				-- 	cacheOM()
-				-- end
-				-- if br.timer:useTimer("unitsUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.units.currentTime/10) then
-					getOMUnits()
-				-- end
-				-- if br.timer:useTimer("enemyUpdate", getUpdateRate()) then --br.debug.cpu.enemiesEngine.enemy.currentTime/10) then
-					FindEnemy()
-				-- end
 			-- Healing Engine
 				if isChecked("HE Active") then
 					br.friend:Update()
@@ -299,10 +162,3 @@ function BadRotationsUpdate(self)
 		br.debug.cpu.pulse.averageTime = br.debug.cpu.pulse.elapsedTime / br.debug.cpu.pulse.totalIterations
 	end
 end -- End Bad Rotations Update Function
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]
-
---[[-------------------------------------------------------------------------------------------------------------------------------------------------------]]

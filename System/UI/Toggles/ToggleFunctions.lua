@@ -6,7 +6,7 @@ function ResetTip(toggleValue,thisValue)
 end
 
 function GarbageButtons()
-	if buttonsTable then
+	if buttonsTable and not UnitAffectingCombat("player") then
 		for i = 1, #buttonsTable do
 			local Name = buttonsTable[i].name
 			_G["button"..Name]:Hide()
@@ -268,10 +268,12 @@ function CreateButton(Name,x,y)
 	else
 		_G["frame"..Name].texture:SetTexture(genericIconOn)
 	end
-	if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
+	if br.data.settings[br.selectedSpec].toggles["Main"] == 1 and not UnitAffectingCombat("player") then
 		mainButton:Show()
-	else
+	elseif not UnitAffectingCombat("player") then
 		mainButton:Hide()
+	elseif UnitAffectingCombat("player") then
+		Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
 	end		 
 	SlashCommandHelp("br toggle "..Name.." 1-"..#_G[Name.."Modes"],"Toggles "..Name.." Modes, Optional: specify number")
 end

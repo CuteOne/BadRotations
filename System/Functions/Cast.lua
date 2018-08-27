@@ -566,6 +566,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
         elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
             castDebug()
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
+		elseif thisUnit == "pettarget" and (getDistance("pettarget","pet") < maxRange or IsSpellInRange(spellName,"pettarget") == 1) then
+			castDebug()
+			return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
         elseif thisUnit ~= nil then
             local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
@@ -606,7 +609,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
 	            end
 	            return false
             end
-        elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(br.player.units(maxRange)) < maxRange then
+        elseif (thisUnit == nil or thisUnit == "best" or thisUnit == "playerGround" or thisUnit == "targetGround") and getDistance(dynamicTarget(maxRange)) < maxRange then
             if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then
                 Print("|cffFF0000Error: |r Failed to cast. - ".."Name: "..spellName..", ID: "..spellID..", Type: "..spellType..", Min Range: "..minRange..", Max Range: "..maxRange)
             end

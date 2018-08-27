@@ -151,60 +151,40 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+        local hastar                                        = hastar or GetObjectExists("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
-        local hasMouse                                      = GetObjectExists("mouseover")
+        local falling, flying, moving                       = getFallTime(), IsFlying(), GetUnitSpeed("player")>0
+        local gcd                                           = br.player.gcdMax
+        local has                                           = br.player.has
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.spell.items
-        local lastSpell                                     = lastSpellCast
-        local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local moveIn                                        = 999
-        -- local multidot                                      = (useCleave() or br.player.mode.rotation ~= 3)
-        local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.fury.amount(), br.player.power.fury.max(), br.player.power.fury.regen(), br.player.power.fury.deficit()
+        local power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
-        local ttm                                           = br.player.power.fury.ttm()
-        local units                                         = units or {}
+        local traits                                        = br.player.traits
+        local units                                         = br.player.units
         local use                                           = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        units.dyn30 = br.player.units(30)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
+        units.get(5)
+        units.get(30)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(50)
         enemies.yards8r = getEnemiesInRect(10,20,false) or 0
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards10t = br.player.enemies(10,br.player.units(10,true))
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards50 = br.player.enemies(50)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -245,7 +225,7 @@ local function runRotation()
         local waitForMomentum = talent.momentum and not buff.momentum.exists()
 
     -- Check for Eye Beam During Metamorphosis
-        if talent.demonic and buff.metamorphosis.duration() > 10 and lastSpell == spell.eyeBeam then metaEyeBeam = true end
+        if talent.demonic and buff.metamorphosis.duration() > 10 and cast.last.eyeBeam() then metaEyeBeam = true end
         if metaEyeBeam == nil or (metaEyeBeam == true and not buff.metamorphosis.exists()) then metaEyeBeam = false end
 
     -- Custom Functions
@@ -488,17 +468,16 @@ local function runRotation()
                 if cast.immolationAura() then return end
             end
         -- Felblade
-            -- felblade,if=fury.deficit>=30&(fury<40|buff.metamorphosis.down)
             -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
             if cast.able.felblade() and (power < 40 or (not buff.metamorphosis.exists() and powerDeficit >= 40)) then
                 if cast.felblade() then return end
             end
         -- Eye Beam
             -- eye_beam,if=(!talent.blind_fury.enabled|fury.deficit>=70)&(!buff.metamorphosis.extended_by_demonic|(set_bonus.tier21_4pc&buff.metamorphosis.remains>16))
-            if cast.able.eyeBeam() and not moving and (not talent.blindFury or powerDeficit >= 70) and (not metaExtended or (equiped.t21 >= 4 and buff.metamorphosis.remain() > 16))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and not moving and (not talent.blindFury or powerDeficit >= 70) and (not metaExtended or (equiped.t21 >= 4 and buff.metamorphosis.remain() > 16)) and enemies.yards8r > 0
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -517,6 +496,16 @@ local function runRotation()
             -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
             if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
                 and talent.demonBlades and cd.eyeBeam.remain() ~= 0 and charges.felRush.count() == 2
+            then
+                if mode.mover == 1 and getDistance("target") < 8 then
+                    cancelRushAnimation()
+                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                    if cast.felRush() then return end
+                end
+            end
+            -- fel_rush,if=!talent.demon_blades.enabled&!cooldown.eye_beam.ready&azerite.unbound_chaos.rank>0
+            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+                and not talent.demonBlades and cd.eyeBeam.remain() > 0 and traits.unboundChaos.rank() > 0
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -587,9 +576,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -604,6 +593,17 @@ local function runRotation()
             if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance() then return end
             end
+        -- Fel Rush
+            -- /fel_rush,if=!talent.momentum.enabled&!talent.demon_blades.enabled&azerite.unbound_chaos.rank>0
+            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+                and not talent.momentum and not talent.demonBlades and traits.unboundChaos.rank() > 0
+            then
+                if mode.mover == 1 and getDistance("target") < 8 then
+                    cancelRushAnimation()
+                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                    if cast.felRush() then return end
+                end
+            end
         -- Felblade
             -- felblade,if=fury.deficit>=40
             if cast.able.felblade() and powerDeficit >= 40 then
@@ -612,9 +612,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -636,9 +636,9 @@ local function runRotation()
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
             if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
-                and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-                    or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0))
+                -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
+                --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
+                --     or (mode.rotation == 2 and enemies.yards8r > 0))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end

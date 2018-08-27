@@ -24,9 +24,12 @@ br.lists.los = {
 	118460, -- Engine of Souls (Tomb of Sargeras)
 	122450, -- Garothi Worldbreaker (Antorus the Burning Throne - Confirmed in game)
 	123371, -- Garothi Worldbreaker (Antorus the Burning Throne)
-	122778, -- Annihilator - Garothi Worldbreaker (Antorus the Burning Throne) 
+	122778, -- Annihilator - Garothi Worldbreaker (Antorus the Burning Throne)
 	122773, -- Decimator - Garothi Worldbreaker (Antorus the Burning Throne)
 	122578, -- Kin'garoth (Antorus the Burning Throne - Confirmed in game)
 	125050, -- Kin'garoth (Antorus the Burning Throne)
 	131863, -- Raal the Gluttonous (Waycrest Manor)
+	134691, -- Static-charged Dervish (Temple of Sethraliss)
+	137405, -- Gripping Terror (Siege of Boralus)
+    140447, -- Demolishing Terror (Siege of Boralus)
 }

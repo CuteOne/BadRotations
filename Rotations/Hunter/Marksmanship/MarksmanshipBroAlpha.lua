@@ -465,7 +465,8 @@ local function runRotation()
   return false
 
 end -- End runRotation
-local id = 254 -- Change to the spec id profile is for.
+--local id = 254 -- Change to the spec id profile is for.
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
   name = rotationName,

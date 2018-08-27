@@ -54,7 +54,7 @@ local function createOptions()
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Summon Pet
-            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
+            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard", "Wrathguard", "None"}, 1, "|cffFFFFFFSelect default pet to summon.")
         -- Grimoire of Service
             br.ui:createDropdownWithout(section, "Grimoire of Service - Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect pet to Grimoire.")
             br.ui:createDropdownWithout(section,"Grimoire of Service - Use", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Grimoire Ability.")
@@ -159,7 +159,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
@@ -196,12 +196,12 @@ local function runRotation()
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units 
 
-        units.dyn40 = br.player.units(40)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(40)
+        enemies.get(8,"target")
+        enemies.get(30)
+        enemies.get(40)
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil or not inCombat then profileStop = false end
@@ -248,6 +248,7 @@ local function runRotation()
         if summonPet == 3 then summonId = 417 end
         if summonPet == 4 then summonId = 1863 end
         if summonPet == 5 then summonId = 17252 end
+        if summonPet == 6 then summonId = 58965 end
         if cd.grimoireOfService.remain() == 0 or prevService == nil then prevService = "None" end
 
         local wildImpCount = 0
@@ -273,6 +274,8 @@ local function runRotation()
         local petDE = buff.demonicEmpowerment.exists("pet") --UnitBuffID("pet",spell.buffs.demonicEmpowerment,"player") ~= nil --buff.pet.demonicEmpowerment
         local demonwrathPet = false
         local missingDE = 0
+        local impsNearDeath = 0
+
         if pet ~= nil then
             for k, v in pairs(pet) do
             -- for i = 1, #br.player.pet do
@@ -289,6 +292,16 @@ local function runRotation()
                     wildImpCount = wildImpCount + 1
                     wildImpDE = hasDEbuff
                     if not hasDEbuff then wildImpNoDEcount = wildImpNoDEcount + 1 end
+
+                    local imp = pet[k]
+                    if not imp.summonTime then
+                      imp.summonTime = GetTime() + 12
+                    end
+                    imp.remainingDuration = imp.summonTime - GetTime()
+                    
+                    if imp.remainingDuration <= 3 then
+                      impsNearDeath = impsNearDeath + 1
+                    end
                 end
                 if thisUnit == 98035 then
                     dreadStalkers = true
@@ -299,12 +312,13 @@ local function runRotation()
                 if thisUnit == 103673 then darkglare = true; darkglareDE = hasDEbuff; darkglareCount = darkglareCount + 1 end
                 if thisUnit == 11859 then doomguard = true; doomguardDE = hasDEbuff; doomguardCount = doomguardCount + 1 end
                 if thisUnit == 89 then infernal = true; infernalDE = hasDEbuff; infernalCount = infernalCount + 1 end
-                if thisUnit == 17252 then felguard = true; felguardEnemies = pet[k].numEnemies; felguardCount = felguardCount + 1 end
+                if (thisUnit == 17252 or thisUnit == 58965) then felguard = true; felguardEnemies = pet[k].numEnemies; felguardCount = felguardCount + 1 end
                 if not pet[k].deBuff then
                     missingDE = missingDE + 1
                 end
             end
         end
+
         if wildImpCount > 0 and wildImpDuration == 0 then wildImpDuration = GetTime() + 12 end
         if wildImpCount > 0 and wildImpDuration ~= 0 then wildImpRemain = wildImpDuration - GetTime() end
         if wildImpCount == 0 then wildImpDuration = 0; wildImpRemain = 0 end
@@ -312,6 +326,9 @@ local function runRotation()
         if dreadStalkers and dreadStalkersDuration ~= 0 then dreadStalkersRemain = dreadStalkersDuration - GetTime() end
         if not dreadStalkers then dreadStalkersDuration = 0; dreadStalkersRemain = 0 end
         local petCount = wildImpCount + dreadStalkersCount + darkglareCount + doomguardCount + infernalCount + felguardCount
+
+        local halfOrMoreImpsAboutToExpire = impsNearDeath >= (wildImpCount ~= 0 and wildImpCount/2 or 1)
+
 
         -- SimC Variable
         -- variable,name=3min,value=doomguard_no_de>0|infernal_no_de>0
@@ -457,9 +474,12 @@ local function runRotation()
                         if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
                     end
                     if summonPet == 5 and (lastSpell ~= spell.summonFelguard or activePetId == 0) then
-                        if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
+                      if cast.summonFelguard("player") then castSummonId = spell.summonFelguard; return end
                     end
-                    if summonPet == 6 then return end
+                    if summonPet == 6 and (lastSpell ~= spell.summonWrathguard or activePetId == 0) then
+                      if cast.summonWrathguard("player") then castSummonId = spell.summonWrathguard; return end
+                    end
+                    if summonPet == 7 then return end
                 end
             end
             if not inCombat and not (IsFlying() or IsMounted()) then
@@ -494,12 +514,9 @@ local function runRotation()
                             PetAssistMode()
                             PetAttack("target")
                         end
-        -- Demonbolt
-                        -- demonbolt
-                        -- if cast.demonbolt("target") then return end
         -- Shadowbolt
                         -- shadow_bolt
-                        -- if cast.shadowbolt("target") then return end
+                        if cast.shadowbolt("target") then return end
                     end
                 end
             end -- End No Combat
@@ -671,7 +688,49 @@ local function runRotation()
         --       if cast.demonbolt() then return end
         --   end
         -- end
-        
+
+        local function actionListBuildAShard()
+          if cast.able.demonbolt() and (buff.forbiddenKnowledge.exists() and not buff.demonicCore.exists() and cd.summonDemonicTyrant.remain() > 20) then
+              if cast.demonbolt() then return end
+          end
+          if cast.able.soulStrike() then
+              if cast.soulStrike() then return end
+          end
+          if cast.able.shadowbolt() and shards < 5 then
+              if cast.shadowbolt() then return end
+          else
+            return
+          end
+        end
+
+        local function actionListNetherPortalActive()
+          if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
+              if cast.grimoireFelguard() then return end
+          end
+          if cast.able.summonVilefiend() and (cd.summonDemonicTyrant.remain() > 40 or cd.summonDemonicTyrant.remain() < 12) then
+              if cast.summonVilefiend() then return end
+          end
+          if cast.able.callDreadstalkers() and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.remain()) or cd.summonDemonicTyrant.remain() > 14) then
+              if cast.callDreadstalkers() then return end
+          end
+          if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowbolt() or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < cast.time.shadowbolt())) then
+              if actionListBuildAShard() then return end
+          end
+          if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() >cast.time.demonbolt()) and (cd.callDreadstalkers.remain() > cast.time.shadowbolt())) and cd.netherPortal.remain() > (160 + cast.time.handOfGuldan())) then
+              if cast.handOfGuldan() then return end
+          end
+          if cast.able.summonDemonicTyrant() and (buff.netherPortal.remain() < 10 and shards == 0) then
+              if cast.summonDemonicTyrant() then return end
+          end
+          if cast.able.summonDemonicTyrant() and (buff.netherPortal.remain() < cast.time.summonDemonicTyrant() + 5.5) then
+              if cast.summonDemonicTyrant() then return end
+          end
+          if cast.able.demonbolt() and (buff.demonicCore.exists()) then
+              if cast.demonbolt() then return end
+          end
+          if actionListBuildAShard() then return end
+        end
+
         local function actionListNetherPortalBuilding()
           if cast.able.netherPortal() and (shards >= 5 and (not talent.powerSiphon or buff.demonicCore.exists())) then
               if cast.netherPortal() then return end
@@ -691,18 +750,6 @@ local function runRotation()
           if actionListBuildAShard() then return end
         end
         
-        local function actionListBuildAShard()
-          if cast.able.demonbolt() and (buff.forbiddenKnowledge.exists() and not buff.demonicCore.exists() and cd.summonDemonicTyrant.remain() > 20) then
-              if cast.demonbolt() then return end
-          end
-          if cast.able.soulStrike() then
-              if cast.soulStrike() then return end
-          end
-          if cast.able.shadowbolt() then
-              if cast.shadowbolt() then return end
-          end
-        end
-
         local function actionListNetherPortal()
           if cd.netherPortal.remain() < 20 then
               if actionListNetherPortalBuilding() then return end
@@ -713,7 +760,7 @@ local function runRotation()
         end
 
         local function actionListImplosion()
-          if cast.able.implosion() and ((wildImpCount >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImpCount >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImpCount > 0) or (cast.last.callDreadstalkers(2) and wildImpCount > 2 and not talent.demonicCalling)) then
+          if cast.able.implosion() and ttd("target") <= 3 or (#enemies.yards8t > 1 and wildImpCount >= 6) then
               if cast.implosion() then return end
           end
           if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
@@ -751,34 +798,6 @@ local function runRotation()
           end
           if actionListBuildAShard() then return end
         end
-        
-        local function actionListNetherPortalActive()
-          if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
-              if cast.grimoireFelguard() then return end
-          end
-          if cast.able.summonVilefiend() and (cd.summonDemonicTyrant.remain() > 40 or cd.summonDemonicTyrant.remain() < 12) then
-              if cast.summonVilefiend() then return end
-          end
-          if cast.able.callDreadstalkers() and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.remain()) or cd.summonDemonicTyrant.remain() > 14) then
-              if cast.callDreadstalkers() then return end
-          end
-          if shards == 1 and (cd.callDreadstalkers.remain() < action.shadow_bolt.cast_time or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < action.shadow_bolt.cast_time)) then
-              if actionListBuildAShard() then return end
-          end
-          if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() > action.demonbolt.cast_time) and (cd.callDreadstalkers.remain() > action.shadow_bolt.cast_time)) and cd.netherPortal.remain() > (160 + action.hand_of_guldan.cast_time)) then
-              if cast.handOfGuldan() then return end
-          end
-          if cast.able.summonDemonicTyrant() and (buff.netherPortal.remain() < 10 and shards == 0) then
-              if cast.summonDemonicTyrant() then return end
-          end
-          if cast.able.summonDemonicTyrant() and (buff.netherPortal.remain() < action.summon_demonic_tyrant.cast_time + 5.5) then
-              if cast.summonDemonicTyrant() then return end
-          end
-          if cast.able.demonbolt() and (buff.demonicCore.exists()) then
-              if cast.demonbolt() then return end
-          end
-          if actionListBuildAShard() then return end
-        end
 
         local function actionListRotation()
         --   if cast.able.potion() and (demonicTyrantCount == 1 or ttd("target") < 30) then
@@ -801,9 +820,9 @@ local function runRotation()
           if talent.netherPortal and #enemies.yards8t <= 2 then
               if actionListNetherPortal() then return end
           end
-          if #enemies.yards8t > 1 then
-              if actionListImplosion() then return end
-          end
+
+          if actionListImplosion() then return end
+
           if cast.able.grimoireFelguard() and (cd.summonDemonicTyrant.remain() < 13 or not hasEquiped(132369)) then
               if cast.grimoireFelguard() then return end
           end

@@ -195,94 +195,79 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
-		local castable          							= br.player.cast.debug
-        local clearcast                                     = br.player.buff.clearcasting.exists()
         local combatTime                                    = getCombatTime()
         local comboPoints                                   = br.player.power.comboPoints.amount()
         local comboPointsDeficit                            = br.player.power.comboPoints.deficit()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local energy, energyMax, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.max(), br.player.power.energy.regen(), br.player.power.energy.deficit()
+        local enemies                                       = br.player.enemies
+        local energy, energyRegen, energyDeficit            = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
         local has                                           = br.player.has
-        local hasMouse                                      = GetObjectExists("mouseover")
+        local hastar                                        = hastar or GetObjectExists("target")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.spell.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
-        local mfTick                                        = 20.0/(1+UnitSpellHaste("player")/100)/10
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
         local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
         local race                                          = br.player.race
         local solo                                          = #br.friend < 2
         local spell                                         = br.player.spell
         local stealth                                       = br.player.buff.prowl.exists() or br.player.buff.shadowmeld.exists()
-        local talent                                        = br.player.talent --0.003
-        local thp                                           = getHP -- 0.002
-        local travel, flight, cat, noform                   = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists(), GetShapeshiftForm()==0 --0.1
-        local trinketProc                                   = false
-        local ttd                                           = getTTD --.002
-        local ttm                                           = br.player.power.energy.ttm() --0.05
-        local use                                           = br.player.use --0.0001
+        local talent                                        = br.player.talent
+        local thp                                           = getHP
+        local travel, flight, cat                           = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
+        local ttd                                           = getTTD
+        local ttm                                           = br.player.power.energy.ttm()
+        local units                                         = br.player.units
+        local use                                           = br.player.use
 
         -- Get Best Unit for Range
-        if units == nil then units = {} end
-        units.dyn40         = br.player.units(40)
-        units.dyn20         = br.player.units(20)
-        units.dyn8AoE       = br.player.units(8,true)
-        units.dyn8          = br.player.units(8)
-        units.dyn5          = br.player.units(5)
-
-        -- ChatOverlay("DynUnit: "..tostring(units.dyn5).." | UnitIsTarget: "..tostring(UnitIsUnit(units.dyn5,"target")))
+        -- units.get(range, aoe)
+        units.get(40)
+        units.get(20)
+        units.get(8,true)
+        units.get(8)
+        units.get(5)
 
         -- Get List of Enemies for Range
-        if enemies == nil then enemies = {} end
-        enemies.yards40     = br.player.enemies(40)
-        enemies.yards20     = br.player.enemies(20)
-        -- enemies.yards20nc   = br.player.enemies(20,"player",true)
-        enemies.yards13     = br.player.enemies(13)
-        enemies.yards8      = br.player.enemies(8)
-        enemies.yards5      = br.player.enemies(5)
+        -- enemies.get(range, from unit, no combat, variable)
+        enemies.get(40) -- makes enemies.yards40
+        enemies.get(20,"player",true) -- makes enemies.yards40nc
+        enemies.get(13)
+        enemies.get(8)
+        enemies.get(5)
 
         if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
-		if lastSpellCast == nil then lastSpellCast = spell.catForm end
         if opener == nil then opener = false end
         if lastForm == nil then lastForm = 0 end
 		if not inCombat and not hastar and profileStop==true then
             profileStop = false
 		end
-        if freeProwl == nil or (not buff.incarnationKingOfTheJungle.exists() and freeProwl == false) then freeProwl = true end
-        if talent.jaggedWounds then
-            rkTick = 2.4
-            rpTick = 1.6
-        else
-            rkTick = 3
-            rpTick = 2
+
+        local function autoProwl()
+            for i = 1, #enemies.yards20nc do
+                local thisUnit = enemies.yards20nc[i]
+                if UnitReaction(thisUnit,"player") > 4 then return true end
+            end
+            return false
         end
+        if freeProwl == nil or (not buff.incarnationKingOfTheJungle.exists() and freeProwl == false) then freeProwl = true end
+
         if equiped.t20 ~= nil and equiped.t20 >= 4 then
             ripDuration = 24 + 4
         elseif talent.jaggedWounds then
@@ -291,15 +276,6 @@ local function runRotation()
         else
             rakeDuration = 15
             ripDuration = 24
-        end
-        if br.player.potion.agility ~= nil then
-            if br.player.potion.agility[1] ~= nil then
-                agiPot = br.player.potion.agility[1].itemID
-            else
-                agiPot = 0
-            end
-        else
-            agiPot = 0
         end
 
         local friendsInRange = false
@@ -311,18 +287,6 @@ local function runRotation()
             end
         end
 
-        -- local function findFriends()
-        --     friendsInRange = 0
-        --     if not solo then
-        --         for i = 1, #br.friend do
-        --             if getDistance(br.friend[i].unit) < 15 then
-        --                 friendsInRange = friendsInRange + 1
-        --                 break;
-        --             end
-        --         end
-        --     end
-        --     return friendsInRange
-        -- end
         if energy > 50 then
             fbMaxEnergy = true
         else
@@ -357,36 +321,6 @@ local function runRotation()
         else
             useThrash = 0
         end
-        -- actions.precombat+=/variable,name=pooling,op=set,value=3
-        -- actions.precombat+=/variable,name=pooling,op=set,value=10,if=equipped.chatoyant_signet
-        -- actions.precombat+=/variable,name=pooling,op=set,value=3,if=equipped.the_wildshapers_clutch&!equipped.chatoyant_signet
-        if equiped.chatoyantSignet() then
-            poolVar = 10
-        elseif equiped.theWildshapersClutch() and not equiped.chatoyantSignet() then
-            poolVar = 3
-        else
-            poolVar = 3
-        end
-
-        -- Challenge Mode Stuff
-        local function challengeMode()
-            -- Umbral Exists
-            if umbralExists == nil then umbralExists = false end
-            for i = 1, #enemies.yards20 do
-                thisUnit = enemies.yards20[i]
-                if ObjectID(thisUnit) == 115642 then umbralExists = true; break end
-                umbralExists = false
-            end
-
-            if isChecked("Skull Bash") and cast.able.skullBash() then
-                for i=1, #enemies.yards13 do
-                    thisUnit = enemies.yards13[i]
-                    if ObjectID(thisUnit) == 115638 and not umbralExists and not UnitBuffID(thisUnit,243113) and isCastingSpell(243114,thisUnit) then
-                        if cast.skullBash(thisUnit) then return true end
-                    end
-                end
-            end
-        end
 
         -- TF Predator Snipe
         local function snipeTF()
@@ -408,27 +342,20 @@ local function runRotation()
             return false
         end
 
-        local function ferociousBiteFinish()
-            local baseCost = 25
-            if buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() then
-                baseCost = baseCost * 0.5
-            end
-            local costMultiplier = comboPoints * (energy / baseCost)
-            if buff.apexPredator.exists() then costMultiplier = 5 * 2 end
-            if buff.apexPredator.exists() and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists()) then costMultiplier = costMultiplier * 1.46 end
-            local damage = 1.2 * UnitAttackPower("player") * (1 - 0.3198) * costMultiplier
-            if damage >= UnitHealth(units.dyn5) and comboPoints > 0 then
-                return true
+        function ferociousBiteFinish()
+            local desc = GetSpellDescription(spell.ferociousBite)
+            for i = 1, 5 do
+                local comboStart = desc:find(" "..i.." ",1,true)+2
+                local damageList = desc:sub(comboStart,desc:len())
+                comboStart = damageList:find(": ",1,true)+2
+                damageList = damageList:sub(comboStart,desc:len())
+                local comboEnd = damageList:find(" ",1,true)-1
+                damageList = damageList:sub(1,comboEnd)
+                local damage = damageList:gsub(",","")
+                if comboPoints == i and tonumber(damage) >= UnitHealth(units.dyn5) then return true end
             end
             return false
         end
-
-        -- for i = 1, #enemies.yards40 do
-        --     local thisUnit = enemies.yards40[i]
-        --     if debuff.moonfireFeral.refresh(thisUnit) then
-        --         if cast.moonfireFeral(thisUnit) then return true end
-        --     end
-        -- end
 
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
@@ -494,10 +421,10 @@ local function runRotation()
 			end -- End Perma Fire Cat
 		-- Death Cat mode
 			if isChecked("Death Cat Mode") and cat then
-		        if hastar and getDistance(units.dyn8AoE) > 8 then
+		        if hastar and getDistance(units.dyn8AOE) > 8 then
 		            ClearTarget()
 		        end
-	            if #enemies.yards20 > 0 then
+	            if autoProwl() then
 	            -- Tiger's Fury - Low Energy
                     if cast.able.tigersFury() and energyDeficit > 60 then
                 	   if cast.tigersFury() then return true end
@@ -971,7 +898,7 @@ local function runRotation()
             end
 		-- Start Attack
             -- auto_attack
-            if isChecked("Opener") and isBoss("target") and opener == false then
+            if isChecked("Opener") and isBoss("target") and not opener then
                 if isValidUnit("target") and getDistance("target") < 5 then
             -- Begin
 					if not OPN1 then
@@ -1113,7 +1040,7 @@ local function runRotation()
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
                             if (not debuff.rip.exists(thisUnit) or debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth)
-                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit)) and (ttd(thisUnit) > 8 or isDummy(thisUnit)))
+                                or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
                             then
                                 if cast.pool.rip() then ChatOverlay("Pooling For Rip") return true end
                                 if cast.able.rip(thisUnit) then
@@ -1275,7 +1202,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
             if (cast.pool.thrash() or cast.able.thrash()) and multidot then
-                if (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
+                if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
@@ -1299,7 +1226,7 @@ local function runRotation()
             if (cast.pool.rake() or cast.able.rake()) and debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then --and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
                         if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                         then
@@ -1345,7 +1272,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&(variable.use_thrash=2|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react
-            if (cast.pool.thrash() or cast.able.thrash()) and multidot and (not debuff.thrash.exists(units.dyn8AoE) or debuff.thrash.refresh(units.dyn8AoE)) then
+            if (cast.pool.thrash() or cast.able.thrash()) and multidot and (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) then
                 if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) or (useThrash == 1 and buff.clearcasting.exists()) then
                     if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then
@@ -1445,7 +1372,7 @@ local function runRotation()
                 or (charges.brutalSlash.count() >= 2 and charges.brutalSlash.recharge(true) <= gcdMax)
                 or (#enemies.yards8 > 1 or ttd(units.dyn8) < charges.brutalSlash.count() * cd.brutalSlash))
             then
-                if cast.brutalSlash(units.dyn8AoE,"aoe") then return true end
+                if cast.brutalSlash(units.dyn8AOE,"aoe") then return true end
             end
         -- Moonfire
             -- if CanRefreshDot(MoonfireDoT) and HasDot(RakeBleed) and TargetSecUntilDeath > 10
@@ -1463,7 +1390,7 @@ local function runRotation()
         -- Thrash
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
             if cast.able.thrash() and multidot then
-                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and debuff.thrash.refresh(units.dyn8AoE) then
+                if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and debuff.thrash.refresh(units.dyn8AOE) then
                     if cast.thrash("player","aoe") then return true end
                 end
             end
@@ -1476,7 +1403,7 @@ local function runRotation()
             end
         -- Thrash
             -- if ArtifactTraitRank(ThrashingClaws) >= 4 and CanRefreshDot(ThrashBleedFeral) and HasItem(LuffaWrappings)
-            if cast.able.thrash() and artifact.thrashingClaws.rank() >= 4 and debuff.thrash.refresh(units.dyn8) and equiped.luffaWrappings() then
+            if cast.able.thrash() and debuff.thrash.refresh(units.dyn8) and equiped.luffaWrappings() then
                 if cast.thrash("player","aoe") then return true end
             end
             -- if HasSetBonus(19,4) and CanRefreshDot(ThrashBleedFeral) and HasBuff(Clearcasting) and not HasBuff(Bloodtalons)
@@ -1537,13 +1464,8 @@ local function runRotation()
                         end
                     end
         -- Prowl - Non-PrePull
-                    if cast.able.prowl("player") and cat and #enemies.yards20 > 0 and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
-                        for i = 1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
-                            -- if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                                if cast.prowl("player") then return true end
-                            -- end
-                        end
+                    if cast.able.prowl("player") and cat and autoProwl() and mode.prowl == 1 and not buff.prowl.exists() and not IsResting() and GetTime()-leftCombat > lootDelay then
+                        if cast.prowl("player") then return true end
                     end
                 end -- End No Stealth
         -- Wild Charge
@@ -1580,7 +1502,7 @@ local function runRotation()
                 end -- End Pre-Pull
         -- Rake/Shred
                 -- buff.prowl.up|buff.shadowmeld.up
-                if isValidUnit("target") and opener == true and getDistance("target") < 5 then
+                if isValidUnit("target") and opener and getDistance("target") < 5 then
                     if cast.able.shred() and level < 12 then
                         if cast.shred("target") then return true end
                     elseif cast.able.rake() then
@@ -1629,7 +1551,7 @@ local function runRotation()
         -- Cat is 4 fyte!
             if inCombat and cast.able.catForm("player") and not cat and #enemies.yards5 > 0 and not moving and isChecked("Auto Shapeshifts") then
                 if cast.catForm("player") then return true end
-            elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and opener == true then
+            elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and isValidUnit(units.dyn5) and opener then
 		-- Opener
 				-- if actionList_Opener() then return true end
         -- Wild Charge

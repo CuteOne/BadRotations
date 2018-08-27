@@ -49,6 +49,8 @@ local function createOptions()
 			br.ui:createCheckbox(section,"Auto Maul (SIMC)")
 		-- Maul At
             br.ui:createSpinnerWithout(section, "Maul At",  90,  5,  100,  5,  "|cffFFFFFFSet to desired rage to cast Maul. Min: 5 / Max: 100 / Interval: 5")
+		-- Auto Maul
+			br.ui:createCheckbox(section,"Taunt")			
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -154,7 +156,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = UnitIsFriend("target", "player")
@@ -185,18 +187,18 @@ local function runRotation()
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.rage.ttm
-        local units                                         = units or {}
+        local units                                         = br.player.units
 
-        units.dyn5 = br.player.units(5)
-	    units.dyn8 = br.player.units(8)
-        units.dyn40 = br.player.units(40)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards13 = br.player.enemies(13)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+	    units.get(8)
+        units.get(40)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(13)
+        enemies.get(20)
+        enemies.get(30)
+        enemies.get(40)
 
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -231,7 +233,16 @@ local function runRotation()
                     end
                 end
             end -- End Shapeshift Form Management
-        end -- End Action List - Extras
+		-- Taunt
+		if isChecked("Taunt") and inInstance then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+					if cast.growl(thisUnit) then return end
+				end
+			end
+		end
+		end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() and not buff.prowl.exists() and not flight then
@@ -390,7 +401,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==2 then
             return true
         else
 -----------------------
@@ -423,7 +434,7 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65) then
+                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 80 or buff.ironfur.remain() <1.5) then
                         if cast.ironfur() then return end
                     end
         -- Bristling Fur
@@ -434,18 +445,23 @@ local function runRotation()
         -- Lunar Beam
                     -- lunar_beam
                     if cast.lunarBeam() then return end
+        -- Mangle
+                    -- mangle
+                    if cast.mangle() then return end
         -- Pulverize
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if debuff.thrash.stack(thisUnit) >= 3 then
-                                if cast.pulverize(thisUnit) then return end
-                            end
+                                if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrash())) then
+									if cast.pulverize(thisUnit) then return end
+								end
+							end
                         end
                     end
         -- Moonfire
                     -- moonfire,if=buff.incarnation.up=1&dot.moonfire.remains<=4.8
-                    if #enemies.yards40 < 4 then
+                    if #enemies.yards40 < 6 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if isValidUnit(thisUnit) then
@@ -462,14 +478,11 @@ local function runRotation()
                     end
         -- Thrash
                     -- thrash_bear
-                    if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 4) then
+                    if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
                         if cast.thrash() then return end
                     end
-        -- Mangle
-                    -- mangle
-                    if cast.mangle() then return end
         -- Moonfire
-                    if #enemies.yards40 < 4 then
+                    if #enemies.yards40 < 6 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if isValidUnit(thisUnit) then

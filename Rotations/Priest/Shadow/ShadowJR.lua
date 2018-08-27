@@ -229,7 +229,7 @@ local function runRotation()
     local charges                                       = br.player.charges
     local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local debuff                                        = br.player.debuff
-    local enemies                                       = enemies or {}
+    local enemies                                       = br.player.enemies
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
     local friendly                                      = friendly or UnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
@@ -260,10 +260,9 @@ local function runRotation()
     local t20_4pc                                       = TierScan("T20")>=4
     local t21_4pc                                       = TierScan("T21")>=4
     local talent                                        = br.player.talent
-    local thp                                           = getHP(br.player.units(40))
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.insanity.ttm()
-    local units                                         = units or {}
+    local units                                         = br.player.units
     local use                                           = br.player.use
 
     local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
@@ -273,12 +272,12 @@ local function runRotation()
     local executeHP = 20
     if talent.reaperOfSouls then executeHP = 35 end
 
-    units.dyn5 = br.player.units(5)
-    units.dyn8 = br.player.units(8)
-    units.dyn40 = br.player.units(40)
-    enemies.yards8 = br.player.enemies(8)
-    enemies.yards30 = br.player.enemies(30)
-    enemies.yards40 = br.player.enemies(40)
+    units.get(5)
+    units.get(8)
+    units.get(40)
+    enemies.get(8)
+    enemies.get(30)
+    enemies.get(40)
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -998,14 +997,14 @@ local function runRotation()
         end
     --Mind Bender
         -- mindbender,if=cooldown.shadow_word_death.charges=0&buff.voidform.stack>(45+25*set_bonus.tier20_4pc)
-        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and charges.shadowWordDeath.count() == 0 then
+        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and (not talent.shadowWordDeath or (talent.shadowWordDeath and charges.shadowWordDeath.count() == 0)) then
             if getOptionValue("  Shadowfiend Stacks") > 0 then
                 --use configured value
                 if buff.voidForm.stack() >= getOptionValue("  Shadowfiend Stacks") then
                     if cast.mindBender() then return end
                 end
             else
-                if buff.voidVorm.stack() > (45 + 25 * t20pc4) then
+                if buff.voidForm.stack() > (45 + 25 * t20pc4) then
                     if cast.mindBender() then return end
                 end
             end
@@ -1304,7 +1303,7 @@ local function runRotation()
             else
             -- mindbender,if=buff.insanity_drain_stacks.value>=(variable.cd_time-(3*set_bonus.tier20_4pc*(raid_event.movement.in<15)*((active_enemies-(raid_event.adds.count*(raid_event.adds.remains>0)))=1))+(5-3*set_bonus.tier20_4pc)*buff.bloodlust.up+2*talent.fortress_of_the_mind.enabled*set_bonus.tier20_4pc)&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-buff.insanity_drain_stacks.value))
                 if drainStacks >= (cd_time -  (3 * t20pc4 * raidMovementWithin15 * singleEnemy) + (5 - 3*t20pc4)*lusting + 2*fortressOfTheMind*t20pc4)
-                    and (not talent.surrenderTomadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks))
+                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks))
                 then
                     if cast.mindbender() then return end
                 end
@@ -1489,7 +1488,7 @@ local function runRotation()
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
         --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindblast.remain() == 0) then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0) then
             SpellStopCasting()
             return true
         elseif not moving then
