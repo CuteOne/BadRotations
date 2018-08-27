@@ -71,6 +71,10 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  10,  1, "Unit Count Limit that SWP will be cast on.")
             -- VT Max Targets
             br.ui:createSpinnerWithout(section, "VT Max Targets",  3,  1,  10,  1, "Unit Count Limit that VT will be cast on.")
+            -- Mind Sear Targets
+            br.ui:createSpinnerWithout(section, "Mind Sear Targets",  5,  1,  10,  1, "Unit Count Limit before Mind Sear is being used.")
+            -- Dark Void Targets
+            br.ui:createSpinnerWithout(section, "Dark Void Targets",  5,  1,  10,  1, "Unit Count Limit before Dark Void is being used.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -260,6 +264,7 @@ local function runRotation()
     local t20_4pc                                       = TierScan("T20")>=4
     local t21_4pc                                       = TierScan("T21")>=4
     local talent                                        = br.player.talent
+    --local thp                                           = getHP(br.player.units(40))
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.insanity.ttm()
     local units                                         = br.player.units
@@ -275,6 +280,7 @@ local function runRotation()
     units.get(5)
     units.get(8)
     units.get(40)
+    enemies.get(5)
     enemies.get(8)
     enemies.get(30)
     enemies.get(40)
@@ -303,6 +309,7 @@ local function runRotation()
     local activeEnemies = #enemies.yards40
     -- searEnemmies represents the number of enemies in mind sear range of the primary target.
     local searEnemies = getEnemies(units.dyn40, 8, true)
+    local dVEnemies = getEnemies(units.dyn40, 8, true)
 
     if mode.rotation == 3 then
         activeEnemies = 1
@@ -333,6 +340,12 @@ local function runRotation()
     if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
     if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.mindFlay) then
         mfTick = mfTick + 1
+    end
+
+    -- Mind Sear Ticks
+    if msTick == nil or not inCombat or not isCastingSpell(spell.mindSear) then msTick = 0 end
+    if br.timer:useTimer("Mind Sear Ticks", 0.75) and isCastingSpell(spell.mindSear) then
+        msTick = msTick + 1
     end
 
     -- variable,name=cd_time,op=set,value=(10+(2-2*talent.mindbender.enabled*set_bonus.tier20_4pc)*set_bonus.tier19_2pc+(3-3*talent.mindbender.enabled*set_bonus.tier20_4pc)*equipped.mangazas_madness+(6+5*talent.mindbender.enabled)*set_bonus.tier20_4pc+2*artifact.lash_of_insanity.rank())
@@ -798,6 +811,12 @@ local function runRotation()
         if mode.voidForm == 1 and not moving then
             if cast.voidEruption() then return end
         end
+    -- Dark Void
+        if not moving then
+            if #dVEnemies >= getOptionValue("Dark Void Targets") and talent.darkVoid then
+                if cast.darkVoid() then return end
+            end
+        end
     -- Shadow Crash
         -- shadow_crash,if=talent.shadow_crash.enabled
         if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
@@ -907,6 +926,13 @@ local function runRotation()
 --        if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 12) < 100 then
 --            if cast.shadowWordVoid() then return end
 --        end
+    -- Mind Sear
+        -- mind_sear,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
+        if not moving then 
+            if #searEnemies >= getOptionValue("Mind Sear Targets") and debuff.shadowWordPain.exists("target") then
+                if cast.mindSear() then return end
+            end
+        end    
     -- Mind Flay
         -- mind_flay,interrupt=1,chain=1
         if not moving then
@@ -994,6 +1020,12 @@ local function runRotation()
         -- shadow_crash,if=talent.shadow_crash.enabled
         if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
             if cast.shadowCrash("best",nil,1,8) then return end
+        end
+    -- Dark Void
+        if not moving then
+            if #dVEnemies >= getOptionValue("Dark Void Targets") and talent.darkVoid then
+                if cast.darkVoid() then return end
+            end
         end
     --Mind Bender
         -- mindbender,if=cooldown.shadow_word_death.charges=0&buff.voidform.stack>(45+25*set_bonus.tier20_4pc)
@@ -1177,7 +1209,7 @@ local function runRotation()
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
         --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if isCastingSpell(spell.mindFlay) and mfTick >= 2 and cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0 then
+        if isCastingSpell(spell.mindFlay) and mfTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0) then
             SpellStopCasting()
             return true
         elseif not moving then
@@ -1293,6 +1325,12 @@ local function runRotation()
         then
             if cast.voidTorrent() then return end
         end
+    -- Dark Void
+        if not moving then
+            if #dVEnemies >= getOptionValue("Dark Void Targets") and talent.darkVoid then
+                if cast.darkVoid() then return end
+            end
+        end   
     -- Mindbender
         if isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
             if getOptionValue("  Shadowfiend Stacks") > 0 then
@@ -1484,6 +1522,13 @@ local function runRotation()
                 end
             end
         end
+    -- Mind Sear
+        if isCastingSpell(spell.mindSear) and msTick >= 1 and (cd.voidBolt.remain() == 0 or cd.mindBlast.remain() == 0) then
+            SpellStopCasting()
+            return true
+        elseif not moving and #searEnemies >= getOptionValue("Mind Sear Targets") then
+            if cast.mindSear() then return end
+        end    
     -- Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(action.void_bolt.usable|(current_insanity_drain*gcd.max>insanity&(insanity-(current_insanity_drain*gcd.max)+30)<100&cooldown.shadow_word_death.charges>=1))
         --if isCastingSpell(spell.mindFlay) and mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcdMax > power and (power - (insanityDrain * gcdMax) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) then

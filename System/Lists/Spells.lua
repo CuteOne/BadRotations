@@ -388,9 +388,6 @@ br.lists.spells = {
                 trailOfRuin                 = 258881,
                 unleashedPower              = 206477,
             },
-            traits                          = {
-                unboundChaos                = 275144,
-            }
         },
         -- Vengeance
         [581] = {
@@ -1249,6 +1246,7 @@ br.lists.spells = {
                 hotStreak                   = 48108,
                 iceFloes                    = 108839,
                 kaelthasUltimateAbility     = 209455,
+                preheat                     = 273333,
                 pyroclasm                   = 269651,
             },
             debuffs                         = {
@@ -1275,6 +1273,9 @@ br.lists.spells = {
                 pyroclasm                   = 269650,
                 searingTouch                = 269644,
             },
+            traits                          = {
+                preheat                     = 273332,
+            }
         },
         -- Frost
         [64] = {
@@ -1937,6 +1938,7 @@ br.lists.spells = {
                 halo                        = 120517,
                 leapOfFaith                 = 73325,
                 lightsWrath                 = 207946,
+                luminousBarrier             = 271466,
                 mindbender                  = 123040,
                 mindControl                 = 205364,
                 mindVision                  = 2096,
@@ -1944,7 +1946,7 @@ br.lists.spells = {
                 penance                     = 47540,
                 --plea                        = 200829,
                 powerInfusion               = 10060,
-                powerWordBarrier            = 62618,
+                --powerWordBarrier            = 62618,
                 powerWordRadiance           = 194509,
                 powerWordShield             = 17,
                 powerWordSolace             = 129250,
@@ -1954,7 +1956,6 @@ br.lists.spells = {
                 rapture                     = 47536,
                 schism                      = 214621,
                 shadowCovenant              = 204065,
-                shadowfiend                 = 34433,
                 shadowMend                  = 186263,
                 shadowWordPain              = 589,
                 shiningForce                = 204263,
@@ -1962,7 +1963,7 @@ br.lists.spells = {
                 smite                       = 585,
             },
             artifacts                       = {
-                sinsOfTheMany               = 198074,
+                --sinsOfTheMany               = 198074,
             },
             buffs                           = {
                 angelicFeather              = 121557,
@@ -1993,6 +1994,7 @@ br.lists.spells = {
                 bodyAndSoul                 = 64129,
                 castigation                 = 193134,
                 clarityOfWill               = 152118,
+                contrition                  = 197419,
                 divineStar                  = 110744,
                 dominantMind                = 205367,
                 grace                       = 200309,
@@ -2006,6 +2008,7 @@ br.lists.spells = {
                 schism                      = 214621,
                 shadowCovenant              = 204065,
                 shieldDiscipline            = 197045,
+                sinsOfTheMany               = 280391,
                 shiningForce                = 204263,
                 thePenitent                 = 200347,
                 twistOfFate                 = 109142,
@@ -2134,6 +2137,7 @@ br.lists.spells = {
             talents                         = {
                 auspiciousSpirits           = 155271,
                 bodyAndSoul                 = 64129,
+                darkVoid                    = 263346,
                 dominantMind                = 205367,
                 fortressOfTheMind           = 193195,
                 legacyOfTheVoid             = 193225,

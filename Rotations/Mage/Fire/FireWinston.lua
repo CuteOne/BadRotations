@@ -55,8 +55,10 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- FlameStrike Targets
+            br.ui:createSpinnerWithout(section, "Flamestrike Targets",  3,  1,  10,  1, "Unit Count Limit before casting Flamestrike.")
         -- Artifact 
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+        --    br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -187,6 +189,11 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
         if not talent.kindling then notKindle = 1 else notKindle = 0 end
+        --if #enemies.yards40 == 1 then singleEnemy = 1 else singleEnemy = 0 end
+        
+        --local activeEnemies = #enemies.yards40
+        local fSEnemies = getEnemies(units.dyn40, 8, true)
+
 
 --------------------
 --- Action Lists ---
@@ -459,11 +466,11 @@ local function runRotation()
                 end
             end
         -- Flamestrike
-            -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-            if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                if cast.flamestrike("best",nil,2,6) then return end
-            elseif ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
-                if cast.flamestrike("best",nil,2,6) then return end
+            -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
+            if ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                if cast.flamestrike("best",nil,1,8) then return end
+            elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
+                if cast.flamestrike("best",nil,1,8) then return end
             end
         -- Dragon's Breath
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
@@ -509,8 +516,8 @@ local function runRotation()
                 if cast.phoenixsFlames() then return end
             end
         -- Scorch
-            -- scorch,if=target.health.pct<=25&equipped.132454
-            if getHP("target") <= 30 and talent.searingTouch then
+            -- scorch,actions.standard_rotation+=/scorch,if=(target.health.pct<=30&talent.searing_touch.enabled)|(azerite.preheat.enabled&debuff.preheat.down)
+            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active() and not buff.preheat.exists("player")) then
                 if cast.scorch() then return end
             end
         -- Fireball
@@ -563,10 +570,10 @@ local function runRotation()
                     end
         -- Flamestrike
                     -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
-                    if ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                        if cast.flamestrike("best",nil,2,6) then return end
-                    elseif ((#enemies.yards8t >= 4 and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
-                        if cast.flamestrike("best",nil,2,6) then return end
+                    if ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                        if cast.flamestrike("best",nil,1,8) then return end
+                    elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
+                        if cast.flamestrike("best",nil,1,8) then return end
                     end
         -- Mirror Image
                     -- mirror_image,if=buff.combustion.down
