@@ -1954,6 +1954,7 @@ br.lists.spells = {
                 rapture                     = 47536,
                 schism                      = 214621,
                 shadowCovenant              = 204065,
+                shadowfiend                 = 34433,
                 shadowMend                  = 186263,
                 shadowWordPain              = 589,
                 shiningForce                = 204263,
