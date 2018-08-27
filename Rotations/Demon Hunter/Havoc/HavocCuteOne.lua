@@ -174,6 +174,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
+        local traits                                        = br.player.traits
         local units                                         = br.player.units
         local use                                           = br.player.use
 

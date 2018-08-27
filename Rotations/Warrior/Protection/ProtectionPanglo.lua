@@ -159,7 +159,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies 
+        local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
@@ -193,6 +193,7 @@ local function runRotation()
         units.get(8)
         enemies.get(5)
         enemies.get(8)
+        enemies.get(30)
         enemies.get(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -209,14 +210,15 @@ local function runRotation()
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
             end
-		if isChecked("Taunt") and inInstance then
-			for i = 1, #enemies.yards30 do
-				local thisUnit = enemies.yards30[i]
-				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-					if cast.taunt(thisUnit) then return end
-				end
-			end
-		end
+            --Taunt
+          	if isChecked("Taunt") and inInstance then
+          		for i = 1, #enemies.yards30 do
+          			local thisUnit = enemies.yards30[i]
+          			if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+          				if cast.taunt(thisUnit) then return end
+          			end
+          		end
+          	end
 
 			end -- End Action List - Extra
     -- Action List - Defensive
@@ -272,7 +274,7 @@ local function runRotation()
                 if inCombat and isChecked("Victory Rush") and php <= getOptionValue("Victory Rush") then
                     if cast.victoryRush() then return end
                 end
-				
+
             end -- End Defensive Check
         end -- End Action List - Defensive
     -- Action List - Interrupts

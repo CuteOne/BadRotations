@@ -379,7 +379,7 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            if getOptionValue("SEF Behavior") == 1 then
+            if getOptionValue("SEF Behavior") == 1 and not talent.serenity then
                 if cast.stormEarthAndFireFixate() then return true end
             end
         end -- End Action List - Extras
@@ -683,7 +683,7 @@ local function runRotation()
             if actionList_Cooldowns() then return true end
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs()))
+            if cast.able.stormEarthAndFire() and (mode.sef == 2 or (mode.sef == 1 and useCDs())) and not talent.serenity
                 and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd)
             then
                 if cast.stormEarthAndFire() then return end
@@ -716,12 +716,12 @@ local function runRotation()
                 if cast.fistOfTheWhiteTiger() then return true end
             end
         -- Tiger Palm
-            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi<=3&energy.time_to_max<2
-            if cast.able.tigerPalm(lowestMark) and chi <= 3 and ttm < 2 then
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi<=3&energy.time_to_max<2
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and chi <= 3 and ttm < 2 then
                 if cast.tigerPalm(lowestMark) then return true end
             end
-            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2&buff.serenity.down&cooldown.fist_of_the_white_tiger.remains>energy.time_to_max
-            if cast.able.tigerPalm(lowestMark) and chiMax - chi >= 2 and not buff.serenity.exists() and cd.fistOfTheWhiteTiger.remain() > ttm then
+            -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2&buff.serenity.down&cooldown.fist_of_the_white_tiger.remains>energy.time_to_max
+            if cast.able.tigerPalm(lowestMark) and not cast.last.tigerPalm() and chiMax - chi >= 2 and not buff.serenity.exists() and cd.fistOfTheWhiteTiger.remain() > ttm then
                 if cast.tigerPalm(lowestMark) then return true end
             end
         -- Whirling Dragon Punch
@@ -935,7 +935,7 @@ local function runRotation()
                 if getDistance("target") < 5 then
         -- Storm, Earth, and Fire
                     -- storm_earth_and_fire,if=!buff.storm_earth_and_fire.up
-                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and br.timer:useTimer("delaySEF1", gcd) then
+                    if cast.able.stormEarthAndFire() and not buff.stormEarthAndFire.exists() and not talent.serenity and br.timer:useTimer("delaySEF1", gcd) then
                         if cast.stormEarthAndFire() then return true end
                     end
                 end
@@ -1319,21 +1319,6 @@ local function runRotation()
                     if ((mode.rotation == 1 and #enemies.yards8 <= 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
                         if actionList_SingleTarget() then return true end
                     end
-        -- Commenting this out for now, sub-optimal Chi usage
-        -- -- Blackout Kick
-        --             -- 1 Chi and Last Spell == Tiger Palm catch
-        --             if chi == 1 and not cast.last.blackoutKick() then
-        --                 if cast.blackoutKick() then return true end
-        --             end
-        -- -- Tiger Palm
-        --             -- Less than equal to 1 Chi and Last Spell == Blackout Kick
-        --             if (chi == 0 and not cast.last.tigerPalm()) or buff.hitCombo.stack() == 0 then
-        --                 if cast.tigerPalm() then return true end
-        --             end
-        -- -- Crackling Jade Lightning
-        --             if chi == 0 and cast.last.tigerPalm() then
-        --                 if cast.cracklingJadeLightning() then return true end
-        --             end
                 end -- End Simulation Craft APL
     ----------------------------
     --- APL Mode: AskMrRobot ---

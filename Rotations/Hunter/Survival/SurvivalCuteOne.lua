@@ -171,7 +171,6 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.spell.items
         local mode                                          = br.player.mode
-        local opener                                        = opener or false
         local petCombat                                     = UnitAffectingCombat("pet")
         local php                                           = br.player.health
         local potion                                        = br.player.potion
@@ -195,10 +194,9 @@ local function runRotation()
 
         local lowestBloodseeker = debuff.bloodseeker.lowest(40,"remain")
         local lowestSerpentSting = debuff.serpentSting.lowest(40,"remain")
-        local lowestInternalBleeding = debuff.bloodseeker.lowest(5,"stack")
-        local lowestInternalBleeding40 = debuff.bloodseeker.lowest(40,"stack")
-        local maxLatentPoison = debuff.latentPoison.max(5,"stack")
-        local maxLatentPoison40 = debuff.latentPoison.max(40,"stack")
+        if buff.aspectOfTheEagle.exists() then range = 40 else range = 5 end
+        local lowestInternalBleeding = debuff.bloodseeker.lowest(range,"stack")
+        local maxLatentPoison = debuff.latentPoison.max(range,"stack")
 
         local function focusTimeTill(amount)
             if focus >= amount then return 0.5 end
@@ -231,7 +229,9 @@ local function runRotation()
         end
 
         -- Opener Reset
-        if not inCombat and not GetObjectExists("target") then
+        if opener == nil then opener = false end
+        if openerCount == nil then openerCount = 0 end
+        if not inCombat and not GetObjectExists("target") and opener == true then
 			openerCount = 0
             OP1 = false
             CA1 = false
@@ -241,10 +241,6 @@ local function runRotation()
             KC1 = false
             opener = false
         end
-
-    -- SimC Variables
-        -- variable,name=can_gcd,value=!talent.mongoose_bite.enabled|buff.mongoose_fury.down|(buff.mongoose_fury.remains-(((buff.mongoose_fury.remains*focus.regen+focus)%action.mongoose_bite.cost)*gcd.max)>gcd.max)
-        local canGCD = not talent.mongooseBite or not buff.mongooseFury.exists() or (buff.mongooseFury.remain() - (((buff.mongooseFury.remain() * focusRegen + focus) / cast.cost.mongooseBite()) * gcdMax) > gcdMax)
 
 --------------------
 --- Action Lists ---
@@ -486,35 +482,38 @@ local function runRotation()
             if cast.able.coordinatedAssault() and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs())) then
                 if cast.coordinatedAssault() then return end
             end
-        -- Raptor Strike
-            -- raptor_strike_eagle,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
-            if cast.able.raptorStrike() and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
-                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
-            then
-                if cast.raptorStrike() then return end
+        -- Wildfire Bomb
+            -- wildfire_bomb,if=full_recharge_time<gcd
+            if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < gcdMax then
+                if cast.wildfireBomb() then return end
             end
+        -- Serpent Sting
+            -- serpent_sting,if=refreshable&buff.mongoose_fury.stack=5
+            if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and buff.mongooseFury.stack() == 5 then
+                if cast.serpentSting() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=buff.mongoose_fury.stack=5
+            if cast.able.mongooseBite() and buff.mongooseFury.stack() == 5 then
+                if cast.mongooseBite() then return end
+            end
+        -- Raptor Strike
             -- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
-            if cast.able.raptorStrike() and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
+            if cast.able.raptorStrike() and not talent.mongooseBite and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
                 and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
             then
                 if cast.raptorStrike() then return end
             end
         -- Mongoose Bite
-            -- mongoose_bite_eagle,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
-            if cast.able.mongooseBite() and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
-                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
-            then
-                if cast.mongooseBite() then return end
-            end
             -- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
-            if cast.able.mongooseBite() and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
+            if cast.able.mongooseBite() and talent.mongooseBite and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
                 and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
             then
                 if cast.mongooseBite() then return end
             end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3
-            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
+            if cast.able.killCommand() and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3) then
                 if cast.killCommand() then return end
             end
         -- Chakrams
@@ -552,21 +551,13 @@ local function runRotation()
                 if cast.serpentSting() then return end
             end
         -- Mongoose Bite
-            -- mongoose_bite_eagle,if=buff.mongoose_fury.up|focus>60
-            if cast.able.mongooseBite() and talent.mongooseBite and buff.aspectOfTheEagle.exists() and (buff.mongooseFury.exists() or focus > 60) then
-                if cast.mongooseBite() then return end
-            end
             -- mongoose_bite,if=buff.mongoose_fury.up|focus>60
-            if cast.able.mongooseBite() and talent.mongooseBite and not buff.aspectOfTheEagle.exists() and (buff.mongooseFury.exists() or focus > 60) then
+            if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 60) then
                 if cast.mongooseBite() then return end
             end
         -- Raptor Strike
-            -- raptor_strike_eagle
-            if cast.able.raptorStrike() and not talent.mongooseBite and buff.aspectOfTheEagle.exists() then
-                if cast.raptorStrike() then return end
-            end
             -- raptor_strike
-            if cast.able.raptorStrike() and not talent.mongooseBite and not buff.aspectOfTheEagle.exists() then
+            if cast.able.raptorStrike() and not talent.mongooseBite then
                 if cast.raptorStrike() then return end
             end
         -- Wildfire Bomb
@@ -612,8 +603,8 @@ local function runRotation()
             end
         -- Kill Command
             -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
-            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax) then
-                if cast.killCommand() then return end
+            if cast.able.killCommand(lowestBloodseeker) and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax) then
+                if cast.killCommand(lowestBloodseeker) then return end
             end
         -- Butchery
             -- butchery,if=full_recharge_time<gcd|!talent.wildfire_infusion.enabled|dot.shrapnel_bomb.ticking&dot.internal_bleeding.stack<3
@@ -663,21 +654,13 @@ local function runRotation()
                 if cast.serpentSting(lowestSerpentSting) then return end
             end
         -- Mongoose Bite
-            -- mongoose_bite_eagle,target_if=max:debuff.latent_poison.stack
-            if cast.able.mongooseBite(maxLatentPoison40) and talent.mongooseBite and buff.aspectOfTheEagle.exists() then
-                if cast.mongooseBite(maxLatentPoison40) then return end
-            end
             -- mongoose_bite,target_if=max:debuff.latent_poison.stack
-            if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and not buff.aspectOfTheEagle.exists() then
+            if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite then
                 if cast.mongooseBite(maxLatentPoison) then return end
             end
         -- Raptor Strike
-            -- raptor_strike_eagle,target_if=max:debuff.latent_poison.stack
-            if cast.able.raptorStrike(maxLatentPoison40) and not talent.mongooseBite and buff.aspectOfTheEagle.exists() then
-                if cast.raptorStrike(maxLatentPoison40) then return end
-            end
             -- raptor_strike,target_if=max:debuff.latent_poison.stack
-            if cast.able.raptorStrike(maxLatentPoison) and not talent.mongooseBite and not buff.aspectOfTheEagle.exists() then
+            if cast.able.raptorStrike(maxLatentPoison) and not talent.mongooseBite then
                 if cast.raptorStrike(maxLatentPoison) then return end
             end
         end -- End Action List - Cleave
@@ -695,7 +678,7 @@ local function runRotation()
             end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3&(!talent.alpha_predator.enabled|buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-            if cast.able.killCommand() and getDistance("target","pet") < 10 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3
+            if cast.able.killCommand() and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3
                 and (not talent.alphaPredator or buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite()))
             then
                 if cast.killCommand() then return end
@@ -780,7 +763,7 @@ local function runRotation()
 		-- Start Attack
             -- auto_attack
             if (getOptionValue("Opener") == 1 or (getOptionValue("Opener") == 2 and useCDs())) and opener == false then
-                if isValidUnit("target") and getDistance("target") < 5 then
+                if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
 					if not OP1 then
                         Print("Starting Opener")
@@ -815,13 +798,12 @@ local function runRotation()
                         if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return true end
                     elseif KC1 then
             -- End
-                        Print("Opener Complete")
-                        openerCount = 0
-                        opener = true
-                        return
+                        opener = true;
+                        openerCount = 0;
+                        Print("Opener Complete");
        				end
                 end
-			elseif (UnitExists("target") and not isBoss("target")) or getOptionValue("Opener") == 3 or (getOptionValue("Opener") == 2 and not useCDs()) then
+			elseif (getOptionValue("Opener") == 3 or (getOptionValue("Opener") == 2 and not useCDs())) then
 				opener = true
 			end
         end -- End Action List - Opener
@@ -851,7 +833,7 @@ local function runRotation()
         -- Potion
             -- potion,name=prolonged_power
         -- Init Combat
-            if not inCombat and getDistance("target") < 40 and isValidUnit("target") and opener then
+            if not inCombat and getDistance("target") < 40 and isValidUnit("target") and opener == true then
         -- Steel Trap
                 -- steel_trap
                 if cast.able.steelTrap("target") then
@@ -900,7 +882,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn5) and opener then
+            if inCombat and isValidUnit("target") and opener == true then
     -----------------
     --- Pet Logic ---
     -----------------

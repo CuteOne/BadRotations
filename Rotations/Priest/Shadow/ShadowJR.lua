@@ -262,7 +262,7 @@ local function runRotation()
     local talent                                        = br.player.talent
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.insanity.ttm()
-    local units                                         = br.player.units 
+    local units                                         = br.player.units
     local use                                           = br.player.use
 
     local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
@@ -997,14 +997,14 @@ local function runRotation()
         end
     --Mind Bender
         -- mindbender,if=cooldown.shadow_word_death.charges=0&buff.voidform.stack>(45+25*set_bonus.tier20_4pc)
-        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and charges.shadowWordDeath.count() == 0 then
+        if isChecked("Shadowfiend / Mindbender") and talent.mindbender and (not talent.shadowWordDeath or (talent.shadowWordDeath and charges.shadowWordDeath.count() == 0)) then
             if getOptionValue("  Shadowfiend Stacks") > 0 then
                 --use configured value
                 if buff.voidForm.stack() >= getOptionValue("  Shadowfiend Stacks") then
                     if cast.mindBender() then return end
                 end
             else
-                if buff.voidVorm.stack() > (45 + 25 * t20pc4) then
+                if buff.voidForm.stack() > (45 + 25 * t20pc4) then
                     if cast.mindBender() then return end
                 end
             end
@@ -1303,7 +1303,7 @@ local function runRotation()
             else
             -- mindbender,if=buff.insanity_drain_stacks.value>=(variable.cd_time-(3*set_bonus.tier20_4pc*(raid_event.movement.in<15)*((active_enemies-(raid_event.adds.count*(raid_event.adds.remains>0)))=1))+(5-3*set_bonus.tier20_4pc)*buff.bloodlust.up+2*talent.fortress_of_the_mind.enabled*set_bonus.tier20_4pc)&(!talent.surrender_to_madness.enabled|(talent.surrender_to_madness.enabled&target.time_to_die>variable.s2mcheck-buff.insanity_drain_stacks.value))
                 if drainStacks >= (cd_time -  (3 * t20pc4 * raidMovementWithin15 * singleEnemy) + (5 - 3*t20pc4)*lusting + 2*fortressOfTheMind*t20pc4)
-                    and (not talent.surrenderTomadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks))
+                    and (not talent.surrenderToMadness or (talent.surrenderToMadness and ttd(units.dyn40) > s2mCheck - drainStacks))
                 then
                     if cast.mindbender() then return end
                 end
