@@ -2410,9 +2410,13 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                masterOfShadows             = 196980,
                 shadowBlades                = 121471,
                 shadowDance                 = 185422,
                 sharpenedBlades             = 272916,
+                shurikenCombo               = 245640,
+                shurikenTornado             = 277925,
+                subterfuge                  = 115192,
                 symbolsOfDeath              = 212283,
                 theDreadlordsDeceit         = 228224,
             },
@@ -2472,7 +2476,7 @@ br.lists.spells = {
                 feint                       = 1966,
                 masterAssassinsInitiative   = 235027, --235022
                 sprint                      = 2983,
-                stealth                     = 1784,
+                stealth                     = 1784 or 115191,
                 vanish                      = 11327 or 115193,
             },
             debuffs                         = {
