@@ -1,5 +1,5 @@
  <Bindings>  
-    
+
     <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation on/off" runOnUp="true" category="BadRotations">
             if keystate == "down" then mainButton:Click(); end
     </Binding>
@@ -8,7 +8,13 @@
     </Binding>
     <Binding name="Cooldowns Toggle" description="Hold to use toggle cooldowns" runOnUp="true" category="BadRotations">
             if keystate == "down" then customToggle = true; toggleKey = "Cooldown"; UpdateToggle("Cooldown",0.25); else customToggle = nil; toggleKey = nil; end
-    </Binding>    
+    </Binding>
+    <Binding name="Defensive Toggle" description="Hold to use toggle defensives" runOnUp="true" category="BadRotations">
+            if keystate == "down" then customToggle = true; toggleKey = "Defensive"; UpdateToggle("Defensive",0.25); else customToggle = nil; toggleKey = nil; end
+    </Binding>
+    <Binding name="Interrupt Toggle" description="Hold to use toggle interrupts" runOnUp="true" category="BadRotations">
+            if keystate == "down" then customToggle = true; toggleKey = "Interrupt"; UpdateToggle("Interrupt",0.25); else customToggle = nil; toggleKey = nil; end
+    </Binding> 
     <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadRotations">
             if keystate == "down" then forceHeal = true; else forceHeal = nil; end
     </Binding>
