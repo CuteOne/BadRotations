@@ -207,6 +207,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP("target")
+        local traits                                        = br.player.traits
         local units                                         = br.player.units
 
         units.get(5)
@@ -585,7 +586,7 @@ local function runRotation()
         -- Bladestorm
             -- bladestorm,if=cooldown.mortal_strike.remains&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
-                and ((debuff.colossusSmash.exists(units.dyn5) and not azerite.testOfMight.active()) or buff.testOfMight.exists())
+                and ((debuff.colossusSmash.exists(units.dyn5) and not traits.testOfMight.active()) or buff.testOfMight.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
@@ -610,7 +611,7 @@ local function runRotation()
             end
         -- Overpower
             -- overpower,if=azerite.seismic_wave.rank=3
-            if cast.able.overpower() and azerite.seismicWave.rank() == 3 then
+            if cast.able.overpower() and traits.seismicWave.rank() == 3 then
                 if cast.overpower() then return end
             end
         -- Mortal Strike
@@ -772,7 +773,7 @@ local function runRotation()
             -- Sweeping Strikes
                 -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
                 if cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
-                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or azerite.testOfMight.active())
+                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active())
                 then
                     if cast.sweepingStrikes() then return end
                 end
