@@ -233,7 +233,7 @@ local function runRotation()
     -- Feral Spirit
         if feralSpiritCastTime == nil then feralSpiritCastTime = 0 end
         if feralSpiritRemain == nil then feralSpiritRemain = 0 end
-        if cast.last.feralSpirit() == spell.feralSpirit then feralSpiritCastTime = GetTime() + 15 end
+        if cast.last.feralSpirit() then feralSpiritCastTime = GetTime() + 15 end
         if feralSpiritCastTime > GetTime() then feralSpiritRemain = feralSpiritCastTime - GetTime() else feralSpiritCastTime = 0; feralSpiritRemain = 0 end
 
 
