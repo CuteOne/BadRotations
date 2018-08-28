@@ -526,7 +526,7 @@ local function runRotation()
                 -- ancestral_call,if=buff.recklessness.up
                 if cast.able.racial() and useCDs()
                     and ((buff.recklessness.exists() and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
-                        or (not buff.recklessness.exists() and rage < 40 and race == "BloodElf") or (cd.recklessness.remain() < 3 and race == "LightforgedDraenei"))
+                        or (not buff.recklessness.exists() and ((rage < 40 and race == "BloodElf") or race == "LightforgedDraenei")))
                 then
                     if race == "LightforgedDraenei" then
                         if cast.racial("target","ground") then return true end

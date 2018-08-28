@@ -1061,11 +1061,6 @@ local function runRotation()
             if cast.able.risingSunKick(lowestMark) then
                 if cast.risingSunKick(lowestMark) then return true end
             end
-        -- Spinning Crane Kick
-            --actions.serenity+=/spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
-            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() then
-                if cast.spinningCraneKick(nil,"aoe") then return true end
-            end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick
             if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() then

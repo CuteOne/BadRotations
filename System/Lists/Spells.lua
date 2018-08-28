@@ -3080,6 +3080,7 @@ br.lists.spells = {
                 stoneHeart                  = 225947,
                 suddenDeath                 = 52437,
                 sweepingStrikes             = 260708,
+                testOfMight                 = 275540,
             },
             debuffs                         = {
                 colossusSmash               = 208086,
@@ -3107,6 +3108,10 @@ br.lists.spells = {
                 warMachine                  = 262231,
                 warbreaker                  = 262161,
             },
+            traits                          = {
+                seismicWave                 = 277639,
+                testOfMight                 = 275529,
+            }
         },
         -- Fury
         [72] = {
