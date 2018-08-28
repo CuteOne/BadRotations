@@ -249,7 +249,7 @@ local function runRotation()
 		-- Raid
 		-------------
 		local tanks                                         = getTanksTable()
-		local lowest 									    = br.friend[1]
+		local lowest                                        = br.friend[1]
 		local friends                                       = friends or {}
 		-------------
 		-- Enemies
@@ -496,14 +496,14 @@ local function runRotation()
 				end
 			end
 			for i=1, #br.friend do
-				if UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitIsUnit(br.friend[i].unit,"boss1target")
+				if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitIsUnit(br.friend[i].unit,"boss1target")
 					and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
 					beaconOfLightinRaid = br.friend[i].unit
 				end
-				if LightCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
+				if LightCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitInRange(br.friend[i].unit) then
 					beaconOfLightTANK = br.friend[i].unit
 				end
-				if FaithCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
+				if FaithCount < 1 and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitInRange(br.friend[i].unit) then
 					beaconOfFaithTANK = br.friend[i].unit
 				elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
 					beaconOfFaithplayer = br.friend[i].unit
@@ -540,13 +540,13 @@ local function runRotation()
 				if br.friend[i].hp <= getValue ("Lay on Hands") and UnitInRange(br.friend[i].unit) and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 					layOnHandsall = br.friend[i].unit
 				end
-				if br.friend[i].hp <= getValue ("Lay on Hands") and UnitInRange(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
+				if br.friend[i].hp <= getValue ("Lay on Hands") and UnitInRange(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 					layOnHandsTANK = br.friend[i].unit
 				end
 				if br.friend[i].hp <= getValue ("Blessing of Protection") and UnitInRange(br.friend[i].unit) then
 					blessingOfProtectionall = br.friend[i].unit
 				end
-				if br.friend[i].hp <= getValue ("Blessing of Protection") and UnitInRange(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+				if br.friend[i].hp <= getValue ("Blessing of Protection") and UnitInRange(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 					blessingOfProtectionTANK = br.friend[i].unit
 				end
 				if br.friend[i].hp <= getValue ("Blessing of Protection") and UnitInRange(br.friend[i].unit) and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER") then
@@ -555,7 +555,7 @@ local function runRotation()
 				if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and UnitInRange(br.friend[i].unit) and not UnitIsUnit(br.friend[i].unit,"player") then
 					blessingOfSacrificeall = br.friend[i].unit
 				end
-				if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and UnitInRange(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+				if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and UnitInRange(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 					blessingOfSacrificeTANK = br.friend[i].unit
 				end
 				if br.friend[i].hp <= getValue ("Blessing of Sacrifice") and UnitInRange(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "DAMAGER" then
@@ -655,7 +655,7 @@ local function runRotation()
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local function DPS()
-			if (mode.DPS == 1 and isChecked("DPS") and br.friend[1].hp > getValue("DPS")) or buff.avengingCrusader.exists() then
+			if (mode.DPS == 1 and isChecked("DPS") and lowest.hp > getValue("DPS")) or buff.avengingCrusader.exists() then
 				if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
 					TargetUnit("focustarget")
 				end
@@ -784,7 +784,7 @@ local function runRotation()
 				if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 					lightOfTheMartyrHP = br.friend[i].unit
 				end
-				if br.friend[i].hp <= getValue("FoL Tanks") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
+				if br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 					flashOfLightTANK = br.friend[i].unit
 				end
 				if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (10*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
@@ -874,8 +874,8 @@ local function runRotation()
 						if cast.holyShock(tanks[1].unit) then return end
 					end
 				end
-				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < getValue("Necrotic Rot") then
-					if cast.holyShock(br.friend[1].unit) then return end
+				if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
+					if cast.holyShock(lowest.unit) then return end
 				end
 				if inRaid and isChecked("Mastery bonus") then
 					if holyShock10 ~= nil then
@@ -892,6 +892,9 @@ local function runRotation()
 					if cast.holyShock(holyShock40) then return end
 				end
 			end
+			if inInstance and php >= 90 and GetSpellCooldown(20473) >= 1.5 and isCastingSpell(spell.flashOfLight) then
+				if cast.lightOfTheMartyr(lowest.unit) then return end
+			end	
 			-- Divine Shield and Light of the Martyr
 			if lightOfTheMartyrDS ~= nil and php <= getValue ("Critical HP") then
 				if cast.lightOfTheMartyr(lightOfTheMartyrDS) then return end
@@ -910,8 +913,8 @@ local function runRotation()
 						if cast.flashOfLight(tanks[1].unit) then healing_obj = tanks[1].unit return end
 					end
 				end
-				if br.friend[1].hp <= getValue("Critical HP") and getDebuffStacks(br.friend[1].unit,209858) < getValue("Necrotic Rot") then
-					if cast.flashOfLight(br.friend[1].unit) then healing_obj = br.friend[1].unit return end
+				if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
+					if cast.flashOfLight(lowest.unit) then healing_obj = lowest.unit return end
 				end
 				if flashOfLightTANK ~= nil then
 					if cast.flashOfLight(flashOfLightTANK) then healing_obj = flashOfLightTANK return end
@@ -984,8 +987,8 @@ local function runRotation()
 						if cast.lightOfTheMartyr(tanks[1].unit) then return end
 					end
 				end
-				if br.friend[1].hp <= getValue("Critical HP") and not UnitIsUnit(br.friend[1].unit,"player") and getDebuffStacks(br.friend[1].unit,209858) < getValue("Necrotic Rot") then
-					if cast.lightOfTheMartyr(br.friend[1].unit) then return end
+				if lowest.hp <= getValue("Critical HP") and not UnitIsUnit(lowest.unit,"player") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
+					if cast.lightOfTheMartyr(lowest.unit) then return end
 				end
 				if inRaid and isChecked("Mastery bonus") then
 					if lightOfTheMartyrM10 ~= nil then
