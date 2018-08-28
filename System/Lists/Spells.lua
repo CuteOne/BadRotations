@@ -1105,6 +1105,7 @@ br.lists.spells = {
                 racial                      = getRacialID(),
                 revivePet                   = 982,
                 smack                       = 49966,
+				spiritmend					= 90361,
                 tarTrap                     = 187698,
                 wakeUp                      = 210000,
             },

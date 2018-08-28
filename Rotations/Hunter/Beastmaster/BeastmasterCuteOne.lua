@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+		-- Spirit Mend
+			br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Pet Attacks
             br.ui:createCheckbox(section, "Pet Attacks")
         br.ui:checkSectionState(section)
@@ -345,6 +347,10 @@ local function runRotation()
             -- Mend Pet
             if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return end
+            end
+			-- Spirit Mend
+            if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and php < getOptionValue("Spirit Mend")then
+                if cast.spiritmend('player') then return end
             end
         end
     -- Action List - Extras
