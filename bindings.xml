@@ -1,16 +1,16 @@
  <Bindings>  
-
-    <Binding name="Burst Rotation" description="Hold to use burst rotation" header="BADBOY" runOnUp="true" category="BadBoy">
-            if keystate == "down" then burst = true; else burst = nil; end
+    
+    <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation on/off" runOnUp="true" category="BadRotations">
+            if keystate == "down" then mainButton:Click(); end
     </Binding>
-    <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadBoy">
-            if keystate == "down" then forceHeal = true; else forceHeal = nil; end
-    </Binding>
-    <Binding name="Rotation Toggle" description="Hold to use toggle rotation" runOnUp="true" category="BadBoy">
+    <Binding name="Rotation Toggle" description="Hold to use toggle rotation mode" runOnUp="true" category="BadRotations">
             if keystate == "down" then customToggle = true; toggleKey = "Rotation"; UpdateToggle("Rotation",0.25); else customToggle = nil; toggleKey = nil; end
     </Binding>
-    <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation" runOnUp="true" category="BadBoy">
-            if keystate == "down" then mainButton:Click(); end
+    <Binding name="Cooldowns Toggle" description="Hold to use toggle cooldowns" runOnUp="true" category="BadRotations">
+            if keystate == "down" then customToggle = true; toggleKey = "Cooldown"; UpdateToggle("Cooldown",0.25); else customToggle = nil; toggleKey = nil; end
+    </Binding>    
+    <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadRotations">
+            if keystate == "down" then forceHeal = true; else forceHeal = nil; end
     </Binding>
     
  </Bindings>
