@@ -384,14 +384,24 @@ local function runRotation()
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
-			if useInterrupts() and activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
-        for i=1, #enemies.yards30 do
-          thisUnit = enemies.yards30[i]
-          if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-					  if activePetId == 417 then
-		            if cast.spellLock(thisUnit) then return end
+            if useInterrupts() then
+            if talent.grimoireOfSacrifice then
+                for i=1, #enemies.yards30 do
+                thisUnit = enemies.yards30[i]
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                if cast.spellLock(thisUnit) then return end
+                end
             end
-          end
+
+            elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
+                    for i=1, #enemies.yards30 do
+                    thisUnit = enemies.yards30[i]
+                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+					  if activePetId == 417 then
+                    if cast.spellLock(thisUnit) then return end
+                    end
+                end
+            end
         end
       end -- End useInterrupts check
 		end -- End Action List - Interrupts
