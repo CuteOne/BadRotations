@@ -572,7 +572,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
         elseif thisUnit ~= nil then
             local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
-				local hasEnemies = #getEnemies("player",maxRange) >= minUnits
+				local hasEnemies = #getEnemies("player",maxRange) >= minUnits or spellType == "Helpful"
                 if debug == "rect" then
 	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") and hasEnemies then
                     	castDebug()
