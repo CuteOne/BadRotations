@@ -968,7 +968,7 @@ local function runRotation()
                 end
                 --Halo Damage
                 if isChecked("Halo Damage") and talent.halo and mode.halo == 1 and norganBuff then
-                    if #enemies.dyn30 >= getOptionValue("Halo Damage") then
+                    if #enemies.get(30) >= getOptionValue("Halo Damage") then
                         if cast.halo() then
                             healCount = 0
                         end
