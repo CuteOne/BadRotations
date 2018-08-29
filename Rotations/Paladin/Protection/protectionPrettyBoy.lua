@@ -54,6 +54,8 @@ local function createOptions()
 		--- GENERAL OPTIONS ---
 		-----------------------
 		section = br.ui:createSection(br.ui.window.profile,  "General")
+		-- APL
+		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFFeng","|cffFFFFFFSim"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Taunt
@@ -233,7 +235,10 @@ local function runRotation()
 		enemies.yards30 = enemies.get(30)
 
 		if profileStop == nil then profileStop = false end
-
+		if consecrationCastTime == nil then consecrationCastTime = 0 end
+		if consecrationRemain == nil then consecrationRemain = 0 end
+		if cast.last.consecration() then consecrationCastTime = GetTime() + 12 end
+		if consecrationCastTime > GetTime() then consecrationRemain = consecrationCastTime - GetTime() else consecrationCastTime = 0; consecrationRemain = 0 end
 		local lowestUnit
 		lowestUnit = "player"
 		for i = 1, #br.friend do
@@ -307,12 +312,12 @@ local function runRotation()
 			if blessingOfProtectionCase ~= nil then
 				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
 			end
-			-- Cleanse Toxins
+			-- Cleanse
 			if cleanseToxinsCase ~= nil then
 				if cast.cleanseToxins(cleanseToxinsCase) then return end
 			end
 			if cleanseToxinsCase2 ~= nil then
-				if cast.cleanseToxins(cleanseToxinsCase2) then return end
+				if cast.cleanse(cleanseToxinsCase2) then return end
 			end
 			-- Shield of the Righteous
 			local Debuff={
@@ -509,7 +514,7 @@ local function runRotation()
 				end
 				-- Cleanse Toxins
 				if isChecked("Clease Toxin") then
-					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffStacks("player",261440) == 0 then
+					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) then
 						if cast.cleanseToxins("player") then return end
 					end
 					if getOptionValue("Clease Toxin")==2 and canDispel("target",spell.cleanseToxins) then
@@ -687,7 +692,7 @@ local function runRotation()
 			--------------------------
 			--- In Combat Rotation ---
 			--------------------------
-			if inCombat and profileStop==false then
+			if inCombat and not (IsMounted() or buff.divineSteed.exists()) and profileStop==false then
 				------------------------------
 				--- In Combat - Interrupts ---
 				------------------------------
@@ -702,33 +707,104 @@ local function runRotation()
 				--------------------------------
 				--- In Combat - SimCraft APL ---
 				--------------------------------
-				if not IsMounted() or buff.divineSteed.exists() then
+				if getOptionValue("APL Mode") == 1 then
 					if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
 						-- Shield of the Righteous
-						if isChecked("Shield of the Righteous") and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
+						if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
 							if cast.shieldOfTheRighteous() then return end
 						end
 						if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
 							-- Judgment
-							if isChecked("Judgment") then
+							if isChecked("Judgment") and cast.able.judgment() then
 								if cast.judgment(units.dyn30) then return end
 							end
 							-- Avenger's Shield
-							if isChecked("Avenger's Shield") then
+							if isChecked("Avenger's Shield") and cast.able.avengersShield() then
 								if cast.avengersShield(units.dyn30) then return end
 							end
 						end
 						-- Consecration
-						if isChecked("Consecration") and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
+						if isChecked("Consecration") and cast.able.consecration() and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
 							if cast.consecration() then return end
 						end
 						-- Blessed Hammer
-						if isChecked("Blessed Hammer") and talent.blessedHammer and #enemies.yards5 >= 1 then
+						if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
 							if cast.blessedHammer() then return end
 						end
 						-- Hammer of the Righteous
-						if isChecked("Hammer of the Righteous") and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
+						if isChecked("Shield of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 							if cast.hammerOfTheRighteous(units.dyn5) then return end
+						end
+					end
+				end
+				--------------------------------
+				----- In Combat - Feng APL -----
+				--------------------------------
+				if getOptionValue("APL Mode") == 2 then
+					if isChecked("Shield of the Righteous") and getDistance(units.dyn5) <= 5 and getFacing("player",units.dyn5) then
+						--actions+=/shield_of_the_righteous,if=(buff.avengers_valor.up&cooldown.shield_of_the_righteous.charges_fractional>=2.5)&(cooldown.seraphim.remains>gcd|!talent.seraphim.enabled)
+						if cast.able.shieldOfTheRighteous() and ((buff.avengersValor.exists() and charges.shieldOfTheRighteous.frac()>=2.5) and (cd.seraphim.remain()>gcd or not talent.seraphim)) then
+							if cast.shieldOfTheRighteous() then return end
+						end
+						--actions+=/shield_of_the_righteous,if=(cooldown.shield_of_the_righteous.charges_fractional=3&cooldown.avenger_shield.remains>(2*gcd))
+						if cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac()==3 and cd.avengersShield.remain()>(2*gcd))) then
+							if cast.shieldOfTheRighteous() then return end
+						end
+						--actions+=/shield_of_the_righteous,if=(buff.avenging_wrath.up&!talent.seraphim.enabled)|buff.seraphim.up&buff.avengers_valor.up
+						if cast.able.shieldOfTheRighteous() and ((buff.avengingWrath.exists() and not talent.seraphim) or buff.seraphim.exists() and buff.avengersValor.exists()) then
+							if cast.shieldOfTheRighteous() then return end
+						end
+						--actions+=/shield_of_the_righteous,if=(buff.avenging_wrath.up&buff.avenging_wrath.remains<4&!talent.seraphim.enabled)|(buff.seraphim.remains<4&buff.seraphim.up)
+						if cast.able.shieldOfTheRighteous() and ((buff.avengingWrath.exists() and buff.avengingWrath.remain()<4 and not talent.seraphim) or (buff.seraphim.remain()<4 and buff.seraphim.exists())) then
+							if cast.shieldOfTheRighteous() then return end
+						end
+					end
+					--actions+=/use_items,if=buff.seraphim.up|!talent.seraphim.enabled
+					--TODO: parsing use_items
+					--actions+=/lights_judgment,if=buff.seraphim.up&buff.seraphim.remains<3
+					if isChecked("Racial") and cast.able.racial() and buff.seraphim.exists() and buff.seraphim.remain()<3 and race == "LightforgedDraenei" then
+						if cast.racial() then return end
+					end
+					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+						--actions+=/avengers_shield,if=((cooldown.shield_of_the_righteous.charges_fractional>2.5&!buff.avengers_valor.up)|active_enemies>=2)&cooldown_react
+						if isChecked("Avenger's Shield") and cast.able.avengersShield() and (((charges.shieldOfTheRighteous.frac()>2.5 and not buff.avengersValor.exists()) or #enemies.yards8>=2) and cd.avengersShield.remain() == 0) then
+							if cast.avengersShield() then return end
+						end
+						--actions+=/judgment,if=(cooldown.judgment.remains<gcd&cooldown.judgment.charges_fractional>1&cooldown_react)|!talent.crusaders_judgment.enabled
+						if isChecked("Judgment") and cast.able.judgment() and ((cd.judgment.remain()<gcd and charges.judgment.frac()>1 and cd.judgment.remain() == 0) or not talent.crusadersJudgment) then
+							if cast.judgment() then return end
+						end
+						--actions+=/avengers_shield,,if=cooldown_react
+						if isChecked("Avenger's Shield") and cast.able.avengersShield() and cd.avengersShield.remain() == 0 then
+							if cast.avengersShield() then return end
+						end
+					end
+					if isChecked("Consecration") and #enemies.yards8>=1 then
+					--actions+=/consecration,if=(cooldown.judgment.remains<=gcd&!talent.crusaders_judgment.enabled)|cooldown.avenger_shield.remains<=gcd&consecration.remains<gcd
+						if cast.able.consecration() and ((cd.judgment.remain()<=gcd and not talent.crusadersJudgment) or cd.avengersShield.remain()<=gcd and consecrationRemain<gcd) then
+							if cast.consecration() then return end
+						end
+					--actions+=/consecration,if=!talent.crusaders_judgment.enabled&consecration.remains<(cooldown.judgment.remains+cooldown.avengers_shield.remains)&consecration.remains<3*gcd
+						if cast.able.consecration() and (not talent.crusadersJudgment and consecrationRemain<(cd.judgment.remain()+cd.avengersShield.remain()) and consecrationRemain<3*gcd) then
+							if cast.consecration() then return end
+						end
+					end
+					--actions+=/judgment,if=cooldown_react|!talent.crusaders_judgment.enabled
+					if isChecked("Judgment") and cast.able.judgment() and (cd.judgment.remain() == 0 or not talent.crusadersJudgment) and getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+						if cast.judgment() then return end
+					end
+					--actions+=/lights_judgment,if=!talent.seraphim.enabled|buff.seraphim.up
+					if isChecked("Racial") and cast.able.racial() and (not talent.seraphim or buff.seraphim.exists()) and race == "LightforgedDraenei" then
+						if cast.racial() then return end
+					end
+					if #enemies.yards5 >= 1 and getFacing("player",units.dyn5) then
+						--actions+=/blessed_hammer
+						if isChecked("Blessed Hammer") and cast.able.blessedHammer() then
+							if cast.blessedHammer() then return end
+						end
+						--actions+=/hammer_of_the_righteous
+						if isChecked("Shield of the Righteous") and cast.able.hammerOfTheRighteous() then
+							if cast.hammerOfTheRighteous() then return end
 						end
 					end
 				end
