@@ -688,7 +688,7 @@ local function runRotation()
                 end
             end
             --Power Word: Shield
-            if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) <= 0 and not buff.rapture.exists("player") then
+            --if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) <= 0 and not buff.rapture.exists("player") then
             --     -- Player
             --     if getOptionValue("PW:S Target") == 1 then
             --         if php <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("player") then
