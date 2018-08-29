@@ -1,4 +1,4 @@
-local rotationName = "Reyne - Frost"
+local rotationName = "ReyneFrost"
 
 ---------------
 --- Toggles ---
@@ -35,12 +35,13 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
-        -- Cooldown Options
+        local section
+    -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-            -- Mirror Image
-                br.ui:createCheckbox(section,"Mirror Image")
-            -- Icy Veins
-                br.ui:createCheckbox(section,"Icy Veins")
+        -- Trinkets
+            br.ui:createCheckbox(section,"Icy Veins")
+        -- Mirror Image
+            br.ui:createCheckbox(section,"Mirror Image")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -82,13 +83,10 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasPet                                        = IsPetActive()
-        local hasteAmount                                   = GetHaste()/100
-        local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
@@ -143,10 +141,8 @@ local function runRotation()
         -- Cast Frozen Orb on Cooldown
         if cast.frozenOrb() then return end
         -- Blizzard with 3 targets
-        if #enemies.yards8t >= 3 then
-            cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
-            ClickPosition(X,Y,Z)
+        if cast.able.blizzard("best",nil,3,8) then
+            if cast.blizzard("best",nil,3,8) then return end
         end
         -- Comet Storm
         if cast.able.cometStorm() then
@@ -161,8 +157,8 @@ local function runRotation()
             if cast.iceLance() then return end
         end
         -- Cast Ebonbolt with 5 icicles and no Brain Freeze
-        if cast.able.ebonbolt() and buff.icicles.stack() = 5 and not buff.brainFreeze.exists() then
-            if cast.ebonbolt() then return end -- 270232
+        if cast.able.ebonbolt() and buff.icicles.stack() == 5 and not buff.brainFreeze.exists() then
+           if cast.ebonbolt() then return end
         end
         -- Glacial Spike
         if cast.able.glacialSpike() and buff.brainFreeze.exists() then
@@ -186,10 +182,6 @@ local function runRotation()
         if cast.able.icyVeins() and useCDs() and isChecked("Icy Veins") then
             if cast.icyVeins() then return end
         end
-        -- Cast Rune of Power
-        --if cast.able.runeOfPower() then
-        --    if cast.runeOfPower() then return end
-        --end
         -- Flurry on Brain Freeze Proc
         if buff.brainFreeze.exists() and not buff.fingersOfFrost.exists() and buff.icicles.stack() <= 3 then
             if cast.flurry() then return end
@@ -197,16 +189,12 @@ local function runRotation()
         -- Frozen Orb
         if cast.frozenOrb() then return end
         -- Blizzard with 3 targets
-        if #enemies.yards8t >= 3 then
-            cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
-            ClickPosition(X,Y,Z)
+        if cast.able.blizzard("best",nil,3,8) then
+            if cast.blizzard("best",nil,3,8) then return end
         end
         -- Blizzard with 2 targets and Freezing Rain
-        if #enemies.yards8t = 2 and buff.freezingRain.exists() then
-            cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
-            ClickPosition(X,Y,Z)
+        if cast.able.blizzard("best",nil,2,8) and buff.freezingRain.exists() then
+            if cast.blizzard("best",nil,2,8) then return end
         end
         -- Ice lance with Fingers of Frost
         if buff.fingersOfFrost.exists() then
@@ -217,18 +205,16 @@ local function runRotation()
             if cast.cometStorm() then return end
         end
         -- Cast Ebonbolt with 5 icicles and no Brain Freeze
-        if cast.able.ebonbolt() and buff.icicles.stack() = 5 and not buff.brainFreeze.exists() then
-            if cast.ebonbolt() then return end -- 270232
+        if cast.able.ebonbolt() and buff.icicles.stack() == 5 and not buff.brainFreeze.exists() then
+            if cast.ebonbolt() then return end
         end
         -- Glacial Spike
         if cast.able.glacialSpike() and buff.brainFreeze.exists() then
             if cast.glacialSpike() then return end
         end
-        -- Blizzard on single target with Freezing Rain
-        if cast.able.blizzard() and buff.freezingRain.exists() then
-            cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
-            ClickPosition(X,Y,Z)
+        -- Blizzard with 1 Target and Freezing Rain
+        if cast.able.blizzard("best",nil,1,8) and buff.freezingRain.exists() then
+            if cast.blizzard("best",nil,1,8) then return end
         end
         -- Filler Frostbolt Cast
         if cast.frostbolt() then return end
@@ -255,13 +241,11 @@ local function runRotation()
         -- Cast Frozen Orb on Cooldown
         if cast.frozenOrb() then return end
         -- Blizzard with 3 targets
-        if #enemies.yards8t >= 3 then
-            cast.blizzard("target")
-            local X,Y,Z = ObjectPosition("target")
-            ClickPosition(X,Y,Z)
+        if cast.able.blizzard("best",nil,3,8) then
+            if cast.blizzard("best",nil,3,8) then return end
         end
         -- Blizzard with 2 targets and Freezing Rain
-        if #enemies.yards8t = 2 and buff.freezingRain.exists() then
+        if #enemies.yards8t == 2 and buff.freezingRain.exists() then
             cast.blizzard("target")
             local X,Y,Z = ObjectPosition("target")
             ClickPosition(X,Y,Z)
@@ -295,12 +279,12 @@ local function runRotation()
                 if actionList_AOE() then return end
             end
             -- Glacial Spike Rotation
-            if talent.glacialSpike() then
-                if actionList_gs()) then return end
+            if talent.glacialSpike then
+                if actionList_gs() then return end
             end
              -- Thermal Void Rotation
-             if talent.thermalVoid() then
-                if actionList_tv()) then return end
+            if talent.thermalVoid then
+                if actionList_tv() then return end
             end
             end -- End In Combat Rotation
 

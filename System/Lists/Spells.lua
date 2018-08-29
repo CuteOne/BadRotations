@@ -1298,7 +1298,6 @@ br.lists.spells = {
                 iceBarrier                  = 11426,
             },
             artifacts                       = {
-                ebonbolt                    = 257537,
                 icyHand                     = 220817,
             },
             buffs                           = {
@@ -1335,6 +1334,7 @@ br.lists.spells = {
                 rayOfFrost                  = 205021,
                 splittingIce                = 56377,
                 thermalVoid                 = 155149,
+                ebonbolt                    = 257537,
             },
         },
         -- All
