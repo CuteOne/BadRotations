@@ -401,7 +401,7 @@ local function runRotation()
             if buff.rapture.exists("player") then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and br.friend[i].hp <= getValue("Atonement HP") then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
