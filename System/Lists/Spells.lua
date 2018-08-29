@@ -2003,6 +2003,7 @@ br.lists.spells = {
                 contrition                  = 197419,
                 divineStar                  = 110744,
                 dominantMind                = 205367,
+                evangelism                  = 246287,
                 --grace                       = 200309,
                 halo                        = 120517,
                 masochism                   = 193063,
