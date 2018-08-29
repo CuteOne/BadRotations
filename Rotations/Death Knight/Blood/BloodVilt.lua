@@ -606,7 +606,7 @@ local function runRotation()
                     end
                     -- Healing
                     if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() then
-                        if cast.deathstrike() then DSCastTime = GetTime(); return end
+                        if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
 
                     -- APL
