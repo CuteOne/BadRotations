@@ -388,6 +388,9 @@ br.lists.spells = {
                 trailOfRuin                 = 258881,
                 unleashedPower              = 206477,
             },
+            traits                          = {
+                unboundChaos                = 275144
+            },
         },
         -- Vengeance
         [581] = {
