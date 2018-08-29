@@ -22,6 +22,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spearHandStrike }
     };
     CreateButton("Interrupt",3,0)
+    BrewsModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Brews Enabled", tip = "Brews will be used.", highlight = 1, icon = br.player.spell.ironskinBrew },
+        [2] = { mode = "Off", value = 2 , overlay = "Brews Disabled", tip = "No Brews will be used.", highlight = 0, icon = br.player.spell.legSweep }
+    };
+    CreateButton("Brews",4,0)
 end
 
 ---------------
@@ -62,6 +67,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Expel Harm Orbs
             br.ui:createSpinnerWithout(section, "Expel Harm Orbs",  3,  0,  15,  1,  "|cffFFFFFFMin amount of Gift of the Ox Orbs to cast.")
+        -- Vivify
+            br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFCast Vivify")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -97,8 +104,11 @@ local function runRotation()
 ---------------
 --- Toggles ---
 ---------------
+        UpdateToggle("Rotation",0.25)        
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        UpdateToggle("Brews",0.25)
+        br.player.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
 
 --------------
 --- Locals ---
@@ -184,6 +194,10 @@ local function runRotation()
     -- Action List - Defensive
         function actionList_Defensive()
             if useDefensive() then
+        -- Vivify
+                  if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
+                    if cast.vivify() then return end
+                end
         --Expel Harm
                 if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
                     if cast.expelHarm() then return end
@@ -295,17 +309,19 @@ local function runRotation()
 			--------------------------------
 			if talent.blackoutCombo then 
     -- Purifying Brew actions+=/purifying_brew,if=stagger.heavy|(stagger.moderate&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-0.5&buff.ironskin_brew.remains>=buff.ironskin_brew.duration*2.5)
-				if isChecked("Auto Purify") then
+            if br.player.mode.brews == 1 then    
+                if isChecked("Auto Purify") then
 					if debuff.heavyStagger.exists("player") or (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
 						(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5))) then
 							if cast.purifyingBrew() then return end
 						end
                 end
                 if isChecked("Stagger dmg % to purify") then
-                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
+                    if ((UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.count() > 1)) or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
                     end
                 end
+            end
             -- Black Ox Brew
                 if (charges.purifyingBrew.frac() < 0.5) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                     if cast.blackoxBrew() then return end
@@ -313,11 +329,17 @@ local function runRotation()
 -- ironskin_brew,&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-1.0-(1+buff.ironskin_brew.remains<=buff.ironskin_brew.duration*0.5)
 				
                 -- Ironskin Brew
-				local ironskinBrewDuration = 7
-                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max() - 1 - ((1 + (buff.ironskinBrew.remain() <= ironskinBrewDuration and 0.5 or 0))))
-				and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
+--				local ironskinBrewDuration = 7
+--                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max() - 1 - ((1 + (buff.ironskinBrew.remain() <= ironskinBrewDuration and 0.5 or 0))))
+--				and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
+--                    if cast.ironskinBrew() then return end
+--                end
+            -- Ironskin Bandage
+            if br.player.mode.brews == 1 then
+                if not buff.blackoutCombo.exists() and (charges.purifyingBrew.count() > 1) and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 5 and buff.ironskinBrew.remain() <=14)) then
                     if cast.ironskinBrew() then return end
                 end
+            end
 			-- Chi Wave 
 				if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 					if cast.chiWave() then return end
@@ -334,7 +356,7 @@ local function runRotation()
                 end
 			-- Keg Smash
                 if (getOptionValue("Black Out Combo Priority") == 2 and buff.blackoutCombo.exists()) or
-					(getOptionValue("Black Out Combo Priority") == 1) then
+					(getOptionValue("Black Out Combo Priority") == 1 and not buff.blackoutCombo.exists()) then
                     if cast.kegSmash() then return end
                 end
             -- Blackout Strike
@@ -345,7 +367,7 @@ local function runRotation()
                     if cast.tigerPalm() then return end
                 end
                 -- Breath of Fire
-                if debuff.kegSmash.exists() then
+                if (not buff.blackoutCombo.exists() and debuff.kegSmash.exists()) or (not cast.able.kegSmash()) then
                     if cast.breathOfFire() then return end
                 end
 				
@@ -356,27 +378,35 @@ local function runRotation()
 			-------------------------------------
 			if not talent.blackoutCombo then
 -- Purifying Brew actions+=/purifying_brew,if=stagger.heavy|(stagger.moderate&cooldown.brews.charges_fractional>=cooldown.brews.max_charges-0.5&buff.ironskin_brew.remains>=buff.ironskin_brew.duration*2.5)
-				if isChecked("Auto Purify") then
+            if br.player.mode.brews == 1 then
+                if isChecked("Auto Purify") then
 					if debuff.heavyStagger.exists() or ((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
 						(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5)) then
 							if cast.purifyingBrew() then return end
 						end
                 end
 
-			      if isChecked("Stagger dmg % to purify") then
-                    if (UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
+                if isChecked("Stagger dmg % to purify") then
+                    if ((UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.count() > 1)) or charges.purifyingBrew.count() == charges.purifyingBrew.max() then
                         if cast.purifyingBrew() then return end
                     end
                 end
+            end
             -- Black Ox Brew
                 if (charges.purifyingBrew.frac() < 0.5) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                     if cast.blackoxBrew() then return end
                 end
             -- Ironskin Brew
-				local ironskinBrewDuration = 7
-                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) then
+--				local ironskinBrewDuration = 7
+--                if (charges.purifyingBrew.frac() >= charges.purifyingBrew.max()) and not buff.blackoutCombo.exists() and (buff.ironskinBrew.remain() <= 14) or (buff.ironskinBrew.remain() <= 5)	then
+--                    if cast.ironskinBrew() then return end
+--                end
+            -- Ironskin Bandage
+            if br.player.mode.brews == 1 then
+                if charges.purifyingBrew.count() > 1 and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 5 and buff.ironskinBrew.remain() <=14)) then
                     if cast.ironskinBrew() then return end
                 end
+            end
 			-- Chi Wave 
 				if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 					if cast.chiWave() then return end
