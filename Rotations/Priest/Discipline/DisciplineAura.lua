@@ -204,7 +204,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Desperate Prayer
-            br.ui:createSpinner(section, "Desperate Prayer", 40, 0, 100, 5 "|cffFFFFFFHealth Percent to Cast At. Default: 40")
+            br.ui:createSpinner(section, "Desperate Prayer", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 40")
         -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  35,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 35")
         -- Heirloom Neck
