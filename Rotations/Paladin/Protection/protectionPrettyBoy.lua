@@ -312,12 +312,12 @@ local function runRotation()
 			if blessingOfProtectionCase ~= nil then
 				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
 			end
-			-- Cleanse
+			-- Cleanse Toxins
 			if cleanseToxinsCase ~= nil then
 				if cast.cleanseToxins(cleanseToxinsCase) then return end
 			end
 			if cleanseToxinsCase2 ~= nil then
-				if cast.cleanse(cleanseToxinsCase2) then return end
+				if cast.cleanseToxins(cleanseToxinsCase2) then return end
 			end
 			-- Shield of the Righteous
 			local Debuff={
@@ -514,7 +514,7 @@ local function runRotation()
 				end
 				-- Cleanse Toxins
 				if isChecked("Clease Toxin") then
-					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) then
+					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffStacks("player",261440) == 0 then
 						if cast.cleanseToxins("player") then return end
 					end
 					if getOptionValue("Clease Toxin")==2 and canDispel("target",spell.cleanseToxins) then
@@ -732,7 +732,7 @@ local function runRotation()
 							if cast.blessedHammer() then return end
 						end
 						-- Hammer of the Righteous
-						if isChecked("Shield of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
+						if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 							if cast.hammerOfTheRighteous(units.dyn5) then return end
 						end
 					end
@@ -803,7 +803,7 @@ local function runRotation()
 							if cast.blessedHammer() then return end
 						end
 						--actions+=/hammer_of_the_righteous
-						if isChecked("Shield of the Righteous") and cast.able.hammerOfTheRighteous() then
+						if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() then
 							if cast.hammerOfTheRighteous() then return end
 						end
 					end
