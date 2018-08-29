@@ -711,6 +711,11 @@ br.lists.spells = {
                 sunfire                     = 93402,
                 survivalOfTheFittest        = 203965,
             },
+            traits                          = {
+                layeredMane                 = 279552,
+                twistedClaws                = 275906,
+            },
+
         },
         -- Restoration
         [105] = {

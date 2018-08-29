@@ -183,6 +183,7 @@ local function runRotation()
         local snapLossHP                                    = 0
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local traits                                        = br.player.traits
         local travel, flight, bear, cat, noform             = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.bearForm.exists(), buff.catForm.exists(), GetShapeshiftForm()==0
         local trinketProc                                   = false
         local ttd                                           = getTTD
@@ -434,12 +435,12 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 80 or buff.ironfur.remain() <1.5) then
+                    if isChecked("Ironfur") and (traits.layeredMane.active() and power >=50) or (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() <1.5) then
                         if cast.ironfur() then return end
                     end
         -- Bristling Fur
                     -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
-                    if bearForm and power < 40 then
+                    if bear and power < 40 then
                         if cast.bristlingFur() then return end
                     end
         -- Lunar Beam
