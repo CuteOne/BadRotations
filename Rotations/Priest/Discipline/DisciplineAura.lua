@@ -689,57 +689,57 @@ local function runRotation()
             end
             --Power Word: Shield
             if isChecked("Power Word: Shield") and getSpellCD(spell.powerWordShield) <= 0 and not buff.rapture.exists("player") then
-                -- Player
-                if getOptionValue("PW:S Target") == 1 then
-                    if php <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("player") then
-                        if cast.powerWordShield("player") then
-                            healCount = healCount + 1
-                        end
-                    end
-                    -- Target
-                elseif getOptionValue("PW:S Target") == 2 then
-                    if getHP("target") <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("target") then
-                        if cast.powerWordShield("target") then
-                            healCount = healCount + 1
-                        end
-                    end
-                    -- Mouseover
-                elseif getOptionValue("PW:S Target") == 3 then
-                    if getHP("mouseover") <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("mouseover") then
-                        if cast.powerWordShield("mouseover") then
-                            healCount = healCount + 1
-                        end
-                    end
-                elseif lowest.hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(lowest.unit) then
-                    -- Tank
-                    if getOptionValue("PW:S Target") == 4 then
-                        if (lowest.role) == "TANK" then
-                            if cast.powerWordShield(lowest.unit) then
-                                healCount = healCount + 1
-                            end
-                        end
-                    -- Healer
-                    elseif getOptionValue("PW:S Target") == 5 then
-                        if (lowest.role) == "HEALER" then
-                            if cast.powerWordShield(lowest.unit) then
-                                healCount = healCount + 1
-                            end
-                        end
-                    -- Healer/Tank
-                    elseif getOptionValue("PW:S Target") == 6 then
-                        if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
-                            if cast.powerWordShield(lowest.unit) then
-                                healCount = healCount + 1
-                            end
-                        end
-                    -- Any
-                    elseif  getOptionValue("PW:S Target") == 7 and not solo then
-                        if cast.powerWordShield(lowest.unit) then
-                            healCount = healCount + 1
-                        end
-                    end
-                end
-            end
+            --     -- Player
+            --     if getOptionValue("PW:S Target") == 1 then
+            --         if php <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("player") then
+            --             if cast.powerWordShield("player") then
+            --                 healCount = healCount + 1
+            --             end
+            --         end
+            --         -- Target
+            --     elseif getOptionValue("PW:S Target") == 2 then
+            --         if getHP("target") <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("target") then
+            --             if cast.powerWordShield("target") then
+            --                 healCount = healCount + 1
+            --             end
+            --         end
+            --         -- Mouseover
+            --     elseif getOptionValue("PW:S Target") == 3 then
+            --         if getHP("mouseover") <= getValue("Power Word: Shield") and not buff.powerWordShield.exists("mouseover") then
+            --             if cast.powerWordShield("mouseover") then
+            --                 healCount = healCount + 1
+            --             end
+            --         end
+            --     elseif lowest.hp <= getValue("Power Word: Shield") and not buff.powerWordShield.exists(lowest.unit) then
+            --         -- Tank
+            --         if getOptionValue("PW:S Target") == 4 then
+            --             if (lowest.role) == "TANK" then
+            --                 if cast.powerWordShield(lowest.unit) then
+            --                     healCount = healCount + 1
+            --                 end
+            --             end
+            --         -- Healer
+            --         elseif getOptionValue("PW:S Target") == 5 then
+            --             if (lowest.role) == "HEALER" then
+            --                 if cast.powerWordShield(lowest.unit) then
+            --                     healCount = healCount + 1
+            --                 end
+            --             end
+            --         -- Healer/Tank
+            --         elseif getOptionValue("PW:S Target") == 6 then
+            --             if (lowest.role) == "HEALER" or (lowest.role) == "TANK" then
+            --                 if cast.powerWordShield(lowest.unit) then
+            --                     healCount = healCount + 1
+            --                 end
+            --             end
+            --         -- Any
+            --         elseif  getOptionValue("PW:S Target") == 7 and not solo then
+            --             if cast.powerWordShield(lowest.unit) then
+            --                 healCount = healCount + 1
+            --             end
+            --         end
+            --     end
+            -- end
         end
         --Single Target Heal
         function actionList_SingleTargetHeal()
