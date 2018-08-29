@@ -715,7 +715,6 @@ br.lists.spells = {
                 layeredMane                 = 279552,
                 twistedClaws                = 275906,
             },
-
         },
         -- Restoration
         [105] = {
@@ -2416,9 +2415,13 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                masterOfShadows             = 196980,
                 shadowBlades                = 121471,
                 shadowDance                 = 185422,
                 sharpenedBlades             = 272916,
+                shurikenCombo               = 245640,
+                shurikenTornado             = 277925,
+                subterfuge                  = 115192,
                 symbolsOfDeath              = 212283,
                 theDreadlordsDeceit         = 228224,
             },
@@ -2478,7 +2481,7 @@ br.lists.spells = {
                 feint                       = 1966,
                 masterAssassinsInitiative   = 235027, --235022
                 sprint                      = 2983,
-                stealth                     = 1784,
+                stealth                     = 1784 or 115191,
                 vanish                      = 11327 or 115193,
             },
             debuffs                         = {
@@ -3082,6 +3085,7 @@ br.lists.spells = {
                 stoneHeart                  = 225947,
                 suddenDeath                 = 52437,
                 sweepingStrikes             = 260708,
+                testOfMight                 = 275540,
             },
             debuffs                         = {
                 colossusSmash               = 208086,
@@ -3109,6 +3113,10 @@ br.lists.spells = {
                 warMachine                  = 262231,
                 warbreaker                  = 262161,
             },
+            traits                          = {
+                seismicWave                 = 277639,
+                testOfMight                 = 275529,
+            }
         },
         -- Fury
         [72] = {
