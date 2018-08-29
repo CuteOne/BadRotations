@@ -401,7 +401,7 @@ local function runRotation()
             if buff.rapture.exists("player") then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and br.friend[i].hp <= getValue("Atonement HP") then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -454,7 +454,7 @@ local function runRotation()
                     end
                 end
                 --Power Word Shield
-                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and not solo then
+                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and not solo and br.friend[u].hp <= getValue("Atonement HP") then
                     if cast.powerWordShield(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
