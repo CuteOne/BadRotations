@@ -232,7 +232,7 @@ local function runRotation()
             if buff.aspectOfTheEagle.exists() then
                 return #enemies.yards40
             else
-                return #enemies.yards40
+                return #enemies.yards5
             end
         end
 
