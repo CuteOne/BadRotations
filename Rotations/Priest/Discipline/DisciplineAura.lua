@@ -21,9 +21,9 @@ local function createToggles()
     CreateButton("Healer",1,0)
     -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.holyNova },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.holyNova },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.holyNova }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.divineStar },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.divineStar },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar }
     };
     CreateButton("Cooldown",2,0)
     -- Defensive Button
@@ -418,7 +418,7 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
-            if not buff.rapture.exists("player") and ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or (mode.healer == 2 and (inCombat or #enemies.dyn40 > 0)) or not isChecked("Alternate Heal & Damage")) then
+            if not buff.rapture.exists("player") and ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or (mode.healer == 2 and (inCombat or #enemies.get(40) > 0)) or not isChecked("Alternate Heal & Damage")) then
                 for i = 1, #br.friend do
                     if mode.healer == 2 or epTrinket or (getBuffRemain("player", spell.buffs.atonement, "player") < 1 and UnitIsUnit(br.friend[i].unit,"player")) then
                         actionList_SpreadAtonement(i)
@@ -857,8 +857,8 @@ local function runRotation()
                 --Shadow Word: Pain/Purge The Wicked
                 if isChecked("Shadow Word: Pain/Purge The Wicked") and (getSpellCD(spell.penance) > 0 or (getSpellCD(spell.penance) <= 0 and debuff.purgeTheWicked.count() == 0 and debuff.shadowWordPain.count() == 0)) then
                     if talent.purgeTheWicked and (lastSpell ~= spell.purgeTheWicked or debuff.purgeTheWicked.count() == 0) then
-                        for i = 1, #enemies.dyn40 do
-                            local thisUnit = enemies.dyn40[i]
+                        for i = 1, #enemies.get(40) do
+                            local thisUnit = enemies.get(40)[i]
                             if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.purgeTheWicked.remain(thisUnit) < gcd then
                                     if cast.purgeTheWicked(thisUnit,"aoe") then
@@ -898,8 +898,8 @@ local function runRotation()
                     end
                 end
                 if debuff.purgeTheWicked.count() > 0 and not debuff.purgeTheWicked.exists(ptwDebuff) then
-                    for i = 1, #enemies.dyn40 do
-                        local thisUnit = enemies.dyn40[i]
+                    for i = 1, #enemies.get(40) do
+                        local thisUnit = enemies.get(40)[i]
                         if debuff.purgeTheWicked.exists(thisUnit) then
                             ptwDebuff = thisUnit
                             return true
