@@ -362,17 +362,16 @@ function enemyListCheck(Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
+	local playerTarget = UnitIsUnit(Unit,"target")
+	local targeting = isTargeting(Unit)
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or enemyListCheck(Unit)) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and (not hostileOnly or (hostileOnly and (UnitReaction(Unit,"player") < 4 or isTargeting(Unit) or isDummy(Unit) or UnitIsUnit(Unit,"target"))))
+		and (not hostileOnly or (hostileOnly and (UnitReaction(Unit,"player") < 4 or targeting or isDummy(Unit) or playerTarget)))
 	then
 		local instance = IsInInstance()
-		local distance = getDistance(Unit,"target") --getDistance(Unit,"player")
+		local distance = getDistance(Unit,"target")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or isTargeting(Unit) or isInProvingGround() or isBurnTarget(Unit) > 0
-		local playerTarget = UnitIsUnit(Unit,"target")
+		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or isBurnTarget(Unit) > 0
 		return hasThreat or (not instance and (playerTarget or distance < 8)) or (instance and playerTarget and (getDistance(Unit,"player") < 20 or #br.friend == 1))
-			--or (not instance and (playerTarget or (next(br.enemy) == nil and distance < 20)))
-			--or (instance and (#br.friend == 1 or inCombat) and (playerTarget or distance < 20))
 	end
 	return false
 end

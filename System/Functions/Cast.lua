@@ -572,18 +572,19 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
         elseif thisUnit ~= nil then
             local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
+				local hasEnemies = #getEnemies("player",maxRange) >= minUnits
                 if debug == "rect" then
-	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") then
+	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") and hasEnemies then
                     	castDebug()
                     	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
                 elseif debug == "cone" then
-	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone") then
+	        		if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone") and hasEnemies then
                 		castDebug()
                 		return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                 	end
                 elseif debug == "ground" then
-			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
+			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) and hasEnemies then
 	                    if getLineOfSight(thisUnit) then
 	                        if not IsMouseButtonDown(2) then
 	                            castDebug()
@@ -592,14 +593,14 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
 	                    end
 	                end
                 elseif debug == "aoe" then
-			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) then
+			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) and hasEnemies then
                     	castDebug()
                     	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
                 elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player") then
                     castDebug()
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
-                elseif debug == "norm" then
+                elseif debug == "norm" and hasEnemies then
 	                castDebug()
 	                return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 	            end

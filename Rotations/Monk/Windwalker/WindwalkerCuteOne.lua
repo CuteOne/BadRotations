@@ -290,21 +290,6 @@ local function runRotation()
             if buff.rushingJadeWind.cancel() then return true end
         end
 
-        -- Spread the Mark of the Crane
-        local function spreadMark()
-            local markUnit = units.dyn5
-            if getOptionValue("Spread Mark Cap") == 0 or debuff.markOfTheCrane.count() <= getOptionValue("Spread Mark Cap") then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
-                    if debuff.markOfTheCrane.refresh(thisUnit) then
-                        markUnit = thisUnit
-                        break
-                    end
-                end
-            end
-            return markUnit
-        end
-
         -- ChatOverlay("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", > FoF: "..tostring(BetterThanFoF))
 --------------------
 --- Action Lists ---
@@ -379,7 +364,7 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            if getOptionValue("SEF Behavior") == 1 and not talent.serenity then
+            if getOptionValue("SEF Behavior") == 1 and not talent.serenity and not cast.current.fistsOfFury() then
                 if cast.stormEarthAndFireFixate() then return true end
             end
         end -- End Action List - Extras

@@ -228,6 +228,14 @@ local function runRotation()
             end
         end
 
+        local function eagleScout()
+            if buff.aspectOfTheEagle.exists() then
+                return #enemies.yards40
+            else
+                return #enemies.yards40
+            end
+        end
+
         -- Opener Reset
         if opener == nil then opener = false end
         if openerCount == nil then openerCount = 0 end
@@ -241,7 +249,6 @@ local function runRotation()
             KC1 = false
             opener = false
         end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -463,15 +470,14 @@ local function runRotation()
                 then
                     use.potionOfProlongedPower()
                 end
-            -- Aspect of the Eagle
-                -- aspect_of_the_eagle,if=target.distance>=6
-                if cast.able.aspectOfTheEagle() and (getOptionValue("Aspect of the Eagle") == 1 or (getOptionValue("Aspect of the Eagle") == 2 and useCDs())) and (getDistance("target") >= 6) then
-                    if cast.aspectOfTheEagle() then return end
-                end
             end -- End useCooldowns check
-        end -- End Action List - Cooldowns
-    -- Action List - Single Target
-        local function actionList_St()
+        -- Aspect of the Eagle
+            -- aspect_of_the_eagle,if=target.distance>=6
+            if cast.able.aspectOfTheEagle() and (getDistance("target") >= 6)
+                and (getOptionValue("Aspect of the Eagle") == 1 or (getOptionValue("Aspect of the Eagle") == 2 and useCDs()))
+            then
+                if cast.aspectOfTheEagle() then return end
+            end
         -- A Murder of Crows
             -- a_murder_of_crows
             if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
@@ -479,9 +485,14 @@ local function runRotation()
             end
         -- Coordinated Assault
             -- coordinated_assault
-            if cast.able.coordinatedAssault() and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs())) then
+            if cast.able.coordinatedAssault() and eagleScout() > 0
+                and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+            then
                 if cast.coordinatedAssault() then return end
             end
+        end -- End Action List - Cooldowns
+    -- Action List - Single Target
+        local function actionList_St()
         -- Wildfire Bomb
             -- wildfire_bomb,if=full_recharge_time<gcd
             if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < gcdMax then
@@ -576,20 +587,10 @@ local function runRotation()
             -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
             local carveCdr = 5
             if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 end
-        -- A Murder of Crows
-            -- a_murder_of_crows
-            if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
-                if cast.aMurderOfCrows() then return end
-            end
-        -- Coordinated Assault
-            -- coordinated_assault
-            if cast.able.coordinatedAssault() and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs())) then
-                if cast.coordinatedAssault() then return end
-            end
         -- Carve
             -- carve,if=dot.shrapnel_bomb.ticking
-            if cast.able.carve("player","cone",1,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
-                if cast.carve("player","cone",1,5) then return end
+            if cast.able.carve("player","cone",2,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
+                if cast.carve("player","cone",2,5) then return end
             end
         -- Wildfire Bomb
             -- wildfire_bomb,if=!talent.guerrilla_tactics.enabled|full_recharge_time<gcd
@@ -598,8 +599,8 @@ local function runRotation()
             end
         -- Chakrams
             -- chakrams
-            if cast.able.chakrams(nil,"rect",1,40) and enemies.yards40r > 0 then
-                if cast.chakrams(nil,"rect",1,40) then return end
+            if cast.able.chakrams("player","rect",2,40) and enemies.yards40r > 0 then
+                if cast.chakrams("player","rect",2,40) then return end
             end
         -- Kill Command
             -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
@@ -615,8 +616,8 @@ local function runRotation()
             end
         -- Carve
             -- carve,if=talent.guerrilla_tactics.enabled
-            if cast.able.carve("player","cone",1,5) and (talent.guerrillaTactics) then
-                if cast.carve("player","cone",1,5) then return end
+            if cast.able.carve("player","cone",2,5) and (talent.guerrillaTactics) then
+                if cast.carve("player","cone",2,5) then return end
             end
         -- Flanking Strike
             -- flanking_strike,if=focus+cast_regen<focus.max
@@ -635,13 +636,13 @@ local function runRotation()
             end
         -- Carve
             -- carve,if=cooldown.wildfire_bomb.remains>variable.carve_cdr%2
-            if cast.able.carve("player","cone",1,5) and (cd.wildfireBomb.remain() > carveCdr / 2) then
-                if cast.carve("player","cone",1,5) then return end
+            if cast.able.carve("player","cone",2,5) and (cd.wildfireBomb.remain() > carveCdr / 2) then
+                if cast.carve("player","cone",2,5) then return end
             end
         -- Steel Trap
             -- steel_trap
-            if cast.able.steelTrap("best",nil,1,5) then
-                if cast.steelTrap("best",nil,1,5) then return end
+            if cast.able.steelTrap("best",nil,2,5) then
+                if cast.steelTrap("best",nil,2,5) then return end
             end
         -- Harpoon
             -- harpoon,if=talent.terms_of_engagement.enabled
@@ -666,16 +667,6 @@ local function runRotation()
         end -- End Action List - Cleave
     -- Action List - Wildfire Infusion
         local function actionList_WfiSt()
-        -- A Murder of Crows
-            -- a_murder_of_crows
-            if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
-                if cast.aMurderOfCrows() then return end
-            end
-        -- Coordinated Assault
-            -- coordinated_assault
-            if cast.able.coordinatedAssault() and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs())) then
-                if cast.coordinatedAssault() then return end
-            end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3&(!talent.alpha_predator.enabled|buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
             if cast.able.killCommand() and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3
@@ -905,17 +896,17 @@ local function runRotation()
                     if actionList_Cooldowns() then return true end
             -- Call Action List - Wildfire Infusion
                     -- call_action_list,name=wfi_st,if=active_enemies<2&talent.wildfire_infusion.enabled
-                    if #enemies.yards40 < 2 and talent.wildfireInfusion then
+                    if eagleScout() < 2 and talent.wildfireInfusion then
                         if actionList_WfiSt() then return end
                     end
             -- Call Action List - Single Target
                     -- call_action_list,name=st,if=active_enemies<2&!talent.wildfire_infusion.enabled
-                    if #enemies.yards40 < 2 and not talent.wildfireInfusion then
+                    if eagleScout() < 2 and not talent.wildfireInfusion then
                         if actionList_St() then return end
                     end
             -- Call Action List - Cleave
                     -- call_action_list,name=cleave,if=active_enemies>1
-                    if #enemies.yards40 > 1 then
+                    if eagleScout() > 1 then
                         if actionList_Cleave() then return end
                     end
                 end -- End SimC APL

@@ -204,7 +204,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	refreshStored = false
     end
     if br.storedTables[checkNoCombat] ~= nil then
-		if br.storedTables[checkNoCombat][radius] ~= nil then    				
+		if br.storedTables[checkNoCombat][radius] ~= nil then
 			if br.storedTables[checkNoCombat][radius][thisUnit] ~= nil then
 				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 				return br.storedTables[checkNoCombat][radius][thisUnit]
@@ -265,7 +265,7 @@ function findBestUnit(range,facing)
 	for k, v in pairs(br.enemy) do
 		local thisUnit = v.unit
 		local distance = getDistance(thisUnit)
-		if distance <= range then
+		if distance < range then
 			local coeficient = getUnitCoeficient(thisUnit) or 0
 			local isFacing = getFacing("player",thisUnit)
 			local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
@@ -296,7 +296,9 @@ function dynamicTarget(range,facing)
 	then
 		bestUnit = "target"
 	end
-	if (UnitIsDeadOrGhost("target")	or (not UnitExists("target") and hasThreat(bestUnit)) or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not UnitIsUnit(bestUnit,"target")))	then
+	if (UnitIsDeadOrGhost("target")	or (not UnitExists("target") and hasThreat(bestUnit))
+		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not UnitIsUnit(bestUnit,"target")))
+	then
 		TargetUnit(bestUnit)
 	end
 	if isChecked("Debug Timers") then
