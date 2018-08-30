@@ -100,8 +100,8 @@ local function createOptions()
             --Alternate Heal & Damage
             br.ui:createSpinner(section, "Alternate Heal & Damage",  1,  1,  5,  1,  "|cffFFFFFFAlternate Heal & Damage. How many Atonement applied before back to doing damage. Default: 1")
             --Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield", 99, 0, 100, 1, "","Health Percent to Cast At. Default: 99")
-            br.ui:createDropdownWithout(section, "PW:S Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Power Word: Shield Target")
+           -- br.ui:createSpinner(section, "Power Word: Shield", 99, 0, 100, 1, "","Health Percent to Cast At. Default: 99")
+           -- br.ui:createDropdownWithout(section, "PW:S Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Power Word: Shield Target")
             --Shadow Mend
             br.ui:createSpinner(section, "Shadow Mend",  65,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Only cast to players without Atonement buff. Default: 65")
             --Shadow Mend Emergency
@@ -300,6 +300,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
+        local traits                                        = br.player.traits
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units 
         local lowest                                        = {}    --Lowest Unit
@@ -352,11 +353,6 @@ local function runRotation()
         -- Mitigate heavy damage
         function actionList_MitigateDamage(u)
             if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
-                if cast.powerWordShield(br.friend[u].unit) then
-                    if cast.shadowMend(br.friend[u].unit) then
-                        healCount = healCount + 1
-                    end
-                end
                 if norganBuff then
                     if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 then
                         if cast.powerWordShield(br.friend[u].unit) then
@@ -418,6 +414,15 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
+            if traits.giftOfForgiveness.rank() > 0 then
+                if atonementCount < 3 do
+                    for i = 1, #br.friend do
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
+                            if cast.powerWordShield(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
             if not buff.rapture.exists("player") and ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or (mode.healer == 2 and (inCombat or #enemies.get(40) > 0)) or not isChecked("Alternate Heal & Damage")) then
                 for i = 1, #br.friend do
                     if mode.healer == 2 or epTrinket or (getBuffRemain("player", spell.buffs.atonement, "player") < 1 and UnitIsUnit(br.friend[i].unit,"player")) then
@@ -431,16 +436,18 @@ local function runRotation()
             end
             --Shadow Mend Emergency
             --Shadow Mend Emergency Self
-            if isChecked("Shadow Mend Emergency") or isChecked("Shadow Mend Emergency Self") then
+            if isChecked("Shadow Mend Emergency") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") and isChecked("Shadow Mend Emergency") then
+                    if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
                         if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                            actionList_MitigateDamage(i)
+                            if cast.shadowMend(br.friend[i].unit) then return end
                         end
                     end
-                    if br.friend[i].hp <= getValue("Shadow Mend Emergency Self") and isChecked("Shadow Mend Emergency Self") and UnitIsUnit(br.friend[i].unit,"player") then
-                        actionList_MitigateDamage(i)
-                    end
+                end
+            end
+            if isChecked("Shadow Mend Emergency Self") then
+                if php <= getValue("Shadow Mend Emergency Self") then
+                    if cast.shadowMend("player") then return end
                 end
             end
         end
@@ -627,7 +634,7 @@ local function runRotation()
                 end
             end
             --Power Word: Radiance
-            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and norganBuff then
+            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance.count() >= 1 and norganBuff then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
@@ -822,22 +829,22 @@ local function runRotation()
                     end
                 end
             end
+            --Shadow Mend
+            if isChecked("Shadow Mend") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Shadow Mend") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                            if cast.shadowMend(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
             --Penance Heal
             if isChecked("Penance Heal") and getSpellCD(spell.penance) <= 0 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Penance Heal") then
                         if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
                             if cast.penance(br.friend[i].unit) then return end
-                        end
-                    end
-                end
-            end
-            --Shadow Mend
-            if isChecked("Shadow Mend") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Shadow Mend") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                            actionList_MitigateDamage(i)
                         end
                     end
                 end
