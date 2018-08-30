@@ -375,7 +375,7 @@ function br.loader:new(spec,specName)
                 self.units["dyn"..range.."AOE"] =  dynamicTarget(range, false)
             else
                 if self.units["dyn"..range] == nil then self.units["dyn"..range] = {} end
-                self.units["dyn"..range] =  dynamicTarget(range, false)
+                self.units["dyn"..range] =  dynamicTarget(range, true)
             end
             return aoe and dynamicTarget(range, false) or dynamicTarget(range, true)
         end
