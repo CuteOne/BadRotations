@@ -302,7 +302,7 @@ local function runRotation()
         local ttd                                           = getTTD
         local traits                                        = br.player.traits
         local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = br.player.units 
+        local units                                         = br.player.units
         local lowest                                        = {}    --Lowest Unit
         lowest.hp                                           = br.friend[1].hp
         lowest.role                                         = br.friend[1].role
@@ -415,7 +415,7 @@ local function runRotation()
                 healCount = healCount + 1
             end
             if traits.giftOfForgiveness.rank() > 0 then
-                if atonementCount < 3 do
+                if atonementCount < 3 then
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
                             if cast.powerWordShield(br.friend[i].unit) then return end
