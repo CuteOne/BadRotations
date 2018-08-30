@@ -414,7 +414,7 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
-            if traits.giftOfForgiveness.rank() > 0 then
+            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 then
                 if atonementCount < 3 then
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
