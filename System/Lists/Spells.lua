@@ -2023,6 +2023,9 @@ br.lists.spells = {
                 --thePenitent                 = 200347,
                 twistOfFate                 = 109142,
             },
+	    traits                          = {
+                giftOfForgiveness           = 277680,
+            },
         },
         -- Holy
         [257] = {
