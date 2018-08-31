@@ -339,6 +339,20 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        local totalHealth = 0
+        local avg
+        local function avgHealth()
+            avg = 0
+            for i=1, #br.friend do
+                totalHealth = totalHealth + br.friend[i].hp
+            end
+            avg = totalHealth/#br.friend
+            return avg
+        end
+
+
+
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -414,7 +428,7 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
-            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 then
+            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 and avgHealth() >= getValue("Atonement HP") then
                 if atonementCount < 3 then
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
@@ -557,13 +571,13 @@ local function runRotation()
                         end
                     end
                     --Luminous Barrier
-                    if isChecked("Luminous Barrier") and (mode.healer == 1 or mode.healer == 2) then
+                    if isChecked("Luminous Barrier") and talent.luminousBarrier and (mode.healer == 1 or mode.healer == 2) then
                         if getLowAllies(getValue("Luminous Barrier")) >= getValue("LB Targets") then
                             if cast.luminousBarrier(lowest.unit) then return end
                         end
                     end
                     --Power Word: Barrier
-                    if isChecked("Power Word: Barrier") and (mode.healer == 1 or mode.healer == 2) then
+                    if isChecked("Power Word: Barrier") and not talent.luminousBarrier and (mode.healer == 1 or mode.healer == 2) then
                         if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then
                             if cast.powerWordBarrier(lowest.unit) then return end
                         end
@@ -851,7 +865,7 @@ local function runRotation()
             end
             --Fade
             if isChecked("Fade") then
-                if php <= getValue("Fade") then
+                if php <= getValue("Fade") and not solo then
                     if cast.fade() then return end
                 end
             end
