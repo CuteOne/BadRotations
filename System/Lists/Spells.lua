@@ -1109,7 +1109,6 @@ br.lists.spells = {
                 misdirection                = 34477,
                 playDead                    = 209997,
                 prowl                       = 24450,
-                racial                      = getRacialID(),
                 revivePet                   = 982,
                 smack                       = 49966,
 				spiritmend					= 90361,
@@ -1123,6 +1122,7 @@ br.lists.spells = {
                 aspectOfTheTurtle           = 186265,
                 feignDeath                  = 5384,
                 mendPet                     = 136,
+                playDead                    = 209997,
                 prowl                       = 24450,
             },
             debuffs                         = {
@@ -1305,11 +1305,11 @@ br.lists.spells = {
                 iceBarrier                  = 11426,
             },
             artifacts                       = {
-                ebonbolt                    = 257537,
                 icyHand                     = 220817,
             },
             buffs                           = {
                 brainFreeze                 = 190446,
+                freezingRain                = 270232,
                 frostBomb                   = 112948,
                 fingersOfFrost              = 44544,
                 icyVeins                    = 12472,
@@ -1332,6 +1332,7 @@ br.lists.spells = {
                 articGale                   = 205038,
                 boneChilling                = 205027,
                 cometStorm                  = 153595,
+                ebonbolt                    = 257537,
                 frostBomb                   = 112948,
                 frozenTouch                 = 205030,
                 glacialSpike                = 199786,
