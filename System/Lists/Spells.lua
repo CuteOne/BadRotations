@@ -2012,6 +2012,7 @@ br.lists.spells = {
                 halo                        = 120517,
                 masochism                   = 193063,
                 mindbender                  = 123040,
+		luminousBarrier             = 271466,
                 powerInfusion               = 10060,
                 powerWordSolace             = 129250,
                 purgeTheWicked              = 204197,
