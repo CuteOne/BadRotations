@@ -96,7 +96,7 @@ Raidable means if its good to raid with.
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Vilt    | Unknown |  Unknown  |   100% | :interrobang:
+Vilt    | Unknown |  8.0  |   100% | :interrobang:
 
 - Frost
 
@@ -136,7 +136,7 @@ CuteOne  |   Full   | 8.0   |   99% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  Updating  |   100% | :white_check_mark:
+CuteOne |  Full   |  7.3.5  |   100% | :white_check_mark:
 
 - Moonkin
 
@@ -162,7 +162,7 @@ CuteOne   |  Full    |  8.0  |    99% | :heavy_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  | Sporadic |  Updating  |    ??% | :interrobang:
+CuteOne  | Sporadic |  7.3.5  |    ??% | :interrobang:
 
 - Survival
 
@@ -229,7 +229,8 @@ Fengshen   | Full | 8.0 |   99% | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |8.0 |   99% | :white_check_mark:
+CuteOne |  Full   | 7.3.5 |   99%  | :interrobang:
+Fiskee  |  Full   | 8.0   |   99%  | :white_check_mark:
 
 ### Priest
 
@@ -243,7 +244,7 @@ Aura       |     Full      | 8.0 |    ??% |   :interrobang:
 
 author          | support | patch | status | raidable?
 :-------------- | :-----: | :---: | -----: | :-------:
-None       |  None   |  N/A  |   0% | :x:
+Odan            |  Unk    |  8.0  |   ??%  | :interrobang:
 
 - Shadow
 
@@ -277,7 +278,7 @@ CuteOne |  Full   | 8.0 |    95% | :white_check_mark:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   | Updating  |   ??% | :interrobang:
+CuteOne |  Full   | 7.3.5  |   ??% | :interrobang:
 
 - Enhancement
 
@@ -309,7 +310,7 @@ Chem         |  Full   | 8.0   |   99% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | Updating |   ??% | :interrobang:
+CuteOne |  Full   | 7.3.5 |   ??% | :interrobang:
 
 ### Warrior
 

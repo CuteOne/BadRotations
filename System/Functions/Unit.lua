@@ -36,6 +36,7 @@ function GetObjectFacing(Unit)
     end
 end
 function GetObjectPosition(Unit)
+	if Unit == nil then return 0, 0, 0 end 
     if FireHack and GetObjectExists(Unit) then
         return ObjectPosition(Unit)
     else
