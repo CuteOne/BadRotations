@@ -174,6 +174,9 @@ local function runRotation()
         if not buff.fingersOfFrost.exists() and cast.last.flurry() and cast.able.iceLance() then
             if cast.iceLance() then return end
         end
+        if moving then
+            if actionList_move() then return end
+        end
         -- Cast Mirror Image if CDs are enabled
         if cast.able.mirrorImage() and useCDs() and isChecked("Mirror Image") then
             if cast.mirrorImage() then return end
@@ -226,6 +229,9 @@ local function runRotation()
         if not buff.fingersOfFrost.exists() and cast.last.flurry() and cast.able.iceLance() then
             if cast.iceLance() then return end
         end
+        if moving then
+            if actionList_move() then return end
+        end
         -- Cast Mirror Image if CDs are enabled
         if cast.able.mirrorImage() and useCDs() and isChecked("Mirror Image") then
             if cast.mirrorImage() then return end
@@ -257,6 +263,33 @@ local function runRotation()
         -- Filler Frostbolt Cast
         if cast.frostbolt() then return end
     end
+
+-- Action List - Movement     
+    local function actionList_move()
+        if moving and buff.fingersOfFrost.exists() then
+            cast.iceLance()
+        end
+        if not buff.iceFloes.exists() and moving then
+            cast.iceFloes()
+        return end
+        -- Flurry on Brain Freeze Proc
+        if buff.brainFreeze.exists() and not buff.fingersOfFrost.exists() then
+            if cast.flurry() then return end
+        end
+        -- Ice Lance after Flurry Cast w/o Glacial Spike
+        if not buff.fingersOfFrost.exists() and cast.last.flurry() and cast.able.iceLance() and not talent.glacialSpike then
+            if cast.iceLance() then return end
+        end
+        -- Ice Barrier
+        if moving and not buff.fingersOfFrost.exists() and not buff.iceBarrier.exists() then
+            cast.iceBarrier()
+        end
+        -- Ice Lance
+        if not cast.last.flurry() and cast.able.iceLance() then
+            if cast.iceLance() then return end
+        end
+    end
+
 -----------------
 --- Rotations ---
 -----------------
@@ -274,6 +307,10 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
         if inCombat then
+            -- Use Movement rotation if moving
+            if moving then
+                if actionList_move() then return end
+            end
             -- Use AoE rotation if 5 or more mobs
             if #enemies.yards8t >= 5 then
                 if actionList_AOE() then return end
