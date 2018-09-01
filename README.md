@@ -14,7 +14,7 @@ BadRotations Maintained By: CuteOne
 
 -- Intro --
 
-BadRotations is maintained by CuteOne with additional contributions from other developers who worked on combat rotation bots such as PQR, ProbablyEngine, and others. While it is more of a developer playground as compared to the more "for profit" bots this is free to use and we feel it is just as good, if not better, than the bots you pay money for. Don't agree? Feel free to post any issues you have and we will do our best to resolve them. **Please note that FireHack/Easy WoW Toolbox/wToolkit is required to use this.**
+BadRotations is maintained by CuteOne with additional contributions from other developers who worked on combat rotation bots such as PQR, ProbablyEngine, and others. While it is more of a developer playground as compared to the more "for profit" bots this is free to use and we feel it is just as good, if not better, than the bots you pay money for. Don't agree? Feel free to post any issues you have and we will do our best to resolve them. **Please note that you MUST have a Lua Unlocker to use this tool.**
 
 -- Features --
 
@@ -62,11 +62,11 @@ What to do if you have crash to desktop or 132 errors.(not necessarily in this o
 
 - Change WoW to DX9.
 
-- Re-downloaded fresh updated FH version.
+- Make sure your lua unlocker is up to date.
 
 - Delete Cache, WTF, Data/indices folders(in WoW directory).
 
-- Start WoW-64.exe and FireHack.exe as Admin, always.
+- Make sure you start both WoW and your unlocker as an Admin.
 
 What to do if you have crash to desktop or 134 errors.
 
@@ -96,14 +96,14 @@ Raidable means if its good to raid with.
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  7.1  |   100% | :white_check_mark:
+CuteOne |  Full   |  In Progress  |   100% | :white_check_mark:
 Vilt    | Limited |  7.1  |   100% | :white_check_mark:
 
 - Frost
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   | 7.1.5 |   100% | :interrobang:
+CuteOne |  Full   |  8.0  |   100% | :white_check_mark:
 THFrost |  Full   | 7.1.5 |   100% | :interrobang:
 
 - Unholy
