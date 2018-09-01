@@ -69,6 +69,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Utility")
             -- OOC Healing
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
+            br.ui:createSpinner(section,"OOC Penance", 95, 0, 100, 5,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat penance healing|cffFFBB00.")
             -- Dispel Magic
             br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
             -- Mass Dispel
@@ -339,6 +340,20 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        local totalHealth = 0
+        local avg
+        local function avgHealth()
+            avg = 0
+            for i=1, #br.friend do
+                totalHealth = totalHealth + br.friend[i].hp
+            end
+            avg = totalHealth/#br.friend
+            return avg
+        end
+
+
+
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -414,7 +429,7 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
-            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 then
+            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 and avgHealth() >= getValue("Atonement HP") then
                 if atonementCount < 3 then
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
@@ -465,7 +480,7 @@ local function runRotation()
                     if cast.powerWordShield(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
-                elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
+                elseif mode.healer == 2 and #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff and not cast.last.powerWordRadiance() then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
                     end
@@ -557,13 +572,13 @@ local function runRotation()
                         end
                     end
                     --Luminous Barrier
-                    if isChecked("Luminous Barrier") and (mode.healer == 1 or mode.healer == 2) then
+                    if isChecked("Luminous Barrier") and talent.luminousBarrier and (mode.healer == 1 or mode.healer == 2) then
                         if getLowAllies(getValue("Luminous Barrier")) >= getValue("LB Targets") then
                             if cast.luminousBarrier(lowest.unit) then return end
                         end
                     end
                     --Power Word: Barrier
-                    if isChecked("Power Word: Barrier") and (mode.healer == 1 or mode.healer == 2) then
+                    if isChecked("Power Word: Barrier") and not talent.luminousBarrier and (mode.healer == 1 or mode.healer == 2) then
                         if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then
                             if cast.powerWordBarrier(lowest.unit) then return end
                         end
@@ -593,7 +608,7 @@ local function runRotation()
                         actionList_SpreadAtonement(i)
                     end
                 end
-                if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 then
+                if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and not cast.last.powerWordRadiance() then
                     for i = 1, charges.powerWordRadiance.count() do
                         cast.powerWordRadiance(lowest.unit)
                     end
@@ -611,6 +626,13 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if UnitDebuffID(br.friend[i].unit,225484) or UnitDebuffID(br.friend[i].unit,240559) or UnitDebuffID(br.friend[i].unit,209858) then
                         flagDebuff = br.friend[i].guid
+                    end
+                    if isChecked("OOC Penance") and getSpellCD(spell.penance) <= 0 then
+                        if br.friend[i].hp <= getValue("OOC Penance") then
+                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                                if cast.penance(br.friend[i].unit) then return end
+                            end
+                        end
                     end
                     if norganBuff and (br.friend[i].hp < 90 or flagDebuff == br.friend[i].guid) and lastSpell ~= spell.shadowMend then
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
@@ -634,7 +656,7 @@ local function runRotation()
                 end
             end
             --Power Word: Radiance
-            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance.count() >= 1 and norganBuff then
+            if isChecked("Power Word: Radiance") and (mode.healer == 1 or mode.healer == 2) and charges.powerWordRadiance.count() >= 1 and norganBuff and not cast.last.powerWordRadiance() then
                 if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                     if cast.powerWordRadiance(lowest.unit) then
                         healCount = healCount + 1
@@ -851,7 +873,7 @@ local function runRotation()
             end
             --Fade
             if isChecked("Fade") then
-                if php <= getValue("Fade") then
+                if php <= getValue("Fade") and not solo then
                     if cast.fade() then return end
                 end
             end
