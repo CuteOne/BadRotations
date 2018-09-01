@@ -697,7 +697,7 @@ local function runRotation()
 		local function AOEHealing()
 			-- Rule of Law
 			if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-				if getLowAllies(getValue"Rule of Law") >= getValue("RoL Targets") then
+				if getLowAllies(getValue("Rule of Law")) >= getValue("RoL Targets") then
 					if cast.ruleOfLaw() then return end
 				end
 			end
