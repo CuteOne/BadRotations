@@ -91,6 +91,7 @@ local function createOptions()
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
+            br.ui:createCheckbox(section, "Gift of Forgiveness", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGift of Forgiveness azerite trait logic.|cffFFBB00.")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -441,7 +442,7 @@ local function runRotation()
                 end
                 healCount = healCount + 1
             end
-            if traits.giftOfForgiveness.rank() > 0 and #br.friend >= 3 and avgHealth() >= getValue("Party Atonement HP") then
+            if traits.giftOfForgiveness.rank() > 0 and #friends.yards40 >= 3 and avgHealth() >= getValue("Party Atonement HP") and isChecked("Gift of Forgiveness") then
                 if atonementCount < 3 then
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
@@ -492,7 +493,7 @@ local function runRotation()
                     end
                 end
                 --Power Word Shield
-                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and not solo and br.friend[u].hp <= getValue("Atonement HP") then
+                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and br.friend[u].hp <= getValue("Atonement HP") then
                     if cast.powerWordShield(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
