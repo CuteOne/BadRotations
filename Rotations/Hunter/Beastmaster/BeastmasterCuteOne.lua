@@ -234,6 +234,7 @@ local function runRotation()
         local ttm                                           = br.player.power.focus.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
+        local openerCount
 
 
         units.get(40)
@@ -261,6 +262,7 @@ local function runRotation()
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
+        if openerCount == nil then openerCount = 0 end
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
