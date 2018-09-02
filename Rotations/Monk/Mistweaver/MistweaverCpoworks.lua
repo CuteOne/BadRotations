@@ -47,11 +47,14 @@ local function createOptions()
             br.ui:createCheckbox(section, "Boss Helper")
             --Healing Elixir
             br.ui:createSpinner(section, "Healing Elixir",  45,  0,  100,  5,  "Health Percent to Cast At")
-            --Enveloping Mists
+            --Mana Tea
             br.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5,  "Mana Percent to Cast At")
             --Detox
             br.ui:createCheckbox(section, "Detox")
             --br.ui:createDropdownWithout(section, "Detox Mode", {"|cffFFFFFFMouseover","|cffFFFFFFRaid"}, 1, "|cffFFFFFFDetox usage.")
+			--OOC Healing
+            br.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5,  "Mana Percent to Cast At")
+			br.ui:createSpinner(section, "OOC Healing",  95,  0,  100,  5,  "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -75,31 +78,40 @@ local function createOptions()
             --br.ui:createDropdownWithout(section, "Life Cocoon Mode", {"|cffFFFFFFTanks","|cffFFFFFFEveryone"}, 1, "|cffFFFFFFLife Cocoon usage.")
             --Thunder Focus Tea
             br.ui:createSpinner(section, "Thunder Focus Tea",  50,  0,  100,  5,  "Health Percent to Cast At")
+            --Soothing Mist
+            br.ui:createSpinner(section, "Soothing Mist",  85,  0,  100,  5,  "Health Percent to Cast At")
             --Renewing Mist
             br.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
             --Enveloping Mists
             br.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
-            --Sheiluns Gift
-            --[Prioritize free cast sheiulns gift]
-            br.ui:createSpinner(section, "Sheiluns Gift",  80,  0,  100,  5,  "Health Percent to Cast At")
-            --Effuse
-            br.ui:createSpinner(section, "Effuse",  85,  0,  100,  5,  "Health Percent to Cast At")
             --Vivify
             br.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
         br.ui:checkSectionState(section)
+		-------------------------
+        ------ Life Cycles ------
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Lifecycles Options")		
+			--Lifecycles Rotation Enabled
+			br.ui:createCheckbox(section, "Enable Lifecycles Rotation","Will attempt to utilize Lifecycles Talent to maximize mana efficiency.")
+            --Enveloping Mists Lifecycles
+            br.ui:createSpinner(section, "Enveloping Mist Lifecycles",  70,  0,  100,  5,  "Health Percent to Cast At")		
+            --Vivify Lifecycles
+            br.ui:createSpinner(section, "Vivify Lifecycles",  60,  0,  100,  5,  "Health Percent to Cast At")			
+		br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "AOE Healing")
             -- Essence Font
             br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinner(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
+            br.ui:createSpinnerWithout(section, "Essence Font Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
+			br.ui:createSpinnerWithout(section, "EF Minimum Mana",  40,  0,  100,  1,  "Minimum Mana to cast")
             -- Revival
             br.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinner(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
+            br.ui:createSpinnerWithout(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
             --ChiJI
             br.ui:createSpinner(section, "Chi Ji",  80,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinner(section, "Chi Ji Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
+            br.ui:createSpinnerWithout(section, "Chi Ji Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -178,6 +190,13 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+			
+		-- Soothing Mist 2
+            if isChecked("Soothing Mist") and isChecked("OOC Healing") and not isCastingSpell(spell.essenceFont) then
+                    if lowest.hp <= getValue("OOC Healing") then
+                        if cast.soothingMist(lowest.unit) then return end
+                    end             	
+		    end
 
         end -- End Out of Combat Rotation
 -----------------------------
@@ -191,16 +210,16 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance < 5 then
         -- Quaking Palm
-                            if isChecked("Quaking Palm") then
+                            if isChecked("Quaking Palm") and not isCastingSpell(spell.essenceFont) then
                                 if cast.quakingPalm(thisUnit) then return end
                             end
         -- Leg Sweep
-                            if isChecked("Leg Sweep") then
+                            if isChecked("Leg Sweep") and not isCastingSpell(spell.essenceFont) then
                                 if cast.legSweep(thisUnit) then return end
                             end
                         end
         -- Paralysis
-                        if isChecked("Paralysis") then
+                        if isChecked("Paralysis") and not isCastingSpell(spell.essenceFont) then
                             if cast.paralysis(thisUnit) then return end
                         end
                     end
@@ -209,13 +228,13 @@ local function runRotation()
 
         if inCombat then
 
-            if isChecked("Healing Elixir") and talent.healingElixir then
+            if isChecked("Healing Elixir") and talent.healingElixir and not isCastingSpell(spell.essenceFont) then
                 if php <= getValue("Healing Elixir") then
                     if cast.healingElixir("player") then return end
                 end
             end
 
-            if isChecked("Mana Tea") and talent.manaTea then
+            if isChecked("Mana Tea") and talent.manaTea and not isCastingSpell(spell.essenceFont) then
                 if mana <= getValue("Mana Tea") then
                     if cast.manaTea("player") then return end
                 end
@@ -236,27 +255,8 @@ local function runRotation()
                     end
                 end
             end
-            --Sheilun's Gift
-            --[It's free why 65%?  ]
-            if isChecked("Sheiluns Gift") and GetSpellCount(205406) ~= nil then
-                if GetSpellCount(205406) >= 5 then
-                    if lowest.hp <= getValue("Sheiluns Gift") then
-                        if cast.sheilunsGift(lowest.unit) then return end
-                    end
-                end
-            end
             --Detox
-            if isChecked("Detox") then
-                -- if getValue("Detox Mode") == 1 then -- Mouseover
-                --     if GetUnitExists("mouseover") and UnitCanAssist("player", "mouseover") then
-                --         for i = 1, #br.friend do
-                --             if br.friend[i].guid == UnitGUID("mouseover") and br.friend[i].dispel == true then
-                --                 if cast.detox("mouseover") then return end
-                --             end
-                --         end
-                --     end
-                -- else
-                -- if getValue("Detox Mode") == 2 then -- Raid
+            if isChecked("Detox") and not isCastingSpell(spell.essenceFont) then
                     for i = 1, #br.friend do
                         for n = 1,40 do
                             local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
@@ -267,57 +267,22 @@ local function runRotation()
                             end
                         end
                     end
-                -- end
             end
             --Thunder Focus Tea
-            if isChecked("Thunder Focus Tea") then
+            if isChecked("Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Thunder Focus Tea") then
                         if cast.thunderFocusTea() then return end
                     end
                 end
             end
-            if isChecked("Thunder Focus Tea") then
+            if isChecked("Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Thunder Focus Tea") then
-                        if buff.thunderFocusTea then
+                        if buff.thunderFocusTea.exists("player") then
                             if cast.vivify(br.friend[i].unit) then return end
                         end
                     end
-                end
-            end
-            --Renewing Mist
-            if isChecked("Renewing Mist") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Renewing Mist")
-                    and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
-                        if cast.renewingMist(br.friend[i].unit) then return end
-                    end
-                end
-            end
-            --Enveloping Mists
-            if isChecked("Enveloping Mist")
-            and not isCastingSpell(spell.envelopingMist) then
-                if lowest.hp <= getValue("Enveloping Mist")
-                and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then
-                    if cast.envelopingMist(lowest.unit) then return end
-                end
-            end
-            --Vivify
-            if isChecked("Vivify")
-            and not isCastingSpell(spell.vivify) then
-                -- if buff.upliftingTrance and lowest.hp <= getValue("Vivify") + 10 then
-                --     if cast.vivify(lowest.unit) then return end
-                -- else
-                if lowest.hp <= getValue("Vivify") then
-                    if cast.vivify(lowest.unit) then return end
-                end
-            end
-            --Effuse
-            if isChecked("Effuse")
-            and not isCastingSpell(spell.effuse) then
-                if lowest.hp <= getValue("Effuse") then
-                    if cast.effuse(lowest.unit) then return end
                 end
             end
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -340,9 +305,76 @@ local function runRotation()
                 if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then
                     if cast.invokeChiJi(lowest.unit) then return end
                 end
+            end					
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--End of AOE Healing--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+			         			
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Life Cycles Rotation--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	
+			--Renewing Mist
+            if isChecked("Renewing Mist") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Renewing Mist")
+                    and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+                        if cast.renewingMist(br.friend[i].unit) then return end
+                    end
+                end
             end
+			--Enveloping Mists Lifecycles Start
+            if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") then
+				if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 and getBuffRemain(lowest.unit,115175) > 1 then
+					if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					end
+					if getBuffRemain(lowest.unit,115175) > 1 then
+						if cast.envelopingMist(lowest.unit) then return end
+					end
+				end
+			end
+			--Vivify Life Cycles
+			if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") then
+				if lowest.hp <= getValue("Vivify Lifecycles") and getBuffRemain(lowest.unit,115175) > 1 then
+					if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					end
+					if getBuffRemain(lowest.unit,115175) > 1 then
+						if cast.vivify(lowest.unit) then return end
+					end
+				end
+			end
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--End of Life Cycles Rotation--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------           	
+            --Enveloping Mists
+            if isChecked("Enveloping Mist") and not talent.lifecycles then
+                if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 then
+                    if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					end
+					if getBuffRemain(lowest.unit,115175) > 1 then
+						if cast.envelopingMist(lowest.unit) then return end
+					end
+                end
+            end
+            --Vivify
+            if isChecked("Vivify") and not talent.lifecycles then
+                if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					end
+					if getBuffRemain(lowest.unit,115175) > 1 then
+						if cast.vivify(lowest.unit) then return end
+					end
+            end
+			-- Soothing Mist 2
+            if isChecked("Soothing Mist") and not isCastingSpell(spell.essenceFont) then
+                    if lowest.hp <= getValue("Soothing Mist") then
+                        if cast.soothingMist(lowest.unit) then return end
+                    end             	
+		    end
         end -- End In Combat Rotation
-    end -- End Timer
+    end -- End Timer	
 end -- End runRotation
 
                 if isChecked("Boss Helper") then
