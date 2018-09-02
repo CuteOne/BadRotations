@@ -780,7 +780,7 @@ local function runRotation()
 				if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not UnitIsUnit(br.friend[i].unit,"player") then
 					lightOfTheMartyrDS = br.friend[i].unit
 				end
-				if inInstance and php >= 90 and GetSpellCooldown(20473) >= 1.5 and not UnitIsUnit(br.friend[i].unit,"player") and isCastingSpell(spell.flashOfLight) then
+				if inInstance and php >= 90 and br.friend[i].hp <= 90 and GetSpellCooldown(20473) >= 1.5 and not UnitIsUnit(br.friend[i].unit,"player") and isCastingSpell(spell.flashOfLight) then
 					lightOfTheMartyrHS = br.friend[i].unit
 				end
 				if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
