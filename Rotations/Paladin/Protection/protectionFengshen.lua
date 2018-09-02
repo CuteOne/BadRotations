@@ -255,11 +255,11 @@ local function runRotation()
 		-- Action List - Extras
 		local function actionList_Extras()
 			-- Blessing of Freedom
-			if isChecked("Blessing of Freedom") and hasNoControl(spell.blessingOfFreedom) then
+			if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
 				if cast.blessingOfFreedom("player") then return end
 			end
 			-- Taunt
-			if isChecked("Taunt") and inInstance then
+			if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
 				for i = 1, #enemies.yards30 do
 					local thisUnit = enemies.yards30[i]
 					if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -294,31 +294,37 @@ local function runRotation()
 				end
 			end
 			-- Hammer of Justice
-			for i = 1, #enemies.yards10 do
-				local thisUnit = enemies.yards10[i]
-				local distance = getDistance(thisUnit)
-				if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388) and distance <= 10 then
-					if cast.hammerOfJustice(thisUnit) then return end
+			if cast.able.hammerOfJustice() then
+				for i = 1, #enemies.yards10 do
+					local thisUnit = enemies.yards10[i]
+					local distance = getDistance(thisUnit)
+					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388) and distance <= 10 then
+						if cast.hammerOfJustice(thisUnit) then return end
+					end
 				end
 			end
 			-- Blessing of Freedom
-			if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 then
-				if cast.blessingOfFreedom("player") then return end
-			end
-			if blessingOfFreedomCase ~= nil then
-				if cast.blessingOfFreedom(blessingOfFreedomCase) then return end
+			if cast.able.blessingOfFreedom() then
+				if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 then
+					if cast.blessingOfFreedom("player") then return end
+				end
+				if blessingOfFreedomCase ~= nil then
+					if cast.blessingOfFreedom(blessingOfFreedomCase) then return end
+				end
 			end
 			-- Blessing of Protection
-			if blessingOfProtectionCase ~= nil then
+			if blessingOfProtectionCase ~= nil and cast.able.blessingOfProtection() then
 				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
 			end
 			-- Cleanse Toxins
-			if cleanseToxinsCase ~= nil then
-				if cast.cleanseToxins(cleanseToxinsCase) then return end
-			end
-			if cleanseToxinsCase2 ~= nil then
-				if cast.cleanseToxins(cleanseToxinsCase2) then return end
-			end
+			if cast.able.cleanseToxins() then
+				if cleanseToxinsCase ~= nil then
+					if cast.cleanseToxins(cleanseToxinsCase) then return end
+				end
+				if cleanseToxinsCase2 ~= nil then
+					if cast.cleanseToxins(cleanseToxinsCase2) then return end
+				end
+			end	
 			-- Shield of the Righteous
 			local Debuff={
 			--debuff_id
@@ -364,7 +370,7 @@ local function runRotation()
 					end
 				end
 				-- Divine Shield
-				if isChecked("Divine Shield") then
+				if isChecked("Divine Shield") and cast.able.divineShield() then
 					if php <= getOptionValue("Divine Shield") and inCombat then
 						if cast.divineShield() then return end
 					end
@@ -374,19 +380,19 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Light of the Protector
-				if isChecked("Light of the Protector") and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
+				if isChecked("Light of the Protector") and cast.able.lightOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and not talent.handOfTheProtector then
 					if cast.lightOfTheProtector() then return end
-				elseif isChecked("Light of the Protector") and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
+				elseif isChecked("Light of the Protector") and cast.able.handOfTheProtector() and getHP("player") <= getOptionValue("Light of the Protector") and talent.handOfTheProtector then
 					if cast.handOfTheProtector("player") then return end
 				end
 				-- Hand of the Protector - Others
-				if isChecked("Hand of the Protector - Party") and talent.handOfTheProtector then
+				if isChecked("Hand of the Protector - Party") and cast.able.handOfTheProtector() and talent.handOfTheProtector then
 					if lowest.hp <= getOptionValue("Hand of the Protector - Party") then
 						if cast.handOfTheProtector(lowest.unit) then return end
 					end
 				end
 				-- Lay On Hands
-				if isChecked("Lay On Hands") and inCombat then
+				if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat then
 					-- Player
 					if getOptionValue("Lay on Hands Target") == 1 then
 						if php <= getValue("Lay On Hands") then
@@ -430,7 +436,7 @@ local function runRotation()
 					end
 				end
 				-- Blessing of Protection
-				if isChecked("Blessing of Protection") and inCombat then
+				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat then
 					-- Player
 					if getOptionValue("Blessing of Protection Target") == 1 then
 						if php <= getValue("Blessing of Protection") then
@@ -474,7 +480,7 @@ local function runRotation()
 					end
 				end
 				-- Blessing Of Sacrifice
-				if isChecked("Blessing Of Sacrifice") and php >= 50 and not UnitIsUnit(lowestUnit,"player") and inCombat then
+				if isChecked("Blessing Of Sacrifice") and cast.able.blessingOfSacrifice() and php >= 50 and inCombat then
 					-- Target
 					if getOptionValue("Blessing Of Sacrifice Target") == 1 then
 						if getHP("target") <= getValue("Blessing Of Sacrifice") then
@@ -485,10 +491,10 @@ local function runRotation()
 						if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 							if cast.blessingOfSacrifice("mouseover") then return true end
 						end
-					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and UnitInRange(lowestUnit) then
+					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not UnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) then
 						-- Tank
 						if getOptionValue("Blessing Of Sacrifice Target") == 3 then
-							if UnitGroupRolesAssigned(lowestUnit) == "TANK" and not UnitIsUnit(lowestUnit,"player") then
+							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 								if cast.blessingOfSacrifice(lowestUnit) then return true end
 							end
 							-- Healer
@@ -513,7 +519,7 @@ local function runRotation()
 					end
 				end
 				-- Cleanse Toxins
-				if isChecked("Clease Toxin") then
+				if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
 					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffStacks("player",261440) == 0 then
 						if cast.cleanseToxins("player") then return end
 					end
@@ -532,19 +538,19 @@ local function runRotation()
 					if cast.blindingLight() then return end
 				end
 				-- Shield of the Righteous
-				if isChecked("Shield of the Righteous - HP") then
+				if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
 					if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
 						if cast.shieldOfTheRighteous() then return end
 					end
 				end
 				-- Guardian of Ancient Kings
-				if isChecked("Guardian of Ancient Kings") then
+				if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
 					if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() then
 						if cast.guardianOfAncientKings() then return end
 					end
 				end
 				-- Ardent Defender
-				if isChecked("Ardent Defender") then
+				if isChecked("Ardent Defender") and cast.able.ardentDefender() then
 					if (php <= getOptionValue("Ardent Defender") or php <= 10) and inCombat and not buff.guardianOfAncientKings.exists() then
 						if cast.ardentDefender() then return end
 					end
@@ -594,15 +600,15 @@ local function runRotation()
 				end
 				if getDistance(units.dyn5) <= 5 then
 					-- Seraphim
-					if isChecked("Seraphim") and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
+					if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
 						if cast.seraphim() then return end
 					end
 					-- Avenging Wrath
-					if isChecked("Avenging Wrath") and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
+					if isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd ) then
 						if cast.avengingWrath() then return end
 					end
 					-- Bastion of Light
-					if isChecked("Bastion of Light") and talent.bastionOfLight and (charges.shieldOfTheRighteous.frac() < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
+					if isChecked("Bastion of Light") and cast.able.bastionOfLight() and talent.bastionOfLight and (charges.shieldOfTheRighteous.frac() < 0.2) and (not talent.seraphim or buff.seraphim.exists()) then
 						if cast.bastionOfLight() then return end
 					end
 				end
@@ -611,7 +617,7 @@ local function runRotation()
 		-- Action List - Interrupts
 		local function actionList_Interrupts()
 			if useInterrupts() then
-				if isChecked("Avenger's Shield - INT") then
+				if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 					for i = 1, #enemies.yards30 do
 						local thisUnit = enemies.yards30[i]
 						local distance = getDistance(thisUnit)
@@ -627,15 +633,15 @@ local function runRotation()
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and distance <= 10 and not isBoss(thisUnit) then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Rebuke
-						if isChecked("Rebuke - INT") and distance <= 5 then
+						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
 							if cast.rebuke(thisUnit) then return end
 						end
 						-- Blinding Light
-						if isChecked("Blinding Light - INT") and talent.blindingLight and distance <= 10 then
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 then
 							if cast.blindingLight() then return end
 						end
 					end
@@ -653,8 +659,8 @@ local function runRotation()
 					if cast.judgment("target") then return end
 				end
 				-- Start Attack
-				if getDistance("target") < 5 then
-					StartAttack(units.dyn5)
+				if getDistance("target") <= 5 then
+					StartAttack("target")
 				end
 			end
 		end -- End Action List - Opener
@@ -708,33 +714,31 @@ local function runRotation()
 				--- In Combat - SimCraft APL ---
 				--------------------------------
 				if getOptionValue("APL Mode") == 1 then
-					if not UnitIsFriend("target", "player") and not UnitIsDeadOrGhost("target") then
-						-- Shield of the Righteous
-						if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
-							if cast.shieldOfTheRighteous() then return end
+					-- Shield of the Righteous
+					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
+						if cast.shieldOfTheRighteous() then return end
+					end
+					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+						-- Judgment
+						if isChecked("Judgment") and cast.able.judgment() then
+							if cast.judgment() then return end
 						end
-						if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
-							-- Judgment
-							if isChecked("Judgment") and cast.able.judgment() then
-								if cast.judgment(units.dyn30) then return end
-							end
-							-- Avenger's Shield
-							if isChecked("Avenger's Shield") and cast.able.avengersShield() then
-								if cast.avengersShield(units.dyn30) then return end
-							end
+						-- Avenger's Shield
+						if isChecked("Avenger's Shield") and cast.able.avengersShield() then
+							if cast.avengersShield() then return end
 						end
-						-- Consecration
-						if isChecked("Consecration") and cast.able.consecration() and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
-							if cast.consecration() then return end
-						end
-						-- Blessed Hammer
-						if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
-							if cast.blessedHammer() then return end
-						end
-						-- Hammer of the Righteous
-						if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-							if cast.hammerOfTheRighteous(units.dyn5) then return end
-						end
+					end
+					-- Consecration
+					if isChecked("Consecration") and cast.able.consecration() and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
+						if cast.consecration() then return end
+					end
+					-- Blessed Hammer
+					if isChecked("Blessed Hammer") and cast.able.blessedHammer() and talent.blessedHammer and #enemies.yards5 >= 1 then
+						if cast.blessedHammer() then return end
+					end
+					-- Hammer of the Righteous
+					if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
+						if cast.hammerOfTheRighteous() then return end
 					end
 				end
 				--------------------------------
