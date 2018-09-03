@@ -195,7 +195,6 @@ end
 --- ROTATION ---
 ----------------
 local healing_obj = nil
-local BOV = nil
 
 local function runRotation()
 	-- if br.timer:useTimer("debugHoly", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
@@ -270,15 +269,14 @@ local function runRotation()
 		end
 		if buff.ruleOfLaw.exists("player") then
 			lightOfDawn_distance_coff =1.5
-		else
-			lightOfDawn_distance_coff =1
-		end
-		if buff.ruleOfLaw.exists("player") then
 			master_coff =1.5
 		else
+			lightOfDawn_distance_coff =1
 			master_coff =1.0
 		end
-
+		if not isCastingSpell(spell.flashOfLight) then
+			BOV = nil
+		end
 		units.dyn5 = units.get(5)
 		units.dyn8 = units.get(8)
 		units.dyn15 = units.get(15)
@@ -297,8 +295,8 @@ local function runRotation()
 		
 		-- Beacon of Virtue
 		if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
-			if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and GetSpellCooldown(200025) == 0 and GetSpellCooldown(20473) == 0) then
-				if CastSpellByName(GetSpellInfo(200025),lowest.unit) then BOV = nil return end
+			if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and GetSpellCooldown(20473) < gcd) then
+				if CastSpellByName(GetSpellInfo(200025),lowest.unit) then return end
 			end
 		end
 		-- Temple of Sethraliss
@@ -349,7 +347,7 @@ local function runRotation()
 		local function PrePull()
 			-- Pre-Pull Timer
 			if isChecked("Pre-Pull Timer") then
-				if pullTimer <= getOptionValue("Pre-Pull Timer") then
+				if pullTimer <= getOptionValue("Pre-Pull Timer") then 
 					if canUse(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						return true
@@ -398,10 +396,10 @@ local function runRotation()
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local function CanIRess()
 			if isChecked("Redemption") then
-				if getOptionValue("Redemption")==1 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==1 and not isMoving("player") and resable and UnitInRange("target") then
 					if cast.redemption("target","dead") then return end
 				end
-				if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
+				if getOptionValue("Redemption")==2 and not isMoving("player") and resable and UnitInRange("mouseover") then
 					if cast.redemption("mouseover","dead") then return end
 				end
 			end
@@ -712,7 +710,7 @@ local function runRotation()
 			-- end
 			-- end
 			--Beacon of Virtue
-			if cast.able.beaconOfVirtue() and talent.beaconOfVirtue and isChecked("Beacon of Virtue") and not isMoving("player") and GetSpellCooldown(200025) == 0 and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Beacon of Virtue") and cast.able.beaconOfVirtue() and talent.beaconOfVirtue and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
 				if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
 					if lowest.hp <= getValue("Beacon of Virtue") then
 						if cast.flashOfLight(lowest.unit) then BOV = lowest.unit return end
