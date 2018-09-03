@@ -29,7 +29,18 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       if isChecked("Mill Herbs") and IsSpellKnown(51005) then
         local millMode = getValue("Mill Herbs")
-        if millMode == 5 or millMode == 1 then
+        if millMode == 6 or millMode == 1 then
+          local tableMillBFA = {
+          152505, -- Riverbud
+          152511, -- Sea Stalk
+          152506, -- Star Moss
+          152507, -- Akunda's Bite
+          152508, -- Winter's Kiss
+          152510, -- Anchor Weed
+          }
+          processThatTable(tableMillBFA, 51005)
+        end
+        if millMode == 6 or millMode == 2 then
           local tableMillLegion = {
             124105, -- Starlight Rose
             124104, -- Fjarnskaggl
@@ -39,7 +50,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillLegion,51005)
         end
-        if millMode == 5 or millMode == 2 then
+        if millMode == 6 or millMode == 3 then
           local tableMillWoD = {
             109124, -- Frostweed
             109125, -- Fireweed
@@ -50,7 +61,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillWoD,51005)
         end
-        if millMode == 5 or millMode == 3 then
+        if millMode == 6 or millMode == 4 then
           local tableMillMoP = {
             72234, -- Green Tea Leaf
             72237, -- Rain Poppy
@@ -61,7 +72,7 @@ function ProfessionHelper()
           }
           processThatTable(tableMillMoP,51005)
         end
-        if millMode == 5 or millMode == 4 then
+        if millMode == 6 or millMode == 5 then
           tableMillCata = {
             52986, -- Heartblossom
             52984, -- Stormvine
