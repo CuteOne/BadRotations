@@ -323,7 +323,7 @@ local function runRotation()
 				if cast.breathOfFire() then return end
 			end
 		-- High Energy TP
-			if (powerDeficit < 15) or (power > 55) then
+			if (power > 55) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return end
 			end
 		-- Rushing Jade Wind
@@ -368,7 +368,7 @@ local function runRotation()
 				if cast.chiWave() then return end
 			end
 		-- Tiger Palm
-			if power > 55 then
+			if power > 55 and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return end
 			end
 	end
