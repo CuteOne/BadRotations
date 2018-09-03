@@ -799,8 +799,10 @@ local function runRotation()
                     end
                 end
                 -- Power Word: Shield Body and Soul
-                if isChecked("Body and Soul") and talent.bodyAndSoul and not buff.bodyAndSoul.exists("player") then
-                    if cast.powerWordShield("player") then return end
+                if bnSTimer == nil then bnSTimer = GetTime() - 6 end
+                if isChecked("Body and Soul") and talent.bodyAndSoul and not buff.bodyAndSoul.exists("player") and GetTime() >= bnSTimer + 6 then
+                    if cast.powerWordShield("player") then
+                    bnSTimer = GetTime() return end
                 end
             end
             -- Dispel Magic
