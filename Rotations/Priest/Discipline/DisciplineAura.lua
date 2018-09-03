@@ -889,7 +889,7 @@ local function runRotation()
                 end
             end
             --Fade
-            if isChecked("Fade") then
+            if isChecked("Fade") and not cast.active.penance() then
                 if php <= getValue("Fade") and not solo then
                     if cast.fade() then return end
                 end
