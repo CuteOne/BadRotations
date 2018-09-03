@@ -53,6 +53,7 @@ function ObjectManagerUpdate(self)
 	end
 end
 
+local unlockqueue
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -145,6 +146,10 @@ function BadRotationsUpdate(self)
 			    br.DBM:getBars()
 
 			-- Accept dungeon queues
+				if unlockqueue == nil then
+					RunMacroText("/script local OldFunction = AcceptProposal AcceptProposal = function(...) return EWTUnlock(OldFunction, ...) end")
+					unlockqueue = true
+				end
 				br:AcceptQueues()
 
 			-- Profession Helper
