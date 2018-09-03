@@ -189,6 +189,7 @@ local function runRotation()
         units.get(40)
         enemies.get(5)
         enemies.get(20,"pet")
+        enemies.get(30)
         enemies.get(40)
         enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
@@ -249,6 +250,7 @@ local function runRotation()
             KC1 = false
             opener = false
         end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -267,7 +269,7 @@ local function runRotation()
                             if cast.able.revivePet() then
                                 if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                             end
-                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
+                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) and not buff.playDead.exists("pet") then
                             if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
@@ -296,7 +298,7 @@ local function runRotation()
                     petMode = "Passive"
                 end
                 -- Pet Attack / retreat
-                if (not UnitExists("pettarget") or not isValidUnit("pettarget")) and (inCombat or petCombat) then
+                if (not UnitExists("pettarget") or not isValidUnit("pettarget")) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
                     for i=1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if isValidUnit(thisUnit) or isDummy() then
@@ -328,19 +330,34 @@ local function runRotation()
             if isChecked("Dash") and cast.able.dash() and isValidUnit("pettarget") and getDistance("pettarget","pet") > 10 then
                 if cast.dash() then return end
             end
+            -- Growl
+            if isChecked("Auto Growl") then
+                local _, autoCastEnabled = GetSpellAutocast(spell.growl)
+                if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+                if not isTankInRange() and not buff.prowl.exists("pet") then
+                    if cast.able.misdirection("pet") and #enemies.yards5 > 1 then
+                        if cast.misdirection("pet") then return end
+                    end
+                    if cast.able.growl() then
+                        for i = 1, #enemies.yards30 do
+            				local thisUnit = enemies.yards30[i]
+            				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) > 2 and UnitAffectingCombat(thisUnit) then
+            					if cast.growl(thisUnit) then return end
+            				end
+            			end
+                    end
+                end
+            end
+            -- Play Dead / Wake Up
+            if cast.able.playDead() and not buff.playDead.exists("pet") and getHP("pet") < 20 then
+                if cast.playDead() then return end
+            end
+            if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() and getHP("pet") >= 20 then
+                if cast.wakeUp() then return end
+            end
             -- Prowl
             if isChecked("Prowl") and not inCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
                 if cast.prowl() then return end
-            end
-            -- Growl
-            if isChecked("Auto Growl") then
-                local petGrowl = GetSpellInfo(2649)
-                local _, autoCastEnabled = GetSpellAutocast(2649)
-                if isTankInRange() and autoCastEnabled then
-                    DisableSpellAutocast(petGrowl)
-                elseif not autocastEnabled then
-                    EnableSpellAutocast(petGrowl)
-                end
             end
             -- Mend Pet
             if isChecked("Mend Pet") and cast.able.mendPet() and UnitExists("pet") and not UnitIsDeadOrGhost("pet")
@@ -392,6 +409,9 @@ local function runRotation()
                 end
         -- Feign Death
                 if isChecked("Feign Death") and cast.able.feignDeath() and php <= getOptionValue("Feign Death") then
+                    if cast.able.playDead() then
+                        if cast.playDead() then return end
+                    end
                     if cast.feignDeath("player") then return true end
                 end
         -- Intimidation
@@ -494,31 +514,31 @@ local function runRotation()
     -- Action List - Single Target
         local function actionList_St()
         -- Wildfire Bomb
-            -- wildfire_bomb,if=full_recharge_time<gcd
-            if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < gcdMax then
+            -- wildfire_bomb,if=full_recharge_time<gcd&talent.alpha_predator.enabled
+            if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < gcdMax and talent.alphaPredator then
                 if cast.wildfireBomb() then return end
             end
         -- Serpent Sting
-            -- serpent_sting,if=refreshable&buff.mongoose_fury.stack=5
-            if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and buff.mongooseFury.stack() == 5 then
+            -- serpent_sting,if=refreshable&buff.mongoose_fury.stack=5&talent.alpha_predator.enabled
+            if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and buff.mongooseFury.stack() == 5 and talent.alphaPredator then
                 if cast.serpentSting() then return end
             end
         -- Mongoose Bite
-            -- mongoose_bite,if=buff.mongoose_fury.stack=5
-            if cast.able.mongooseBite() and buff.mongooseFury.stack() == 5 then
+            -- mongoose_bite,if=buff.mongoose_fury.stack=5&talent.alpha_predator.enabled
+            if cast.able.mongooseBite() and buff.mongooseFury.stack() == 5 and talent.alphaPredator then
                 if cast.mongooseBite() then return end
             end
         -- Raptor Strike
-            -- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
+            -- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd)
             if cast.able.raptorStrike() and not talent.mongooseBite and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
-                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
+                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax))
             then
                 if cast.raptorStrike() then return end
             end
         -- Mongoose Bite
-            -- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.remains<gcd)
+            -- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd)
             if cast.able.mongooseBite() and talent.mongooseBite and (talent.birdsOfPrey and buff.coordinatedAssault.exists()
-                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax))
+                and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax))
             then
                 if cast.mongooseBite() then return end
             end
@@ -589,8 +609,8 @@ local function runRotation()
             if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 end
         -- Carve
             -- carve,if=dot.shrapnel_bomb.ticking
-            if cast.able.carve("player","cone",2,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
-                if cast.carve("player","cone",2,5) then return end
+            if cast.able.carve(nil,"cone",2,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
+                if cast.carve(nil,"cone",2,5) then return end
             end
         -- Wildfire Bomb
             -- wildfire_bomb,if=!talent.guerrilla_tactics.enabled|full_recharge_time<gcd
@@ -616,8 +636,8 @@ local function runRotation()
             end
         -- Carve
             -- carve,if=talent.guerrilla_tactics.enabled
-            if cast.able.carve("player","cone",2,5) and (talent.guerrillaTactics) then
-                if cast.carve("player","cone",2,5) then return end
+            if cast.able.carve(nil,"cone",2,5) and (talent.guerrillaTactics) then
+                if cast.carve(nil,"cone",2,5) then return end
             end
         -- Flanking Strike
             -- flanking_strike,if=focus+cast_regen<focus.max
@@ -636,8 +656,8 @@ local function runRotation()
             end
         -- Carve
             -- carve,if=cooldown.wildfire_bomb.remains>variable.carve_cdr%2
-            if cast.able.carve("player","cone",2,5) and (cd.wildfireBomb.remain() > carveCdr / 2) then
-                if cast.carve("player","cone",2,5) then return end
+            if cast.able.carve(nil,"cone",2,5) and (cd.wildfireBomb.remain() > carveCdr / 2) then
+                if cast.carve(nil,"cone",2,5) then return end
             end
         -- Steel Trap
             -- steel_trap
@@ -852,6 +872,9 @@ local function runRotation()
             if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
+            end
+            if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
+                if cast.playDead() then return end
             end
             return true
         else

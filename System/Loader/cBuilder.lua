@@ -140,7 +140,8 @@ function br.loader:new(spec,specName)
                     end
                 end
             end
-            if rank > 0 then return true, rank else return false, rank end
+            return rank > 0 and true or false, rank
+            -- if rank > 0 then return true, rank else return false, rank end
         end
 
         -- Build Azerite Trait Info
