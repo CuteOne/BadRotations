@@ -905,7 +905,7 @@ local function runRotation()
                     if talent.purgeTheWicked and (lastSpell ~= spell.purgeTheWicked or debuff.purgeTheWicked.count() == 0) then
                         for i = 1, #enemies.get(40) do
                             local thisUnit = enemies.get(40)[i]
-                            if (isChecked("SW:P/PtW Targets") and getValue("SW:P/PtW Targets") < currTargets()) or not isChecked("SW:P/PtW Targets") then
+                            if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
                                 if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                     if debuff.purgeTheWicked.remain(thisUnit) < gcd then
                                         if cast.purgeTheWicked(thisUnit,"aoe") then
@@ -920,7 +920,7 @@ local function runRotation()
                     if not talent.purgeTheWicked and (lastSpell ~= spell.shadowWordPain or debuff.shadowWordPain.count() == 0) then
                         for i = 1, #enemies.get(40) do
                             local thisUnit = enemies.get(40)[i]
-                            if (isChecked("SW:P/PtW Targets") and getValue("SW:P/PtW Targets") < currTargets()) or not isChecked("SW:P/PtW Targets") then
+                            if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
                                 if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                     if debuff.shadowWordPain.remain(thisUnit) < gcd then
                                         if cast.shadowWordPain(thisUnit,"aoe") then
