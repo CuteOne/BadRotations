@@ -335,6 +335,9 @@ function hasThreat(unit,playerUnit)
 		return true
 	end
 end
+function isTanking(unit)
+	return UnitDetailedThreatSituation("player",unit) ~= nil
+end
 -- if isAggroed("target") then
 function isAggroed(unit)
 	for i = 1, #br.friend do

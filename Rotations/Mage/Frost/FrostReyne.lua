@@ -124,6 +124,32 @@ local function runRotation()
 --- Action Lists ---
 --------------------
 
+-- Action List - Movement     
+    local function actionList_move()
+        if moving and buff.fingersOfFrost.exists() then
+            cast.iceLance()
+        end
+        if not buff.iceFloes.exists() and moving then
+            cast.iceFloes()
+        return end
+        -- Flurry on Brain Freeze Proc
+        if buff.brainFreeze.exists() and not buff.fingersOfFrost.exists() then
+            if cast.flurry() then return end
+        end
+        -- Ice Lance after Flurry Cast w/o Glacial Spike
+        if not buff.fingersOfFrost.exists() and cast.last.flurry() and cast.able.iceLance() and not talent.glacialSpike then
+            if cast.iceLance() then return end
+        end
+        -- Ice Barrier
+        if moving and not buff.fingersOfFrost.exists() and not buff.iceBarrier.exists() then
+            cast.iceBarrier()
+        end
+        -- Ice Lance
+        if not cast.last.flurry() and cast.able.iceLance() then
+            if cast.iceLance() then return end
+        end
+    end
+
 -- Action List - Area of Effect
     local function actionList_AOE()
         -- Ice Lance after Flurry Cast
@@ -262,32 +288,6 @@ local function runRotation()
         end
         -- Filler Frostbolt Cast
         if cast.frostbolt() then return end
-    end
-
--- Action List - Movement     
-    local function actionList_move()
-        if moving and buff.fingersOfFrost.exists() then
-            cast.iceLance()
-        end
-        if not buff.iceFloes.exists() and moving then
-            cast.iceFloes()
-        return end
-        -- Flurry on Brain Freeze Proc
-        if buff.brainFreeze.exists() and not buff.fingersOfFrost.exists() then
-            if cast.flurry() then return end
-        end
-        -- Ice Lance after Flurry Cast w/o Glacial Spike
-        if not buff.fingersOfFrost.exists() and cast.last.flurry() and cast.able.iceLance() and not talent.glacialSpike then
-            if cast.iceLance() then return end
-        end
-        -- Ice Barrier
-        if moving and not buff.fingersOfFrost.exists() and not buff.iceBarrier.exists() then
-            cast.iceBarrier()
-        end
-        -- Ice Lance
-        if not cast.last.flurry() and cast.able.iceLance() then
-            if cast.iceLance() then return end
-        end
     end
 
 -----------------
