@@ -77,7 +77,7 @@ function br.ui:createConfigWindow()
         -- Other Features
         section = br.ui:createSection(br.ui.window.config, "Other Features")
         br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-        br.ui:createDropdown(section, "Prospect Ores", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
+        br.ui:createDropdown(section, "Prospect Ores", {"BFA","Legion","WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
         br.ui:createDropdown(section, "Mill Herbs", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
         br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
         br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")

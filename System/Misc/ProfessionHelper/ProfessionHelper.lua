@@ -78,30 +78,40 @@ function ProfessionHelper()
       ------------------------------------------------------------------------------------------------------
       if isChecked("Prospect Ores") and IsSpellKnown(31252) then
         local prospectMode = getValue("Prospect Ores")
-        if prospectMode == 5 or prospectMode == 1 then
+        if prospectMode == 6 or prospectMode == 1 then
+          local tableProspectBFA = {
+            152512, -- Monelite Ore
+            152513, -- Platinum Ore
+            152579, -- Storm Silver Ore
+          }
+          processThatTable(tableProspectBFA, 31252)
+        end
+        if prospectMode == 6 or prospectMode == 2 then
+        }
           local tableProspectLegion = {
             123918, -- Leystone Ore
             123919 -- Felslate Ore
           }
           processThatTable(tableProspectLegion,31252)
         end
-        if prospectMode == 5 or prospectMode == 2 then
+        if prospectMode == 6 or prospectMode == 3 then
           local tableProspectWoD = {
             109119, -- True Iron Ore
             109118 -- Blackrock Ore
           }
           processThatTable(tableProspectWoD,31252)
         end
-        if prospectMode == 5 or prospectMode == 3 then
+        if prospectMode == 6 or prospectMode == 4 then
           local tableProspectMoP = {
             72092, -- Ghost Iron Ore
             72093, -- Kyparite
             72094, -- Black Trillium Ore
             72103, -- White Trillium Ore
+            2770
           }
           processThatTable(tableProspectMoP,31252)
         end
-        if prospectMode == 5 or prospectMode == 4 then
+        if prospectMode == 6 or prospectMode == 5 then
           local tableProspectCata = {
             52183, -- Pyrite Ore
             52185, -- Elementium Ore
