@@ -1398,7 +1398,8 @@ br.lists.spells = {
                 purifyingBrew               = 119582,
                 rushingJadeWind             = 116847,
                 spearHandStrike             = 116705,
-				provoke						= 115546,
+                provoke						= 115546,
+                invokeNiuzao                = 132578,
 			},
             artifacts                       = {
 
