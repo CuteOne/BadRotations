@@ -87,7 +87,6 @@ function ProfessionHelper()
           processThatTable(tableProspectBFA, 31252)
         end
         if prospectMode == 6 or prospectMode == 2 then
-        }
           local tableProspectLegion = {
             123918, -- Leystone Ore
             123919 -- Felslate Ore
