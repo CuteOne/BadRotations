@@ -204,7 +204,7 @@ local function runRotation()
             if isChecked("Torment") and cast.able.torment() then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+                    if not isTanking(thisUnit) and hasThreat(thisUnit) then
                         if cast.torment(thisUnit) then return end
                     end
                 end

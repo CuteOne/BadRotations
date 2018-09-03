@@ -61,10 +61,12 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use AoE spells on.")
         -- Fel Rush Charge Hold
             br.ui:createSpinnerWithout(section, "Hold Fel Rush Charge", 1, 0, 2, 1, "|cffFFBB00Number of Fel Rush charges the bot will hold for manual use.");
-        -- Vengeful Retreat
-            br.ui:createCheckbox(section, "Vengeful Retreat")
+        -- Fel Rush Only In Melee
+            br.ui:createCheckbox(section, "Fel Rush Only In Melee")
         -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
+        -- Vengeful Retreat
+            br.ui:createCheckbox(section, "Vengeful Retreat")
         -- Glide Fall Time
             br.ui:createSpinner(section, "Glide", 2, 0, 10, 1, "|cffFFBB00Seconds until Glide will be used while falling.")
         br.ui:checkSectionState(section)
@@ -74,16 +76,12 @@ local function createOptions()
             br.ui:createCheckbox(section,"Potion")
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","Gaze of the Legion","None"}, 1, "|cffFFFFFFSet Elixir to use.")
-        -- Legendary Ring
-            br.ui:createCheckbox(section,"Legendary Ring")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
         -- Metamorphosis
             br.ui:createCheckbox(section,"Metamorphosis")
-        -- Draught of Souls
-            br.ui:createCheckbox(section, "Draught of Souls")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -503,7 +501,7 @@ local function runRotation()
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                     if cast.felRush() then return end
                 end
             end
@@ -513,7 +511,7 @@ local function runRotation()
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                     if cast.felRush() then return end
                 end
             end
@@ -529,7 +527,7 @@ local function runRotation()
             end
         -- Fel Rush
             -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-            if cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+            if not isChecked("Fel Rush Only In Melee") and cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
                 and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum))
             then
                 if cast.felRush() then return end
@@ -565,7 +563,7 @@ local function runRotation()
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                     if cast.felRush() then return end
                 end
             end
@@ -606,7 +604,7 @@ local function runRotation()
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                     if cast.felRush() then return end
                 end
             end
@@ -659,7 +657,7 @@ local function runRotation()
             if cast.able.felRush() and getFacing("player","target",10) and not talent.momentum and talent.demonBlades and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge") then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
-                elseif mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3) then
+                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                     if cast.felRush() then return end
                 end
             end
@@ -670,7 +668,7 @@ local function runRotation()
             end
         -- Fel Rush
             -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-            if cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+            if not isChecked("Fel Rush Only In Melee") and cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
                 and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum))
             then
                 if cast.felRush() then return end
@@ -719,13 +717,15 @@ local function runRotation()
 
                 end -- End Pre-Pull
                 if isValidUnit("target") then
+                    if UnitReaction("target","player") < 4 then
             -- Throw Glaive
-                    if cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
-                        if cast.throwGlaive("target","aoe") then return end
-                    end
+                        if cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
+                            if cast.throwGlaive("target","aoe") then return end
+                        end
             -- Torment
-                    if cast.able.torment("target") then
-                        if cast.torment("target") then return end
+                        if cast.able.torment("target") then
+                            if cast.torment("target") then return end
+                        end
                     end
             -- Start Attack
                     -- auto_attack
