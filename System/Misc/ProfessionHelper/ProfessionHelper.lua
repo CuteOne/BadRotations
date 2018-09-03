@@ -106,7 +106,6 @@ function ProfessionHelper()
             72093, -- Kyparite
             72094, -- Black Trillium Ore
             72103, -- White Trillium Ore
-            2770
           }
           processThatTable(tableProspectMoP,31252)
         end
