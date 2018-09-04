@@ -2662,14 +2662,14 @@ br.lists.spells = {
         -- Restoration
         [264] = {
             abilities                       = {
-                ancestralGuidance           = 108281,
+             --   ancestralGuidance           = 108281,
                 ancestralProtectionTotem    = 207399,
                 ascendance                  = 114052,
                 chainHeal                   = 1064,
                 chainLightning              = 421,
                 cloudburstTotem             = 157153,
                 flameShock                  = 188838,
-                giftOfTheQueen              = 207778,
+              --  giftOfTheQueen              = 207778,
                 healingRain                 = 73920,
                 healingSurge                = 8004,
                 healingStreamTotem          = 5394,
@@ -2685,7 +2685,7 @@ br.lists.spells = {
                 wellspring                  = 197995,
             },
             artifacts                       = {
-                giftOfTheQueen              = 207778,
+             --   giftOfTheQueen              = 207778,
             },
             buffs                           = {
                 ascendance                  = 114052,
@@ -2703,13 +2703,13 @@ br.lists.spells = {
             glyphs                          = {
             },
             talents                         = {
-                ancestralGuidance           = 108281,
+                --ancestralGuidance           = 108281,
                 ancestralProtectionTotem    = 207399,
                 ascendance                  = 114052,
                 cloudburstTotem             = 157153,
                 earthenShieldTotem          = 198838,
                 echoOfTheElements           = 108283,
-                gustOfWind                  = 192063,
+               -- gustOfWind                  = 192063,
                 highTide                    = 157154,
                 unleashLife                 = 73685,
                 wellspring                  = 197995,

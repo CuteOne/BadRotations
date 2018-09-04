@@ -9,7 +9,7 @@ local function createToggles()
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.riptide},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.chainHeal},
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.healingWave},
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.giftOfTheQueen}
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.chainLightning}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -87,9 +87,6 @@ local function createOptions()
         -- Cloudburst Totem
             br.ui:createSpinner(section, "Cloudburst Totem",  90,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Cloudburst Totem Targets",  3,  0,  40,  1,  "Minimum Cloudburst Totem Targets")
-        -- Ancestral Guidance
-            br.ui:createSpinner(section, "Ancestral Guidance",  60,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Ancestral Guidance Targets",  3,  0,  40,  1,  "Minimum Ancestral Guidance Targets")
         -- Ascendance
             br.ui:createSpinner(section,"Ascendance",  60,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Ascendance Targets",  3,  0,  40,  1,  "Minimum Ascendance Targets")
@@ -155,9 +152,6 @@ local function createOptions()
         -- Chain Heal
             br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
-        -- Gift of the Queen
-            br.ui:createSpinner(section, "Gift of the Queen",  80,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Gift of the Queen Targets",  3,  0,  40,  1,  "Minimum Gift of the Queen Targets")
         -- Wellspring
             br.ui:createSpinner(section, "Wellspring",  80,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Wellspring Targets",  3,  0,  40,  1,  "Minimum Wellspring Targets")
@@ -248,14 +242,6 @@ local function runRotation()
                     ChatOverlay(colorGreen.."Cloudburst Totem!")
                     CloudburstTotemTime = GetTime()
                     return
-                end
-            end
-        end
-
-        if inCombat and not IsMounted() then
-            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and talent.cloudburstTotem and (not CloudburstTotemTime or GetTime() >= CloudburstTotemTime + 6) then
-                if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
-                    if cast.ancestralGuidance() then return end
                 end
             end
         end
@@ -433,12 +419,6 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- Cloudburst Totem
         function actionList_CBT()
-        -- Ancestral Guidance
-            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and (not CloudburstTotemTime or GetTime() >= CloudburstTotemTime + 6) then
-                if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
-                    if cast.ancestralGuidance() then return end
-                end
-            end
         -- Ascendance
             if isChecked("Ascendance") and talent.ascendance then
                 if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
@@ -500,10 +480,6 @@ local function runRotation()
                     end
                 end
             end
-        -- Gift of the Queen
-            if isChecked("Gift of the Queen") then
-                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),6,false,false) then return end
-            end
         -- Healing Stream Totem
             if isChecked("Healing Stream Totem") then
                 for i = 1, #br.friend do                           
@@ -539,16 +515,6 @@ local function runRotation()
         end -- End Action List - Cloudburst Totem
         -- AOE Healing
         function actionList_AOEHealing()
-        -- Ancestral Guidance
-            if isChecked("Ancestral Guidance") and talent.ancestralGuidance and not talent.cloudburstTotem then
-                if getLowAllies(getValue("Ancestral Guidance")) >= getValue("Ancestral Guidance Targets") then
-                    if cast.ancestralGuidance() then return end
-                end
-            end
-        -- Gift of the Queen
-            if isChecked("Gift of the Queen") then
-                if castWiseAoEHeal(br.friend,spell.giftOfTheQueen,12,getValue("Gift of the Queen"),getValue("Gift of the Queen Targets"),6,false,false) then return end
-            end
         -- Chain Heal
             if isChecked("Chain Heal") then
                 if talent.unleashLife and talent.highTide then
