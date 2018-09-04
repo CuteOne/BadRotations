@@ -136,7 +136,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"Healing Rain on Melee", "Cast on Melee only")
             br.ui:createCheckbox(section,"Healing Rain on CD")
         -- Downpour
-            br.ui:createrSpinner(section, "Downpour", 70, 0 , 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Downpour", 70, 0 , 100, 5, "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Downpour Targets",  2,  0,  40,  1,  "Minimum Downpour Targets")
             br.ui:createDropdown(section,"Downpour Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Downpour manual usage.")
             br.ui:createCheckbox(section,"Downpour on Melee", "Cast on Melee only")
@@ -514,6 +514,7 @@ local function runRotation()
                         end
                     end
                 end 
+            end
         -- Riptide
             if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() and level >= 34 then
