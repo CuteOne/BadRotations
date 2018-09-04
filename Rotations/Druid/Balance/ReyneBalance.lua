@@ -145,10 +145,12 @@ local function actionList_single()
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and ttd(thisUnit) > 6 then
+        if debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 6 then
             if cast.moonfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 4 then
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 5 then
             if cast.sunfire(thisUnit,"aoe") then return true end
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.stellarFlare.remain(thisUnit) < 7 then
+            if cast.stellarFlare(thisUnit,"aoe") then return true end
         end
     end
 
@@ -176,6 +178,11 @@ local function actionList_single()
     -- Cast Starsurge
     if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) then
         if cast.starsurge() then return end
+    end
+
+    -- Cast Solar Wrath with Empowerment
+    if cast.able.solarWrath() and buff.solarEmpowerment.stack() == 3 then
+        if cast.solarWrath() then return end
     end
 
     -- Cast Lunar Strike with Empowerment
@@ -216,10 +223,12 @@ local function actionList_multi()
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.moonfire.remain(thisUnit) <= debuff.sunfire.remain(thisUnit) and ttd(thisUnit) > 6 then
+        if debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 6 then
             if cast.moonfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 4 then
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 5 then
             if cast.sunfire(thisUnit,"aoe") then return true end
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.stellarFlare.remain(thisUnit) < 7 then
+            if cast.stellarFlare(thisUnit,"aoe") then return true end
         end
     end
 
