@@ -1465,7 +1465,7 @@ br.lists.spells = {
                 manaTea                     = 197908;
                 transcendence               = 101643;
                 transcendenceTransfer       = 119996;
-                soothingMist                = 193884;
+                soothingMist                = 115175;
                 chiWave                     = 115098;
                 fortifyingBrew              = 243435;
             },
