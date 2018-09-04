@@ -114,9 +114,9 @@ local function createOptions()
         -- Capacitor Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-        -- Earthen Shield Totem
-            br.ui:createSpinner(section, "Earthen Shield Totem",  95,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Earthen Shield Totem Targets",  1,  0,  40,  1,  "Minimum Earthen Shield Totem Targets")
+        -- Earthen Wall Totem
+            br.ui:createSpinner(section, "Earthen Wall Totem",  95,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Earthen Wall Totem Targets",  1,  0,  40,  1,  "Minimum Earthen Wall Totem Targets")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -135,6 +135,12 @@ local function createOptions()
             br.ui:createDropdown(section,"Healing Rain Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Healing Rain manual usage.")
             br.ui:createCheckbox(section,"Healing Rain on Melee", "Cast on Melee only")
             br.ui:createCheckbox(section,"Healing Rain on CD")
+        -- Downpour
+            br.ui:createrSpinner(section, "Downpour", 70, 0 , 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Downpour Targets",  2,  0,  40,  1,  "Minimum Downpour Targets")
+            br.ui:createDropdown(section,"Downpour Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Downpour manual usage.")
+            br.ui:createCheckbox(section,"Downpour on Melee", "Cast on Melee only")
+            br.ui:createCheckbox(section,"Downpour on CD")
         -- Spirit Link Totem
             br.ui:createSpinner(section, "Spirit Link Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Spirit Link Totem Targets",  3,  0,  40,  1,  "Minimum Spirit Link Totem Targets")
@@ -236,7 +242,7 @@ local function runRotation()
         if CloudburstTotemTime == nil or cd.cloudburstTotem.remain() == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
 
     -- Cloudburst Totem
-        if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
+        if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and charges.cloudburstTotem.count() > 0 then
             if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
                 if cast.cloudburstTotem() then
                     ChatOverlay(colorGreen.."Cloudburst Totem!")
@@ -387,6 +393,11 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
                 end
             end
+            if not moving then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end
+                end
+            end
         end  -- End Action List - Pre-Combat
         function actionList_Cooldowns()
             if useCDs() then
@@ -469,6 +480,40 @@ local function runRotation()
                     --if castGroundAtBestLocation(spell.healingRain,10,getValue("Healing Rain Targets"),40,0,"heal") then return end
                 end
             end
+            -- Downpour
+            if not moving then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
+                end
+                if isChecked("Downpour") then
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            if isChecked("Downpour on CD") and #meleeFriends >= getValue("Downpour Targets") then
+                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Downpour Targets"),6,10)
+                            else
+                                local meleeHurt = {}
+                                for j=1, #meleeFriends do
+                                    if meleeFriends[j].hp < getValue("Downpour") then
+                                        tinsert(meleeHurt,meleeFriends[j])
+                                    end
+                                end
+                                if #meleeHurt >= getValue("Downpour Targets") then
+                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
+                                end
+                            end
+                            if loc ~= nil then
+                                if castGroundAtLocation(loc, spell.downpour) then return true end
+                            end
+                        end
+                    end
+                end 
         -- Riptide
             if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() and level >= 34 then
@@ -574,6 +619,41 @@ local function runRotation()
                     --if castGroundAtBestLocation(spell.healingRain,10,getValue("Healing Rain Targets"),40,0,"heal") then return end
                 end
             end
+            -- Downpour
+            if not moving then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                    if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
+                end
+                if isChecked("Downpour") then
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            if isChecked("Downpour on CD") and #meleeFriends >= getValue("Downpour Targets") then
+                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Downpour Targets"),6,10)
+                            else
+                                local meleeHurt = {}
+                                for j=1, #meleeFriends do
+                                    if meleeFriends[j].hp < getValue("Downpour") then
+                                        tinsert(meleeHurt,meleeFriends[j])
+                                    end
+                                end
+                                if #meleeHurt >= getValue("Downpour Targets") then
+                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
+                                end
+                            end
+                            if loc ~= nil then
+                                if castGroundAtLocation(loc, spell.downpour) then return true end
+                            end
+                        end
+                    end
+                end 
+            end
         end -- End Action List - AOEHealing
         -- Single Target
         function actionList_SingleTarget()
@@ -632,9 +712,9 @@ local function runRotation()
                     end
                 end
             end
-        -- Earthen Shield Totem
-            if isChecked("Earthen Shield Totem") and talent.earthenShieldTotem then
-                if castWiseAoEHeal(br.friend,spell.earthenShieldTotem,20,getValue("Earthen Shield Totem"),getValue("Earthen Shield Totem Targets"),6,false,true) then return end
+        -- Earthen Wall Totem
+            if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
+                if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
             end
         -- Healing Stream Totem
             if isChecked("Healing Stream Totem") then
