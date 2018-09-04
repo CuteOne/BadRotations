@@ -133,7 +133,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugHavoc", math.random(0.15,0.3)) then
+    -- if br.timer:useTimer("debugHavoc", math.random(0.15,0.3)) then
         --Print("Running: "..rotationName)
 
 ---------------
@@ -237,23 +237,29 @@ local function runRotation()
             end
             return
         end
-        -- local function cancelRetreatAnimation()
-        --     if cast.able.vengefulRetreat() then
-        --         -- C_Timer.After(.001, function() HackEnabled("NoKnockback", true) end)
-        --         -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
-        --         -- C_Timer.After(.55, function() HackEnabled("NoKnockback", false) end)
-        --         SetHackEnabled("NoKnockback", true)
-        --         if cast.vengefulRetreat() then
-        --             SetHackEnabled("NoKnockBack", false)
-        --         end
-        --     end
-        --     return
-        -- end
+        local function cancelRetreatAnimation()
+            if cast.able.vengefulRetreat() then
+
+                -- C_Timer.After(.001, function() SetHackEnabled("NoKnockback", true) end)
+                -- C_Timer.After(.35, function() cast.vengefulRetreat() end)
+                -- C_Timer.After(.55, function() SetHackEnabled("NoKnockback", false) end)
+                -- SetHackEnabled("NoKnockback", true)
+                if cast.vengefulRetreat() then
+                    C_Timer.After(.35, function() StopFalling(); end)
+                    C_Timer.After(.55, function() MoveForwardStart(); end)
+                    C_Timer.After(.75, function() MoveForwardStop(); end)
+                --     SetHackEnabled("NoKnockBack", false)
+                end
+            end
+            return
+        end
+        -- if mode.mover == 1 and cast.last.vengefulRetreat() then StopFalling(); end
         -- if IsHackEnabled("NoKnockback") then
         --     SetHackEnabled("NoKnockback", false)
         -- end
-
-        if isChecked("Auto Fel Rush After Retreat") and cast.able.felRush() and lastCast == spell.vengefulRetreat and charges.felRush.count() >= 1 then
+        if isChecked("Auto Fel Rush After Retreat") and mode.mover == 2 and getDistance("target") > 8
+            and cast.able.felRush() and cast.last.vengefulRetreat() and charges.felRush.count() >= 1
+        then
             if cast.felRush() then return end
         end
 
@@ -481,7 +487,7 @@ local function runRotation()
             end
         -- Felblade
             -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
-            if cast.able.felblade() and (power < 40 or (not buff.metamorphosis.exists() and powerDeficit >= 40)) then
+            if cast.able.felblade() and (power < 40 or (not buff.metamorphosis.exists() and powerDeficit >= 40)) and not cast.last.vengefulRetreat() and getDistance("target") < 5 then
                 if cast.felblade() then return end
             end
         -- Annihilation
@@ -550,11 +556,11 @@ local function runRotation()
             if isChecked("Vengeful Retreat") and cast.able.vengefulRetreat() and talent.momentum
                 and not buff.prepared.exists() and combatTime > 1 and getDistance(units.dyn5) < 5
             then
-                -- if mode.mover == 1 then
-                    -- cancelRetreatAnimation()
-                -- elseif mode.mover == 2 then
+                if mode.mover == 1 then
+                    cancelRetreatAnimation()
+                elseif mode.mover == 2 then
                     if cast.vengefulRetreat() then return end
-                -- end
+                end
             end
         -- Fel Rush
             -- fel_rush,if=(variable.waiting_for_momentum|talent.fel_mastery.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
@@ -610,7 +616,7 @@ local function runRotation()
             end
         -- Felblade
             -- felblade,if=fury.deficit>=40
-            if cast.able.felblade() and powerDeficit >= 40 then
+            if cast.able.felblade() and powerDeficit >= 40 and not cast.last.vengefulRetreat() and getDistance("target") < 5 then
                 if cast.felblade() then return end
             end
         -- Eye Beam
@@ -663,7 +669,7 @@ local function runRotation()
             end
         -- Felblade
             -- felblade,if=movement.distance|buff.out_of_range.up
-            if cast.able.felblade() and getDistance("target") > 8 then
+            if cast.able.felblade() and getDistance("target") > 8 and not cast.last.vengefulRetreat() and getDistance("target") < 5 then
                 if cast.felblade("target") then return end
             end
         -- Fel Rush
@@ -812,7 +818,7 @@ local function runRotation()
                 end
 			end --End In Combat
 		end --End Rotation Logic
-    end -- End Timer
+    -- end -- End Timer
 end -- End runRotation
 local id = 577
 if br.rotations[id] == nil then br.rotations[id] = {} end
