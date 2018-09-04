@@ -114,9 +114,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Purge
             br.ui:createCheckbox(section,"Purge")
-        -- Lightning Surge Totem
-            br.ui:createSpinner(section, "Lightning Surge Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            br.ui:createSpinner(section, "Lightning Surge Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+        -- Capacitor Totem
+            br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
         -- Earthen Shield Totem
             br.ui:createSpinner(section, "Earthen Shield Totem",  95,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Earthen Shield Totem Targets",  1,  0,  40,  1,  "Minimum Earthen Shield Totem Targets")
@@ -125,8 +125,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Wind Shear
             br.ui:createCheckbox(section,"Wind Shear")
-        -- Lightning Surge Totem
-            br.ui:createCheckbox(section,"Lightning Surge Totem")
+        -- Capacitor Totem
+            br.ui:createCheckbox(section,"Capacitor Totem")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -234,9 +234,9 @@ local function runRotation()
         local wolf                                          = br.player.buff.ghostWolf.exists()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units
         local lowestTank                                    = {}    --Tank
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies
         local friends                                       = friends or {}
 
         if CloudburstTotemTime == nil or cd.cloudburstTotem.remain() == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
@@ -261,15 +261,15 @@ local function runRotation()
         end
 
         
-        units.dyn8 = br.player.units(8)
-        units.dyn40 = br.player.units(40)
-        enemies.yards5 = br.player.enemies(5)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(8,true))
-        enemies.yards10 = br.player.enemies(10)
-        enemies.yards20 = br.player.enemies(20)
-        enemies.yards30 = br.player.enemies(30)
-        enemies.yards40 = br.player.enemies(40)
+        units.get(8)
+        units.get(40)
+        enemies.get(5)
+        enemies.get(8)
+        enemies.get(8,"target")
+        enemies.get(10)
+        enemies.get(20)
+        enemies.get(30)
+        enemies.get(40)
         friends.yards8 = getAllies("player",8)
         friends.yards25 = getAllies("player",25)
         friends.yards40 = getAllies("player",40)
@@ -346,12 +346,6 @@ local function runRotation()
         -- Wind Shear
                         if isChecked("Wind Shear") then
                             if cast.windShear(thisUnit) then return end
-                        end
-        -- Lightning Surge Totem
-                        if isChecked("Lightning Surge Totem") and cd.windShear.remain() > gcd then
-                            if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 and lastSpell ~= spell.lightningSurgeTotem then
-                                if cast.lightningSurgeTotem(thisUnit,"ground") then return end
-                            end
                         end
                     end
                 end
@@ -746,12 +740,12 @@ local function runRotation()
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
-        -- Lightning Surge Totem
-            if isChecked("Lightning Surge Totem - HP") and php <= getOptionValue("Lightning Surge Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.lightningSurgeTotem then
-                if cast.lightningSurgeTotem("player","ground") then return end
+        -- Capacitor Totem
+            if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.capacitorTotem then
+                if cast.capacitorTotem("player","ground") then return end
             end
-            if isChecked("Lightning Surge Totem - AoE") and #enemies.yards5 >= getOptionValue("Lightning Surge Totem - AoE") and inCombat and lastSpell ~= spell.lightningSurgeTotem then
-                if cast.lightningSurgeTotem("best",nil,getOptionValue("Lightning Surge Totem - AoE"),8) then return end
+            if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
+                if cast.capacitorTotem("best",nil,getOptionValue("Capacitor Totem - AoE"),8) then return end
             end
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
@@ -812,7 +806,7 @@ local function runRotation()
     end -- End Timer
 end -- End runRotation 
 --local id = 264
-local id = 0
+local id = 264
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
