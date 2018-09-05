@@ -29,7 +29,11 @@ function br.loader.loadProfiles()
                 profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
                 -- Print(profileID)
                 local loadProfile, error = loadstring(profile,file)
-                if profileID == specID then loadProfile() end
+                if loadProfile == nil then
+                    Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
+                elseif profileID == specID then
+                    loadProfile()
+                end
             end
         end
     end
