@@ -245,6 +245,7 @@ Aura       |     Full      | 8.0 |    ??% |   :interrobang:
 author          | support | patch | status | raidable?
 :-------------- | :-----: | :---: | -----: | :-------:
 Odan            |  Unk    |  8.0  |   ??%  | :interrobang:
+Ledecky         |  Full   |  8.0  |   ??%  | :interrobang:
 
 - Shadow
 
