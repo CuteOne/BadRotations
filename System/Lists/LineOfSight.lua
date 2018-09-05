@@ -32,4 +32,11 @@ br.lists.los = {
 	134691, -- Static-charged Dervish (Temple of Sethraliss)
 	137405, -- Gripping Terror (Siege of Boralus)
     140447, -- Demolishing Terror (Siege of Boralus)
+	137119, -- Taloc (Uldir1)
+	137578, -- Blood shtorm (Uldir - Taloc's fight)
+	138959, -- Coalesced Blood (Uldir - Taloc's fight)
+	138017, -- Cudgel of Gore (Uldir - Taloc's fight)
+	130217. -- Nazmani Weevil (Uldir - Taloc's fight)
+	140286, -- Uldir Defensive Beam *Uldir)
+	138530, -- Volatile Droplet (Uldir - Taloc's fight)
 }
