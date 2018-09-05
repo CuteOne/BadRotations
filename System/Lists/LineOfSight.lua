@@ -36,7 +36,7 @@ br.lists.los = {
 	137578, -- Blood shtorm (Uldir - Taloc's fight)
 	138959, -- Coalesced Blood (Uldir - Taloc's fight)
 	138017, -- Cudgel of Gore (Uldir - Taloc's fight)
-	130217. -- Nazmani Weevil (Uldir - Taloc's fight)
+	130217, -- Nazmani Weevil (Uldir - Taloc's fight)
 	140286, -- Uldir Defensive Beam *Uldir)
 	138530, -- Volatile Droplet (Uldir - Taloc's fight)
 }
