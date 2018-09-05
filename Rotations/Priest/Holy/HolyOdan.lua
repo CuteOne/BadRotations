@@ -68,26 +68,24 @@ local function createOptions()
             br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
         -- Mass Dispel
             br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
-        -- Racial
-            br.ui:createCheckbox(section, "Racial")
         -- Holy Word: Chastise
             br.ui:createCheckbox(section, "Holy Word: Chastise")
+		-- Temple of Sethraliss
+            br.ui:createCheckbox(section, "Temple of Sethraliss","Will heal the NPC whenever the debuff is removed and when you manually target it.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Flask / Crystal
             br.ui:createCheckbox(section,"Flask / Crystal")
          -- Racial
-            br.ui:createCheckbox(section,"Racial")
+            br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
+			br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-		--The Deceiver's Grand Design
-			br.ui:createCheckbox(section, "The Deceiver's Grand Design")
-		--The Deceiver's Grand Design
 		-- Pre-Pot Timer
 			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
         --  Mana Potion
-		br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
+		    br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
 		-- Divine Hymn
             br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
@@ -124,14 +122,14 @@ local function createOptions()
             br.ui:createSpinner(section, "Renew while moving",  80,  0,  100,  1,  "Moving Health Percent to Cast At")
         -- Prayer of Mending
             br.ui:createSpinner(section, "Prayer of Mending",  100,  0,  100,  1,  "Health Percent to Cast At")
-        -- Light of T'uure
-            br.ui:createSpinner(section, "Light of T'uure",  85,  0,  100,  5,  "Health Percent to Cast At")
         -- Heal
             br.ui:createSpinner(section, "Heal",  70,  0,  100,  5,  "Health Percent to Cast At")
         -- Flash Heal
             br.ui:createSpinner(section, "Flash Heal",  60,  0,  100,  5,  "Health Percent to Cast At")
         -- Flash Heal Surge of Light
             br.ui:createSpinner(section, "Flash Heal Surge of Light",  80,  0,  100,  5,  "Health Percent to Cast At")
+		-- Flash Heal Emergency
+		    br.ui:createSpinner(section, "Flash Heal Emergency",  40,  0,  100,  5,  "Overrides most settings to prioritize casting Flash Heal")
         -- Holy Word: Serenity
             br.ui:createSpinner(section, "Holy Word: Serenity",  50,  0,  100,  5,  "Health Percent to Cast At")
             -- Holy Word: Sanctify
@@ -144,14 +142,22 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
 		-- Binding Heal(not implemented yet)
             br.ui:createSpinner(section, "Binding Heal",  70,  0,  100,  5,  "Health Percent to Cast At")
+        -- Binding Heal Player HP
+            br.ui:createSpinnerWithout(section, "Binding Heal Player HP",  80,  0,  100,  5,  "|cffFFBB00Will only cast if Player HP is below this Percentage");
 		-- Divine Star
             br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
             br.ui:createCheckbox(section,"Show Divine Star Area",colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."area of effect drawing.")
-            -- Halo
+        -- Halo
             br.ui:createSpinner(section, "Halo",  70,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Halo Targets",  3,  0,  40,  1,  "Minimum Halo Targets")
         br.ui:checkSectionState(section)
+        -- Player Emergency Healing
+        section = br.ui:createSection(br.ui.window.profile, "Self-Heal Emergency")	
+		    br.ui:createSpinner(section, "Serenity On Me",  25,  0,  100,  5,  "Will prioritize using Serenity on myself once CD is up or when it is available if my HP drops below this")
+		    br.ui:createSpinner(section, "Binding Heal On Me",  25,  0,  100,  5,  "Will spam Binding Heal and ignores the rest of the rotation when my HP is below this. If this option is enabled. Most likely the Flash Heal On Me option will not work.")
+			br.ui:createSpinner(section, "Flash Heal On Me",  25,  0,  100,  5,  "Will spam Flash Heal when my HP is below this.")
+		br.ui:checkSectionState(section)		
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -360,7 +366,7 @@ local function runRotation()
             -- Gift of the Naaru
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                     if castSpell("player",racial,false,false,false) then return end
-                end
+                end					  
             -- Desperate Prayer
                 if isChecked("Desperate Prayer") and php <= getOptionValue("Desperate Prayer") and inCombat then
                     if cast.desperatePrayer() then return end
@@ -368,14 +374,6 @@ local function runRotation()
             end -- End Defensive Toggle
         end -- End Action List - Defensive
         function actionList_Cooldowns()
-		-- The Deceiver's Grand Design
-    		if isChecked("The Deceiver's Grand Design") then
-    			for i = 1, #br.friend do
-    				if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-    					UseItemByName(147007,br.friend[i].unit)
-    				end
-    			end
-    		end
             if useCDs() then
             -- Divine Hymn
                 if isChecked("Divine Hymn") and not moving then
@@ -417,8 +415,8 @@ local function runRotation()
                         useItem(14)
                     end
                 end
-            -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
+            -- Racial: Blood Elf Arcane Torrent
+                if isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= getValue("Arcane Torrent Mana") then
                     if castSpell("player",racial,false,false,false) then return end
                 end
             end -- End useCooldowns check
@@ -439,52 +437,89 @@ local function runRotation()
                     return true
                 end
         end -- End Action List - Dispel
-        -- Emergency (Healing below 40%)
+        -- Emergency
         function actionList_Emergency()
-        -- Holy Word: Sanctify
-            if isChecked("Holy Word: Sanctify") then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,40,2,6,false,false) then return end
-            end
-        -- Holy Word: Serenity
-            if isChecked("Holy Word: Serenity") then
-                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= 40 then
-                        if cast.holyWordSerenity(br.friend[i].unit) then return end
+        -- Guardian Spirit
+            if isChecked("Guardian Spirit") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Guardian Spirit") then
+                        if br.friend[i].role == "TANK" or not isChecked("Guardian Spirit Tank Only") then
+                            if cast.guardianSpirit(br.friend[i].unit) then return end
+                        end
                     end
                 end
-            end
+            end		
+		--	
+        -- Holy Word: Sanctify
+        --    if isChecked("Holy Word: Sanctify") then
+        --        if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,40,2,6,false,false) then return end
+        --    end
+        -- Serenity On Me Emergency
+            if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and inCombat then
+						if cast.holyWordSerenity("player") then return end
+            end        
+			
         -- Prayer of Healing
-            if isChecked("Prayer of Healing") and getDebuffRemain("player",240447) == 0 then
-                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,40,3,5,false,true) then return end
-            end
-        -- Flash Heal
-            if isChecked("Flash Heal") and getDebuffRemain("player",240447) == 0 then
+        --    if isChecked("Prayer of Healing") and getDebuffRemain("player",240447) == 0 then
+        --        if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,40,3,5,false,true) then return end
+        --    end
+		--
+		-- Binding Heal On Me
+            if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getOptionValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= 40 then
+                    if br.friend[i].hp <= getValue("Binding Heal On Me") then
+                        if cast.bindingHeal(br.friend[i].unit) then
+							RunMacroText("/stopspelltarget")
+						end
+					end
+                end
+            end		
+		-- Flash Heal On Me
+            if isChecked("Flash Heal On Me") and inCombat and not isMoving("player") then
+				if cast.flashHeal("player") then return end         
+            end			
+        -- Flash Heal Others
+            if isChecked("Flash Heal Emergency") and getDebuffRemain("player",240447) == 0 then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Flash Heal Emergency") then
                         if cast.flashHeal(br.friend[i].unit) then return end
                     end
                 end
             end
-        end -- EndAction List Emergency (Healing below 40%)
-       -- Divinity
-        function actionList_Divinity()
-        -- Holy Word: Sanctify
-            if isChecked("Holy Word: Sanctify") and not buff.divinity.exists() then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
-					RunMacroText("/stopspelltarget")
+        end -- EndAction List Emergency
+	    -- Temple of Sethraliss
+			if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Sethraliss") then
+				if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+					if not buff.renew.exists("target") then
+						if CastSpellByName(GetSpellInfo(139),"target") then return end
+					end
+					if GetSpellCooldown(2050) == 0 then
+						if CastSpellByName(GetSpellInfo(2050),"target") then return end
+					end
+					if GetSpellCooldown(32546) == 0 and talent.bindingHeal then
+						if CastSpellByName(GetSpellInfo(32546),"target") then return end
+					end
+					if GetSpellCooldown(2060) == 0 then
+						if CastSpellByName(GetSpellInfo(2060),"target") then return end
+					end
 				end
-            end
-        -- Holy Word: Serenity
-            if isChecked("Holy Word: Serenity") and not buff.divinity.exists() then
+			end			
+        -- AOE Healing
+        function actionList_AOEHealing()
+		-- Holy Word: Serenity
+            if isChecked("Holy Word: Serenity") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Holy Word: Serenity") then
                         if cast.holyWordSerenity(br.friend[i].unit) then return end
                     end
                 end
             end
-        end -- End Action List - Divinity
-        -- AOE Healing
-        function actionList_AOEHealing()
+		-- Holy Word: Sanctify
+            if isChecked("Holy Word: Sanctify") then
+                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+					RunMacroText("/stopspelltarget")
+				end
+            end
         -- Prayer of Mending
             if isChecked("Prayer of Mending") and getDebuffRemain("player",240447) == 0 then
                 for i = 1, #br.friend do
@@ -492,14 +527,36 @@ local function runRotation()
                         if cast.prayerOfMending(br.friend[i].unit) then return end
                     end
                 end
-            end
+            end	
+		-- Renew on tank
+            if isChecked("Renew on Tanks") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                        if cast.renew(br.friend[i].unit) then return end
+                    end
+                end
+            end			
 		-- Holy Word: Sanctify Hot Key
             if isChecked("Holy Word: Sanctify HK") and (SpecificToggle("Holy Word: Sanctify HK") and not GetCurrentKeyBoardFocus()) then
                 CastSpellByName(GetSpellInfo(spell.holyWordSanctify),"cursor")
                 return true
             end
+		-- Prayer of Healing
+            if isChecked("Prayer of Healing") and getDebuffRemain("player",240447) == 0 then
+                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
+            end	
+		-- Divine Star
+            if isChecked("Divine Star") and talent.divineStar then
+                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Min Divine Star Targets"),10,false,false) then return end
+            end	
+        --Halo
+            if isChecked("Halo") and talent.halo then
+                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+                    if cast.halo() then return end
+                end
+            end			
 		-- Binding Heal
-            if isChecked("Binding Heal") and talent.bindingHeal and getDebuffRemain("player",240447) == 0 then
+            if isChecked("Binding Heal") and talent.bindingHeal and php <= getOptionValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Binding Heal") then
                         if cast.bindingHeal(br.friend[i].unit) then
@@ -508,24 +565,14 @@ local function runRotation()
 					end
                 end
             end
-        -- Prayer of Healing (with Power Of The Naaru Buff)
-            if isChecked("Prayer of Healing") and talent.piety and buff.powerOfTheNaaru.exists() and cd.holyWordSanctify.remain() >= 1 and getDebuffRemain("player",240447) == 0 then
-                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
-            end
-		-- Prayer of Healing
-            if isChecked("Prayer of Healing") and not talent.piety and getDebuffRemain("player",240447) == 0 then
-                if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true)  then return end
-            end
-        -- Divine Star
-            if isChecked("Divine Star") and talent.divineStar then
-                if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Min Divine Star Targets"),10,false,false) then return end
-            end
-        --Halo
-            if isChecked("Halo") and talent.halo then
-                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
-                    if cast.halo() then return end
+        -- Renew
+            if isChecked("Renew") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
+                        if cast.renew(br.friend[i].unit) then return end
+                    end
                 end
-            end
+            end				
         end -- End Action List - AOE Healing
         -- Single Target
         function actionList_SingleTarget()
@@ -544,14 +591,6 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Leap of Faith") and not UnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
                         if cast.leapOfFaith(br.friend[i].unit) then return end
-                    end
-                end
-            end
-        -- Light of T'uure
-            if isChecked("Light of T'uure") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Light of T'uure") then
-                        if cast.lightOfTuure(br.friend[i].unit) then return end
                     end
                 end
             end
@@ -582,22 +621,6 @@ local function runRotation()
         -- Dispel Magic
             if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
                 if cast.dispelMagic() then return end
-            end
-        -- Renew
-            if isChecked("Renew") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
-                        if cast.renew(br.friend[i].unit) then return end
-                    end
-                end
-            end
-		-- Renew on tank
-            if isChecked("Renew on Tanks") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if cast.renew(br.friend[i].unit) then return end
-                    end
-                end
             end
         -- Moving
             if isMoving("player") then
@@ -667,9 +690,6 @@ local function runRotation()
                     actionList_Cooldowns()
                     actionList_Dispel()
                     actionList_Emergency()
-                    if talent.divinity then
-                        actionList_Divinity()
-                    end
                     actionList_AOEHealing()
                     actionList_SingleTarget()
                     if br.player.mode.dps == 1 then
