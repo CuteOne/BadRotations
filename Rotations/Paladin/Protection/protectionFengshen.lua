@@ -520,7 +520,7 @@ local function runRotation()
 				end
 				-- Cleanse Toxins
 				if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
-					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffStacks("player",261440) == 0 then
+					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
 						if cast.cleanseToxins("player") then return end
 					end
 					if getOptionValue("Clease Toxin")==2 and canDispel("target",spell.cleanseToxins) then
@@ -623,7 +623,7 @@ local function runRotation()
 						local distance = getDistance(thisUnit)
 						if canInterrupt(thisUnit,95) then
 							if distance <= 30 and getFacing("player",thisUnit) then
-								if cast.avengersShield(thisUnit) then return end
+								if CastSpellByName(GetSpellInfo(31935),thisUnit) then return end
 							end
 						end
 					end
@@ -655,7 +655,7 @@ local function runRotation()
 		-- Action List - Opener
 		local function actionList_Opener()
 			if isValidUnit("target") then
-				if isChecked("Judgment") and getFacing("player",units.dyn30) then
+				if isChecked("Judgment") and getDistance("target") <= 30 and getFacing("player","target") then
 					if cast.judgment("target") then return end
 				end
 				-- Start Attack
@@ -716,7 +716,7 @@ local function runRotation()
 				if getOptionValue("APL Mode") == 1 then
 					-- Shield of the Righteous
 					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
-						if cast.shieldOfTheRighteous() then return end
+						if CastSpellByName(GetSpellInfo(53600)) then return end
 					end
 					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
 						-- Judgment
@@ -725,7 +725,7 @@ local function runRotation()
 						end
 						-- Avenger's Shield
 						if isChecked("Avenger's Shield") and cast.able.avengersShield() then
-							if cast.avengersShield() then return end
+							if CastSpellByName(GetSpellInfo(31935)) then return end
 						end
 					end
 					-- Consecration
