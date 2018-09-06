@@ -100,6 +100,7 @@ local function createOptions()
             --Atonement
             br.ui:createSpinnerWithout(section, "Party Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
             br.ui:createSpinnerWithout(section, "Tank Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement to Tank using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
+            br.ui:createSpinnerWithout(section, "Max Atonements", 3, 1, 40, 1, "|cffFFFFFFMax Atonements to Keep Up At Once. Default: 3")
             --Alternate Heal & Damage
             br.ui:createSpinner(section, "Alternate Heal & Damage",  1,  1,  5,  1,  "|cffFFFFFFAlternate Heal & Damage. How many Atonement applied before back to doing damage. Default: 1")
             --Power Word: Shield
@@ -382,7 +383,7 @@ local function runRotation()
         function actionList_MitigateDamage(u)
             if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
                 if norganBuff then
-                    if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 then
+                    if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") then
                         if cast.powerWordShield(br.friend[u].unit) then
                             if cast.shadowMend(br.friend[u].unit) then
                                 healCount = healCount + 1
@@ -425,7 +426,7 @@ local function runRotation()
             if buff.rapture.exists("player") then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -435,7 +436,7 @@ local function runRotation()
             if not buff.rapture.exists("player") and mode.burst == 1 and freeMana then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") and not buff.powerWordShield.exists(br.friend[i].unit) then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -493,7 +494,7 @@ local function runRotation()
                     end
                 end
                 --Power Word Shield
-                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and br.friend[u].hp <= getValue("Atonement HP") then
+                if getBuffRemain(br.friend[u].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") and (not norganBuff or charges.powerWordRadiance.count() == 0 or mode.healer ~= 2 or (mode.healer == 2 and #br.friend - atonementCount < 3)) and not buff.powerWordShield.exists(br.friend[u].unit) and br.friend[u].hp <= getValue("Atonement HP") then
                     if cast.powerWordShield(br.friend[u].unit) then
                         healCount = healCount + 1
                     end
@@ -652,7 +653,7 @@ local function runRotation()
                         end
                     end
                     if norganBuff and (br.friend[i].hp < 90 or flagDebuff == br.friend[i].guid) and lastSpell ~= spell.shadowMend then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") and not buff.powerWordShield.exists(br.friend[i].unit) then
                             if cast.powerWordShield(br.friend[i].unit) then
                                 if cast.shadowMend(br.friend[i].unit) then return true end
                             end
