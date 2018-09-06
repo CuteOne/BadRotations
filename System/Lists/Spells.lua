@@ -2036,6 +2036,7 @@ br.lists.spells = {
                 holyWordChastise            = 88625,
                 holyWordSanctify            = 34861,
                 holyWordSerenity            = 2050,
+                holyWordSalvation			= 265202,
                 heal                        = 2060,
                 leapOfFaith                 = 73325,
                 lightOfTuure                = 33076,
