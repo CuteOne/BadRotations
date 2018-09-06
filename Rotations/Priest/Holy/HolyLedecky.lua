@@ -27,12 +27,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used", highlight = 0, icon = br.player.spell.desperatePrayer }
     };
     CreateButton("Defensive",3,0)
--- Decurse Button
-    DecurseModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 1, icon = br.player.spell.purify },
-        [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.purify }
+-- Purify Button
+    PurifyModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Purify Enabled", tip = "Purify Enabled", highlight = 1, icon = br.player.spell.purify },
+        [2] = { mode = "Off", value = 2 , overlay = "Purify Disabled", tip = "Purify Disabled", highlight = 0, icon = br.player.spell.purify }
     };
-    CreateButton("Decurse",4,0)
+    CreateButton("Purify",4,0)
 -- DPS Button
     DPSModes = {
         [1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.smite },
@@ -74,6 +74,17 @@ local function createOptions()
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Flask / Crystal
+            br.ui:createCheckbox(section,"Flask / Crystal")
+        -- Trinkets
+            br.ui:createCheckbox(section,"Trinkets")
+		-- Pre-Pot Timer
+			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
+         -- Racial
+            br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
+			br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")			
+        --  Mana Potion
+		    br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")            
         -- Angelic Feather
             br.ui:createCheckbox(section,"Angelic Feather","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
         -- Body and Mind
@@ -89,17 +100,9 @@ local function createOptions()
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, colorLegendary.."Cooldowns")
-        -- Flask / Crystalc
-            br.ui:createCheckbox(section,"Flask / Crystal")
-         -- Racial
-            br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
-			br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")
-        -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
-		-- Pre-Pot Timer
-			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
-        --  Mana Potion
-		    br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
+        --Holy Word: Salvation
+            br.ui:createSpinner(section, "Holy Word: Salvation",  60,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Holy Word: Salvation Targets",  6,  0,  40,  1,  "Minimum Targets below Health Percent before casting.")
 		-- Divine Hymn
             br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
@@ -201,9 +204,9 @@ local function runRotation()
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
-        UpdateToggle("Decurse",0.25)
+        UpdateToggle("Purify",0.25)
         UpdateToggle("DPS",0.25)
-        br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
+        br.player.mode.purify = br.data.settings[br.selectedSpec].toggles["Purify"]
         br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
 
 --------------
@@ -397,14 +400,20 @@ local function runRotation()
         end -- End Action List - Defensive
         function actionList_Cooldowns()
             if useCDs() then
+            --Salvation
+            	if isChecked("Holy Word: Salvation") and not moving then
+            		 if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") then
+            		 	if cast.holyWordSalvation() then return end
+            		 end
+            	end
             -- Divine Hymn
                 if isChecked("Divine Hymn") and not moving then
                     if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") then
                         if cast.prayerOfMending(lowest.unit) then return end
-                        if isChecked("Holy Word: Sanctify") and not buff.divinity.exists() then
+                        if isChecked("Holy Word: Sanctify") then
                             if castWiseAoEHeal(br.friend,spell.holyWordSanctify,10,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then return end
                         end
-                        if isChecked("Holy Word: Serenity") and not buff.divinity.exists() then
+                        if isChecked("Holy Word: Serenity") then
                             if cast.holyWordSerenity(lowest.unit) then return end
                         end
                         if cast.divineHymn() then return end
@@ -446,7 +455,7 @@ local function runRotation()
         -- Dispel
         function actionList_Dispel()
         -- Purify
-            if br.player.mode.decurse == 1 then
+            if br.player.mode.purify == 1 then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purify) then
                         if cast.purify(br.friend[i].unit) then return end
