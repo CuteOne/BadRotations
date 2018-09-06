@@ -29,7 +29,11 @@ function br.loader.loadProfiles()
                 profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
                 -- Print(profileID)
                 local loadProfile, error = loadstring(profile,file)
-                if profileID == specID then loadProfile() end
+                if loadProfile == nil then
+                    Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
+                elseif profileID == specID then
+                    loadProfile()
+                end
             end
         end
     end
@@ -140,7 +144,8 @@ function br.loader:new(spec,specName)
                     end
                 end
             end
-            if rank > 0 then return true, rank else return false, rank end
+            return rank > 0 and true or false, rank
+            -- if rank > 0 then return true, rank else return false, rank end
         end
 
         -- Build Azerite Trait Info
@@ -375,7 +380,7 @@ function br.loader:new(spec,specName)
                 self.units["dyn"..range.."AOE"] =  dynamicTarget(range, false)
             else
                 if self.units["dyn"..range] == nil then self.units["dyn"..range] = {} end
-                self.units["dyn"..range] =  dynamicTarget(range, false)
+                self.units["dyn"..range] =  dynamicTarget(range, true)
             end
             return aoe and dynamicTarget(range, false) or dynamicTarget(range, true)
         end

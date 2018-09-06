@@ -936,7 +936,7 @@ local function runRotation()
         end -- End Profile
     end -- Timer
 end -- runRotation
-local id = 259
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

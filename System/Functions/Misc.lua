@@ -340,32 +340,27 @@ function isValidTarget(Unit)
 	end
 end
 function isTargeting(Unit,MatchUnit)
+	if GetUnit(Unit) == nil then return false end
+	if UnitTarget(GetUnit(Unit)) == nil then return false end
 	if MatchUnit == nil then MatchUnit = "player" end
-	if GetUnit(Unit) == nil then
-		unitTarget = nil
-	elseif UnitTarget(GetUnit(Unit)) ~= nil then
-		unitTarget = UnitTarget(GetUnit(Unit))
-	end
-	if unitTarget ~= nil then
-		return unitTarget == GetUnit(MatchUnit)
-	end
-	return false
+	return UnitTarget(GetUnit(Unit)) == ObjectPointer(MatchUnit)
 end
 function enemyListCheck(Unit)
-	local hostileOnly = isChecked("Hostiles Only")
 	local distance = getDistance(Unit,"player")
-	local playerObj = GetObjectWithGUID(UnitGUID("player"))
+	--local playerObj = GetObjectWithGUID(UnitGUID("player"))
 
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
 	 and isSafeToAttack(Unit) and not isCritter(Unit)
-		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == playerObj or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
+		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
+			or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local playerTarget = UnitIsUnit(Unit,"target")
 	local targeting = isTargeting(Unit)
+	local reaction = UnitReaction(Unit,"player")
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or enemyListCheck(Unit)) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and (not hostileOnly or (hostileOnly and (UnitReaction(Unit,"player") < 4 or targeting or isDummy(Unit) or playerTarget)))
+		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or playerTarget)))
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")

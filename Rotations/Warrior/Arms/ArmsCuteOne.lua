@@ -784,7 +784,7 @@ local function runRotation()
                 end
             -- Action List - Execute
                 -- run_action_list,name=execute,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
-                if ((talent.massacre and getHP(units.dyn5) > 35) or getHP(units.dyn5) < 20) and level >= 8 then
+                if ((talent.massacre and getHP(units.dyn5) < 35) or getHP(units.dyn5) < 20) and level >= 8 then
                     if actionList_Execute() then return end
                 end
             -- Action List - Single

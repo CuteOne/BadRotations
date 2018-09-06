@@ -46,7 +46,7 @@ function cacheOM()
 	local omCounter = 0
 	local fmod = math.fmod
 	local loopSet = floor(GetFramerate()) or 0
-	if isChecked("HE Active") and (inCombat or not isChecked("Auto Loot")) then
+	if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
 		if next(br.om) ~= nil then br.om = {} end
 		return
 	end
@@ -233,7 +233,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
-    if #enemiesTable > 0 then
+    if #enemiesTable > 0 and thisUnit ~= nil then
 		br.storedTables[checkNoCombat] = {}
 		br.storedTables[checkNoCombat][radius] = {}
 		br.storedTables[checkNoCombat][radius][thisUnit] = enemiesTable

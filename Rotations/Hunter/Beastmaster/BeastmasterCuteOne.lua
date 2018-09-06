@@ -211,7 +211,7 @@ local function runRotation()
         local item                                          = br.player.spell.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
+        local lowestHP                                      = br.friend[1].hp
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
         local perk                                          = br.player.perk
@@ -234,6 +234,7 @@ local function runRotation()
         local ttm                                           = br.player.power.focus.ttm()
         local units                                         = br.player.units
         local use                                           = br.player.use
+        local openerCount
 
 
         units.get(40)
@@ -261,6 +262,7 @@ local function runRotation()
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
+        if openerCount == nil then openerCount = 0 end
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
@@ -349,8 +351,9 @@ local function runRotation()
                 if cast.mendPet() then return end
             end
 			-- Spirit Mend
-            if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and php < getOptionValue("Spirit Mend")then
-                if cast.spiritmend('player') then return end
+            if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and lowestHP < getOptionValue("Spirit Mend") then
+                local thisUnit = br.friend[1]
+                if cast.spiritmend(thisUnit) then return end
             end
         end
     -- Action List - Extras
