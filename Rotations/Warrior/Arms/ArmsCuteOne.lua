@@ -483,12 +483,16 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and not talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotaiton == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
+            then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotaiton == 2 and #enemies.yards8 > 0))
+            then
                 if cast.warbreaker() then return end
             end
         -- Heroic Charge
@@ -563,12 +567,16 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and not talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotaiton == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
+            then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotaiton == 2 and #enemies.yards8 > 0))
+            then
                 if cast.warbreaker() then return end
             end
         -- Heroic Charge
@@ -651,12 +659,16 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and not talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotaiton == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
+            then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5)) then
+            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotaiton == 2 and #enemies.yards8 > 0))
+            then
                 if cast.warbreaker() then return end
             end
         -- Bladestorm
