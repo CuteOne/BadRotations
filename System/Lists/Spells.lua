@@ -1400,6 +1400,7 @@ br.lists.spells = {
                 spearHandStrike             = 116705,
                 provoke						= 115546,
                 invokeNiuzao                = 132578,
+                zenMeditation               = 115176,
 			},
             artifacts                       = {
 
@@ -1408,7 +1409,7 @@ br.lists.spells = {
                 ironskinBrew                = 215479,
                 blackoutCombo               = 228563,
                 rushingJadeWind             = 116847,
-
+                zenMeditation               = 115176,
             },
             debuffs                         = {
                 breathOfFire                = 146222,

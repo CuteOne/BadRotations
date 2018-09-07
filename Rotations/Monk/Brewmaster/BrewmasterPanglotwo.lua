@@ -323,7 +323,7 @@ local function runRotation()
 				if cast.breathOfFire() then return end
 			end
 		-- High Energy TP
-			if (power > 55) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if (power > 55) and buff.rushingJadeWind.exists() and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return end
 			end
 		-- Rushing Jade Wind
@@ -368,7 +368,7 @@ local function runRotation()
 				if cast.chiWave() then return end
 			end
 		-- Tiger Palm
-			if power > 55 and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if power > 55 and buff.rushingJadeWind.exists() and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return end
 			end
 	end
@@ -438,7 +438,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
+    elseif (inCombat and profileStop==true) or pause() or buff.zenMeditation.exists() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
         return true
     else
 ---------------------------------
