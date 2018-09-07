@@ -362,7 +362,7 @@ function cCharacter:new(class)
 		--         MagharOrc 		= 274738, -- Ancestral Call
 		-- 	}
 		-- 	if br.player ~= nil then
-				return br.player.spell.racial
+				return self.racial
 		-- 	else
 		-- 		return racialSpells[self.race]
 		-- 	end

@@ -71,6 +71,12 @@ function br.loader:new(spec,specName)
                                     if self.spell.abilities == nil then self.spell.abilities = {} end
                                     self.spell.abilities[spellRef] = spellID
                                     self.spell[spellRef] = spellID
+                                    -- Ending the Race War!
+                                    if self.spell.abilities["racial"] == nil then
+                                        local racialID = getRacialID()
+                                        self.spell.abilities["racial"] = racialID
+                                        self.spell["racial"] = racialID
+                                    end
                                 end
                             end
                         end
