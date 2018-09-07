@@ -426,7 +426,7 @@ local function runRotation()
             if buff.rapture.exists("player") then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
@@ -436,7 +436,7 @@ local function runRotation()
             if not buff.rapture.exists("player") and mode.burst == 1 and freeMana then
                 for i = 1, #br.friend do
                     if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and atonementCount < getValue("Max Atonements") and not buff.powerWordShield.exists(br.friend[i].unit) then
+                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
                     end
