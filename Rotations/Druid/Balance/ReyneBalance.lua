@@ -139,7 +139,7 @@ local function actionList_single()
 
     -- Make sure we're in moonkin form if we're not in another form
     if noform then
-        if cast.moonkinForm() then return end
+        if cast.balanceForm() then return end
     end
 
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
@@ -212,7 +212,7 @@ local function actionList_multi()
 
     -- Make sure we're in moonkin form if we're not in another form
     if noform then
-        if cast.moonkinForm() then return end
+        if cast.balanceForm() then return end
     end
 
      -- Cast Starfall
