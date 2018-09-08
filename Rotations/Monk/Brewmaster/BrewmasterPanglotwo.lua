@@ -60,6 +60,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinket 2")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
+        -- BoB usage
+            br.ui:createCheckbox(section, "Black Ox Brew")
 		-- Taunt
 			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
@@ -311,7 +313,7 @@ local function runRotation()
     local function actionList_Single()
        -- Print("Single")
 		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
+			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
 				if cast.blackoxBrew() then return end
 			end
 		-- Black Out Strike
@@ -344,7 +346,7 @@ local function runRotation()
     local function actionList_Multi()
        -- Print("Multi")
 		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
+			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
 				if cast.blackoxBrew() then return end
 			end
 		-- Keg Smash
@@ -377,7 +379,7 @@ local function runRotation()
     local function actionList_AutoBlackout()
         --Print("BoC")
 		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
+			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
 				if cast.blackoxBrew() then return end
 			end
 		-- Keg Smash
@@ -453,7 +455,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-  if inCombat and profileStop==false and not (IsMounted() or IsFlying()) then
+  if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
     if getDistance(units.dyn5) < 5 then
         StartAttack()
     end        
