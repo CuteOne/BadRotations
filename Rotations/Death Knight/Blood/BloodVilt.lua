@@ -343,11 +343,11 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-            -- Dark Command
-            if isChecked("Dark Command") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not isAggroed(thisUnit) and hasThreat(thisUnit) then
+    -- Dark Command
+            if isChecked("Dark Command") and inInstance then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                         if cast.darkCommand(thisUnit) then return end
                     end
                 end
