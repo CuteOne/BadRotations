@@ -257,10 +257,14 @@ local function runRotation()
         -- if IsHackEnabled("NoKnockback") then
         --     SetHackEnabled("NoKnockback", false)
         -- end
-        if isChecked("Auto Fel Rush After Retreat") and mode.mover == 2 and getDistance("target") > 8
-            and cast.able.felRush() and cast.last.vengefulRetreat() and charges.felRush.count() >= 1
+        if inCombat and isChecked("Auto Fel Rush After Retreat") and cast.able.felRush()
+            and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         then
-            if cast.felRush() then return end
+            if mode.mover == 1 and getDistance("target") < 8 then
+                cancelRushAnimation()
+            elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
+                if cast.felRush() then return end
+            end
         end
 
         -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
@@ -455,7 +459,7 @@ local function runRotation()
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
-            if cast.able.deathSweep() and buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.deathSweep("player","aoe",1,8) then return end
             end
         -- Eye Beam
@@ -470,7 +474,7 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-            if cast.able.bladeDance() and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
+            if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
                 and (cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank() * 3))
                 --     or ((mode.rotation == 1 and (getOptionValue("Eye Beam Usage") == 3
                 --         or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE"))
@@ -565,7 +569,7 @@ local function runRotation()
         -- Fel Rush
             -- fel_rush,if=(variable.waiting_for_momentum|talent.fel_mastery.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
             if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and (waitForMomentum or talent.felMastery) and charges.felRush.count() == 2
+                and (waitForMomentum or talent.felMastery)
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -580,7 +584,7 @@ local function runRotation()
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
-            if cast.able.deathSweep() and buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.deathSweep("player","aoe",1,8) then return end
             end
         -- Immolation Aura
@@ -600,7 +604,7 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance
-            if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.bladeDance() and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance("player","aoe",1,8) then return end
             end
         -- Fel Rush
