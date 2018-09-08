@@ -70,33 +70,41 @@ local function createOptions()
 
     local function rotationOptions()
     -- General Options
-        section = br.ui:createSection(br.ui.window.profile, "General")
-            br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
+        section = br.ui:createSection(br.ui.window.profile, "General")        
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- OOC Healing
+        	br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.")
         -- Flask / Crystal
-            br.ui:createCheckbox(section,"Flask / Crystal")
+        --    br.ui:createCheckbox(section,"Flask / Crystal")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
 		-- Pre-Pot Timer
 			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
          -- Racial
-            br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
+             br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
 			br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")			
         --  Mana Potion
-		    br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")            
+		--  br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")            
         -- Angelic Feather
             br.ui:createCheckbox(section,"Angelic Feather","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
         -- Body and Mind
             br.ui:createCheckbox(section,"Body and Mind","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
-        -- Dispel Magic
-            br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
-        -- Mass Dispel
-            br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
         -- Holy Word: Chastise
             br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
             br.ui:createCheckbox(section, "Temple of Sethraliss","Will heal the NPC whenever the debuff is removed and when you manually target it.")
+        br.ui:checkSectionState(section)
+    -- Dispel and Purify Settings
+    	section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
+    	-- Dispel Magic
+            br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs when targeted.")
+        -- Mass Dispel Hotkey
+            br.ui:createDropdown(section,"Mass Dispel Hotkey", br.dropOptions.Toggle, 6, "Hold down the set hotkey and Mass Dispel will be casted at mouse cursor on next GCD.")
+        -- Purify
+        	br.ui:createCheckbox(section,"Purify","Enable use of Purify for removing Magic or Disease debuff.")
+       	-- Mass Dispel as Purify Alternative
+       		br.ui:createCheckbox(section,"Mass Dispel Alternative","Use Mass Dispel as an alternative to Purify if it is on cooldown.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, colorLegendary.."Cooldowns")
@@ -112,7 +120,9 @@ local function createOptions()
         -- Guardian Spirit
             br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit Tank Only
-            br.ui:createCheckbox(section,"Guardian Spirit Tank Only")           
+            br.ui:createCheckbox(section,"Guardian Spirit Tank Only")  
+        -- Leap of Faith
+            br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")                     
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
@@ -128,8 +138,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Desperate Prayer",  80,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		--Fade
             br.ui:createSpinner(section, "Fade",  95,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 95")
-        -- Leap of Faith
-            br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
 			br.ui:checkSectionState(section)
         -- Healing Options
         section = br.ui:createSection(br.ui.window.profile, colorGreen.."Healing Options")
@@ -142,11 +150,14 @@ local function createOptions()
         -- Flash Heal Surge of Light
             br.ui:createSpinner(section, "Flash Heal Surge of Light",  80,  0,  100,  5,  "Health Percent to Cast At")
 		-- Flash Heal Emergency
-		    br.ui:createSpinner(section, "Flash Heal Emergency",  40,  0,  100,  5,  "Overrides most settings to prioritize casting Flash Heal")    
+		    br.ui:createSpinner(section, "Flash Heal Emergency",  40,  0,  100,  5,  "Overrides most settings to prioritize casting Flash Heal")  
+		-- Flash Heal Emergency Tanks Only
+			br.ui:createCheckbox(section,"Tanks Only","Will only use Flash Heal Emergency on Tanks only.")
         br.ui:checkSectionState(section)
         --Renew Settings--
          section = br.ui:createSection(br.ui.window.profile, colorhunter.."Renew Settings")
             br.ui:createSpinner(section, "Renew",  85,  0,  100,  1,  "Health Percent of group to Cast At")
+            br.ui:createSpinner(section, "Renew Limit",  6,  0,  40,  1,  "Limits the amount of Renew to cast. Set amount of renews you want to have out")
             br.ui:createSpinner(section, "Renew on Tanks",  90,  0,  100,  1,  "Tanks Health Percent of tanks to Cast At")
             br.ui:createSpinner(section, "Renew while moving",  80,  0,  100,  1,  "Moving Health Percent to Cast At")
           br.ui:checkSectionState(section)
@@ -261,6 +272,14 @@ local function runRotation()
         enemies.get(8,"target")
         enemies.get(40)
         friends.yards40 = getAllies("player",40)
+        
+        renewCount = 0
+        for i=1, #br.friend do
+            local renewRemain = getBuffRemain(br.friend[i].unit,spell.buffs.renew,"player") or 0 -- Spell ID 139
+            if renewRemain > 0 then
+                renewCount = renewCount + 1
+            end
+        end
 
 
 --------------------
@@ -301,7 +320,7 @@ local function runRotation()
 				end
 			end
         -- Mass Dispel
-            if isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+            if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and not GetCurrentKeyBoardFocus()) then
                 CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
                 return true
             end
@@ -368,13 +387,13 @@ local function runRotation()
                     end
                 end
             -- Heirloom Neck
-                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-                    if hasEquiped(122668) then
-                        if GetItemCooldown(122668)==0 then
-                            useItem(122668)
-                        end
-                    end
-                end
+            --    if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+            --        if hasEquiped(122668) then
+            --            if GetItemCooldown(122668)==0 then
+            --                useItem(122668)
+            --            end
+            --        end
+            --    end
       			--Fade
                if isChecked("Fade") then
                   if php <= getValue("Fade") then
@@ -382,16 +401,16 @@ local function runRotation()
                   end
                end
 		  	    -- Mana Potion
-    				  if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
-    					  if hasItem(127835) then
-    						  useItem(127835)
-    						  return true
-		    			  end
-    				  end
+    			--	  if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
+    			--		  if hasItem(127835) then
+    			--			  useItem(127835)
+    			--			  return true
+		    	--		  end
+    			--	  end
             -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
-                    if castSpell("player",racial,false,false,false) then return end
-                end					  
+            --    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+            --        if castSpell("player",racial,false,false,false) then return end
+            --    end					  
             -- Desperate Prayer
                 if isChecked("Desperate Prayer") and php <= getOptionValue("Desperate Prayer") and inCombat then
                     if cast.desperatePrayer() then return end
@@ -455,15 +474,22 @@ local function runRotation()
         -- Dispel
         function actionList_Dispel()
         -- Purify
-            if br.player.mode.purify == 1 then
-                for i = 1, #friends.yards40 do
-                    if canDispel(br.friend[i].unit,spell.purify) then
-                        if cast.purify(br.friend[i].unit) then return end
-                    end
-                end
-            end
+      	  if isChecked("Purify") then
+	        	for i = 1, #br.friend do
+	            	for n = 1,40 do
+	                   local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+	                   if buff then
+	                      if (bufftype == "Disease" or bufftype == "Magic") and UnitIsUnit(br.friend[i].unit,"player") then
+	                         if getSpellCD(spell.purify) > 1 and isChecked("Mass Dispel Alternative") then
+	                            if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
+	                         elseif cast.purify(br.friend[i].unit) then return end
+	                      end
+	                   end
+	                end
+	             end
+           end
             -- Mass Dispel
-                if isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+                if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and not GetCurrentKeyBoardFocus()) then
                     CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
                     return true
                 end
@@ -483,7 +509,21 @@ local function runRotation()
         -- Serenity On Me Emergency
             if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and inCombat then
 						if cast.holyWordSerenity("player") then return end
-            end        
+            end
+        -- Holy Word: Serenity
+            if isChecked("Holy Word: Serenity") then
+                for i = 1, #br.friend do
+                    if br.friend[i].hp <= getValue("Holy Word: Serenity") then
+                        if cast.holyWordSerenity(br.friend[i].unit) then return end
+                    end
+                end
+            end
+		-- Holy Word: Sanctify
+            if isChecked("Holy Word: Sanctify") then
+                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+					RunMacroText("/stopspelltarget")
+				end
+            end            
 		-- Binding Heal On Me
             if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
                 for i = 1, #br.friend do
@@ -501,9 +541,14 @@ local function runRotation()
         -- Flash Heal Others
             if isChecked("Flash Heal Emergency") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Flash Heal Emergency") then
-                        if cast.flashHeal(br.friend[i].unit) then return end
-                    end
+                	if isChecked("Tanks Only") then
+                   		 if br.friend[i].hp <= getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                       		 if cast.flashHeal("TANK") then return end
+                    	elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
+                    		 if cast.flashHeal(br.friend[i].unit) then return end
+                   	
+                  		 end
+                  	end
                 end
             end
         end -- EndAction List Emergency
@@ -590,8 +635,11 @@ local function runRotation()
         -- Renew
             if isChecked("Renew") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
+                    if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and not isChecked("Renew Limit") then
                         if cast.renew(br.friend[i].unit) then return end
+                    if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) and isChecked("Renew Limit") and renewCount < getValue("Renew Limit") then
+                        if cast.renew(br.friend[i].unit) then return end
+                    	end
                     end
                 end
             end				
