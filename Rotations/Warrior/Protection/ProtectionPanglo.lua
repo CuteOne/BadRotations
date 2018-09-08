@@ -74,6 +74,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Avatar
             br.ui:createCheckbox(section,"Avatar")
+            -- Avatar Spinner
+            br.ui:createSpinnerWithout(section, "Avatar Mob Count",  5,  0,  10,  1,  "|cffFFFFFFEnemies to cast Avatar on.")
             -- Demoralizing Shout
             br.ui:createCheckbox(section,"Demoralizing Shout - CD")
             -- Ravager
@@ -315,7 +317,7 @@ local function runRotation()
                 end
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
-                if isChecked("Avatar") then
+                if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                         if cast.avatar() then return end
                 end
                 if isChecked("Racial") then
