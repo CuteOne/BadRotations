@@ -29,6 +29,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
     };
     CreateButton("Interrupt",4,0)
+-- Interrupt Button
+    BristlingFurModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Bristling Fur Enabled", tip = "Will use BF", highlight = 1, icon = br.player.spell.bristlingFur },
+        [2] = { mode = "Off", value = 2 , overlay = "Bristling Fur Disabled", tip = "Will not use BF", highlight = 0, icon = br.player.spell.bristlingFur }
+    };  
+    CreateButton("BristlingFur",5,0)
 end
 
 ---------------
@@ -78,6 +84,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "|cffFFBB00Health Interval to use at with 1 charge.")
         -- Ironfur
             br.ui:createCheckbox(section, "Ironfur")
+        -- Soothe
+            br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
             br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
@@ -135,10 +143,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
-        UpdateToggle("Prowl",0.25)
-        br.player.mode.prowl = br.data.settings[br.selectedSpec].toggles["Prowl"]
+        UpdateToggle("BristlingFur",0.25)
+        br.player.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
 
 --------------
 --- Locals ---
@@ -224,12 +230,12 @@ local function runRotation()
 				end
             -- Bear Form
                 if not bear then
-                    -- Cat Form when not in combat and target selected and within 20yrds
+                    -- Bear Form when not in combat and target selected and within 20yrds
                     if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) then
                         if cast.bearForm() then return end
                     end
-                    --Cat Form when in combat and not flying
-                    if inCombat and not flying then
+                    --Bear Form when in combat and not flying
+                    if inCombat and not flying and not buff.dash.exists() then
                         if cast.bearForm() then return end
                     end
                 end
@@ -275,6 +281,20 @@ local function runRotation()
                         if cast.frenziedRegeneration() then return end
                     end
                 end
+        -- Soothe?
+--        for i=1 , #enemies.yards40 do
+--            local enrageID = enraged[i]
+--            thisUnit = enemies.yards40[i]
+--            if isChecked("Soothe") and getBuffRemain(thisUnit, enrageID) > 1 and cast.able.soothe() then
+--                if cast.soothe() then return end
+--            end
+--        end
+            for i=1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) and cast.able.soothe() then
+                    if cast.soothe(thisUnit) then return end
+                end
+            end
         -- Regrowth
                 if isChecked("Regrowth") then
                     if php <= getOptionValue("Regrowth") and not inCombat then
@@ -440,7 +460,7 @@ local function runRotation()
                     end
         -- Bristling Fur
                     -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
-                    if bear and power < 40 then
+                    if br.player.mode.bristlingFur == 1 and power < 40 then
                         if cast.bristlingFur() then return end
                     end
         -- Lunar Beam
@@ -505,7 +525,7 @@ local function runRotation()
                     end
         -- Swipe
                     -- swipe_bear
-                    if getDistance("target") < 8 and not (cast.able.thrash() or cast.able.mangle()) then
+                    if getDistance("target") < 8 and not buff.galacticGuardian.exists() and not (cast.able.thrash() or cast.able.mangle()) then
                         if cast.swipe() then return end
                     end
                 end--End In Combat
