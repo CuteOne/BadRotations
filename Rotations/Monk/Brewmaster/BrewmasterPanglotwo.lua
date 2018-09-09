@@ -207,20 +207,17 @@ local function runRotation()
 				end
 			end
 		end -- End Taunt
-					-- Trinkets    
-				if isChecked("Trinket 1") then
-                        useItem(13)
-                end
-                if isChecked("Trinket 2") then
-                        useItem(14)
-                end
 	end -- End Action List - Extras
 	-- Action List - Defensive
     local function actionList_Defensive()
         if useDefensive() then
-		-- Vivify
-                  if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
+        -- Vivify
+                if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
                     if cast.vivify() then return end
+                end
+        -- Guard
+                if talent.guard and isChecked("Use Guard") and debuff.heavyStagger.exists("player") then
+                    if cast.guard() then return end
                 end
         --Expel Harm
                 if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
@@ -269,6 +266,14 @@ local function runRotation()
 	    			if cast.invokeNiuzao() then return end
                 end
             end
+            -- Trinkets    
+			if isChecked("Trinket 1") then
+                    useItem(13)
+            end
+            if isChecked("Trinket 2") then
+                    useItem(14)
+            end
+
         end    
 	-- Action List - Interrupts
         local function actionList_Interrupts()

@@ -1392,6 +1392,7 @@ br.lists.spells = {
                 expelHarm                   = 115072,
                 explodingKeg                = 214326,
                 fortifyingBrew              = 115203,
+                guard                       = 115295,
                 healingElixir               = 122281,
                 ironskinBrew                = 115308,
                 kegSmash                    = 121253,
@@ -1424,7 +1425,7 @@ br.lists.spells = {
             talents                         = {
                 blackoutCombo               = 196736,
                 blackoxBrew                 = 115399,
-
+                guard                       = 115295,
             },
         },
         -- Mistweaver
