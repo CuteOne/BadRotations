@@ -662,7 +662,7 @@ br.lists.spells = {
                 shred                       = 5221,
                 rip                         = 1079,
                 ferociousBite               = 22568,
-                growl						= 6795,
+                growl                       = 6795,
             },
             artifacts                       = {
                 rageOfTheSleeper            = 200851,
@@ -1102,7 +1102,7 @@ br.lists.spells = {
                 prowl                       = 24450,
                 revivePet                   = 982,
                 smack                       = 49966,
-				spiritmend					= 90361,
+                spiritmend                  = 90361,
                 tarTrap                     = 187698,
                 wakeUp                      = 210000,
             },
@@ -1398,10 +1398,10 @@ br.lists.spells = {
                 purifyingBrew               = 119582,
                 rushingJadeWind             = 116847,
                 spearHandStrike             = 116705,
-                provoke						= 115546,
+                provoke                     = 115546,
                 invokeNiuzao                = 132578,
                 zenMeditation               = 115176,
-			},
+            },
             artifacts                       = {
 
             },
@@ -1958,7 +1958,7 @@ br.lists.spells = {
                 rapture                     = 47536,
                 schism                      = 214621,
                 shadowCovenant              = 204065,
-		shadowfiend                 = 34433,
+        shadowfiend                 = 34433,
                 shadowMend                  = 186263,
                 shadowWordPain              = 589,
                 shiningForce                = 204263,
@@ -2005,7 +2005,7 @@ br.lists.spells = {
                 halo                        = 120517,
                 masochism                   = 193063,
                 mindbender                  = 123040,
-		luminousBarrier             = 271466,
+        luminousBarrier             = 271466,
                 powerInfusion               = 10060,
                 powerWordSolace             = 129250,
                 purgeTheWicked              = 204197,
@@ -2018,7 +2018,7 @@ br.lists.spells = {
                 --thePenitent                 = 200347,
                 twistOfFate                 = 109142,
             },
-	    traits                          = {
+        traits                          = {
                 giftOfForgiveness           = 277680,
             },
         },
@@ -2037,7 +2037,7 @@ br.lists.spells = {
                 holyWordChastise            = 88625,
                 holyWordSanctify            = 34861,
                 holyWordSerenity            = 2050,
-                holyWordSalvation			= 265202,
+                holyWordSalvation           = 265202,
                 heal                        = 2060,
                 leapOfFaith                 = 73325,
                 lightOfTuure                = 33076,
@@ -2419,6 +2419,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 masterOfShadows             = 196980,
+                nightsVengeance             = 273424,
                 shadowBlades                = 121471,
                 shadowDance                 = 185422,
                 sharpenedBlades             = 272916,
@@ -2453,6 +2454,11 @@ br.lists.spells = {
                 subterfuge                  = 108208,
                 weaponmaster                = 193537,
             },
+            traits                          = {
+                sharpenedBlades             = 272911,
+                bladeInTheShadows           = 275896,
+                nightsVengeance             = 273418,
+            }
         },
         -- All
         Shared = {
@@ -2783,8 +2789,8 @@ br.lists.spells = {
                 shadowLock                  = 171138,
                 siphonLife                  = 63106,
                 spellLock                   = 19647,
-                commanddemon				= 119898,
-                spellLockgrimoire			= 132409,
+                commanddemon                = 119898,
+                spellLockgrimoire           = 132409,
                 soulEffigy                  = 205178,
                 summonDarkglare             = 205180,
                 unstableAffliction          = 30108,
@@ -3198,10 +3204,10 @@ br.lists.spells = {
                 shieldBlock                 = 2565,
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
-                shockwave					          = 46968,
+                shockwave                             = 46968,
                 spellReflection             = 23920,
                 thunderClap                 = 6343,
-			},
+            },
             artifacts                       = {
 
             },
@@ -3214,8 +3220,8 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
-				        ignorePain					        = 190456,
-			},
+                        ignorePain                          = 190456,
+            },
             debuffs                         = {
                 demoralizingShout           = 1160,
                 thunderClap                 = 6343,
@@ -3235,7 +3241,7 @@ br.lists.spells = {
                 ravager                     = 228920,
                 renewedFury                 = 202288,
                 safeguard                   = 223657,
-                shockwave				           	= 46968,
+                shockwave                           = 46968,
                 ultimatum                   = 122509,
                 vengeance                   = 202572,
                 warbringer                  = 103828,
