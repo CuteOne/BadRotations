@@ -73,6 +73,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Ghost Wolf")
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
+        -- Earth Shield
+            br.ui:createCheckbox(section,"Earth Shield")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -86,13 +88,13 @@ local function createOptions()
             end
         -- Cloudburst Totem
             br.ui:createSpinner(section, "Cloudburst Totem",  90,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Cloudburst Totem Targets",  3,  0,  40,  1,  "Minimum Cloudburst Totem Targets")
+            br.ui:createSpinnerWithout(section, "Cloudburst Totem Targets",  3,  0,  40,  1,  "Minimum Cloudburst Totem Targets (excluding yourself)")
         -- Ascendance
             br.ui:createSpinner(section,"Ascendance",  60,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinnerWithout(section, "Ascendance Targets",  3,  0,  40,  1,  "Minimum Ascendance Targets")
+            br.ui:createSpinnerWithout(section, "Ascendance Targets",  3,  0,  40,  1,  "Minimum Ascendance Targets (excluding yourself)")
         -- Healing Tide Totem
             br.ui:createSpinner(section, "Healing Tide Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "Minimum Healing Tide Totem Targets")
+            br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "Minimum Healing Tide Totem Targets (excluding yourself)")
         -- Ancestral Protection Totem
             br.ui:createSpinner(section, "Ancestral Protection Totem",  70,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Ancestral Protection Totem Targets",  3,  0,  40,  1,  "Minimum Ancestral Protection Totem Targets")
@@ -242,9 +244,9 @@ local function runRotation()
         if CloudburstTotemTime == nil or cd.cloudburstTotem.remain() == 0 or not talent.cloudburstTotem then CloudburstTotemTime = 0 end
 
     -- Cloudburst Totem
-        if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and charges.cloudburstTotem.count() > 0 then
+        if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() then
             if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
-                if cast.cloudburstTotem() then
+                if cast.cloudburstTotem("player") then
                     ChatOverlay(colorGreen.."Cloudburst Totem!")
                     CloudburstTotemTime = GetTime()
                     return
@@ -339,6 +341,10 @@ local function runRotation()
                         if isChecked("Wind Shear") then
                             if cast.windShear(thisUnit) then return end
                         end
+        -- Capacitor Totem
+                        if isChecked("Capacitor Totem") then
+                            if cast.capacitorTotem(thisUnit) then return end
+                        end
                     end
                 end
             end -- End useInterrupts check
@@ -383,18 +389,18 @@ local function runRotation()
             end
         -- Healing Rain
             if not moving then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
             end
         -- Spirit Link Totem
             if not moving then
-                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                     if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
                 end
             end
             if not moving then
-                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) and isChecked("Downpour Key") then
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end
                 end
             end
@@ -444,7 +450,7 @@ local function runRotation()
             end
         -- Healing Rain
             if not moving then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
@@ -482,7 +488,7 @@ local function runRotation()
             end
             -- Downpour
             if not moving then
-                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) and isChecked("Downpour Key") then
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
                 end
                 if isChecked("Downpour") then
@@ -584,7 +590,7 @@ local function runRotation()
             end
         -- Healing Rain
             if not moving then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
@@ -622,7 +628,7 @@ local function runRotation()
             end
             -- Downpour
             if not moving then
-                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) and isChecked("Downpour Key") then
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
                 end
                 if isChecked("Downpour") then
@@ -749,7 +755,7 @@ local function runRotation()
             end
         -- Healing Rain
             if not moving then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
@@ -759,7 +765,7 @@ local function runRotation()
             end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and not moving then
-                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) then
+                if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                     if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
                 end
                 if castWiseAoEHeal(br.friend,spell.spiritLinkTotem,12,getValue("Spirit Link Totem"),getValue("Spirit Link Totem Targets"),40,false,true) then return end
@@ -784,15 +790,41 @@ local function runRotation()
             if hasEquiped(140805) and getBuffRemain("player", 225771) > 2 then
                 if cast.healingWave(lowest.unit) then return end
             end
+            -- Earth Shield
+            if talent.earthShield then
+                -- check if shield already exists
+                local foundShield = false
+                if isChecked("Earth Shield") then
+                    for i = 1, #br.friend do
+                        if buff.earthShield.exists(br.friend[i].unit) then
+                            foundShield = true
+                        end
+                    end
+                    -- if no shield found, apply to focus if exists
+                    if foundShield == false then
+                        if GetUnitExists("focus") == true then
+                            if not buff.earthShield.exists("focus") then
+                                if cast.earthShield("focus") then return end
+                            end
+                        else
+                            for i = 1, #br.friend do
+                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.earthShield.exists(br.friend[i].unit) then
+                                    if cast.earthShield(br.friend[i].unit) then return end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
         end -- End Action List Single Target
     -- Action List - DPS
         local function actionList_DPS()
         -- Capacitor Totem
-            if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 and lastSpell ~= spell.capacitorTotem then
-                if cast.capacitorTotem("player","ground") then return end
+            if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat  and lastSpell ~= spell.capacitorTotem then
+                if cast.capacitorTotem("player") then return end
             end
             if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
-                if cast.capacitorTotem("best",nil,getOptionValue("Capacitor Totem - AoE"),8) then return end
+                if cast.capacitorTotem("player") then return end
             end
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
