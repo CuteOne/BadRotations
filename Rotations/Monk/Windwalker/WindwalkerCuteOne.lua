@@ -484,18 +484,20 @@ local function runRotation()
                 if isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 9 then
                     if cast.touchOfDeath() then return true end
                 end
+            end
         -- Storm, Earth, and Fire
-                -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
-                if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire()
-                    and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15)
-                then
-                    if cast.stormEarthAndFire() then return end
-                end
+            -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
+            if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
+                and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15)
+            then
+                if cast.stormEarthAndFire() then return end
+            end
         -- Serenity
-                -- serenity,if=cooldown.rising_sun_kick.remains<=2|target.time_to_die<=12
-                if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs())) and (cd.risingSunKick.remain() <= 2 or ttd <= 12) then
-                    if cast.serenity() then return end
-                end
+            -- serenity,if=cooldown.rising_sun_kick.remains<=2|target.time_to_die<=12
+            if (getOptionValue("Serenity") == 1 or (getOptionValue("Serenity") == 2 and useCDs()))
+                and getDistance(units.dyn5) < 5 and (cd.risingSunKick.remain() <= 2 or ttd <= 12)
+            then
+                if cast.serenity() then return end
             end
         end -- End Cooldown - Action List
     -- Action List - Opener

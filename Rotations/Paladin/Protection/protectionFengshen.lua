@@ -298,7 +298,7 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388) and distance <= 10 then
+					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129158) and distance <= 10 then
 						if cast.hammerOfJustice(thisUnit) then return end
 					end
 				end
@@ -711,7 +711,7 @@ local function runRotation()
 				--- In Combat - Begin Rotation ---
 				----------------------------------
 				--------------------------------
-				--- In Combat - SimCraft APL ---
+				----- In Combat - Feng APL -----
 				--------------------------------
 				if getOptionValue("APL Mode") == 1 then
 					-- Shield of the Righteous
@@ -742,7 +742,7 @@ local function runRotation()
 					end
 				end
 				--------------------------------
-				----- In Combat - Feng APL -----
+				--- In Combat - SimCraft APL ---
 				--------------------------------
 				if getOptionValue("APL Mode") == 2 then
 					if isChecked("Shield of the Righteous") and getDistance(units.dyn5) <= 5 and getFacing("player",units.dyn5) then

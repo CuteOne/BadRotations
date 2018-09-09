@@ -342,11 +342,13 @@ local function runRotation()
     -- Action List - FieryBrand
         local function actionList_FieryBrand()
             -- actions.brand=sigil_of_flame,if=cooldown.fiery_brand.remains<2
-            if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 and cd.fieryBrand.remain() < 2 then
+            if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5)
+                and getDistance(units.dyn5) < 5 and #enemies.yards5 > 0 and cd.fieryBrand.remain() < 2
+            then
                 if cast.sigilOfFlame("best",false,1,8) then return end
 			end
 			-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-			if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() then
+			if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
                 if cast.infernalStrike("player","ground",1,6) then return end
             end
 			-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
@@ -355,7 +357,7 @@ local function runRotation()
             end
 			if debuff.fieryBrand.exists(units.dyn5) then
 				-- actions.brand+=/immolation_aura,if=dot.fiery_brand.ticking
-				if isChecked("Immolation Aura") and cast.able.immolationAura() then
+				if isChecked("Immolation Aura") and cast.able.immolationAura() and #enemies.yards5 > 0 then
                     if cast.immolationAura() then return end
                 end
 				-- actions.brand+=/fel_devastation,if=dot.fiery_brand.ticking
@@ -363,11 +365,11 @@ local function runRotation()
 					if cast.felDevastation() then return end
 				end
 				-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 then
+				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
 					if cast.infernalStrike("player","ground",1,6) then return end
 				end
 				-- actions.brand+=/sigil_of_flame,if=dot.fiery_brand.ticking
-				if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 then
+				if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5) and getDistance(units.dyn5) < 5 and #enemies.yards5 > 0 then
 					if cast.sigilOfFlame("best",false,1,8) then return end
 				end
             end
@@ -419,7 +421,7 @@ local function runRotation()
 	                if actionList_FieryBrand() then return end
                 end
 				-- actions.normal=infernal_strike
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 then
+				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
                     if cast.infernalStrike("player","ground",1,6) then return end
                 end
 				-- actions.normal+=/spirit_bomb,if=soul_fragments>=4
@@ -435,7 +437,7 @@ local function runRotation()
                     if cast.soulCleave() then return end
                 end
 				-- actions.normal+=/immolation_aura,if=pain<=90
-				if isChecked("Immolation Aura") and cast.able.immolationAura("player") and pain <= 90 then
+				if isChecked("Immolation Aura") and cast.able.immolationAura("player") and pain <= 90 and #enemies.yards5 > 0 then
                     if cast.immolationAura("player") then return end
                 end
 				-- actions.normal+=/felblade,if=pain<=70
@@ -451,7 +453,7 @@ local function runRotation()
 					if cast.felDevastation() then return end
 				end
 				-- actions.normal+=/sigil_of_flame
-				if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5) then
+				if isChecked("Sigil of Flame") and cast.able.sigilOfFlame() and not isMoving(units.dyn5) and #enemies.yards5 > 0 then
                     if cast.sigilOfFlame("best",false,1,8) then return end
 				end
 				-- actions.normal+=/shear
