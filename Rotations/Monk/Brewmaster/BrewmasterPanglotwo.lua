@@ -403,7 +403,7 @@ local function runRotation()
 	-- Brews Rotations
 	local function actionList_Brews()
 		--Black Ox Brew
-            if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.75) and and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
+            if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
                 if cast.blackoxBrew() then return end
             end
         -- Auto Purify
