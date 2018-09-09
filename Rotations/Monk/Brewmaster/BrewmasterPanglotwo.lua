@@ -312,10 +312,6 @@ local function runRotation()
 	-- Single Target Rotation
     local function actionList_Single()
        -- Print("Single")
-		--Black Ox Brew
-			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Black Out Strike
 			if cast.blackoutStrike() then return end
 		-- Keg Smash
@@ -345,10 +341,6 @@ local function runRotation()
 	-- Multi Target Rotation
     local function actionList_Multi()
        -- Print("Multi")
-		--Black Ox Brew
-			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Keg Smash
 			if cast.kegSmash() then return end
 		-- Breath of Fire
@@ -378,10 +370,6 @@ local function runRotation()
 	-- Blackout Combo Rotation
     local function actionList_AutoBlackout()
         --Print("BoC")
-		--Black Ox Brew
-			if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Keg Smash
 			if not buff.blackoutCombo.exists() then
 				if cast.kegSmash() then return end
@@ -414,10 +402,14 @@ local function runRotation()
 	
 	-- Brews Rotations
 	local function actionList_Brews()
-		-- Auto Purify
+		--Black Ox Brew
+            if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.75) and and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
+                if cast.blackoxBrew() then return end
+            end
+        -- Auto Purify
 			if isChecked("Auto Purify") then
-				if debuff.heavyStagger.exists("player") or (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
-				(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5))) then
+                if debuff.heavyStagger.exists("player") or 
+                (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 1.5))) then
 					if cast.purifyingBrew() then return end
 				end
             end
@@ -428,7 +420,7 @@ local function runRotation()
                 end
             end	
 		-- Iron Skin Brew
-            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 5 and buff.ironskinBrew.remain() <=14)) then
+            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 2 and buff.ironskinBrew.remain() <=14)) then
                 if cast.ironskinBrew() then return end
             end
 	end
