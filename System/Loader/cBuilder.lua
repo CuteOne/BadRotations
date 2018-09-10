@@ -1,6 +1,12 @@
 br.loader = {}
 function br.loader.loadProfiles()
     local specID = GetSpecializationInfo(GetSpecialization())
+    local playerClass = select(2,UnitClass('player'))
+    playerClass = playerClass:sub(1,1):upper()..playerClass:sub(2):lower()
+    if playerClass == "Deathknight" then playerClass = "Death Knight" end
+    if playerClass == "Demonhunter" then playerClass = "Demon Hunter" end
+    Print(playerClass)
+
     wipe(br.rotations)
     local function rotationsDirectory()
 	    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
@@ -19,12 +25,12 @@ function br.loader.loadProfiles()
 	end
 
     -- Search each Class Folder in the Rotations Folder
-    for _, class in pairs(classDirectories()) do
+    -- for _, class in pairs(classDirectories()) do
         -- Search each Spec Folder in the Class Folder
-        for _, spec in pairs(specDirectories(class)) do
+        for _, spec in pairs(specDirectories(playerClass)) do
             -- Search each Profile in the Spec Folder
-            for _, file in pairs(profiles(class, spec)) do
-                local profile = ReadFile(rotationsDirectory()..class.."\\"..spec.."\\"..file)
+            for _, file in pairs(profiles(playerClass, spec)) do
+                local profile = ReadFile(rotationsDirectory()..playerClass.."\\"..spec.."\\"..file)
                 local start = string.find(profile,"local id = ",1,true) or 0
                 profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
                 -- Print(profileID)
@@ -36,7 +42,7 @@ function br.loader.loadProfiles()
                 end
             end
         end
-    end
+    -- end
 end
 
 function br.loader:new(spec,specName)
