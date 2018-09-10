@@ -484,7 +484,7 @@ local function runRotation()
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if useCDs() and debuff.agony.count() > 0 and debuff.corruption.count() > 0 and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
+          if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return end
           end
           -- actions+=/agony,cycle_targets=1,if=remains<=gcd
@@ -498,8 +498,8 @@ local function runRotation()
           if talent.shadowEmbrace and not talent.drainSoul and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt() * 2 + travelTime and not cast.last.shadowBolt() then
             if cast.shadowBolt() then return end
           end
-          -- actions+=/phantom_singularity,if=time>40
-          if combatTime > 40 and #enemies.yards10t >= getOptionValue("PS Units") then
+          -- actions+=/phantom_singularity,if=time>40&(cooldown.summon_darkglare.remains>=45|cooldown.summon_darkglare.remains<8)
+          if combatTime > 40 and (cd.summonDarkglare.remain() >= 45 or cd.summonDarkglare.remain() < 8) and #enemies.yards10t >= getOptionValue("PS Units") then
             if cast.phantomSingularity() then return end
           end
           -- actions+=/vile_taint,if=time>20
@@ -609,13 +609,17 @@ local function runRotation()
                 end
             end
           end
-          -- actions+=/dark_soul
-          if useCDs() then
-            if cast.darkSoul("player") then return end
+          -- actions+=/phantom_singularity
+          if combatTime <= 40 and #enemies.yards10t >= getOptionValue("PS Units") then
+            if cast.phantomSingularity() then return end
           end
           -- actions+=/vile_taint
           if not moving then
             if cast.vileTaint() then return end
+          end
+          -- actions+=/dark_soul
+          if useCDs() then
+            if cast.darkSoul("player") then return end
           end
           -- actions+=/berserking
           -- actions+=/unstable_affliction,if=soul_shard>=5
@@ -626,12 +630,8 @@ local function runRotation()
           if useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction() and not moving then --TO-DO add darkglare check
               if cast.unstableAffliction() then return end
           end
-          -- actions+=/phantom_singularity
-          if #enemies.yards10t >= getOptionValue("PS Units") then
-            if cast.phantomSingularity() then return end
-          end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
-          if ((cd.summonDarkglare.remain() < timeToShard * (5 - shards) or cd.summonDarkglare.exists()) and ttd() > cd.summonDarkglare.remain()) or mode.multidot == 2 then
+          if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd() > cd.summonDarkglare.remain()) or mode.multidot == 2 then
             if actionList_Fillers() then return end
           end
           -- actions+=/seed_of_corruption,if=variable.spammable_seed
