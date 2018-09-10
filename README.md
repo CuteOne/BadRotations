@@ -136,7 +136,7 @@ CuteOne  |   Full   | 8.0   |   99% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   |  7.3.5  |   100% | :white_check_mark:
+Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 - Moonkin
 
@@ -197,7 +197,7 @@ Reyne  |   Full   | 8.0   |   100% | :heavy_check_mark:
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
 Kuukuu | Inactive| 7.2.5 |    90% | :interrobang:
-Panglo | Full | 8.0 |    99% | :white_check_mark:
+Panglo |   Full  |  8.0  |    100%| :white_check_mark:
 
 - Mistweaver
 
