@@ -689,8 +689,8 @@ local function runRotation()
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(cooldown.fists_of_fury.remains>2|chi>=5|azerite.swift_roundhouse.rank>2)
-            if cast.able.risingSunKick(lowestMark) and (cd.fistsOfFury.remain() > 2 or chi >= 5 or traits.swiftRoundhouse.rank() > 2) then
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(cooldown.fists_of_fury.remains>2|chi>=5|azerite.swift_roundhouse.rank>1)
+            if cast.able.risingSunKick(lowestMark) and (cd.fistsOfFury.remain() > 2 or chi >= 5 or traits.swiftRoundhouse.rank() > 1) then
                 if cast.risingSunKick(lowestMark) then return end
             end
         -- Rushing Jade Wind
@@ -701,8 +701,8 @@ local function runRotation()
                 if cast.rushingJadeWind() then return end
             end
         -- Fists of Fury
-            -- fists_of_fury,if=energy.time_to_max>2.5&(azerite.swift_roundhouse.rank<3|(cooldown.whirling_dragon_punch.remains<10&talent.whirling_dragon_punch.enabled)|active_enemies>1)
-            if cast.able.fistsOfFury() and ttm > 2.5 and (traits.swiftRoundhouse.rank() < 3 or (cd.whirlingDragonPunch.remain() < 10 and talent.whirlingDragonPunch)
+            -- fists_of_fury,if=energy.time_to_max>2.5&(azerite.swift_roundhouse.rank<2|(cooldown.whirling_dragon_punch.remains<10&talent.whirling_dragon_punch.enabled)|active_enemies>1)
+            if cast.able.fistsOfFury() and ttm > 2.5 and (traits.swiftRoundhouse.rank() < 2 or (cd.whirlingDragonPunch.remain() < 10 and talent.whirlingDragonPunch)
                 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
             then
                 if cast.fistsOfFury(nil,"cone",1,45) then return end
