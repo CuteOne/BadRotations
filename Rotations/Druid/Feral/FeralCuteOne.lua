@@ -315,11 +315,11 @@ local function runRotation()
         -- Variables
         -- variable,name=use_thrash,value=2
         -- variable,name=use_thrash,value=1,if=azerite.power_of_the_moon.enabled
-        if trait.powerOfTheMoon.active() then
-            useThrash = 1
-        else
+        -- if trait.powerOfTheMoon.active() then
+        --     useThrash = 1
+        -- else
             useThrash = 2
-        end
+        -- end
 
         -- TF Predator Snipe
         local function snipeTF()
@@ -1294,12 +1294,12 @@ local function runRotation()
             -- shred,if=buff.clearcasting.react
             if cast.able.shred() and buff.clearcasting.exists() then
                 if cast.shred() then return end
-            end 
+            end
         -- Moonfire
             -- moonfire_cat,if=azerite.power_of_the_moon.enabled
-            if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() then
-                if cast.moonfire() then return end
-            end
+            -- if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() then
+            --     if cast.moonfire() then return end
+            -- end
         -- Shred
             -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
             if cast.able.shred() and debuff.rake.exists(units.dyn5) and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen) or buff.clearcasting.exists() or level < 12) then
