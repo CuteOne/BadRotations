@@ -30,7 +30,7 @@ function UnitBuffID(unit,spellID,filter)
 	for i=1,40 do
 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
 		if buffName == nil then return nil end
-		if buffSpellID == spellID or buffName == spellName then
+		if (exactSearch and buffSpellID == spellID) or (not exactSearch and (buffName == spellName or buffSpellID == spellID)) then
 			if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
 				if exactSearch or filter == nil then return UnitBuff(unit,i) else return UnitBuff(unit,i,filter) end
 			end
@@ -45,7 +45,7 @@ function UnitDebuffID(unit,spellID,filter)
 	for i=1,40 do
 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 		if buffSpellID == nil then return nil end
-		if buffSpellID == spellID or buffName == spellName then
+		if (exactSearch and buffSpellID == spellID) or (not exactSearch and (buffName == spellName or buffSpellID == spellID)) then
 			if (not playerSearch) or (playerSearch and (buffCaster == "player")) then
 				if exactSearch or filter == nil then return UnitDebuff(unit,i) else return UnitDebuff(unit,i,filter) end
 			end
