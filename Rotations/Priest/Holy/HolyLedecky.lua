@@ -161,7 +161,20 @@ local function createOptions()
             br.ui:createSpinner(section, "Renew on Tanks",  90,  0,  100,  1,  "Tanks Health Percent of tanks to Cast At")
             br.ui:createSpinner(section, "Renew while moving",  80,  0,  100,  1,  "Moving Health Percent to Cast At")
           br.ui:checkSectionState(section)
-         section = br.ui:createSection(br.ui.window.profile, colorshaman.."Holy Word Settings") 
+        --Apotheosis Mode
+        section = br.ui:createSection(br.ui.window.profile, colorLegendary.."Apotheosis Settings")
+        	br.ui:createCheckbox(section, "Apotheosis Mode","Will Priotize use of Flash Heal, PoH, or Binding Heal to get Holy Words off CDs")
+        	br.ui:createSpinner(section, "Apotheosis Binding Heal",  90,  0,  100,  1,  "Use Binding Heal while Apotheosis is active.")
+        	br.ui:createSpinnerWithout(section, "Serenity and Sanctify CD",  30,  0,  60,  1,  "Only uses Binding Heal if both Serenity and Sanctify CD is above this.")
+        	br.ui:createSpinnerWithout(section, "Tank Ignore",  50,  0,  100,  1,  "Ignores using Binding Heal during Apotheosis if Tank HP falls below this.")
+        	br.ui:createSpinner(section, "Apotheosis Flash Heal",  85,  0,  100,  1,  "Use Flash Heal while Apotheosis is active.")
+        	br.ui:createSpinnerWithout(section, "Apotheosis Serenity CD",  30,  0,  60,  1,  "Use Flash Heal only if Serenity CD is above this.")
+        	br.ui:createSpinner(section, "Apotheosis Prayer of Healing",  90,  0,  100,  1,  "Use PoH while Apotheosis is active.")
+        	br.ui:createSpinnerWithout(section, "Apotheosis PoH Targets",  3,  0,  6,  1,  "Use PoH when this many allies are below set HP.")
+        	br.ui:createSpinnerWithout(section, "Apotheosis PoH CD",  30,  0,  60,  1,  "Use PoH only if Sanctify CD is above this.")       	        	
+        br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, colorshaman.."Holy Word Settings") 
         -- Holy Word: Serenity
             br.ui:createSpinner(section, "Holy Word: Serenity",  50,  0,  100,  5,  "Health Percent to Cast At")
            -- Holy Word: Sanctify
@@ -336,7 +349,7 @@ local function runRotation()
                 end
             end
 		-- Renew on tank
-            if isChecked("Renew on Tanks") then
+            if isChecked("Renew on Tanks")  then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Renew on Tanks") and not buff.renew.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
                         if cast.renew(br.friend[i].unit) then return end
@@ -368,7 +381,7 @@ local function runRotation()
                 end
             end
 		-- Renew While Moving
-            if isChecked("Renew while moving") and isMoving("player") then
+            if isChecked("Renew while moving") and isMoving("player")  then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
                        if cast.renew(br.friend[i].unit) then return end
@@ -535,15 +548,31 @@ local function runRotation()
                 end
             end		
 		-- Flash Heal On Me
-            if isChecked("Flash Heal On Me") and inCombat and not isMoving("player") and not isMoving("player") then
+            if isChecked("Flash Heal On Me") and inCombat and not isMoving("player") and php <= getValue("Flash Heal On Me")then
 				if cast.flashHeal("player") then return end         
-            end			
+            end	
+        --Apotheosis Mode
+        	if isChecked("Apotheosis Mode") and buff.apotheosis.exists("player") then
+        		for i = 1, #br.friend do
+        			if  isChecked("Tank Ignore") and isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+        				if lowest.hp <= getValue("Apotheosis Binding Heal") and GetSpellCooldown(2050) > getValue("Serenity and Sanctify CD") and GetSpellCooldown(34861) > getValue("Serenity and Sanctify CD") then
+        					if cast.bindingHeal(lowest.unit) then return end
+        				end
+        			end
+        			if isChecked("Apotheosis Flash Heal") and br.friend[i].hp <= getValue("Apotheosis Flash Heal") and GetSpellCooldown(2050) > getValue("Apotheosis Serenity CD") then
+        				if cast.flashHeal(br.friend[i].unit) then return end
+        			end
+        			if isChecked("Apotheosis Prayer of Healing") and getLowAllies(getValue("Apotheosis Prayer of Healing")) >= getValue("Apotheosis PoH Targets") and GetSpellCooldown(34861) > getValue("Apotheosis Sanctify CD") then
+        				if cast.prayerOfHealing(lowest.unit) then return end 
+        			end       		   
+        		end
+        	end    					 
         -- Flash Heal Others
             if isChecked("Flash Heal Emergency") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
                 for i = 1, #br.friend do
                 	if isChecked("Tanks Only") then
                    		 if br.friend[i].hp <= getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                       		 if cast.flashHeal("TANK") then return end
+                       		 if cast.flashHeal(br.friend[i].unit) then return end
                     	elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
                     		 if cast.flashHeal(br.friend[i].unit) then return end
                    	
@@ -586,7 +615,7 @@ local function runRotation()
 				end
             end
         -- Prayer of Mending
-            if isChecked("Prayer of Mending") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+            if isChecked("Prayer of Mending") and getDebuffRemain("player",240447) == 0 and not isMoving("player")  then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Prayer of Mending") and not buff.prayerOfMending.exists(br.friend[i].unit) then
                         if cast.prayerOfMending(br.friend[i].unit) then return end
