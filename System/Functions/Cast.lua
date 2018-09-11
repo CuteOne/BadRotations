@@ -530,10 +530,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
     -- local minRange = tonumber(select(5,GetSpellInfo(spellName)))
     -- local maxRange = tonumber(select(6,GetSpellInfo(GetSpellInfo(spellID))))
     -- Nil Catches
+	if minUnits == nil then minUnits = 1 end
+	if effectRng == nil then effectRng = 5 end
     if minRange == nil then minRange = 0 end
-    if maxRange == nil or maxRange == 0 then maxRange = 5 else maxRange = tonumber(maxRange) end
-    if minUnits == nil then minUnits = 1 end
-    if effectRng == nil then effectRng = 5 end
+	if maxRange == nil or maxRange == 0 then maxRange = tonumber(effectRng) else maxRange = tonumber(maxRange) end
     if debug == nil then debug = "norm" end
     local function castDebug()
         if isChecked("Cast Debug") and debug ~= "debug" then
