@@ -685,7 +685,9 @@ local function runRotation()
                         if cast.chimaeraShot() then return end
                     end
                     -- actions+=/kill_command
-                    if cast.killCommand("pettarget") then return end
+                    if cast.able.killCommand() then
+                      if cast.killCommand("pettarget") then return end
+                    end
                     -- actions+=/dire_beast
                     if talent.direBeast then
                         if cast.direBeast() then return end
