@@ -229,6 +229,7 @@ local function runRotation()
         local stealth                                       = br.player.buff.prowl.exists() or br.player.buff.shadowmeld.exists()
         local talent                                        = br.player.talent
         local thp                                           = getHP
+        local trait                                         = br.player.traits
         local travel, flight, cat                           = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.energy.ttm()
@@ -312,14 +313,12 @@ local function runRotation()
         end
 
         -- Variables
-        -- variable,name=use_thrash,value=0
-        -- variable,name=use_thrash,value=1,if=equipped.luffa_wrappings
-        if equiped.luffaWrappings() then
-            useThrash = 2
-        elseif equiped.t19 >= 2 then
+        -- variable,name=use_thrash,value=2
+        -- variable,name=use_thrash,value=1,if=azerite.power_of_the_moon.enabled
+        if trait.powerOfTheMoon.active() then
             useThrash = 1
         else
-            useThrash = 0
+            useThrash = 2
         end
 
         -- TF Predator Snipe
@@ -1290,6 +1289,16 @@ local function runRotation()
                 if cast.able.swipe() then
                     if cast.swipe("player","aoe") then return true end
                 end
+            end
+        -- Shred
+            -- shred,if=buff.clearcasting.react
+            if cast.able.shred() and buff.clearcasting.exists() then
+                if cast.shred() then return end
+            end 
+        -- Moonfire
+            -- moonfire_cat,if=azerite.power_of_the_moon.enabled
+            if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() then
+                if cast.moonfire() then return end
             end
         -- Shred
             -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react

@@ -720,9 +720,9 @@ local function runRotation()
                 if cast.energizingElixir() then return true end
             end
         -- Blackout kick
-            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>2|chi>=3)&(cooldown.fists_of_fury.remains>2|chi>=4|azerite.swift_roundhouse.enabled)&buff.swift_roundhouse.stack<2
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>2|chi>=3)&(cooldown.fists_of_fury.remains>2|chi>=4|(azerite.swift_roundhouse.rank>=2&active_enemies=1))&buff.swift_roundhouse.stack<2
             if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and (cd.risingSunKick.remain() > 2 or chi >= 3)
-                and (cd.fistsOfFury.remain() > 2 or chi >= 4 or traits.swiftRoundhouse.active()) and buff.swiftRoundhouse.stack() < 2
+                and (cd.fistsOfFury.remain() > 2 or chi >= 4 or (traits.swiftRoundhouse.rank() >= 2 and #enemies.yards8 == 1)) and buff.swiftRoundhouse.stack() < 2
             then
                 if cast.blackoutKick(lowestMark) then return true end
             end
@@ -786,8 +786,8 @@ local function runRotation()
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Spinning Crane Kick
-            -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick
-            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and cd.fistsOfFury.remain() > gcd then
+            -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(chi>2|cooldown.fists_of_fury.remains>4)
+            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and (chi > 2 or cd.fistsOfFury.remain() > 4) then
                 if cast.spinningCraneKick() then return end
             end
         -- Chi Burst
@@ -986,15 +986,15 @@ local function runRotation()
                     -- call_action_list,name=cd
                     if actionList_Cooldowns() then return end
         -- Call Action List - Single Target
-                    -- call_action_list,name=st,if=(active_enemies<4&azerite.swift_roundhouse.rank<3)|active_enemies<5
-                    if ((mode.rotation == 1 and ((#enemies.yards8 < 4 and traits.swiftRoundhouse.rank() < 3) or #enemies.yards8 < 5))
+                    -- call_action_list,name=st,if=active_enemies<3|(active_enemies=3&azerite.swift_roundhouse.rank>2)
+                    if ((mode.rotation == 1 and ((#enemies.yards8 == 3 and traits.swiftRoundhouse.rank() > 2) or #enemies.yards8 < 3))
                         or (mode.rotation == 3 and #enemies.yards8 > 0))
                     then
                         if actionList_SingleTarget() then return true end
                     end
         -- Call Action List - AoE
-                    -- call_action_list,name=aoe,if=(active_enemies>=4&azerite.swift_roundhouse.rank<3)|active_enemies>=5
-                    if ((mode.rotation == 1 and ((#enemies.yards8 >= 4 and traits.swiftRoundhouse.rank() < 3) or #enemies.yards8 >= 5))
+                    -- call_action_list,name=aoe,if=active_enemies>3|(active_enemies=3&azerite.swift_roundhouse.rank<=2)
+                    if ((mode.rotation == 1 and ((#enemies.yards8 == 3 and traits.swiftRoundhouse.rank() <= 2) or #enemies.yards8 > 3))
                         or (mode.rotation == 2 and #enemies.yards8 > 0))
                     then
                         if actionList_AoE() then return end
