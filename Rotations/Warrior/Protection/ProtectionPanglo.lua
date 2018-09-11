@@ -426,7 +426,11 @@ local function runRotation()
                 if cast.shieldSlam() then return end
         -- Thunder Clap
             -- thunder_clap
-            if cast.thunderClap() then return end
+            if talent.cracklingThunder then
+                if cast.thunderClap("player",nil,1,12) then return end
+            else
+                if cast.thunderClap("player",nil,1,8) then return end
+            end
         -- Revenge
             -- revenge,if=(talent.vengeance.enabled&buff.revenge.react&!buff.vengeance_ignore_pain.up)|(buff.vengeance_revenge.up&rage>=59)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage>=69)|(!talent.vengeance.enabled&buff.revenge.react)
             if (talent.vengeance and buff.revenge.exists() and not buff.vengeanceIgnorePain.exists())
@@ -468,7 +472,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and not IsMounted() and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and isValidUnit("target") then
             -- Auto Attack
                 --auto_attack
                 if getDistance(units.dyn5) < 5 then
