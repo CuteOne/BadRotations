@@ -518,6 +518,47 @@ function br.read.combatLog()
             if param == "SPELL_CAST_SUCCESS" and spell==921 then
                 canPickpocket = false
             end
+            --[[ Bleed Recorder --]]
+            if GetSpecialization() == 1 then
+                if source == UnitGUID("player") then
+                    if destination ~= nil and destination ~= "" then
+                        local thisUnit = thisUnit
+                        if FireHack then
+                            if GetObjectExists(destination) then
+                                thisUnit = GetObjectWithGUID(destination)
+                            elseif GetObjectExists("target") then
+                                thisUnit = GetObjectWithGUID(UnitGUID("target"))
+                            else
+                                thisUnit = GetObjectWithGUID(UnitGUID("player"))
+                            end
+                            if br.player ~= nil and getDistance(thisUnit) < 40 then
+                                local debuff = br.player.debuff
+                                local debuffID = br.player.spell.debuffs
+                                if debuffID ~= nil then
+                                    if spell == debuffID.garrote or spell == debuffID.rupture then
+                                        if spell == debuffID.garrote then k = "garrote" end
+                                        if spell == debuffID.rupture then k = "rupture" end
+                                        if debuff[k].bleed == nil then debuff[k].bleed = {} end
+                                        if debuff[k].bleed[thisUnit] == nil then debuff[k].bleed[thisUnit] = 0 end
+                                        if param == "SPELL_AURA_REMOVED" then
+                                            debuff[k].bleed[thisUnit] = 0
+                                            if UnitIsUnit(thisUnit,"target") then
+                                                debuff[k].bleed["target"] = 0
+                                            end
+                                        end
+                                        if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                            debuff[k].bleed[thisUnit] = debuff[k].calc()
+                                            if UnitIsUnit(thisUnit,"target") then
+                                                debuff[k].bleed["target"] = debuff[k].calc()
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
         end
         function cl:Shaman(...) -- 7
             local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,

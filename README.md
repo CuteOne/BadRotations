@@ -259,7 +259,7 @@ winston       | Full          | 8.0  |   95% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-None |  None   | N/A   |   0%  | :x:
+CuteOne |  Full   | 8.0   |   100%  | :interrobang:
 
 - Outlaw
 

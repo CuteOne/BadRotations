@@ -375,7 +375,7 @@ function br.loader:new(spec,specName)
                 if debuffType == nil then debuffType = "remain" end
                 return getDebuffMinMax(k, range, debuffType, "max")
             end
-            if spec == 103 then
+            if spec == 103 or spec == 259 then
                 debuff.calc = function()
                     return self.getSnapshotValue(v)
                 end
@@ -655,9 +655,9 @@ function br.loader:new(spec,specName)
         -- Call baseUpdate()
         if not UnitAffectingCombat("player") then self.updateOOC() end
         self.baseUpdate()
+        self.getBleeds()
         -- Update Player Info on Init, Talent, and Level Change
         if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
-        self.getBleeds()
         self.getToggleModes()
         -- Start selected rotation
         self.startRotation()
@@ -667,9 +667,9 @@ function br.loader:new(spec,specName)
 --- BLEEDS  ---
 ---------------
     function self.getBleeds()
-        if spec == 103 then
+        if spec == 103 or spec == 259 then
             for k, v in pairs(self.debuff) do
-                if k == "rake" or k == "rip" then
+                if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" then
                     if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
                     for l, w in pairs(self.debuff[k].bleed) do
                         if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
