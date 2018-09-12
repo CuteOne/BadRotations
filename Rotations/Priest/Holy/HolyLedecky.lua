@@ -552,9 +552,9 @@ local function runRotation()
 				if cast.flashHeal("player") then return end         
             end	
         --Apotheosis Mode
-        	if isChecked("Apotheosis Mode") and buff.apotheosis.exists("player") then
+        	if isChecked("Apotheosis Mode") and getBuffRemain("player",200183) > 0 then
         		for i = 1, #br.friend do
-        			if  isChecked("Tank Ignore") and isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+        			if isChecked("Tank Ignore") and isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
         				if lowest.hp <= getValue("Apotheosis Binding Heal") and GetSpellCooldown(2050) > getValue("Serenity and Sanctify CD") and GetSpellCooldown(34861) > getValue("Serenity and Sanctify CD") then
         					if cast.bindingHeal(lowest.unit) then return end
         				end
