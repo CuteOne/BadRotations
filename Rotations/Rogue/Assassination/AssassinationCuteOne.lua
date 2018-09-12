@@ -290,7 +290,7 @@ local function runRotation()
             return false
         end
 
-        ChatOverlay(tostring(rotationDebug))
+        -- ChatOverlay(tostring(rotationDebug))
 
 --------------------
 --- Action Lists ---
