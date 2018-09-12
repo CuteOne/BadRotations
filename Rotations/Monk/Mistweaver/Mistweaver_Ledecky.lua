@@ -172,7 +172,8 @@ local function createOptions()
 		-- Essence Font
 		br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Essence Font Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
-		br.ui:createSpinnerWithout(section, "EF Minimum Mana",  40,  0,  100,  1,  "Minimum Mana to cast")
+		br.ui:createSpinnerWithout(section, "EF Minimum Mana",  40,  0,  100,  5,  "Minimum Mana to cast")
+		br.ui:createCheckbox(section, colormonk.."Essence Font Upwelling",colorWhite.."Will wait until we are at 18 Charges of Essence Font before casting.")
 		-- Revival
 		br.ui:createSpinner(section, "Revival",  60,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Revival Targets",  5,  0,  40,  1,  "Minimum Revival Targets")
@@ -247,7 +248,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
-        local mana                                          = br.player.powerPercentMana
+		local mana                                          = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk
         local php                                           = br.player.health
@@ -437,7 +438,7 @@ local function runRotation()
             ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 			if br.player.mode.detox == 1 then
 				--Detox
-				if isChecked("Detox") and not isCastingSpell(spell.essenceFont) and detox >= getValue("Detox Wait Time") then
+				if isChecked("Detox") and not isCastingSpell(spell.essenceFont) then
                     for i = 1, #br.friend do
                         for n = 1,40 do
                             local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
@@ -451,8 +452,7 @@ local function runRotation()
                         end
                     end
 				end
-			end
-			
+			end			
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             --Emergency Healing--
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------			
@@ -532,9 +532,17 @@ local function runRotation()
                 if lowest.hp <= getValue("Refreshing Jade Wind") then
                     if cast.refreshingJadeWind() then return end
                 end
+            end           
+			--Essence Font with Upwelling
+			if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and isChecked("Essence Font Upwelling") and mana >= getValue("EF Minimum Mana") then
+				if charges.essenceFont.count() == 18 then
+                	if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
+                    	if cast.essenceFont() then return end
+                	end
+                end 	
             end
-			--Essence Font
-            if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) then
+            --Essence Font
+            if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and not isChecked("Essence Font Upwelling") and getValue("EF Minimum Mana") then
                 if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
                     if cast.essenceFont() then return end
                 end
