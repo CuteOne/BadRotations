@@ -523,7 +523,11 @@ local function runRotation()
             if actionList_Fillers() then return end
           end
           --UA
-          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
+          if not moving and not cast.last.summonDarkglare() and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction()) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
+              if cast.unstableAffliction() then return end
+          end
+          -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
+          if not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers
