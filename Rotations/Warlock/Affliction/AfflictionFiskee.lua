@@ -70,6 +70,8 @@ local function createOptions()
       			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
         -- Burst target key
             br.ui:createDropdown(section,"Burst Target Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFKey for bursting current target.")
+        -- CDs with Burst target key
+            br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -485,7 +487,7 @@ local function runRotation()
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
+          if (useCDs() or isChecked("CDs With Burst Key")) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return end
           end
           --Agony
@@ -501,7 +503,7 @@ local function runRotation()
             if cast.corruption() then return end
           end
           -- actions+=/phantom_singularity
-          if #enemies.yards10t >= getOptionValue("PS Units") then
+          if #enemies.yards10t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") then
             if cast.phantomSingularity() then return end
           end
           -- actions+=/vile_taint
@@ -509,11 +511,19 @@ local function runRotation()
             if cast.vileTaint() then return end
           end
           -- actions+=/dark_soul
-          if useCDs() then
+          if useCDs() or isChecked("CDs With Burst Key") then
             if cast.darkSoul("player") then return end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
-          if not moving and ttd("target") > 2 and ((useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or not useCDs()) then
+          if not moving and ttd("target") > 2 and (((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
+              if cast.unstableAffliction() then return end
+          end
+          -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
+          if ((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) then
+            if actionList_Fillers() then return end
+          end
+          --UA
+          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers
