@@ -68,6 +68,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
+        -- Burst target key
+            br.ui:createDropdown(section,"Burst Target Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFKey for bursting current target.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -277,6 +279,8 @@ local function runRotation()
         local seedTarget = seedTarget or "target"
         local dsTarget
         local seedHit = 0
+        local seedCorruptionExist = 0
+        local seedTargetCorruptionExist = 0
         local seedTargetsHit = 1
         local lowestShadowEmbrace = lowestShadowEmbrace or "target"
 
@@ -292,16 +296,19 @@ local function runRotation()
                   lowestShadowEmbrace = thisUnit
               end
             end
-            enemies.yards10t = getEnemies(thisUnit, 10)
+            enemies.yards10t = getEnemies(thisUnit, 10, true)
             if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
               seedHit = 0
+              seedCorruptionExist = 0
               for q = 1, #enemies.yards10t do
                 local seedAoEUnit = enemies.yards10t[q]
                 if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+1 then seedHit = seedHit + 1 end
+                if debuff.corruption.exists(seedAoEUnit) then seedCorruptionExist = seedCorruptionExist + 1 end
               end
               if seedHit > seedTargetsHit then
                 seedTarget = thisUnit
                 seedTargetsHit = seedHit
+                seedTargetCorruptionExist = seedCorruptionExist
               end
             end
             if getFacing("player",thisUnit) and ttd(thisUnit) <= gcd and getHP(thisUnit) < 80 then
@@ -471,13 +478,58 @@ local function runRotation()
             if cast.shadowBolt() then return end
           end
         end
-
+    -- Action List - Burst Target
+        local function actionList_BurstTarget()
+          -- actions+=/haunt
+          if not moving then
+            if cast.haunt() then return end
+          end
+          -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
+          if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
+            if cast.summonDarkglare("player") then return end
+          end
+          --Agony
+          if ttd("target") > 10 and debuff.agony.refresh() then
+            if cast.agony() then return end
+          end
+          --Siphon life
+          if ttd("target") > 10 and debuff.siphonLife.refresh() and (not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) then
+              if cast.siphonLife() then return end
+          end
+          --Corruption
+          if ttd("target") > 10 and debuff.corruption.refresh() then
+            if cast.corruption() then return end
+          end
+          -- actions+=/phantom_singularity
+          if #enemies.yards10t >= getOptionValue("PS Units") then
+            if cast.phantomSingularity() then return end
+          end
+          -- actions+=/vile_taint
+          if not moving then
+            if cast.vileTaint() then return end
+          end
+          -- actions+=/dark_soul
+          if useCDs() then
+            if cast.darkSoul("player") then return end
+          end
+          -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
+          if not moving and ttd("target") > 2 and ((useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or not useCDs()) then
+              if cast.unstableAffliction() then return end
+          end
+          -- actions+=/call_action_list,name=fillers
+          if actionList_Fillers() then return end
+        end
+    -- Action List - Rotation
         local function actionList_Rotation()
           -- actions+=/drain_soul,interrupt_global=1,chain=1,cycle_targets=1,if=target.time_to_die<=gcd&soul_shard<5
           if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 then
               if cast.drainSoul(dsTarget) then
                 dsInterrupt = false
                 return end
+          end
+          -- apply seed if corruption is missing on % of seed targets
+          if not moving and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption() and seedTargetCorruptionExist / seedTargetsHit <= 0.33 then
+            if cast.seedOfCorruption(seedTarget) then return end
           end
           -- actions+=/haunt
           if not moving then
@@ -623,15 +675,15 @@ local function runRotation()
           end
           -- actions+=/berserking
           -- actions+=/unstable_affliction,if=soul_shard>=5
-          if shards >= 5 and not moving and ttd() > 2 + cast.time.unstableAffliction() then
+          if shards >= 5 and not moving and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
-          if useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction() and not moving then --TO-DO add darkglare check
+          if not moving and ttd("target") > 2 and ((useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or not useCDs()) then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
-          if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd() > cd.summonDarkglare.remain()) or mode.multidot == 2 then
+          if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) or mode.multidot == 2 then
             if actionList_Fillers() then return end
           end
           -- actions+=/seed_of_corruption,if=variable.spammable_seed
@@ -648,11 +700,11 @@ local function runRotation()
             end
           end
           -- actions+=/unstable_affliction,if=!prev_gcd.1.summon_darkglare&!variable.spammable_seed&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+cast_time&active_enemies=1|target.time_to_die<=8+cast_time*soul_shard)
-          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd() > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd() <= 8 + cast.time.unstableAffliction() * shards)) then
+          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd() > 2 + cast.time.unstableAffliction() then
+          if not spammableSeed and not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
@@ -808,6 +860,10 @@ local function runRotation()
         -- Pet Attack
                     if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
                         PetAttack()
+                    end
+                    --
+                    if isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus()) then
+                        if actionList_BurstTarget() then return end
                     end
                     -- rotation
                     if actionList_Rotation() then return end
