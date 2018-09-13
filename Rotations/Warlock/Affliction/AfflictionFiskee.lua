@@ -72,6 +72,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Burst Target Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFKey for bursting current target.")
         -- CDs with Burst target key
             br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
+        -- Shadowfury key
+            br.ui:createDropdown(section,"Shadowfury Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFShadowfury stun with logic to hit most mobs.")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -888,7 +890,10 @@ local function runRotation()
                     if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
-                    --
+                    if isChecked("Shadowfury Key") and (SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus()) then
+                      if cast.shadowfury("best",false,1,8) then return end
+                    end
+                    -- Burst
                     if isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus()) then
                         if actionList_BurstTarget() then return end
                     end
