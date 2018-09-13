@@ -204,6 +204,7 @@ Panglo |   Full  |  8.0  |    100%| :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Cpoworks | Inactive | 7.1.5 |    70% | :x:
+Ledecky | Limited | 8.0 |    75% | :interrobang:
 
 - Windwalker
 
@@ -245,7 +246,7 @@ Aura       |     Full      | 8.0 |    ??% |   :interrobang:
 author          | support | patch | status | raidable?
 :-------------- | :-----: | :---: | -----: | :-------:
 Odan            |  Unk    |  8.0  |   ??%  | :interrobang:
-Ledecky         |  Full   |  8.0  |   ??%  | :interrobang:
+Ledecky         |  Full   |  8.0  |   95%  | :white_check_mark:
 
 - Shadow
 
