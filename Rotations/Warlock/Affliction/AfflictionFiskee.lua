@@ -521,7 +521,7 @@ local function runRotation()
             if cast.darkSoul("player") then return end
           end
           -- actions+=/berserking
-          if isChecked("Racial") and race == "Troll" and ((useCDs() or isChecked("CDs With Burst Key")) and not moving then
+          if isChecked("Racial") and race == "Troll" and useCDs() or isChecked("CDs With Burst Key") and not moving then
             if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
@@ -706,7 +706,7 @@ local function runRotation()
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
-          if not moving and ttd("target") > 2 and ((useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or not useCDs()) then
+          if not moving and ttd("target") > 2 and useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction() and not mode.multidot == 2 then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
