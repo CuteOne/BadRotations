@@ -417,7 +417,7 @@ local function runRotation()
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
-        if isChecked("Racial") then
+        if isChecked("Racial") and not moving then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" then
                 if race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
@@ -517,8 +517,12 @@ local function runRotation()
             if cast.vileTaint() then return end
           end
           -- actions+=/dark_soul
-          if useCDs() or isChecked("CDs With Burst Key") then
+          if useCDs() or isChecked("CDs With Burst Key") and not moving then
             if cast.darkSoul("player") then return end
+          end
+          -- actions+=/berserking
+          if isChecked("Racial") and race == "Troll" and ((useCDs() or isChecked("CDs With Burst Key")) and not moving then
+            if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
           if not moving and ttd("target") > 2 and (((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
@@ -690,11 +694,11 @@ local function runRotation()
             if cast.vileTaint() then return end
           end
           -- actions+=/dark_soul
-          if useCDs() then
+          if useCDs() and not moving then
             if cast.darkSoul("player") then return end
           end
           -- actions+=/berserking
-          if isChecked("Racial") and race == "Troll" and useCDs() then
+          if isChecked("Racial") and race == "Troll" and useCDs() and not moving then
             if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=soul_shard>=5
