@@ -238,6 +238,8 @@ local function runRotation()
         local energyRegenCombined = energyRegen + (debuff.garrote.count() + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100))
         -- variable,name=single_target,value=spell_targets.fan_of_knives<2
         local singleTarget = ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Fan of Knives")) or (mode.rotation == 3 and #enemies.yards8 > 0))
+        -- variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
+        local useFiller = comboDeficit > 1 or energyDeficit <= 25 + energyRegenCombined or not singleTarget
 
         -- Exsanguinated Bleeds
         if not debuff.rupture.exists(units.dyn5) then exRupture = false end
@@ -322,13 +324,11 @@ local function runRotation()
                 end
             end
         -- Poisoned Knife
-            if isChecked("Poisoned Knife") and cast.able.poisonedKnife() and not buff.stealth.exists() and not (IsMounted() or IsFlying()) then
+            if isChecked("Poisoned Knife") and cast.able.poisonedKnife() and inCombat and not buff.stealth.exists() and not (IsMounted() or IsFlying()) then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     local distance = getDistance(thisUnit)
-                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 8
-                        and ((inCombat and isValidUnit(thisUnit)) or UnitIsUnit(thisUnit,"target"))
-                    then
+                    if not (debuff.deadlyPoison.exists(thisUnit) or debuff.woundPoison.exists(thisUnit)) and distance > 8 then
                         if cast.poisonedKnife(thisUnit) then return end
                     end
                 end
@@ -613,21 +613,22 @@ local function runRotation()
             then
                 if cast.envenom() then return end
             end
-        -- Variable
-            -- variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-            local useFiller = comboDeficit > 1 or energyDeficit <= 25 + energyRegenCombined or not singleTarget
+        -- Poisoned Knife
             -- poisoned_knife,if=variable.use_filler&buff.sharpened_blades.stack>=29
             if isChecked("Poisoned Knife") and cast.able.poisonedKnife() and (useFiller and buff.sharpenedBlades.stack() >= 29) then
                 if cast.poisonedKnife() then return end
             end
+        -- Fan of Knives
             -- fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=2+stealthed.rogue|buff.the_dreadlords_deceit.stack>=29)
             if cast.able.fanOfKnives() and (useFiller and (buff.hiddenBlades.stack() >= 19 or #enemies.yards8 >= getOptionValue("Fan of Knives") + stealthed or buff.theDreadlordsDeceit.stack() >= 29)) then
                 if cast.fanOfKnives() then return end
             end
+        -- Blindside
             -- blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled)
             if cast.able.blindside() and (useFiller and (buff.blindside.exists() or not talent.venomRush)) then
                 if cast.blindside() then return end
             end
+        -- Mutilate
             -- mutilate,if=variable.use_filler
             if cast.able.mutilate() and (useFiller) then
                 if cast.mutilate() then return end

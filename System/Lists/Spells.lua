@@ -2231,6 +2231,7 @@ br.lists.spells = {
                 envenom                     = 32645,
                 hiddenBlades                = 270070,
                 leechingPoison              = 108211,
+                sharpenedBlades             = 272916,
                 stealth                     = 1784,
                 subterfuge                  = 115192,
                 theDreadlordsDeceit         = 208692,
@@ -2268,6 +2269,7 @@ br.lists.spells = {
                 venomRush                   = 152152,
             },
             traits                          = {
+                sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
             }
         },
