@@ -256,6 +256,8 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	superReaderFrame:RegisterEvent("ENCOUNTER_START")
+	superReaderFrame:RegisterEvent("ENCOUNTER_END")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
@@ -481,6 +483,18 @@ function br.read.commonReaders()
 				elseif deadPet == true then
 					deadPet = false
 				end
+			end
+		end
+		if event == "ENCOUNTER_START" then
+			local eID = select(1,...)
+			if eID and eID == 2141 then -- MOTHER Uldir fight
+				_brMotherFight = true
+			end 
+		end
+		if event == "ENCOUNTER_END" then
+			local eID = select(1,...)
+			if eID and eID == 2141 then -- MOTHER Uldir fight
+				_brMotherFight = false
 			end
 		end
 	end

@@ -1,3 +1,4 @@
+if _brMotherFight == nil then _brMotherFight = false end
 -- getLatency()
 function getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
@@ -48,10 +49,11 @@ end
 -- if getLineOfSight("target"[,"target"]) then
 function getLineOfSight(Unit1,Unit2)
 	if Unit2 == nil then
-		if Unit1 == "player" then
-			Unit2 = "target"
+		Unit2 = Unit1
+		if Unit2 == "player" then
+			Unit1 = "target"
 		else
-			Unit2 = "player"
+			Unit1 = "player"
 		end
 	end
 	local skipLoSTable = br.lists.los
@@ -63,8 +65,21 @@ function getLineOfSight(Unit1,Unit2)
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
+		local pX, pY,pZ = GetObjectPosition("player")
 		if TraceLine(X1,Y1,Z1 + 2,X2,Y2,Z2 + 2, 0x10) == nil then
-			return true
+			if _brMotherFight == true then
+				if pX < -108 and X2 < -108 then
+					return true
+				elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
+					return true
+				elseif pX > -54 and X2 > -54 then
+					return true
+				else
+					return false
+				end
+			else
+				return true
+			end
 		else
 			return false
 		end
