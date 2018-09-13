@@ -90,11 +90,11 @@ local function createOptions()
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
             -- Exsanguinate
-            br.ui:createCheckbox(section, "Exsanguinate")
+            br.ui:createDropdownWithout(section, "Exsanguinate", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Exsanguinate.")
             -- Marked For Death
             br.ui:createDropdown(section, "Marked For Death", {"|cff00FF00Target", "|cffFFDD00Lowest"}, 1, "|cffFFBB00Health Percentage to use at.")
             -- Toxic Blade
-            br.ui:createCheckbox(section, "Toxic Blade")
+            br.ui:createDropdownWithout(section, "Toxic Blade", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Toxic Blade.")
             -- Vanish
             br.ui:createCheckbox(section, "Vanish")
             -- Vendetta
@@ -488,15 +488,19 @@ local function runRotation()
                 end
         -- Exsanguinate
                 -- exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-                if isChecked("Exsanguinate") and cast.able.exsanguinate() and (useCDs() or burst)
-                    and (debuff.rupture.remain(units.dyn5) > 4 + (4 * comboMax) and not debuff.garrote.refresh(units.dyn5))
-                then
-                    if cast.exsanguinate() then return end
+                if getOptionValue("Exsanguinate") == 1 or (getOptionValue("Exsanguinate") == 2 and useCDs()) or burst then
+                    if cast.able.exsanguinate() and (debuff.rupture.remain(units.dyn5) > 4
+                        + (4 * comboMax) and not debuff.garrote.refresh(units.dyn5))
+                    then
+                        if cast.exsanguinate() then return end
+                    end
                 end
         -- Toxic Blade
                 -- toxic_blade,if=dot.rupture.ticking
-                if isChecked("Toxic Blade") and cast.able.toxicBlade() and (useCDs() or burst) and (debuff.rupture.exists(units.dyn5)) then
-                    if cast.toxicBlade() then return end
+                if getOptionValue("Toxic Blade") == 1 or (getOptionValue("Toxic Blade") == 2 and useCDs()) or burst then
+                    if cast.able.toxicBlade() and (debuff.rupture.exists(units.dyn5)) then
+                        if cast.toxicBlade() then return end
+                    end
                 end
             end -- End Cooldown Usage Check
         end -- End Action List - Cooldowns
