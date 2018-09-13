@@ -186,7 +186,7 @@ local function runRotation()
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
+        local race                                          = br.player.race
         local shards                                        = br.player.power.soulShards.amount()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
@@ -417,8 +417,14 @@ local function runRotation()
 	-- Action List - Cooldowns
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
-        if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "BloodElf" or br.player.race == "Troll") then
-            if cast.racial() then return end
+        if isChecked("Racial") then
+            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" then
+                if race == "LightforgedDraenei" then
+                    if cast.racial("target","ground") then return true end
+                else
+                    if cast.racial("player") then return true end
+                end
+            end
         end
         if isChecked("Trinkets") then
             if canUse(13) then
@@ -688,6 +694,9 @@ local function runRotation()
             if cast.darkSoul("player") then return end
           end
           -- actions+=/berserking
+          if isChecked("Racial") and race == "Troll" and useCDs() then
+            if cast.racial("player") then return true end
+          end
           -- actions+=/unstable_affliction,if=soul_shard>=5
           if shards >= 5 and not moving and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
