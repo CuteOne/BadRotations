@@ -2428,9 +2428,9 @@ br.lists.spells = {
                 weaponmaster                = 193537,
             },
             traits                          = {
-                sharpenedBlades             = 272911,
                 bladeInTheShadows           = 275896,
                 nightsVengeance             = 273418,
+                sharpenedBlades             = 272911,
             }
         },
         -- All

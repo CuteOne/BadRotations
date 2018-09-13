@@ -217,6 +217,7 @@ local function runRotation()
         local stealthingAll                                             = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowmeld.exists() or br.player.buff.shadowDance.exists()
         local stealthingRogue                                           = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.shadowDance.exists()
         local talent                                                    = br.player.talent
+        local trait                                                     = br.player.traits
         local ttd                                                       = getTTD
         local units                                                     = br.player.units
 	    local use                                                       = br.player.use
@@ -265,15 +266,12 @@ local function runRotation()
         if stealthingAll then stealthedAll = 1 else stealthedAll = 0 end
         if talent.subterfuge then subty = 1 else subty = 2 end
         if talent.vigor then vigorous = 1 else vigorous = 0 end
+        if talent.secretTechnique then secretive = 1 else secretive = 0 end
         -- Timers
         if vanishTime == nil then vanishTime = GetTime() end
         if ShDCdTime == nil then ShDCdTime = GetTime() end
         if ShdMTime == nil then ShdMTime = GetTime() end
         -- SimC Specific Variables
-        -- azerite.sharpened_blades.rank == 2
-        local sharpenedBlades2 = 0
-        -- azerite.sharpened_blades.rank == 3
-        local sharpenedBlades3 = 0
         -- variable,name=stealth_threshold,value=60+talent.vigor.enabled*35+talent.master_of_shadows.enabled*10
         local stealthThreshold = 60 + vigorous * 35 + masterShadow * 10
         -- variable,name=shd_threshold,value=cooldown.shadow_dance.charges_fractional>=1.75
@@ -304,6 +302,19 @@ local function runRotation()
             else
                 return false
             end
+        end
+        local function lowestTTD()
+            lowestUnit = "target"
+            lowestTTD = 999
+            for i = 1, #enemies.yards30 do
+                local thisUnit = enemies.yards30[i]
+                local thisTTD = ttd(thisUnit) or 999
+                if ttd(thisUnit) < lowestTTD then
+                    lowestUnit = thisUnit
+                    lowestTTD = thisTTD
+                end
+            end
+            return lowestUnit
         end
 
 --------------------
@@ -414,9 +425,9 @@ local function runRotation()
             -- if useCDs() then Print("Cooldowns") end
             if getDistance(units.dyn5) < 5 then
         -- Potion
-                -- potion,if=buff.bloodlust.react|target.time_to_die<=60|(buff.vanish.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=30))
+                -- potion,if=buff.bloodlust.react|target.time_to_die<=60|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
                 if useCDs() and isChecked("Agi-Pot") and canUse(163223) and inRaid then
-                    if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.vanish.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 30)) then
+                    if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.symbolsOfDeath.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
                         useItem(163223)
                     end
                 end
@@ -430,11 +441,11 @@ local function runRotation()
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,if=stealthed.rogue
-                -- berserking,if=stealthed.rogue
-                -- fireblood,if=stealthed.rogue
-                -- ancestral_call,if=stealthed.rogue
-                if useCDs() and isChecked("Racial") and cast.able.racial() and stealthingRogue
+                -- blood_fury,if=buff.symbols_of_death.up
+                -- berserking,if=buff.symbols_of_death.up
+                -- fireblood,if=buff.symbols_of_death.up
+                -- ancestral_call,if=buff.symbols_of_death.up
+                if useCDs() and isChecked("Racial") and cast.able.racial() and buff.symbolsOfDeath.exists()
                     and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc")
                 then
                     if cast.racial() then return end
@@ -447,8 +458,8 @@ local function runRotation()
                     end
                 end
         -- Marked For Death
-                -- marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit
-                -- marked_for_death,if=raid_event.adds.in>40&!stealthed.all&combo_points.deficit>=cp_max_spend
+                -- marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.all&combo_points.deficit>=cp_max_spend)
+                -- marked_for_death,if=raid_event.adds.in>30-raid_event.adds.duration&!stealthed.all&combo_points.deficit>=cp_max_spend
                 if isChecked("Marked For Death") and cast.able.markedForDeath() then
                     if getOptionValue("Marked For Death") == 1 then
                         if ttd("target") < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
@@ -456,13 +467,8 @@ local function runRotation()
                         end
                     end
                     if getOptionValue("Marked For Death") == 2 then
-                        for i = 1, #enemies.yards30 do
-                            local thisUnit = enemies.yards30[i]
-                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                                if ttd(thisUnit) < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
-                                    if cast.markedForDeath(thisUnit) then return end
-                                end
-                            end
+                        if ttd(lowestTTD()) < comboDeficit or (not stealthingAll and comboDeficit >= comboMax) then
+                            if cast.markedForDeath(lowestTTD()) then return end
                         end
                     end
                 end
@@ -513,12 +519,12 @@ local function runRotation()
                     end
                 end
         -- Shadow Dance
-                -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets>=4&cooldown.symbols_of_death.remains>10)
+                -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
                 -- shadow_dance,if=target.time_to_die<cooldown.symbols_of_death.remains
                 if (getOptionValue("Shadow Dance") == 1 and mode.shadowDance == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs ())) and mode.shadowDance == 1 and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists() then
                     if ((not talent.darkShadow or debuff.nightblade.remain(units.dyn5) >= 5 + subty)
                         and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2
-                            or ((mode.rotation == 1 and #enemies.yards5 >= 4) or (mode.rotation == 2 and #enemies.yards5 > 0)) and cd.symbolsOfDeath.remain() > 10))
+                            or ((mode.rotation == 1 and #enemies.yards10 >= 4) or (mode.rotation == 2 and #enemies.yards10 > 0)) and cd.symbolsOfDeath.remain() > 10))
                     then
                         if cast.shadowDance() then ShDCdTime = GetTime(); return end
                     end
@@ -531,19 +537,24 @@ local function runRotation()
     -- Action List - Finishers
         local function actionList_Finishers()
             -- Print("Finishers")
+        -- Eviscerate
+            -- eviscerate,if=talent.shadow_focus.enabled&buff.nights_vengeance.up&spell_targets.shuriken_storm>=2+3*talent.secret_technique.enabled
+            if cast.able.eviscerate() and (talent.shadowFocus and buff.nightsVengeance.exists() and #enemies.yards10 >= 2 + 3 * secretive) then
+                if cast.eviscerate() then return end
+            end
         -- Nightblade
             -- nightblade,if=(!talent.dark_shadow.enabled|!buff.shadow_dance.up)&target.time_to_die-remains>6&remains<tick_time*2&(spell_targets.shuriken_storm<4|!buff.symbols_of_death.up)
             if cast.able.nightblade() and ((not talent.darkShadow or not buff.shadowDance.exists()) and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > 6
-                and debuff.nightblade.remain(units.dyn5) < 2 * 2 and (#enemies.yards5 < 4 or not buff.symbolsOfDeath.exists()))
+                and debuff.nightblade.remain(units.dyn5) < 2 * 2 and (#enemies.yards10 < 4 or not buff.symbolsOfDeath.exists()))
             then
                 if cast.nightblade() then return end
             end
-            -- nightblade,cycle_targets=1,if=spell_targets.shuriken_storm>=2&(spell_targets.shuriken_storm<=5|talent.secret_technique.enabled)&!buff.shadow_dance.up&target.time_to_die>=(5+(2*combo_points))&refreshable
+            -- nightblade,cycle_targets=1,if=spell_targets.shuriken_storm>=2&(talent.secret_technique.enabled|azerite.nights_vengeance.enabled|spell_targets.shuriken_storm<=5)&!buff.shadow_dance.up&target.time_to_die>=(5+(2*combo_points))&refreshable
             if isChecked("Nightblade Multidot") and cast.able.nightblade() then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if (#enemies.yards5 >= 2 and (#enemies.yards5 <= 5 or talent.secretTechnique)
+                    if (multidot or (UnitIsUnit(thisUnit,units.dyn10) and not multidot)) then
+                        if (#enemies.yards10 >= 2 and (talent.secretTechnique or trait.nightsVengeance.active() or #enemies.yards10 <= 5)
                             and not buff.shadowDance.exists() and ttd(thisUnit) >= (5 + (2 * combo)) and debuff.nightblade.refresh(thisUnit))
                         then
                             if cast.nightblade(thisUnit) then return end
@@ -551,23 +562,19 @@ local function runRotation()
                     end
                 end
             end
-            -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5+(combo_points=6*2)&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
-            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5 and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > cd.symbolsOfDeath.remain() + 5 then
-                 if cast.nightblade(units.dyn5) then return end
-            end
             -- nightblade,if=remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
-            if cast.able.nightblade() and (debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath.remain() + 10
-                and cd.symbolsOfDeath.remain() <= 5 and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > cd.symbolsOfDeath.remain() + 5)
+            if debuff.nightblade.remain(units.dyn5) < cd.symbolsOfDeath.remain() + 10 and cd.symbolsOfDeath.remain() <= 5
+                and ttd(units.dyn5) - debuff.nightblade.remain(units.dyn5) > cd.symbolsOfDeath.remain() + 5
             then
-                if cast.nightblade() then return end
+                 if cast.nightblade(units.dyn5) then return end
             end
         -- Secret Technique
             -- secret_technique,if=buff.symbols_of_death.up&(!talent.dark_shadow.enabled|spell_targets.shuriken_storm<2|buff.shadow_dance.up)
-            if cast.able.secretTechnique() and (buff.symbolsOfDeath.exists() and (not talent.darkShadow or #enemies.yards5 < 2 or buff.shadowDance.exists())) then
+            if cast.able.secretTechnique() and (buff.symbolsOfDeath.exists() and (not talent.darkShadow or #enemies.yards10 < 2 or buff.shadowDance.exists())) then
                 if cast.secretTechnique() then return end
             end
             -- secret_technique,if=spell_targets.shuriken_storm>=2+talent.dark_shadow.enabled+talent.nightstalker.enabled
-            if cast.able.secretTechnique() and (#enemies.yards5 >= 2 + darkShadow + nightstalker) then
+            if cast.able.secretTechnique() and (#enemies.yards10 >= 2 + darkShadow + nightstalker) then
                 if cast.secretTechnique() then return end
             end
         -- Eviscerate
@@ -589,11 +596,20 @@ local function runRotation()
             if comboDeficit <= 1 - deepVanish then
                 if actionList_Finishers() then return end
             end
+        -- Shuriken Toss
+            -- shuriken_toss,if=buff.sharpened_blades.stack>=29
+            if cast.able.shurikenToss() and (buff.sharpenedBlades.stack() >= 29) then
+                if cast.shurikenToss() then return end
+            end
         -- Shadowstrike
             -- shadowstrike,cycle_targets=1,if=talent.secret_technique.enabled&talent.find_weakness.enabled&debuff.find_weakness.remains<1&spell_targets.shuriken_storm=2&target.time_to_die-remains>6
             if cast.able.shadowstrike() and (talent.secretTechnique and talent.findWeakness
-                and debuff.findWeakness.remain(units.dyn5) < 1 and #enemies.yards5 == 2 and ttd(units.dyn5) - debuff.findWeakness.remain(units.dyn5) > 6)
+                and debuff.findWeakness.remain(units.dyn10) < 1 and #enemies.yards10 == 2 and ttd(units.dyn10) - debuff.findWeakness.remain(units.dyn10) > 6)
             then
+                if cast.shadowstrike() then return end
+            end
+            -- shadowstrike,if=!talent.deeper_stratagem.enabled&azerite.blade_in_the_shadows.rank=3&spell_targets.shuriken_storm=3
+            if cast.able.shadowstrike() and (not talent.deeperStratagem and trait.bladeInTheShadows.rank() == 3 and #enemies.yards10 == 3) then
                 if cast.shadowstrike() then return end
             end
         -- Shuriken Storm
@@ -611,8 +627,10 @@ local function runRotation()
         local function actionList_Generators()
             -- Print("Generator")
         -- Shuriken Toss
-            -- shuriken_toss,if=buff.sharpened_blades.stack>=29&spell_targets.shuriken_storm<=1+3*azerite.sharpened_blades.rank=2+4*azerite.sharpened_blades.rank=3
-            if cast.able.shurikenToss() and (buff.sharpenedBlades.stack() >= 29 and #enemies.yards10 <= 1 + 3 *sharpenedBlades2 + 4 * sharpenedBlades3) then
+            -- shuriken_toss,if=!talent.nightstalker.enabled&(!talent.dark_shadow.enabled|cooldown.symbols_of_death.remains>10)&buff.sharpened_blades.stack>=29&spell_targets.shuriken_storm<=(3*azerite.sharpened_blades.rank)
+            if cast.able.shurikenToss() and (not talent.nightstalker and (not talent.darkShadow or cd.symbolsOfDeath.remain() > 10)
+                and buff.sharpenedBlades.stack() >= 29 and #enemies.yards10 <= (3 * trait.sharpenedBlades.rank()))
+            then
                 if cast.shurikenToss() then return end
             end
         -- Shuriken Storm
@@ -744,6 +762,10 @@ local function runRotation()
         -- Finishers
                     -- call_action_list,name=finish,if=combo_points>=4+talent.deeper_stratagem.enabled|target.time_to_die<=1&combo_points>=3
                     if combo >= 4 + deepStrat or ttd(units.dyn5) <= 1 and combo >= 3 then
+                        if actionList_Finishers() then return end
+                    end
+                    -- call_action_list,name=finish,if=spell_targets.shuriken_storm=4&combo_points>=4
+                    if #enemies.yards10 == 4 and combo >= 4 then
                         if actionList_Finishers() then return end
                     end
         -- Generators
