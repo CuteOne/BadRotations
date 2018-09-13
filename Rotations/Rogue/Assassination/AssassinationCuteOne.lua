@@ -425,7 +425,7 @@ local function runRotation()
                 -- berserking,if=debuff.vendetta.up
                 -- fireblood,if=debuff.vendetta.up
                 -- ancestral_call,if=debuff.vendetta.up
-                if isChecked("Racial") and cast.able.racial() and (useCDs() or burst) and (debuff.vendetta.exists(units.dyn5)
+                if isChecked("Racial") and cast.able.racial() and (debuff.vendetta.exists(units.dyn5)
                     and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
                 then
                     if cast.racial() then return end
@@ -863,7 +863,7 @@ local function runRotation()
                     -- arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
                     -- arcane_pulse
                     -- lights_judgment
-                    if cast.able.racial() and ((race == "Nightborne" or race == "LightforgedDraenei")
+                    if isChecked("Racial") and cast.able.racial() and ((race == "Nightborne" or race == "LightforgedDraenei")
                         or (race == "BloodElf" and energyDeficit >= 15 + energyRegenCombined))
                     then
                         if cast.racial() then return end
