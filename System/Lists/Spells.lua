@@ -1909,6 +1909,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 divineShield                = 642,
+                blessingOfProtection        = 1022,                
             },
             debuffs                         = {
                 judgment                    = 197277,
