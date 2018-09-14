@@ -523,7 +523,7 @@ local function runRotation()
         -- Xuen
                         if not XUEN then
                             castOpener("invokeXuenTheWhiteTiger","XUEN",1)
-        -- Fist of the White Tiget
+        -- Fist of the White Tiger
                         elseif XUEN and not FoWT then
                             castOpener("fistOfTheWhiteTiger","FoWT",2)
         -- Tiger Palm 1
@@ -531,19 +531,13 @@ local function runRotation()
                             castOpener("tigerPalm","TP1",3)
         -- Touch of Death
                         elseif TP1 and not ToD then
-                            if not debuff.touchOfDeath.exists() then
-                                castOpener("touchOfDeath","ToD",4);
-                                SerenityTest = GetTime()
-                            else
-                                Print("4: Touch of Death (Uncastable)");
-                                ToD = true
-                            end
+                            castOpener("touchOfDeath","ToD",4);
         -- Storm, Earth, and Fire
                         elseif ToD and not SEF then
                             if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
                                 castOpener("stormEarthAndFire","SEF",5)
                             else
-                                castOpener("5: Storm, Earth, and Fire (Uncastable)");
+                                Print("5: Storm, Earth, and Fire (Uncastable)");
                                 SEF = true
                             end
         -- Rising Sun Kick 1
@@ -570,7 +564,6 @@ local function runRotation()
                         end
                     end
                 end -- End WDP + FoTW + Bloodlust
-
                 if talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger and not hasBloodLust() then
                     if getDistance("target") <= 5 then
         -- Xuen
@@ -584,19 +577,13 @@ local function runRotation()
                             castOpener("tigerPalm","TP1",3)
         -- Touch of Death
                         elseif TP1 and not ToD then
-                            if not debuff.touchOfDeath.exists() then
-                                castOpener("touchOfDeath","ToD",4);
-                                SerenityTest = GetTime()
-                            else
-                                Print("4: Touch of Death (Uncastable)");
-                                ToD = true
-                            end
+                            castOpener("touchOfDeath","ToD",4);
         -- Storm, Earth, and Fire
                         elseif ToD and not SEF then
                             if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
                                 castOpener("stormEarthAndFire","SEF",5)
                             else
-                                castOpener("5: Storm, Earth, and Fire (Uncastable)");
+                                Print("5: Storm, Earth, and Fire (Uncastable)");
                                 SEF = true
                             end
         -- Rising Sun Kick 1
@@ -991,7 +978,7 @@ local function runRotation()
                     end
         -- Touch of Karma
                     -- if FightDurationSec - FightSecRemain > 10
-                    if cast.able.touchOfKarma() and combatTime > 10 then
+                    if isChecked("Touch of Karma") and cast.able.touchOfKarma() and combatTime > 10 then
                         if cast.touchOfKarma() then return true end
                     end
         --  Invoke Xuen
