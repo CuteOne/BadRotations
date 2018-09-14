@@ -58,6 +58,8 @@ local function createOptions()
 		br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFFeng","|cffFFFFFFSim"}, 1, "|cffFFFFFFSet APL Mode to use.")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
+		-- Auto cancel Blessing of Protection
+		br.ui:createCheckbox(section, "Auto cancel BoP")		
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
@@ -247,6 +249,15 @@ local function runRotation()
 			local lowestHP = getHP(lowestUnit)
 			if thisHP < lowestHP then
 				lowestUnit = thisUnit
+			end
+		end
+		-- Auto cancel Blessing of Protection
+		if isChecked("Auto cancel BoP") then
+			if buff.blessingOfProtection.exists() then
+				if cast.handOfReckoning("target") then return end
+			end		
+			if buff.blessingOfProtection.exists() and getDebuffRemain("target",62124) <= 0.2 then
+				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
 		--------------------
