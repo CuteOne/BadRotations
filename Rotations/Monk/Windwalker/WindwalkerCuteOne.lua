@@ -263,12 +263,13 @@ local function runRotation()
             TP4 = false
             RSK1 = false
             RSK2 = false
-            SotW = false
+            FoWT = false
             FoF1 = false
             SCK = false
             BOK = false
             SEF = false
             WDP = false
+            XUEN = false
             opener = false
         end
 
@@ -516,18 +517,18 @@ local function runRotation()
                         end
                     end
                 end
-                if talent.whirlingDragonPunch and talent.energizingElixir then
-                    -- TP1 -> CW1 -> TP2 -> TOD1 -> SEF1 -> RSK1 -> SOTW1 -> EE1 -> FOF1 -> WDP1 -> TP3 -> RSK2 -> BOK1
+
+                if talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger and hasBloodLust() then
                     if getDistance("target") <= 5 then
-        -- Tiger Palm
-                        if not TP1 then
-                            castOpener("tigerPalm","TP1",1)
-        -- Chi Wave
-                        elseif TP1 and not CWIR then
-                            castOpener("chiWave","CWIR",2)
-        -- Tiger Palm 2
-                        elseif CWIR and not TP2 then
-                            castOpener("tigerPalm","TP2",3)
+        -- Xuen
+                        if not XUEN then
+                            castOpener("invokeXuenTheWhiteTiger","XUEN",1)
+        -- Fist of the White Tiget
+                        elseif XUEN and not FoWT then
+                            castOpener("fistOfTheWhiteTiger","FoWT",2)
+        -- Tiger Palm 1
+                        elseif FoWT and not TP1 then
+                            castOpener("tigerPalm","TP1",3)
         -- Touch of Death
                         elseif TP1 and not ToD then
                             if not debuff.touchOfDeath.exists() then
@@ -545,129 +546,78 @@ local function runRotation()
                                 castOpener("5: Storm, Earth, and Fire (Uncastable)");
                                 SEF = true
                             end
-        -- Rising Sun Kick
+        -- Rising Sun Kick 1
                         elseif SEF and not RSK1 then
                             castOpener("risingSunKick","RSK1",6)
-        -- Fist of the White Tiger
-                        elseif RSK1 and not SotW and getDistance(units.dyn5) <= 5 then
-                            castOpener("fistOfTheWhiteTiger","SotW",7)
-        -- Energizing Elixir
-                        elseif SotW and not EE then
-                            if getOptionValue("Energizing Elixir") ~= 3 then
-                                castOpener("energizingElixir","EE",8)
-                            else
-                                Print("8: Energizing Elixir (Uncastable)");
-                                EE = true
-                            end
-        -- Fists of Fury
-                        elseif EE and not FoF1 then
-                            castOpener("fistsOfFury","FoF1",9)
+        -- Tiger Palm 2
+                        elseif RSK1 and not TP2 then
+                            castOpener("tigerPalm","TP2",7)
+        -- Fists of Fury 1
+                        elseif TP2 and not FoF1 then
+                            castOpener("fistsOfFury","FoF1",8)
         -- Whirling Dragon Punch
-                        elseif FoF1 and not WDP and getDistance(units.dyn5) <= 5 then
-                            castOpener("whirlingDragonPunch","WDP",10)
-        -- Tiger Palm
+                        elseif FoF1 and not WDP then
+                            castOpener("whirlingDragonPunch","WDP",9)
+        -- Tiger Palm 3
                         elseif WDP and not TP3 then
-                            castOpener("tigerPalm","TP3",11)
-        -- Rising Sun Kick
-                        elseif WDP and not RSK2 then
-                            castOpener("risingSunKick","RSK2",12)
-        -- Blackout Kick
-                        elseif RSK2 and not BOK then
-                            castOpener("blackoutKick","BOK",13)
-                        elseif BOK then
+                            castOpener("tigerPalm","TP3",10)
+        -- Rising Sun Kick 2
+                        elseif TP3 and not RSK2 then
+                            castOpener("risingSunKick","RSK2",11)
+                        elseif RSK2 then
                             Print("Opener Complete")
                             opener = true
                         end
                     end
-                end -- End WDP + EE non-tier
-                if talent.serenity then
-                    -- TP -> ToD -> Serenity + RSK -> SotWL ->  FoF -> RSK -> SCK -> BoK (If it will fit in Serenity)
-        -- Chi Wave (In Range)
-                    if not iRchiWave then
-                        if getDistance("target") < 25 then
-                            castOpener("chiWave","iRchiWave",1)
-                        else
-                            Print("1: Chi Wave (Uncastable)");
-                            iRchiWave = true
-                        end
-                    elseif getDistance("target") < 5 then
-        -- Tiger Palm
-                        if iRchiWave and not TP1 then
-                            castOpener("tigerPalm","TP1",2)
+                end -- End WDP + FoTW + Bloodlust
+
+                if talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger and not hasBloodLust() then
+                    if getDistance("target") <= 5 then
+        -- Xuen
+                        if not XUEN then
+                            castOpener("invokeXuenTheWhiteTiger","XUEN",1)
+        -- Fist of the White Tiget
+                        elseif XUEN and not FoWT then
+                            castOpener("fistOfTheWhiteTiger","FoWT",2)
+        -- Tiger Palm 1
+                        elseif FoWT and not TP1 then
+                            castOpener("tigerPalm","TP1",3)
         -- Touch of Death
                         elseif TP1 and not ToD then
                             if not debuff.touchOfDeath.exists() then
-                                castOpener("touchOfDeath","ToD",3);
+                                castOpener("touchOfDeath","ToD",4);
                                 SerenityTest = GetTime()
                             else
-                                Print("3: Touch of Death (Uncastable)");
+                                Print("4: Touch of Death (Uncastable)");
                                 ToD = true
                             end
-        -- Serenity
-                        elseif ToD and not SER then
-                            if GetTime() >= SerenityTest + 0.7 and getOptionValue("Serenity") ~= 3 then
-                                castOpener("serenity","SER",4)
+        -- Storm, Earth, and Fire
+                        elseif ToD and not SEF then
+                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
+                                castOpener("stormEarthAndFire","SEF",5)
                             else
-                                Print("4: Serenity (Uncastable)");
-                                SER = true
+                                castOpener("5: Storm, Earth, and Fire (Uncastable)");
+                                SEF = true
                             end
-        -- Rising Sun Kick
-                        elseif SER and not RSK1 then
-                            if buff.serenity.exists() then
-                                castOpener("risingSunKick","RSK1",5)
-                            else
-                                Print("5: Rising Sun Kick 1 (Uncastable)");
-                                RSK1 = true
-                            end
-        -- Fist of the White Tiger
-                        elseif RSK1 and not SotW and getDistance(units.dyn5) < 5 then
-                            if buff.serenity.exists() then
-                                castOpener("fistOfTheWhiteTiger","SotW",6)
-                            else
-                                Print("6: Strike of the Windlord (Uncastable)");
-                                SotW = true
-                            end
-        -- Fists of Fury
-                        elseif SotW and not FoF1 then
-                            if buff.serenity.exists() then
-                                castOpener("fistsOfFury","FoF1",7);
-                                FoFTimerOpener = GetTime()
-                            else
-                                Print("7: Fists of Fury (Uncastable)");
-                                FoF1 = true
-                            end
-        -- Rising Sun Kick
-                        elseif FoF1 and not RSK2 and GetTime() >= FoFTimerOpener + 0.2 then
-                            if buff.serenity.exists() then
-                                castOpener("risingSunKick","RSK2",8)
-                            else
-                                Print("8: Rising Sun Kick 2 (Uncastable)");
-                                RSK2 = true
-                            end
-        -- Spinning Crane Kick
-                        elseif RSK2 and not SCK then
-                            if buff.serenity.exists() then
-                               castOpener("spinningCraneKick","SCK",9)
-                            else
-                                Print("9: Spinning Crane Kick (Uncastable)");
-                                SCK = true
-                            end
-        -- Blackout Kick
-                        elseif SCK and not BOK then
-                            if buff.serenity.exists() then
-                               castOpener("blackoutKick","BOK",10)
-                            else
-                                Print("10: Blackout Kick (Uncastable)");
-                                BOK = true
-                            end
-                        elseif BOK then
-                            Print("Opener Complete");
-                            opener = true;
-                            return
+        -- Rising Sun Kick 1
+                        elseif SEF and not RSK1 then
+                            castOpener("risingSunKick","RSK1",6)
+        -- Fists of Fury 1
+                        elseif RSK1 and not FoF1 then
+                            castOpener("fistsOfFury","FoF1",7)
+        -- Whirling Dragon Punch
+                        elseif FoF1 and not WDP then
+                            castOpener("whirlingDragonPunch","WDP",8)
+        -- Tiger Palm 2
+                        elseif WDP and not TP2 then
+                            castOpener("tigerPalm","TP2",9)
+                        elseif TP2 then
+                            Print("Opener Complete")
+                            opener = true
                         end
                     end
-                end -- End Serenity - Gale Burst
-                if not (talent.serenity or (talent.whirlingDragonPunch and talent.energizingElixir)) then
+                end -- End WDP + FoTW +  no Bloodlust
+                if not (talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger) then
                     opener = true;
                     return
                 end
