@@ -414,7 +414,7 @@ local function runRotation()
         -- Auto Purify
 			if isChecked("Auto Purify") then
                 if debuff.heavyStagger.exists("player") or 
-                (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5) and (buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5)))) then
+                (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5))) then
 					if cast.purifyingBrew() then return end
 				end
             end
