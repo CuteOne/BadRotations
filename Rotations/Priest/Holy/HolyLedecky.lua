@@ -114,9 +114,6 @@ local function createOptions()
 		-- Divine Hymn
             br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
-        -- Symbol of Hope
-            br.ui:createSpinner(section, "Symbol of Hope",  50,  0,  100,  5,  "Health Percent to Cast At")
-            br.ui:createSpinnerWithout(section, "Symbol of Hope Targets",  3,  0,  40,  1,  "Minimum Symbol of Hope Targets")
         -- Guardian Spirit
             br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
         -- Guardian Spirit Tank Only
@@ -189,7 +186,7 @@ local function createOptions()
         -- Binding Heal Player HP
             br.ui:createSpinnerWithout(section, "Binding Heal Player HP",  80,  0,  100,  5,  "|cffFFBB00Will only cast if Player HP is below this Percentage.");
         -- Binding Heal Targets
-            br.ui:createCheckbox(section, "Binding Heal Multi","Will Only cast if 2 of our party/raid need healing excluding me. But will follow the Binding Heal Player HP logic.");         
+           -- br.ui:createCheckbox(section, "Binding Heal Multi","Will Only cast if 2 of our party/raid need healing excluding me. But will follow the Binding Heal Player HP logic.");         
         -- Prayer of Healing
             br.ui:createSpinner(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")           
@@ -275,7 +272,11 @@ local function runRotation()
         local friends                                       = friends or {}
         local tank                                          = {}    --Tank
         local averageHealth                                 = 0
-
+        local tanks = getTanksTable()
+        
+		local sanctifyCandidates = {}
+		local bindingHealCandidates = {}
+		
         units.get(5)
         units.get(8,true)
         units.get(40)
@@ -285,7 +286,7 @@ local function runRotation()
         enemies.get(8,"target")
         enemies.get(40)
         friends.yards40 = getAllies("player",40)
-        
+              
         renewCount = 0
         for i=1, #br.friend do
             local renewRemain = getBuffRemain(br.friend[i].unit,spell.buffs.renew,"player") or 0 -- Spell ID 139
@@ -457,12 +458,6 @@ local function runRotation()
                         end
                     end
                 end
-            -- Symbol of Hope
-                if isChecked("Symbol of Hope") then
-                    if getLowAllies(getValue("Symbol of Hope")) >= getValue("Symbol of Hope Targets") then
-                        if cast.symbolOfHope() then return end
-                    end
-                end
             -- Trinkets
                 if isChecked("Trinkets") then
                     if canUse(11) then
@@ -487,12 +482,13 @@ local function runRotation()
         -- Dispel
         function actionList_Dispel()
         -- Purify
+        if br.player.mode.purify == 1 then
       	  if isChecked("Purify") then
 	        	for i = 1, #br.friend do
 	            	for n = 1,40 do
 	                   local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
 	                   if buff then
-	                      if (bufftype == "Disease" or bufftype == "Magic") and UnitIsUnit(br.friend[i].unit,"player") then
+	                      if (bufftype == "Disease" or bufftype == "Magic") then
 	                         if getSpellCD(spell.purify) > 1 and isChecked("Mass Dispel Alternative") then
 	                            if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
 	                         elseif cast.purify(br.friend[i].unit) then return end
@@ -501,6 +497,7 @@ local function runRotation()
 	                end
 	             end
            end
+         end
             -- Mass Dispel
                 if isChecked("Mass Dispel Hotkey") and (SpecificToggle("Mass Dispel Hotkey") and not GetCurrentKeyBoardFocus()) then
                     CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
@@ -530,13 +527,13 @@ local function runRotation()
                         if cast.holyWordSerenity(br.friend[i].unit) then return end
                     end
                 end
-            end
-		-- Holy Word: Sanctify
-            if isChecked("Holy Word: Sanctify") then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
-					RunMacroText("/stopspelltarget")
-				end
             end            
+		-- Holy Word: Sanctify Old Version
+       --    if isChecked("Holy Word: Sanctify") then
+       --         if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+		--			RunMacroText("/stopspelltarget")
+		--		end
+        --    end            
 		-- Binding Heal On Me
             if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
                 for i = 1, #br.friend do
@@ -607,13 +604,31 @@ local function runRotation()
                         if cast.holyWordSerenity(br.friend[i].unit) then return end
                     end
                 end
+            end               
+         -- Holy Word: Sanctify JR Locals          
+        for i=1, #friends.yards40 do
+            if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
+                tinsert(sanctifyCandidates,friends.yards40[i])
             end
+            if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
+                tinsert(bindingHealCandidates,friends.yards40[i])
+            end
+        end
+     	-- Holy Word: Sanctify
+        if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+            -- get the best ground location to heal most or all of them
+            local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),6,10)
+             if loc ~= nil then
+             	if castGroundAtLocation(loc, spell.holyWordSanctify) then return true end
+             end
+        end
+             
 		-- Holy Word: Sanctify
-            if isChecked("Holy Word: Sanctify") then
-                if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
-					RunMacroText("/stopspelltarget")
-				end
-            end
+        --    if isChecked("Holy Word: Sanctify") then
+         --       if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+		--			RunMacroText("/stopspelltarget")
+		--		end
+        --    end
         -- Prayer of Mending
             if isChecked("Prayer of Mending") and getDebuffRemain("player",240447) == 0 and not isMoving("player")  then
                 for i = 1, #br.friend do
@@ -649,18 +664,30 @@ local function runRotation()
                     if cast.halo() then return end
                 end
             end			
+        --JR Binding Heal Logic Test
+           if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
+            for i=1, #tanks do
+                thisTank = tanks[i]
+                if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and php <= getValue("Binding Heal Player HP") then
+                    if cast.bindingHeal(thisTank.unit, "aoe") then return true end
+                end
+            end
+            if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and php <= getValue("Binding Heal Player HP") then
+                if cast.bindingHeal(lowest.unit, "aoe") then return true end
+            end
+        end 
 		-- Binding Heal
-            if isChecked("Binding Heal") and talent.bindingHeal and php <= getValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
-                for i = 1, #br.friend do
-                	if castWiseAoEHeal(br.friend,spell.bindingHeal,40,getValue("Binding Heal"),2,3,false,true) and isChecked("Binding Heal Multi") then
-							RunMacroText("/stopspelltarget") 
-					elseif br.friend[i].hp <= getValue("Binding Heal") and not isChecked("Binding Heal Multi") then
-						if cast.bindingHeal(br.friend[i].unit) then
-							RunMacroText("/stopspelltarget")
-						end
-					end
-				end
-			end			
+         --   if isChecked("Binding Heal") and talent.bindingHeal and php <= getValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+         --       for i = 1, #br.friend do
+         --       	if castWiseAoEHeal(br.friend,spell.bindingHeal,40,getValue("Binding Heal"),2,3,false,true) and isChecked("Binding Heal Multi") then
+		--					RunMacroText("/stopspelltarget") 
+		--			elseif br.friend[i].hp <= getValue("Binding Heal") and not isChecked("Binding Heal Multi") then
+		--				if cast.bindingHeal(br.friend[i].unit) then
+		--					RunMacroText("/stopspelltarget")
+		--				end
+		--			end
+		--		end
+		--	end			
         -- Renew
             if isChecked("Renew") then
                 for i = 1, #br.friend do
