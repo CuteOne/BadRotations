@@ -289,7 +289,7 @@ local function runRotation()
         local function autoStealth()
             for i = 1, #enemies.yards20nc do
                 local thisUnit = enemies.yards20nc[i]
-                if UnitReaction(thisUnit,"player") > 4 then return true end
+                if UnitReaction(thisUnit,"player") < 4 then return true end
             end
             return false
         end
@@ -766,20 +766,16 @@ local function runRotation()
         -- Apply Poison
                 -- apply_poison
                 if isChecked("Lethal Poison") then
-                    if br.timer:useTimer("Lethal Poison", 3.5) then
-                        if getOptionValue("Lethal Poison") == 1 and not buff.deadlyPoison.exists() then
-                            if cast.deadlyPoison("player") then return end
-                        end
-                        if getOptionValue("Lethal Poison") == 2 and not buff.woundPoison.exists() then
-                            if cast.woundPoison("player") then return end
-                        end
+                    if getOptionValue("Lethal Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison() then
+                        if cast.deadlyPoison("player") then return end
+                    end
+                    if getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison() then
+                        if cast.woundPoison("player") then return end
                     end
                 end
                 if isChecked("Non-Lethal Poison") then
-                    if br.timer:useTimer("Non-Lethal Poison", 3.5) then
-                        if (getOptionValue("Non-Lethal Poison") == 1 or not talent.leechingPoison) and not buff.cripplingPoison.exists() then
-                            if cast.cripplingPoison() then return end
-                        end
+                    if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() then
+                        if cast.cripplingPoison("player") then return end
                     end
                 end
         -- Stealth
@@ -789,7 +785,7 @@ local function runRotation()
                         if cast.stealth() then return end
                     end
                     if autoStealth() and getOptionValue("Stealth") == 3 then
-                        if cast.stealth() then return true end
+                        if cast.stealth() then return end
                     end
                 end
         -- Marked For Death

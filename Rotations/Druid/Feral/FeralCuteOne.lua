@@ -263,7 +263,7 @@ local function runRotation()
         local function autoProwl()
             for i = 1, #enemies.yards20nc do
                 local thisUnit = enemies.yards20nc[i]
-                if UnitReaction(thisUnit,"player") > 4 then return true end
+                if UnitReaction(thisUnit,"player") < 4 then return true end
             end
             return false
         end
