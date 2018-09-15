@@ -303,10 +303,10 @@ local function runRotation()
         -- Ancestral Spirit
                 if isChecked("Ancestral Spirit") then
                     if getOptionValue("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
-                        if cast.ancestralSpirit("target") then return true end
+                        if cast.ancestralSpirit("target","dead") then return true end
                     end
                     if getOptionValue("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
-                        if cast.ancestralSpirit("mouseover") then return true end
+                        if cast.ancestralSpirit("mouseover","dead") then return true end
                     end
                 end
         -- Astral Shift
