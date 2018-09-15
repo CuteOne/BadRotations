@@ -262,17 +262,20 @@ function findBestUnit(range,facing)
 	local bestUnitCoef = 0
 	local bestUnit = bestUnit or nil
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
-	for k, v in pairs(br.enemy) do
-		local thisUnit = v.unit
-		local distance = getDistance(thisUnit)
-		if distance < range then
-			local coeficient = getUnitCoeficient(thisUnit) or 0
-			local isFacing = getFacing("player",thisUnit)
-			local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-			if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
-				bestUnitCoef = coeficient
-				bestUnit = thisUnit
+	if bestUnit == nil or GetTime() > lastCheckTime then
+		for k, v in pairs(br.enemy) do
+			local thisUnit = v.unit
+			local distance = getDistance(thisUnit)
+			if distance < range then
+				local coeficient = getUnitCoeficient(thisUnit) or 0
+				local isFacing = getFacing("player",thisUnit)
+				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+				if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
+					bestUnitCoef = coeficient
+					bestUnit = thisUnit
+				end
 			end
+			lastCheckTime = GetTime() + 1
 		end
 	end
 	if isChecked("Debug Timers") then

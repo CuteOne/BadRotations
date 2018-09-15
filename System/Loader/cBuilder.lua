@@ -1,48 +1,47 @@
 br.loader = {}
 function br.loader.loadProfiles()
     local specID = GetSpecializationInfo(GetSpecialization())
-    local playerClass = select(2,UnitClass('player'))
-    playerClass = playerClass:sub(1,1):upper()..playerClass:sub(2):lower()
-    if playerClass == "Deathknight" then playerClass = "Death Knight" end
-    if playerClass == "Demonhunter" then playerClass = "Demon Hunter" end
-    Print(playerClass)
+    local class = select(2,UnitClass('player'))
 
-    wipe(br.rotations)
+    local function getFolderClassName(class)
+        local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
+        if formatClass == "Deathknight" then formatClass = "Death Knight" end
+        if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+
+        return formatClass
+    end
+
+    local function getFolderSpecName(class)
+        for k, v in pairs(br.lists.spec[class]) do
+            if v == specID then return tostring(k) end
+        end
+    end
+
     local function rotationsDirectory()
 	    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
-	end
-
-	local function classDirectories()
-	    return GetSubdirectories(rotationsDirectory()..'*')
-	end
-
-	local function specDirectories(class)
-	    return GetSubdirectories(rotationsDirectory() .. class .. '\\*')
 	end
 
 	local function profiles(class, spec)
 	    return GetDirectoryFiles(rotationsDirectory() .. class .. '\\' .. spec .. '\\*.lua')
 	end
 
-    -- Search each Class Folder in the Rotations Folder
-    -- for _, class in pairs(classDirectories()) do
-        -- Search each Spec Folder in the Class Folder
-        for _, spec in pairs(specDirectories(playerClass)) do
-            -- Search each Profile in the Spec Folder
-            for _, file in pairs(profiles(playerClass, spec)) do
-                local profile = ReadFile(rotationsDirectory()..playerClass.."\\"..spec.."\\"..file)
-                local start = string.find(profile,"local id = ",1,true) or 0
-                profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
-                -- Print(profileID)
-                local loadProfile, error = loadstring(profile,file)
-                if loadProfile == nil then
-                    Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
-                elseif profileID == specID then
-                    loadProfile()
-                end
+    -- Search each Profile in the Spec Folder
+    wipe(br.rotations)
+    local folderClass = getFolderClassName(class)
+    local folderSpec = getFolderSpecName(class)
+    for _, file in pairs(profiles(folderClass, folderSpec)) do
+        local profile = ReadFile(rotationsDirectory()..folderClass.."\\"..folderSpec.."\\"..file)
+        local start = string.find(profile,"local id = ",1,true) or 0
+        profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
+        if profileID == specID then
+            local loadProfile, error = loadstring(profile,file)
+            if loadProfile == nil then
+                Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
+            else
+                loadProfile()
             end
         end
-    -- end
+    end
 end
 
 function br.loader:new(spec,specName)
