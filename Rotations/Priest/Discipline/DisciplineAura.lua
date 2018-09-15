@@ -486,7 +486,7 @@ local function runRotation()
         end
         --Spread Atonement
         function actionList_SpreadAtonement(u)
-            if getLineOfSight("player",br.friend[u].unit) and (inInstance or inRaid or inCombat or isInPvP() or not solo) and mode.healer ~= 4 then
+            if (inInstance or inRaid or inCombat or isInPvP() or not solo) and mode.healer ~= 4 then
                 -- Ephemeral Paradox trinket with Temporal Shift buff
                 if epTrinket and not freeMana and norganBuff then
                     if cast.shadowMend(lowest.unit) then
