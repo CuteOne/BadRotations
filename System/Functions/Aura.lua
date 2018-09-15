@@ -84,6 +84,8 @@ function canDispel(Unit,spellID)
 		if spellID == 527 then typesList = { "Disease", "Magic" } end
 		-- Mass Dispell
 		if spellID == 32375 then typesList = { "Magic" } end
+		-- Dispel Magic
+		if spellID == 528 then typesList = {"Magic"} end
 	end
 	if ClassNum == 6 then --Death Knight
 		typesList = { }
@@ -121,7 +123,7 @@ function canDispel(Unit,spellID)
 		-- Symbiosis: Cleanse
 		if spellID == 122288 then typesList = { "Poison","Disease" } end
 		-- Soothe
-		if sellID == 2908 then typeList = { "Enrage" } end
+		if spellID == 2908 then typesList = { "" } end
 	end
 		-- local function Enraged()
 	-- 	local enrageBuff = select(5,UnitAura(Unit))=="" or false
