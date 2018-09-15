@@ -227,7 +227,9 @@ local function runRotation()
 
         enemies.get(5)
         enemies.get(10)
+        enemies.get(10,"player",true)
         enemies.get(20)
+        enemies.get(20,"player",true)
         enemies.get(30)
 
         if profileStop == nil then profileStop = false end
@@ -283,9 +285,6 @@ local function runRotation()
 
 
         -- Custom Functions
-        local function canCast()
-            return cd.global.remain() < getLatency() * 1.5
-        end
         local function usePickPocket()
             if buff.stealth.exists() and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then
                 return true
@@ -307,6 +306,19 @@ local function runRotation()
                 return false
             end
         end
+        local function getPocketPicked()
+            for i = 1, #enemies.yards10nc do
+                local thisUnit = enemies.yards10nc[i]
+                if (UnitIsUnit(thisUnit,"target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+                    if not isPicked(thisUnit) and not isDummy(thisUnit) then
+                        if mode.pickPocket == 2 and debuff.sap.remain(thisUnit) < 1 then
+                            if cast.sap(thisUnit) then return end
+                        end
+                        if cast.pickPocket(thisUnit) then return end
+                    end
+                end
+            end
+        end
         local function lowestTTD()
             lowestUnit = "target"
             lowestTTD = 999
@@ -319,6 +331,13 @@ local function runRotation()
                 end
             end
             return lowestUnit
+        end
+        local function autoStealth()
+            for i = 1, #enemies.yards20nc do
+                local thisUnit = enemies.yards20nc[i]
+                if UnitReaction(thisUnit,"player") < 4 then return true end
+            end
+            return false
         end
 
 --------------------
@@ -339,16 +358,7 @@ local function runRotation()
             end
         -- Pick Pocket
             if usePickPocket() then
-                if (isValidUnit(units.dyn5) or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
-                    if not isPicked(units.dyn5) and not isDummy(units.dyn5) then
-                        if debuff.sap.remain(units.dyn5) < 1 and mode.pickPocket ~= 1 then
-                            if cast.sap(units.dyn5) then return end
-                        end
-                        if cast.last.vanish() then
-                            if cast.pickPocket() then return end
-                        end
-                    end
-                end
+                getPocketPicked()
             end
         -- Tricks of the Trade
             if isChecked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and inCombat and UnitExists("focus") and UnitIsFriend("focus") then
@@ -492,7 +502,7 @@ local function runRotation()
         -- Shadow Dance
                 -- shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled
                 if mode.shadowDance == 1 and (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs()))
-                    and cast.able.shadowDance() and canCast() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
+                    and cast.able.shadowDance() and not cast.last.shadowDance() and (not buff.shadowDance.exists() and ttd(units.dyn5) <= 5 + subty)
                 then
                     if cast.shadowDance() then ShDCdTime = GetTime(); return end
                 end
@@ -504,7 +514,7 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Vanish
                 -- vanish,if=!variable.shd_threshold&debuff.find_weakness.remains<1&combo_points.deficit>1
-                if useCDs() and isChecked("Vanish") and not solo and canCast() then
+                if useCDs() and isChecked("Vanish") and not solo and not cast.last.shadowmeld() and not buff.shadowmeld.exists() then
                     if cast.able.vanish() and (not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1 and comboDeficit > 1) then
                         if cast.vanish() then vanishTime = GetTime(); return end
                     end
@@ -512,7 +522,7 @@ local function runRotation()
         -- Shadowmeld
                 -- pool_resource,for_next=1,extra_amount=40
                 -- shadowmeld,if=energy>=40&energy.deficit>=10&!variable.shd_threshold&debuff.find_weakness.remains<1
-                if useCDs() and isChecked("Racial") and not solo and race == "NightElf" and canCast() then
+                if useCDs() and isChecked("Racial") and not solo and race == "NightElf" and not cast.last.vanish() and not buff.vanish.exists() then
                     if (cast.pool.racial() or cast.able.racial()) and power >= 40
                         and powerDeficit >= 10 and not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1
                     then
@@ -526,7 +536,7 @@ local function runRotation()
                 -- shadow_dance,if=(!talent.dark_shadow.enabled|dot.nightblade.remains>=5+talent.subterfuge.enabled)&(variable.shd_threshold|buff.symbols_of_death.remains>=1.2|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)
                 -- shadow_dance,if=target.time_to_die<cooldown.symbols_of_death.remains
                 if mode.shadowDance == 1 and (getOptionValue("Shadow Dance") == 1 or (getOptionValue("Shadow Dance") == 2 and useCDs()))
-                    and cast.able.shadowDance() and canCast() and not buff.shadowDance.exists()
+                    and cast.able.shadowDance() and not cast.last.shadowDance() and not buff.shadowDance.exists()
                 then
                     if ((not talent.darkShadow or debuff.nightblade.remain(units.dyn5) >= 5 + subty)
                         and (shdThreshold or buff.symbolsOfDeath.remain() >= 1.2
@@ -663,13 +673,8 @@ local function runRotation()
                     if getOptionValue("Stealth") == 1 then
                         if cast.stealth() then return end
                     end
-                    if getOptionValue("Stealth") == 3 then
-                        for i = 1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
-                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                                if cast.stealth() then return end
-                            end
-                        end
+                    if autoStealth() and getOptionValue("Stealth") == 3 then
+                        if cast.stealth() then return end
                     end
                 end
                 if isValidUnit("target") and mode.pickPocket ~= 2 then
@@ -696,7 +701,10 @@ local function runRotation()
                         if cast.shadowstep("target") then return end
                     end
         -- Shadowstrike
-                    if cast.able.shadowstrike("target") and (not isChecked("Shadowstep") or stealthingAll) and getDistance("target") <= getOptionValue("SS Range") then
+                    if cast.able.shadowstrike("target") and (not isChecked("Shadowstep") or stealthingAll)
+                        and getDistance("target") <= getOptionValue("SS Range") and (isPicked("target") or not usePickPocket())
+                    then
+                        getPocketPicked()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
