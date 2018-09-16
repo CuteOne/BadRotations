@@ -807,7 +807,7 @@ local function runRotation()
                 end
             end
             -- Dispel Magic
-            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
+            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and not UnitIsFriend("target","player") and GetObjectExists("target") then
                 if cast.dispelMagic("target") then return end
             end
             -- Mass Dispel
