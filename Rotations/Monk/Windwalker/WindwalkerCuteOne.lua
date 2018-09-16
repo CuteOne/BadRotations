@@ -626,8 +626,8 @@ local function runRotation()
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick
-            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(cooldown.fists_of_fury.remains>2|chi>=5|azerite.swift_roundhouse.rank>1)
-            if cast.able.risingSunKick(lowestMark) and (cd.fistsOfFury.remain() > 2 or chi >= 5 or traits.swiftRoundhouse.rank() > 1) then
+            -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+            if cast.able.risingSunKick(lowestMark) then
                 if cast.risingSunKick(lowestMark) then return end
             end
         -- Rushing Jade Wind
@@ -657,9 +657,10 @@ local function runRotation()
                 if cast.energizingElixir() then return true end
             end
         -- Blackout kick
-            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>2|chi>=3)&(cooldown.fists_of_fury.remains>2|chi>=4|(azerite.swift_roundhouse.rank>=2&active_enemies=1))&buff.swift_roundhouse.stack<2
+            -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>2|chi>=3)&(cooldown.fists_of_fury.remains>2|chi>=4|(chi=2&prev_gcd.1.tiger_palm)|(azerite.swift_roundhouse.rank>=2&active_enemies=1))&buff.swift_roundhouse.stack<2
             if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and (cd.risingSunKick.remain() > 2 or chi >= 3)
-                and (cd.fistsOfFury.remain() > 2 or chi >= 4 or (traits.swiftRoundhouse.rank() >= 2 and #enemies.yards8 == 1)) and buff.swiftRoundhouse.stack() < 2
+                and (cd.fistsOfFury.remain() > 2 or chi >= 4 or (chi == 2 and cast.lat.tigerPalm()) or (traits.swiftRoundhouse.rank() >= 2
+                and #enemies.yards8 == 1)) and buff.swiftRoundhouse.stack() < 2
             then
                 if cast.blackoutKick(lowestMark) then return true end
             end
