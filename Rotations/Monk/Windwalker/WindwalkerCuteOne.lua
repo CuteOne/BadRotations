@@ -689,7 +689,7 @@ local function runRotation()
                 if cast.fistsOfFury(nil,"cone",1,45) then return end
             end
         -- Tiger Palm (inefficient but breaks stall)
-            if cast.able.tigerPalm(lowestMark) and energy >= 56 and chiMax - chi < 2 and cast.last.blackoutKick() then
+            if cast.able.tigerPalm(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm < 1) and cast.last.blackoutKick() then
                 if cast.tigerPalm(lowestMark) then return end
             end
         end -- End Action List - Single Target
@@ -763,7 +763,7 @@ local function runRotation()
                 if cast.blackoutKick(lowestMark) then return end
             end
         -- Spinning Crane Kick
-            if cast.able.spinningCraneKick() and chiMax - chi < 2 and cast.last.blackoutKick() then
+            if cast.able.spinningCraneKick() and (chiMax - chi < 2 or ttm < 1) and cast.last.blackoutKick() then
                 if cast.spinningCraneKick() then return end
             end
         end -- End Action List - AoE

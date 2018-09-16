@@ -169,6 +169,7 @@ local function runRotation()
         local php                                           = br.player.health
         local power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local solo                                          = #br.friend == 1
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
@@ -486,8 +487,8 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() and #enemies.yards8 > 0 then
-                if cast.immolationAura() then return end
+            if cast.able.immolationAura() then
+                if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Felblade
             -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
@@ -589,8 +590,8 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() and #enemies.yards8 > 0 then
-                if cast.immolationAura() then return end
+            if cast.able.immolationAura() then
+                if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
@@ -733,7 +734,7 @@ local function runRotation()
                             if cast.throwGlaive("target","aoe") then return end
                         end
             -- Torment
-                        if cast.able.torment("target") then
+                        if cast.able.torment("target") and solo then
                             if cast.torment("target") then return end
                         end
                     end

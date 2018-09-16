@@ -763,6 +763,11 @@ local function runRotation()
                     if stealthingAll then
                         if actionList_Stealthed() then return end
                     end
+        -- Auto Attack
+                    -- auto_attack
+                    if not stealthingAll and not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                        StartAttack(units.dyn5)
+                    end
         -- Nightblade
                     -- nightblade,if=target.time_to_die>6&remains<gcd.max&combo_points>=4-(time<10)*2
                     if cast.able.nightblade() and ttd(units.dyn5) > 6 and debuff.nightblade.remain(units.dyn5) < gcdMax and combo >= 4 - (justStarted * 2) then

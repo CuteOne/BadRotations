@@ -94,20 +94,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
         -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
-        -- Ring of Collapsing Futures
-            br.ui:createSpinner(section, "Ring of Collapsing Futures",  1,  1,  5,  1,  "|cffFFFFFFSet to desired number of Temptation stacks before letting fall off. Min: 1 / Max: 5 / Interval: 1")
         -- Trinkets
             br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
-        -- Draught of Souls
-            br.ui:createDropdownWithout(section,"Draught of Souls", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
-        -- Specter of Betrayal
-            br.ui:createDropdownWithout(section,"Specter of Betrayal", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
-        -- Vial of Ceaseless Toxins
-            br.ui:createDropdownWithout(section,"Vial of Ceaseless Toxins", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
-        -- Umbral Moonglaives
-            br.ui:createDropdownWithout(section,"Umbral Moonglaives", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
-        -- Light's Judgment
-            br.ui:createSpinner(section,"Light's Judgment", 3, 1, 5, 1, "|cffFFFFFFSet to desired targets to use Light's Judgment on. Min: 1 / Max: 5 / Interval: 1")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -721,26 +709,6 @@ local function runRotation()
                         if cast.shadowmeld() then return true end
                     end
                 end
-        -- Light's Judgment (Argus)
-                if isChecked("Light's Judgment") and cast.able.lightsJudgment() then
-                    if useCDs() then
-                        if cast.lightsJudgment("target","ground",1,15) then return true end
-                    end
-                    if #enemies.yards8 >= getOptionValue("Light's Judgment") then
-                        if cast.lightsJudgment("best",nil,getOptionValue("Light's Judgment"),8) then return true end
-                    end
-                end
-        -- Ring of Collapsing Futures
-                -- use_item,slot=finger1
-                if isChecked("Ring of Collapsing Futures") and use.able.ringOfCollapsingFutures() then
-                    if debuff.temptation.stack() < getOptionValue("Ring of Collapsing Futures") and not isInPvP() then
-                        use.ringOfCollapsingFutures()
-                    end
-                end
-        -- Specter of Betrayal
-                if (getOptionValue("Specter of Betrayal") == 1 or (getOptionValue("Specter of Betrayal") == 2 and useCDs())) and use.able.specterOfBetrayal() then
-                    use.specterOfBetrayal()
-                end
         -- Trinkets
                 -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
                 if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists() or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists()) then
@@ -750,22 +718,6 @@ local function runRotation()
                                 use.slot(i)
                             end
                         end
-                    end
-        -- Draught of Souls
-                    if use.able.draughtOfSouls() and (getOptionValue("Draught of Souls") == 1 or (getOptionValue("Draught of Souls") == 2 and useCDs())) then
-                        if ttm > 3 and comboPointsDeficit >= 1 then
-                            use.draughtOfSouls()
-                        end
-                    end
-        -- Umbral Moonglaives
-                    if use.able.umbralMoonglaives() and (getOptionValue("Umbral Moonglaives") == 1 or (getOptionValue("Umbral Moonglaives") == 2 and useCDs())) then
-                        if (mode.rotation == 1 and #enemies.yards8 >= 2) or mode.rotation == 2 then
-                            use.umbralMoonglaives()
-                        end
-                    end
-        -- Vial of Ceaseless Toxins
-                    if use.able.vialOfCeaselessToxins() and (getOptionValue("Vial of Ceaseless Toxins") == 1 or (getOptionValue("Vial of Ceaseless Toxins") == 2 and useCDs())) then
-                        use.vialOfCeaselessToxins()
                     end
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -1178,12 +1130,10 @@ local function runRotation()
         local function actionList_SimC_Generator()
             local startTime = debugprofilestop()
     -- Regrowth
-            -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points=4&dot.rake.remains<4
-            -- regrowth,if=equipped.ailuro_pouncers&talent.bloodtalons.enabled&(buff.predatory_swiftness.stack>2|(buff.predatory_swiftness.stack>1&dot.rake.remains<3))&buff.bloodtalons.down
+            -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.predatory_swiftness.up&combo_points=4&dot.rake.remains<4
+            -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.predatory_swiftness.up&talent.lunar_inspiration.enabled&dot.rake.remains<1
             if cast.able.regrowth() and talent.bloodtalons and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
-                if (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4)
-                    or (equiped.ailuroPouncers() and (buff.predatorySwiftness.stack() > 2 or (buff.predatorySwiftness.stack() > 1 and debuff.rake.remain(units.dyn5) < 3)))
-                then
+                if (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4) or (talent.lunarInspiration and debuff.rake.remain(units.dyn5) < 1) then
                     if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
                         if cast.regrowth(br.friend[1].unit) then return true end
                     end
@@ -1208,16 +1158,6 @@ local function runRotation()
                     end
                 end
             end
-            -- pool_resource,for_next=1
-            -- thrash_cat,if=spell_targets.thrash_cat>3&equipped.luffa_wrappings&talent.brutal_slash.enabled
-            if (cast.pool.thrash() or cast.able.thrash()) and multidot then
-                if ((mode.rotation == 1 and #enemies.yards8 > 3) or mode.rotation == 2) and equiped.luffaWrappings and talent.brutalSlash then
-                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash - Luffa") return true end
-                    if cast.able.thrash() then
-                        if cast.thrash("player","aoe") then return true end
-                    end
-                end
-            end
         -- Rake
             -- pool_resource,for_next=1
             -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
@@ -1235,6 +1175,13 @@ local function runRotation()
                             end
                         end
                     end
+                end
+            end
+        -- Moonfire
+            -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
+            if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
+                if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and combo < 5 then
+                    if cast.moonfireFeral() then return end
                 end
             end
         -- Brutal Slash
@@ -1615,24 +1562,6 @@ local function runRotation()
                             if getOptionValue("Auto Heal")==2 then
                                 if cast.regrowth("player") then return true end
                             end
-                        end
-                        -- regrowth,if=combo_points>3&talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.apex_predator.up&buff.incarnation.down
-                        if cast.able.regrowth() and (comboPoints > 3 and talent.bloodtalons and buff.predatorySwiftness.exists()
-                            and buff.apexPredator.exists() and not buff.incarnationKingOfTheJungle.exists())
-                        then
-                            if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
-                                if cast.regrowth(br.friend[1].unit) then return true end
-                            end
-                            if getOptionValue("Auto Heal")==2 then
-                                if cast.regrowth("player") then return true end
-                            end
-                        end
-        -- Ferocious Bite
-                        -- ferocious_bite,if=buff.apex_predator.up&((combo_points>4&(buff.incarnation.up|talent.moment_of_clarity.enabled))|(talent.bloodtalons.enabled&buff.bloodtalons.up&combo_points>3))
-                        if cast.able.ferociousBite() and ((buff.apexPredator.exists() and ((comboPoints > 4 and (buff.incarnationKingOfTheJungle.exists() or talent.momentOfClarity))
-                            or (talent.bloodtalons and buff.bloodtalons.exists() and comboPoints > 3))) or ferociousBiteFinish())
-                        then
-                            if cast.ferociousBite() then return true end
                         end
         -- Call Action List - Finisher
                         -- call_action_list,name=finisher
