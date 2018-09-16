@@ -255,6 +255,8 @@ function getUnitsInRect(width,length, showLines, hp)
 	end
 
 	local unitCounter = 0
+	local UnitsInRect = UnitsInRect or {}
+	table.wipe(UnitsInRect)
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
 		if thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
@@ -264,10 +266,11 @@ function getUnitsInRect(width,length, showLines, hp)
 					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit.unit))
 				end
 				unitCounter = unitCounter + 1
+				table.insert(UnitsInRect,thisUnit)
 			end
 		end
 	end
-	return unitCounter
+	return unitCounter, UnitsInRect
 end
 
 function getAngles(X1,Y1,Z1,X2,Y2,Z2)
