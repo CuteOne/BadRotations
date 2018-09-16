@@ -487,7 +487,7 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() then
+            if cast.able.immolationAura() and #enemies.yards8 > 0 then
                 if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Felblade
@@ -590,7 +590,7 @@ local function runRotation()
             end
         -- Immolation Aura
             -- immolation_aura
-            if cast.able.immolationAura() then
+            if cast.able.immolationAura() and #enemies.yards8 > 0 then
                 if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Eye Beam
