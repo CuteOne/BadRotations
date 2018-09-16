@@ -487,9 +487,7 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotation == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
-            then
+            if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
@@ -571,9 +569,7 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotation == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
-            then
+            if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
@@ -663,9 +659,7 @@ local function runRotation()
             end
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
-            if cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("AoE Threshold")) or (mode.rotation == 3 and #enemies.yards8 > 0) or not talent.warbreaker)
-            then
+            if talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
