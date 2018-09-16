@@ -74,6 +74,10 @@ local function createOptions()
             br.ui:createDropdown(section,"Heroic Leap", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             br.ui:createSpinner(section, "Heroic Charge",  15,  8,  25,  1,  "|cffFFFFFFSet to desired yards to Heroic Leap out to. Min: 8 / Max: 25 / Interval: 1")
+            -- Sweeping Strikes
+            br.ui:createCheckbox(section,"Sweeping Strikes")
+            -- Warbreaker
+            br.ui:createCheckbox(section,"Warbreaker")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -490,7 +494,7 @@ local function runRotation()
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+            if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
                 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.warbreaker() then return end
@@ -574,7 +578,7 @@ local function runRotation()
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+            if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
                 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.warbreaker() then return end
@@ -666,7 +670,7 @@ local function runRotation()
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
+            if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
                 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.warbreaker() then return end
@@ -784,7 +788,7 @@ local function runRotation()
                 if actionList_Cooldowns() then return end
             -- Sweeping Strikes
                 -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
-                if cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
+                if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
                     and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active())
                 then
                     if cast.sweepingStrikes() then return end
