@@ -263,6 +263,7 @@ local function runRotation()
         if talent.deeperStrategem then deepStrat = 1 else deepStrat = 0 end
         if trait.shroudedSuffocation.active() then suffocated = 1 else suffocated = 0 end
         if stealthedRogue then stealthed = 1 else stealthed = 0 end
+        if #enemies.yards10 >= 5 then manyTargets = 1 else manyTargets = 0 end
 
         -- Custom Functions
         local function usePickPocket()
@@ -581,7 +582,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if ((not talent.subterfuge or not (cd.vanish.remain() == 0
-                        and (cd.vendetta.remain() <= 4 and (getOptionValue("Vendetta") == 1 or (getOptionValue("Vedetta") == 2 and useCDs()))))) 
+                        and (cd.vendetta.remain() <= 4 and (getOptionValue("Vendetta") == 1 or (getOptionValue("Vedetta") == 2 and useCDs())))))
                         and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit)
                         and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
                         and (not exsanguinated or debuff.garrote.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
@@ -593,7 +594,7 @@ local function runRotation()
             end
         -- Crimson Tempest
             -- crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
-            if cast.able.crimsonTempest() and (#enemies.yards10 >= 2 and debuff.crimsonTempest.remain(units.dyn5) < 2 + (#enemies.yards10 >= 5) and comboPoints >= 4) then
+            if cast.able.crimsonTempest() and (#enemies.yards10 >= 2 and debuff.crimsonTempest.remain(units.dyn5) < 2 + manyTargets and comboPoints >= 4) then
                 if cast.crimsonTempest() then return end
             end
         -- Rupture
