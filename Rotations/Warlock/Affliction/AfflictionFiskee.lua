@@ -894,7 +894,7 @@ local function runRotation()
                       if cast.shadowfury("best",false,1,8) then return end
                     end
                     -- Burst
-                    if isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus()) then
+                    if (isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus())) or mode.rotation == 3 then
                         if actionList_BurstTarget() then return end
                     end
                     -- rotation
