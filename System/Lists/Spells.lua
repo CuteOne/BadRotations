@@ -1910,7 +1910,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 divineShield                = 642,
-                blessingOfProtection        = 1022,                
+                blessingOfProtection        = 1022,
             },
             debuffs                         = {
                 judgment                    = 197277,
@@ -2240,6 +2240,7 @@ br.lists.spells = {
                 woundPoison                 = 8679,
             },
             debuffs                         = {
+                crimsonTempest              = 121411,
                 cripplingPoison             = 3409,
                 deadlyPoison                = 2818,
                 garrote                     = 703,
