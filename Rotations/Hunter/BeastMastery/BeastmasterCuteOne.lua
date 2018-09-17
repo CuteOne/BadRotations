@@ -69,7 +69,8 @@ local function createOptions()
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Opener
-            br.ui:createCheckbox(section, "Opener")
+            br.ui:createCheckbox(section, "Opener (Experimental)")
+          
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -89,7 +90,7 @@ local function createOptions()
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Agi Pot
-            br.ui:createCheckbox(section,"Potion")
+            br.ui:createCheckbox(section,"Potion (Rising Death)")
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
         -- Racial
@@ -266,12 +267,20 @@ local function runRotation()
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
-			openerCount = 0
-            OPN1 = false
-            MOC1 = false
-            KC1 = false
-            CS1 = false
-            opener = false
+		openerCount = 0
+        OPN1 = false
+        AOW1 = false
+        BAR1 = false
+        BAR2 = false
+        MOC1 = false
+        BEAST1 = false
+        KCOM1 = false
+        KCOM2 = false
+        CHIM1 = false
+        COB1 = false
+        COB2 = false
+        POT1 = false
+        opener = false
         end
 
         -- if UnitExists(units.dyn40) then
@@ -365,7 +374,7 @@ local function runRotation()
                         StopAttack()
                         ClearTarget()
                         PetStopAttack()
-                        PetFOllow()
+                        PetFollow()
                         Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
@@ -489,24 +498,11 @@ local function runRotation()
                 end
             -- Potion
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
-                if isChecked("Potion") and canUse(142117) and inRaid and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
-                    useItem(142117);
+                if isChecked("Potion") and canUse(152559) and inRaid and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
+                    useItem(152559);
                     return true
                 end
-                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30) then
-                    if cast.aMurderOfCrows() then return end
-                end
-                --actions+=/spitting_cobra
-                if isChecked("Spitting Cobra") and talent.spittingCobra then
-                    if cast.spittingCobra() then return end
-                end
-                --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
-                if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
-                    if cast.stampede() then return end
-                end
-        				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
-        					  if cast.aspectOfTheWild() then return end
-        				end
+            
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -517,51 +513,197 @@ local function runRotation()
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
-					if not OPN1 then
-                        Print("Starting Opener")
+                if not trait.primalInstincts.active() then
+                    -- opener without Trait
+                    if not OPN1 then
+                        Print("Starting Opener without Trait")
                         openerCount = openerCount + 1
                         OPN1 = true
-                    elseif OPN1 and not MOC1 then
-            -- A Murder of Crows
-                        -- a_murder_of_crows
+
+
+                      elseif OPN1 and not AOW1 then  
+                             if isChecked("Aspect of the Wild") and useCDs() then
+                                castOpener("aspectOfTheWild","AOW1", 1) 
+                               end                  
+                        
+                    elseif AOW1 and not BAR1 then
+                         if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR1", 2)
+                        else
+                            print("We have no Charges for Barbed Shot sorry")
+                            BAR1 = true
+                        end
+                      
+                    elseif BAR1 and not MOC1 then
                         if useCDs() and isChecked("A Murder Of Crows / Barrage") then
-       					    if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": A Murder of Crows (Uncastable)")
-                            openerCount = openerCount + 1
-                            MOC1 = true
+                            castOpener("aMurderOfCrows","MOC1", 3) 
+                        
                         end
-                    elseif MOC1 and not KC1 then
-            -- Kill Command
-                        -- kill_command
-                        if cast.able.killCommand() then
-                            if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Kill Command (Uncastable)")
-                            openerCount = openerCount + 1
-                            KC1 = true
+                    elseif MOC1 and not BEAST1 then
+                            castOpener("bestialWrath","BEAST1", 4)
+                              
+                                             
+                    elseif BEAST1 and not KCOM1 then
+                            castOpener("killCommand","KCOM1", 5)
+                       
+                    elseif KCOM1 and not CHIM1 then                   
+                            castOpener("chimaeraShot","CHIM1", 6)
+                        
+                    elseif CHIM1 and not COB1 then
+                             castOpener("cobraShot","COB1", 7)
+                       
+                    elseif COB1 and not BAR2 then
+                         if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR2", 8) 
+                            else
+                            print("We have no Charges for Barbed Shot 2 sorry")
+                            BAR2 = true
                         end
-                    elseif KC1 and not CS1 then
-       		-- Cobra Shot
-                        -- cobra_shot
-                        if cast.able.cobraShot() then
-       					    if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Cobra Shot (Uncastable)")
-                            openerCount = openerCount + 1
-                            CS1 = true
                         end
-            -- Finish (rip exists)
-                    elseif CS1 then
+                    elseif BAR2 and not COB2 then 
+                            castOpener("cobraShot","COB2", 9)
+                        
+
+                    elseif COB2 and not KCOM2 then
+                             castOpener("killCommand","KCOM2", 10)
+                    elseif KCOM2 then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
                         return
-       				end
-                end
-			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-				opener = true
-			end
+                    end
+               else -- with Trait active
+                    if not OPN1 then
+                        Print("Starting Opener")
+                        openerCount = openerCount + 1
+                        OPN1 = true
+                     elseif OPN1 and not BEAST1 then
+                            if castOpener("bestialWrath","BEAST1",openerCount) then openerCount = openerCount + 1
+                                    else
+                                    Print(openerCount..": Beastial Wrath (Uncastable)")
+                                    openerCount = openerCount + 1
+                                    BEAST1 = true
+                                
+                         end   
+                     elseif BEAST1 and not MOC1 then
+                        if useCDs() and isChecked("A Murder Of Crows / Barrage") then
+                            if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1
+                                    else
+                                    Print(openerCount..": A Murder of Crows (Uncastable)")
+                                 openerCount = openerCount + 1
+                                 MOC1 = true
+                           end   
+                           else
+                                    Print(openerCount..": A Murder of Crows (Crows disabled or Cooldowns disabled)")
+                                 openerCount = openerCount + 1
+                                 MOC1 = true   
+                        end     
+                      elseif MOC1 and not BAR1 then
+                         if charges.barbedShot.count() >= 1 then
+                            if castOpener("barbedShot","BAR1",openerCount) then openerCount = openerCount + 1
+                                  else
+                                Print(openerCount..": Barbed Shot (Uncastable)")
+                                openerCount = openerCount + 1
+                                 BAR1 = true
+                            end 
+                              else
+                                Print(openerCount..": Barbed Shot (Charges Missing)")
+                                openerCount = openerCount + 1
+                                 BAR1 = true    
+                        end
+                    
+                     elseif BAR1 and not AOW1 then       
+                        if isChecked("Aspect of the Wild") and useCDs() then
+                            if castOpener("aspectOfTheWild","AOW1", openerCount) then openerCount = openerCount + 1
+                                else
+                                Print(openerCount..": Aspect of Wild (Uncastable)")
+                                openerCount = openerCount + 1
+                                AOW1 = true
+                            end
+                             else
+                                Print(openerCount..": Aspect of Wild (Cooldowns disabled or Aspect of Wild Disabled)")
+                                openerCount = openerCount + 1
+                                AOW1 = true
+                        end  
+                    elseif AOW1 and not BAR1 then
+                         if charges.barbedShot.count() >= 1 then
+                            if castOpener("barbedShot","BAR1",openerCount) then openerCount = openerCount + 1
+                                  else
+                                    Print(openerCount..": Barbed Shot (Uncastable)")
+                                    openerCount = openerCount + 1
+                                    BAR1 = true
+                                end
+                                 else
+                                    Print(openerCount..": Barbed Shot (Charges missing)")
+                                    openerCount = openerCount + 1
+                                    BAR1 = true
+                            end 
+                    elseif BAR1 and not KCOM1 then
+                            if castOpener("killCommand","KCOM1",openerCount) then openerCount = openerCount + 1
+                                else
+                                Print(openerCount..": Kill Command (Uncastable)")
+                                openerCount = openerCount + 1
+                                KCOM1 = true
+                                end
+                          
+                    elseif KCOM1 and not CHIM1 then                     
+                            if castOpener("chimaeraShot","CHIM1",openerCount) then openerCount = openerCount + 1
+                                      else
+                                      Print(openerCount..": Chimaera Shot (Uncastable)")
+                                      openerCount = openerCount + 1
+                                        CHIM1 = true
+                             
+                        end
+                    elseif CHIM1 and not COB1 then
+                            if castOpener("cobraShot","COB1",openerCount) then openerCount = openerCount + 1
+                                     else
+                                    Print(openerCount..": CobraShot (Uncastable)")
+                                    openerCount = openerCount + 1
+                                     COB1 = true
+                           
+                        end   
+                     elseif COB1 and not COB2 then
+                             if castOpener("cobraShot","COB2",openerCount) then openerCount = openerCount + 1
+                                        else
+                                         Print(openerCount..": CobraShot (Uncastable)")
+                                      openerCount = openerCount + 1
+                                           COB21 = true
+
+                           
+                        end 
+                     elseif COB2 and not KCOM2 then
+                              if castOpener("killCommand","KCOM2",openerCount) then openerCount = openerCount + 1
+                                   else
+                                    Print(openerCount..": Kill Command 2(Uncastable)")
+                                    openerCount = openerCount + 1
+                                    KCOM2 = true
+                                
+                            end
+                    elseif KCOM2 and not BAR2 then
+                         if charges.barbedShot.count() >= 1 then
+                            if castOpener("barbedShot","BAR2",openerCount) then openerCount = openerCount + 1
+                                else
+                                    Print(openerCount..": Barbed Shot 2(Uncastable)")
+                                    openerCount = openerCount + 1
+                                    BAR2 = true
+                                end   
+                                else
+                                    Print(openerCount..": Barbed Shot 2(Charges)")
+                                    openerCount = openerCount + 1
+                                    BAR2 = true
+                                 end
+
+                     elseif BAR2 then
+                        Print("Opener Complete")
+                        openerCount = 0
+                        opener = true
+                        return
+                    end   
+                end  
+            end       
+        elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+        opener = true    
+        end  
         end -- End Action List - Opener
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -660,52 +802,91 @@ local function runRotation()
                       --PetAttack
                       PetAttack()
                     end
+
+                  --[[ actions+=/use_items
+                    actions+=/berserking,if=cooldown.bestial_wrath.remains>30
+                    actions+=/blood_fury,if=cooldown.bestial_wrath.remains>30
+                    actions+=/ancestral_call,if=cooldown.bestial_wrath.remains>30
+                    actions+=/fireblood,if=cooldown.bestial_wrath.remains>30
+                    actions+=/lights_judgment
+                    actions+=/potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
+                       ]]
+                    if actionList_Cooldowns() then return end
+
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
                     if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
-					--Cooldowns
-                    if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p == 1 then
                         if cast.aMurderOfCrows() then return end
                     end
-                    -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
-                        if cast.bestialWrath() then return end
+
+                    -- actions+=/barbed_shot,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
+                    if charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax then
+                        if cast.barbedShot() then return end
                     end
+
+                    if talent.spittingCobra then
+                        if cast.spittingCobra() then return end
+                     end
+                    --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
+                    if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
+                        if cast.stampede() then return end
+                    end       
+
+
+                  -- actions+=/aspect_of_the_wild
+                    if isChecked("Aspect of the Wild") and useCDs() then
+                         if cast.aspectOfTheWild() then return end 
+                     end
+
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
-                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                      -- and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
-                    -- actions+=/chimaera_shot
-                    if talent.chimaeraShot then
+
+                       -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
+                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                        if cast.bestialWrath() then return end
+                    end
+
+                    --  actions+=/chimaera_shot,if=spell_targets>1
+                    if talent.chimaeraShot and #enemies.yards8p >= 1 then
                         if cast.chimaeraShot() then return end
                     end
-                    -- actions+=/kill_command
-                    if cast.able.killCommand() then
-                      if cast.killCommand("pettarget") then return end
-                    end
-                    -- actions+=/dire_beast
-                    if talent.direBeast then
-                        if cast.direBeast() then return end
-                    end
-                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
-                    if not buff.frenzy.exists("pet") and charges.barbedShot.timeTillFull() < gcd then
-                        if cast.barbedShot() then return end
-                    end
-                    -- actions+=/barrage
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p >= 1 then
-                        if cast.barrage() then return end
-                    end
-                    -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
+                      -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
                     end
+                    -- actions+=/kill_command
+                    if cast.able.killCommand() then
+                      if cast.killCommand("pettarget") then return end
+                    end
+                    --actions+=/chimaera_shot
+                     if talent.chimaeraShot then
+                        if cast.chimaeraShot() then return end
+                    end
+
+                    -- actions+=/dire_beast
+                    if talent.direBeast then
+                        if cast.direBeast() then return end
+                    end
+                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.8|target.time_to_die<9
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.8 and ttd("target") < 9 then
+                        if cast.barbedShot() then return end
+                    end
+
+                    -- actions+=/barrage
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p > 1 then
+                        if cast.barrage() then return end
+                    end
+                  
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
                     if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or
                         (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
