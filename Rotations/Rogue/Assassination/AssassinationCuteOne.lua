@@ -586,8 +586,8 @@ local function runRotation()
                     if ((not talent.subterfuge or not (cd.vanish.remain() == 0
                         and (cd.vendetta.remain() <= 4 and (getOptionValue("Vendetta") == 1 or (getOptionValue("Vedetta") == 2 and useCDs())))))
                         and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit)
-                        and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
-                        and (not exsanguinated or debuff.garrote.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= tickTime and #enemies.yards8 >= 3 + suffocated)
+                        and (not exGarrote or debuff.garrote.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= 3 + suffocated)
                         and (ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4 and #enemies.yards8 <= 1 or ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 12))
                     then
                         if cast.garrote(thisUnit) then return end
@@ -609,7 +609,7 @@ local function runRotation()
                     local thisUnit = enemies.yards5[i]
                     if (comboPoints >= 4 and debuff.rupture.refresh(thisUnit)
                         and (debuff.rupture.applied(thisUnit) <= 1 or debuff.rupture.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
-                        and (not exsanguinated or debuff.rupture.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and (not exRupture or debuff.rupture.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
                         and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4)
                     then
                         if cast.rupture(thisUnit) then return end
