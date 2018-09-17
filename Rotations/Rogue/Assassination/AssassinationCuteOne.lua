@@ -247,11 +247,13 @@ local function runRotation()
         if not debuff.rupture.exists(units.dyn5) then exRupture = false end
         if not debuff.garrote.exists(units.dyn5) then exGarrote = false end
         if not debuff.internalBleeding.exists(units.dyn5) then exInternalBleeding = false end
+        if not debuff.crimsonTempest.exists(units.dyn5) then exCrimsonTempest = false end
         if cast.last.exsanguinate() then exsanguinateCast = true else exsanguinateCast = false end
         if exsanguinateCast and debuff.rupture.exists(units.dyn5) then exRupture = true end
         if exsanguinateCast and debuff.garrote.exists(units.dyn5) then exGarrote = true end
         if exsanguinateCast and debuff.internalBleeding.exists(units.dyn5) then exInternalBleeding = true end
-        if exRupture or exGarrote or exInternalBleeding then exsanguinated = true else exsanguinated = false end
+        if exsanguinateCast and debuff.crimsonTempest.exists(units.dyn5) then exCrimsonTempest = true end
+        if exRupture or exGarrote or exInternalBleeding or exCrimsonTempest then exsanguinated = true else exsanguinated = false end
 
         -- Master Assassin
         if masterAssassinRemain == nil then masterAssassinRemain = 0 end
