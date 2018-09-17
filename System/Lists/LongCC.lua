@@ -3,7 +3,7 @@ br.lists.longCC = {
 	207167, -- Death Knight -- Blinding Sleet
 	217832, -- Demon Hunter -- Imprison
 	339,    -- Druid - Entangling Roots
-	99, 	-- Druid - Incapacitating Roar
+	99, 		-- Druid - Incapacitating Roar
 	102359, -- Druid - Mass Entanglement
 	209790, -- Hunter - Freezing Arrow
 	187650, -- Hunter - Freezing Trap
@@ -13,7 +13,7 @@ br.lists.longCC = {
 	212638, -- Hunter - Tracker's Net
 	19386,  -- Hunter - Wyvern Sting
 	31661, 	-- Mage - Dragon's Breath
-	122, 	-- Mage - Frost Nova
+	122, 		-- Mage - Frost Nova
 	199786, -- Mage - Glacial Spike
 	61305,  -- Mage - Polymorph (Cat)
 	161354, -- Mage - Polymorph (Monkey)
@@ -26,6 +26,7 @@ br.lists.longCC = {
 	61780,  -- Mage - Polymorph (Turkey)
 	28271,  -- Mage - Polymorph (Turtle)
 	115078, -- Monk - Paralysis
+	20066,  -- Paladin - Repentance
 	8122,   -- Priest - Psychic Scream
 	9484,   -- Priest - Shackle Undead
 	199743, -- Rogue - Parley
