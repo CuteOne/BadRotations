@@ -322,8 +322,14 @@ function br.loader:new(spec,specName)
                     -- return rake
                     return multiplier*RakeMultiplier
                 end
-                return 0
             end
+            -- Assassination Bleeds
+            if GetSpecializationInfo(GetSpecialization()) == 259 then
+                local multiplier = 1.00
+                if self.buff.stealth.exists() and self.talent.nightstalker then multiplier = 1.5 end
+                if (self.buff.stealth.exists() or self.buff.subterfuge.exists()) and self.talent.subterfuge then multiplier = 1.8 end
+            end
+            return 0
         end
 
         for k,v in pairs(self.spell.debuffs) do

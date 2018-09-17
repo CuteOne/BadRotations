@@ -775,7 +775,7 @@ local function runRotation()
                     end
         -- Stealth Cooldowns
                     -- call_action_list,name=stealth_cds,if=energy.deficit<=variable.stealth_threshold&(talent.dark_shadow.enabled&cooldown.secret_technique.up|combo_points.deficit>=4)
-                    if stealthingAll and powerDeficit <= stealthThreshold and (talent.darkSDhadow and cd.secretTechnique.remain() == 0 or comboDeficit >= 4) then
+                    if powerDeficit <= stealthThreshold and (talent.darkShadow and cd.secretTechnique.remain() == 0 or comboDeficit >= 4) then
                         if actionList_StealthCooldowns() then return end
                     end
         -- Finishers
@@ -788,7 +788,6 @@ local function runRotation()
                         if actionList_Finishers() then return end
                     end
         -- Generators
-                    -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold-40*!(talent.alacrity.enabled|talent.shadow_focus.enabled|talent.master_of_shadows.enabled)
                     -- call_action_list,name=build,if=energy.deficit<=variable.stealth_threshold
                     if powerDeficit <= stealthThreshold then
                         if actionList_Generators() then return end

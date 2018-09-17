@@ -233,6 +233,8 @@ local function runRotation()
 
         if rotationDebug == nil or (not inCombat and not UnitExists("target")) then rotationDebug = "Waiting" end
 
+        tickTime = 2 / (1 + (GetHaste()/100))
+
         -- Variables
         -- variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
         local energyRegenCombined = energyRegen + (debuff.garrote.count() + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100))
@@ -550,14 +552,15 @@ local function runRotation()
                 end
             end
             -- pool_resource,for_next=1
+            if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Stealthed") return true end
             -- garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
-            if (cast.pool.garrote() or cast.able.garrote()) and (talent.subterfuge and talent.exsanguinate
+            if --[[(cast.pool.garrote() or cast.able.garrote())]] cast.able.garrote() and (talent.subterfuge and talent.exsanguinate
                 and cd.exsanguinate.remain() < 1 and cast.last.rupture(1) and debuff.rupture.remain() > 5 + 4 * comboMax)
             then
-                if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Stealthed") return true end
-                if cast.able.garrote() then
+                -- if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Stealthed") return true end
+                -- if cast.able.garrote() then
                     if cast.garrote() then return end
-                end
+                -- end
             end
         end -- End Action List - Stealthed
     -- Action List - Dot
@@ -572,20 +575,24 @@ local function runRotation()
             end
         -- Garrote
             -- pool_resource,for_next=1
-            -- garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
+            if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Dot") return true end
+            -- garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable
+                -- &(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
+                -- &(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
+                -- &(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
+            -- if (cast.pool.garrote() or cast.able.garrote()) then
             if (cast.pool.garrote() or cast.able.garrote()) then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if ((not talent.subterfuge or not (not cd.vanish.exists() and cd.vendetta.remain() <= 4))
-                        and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit) and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= 2
-                        and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 2 * 2
-                        and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated) and (ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4
-                        and #enemies.yards8 <= 1 or ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 12))
+                    if ((not talent.subterfuge or not (cd.vanish.remain() == 0 and cd.vendetta.remain() <= 4)) and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit)
+                        and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and (not exsanguinated or debuff.garrote.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and (ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4 and #enemies.yards8 <= 1 or ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 12))
                     then
-                        if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Dot") return true end
-                        if cast.able.garrote() then
+                        -- if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Dot") return true end
+                        -- if cast.able.garrote() then
                             if cast.garrote(thisUnit) then return end
-                        end
+                        -- end
                     end
                 end
             end
@@ -595,13 +602,17 @@ local function runRotation()
                 if cast.crimsonTempest() then return end
             end
         -- Rupture
-            -- rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
+            -- rupture,cycle_targets=1,if=combo_points>=4&refreshable
+                -- &(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
+                -- &(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
+                -- &target.time_to_die-remains>4
             if cast.able.rupture() then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (comboPoints >= 4 and debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or debuff.rupture.remain(thisUnit) <= 2
-                        and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 2 * 2
-                        and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated) and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4)
+                    if (comboPoints >= 4 and debuff.rupture.refresh(thisUnit)
+                        and (debuff.rupture.applied(thisUnit) <= 1 or debuff.rupture.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and (not exsanguinated or debuff.rupture.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
+                        and ttd(thisUnit) - debuff.rupture.remain(thisUnit) > 4)
                     then
                         if cast.rupture(thisUnit) then return end
                     end
@@ -753,10 +764,10 @@ local function runRotation()
             --             opener = true;
             --             return
             --         end
-                    if actionList_StealthBreaker() then return end
+                    if actionList_Stealthed() then return end
                 end
             elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                if actionList_StealthBreaker() then return end
+                if actionList_Stealthed() then return end
             end
         end -- End Action List - Opener
     -- Action List - PreCombat
@@ -795,7 +806,7 @@ local function runRotation()
                 end
             end
         -- Opener
-            if actionList_Opener() then return end
+            if actionList_StealthBreaker() then return end
         end -- End Action List - PreCombat
 ---------------------
 --- Begin Profile ---
@@ -845,7 +856,6 @@ local function runRotation()
                 if stealthedRogue then
                     if actionList_Stealthed() then return end
                 end
-                if (not stealthing or (GetObjectExists("target") and br.player.buff.vanish.exists())) then
         -- Call Action List - Cooldowns
                     -- call_action_list,name=cds
                     if actionList_Cooldowns() then return end
@@ -864,7 +874,6 @@ local function runRotation()
                     then
                         if cast.racial() then return end
                     end
-                end
             end -- End In Combat
         end -- End Profile
     end -- Timer
