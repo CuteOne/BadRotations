@@ -35,6 +35,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Bristling Fur Disabled", tip = "Will not use BF", highlight = 0, icon = br.player.spell.bristlingFur }
     };  
     CreateButton("BristlingFur",5,0)
+-- Interrupt Button
+    IronfurModes = {
+    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironfur },
+    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironfur }
+    };  
+    CreateButton("Ironfur",6,0)
 end
 
 ---------------
@@ -82,8 +88,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "FR - HP Loss Percent", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
             br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "|cffFFBB00Health Interval to use at with 2 charges.")
             br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "|cffFFBB00Health Interval to use at with 1 charge.")
-        -- Ironfur
-            br.ui:createCheckbox(section, "Ironfur")
         -- Soothe
             br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
@@ -145,7 +149,7 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("BristlingFur",0.25)
         br.player.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
-
+        br.player.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
 --------------
 --- Locals ---
 --------------
@@ -231,7 +235,7 @@ local function runRotation()
             -- Bear Form
                 if not bear then
                     -- Bear Form when not in combat and target selected and within 20yrds
-                    if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) then
+                    if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) and not buff.dash.exists() then
                         if cast.bearForm() then return end
                     end
                     --Bear Form when in combat and not flying
@@ -291,7 +295,7 @@ local function runRotation()
 --        end
             for i=1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
-                if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) and cast.able.soothe() then
+                if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) then
                     if cast.soothe(thisUnit) then return end
                 end
             end
@@ -454,10 +458,11 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
         -- Ironfur
-                    -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (traits.layeredMane.active() and power >=50) or (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() <1.5) then
-                        if cast.ironfur() then return end
-                    end
+                    if br.player.mode.ironfur == 1 then
+                        if (traits.layeredMane.active() and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
+                            if cast.ironfur() then return end
+                        end
+                    end    
         -- Bristling Fur
                     -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
                     if br.player.mode.bristlingFur == 1 and power < 40 then

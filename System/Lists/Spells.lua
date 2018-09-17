@@ -815,6 +815,7 @@ br.lists.spells = {
                 rebirth                     = 20484,
                 regrowth                    = 8936,
                 revive                      = 50769,
+                soothe                      = 2908,
                 shadowmeld                  = 58984,
                 stagForm                    = 210053,
                 travelForm                  = 783,
