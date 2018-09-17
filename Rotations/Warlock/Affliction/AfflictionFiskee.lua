@@ -594,7 +594,7 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
-          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd() > 10 or getHP() == 100) then
+          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10 or thp == 100) then
             if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
               if cast.agony() then return end
             end
@@ -607,7 +607,7 @@ local function runRotation()
                 end
               end
           end
-          if ttd() > 10 and debuff.agony.exists() and debuff.agony.refresh() then
+          if ttd("target") > 10 and debuff.agony.exists() and debuff.agony.refresh() then
             if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
               if cast.agony() then return end
             end
@@ -690,7 +690,7 @@ local function runRotation()
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
           if seedTargetsHit < 3 + writheInAgonyValue or moving then
-            if debuff.corruption.refresh() and (ttd() > 10 or getHP() == 100) then
+            if debuff.corruption.refresh() and (ttd("target") > 10 or thp == 100) then
               if cast.corruption() then return end
             end
             for i = 1, #enemies.yards40 do
