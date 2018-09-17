@@ -618,6 +618,11 @@ local function runRotation()
             if cast.able.wildfireBomb(units.dyn40,"aoe") and (not talent.guerrillaTactics or charges.wildfireBomb.timeTillFull() < gcdMax) then
                 if cast.wildfireBomb(units.dyn40,"aoe") then return end
             end
+        -- Mongoose Bite
+            -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack=10
+            if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and debuff.latentPoison.stack(maxLatentPoison) == 10 then
+                cast.able.mongooseBite(maxLatentPoison)
+            end
         -- Chakrams
             -- chakrams
             if cast.able.chakrams("player","rect",2,40) and enemies.yards40r > 0 then
