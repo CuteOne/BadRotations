@@ -554,13 +554,10 @@ local function runRotation()
             -- pool_resource,for_next=1
             if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Stealthed") return true end
             -- garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
-            if --[[(cast.pool.garrote() or cast.able.garrote())]] cast.able.garrote() and (talent.subterfuge and talent.exsanguinate
+            if cast.able.garrote() and (talent.subterfuge and talent.exsanguinate
                 and cd.exsanguinate.remain() < 1 and cast.last.rupture(1) and debuff.rupture.remain() > 5 + 4 * comboMax)
             then
-                -- if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Stealthed") return true end
-                -- if cast.able.garrote() then
-                    if cast.garrote() then return end
-                -- end
+                if cast.garrote() then return end
             end
         end -- End Action List - Stealthed
     -- Action List - Dot
@@ -580,19 +577,17 @@ local function runRotation()
                 -- &(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
                 -- &(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)
                 -- &(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
-            -- if (cast.pool.garrote() or cast.able.garrote()) then
-            if (cast.pool.garrote() or cast.able.garrote()) then
+            if cast.able.garrote() then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if ((not talent.subterfuge or not (cd.vanish.remain() == 0 and cd.vendetta.remain() <= 4)) and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit)
+                    if ((not talent.subterfuge or not (cd.vanish.remain() == 0
+                        and (cd.vendetta.remain() <= 4 and (getOptionValue("Vendetta") == 1 or (getOptionValue("Vedetta") == 2 and useCDs()))))) 
+                        and comboDeficit >= 1 and debuff.garrote.refresh(thisUnit)
                         and (debuff.garrote.applied(thisUnit) <= 1 or debuff.garrote.remain(thisUnit) <= tickTime and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
                         and (not exsanguinated or debuff.garrote.remain(thisUnit) <= tickTime * 2 and #enemies.yards8 >= getOptionValue("Fan of Knives") + suffocated)
                         and (ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 4 and #enemies.yards8 <= 1 or ttd(thisUnit) - debuff.garrote.remain(thisUnit) > 12))
                     then
-                        -- if cast.pool.garrote() then ChatOverlay("Pooling For Garrote - Dot") return true end
-                        -- if cast.able.garrote() then
-                            if cast.garrote(thisUnit) then return end
-                        -- end
+                        if cast.garrote(thisUnit) then return end
                     end
                 end
             end
@@ -637,7 +632,10 @@ local function runRotation()
             end
         -- Fan of Knives
             -- fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=2+stealthed.rogue|buff.the_dreadlords_deceit.stack>=29)
-            if cast.able.fanOfKnives() and (useFiller and (buff.hiddenBlades.stack() >= 19 or #enemies.yards8 >= getOptionValue("Fan of Knives") + stealthed or buff.theDreadlordsDeceit.stack() >= 29)) then
+            if cast.able.fanOfKnives() and (useFiller and (buff.hiddenBlades.stack() >= 19
+                or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Fan of Knives") + stealthed) or (mode.rotation == 2 and #enemies.yards8 > 0))
+                or buff.theDreadlordsDeceit.stack() >= 29))
+            then
                 if cast.fanOfKnives() then return end
             end
         -- Blindside
