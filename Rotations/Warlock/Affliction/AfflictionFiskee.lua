@@ -449,7 +449,7 @@ local function runRotation()
             if cast.shadowBolt() then return end
           end
           -- actions.fillers+=/agony,if=buff.movement.up&!(talent.siphon_life.enabled&(prev_gcd.1.agony&prev_gcd.2.agony&prev_gcd.3.agony)|prev_gcd.1.agony)
-          if moving and not (talent.siphonLife and cast.last.agony()) then
+          if moving and not ((talent.siphonLife and (cast.last.agony(1) or cast.last.agony(2) or cast.last.agony(3))) or not talent.siphonLife and cast.last.agony(1)) then
             if cast.agony() then return end
           end
           -- actions.fillers+=/siphon_life,if=buff.movement.up&!(prev_gcd.1.siphon_life&prev_gcd.2.siphon_life&prev_gcd.3.siphon_life)
@@ -594,6 +594,11 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
+          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd() > 10 or getHP() == 100) then
+            if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
+              if cast.agony() then return end
+            end
+          end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
@@ -601,6 +606,11 @@ local function runRotation()
                   if cast.agony(thisUnit) then return end
                 end
               end
+          end
+          if ttd() > 10 and debuff.agony.exists() and debuff.agony.refresh() then
+            if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
+              if cast.agony() then return end
+            end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
@@ -679,7 +689,10 @@ local function runRotation()
               end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
-          if seedTargetsHit < 3 + writheInAgonyValue then
+          if seedTargetsHit < 3 + writheInAgonyValue or moving then
+            if debuff.corruption.refresh() and (ttd() > 10 or getHP() == 100) then
+              if cast.corruption() then return end
+            end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
