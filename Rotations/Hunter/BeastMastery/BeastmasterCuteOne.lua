@@ -70,6 +70,9 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Opener
             br.ui:createCheckbox(section, "Opener (Experimental)")
+             -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (Recommended is 2) (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        
           
         br.ui:checkSectionState(section)
     -- Pet Options
@@ -519,12 +522,103 @@ local function runRotation()
                         Print("Starting Opener without Trait")
                         openerCount = openerCount + 1
                         OPN1 = true
-
-
                       elseif OPN1 and not AOW1 then  
-                             if isChecked("Aspect of the Wild") and useCDs() then
-                                castOpener("aspectOfTheWild","AOW1", 1) 
-                               end                  
+
+                             -- pre-pull Logic
+                            if inRaid and isChecked("Potion") then
+                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                        if canUse(152559) then
+                                         useItem(152559)
+                                                    if isChecked("Aspect of the Wild") and useCDs() then
+                                                            castOpener("aspectOfTheWild","AOW1", 1)
+                                                    else
+                                                        AOW1 = true
+                                                        print("Cooldowns or Aspect Disabled")                                                    
+                                                    end  
+                                            print("Debug: We are in Raid, prepull is enabled and we used potion")
+                                            
+                                        else
+                                                    if isChecked("Aspect of the Wild") and useCDs() then
+                                                        castOpener("aspectOfTheWild","AOW1", 1)
+                                                    else
+                                                         AOW1 = true
+                                                         print("Cooldowns or Aspect Disabled")
+                                                    end  
+                                            print("Debug: We are in Raid, prepull is enabled and we NOT used potion")
+
+                                        end
+                                else    
+                                                 if isChecked("Aspect of the Wild") and useCDs() then
+                                                        castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                        AOW1 = true
+                                                        print("Cooldowns or Aspect Disabled")
+                                                end  
+                                     print("Debug: We are in Raid but pre-Pull is disabled")
+                                end     
+                            elseif inRaid and not isChecked("Potion") then
+                                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                                if isChecked("Aspect of the Wild") and useCDs() then
+                                                    castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                    AOW1 = true
+                                                    print("Cooldowns or Aspect Disabled")
+                                                end  
+                                print("Debug: We are in Raid without Potions enabled")
+                                end
+                            else
+                                                if isChecked("Aspect of the Wild") and useCDs() then
+                                                    castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                    AOW1 = true
+                                                    print("Cooldowns or Aspect Disabled")
+                                                end  
+                                print("Debug: We are not in a Raid")
+                            end              
+                            -- end of Pre-Pull Logic 
+
+                            if inRaid and isChecked("Potion") and useCDs() then
+                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                        if canUse(152559) then
+                                         useItem(152559)
+                                            if isChecked("Aspect of the Wild") and useCDs() then
+                                                castOpener("aspectOfTheWild","AOW1", 1)
+                                                return 
+                                            else
+                                            AOW1 = true
+                                            print("Cooldowns or Aspect Disabled")
+                                            return
+                                            end  
+                                        else
+                                         print("No Potion detected")
+                                            if isChecked("Aspect of the Wild") and useCDs() then
+                                                castOpener("aspectOfTheWild","AOW1", 1)
+                                                return 
+                                            else
+                                            AOW1 = true
+                                            print("Cooldowns or Aspect Disabled")
+                                            return
+                                            end  
+                                        end
+                                else    
+                                      if isChecked("Aspect of the Wild") and useCDs() then
+                                           castOpener("aspectOfTheWild","AOW1", 1) 
+                                            return
+                                        else
+                                            AOW1 = true
+                                            print("Cooldowns or Aspect Disabled")
+                                            return
+                                      end 
+                                end     
+                            else
+                                if isChecked("Aspect of the Wild") and useCDs() then
+                                     castOpener("aspectOfTheWild","AOW1", 1)  
+                                else
+                                    AOW1 = true
+                                    print("Cooldowns or Aspect Disabled")
+                                    return
+                                end 
+                            end
                         
                     elseif AOW1 and not BAR1 then
                          if charges.barbedShot.count() >= 1 then
@@ -559,7 +653,6 @@ local function runRotation()
                             print("We have no Charges for Barbed Shot 2 sorry")
                             BAR2 = true
                         end
-                        end
                     elseif BAR2 and not COB2 then 
                             castOpener("cobraShot","COB2", 9)
                         
@@ -577,121 +670,74 @@ local function runRotation()
                         Print("Starting Opener")
                         openerCount = openerCount + 1
                         OPN1 = true
-                     elseif OPN1 and not BEAST1 then
-                            if castOpener("bestialWrath","BEAST1",openerCount) then openerCount = openerCount + 1
-                                    else
-                                    Print(openerCount..": Beastial Wrath (Uncastable)")
-                                    openerCount = openerCount + 1
-                                    BEAST1 = true
-                                
-                         end   
-                     elseif BEAST1 and not MOC1 then
-                        if useCDs() and isChecked("A Murder Of Crows / Barrage") then
-                            if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1
-                                    else
-                                    Print(openerCount..": A Murder of Crows (Uncastable)")
-                                 openerCount = openerCount + 1
-                                 MOC1 = true
-                           end   
-                           else
-                                    Print(openerCount..": A Murder of Crows (Crows disabled or Cooldowns disabled)")
-                                 openerCount = openerCount + 1
-                                 MOC1 = true   
-                        end     
-                      elseif MOC1 and not BAR1 then
-                         if charges.barbedShot.count() >= 1 then
-                            if castOpener("barbedShot","BAR1",openerCount) then openerCount = openerCount + 1
-                                  else
-                                Print(openerCount..": Barbed Shot (Uncastable)")
-                                openerCount = openerCount + 1
-                                 BAR1 = true
-                            end 
-                              else
-                                Print(openerCount..": Barbed Shot (Charges Missing)")
-                                openerCount = openerCount + 1
-                                 BAR1 = true    
-                        end
+                         elseif OPN1 and not BEAST1 then                                   
+                            -- pre-pull Logic
+                            if inRaid and isChecked("Potion") then
+                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                        if canUse(152559) then
+                                         useItem(152559)
+                                            castOpener("bestialWrath","BEAST1", 1)
+                                            print("We are in Raid, prepull is enabled and we used potion")
+                                            
+                                        else
+                                            castOpener("bestialWrath","BEAST1", 1)
+                                            print("We are in Raid, prepull is enabled and we NOT used potion")
+
+                                        end
+                                else    
+                                     castOpener("bestialWrath","BEAST1", 1)
+                                     print("Debug: We are in Raid but pre-Pull is disabled")
+                                end     
+                            elseif inRaid and not isChecked("Potion") then
+                                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                castOpener("bestialWrath","BEAST1", 1)
+                                print("Debug: We are in Raid without Potions enabled")
+                                end
+                            else
+                                castOpener("bestialWrath","BEAST1", 1)
+                                print("Debug: We are not in a Raid")
+                            end              
+                            -- end of Pre-Pull Logic            
+                        elseif BEAST1 and not MOC1 then
+                            if useCDs() and isChecked("A Murder Of Crows / Barrage") then
+                                 castOpener("aMurderOfCrows","MOC1",2)
+                             end   
+                             
+                        elseif MOC1 and not BAR1 then
+                             if charges.barbedShot.count() >= 1 then
+                                castOpener("barbedShot","BAR1", 3) 
+                             else
+                                 print("We have no Charges for Barbed Shot sorry")
+                                BAR1 = true
+                            end
                     
                      elseif BAR1 and not AOW1 then       
-                        if isChecked("Aspect of the Wild") and useCDs() then
-                            if castOpener("aspectOfTheWild","AOW1", openerCount) then openerCount = openerCount + 1
-                                else
-                                Print(openerCount..": Aspect of Wild (Uncastable)")
-                                openerCount = openerCount + 1
-                                AOW1 = true
-                            end
-                             else
-                                Print(openerCount..": Aspect of Wild (Cooldowns disabled or Aspect of Wild Disabled)")
-                                openerCount = openerCount + 1
-                                AOW1 = true
+                       if isChecked("Aspect of the Wild") and useCDs() then
+                            castOpener("aspectOfTheWild","AOW1", 4)
                         end  
                     elseif AOW1 and not BAR1 then
                          if charges.barbedShot.count() >= 1 then
-                            if castOpener("barbedShot","BAR1",openerCount) then openerCount = openerCount + 1
-                                  else
-                                    Print(openerCount..": Barbed Shot (Uncastable)")
-                                    openerCount = openerCount + 1
-                                    BAR1 = true
-                                end
-                                 else
-                                    Print(openerCount..": Barbed Shot (Charges missing)")
-                                    openerCount = openerCount + 1
-                                    BAR1 = true
+                            castOpener("barbedShot","BAR1",5)
                             end 
                     elseif BAR1 and not KCOM1 then
-                            if castOpener("killCommand","KCOM1",openerCount) then openerCount = openerCount + 1
-                                else
-                                Print(openerCount..": Kill Command (Uncastable)")
-                                openerCount = openerCount + 1
-                                KCOM1 = true
-                                end
+                            castOpener("killCommand","KCOM1",6)
+                               
                           
                     elseif KCOM1 and not CHIM1 then                     
-                            if castOpener("chimaeraShot","CHIM1",openerCount) then openerCount = openerCount + 1
-                                      else
-                                      Print(openerCount..": Chimaera Shot (Uncastable)")
-                                      openerCount = openerCount + 1
-                                        CHIM1 = true
-                             
-                        end
+                            castOpener("chimaeraShot","CHIM1",7)
                     elseif CHIM1 and not COB1 then
-                            if castOpener("cobraShot","COB1",openerCount) then openerCount = openerCount + 1
-                                     else
-                                    Print(openerCount..": CobraShot (Uncastable)")
-                                    openerCount = openerCount + 1
-                                     COB1 = true
-                           
-                        end   
+                            castOpener("cobraShot","COB1",8)
                      elseif COB1 and not COB2 then
-                             if castOpener("cobraShot","COB2",openerCount) then openerCount = openerCount + 1
-                                        else
-                                         Print(openerCount..": CobraShot (Uncastable)")
-                                      openerCount = openerCount + 1
-                                           COB21 = true
-
-                           
-                        end 
+                             castOpener("cobraShot","COB2",9)
                      elseif COB2 and not KCOM2 then
-                              if castOpener("killCommand","KCOM2",openerCount) then openerCount = openerCount + 1
-                                   else
-                                    Print(openerCount..": Kill Command 2(Uncastable)")
-                                    openerCount = openerCount + 1
-                                    KCOM2 = true
-                                
-                            end
+                             castOpener("killCommand","KCOM2",10)
                     elseif KCOM2 and not BAR2 then
-                         if charges.barbedShot.count() >= 1 then
-                            if castOpener("barbedShot","BAR2",openerCount) then openerCount = openerCount + 1
-                                else
-                                    Print(openerCount..": Barbed Shot 2(Uncastable)")
-                                    openerCount = openerCount + 1
-                                    BAR2 = true
-                                end   
-                                else
-                                    Print(openerCount..": Barbed Shot 2(Charges)")
-                                    openerCount = openerCount + 1
-                                    BAR2 = true
-                                 end
+                       if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR2", 11) 
+                            else
+                            print("We have no Charges for Barbed Shot 2 sorry")
+                            BAR2 = true
+                        end
 
                      elseif BAR2 then
                         Print("Opener Complete")
@@ -817,9 +863,9 @@ local function runRotation()
                     if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
-                    --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p == 1 then
-                        if cast.aMurderOfCrows() then return end
+                    --actions+=/a_murder_of_crows,if=active_enemies=1 (added BossCheck to make it for Bosses Only, like requested)
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p == 1 and isBoss("target") then
+                            if cast.aMurderOfCrows() then return end
                     end
 
                     -- actions+=/barbed_shot,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
@@ -855,7 +901,7 @@ local function runRotation()
                     end
 
                     --  actions+=/chimaera_shot,if=spell_targets>1
-                    if talent.chimaeraShot and #enemies.yards8p >= 1 then
+                    if talent.chimaeraShot and #enemies.yards8p > 1 then
                         if cast.chimaeraShot() then return end
                     end
                       -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
@@ -865,12 +911,16 @@ local function runRotation()
                         if cast.multiShot() then return end
                     end
                     -- actions+=/kill_command
-                    if cast.able.killCommand() then
+                    if cast.able.killCommand() and #enemies.yards8p >= 1 then
                       if cast.killCommand("pettarget") then return end
                     end
                     --actions+=/chimaera_shot
                      if talent.chimaeraShot then
                         if cast.chimaeraShot() then return end
+                    end
+                    --actions+=/a_murder_of_crows (added TTD as requested)
+                     if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
+                            if cast.aMurderOfCrows() then return end
                     end
 
                     -- actions+=/dire_beast
@@ -878,7 +928,7 @@ local function runRotation()
                         if cast.direBeast() then return end
                     end
                     -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.8|target.time_to_die<9
-                    if not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.8 and ttd("target") < 9 then
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.8 or ttd("target") < 9 then
                         if cast.barbedShot() then return end
                     end
 
