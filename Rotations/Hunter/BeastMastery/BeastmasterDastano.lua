@@ -1,4 +1,4 @@
-local rotationName = "CuteOne"
+local rotationName = "Dastano"
 
 ---------------
 --- Toggles ---
@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bestialWrath },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-    CreateButton("Cooldown",2,0)
+   	CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
@@ -69,7 +69,11 @@ local function createOptions()
         -- Artifact
             br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Opener
-            br.ui:createCheckbox(section, "Opener")
+            br.ui:createCheckbox(section, "Opener (Experimental)")
+             -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (Recommended is 2) (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        
+          
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -81,8 +85,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Spirit Mend
-            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+		-- Spirit Mend
+			br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Pet Attacks
             br.ui:createCheckbox(section, "Pet Attacks")
         br.ui:checkSectionState(section)
@@ -97,7 +101,9 @@ local function createOptions()
         -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
         -- Bestial Wrath
-            br.ui:createCheckbox(section,"Bestial Wrath")
+           -- br.ui:createCheckbox(section,"Bestial Wrath")
+              -- Bestial Wrath
+            br.ui:createSpinner(section, "Bestial Wrath",  15,  5,  30,  1,  "|cffFFFFFFTTD Time")
         -- Trueshot
             br.ui:createCheckbox(section,"Aspect of the Wild")
         -- Stampede
@@ -130,7 +136,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
-    -- Intimidation
+	-- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
@@ -259,19 +265,27 @@ local function runRotation()
             end
         end
 
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
+   		if leftCombat == nil then leftCombat = GetTime() end
+		if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
         if openerCount == nil then openerCount = 0 end
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
-            openerCount = 0
-            OPN1 = false
-            MOC1 = false
-            KC1 = false
-            CS1 = false
-            opener = false
+		openerCount = 0
+        OPN1 = false
+        AOW1 = false
+        BAR1 = false
+        BAR2 = false
+        MOC1 = false
+        BEAST1 = false
+        KCOM1 = false
+        KCOM2 = false
+        CHIM1 = false
+        COB1 = false
+        COB2 = false
+        POT1 = false
+        opener = false
         end
 
         -- if UnitExists(units.dyn40) then
@@ -350,7 +364,7 @@ local function runRotation()
             if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return end
             end
-            -- Spirit Mend
+			-- Spirit Mend
             if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and lowestHP < getOptionValue("Spirit Mend") then
                 local thisUnit = br.friend[1]
                 if cast.spiritmend(thisUnit) then return end
@@ -365,7 +379,7 @@ local function runRotation()
                         StopAttack()
                         ClearTarget()
                         PetStopAttack()
-                        PetFOllow()
+                        PetFollow()
                         Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                         profileStop = true
                     end
@@ -440,7 +454,7 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-            -- Counter Shot
+	        -- Counter Shot
                 if isChecked("Counter Shot") then
                     for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
@@ -489,79 +503,213 @@ local function runRotation()
                 end
             -- Potion
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
-                if isChecked("Potion") and canUse(142117) and inRaid and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
-                    useItem(142117);
+                if isChecked("Potion") and canUse(152559) and inRaid and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
+                    useItem(152559);
                     return true
                 end
-                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30) then
-                    if cast.aMurderOfCrows() then return end
-                end
-                --actions+=/spitting_cobra
-                if isChecked("Spitting Cobra") and talent.spittingCobra then
-                    if cast.spittingCobra() then return end
-                end
-                --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
-                if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
-                    if cast.stampede() then return end
-                end
-                        if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
-                              if cast.aspectOfTheWild() then return end
-                        end
+            
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
     -- Action List - Opener
         function actionList_Opener()
-        -- Start Attack
+		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
+                if not trait.primalInstincts.active() then
+                    -- opener without Trait
                     if not OPN1 then
-                        Print("Starting Opener")
+                        Print("Starting Opener without Trait. If you enabled Pre-Pull, it will wait now for the timer")
                         openerCount = openerCount + 1
                         OPN1 = true
-                    elseif OPN1 and not MOC1 then
-            -- A Murder of Crows
-                        -- a_murder_of_crows
+                      elseif OPN1 and not AOW1 then  
+
+                             -- pre-pull Logic
+                            if inRaid and isChecked("Potion") then
+                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                        if canUse(152559) then
+                                                useItem(152559)
+                                                    if isChecked("Aspect of the Wild") and useCDs() then
+                                                            castOpener("aspectOfTheWild","AOW1", 1)
+                                                    else
+                                                        AOW1 = true
+                                                        print("Cooldowns or Aspect Disabled")                                                    
+                                                    end  
+                                            print("Debug: We are in Raid, prepull is enabled and we used potion")
+                                            
+                                        else
+                                                    if isChecked("Aspect of the Wild") and useCDs() then
+                                                        castOpener("aspectOfTheWild","AOW1", 1)
+                                                    else
+                                                         AOW1 = true
+                                                         print("Cooldowns or Aspect Disabled")
+                                                    end  
+                                            print("Debug: We are in Raid, prepull is enabled and we NOT used potion")
+
+                                        end
+                                elseif not isChecked("Pre-Pull Timer") then       
+
+                                                 if isChecked("Aspect of the Wild") and useCDs() then
+                                                 castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                        AOW1 = true
+                                                        print("Cooldowns or Aspect Disabled")
+                                                end  
+                                            print("Debug: We are in Raid but pre-Pull is disabled")
+                                end     
+                            elseif inRaid and not isChecked("Potion") then
+                                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                                if isChecked("Aspect of the Wild") and useCDs() then
+                                                    castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                    AOW1 = true
+                                                    print("Cooldowns or Aspect Disabled")
+                                                end  
+                                print("Debug: We are in Raid without Potions enabled")
+                                end
+                            else
+                                                if isChecked("Aspect of the Wild") and useCDs() then
+                                                    castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                    AOW1 = true
+                                                    print("Cooldowns or Aspect Disabled")
+                                                end  
+                                print("Debug: We are not in a Raid")
+                            end              
+                            -- end of Pre-Pull Logic 
+                        
+                    elseif AOW1 and not BAR1 then
+                         if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR1", 2)
+                        else
+                            print("We have no Charges for Barbed Shot sorry")
+                            BAR1 = true
+                        end
+                      
+                    elseif BAR1 and not MOC1 then
                         if useCDs() and isChecked("A Murder Of Crows / Barrage") then
-                            if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": A Murder of Crows (Uncastable)")
-                            openerCount = openerCount + 1
-                            MOC1 = true
+                            castOpener("aMurderOfCrows","MOC1", 3) 
+                        
                         end
-                    elseif MOC1 and not KC1 then
-            -- Kill Command
-                        -- kill_command
-                        if cast.able.killCommand() then
-                            if castOpener("killCommand","KC1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Kill Command (Uncastable)")
-                            openerCount = openerCount + 1
-                            KC1 = true
+                    elseif MOC1 and not BEAST1 then
+                            castOpener("bestialWrath","BEAST1", 4)
+                              
+                                             
+                    elseif BEAST1 and not KCOM1 then
+                            castOpener("killCommand","KCOM1", 5)
+                       
+                    elseif KCOM1 and not CHIM1 then                   
+                            castOpener("chimaeraShot","CHIM1", 6)
+                        
+                    elseif CHIM1 and not COB1 then
+                             castOpener("cobraShot","COB1", 7)
+                       
+                    elseif COB1 and not BAR2 then
+                         if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR2", 8) 
+                            else
+                            print("We have no Charges for Barbed Shot 2 sorry")
+                            BAR2 = true
                         end
-                    elseif KC1 and not CS1 then
-            -- Cobra Shot
-                        -- cobra_shot
-                        if cast.able.cobraShot() then
-                            if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return end
-                        else
-                            Print(openerCount..": Cobra Shot (Uncastable)")
-                            openerCount = openerCount + 1
-                            CS1 = true
-                        end
-            -- Finish (rip exists)
-                    elseif CS1 then
+                    elseif BAR2 and not COB2 then 
+                            castOpener("cobraShot","COB2", 9)
+                        
+
+                    elseif COB2 and not KCOM2 then
+                             castOpener("killCommand","KCOM2", 10)
+                    elseif KCOM2 then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
                         return
                     end
-                end
-            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                opener = true
-            end
+               else -- with Trait active
+                    if not OPN1 then
+                        Print("Starting Opener. If you enabled Pre-Pull, it will wait now for the timer")
+                        openerCount = openerCount + 1
+                        OPN1 = true
+                         elseif OPN1 and not BEAST1 then                                   
+                            -- pre-pull Logic
+                            if inRaid and isChecked("Potion") then
+                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                        if canUse(152559) then
+                                         useItem(152559)
+                                            castOpener("bestialWrath","BEAST1", 1)
+                                            print("We are in Raid, prepull is enabled and we used potion")
+                                            
+                                        else
+                                            castOpener("bestialWrath","BEAST1", 1)
+                                            print("We are in Raid, prepull is enabled and we NOT used potion")
+
+                                        end
+                                elseif not isChecked("Pre-Pull Timer") then    
+                                     castOpener("bestialWrath","BEAST1", 1)
+                                     print("Debug: We are in Raid but pre-Pull is disabled")
+                                end     
+                            elseif inRaid and not isChecked("Potion") then
+                                if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                                castOpener("bestialWrath","BEAST1", 1)
+                                print("Debug: We are in Raid without Potions enabled")
+                                end
+                            else
+                                castOpener("bestialWrath","BEAST1", 1)
+                                print("Debug: We are not in a Raid")
+                            end              
+                            -- end of Pre-Pull Logic            
+                        elseif BEAST1 and not MOC1 then
+                            if useCDs() and isChecked("A Murder Of Crows / Barrage") then
+                                 castOpener("aMurderOfCrows","MOC1",2)
+                             end   
+                             
+                        elseif MOC1 and not BAR1 then
+                             if charges.barbedShot.count() >= 1 then
+                                castOpener("barbedShot","BAR1", 3) 
+                             else
+                                 print("We have no Charges for Barbed Shot sorry")
+                                BAR1 = true
+                            end
+                    
+                     elseif BAR1 and not AOW1 then       
+                       if isChecked("Aspect of the Wild") and useCDs() then
+                            castOpener("aspectOfTheWild","AOW1", 4)
+                        end  
+                    elseif AOW1 and not BAR1 then
+                         if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR1",5)
+                            end 
+                    elseif BAR1 and not KCOM1 then
+                            castOpener("killCommand","KCOM1",6)
+                               
+                          
+                    elseif KCOM1 and not CHIM1 then                     
+                            castOpener("chimaeraShot","CHIM1",7)
+                    elseif CHIM1 and not COB1 then
+                            castOpener("cobraShot","COB1",8)
+                     elseif COB1 and not COB2 then
+                             castOpener("cobraShot","COB2",9)
+                     elseif COB2 and not KCOM2 then
+                             castOpener("killCommand","KCOM2",10)
+                    elseif KCOM2 and not BAR2 then
+                       if charges.barbedShot.count() >= 1 then
+                            castOpener("barbedShot","BAR2", 11) 
+                            else
+                            print("We have no Charges for Barbed Shot 2 sorry")
+                            BAR2 = true
+                        end
+
+                     elseif BAR2 then
+                        Print("Opener Complete")
+                        openerCount = 0
+                        opener = true
+                        return
+                    end   
+                end  
+            end       
+        elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+        opener = true    
+        end  
         end -- End Action List - Opener
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -660,52 +808,110 @@ local function runRotation()
                       --PetAttack
                       PetAttack()
                     end
+
+                  --[[ actions+=/use_items
+                    actions+=/berserking,if=cooldown.bestial_wrath.remains>30
+                    actions+=/blood_fury,if=cooldown.bestial_wrath.remains>30
+                    actions+=/ancestral_call,if=cooldown.bestial_wrath.remains>30
+                    actions+=/fireblood,if=cooldown.bestial_wrath.remains>30
+                    actions+=/lights_judgment
+                    actions+=/potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
+                       ]]
+                    if actionList_Cooldowns() then return end
+
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
                     if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
-                    --Cooldowns
-                    if actionList_Cooldowns() then return end
-                    --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
-                        if cast.aMurderOfCrows() then return end
+                    --actions+=/a_murder_of_crows,if=active_enemies=1 (added BossCheck to make it for Bosses Only, like requested)
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p == 1 and isBoss("target") then
+                            if cast.aMurderOfCrows() then return end
                     end
-                    -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
-                        if cast.bestialWrath() then return end
+
+                    -- actions+=/barbed_shot,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
+                    if charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax then
+                        if cast.barbedShot() then return end
                     end
+
+                    if talent.spittingCobra then
+                        if cast.spittingCobra() then return end
+                     end
+                    --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
+                    if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
+                        if cast.stampede() then return end
+                    end       
+
+
+                  -- actions+=/aspect_of_the_wild
+                    if isChecked("Aspect of the Wild") and useCDs() then
+                         if cast.aspectOfTheWild() then return end 
+                     end
+
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
-                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                      -- and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                         and (buff.beastCleave.remain("pet") < gcdMax)
                     then
                         if cast.multiShot() then return end
                     end
-                    -- actions+=/chimaera_shot
-                    if talent.chimaeraShot then
+
+                       -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
+                    if inInstance then
+                        if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() and  ttd("target") > getOptionValue("Bestial Wrath") then
+                        if cast.bestialWrath() then return end
+                                          end
+
+                    else
+                         if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                        if cast.bestialWrath() then return end
+                        end
+
+                    end
+                    
+
+                    --  actions+=/chimaera_shot,if=spell_targets>1
+                    if talent.chimaeraShot and #enemies.yards8p > 1 then
                         if cast.chimaeraShot() then return end
                     end
+                      -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
+                        and (buff.beastCleave.remain("pet") < gcdMax)
+                    then
+                        if cast.multiShot() then return end
+                    end
                     -- actions+=/kill_command
-                    if cast.able.killCommand() then
+                    if #enemies.yards8p >= 1 then
                       if cast.killCommand("pettarget") then return end
                     end
+                    --actions+=/chimaera_shot
+                     if talent.chimaeraShot then
+                        if cast.chimaeraShot() then return end
+                    end
+                    --actions+=/a_murder_of_crows --- NOTE::: Use Crows as Simc say on Raid / DUngeons at Bosses
+                     if inRaid or InInstance and isBoss("target") then
+                       if isChecked("A Murder Of Crows / Barrage") then
+                         if cast.aMurderOfCrows() then return end
+                       end 
+                    else -- Outdoor / Trash
+                        if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
+                            if cast.aMurderOfCrows() then return end
+                        end
+                    end
+
                     -- actions+=/dire_beast
                     if talent.direBeast then
                         if cast.direBeast() then return end
                     end
-                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
-                    if not buff.frenzy.exists("pet") and charges.barbedShot.timeTillFull() < gcd then
+                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down&charges_fractional>1.8|target.time_to_die<9
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.frac() > 1.8 or ttd("target") < 9 then
                         if cast.barbedShot() then return end
                     end
+
                     -- actions+=/barrage
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p >= 1 then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p > 1 and buff.frenzy.remain("pet") >= 3 then
                         if cast.barrage() then return end
                     end
-                    -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
-                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
-                    then
-                        if cast.multiShot() then return end
-                    end
+                  
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
                     if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or
                         (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
@@ -713,8 +919,8 @@ local function runRotation()
                         if cast.cobraShot() then return end
                     end
                 end -- End SimC APL
-            end --End In Combat
-        end --End Rotation Logic
+			end --End In Combat
+		end --End Rotation Logic
     -- end -- End Timer
 end -- End runRotation
 local id = 253
