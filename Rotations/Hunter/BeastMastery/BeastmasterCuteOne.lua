@@ -101,7 +101,9 @@ local function createOptions()
         -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
         -- Bestial Wrath
-            br.ui:createCheckbox(section,"Bestial Wrath")
+           -- br.ui:createCheckbox(section,"Bestial Wrath")
+              -- Bestial Wrath
+            br.ui:createSpinner(section, "Bestial Wrath",  15,  5,  30,  1,  "|cffFFFFFFTTD Time")
         -- Trueshot
             br.ui:createCheckbox(section,"Aspect of the Wild")
         -- Stampede
@@ -848,15 +850,24 @@ local function runRotation()
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
                       -- and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
-                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                         and (buff.beastCleave.remain("pet") < gcdMax)
                     then
                         if cast.multiShot() then return end
                     end
 
                        -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                    if inInstance then
+                        if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() and  ttd("target") > getOptionValue("Bestial Wrath") then
                         if cast.bestialWrath() then return end
+                                          end
+
+                    else
+                         if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                        if cast.bestialWrath() then return end
+                        end
+
                     end
+                    
 
                     --  actions+=/chimaera_shot,if=spell_targets>1
                     if talent.chimaeraShot and #enemies.yards8p > 1 then
@@ -864,7 +875,7 @@ local function runRotation()
                     end
                       -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
-                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
+                        and (buff.beastCleave.remain("pet") < gcdMax)
                     then
                         if cast.multiShot() then return end
                     end
@@ -891,7 +902,7 @@ local function runRotation()
                     end
 
                     -- actions+=/barrage
-                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p > 1 then
+                    if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p > 1 and buff.frenzy.remain("pet") >= 3 then
                         if cast.barrage() then return end
                     end
                   
