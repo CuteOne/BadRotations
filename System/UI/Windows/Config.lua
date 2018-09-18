@@ -68,7 +68,7 @@ function br.ui:createConfigWindow()
         br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!")
         --healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
         --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
-        br.ui:createSpinner(section, "Dispel delay", 15, 5, 90, 5, "Set desired dispel delay in % of debuff duration.\n|cffFF0000Will randomise around the value you set.")
+        br.ui:createSpinner(section, "Dispel delay", 1.5, 0, 5, 0.1, "Set desired dispel delay in seconds of debuff duration.\n|cffFF0000Will randomise around the value you set.")
         br.ui:createCheckbox(section, "Healer Line of Sight Indicator", "Draws a line to healers. Green In Line of Sight / Red Not In Line of Sight")
         br.ui:checkSectionState(section)
     end
