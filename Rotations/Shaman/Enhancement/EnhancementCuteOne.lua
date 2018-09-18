@@ -176,6 +176,7 @@ local function runRotation()
         local php                                           = br.player.health
         local power                                         = br.player.power.maelstrom.amount()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local race                                          = br.player.race
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local trait                                         = br.player.traits
@@ -297,7 +298,7 @@ local function runRotation()
                     end
                 end
         -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
                     if cast.giftOfTheNaaru() then return true end
                 end
         -- Ancestral Spirit

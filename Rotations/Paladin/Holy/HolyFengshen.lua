@@ -446,10 +446,11 @@ local function runRotation()
 			-- Cleanse
 			if br.player.mode.cleanse == 1 and cast.able.cleanse() then
 				for i = 1, #friends.yards40 do
-					if (getDebuffRemain(br.friend[i].unit,275014) >= 2 or getDebuffRemain(br.friend[i].unit,261440) >= 2) and #getAllies(br.friend[i].unit,5) <= 1 then
+					if (getDebuffRemain(br.friend[i].unit,275014) >= 2 or getDebuffRemain(br.friend[i].unit,261440) >= 2) and #getAllies(br.friend[i].unit,6) <= 1 then
 						if cast.cleanse(br.friend[i].unit) then return end
 					end
-					if getDebuffRemain(br.friend[i].unit,275014) == 0 and getDebuffRemain(br.friend[i].unit,261440) == 0 and getDebuffRemain(br.friend[i].unit,270920) == 0 then
+					if getDebuffRemain(br.friend[i].unit,275014) == 0 and getDebuffRemain(br.friend[i].unit,261440) == 0 and getDebuffRemain(br.friend[i].unit,270920) == 0 
+					and getDebuffRemain(br.friend[i].unit,277498) == 0 then
 						if canDispel(br.friend[i].unit,spell.cleanse) then
 							if cast.cleanse(br.friend[i].unit) then return end
 						end
@@ -580,7 +581,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() then
+			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and not isBoss() then
 				if getOptionValue("BoP Target") == 1 then
 					if blessingOfProtectionall ~= nil then
 						if cast.blessingOfProtection(blessingOfProtectionall) then return end
@@ -876,29 +877,29 @@ local function runRotation()
 			-- Holy Shock
 			if isChecked("Holy Shock") and cast.able.holyShock() then
 				if php <= getValue("Critical HP") then
-					if cast.holyShock("player") then return end
+					if CastSpellByName(GetSpellInfo(20473),"player") then return end
 				end
 				if #tanks > 0 then
 					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < getValue("Necrotic Rot") then
-						if cast.holyShock(tanks[1].unit) then return end
+						if CastSpellByName(GetSpellInfo(20473),tanks[1].unit) then return end
 					end
 				end
 				if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
-					if cast.holyShock(lowest.unit) then return end
+					if CastSpellByName(GetSpellInfo(20473),lowest.unit) then return end
 				end
 				if inRaid and isChecked("Mastery bonus") then
 					if holyShock10 ~= nil then
-						if cast.holyShock(holyShock10) then return end
+						if CastSpellByName(GetSpellInfo(20473),holyShock10) then return end
 					end
 					if holyShock20 ~= nil then
-						if cast.holyShock(holyShock20) then return end
+						if CastSpellByName(GetSpellInfo(20473),holyShock20) then return end
 					end
 					if holyShock30 ~= nil then
-						if cast.holyShock(holyShock30) then return end
+						if CastSpellByName(GetSpellInfo(20473),holyShock30) then return end
 					end
 				end
 				if holyShock40 ~= nil then
-					if cast.holyShock(holyShock40) then return end
+					if CastSpellByName(GetSpellInfo(20473),holyShock40) then return end
 				end
 			end
 			-- Divine Shield and Light of the Martyr

@@ -320,12 +320,12 @@ local function runRotation()
             end
         end
         local function lowestTTD()
-            lowestUnit = "target"
-            lowestTTD = 999
+            local lowestUnit = "target"
+            local lowestTTD = 999
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 local thisTTD = ttd(thisUnit) or 999
-                if ttd(thisUnit) < lowestTTD then
+                if thisTTD > -1 and thisTTD < lowestTTD then
                     lowestUnit = thisUnit
                     lowestTTD = thisTTD
                 end

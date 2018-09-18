@@ -638,10 +638,8 @@ local function runRotation()
                 if cast.rushingJadeWind() then return end
             end
         -- Fists of Fury
-            -- fists_of_fury,if=energy.time_to_max>2.5&(azerite.swift_roundhouse.rank<2|(cooldown.whirling_dragon_punch.remains<10&talent.whirling_dragon_punch.enabled)|active_enemies>1)
-            if cast.able.fistsOfFury() and ttm > 2.5 and (traits.swiftRoundhouse.rank() < 2 or (cd.whirlingDragonPunch.remain() < 10 and talent.whirlingDragonPunch)
-                or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
-            then
+            -- fists_of_fury,if=energy.time_to_max>2.5
+            if cast.able.fistsOfFury() and ttm > 2.5 then
                 if cast.fistsOfFury(nil,"cone",1,45) then return end
             end
         -- Fist of the White Tiger
@@ -924,17 +922,13 @@ local function runRotation()
                     -- call_action_list,name=cd
                     if actionList_Cooldowns() then return end
         -- Call Action List - Single Target
-                    -- call_action_list,name=st,if=active_enemies<3|(active_enemies=3&azerite.swift_roundhouse.rank>2)
-                    if ((mode.rotation == 1 and ((#enemies.yards8 == 3 and traits.swiftRoundhouse.rank() > 2) or #enemies.yards8 < 3))
-                        or (mode.rotation == 3 and #enemies.yards8 > 0))
-                    then
-                        if actionList_SingleTarget() then return true end
+                    -- call_action_list,name=st,if=active_enemies<3
+                    if ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
+                        if actionList_SingleTarget() then return end
                     end
         -- Call Action List - AoE
-                    -- call_action_list,name=aoe,if=active_enemies>3|(active_enemies=3&azerite.swift_roundhouse.rank<=2)
-                    if ((mode.rotation == 1 and ((#enemies.yards8 == 3 and traits.swiftRoundhouse.rank() <= 2) or #enemies.yards8 > 3))
-                        or (mode.rotation == 2 and #enemies.yards8 > 0))
-                    then
+                    -- call_action_list,name=aoe,if=active_enemies>=3
+                    if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                         if actionList_AoE() then return end
                     end
                 end -- End Simulation Craft APL

@@ -294,7 +294,7 @@ local function runRotation()
 				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
 					cleanseToxinsCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,5) <= 1 then
+				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,6) <= 1 then
 					cleanseToxinsCase2 = br.friend[i].unit
 				end
 			end
@@ -447,7 +447,7 @@ local function runRotation()
 					end
 				end
 				-- Blessing of Protection
-				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat then
+				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss() then
 					-- Player
 					if getOptionValue("Blessing of Protection Target") == 1 then
 						if php <= getValue("Blessing of Protection") then

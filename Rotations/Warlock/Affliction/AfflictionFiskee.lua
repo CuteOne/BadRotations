@@ -33,11 +33,11 @@ local function createToggles()
     };
     CreateButton("Interrupt",4,0)
 -- Multi-Dot Button
-    MultiDotModes = {
+    UAModes = {
         [1] = { mode = "On", value = 1 , overlay = "UA spam enabled", tip = "UA spam enabled, default option for raids and dungeons", highlight = 1, icon = br.player.spell.unstableAffliction},
         [2] = { mode = "Off", value = 2 , overlay = "UA spam diabled", tip = "Will not spam UA, usefull for questing ect.", highlight = 0, icon = br.player.spell.corruption}
     };
-    CreateButton("MultiDot",5,0)
+    CreateButton("UA",5,0)
 end
 
 ---------------
@@ -141,7 +141,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        br.player.mode.multidot = br.data.settings[br.selectedSpec].toggles["MultiDot"]
+        br.player.mode.ua = br.data.settings[br.selectedSpec].toggles["UA"]
 
 --------------
 --- Locals ---
@@ -449,7 +449,7 @@ local function runRotation()
             if cast.shadowBolt() then return end
           end
           -- actions.fillers+=/agony,if=buff.movement.up&!(talent.siphon_life.enabled&(prev_gcd.1.agony&prev_gcd.2.agony&prev_gcd.3.agony)|prev_gcd.1.agony)
-          if moving and not (talent.siphonLife and cast.last.agony()) then
+          if moving and (not ((talent.siphonLife and (cast.last.agony(1) or cast.last.agony(2) or cast.last.agony(3))) or not talent.siphonLife and cast.last.agony(1)) or talent.absoluteCorruption) then
             if cast.agony() then return end
           end
           -- actions.fillers+=/siphon_life,if=buff.movement.up&!(prev_gcd.1.siphon_life&prev_gcd.2.siphon_life&prev_gcd.3.siphon_life)
@@ -594,6 +594,11 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
+          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10 or thp == 100) then
+            if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
+              if cast.agony() then return end
+            end
+          end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
@@ -601,6 +606,11 @@ local function runRotation()
                   if cast.agony(thisUnit) then return end
                 end
               end
+          end
+          if ttd("target") > 10 and debuff.agony.exists() and debuff.agony.refresh() then
+            if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
+              if cast.agony() then return end
+            end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
@@ -679,7 +689,10 @@ local function runRotation()
               end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
-          if seedTargetsHit < 3 + writheInAgonyValue then
+          if seedTargetsHit < 3 + writheInAgonyValue or moving then
+            if debuff.corruption.refresh() and (ttd("target") > 10 or thp == 100) then
+              if cast.corruption() then return end
+            end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
@@ -712,7 +725,7 @@ local function runRotation()
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
-          if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) or mode.multidot == 2 then
+          if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) or mode.ua == 2 then
             if actionList_Fillers() then return end
           end
           -- actions+=/seed_of_corruption,if=variable.spammable_seed
@@ -872,7 +885,7 @@ local function runRotation()
 ---------------------------
 --- Pre-Combat Rotation ---
 ---------------------------
-			if actionList_PreCombat() then return end
+			     if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -892,6 +905,10 @@ local function runRotation()
                     end
                     if isChecked("Shadowfury Key") and (SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus()) then
                       if cast.shadowfury("best",false,1,8) then return end
+                    end
+                    --CDs
+                    if useCDs() then
+                      if actionList_Cooldowns() then return end
                     end
                     -- Burst
                     if (isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus())) or mode.rotation == 3 then
