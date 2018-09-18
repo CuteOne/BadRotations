@@ -177,6 +177,7 @@ local function createOptions()
            -- Holy Word: Sanctify
             br.ui:createSpinner(section, "Holy Word: Sanctify",  80,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Holy Word: Sanctify Targets",  3,  0,  40,  1,  "Minimum Holy Word: Sanctify Targets")
+            br.ui:createCheckbox(section,"Use Old HW Sanctify","Uses the old method of HW Sanctify. Causes no freezes, but less effective than the current method.")  
 		-- Holy Word: Sanctify Hot Key
 			br.ui:createDropdown(section, "Holy Word: Sanctify HK", br.dropOptions.Toggle, 10, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Holy Word: Sanctify Usage.")
          br.ui:checkSectionState(section)
@@ -527,13 +528,7 @@ local function runRotation()
                         if cast.holyWordSerenity(br.friend[i].unit) then return end
                     end
                 end
-            end            
-		-- Holy Word: Sanctify Old Version
-       --    if isChecked("Holy Word: Sanctify") then
-       --         if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
-		--			RunMacroText("/stopspelltarget")
-		--		end
-        --    end            
+            end                     
 		-- Binding Heal On Me
             if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
                 for i = 1, #br.friend do
@@ -605,17 +600,19 @@ local function runRotation()
                     end
                 end
             end               
-         -- Holy Word: Sanctify JR Locals          
-        for i=1, #friends.yards40 do
-            if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
-                tinsert(sanctifyCandidates,friends.yards40[i])
-            end
-            if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
-                tinsert(bindingHealCandidates,friends.yards40[i])
-            end
-        end
+         -- Holy Word: Sanctify JR Locals
+			if not isChecked("Use Old HW Sanctify") then      
+		        for i=1, #friends.yards40 do
+		            if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
+		                tinsert(sanctifyCandidates,friends.yards40[i])
+		            end
+		            if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
+		                tinsert(bindingHealCandidates,friends.yards40[i])
+		            end
+		        end
+	        end
      	-- Holy Word: Sanctify
-        if cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
+     	   if not isChecked("Use Old HW Sanctify") and cd.holyWordSanctify.remain() == 0 and #sanctifyCandidates >= getValue("Holy Word: Sanctify Targets") then
             -- get the best ground location to heal most or all of them
             local loc = getBestGroundCircleLocation(sanctifyCandidates,getValue("Holy Word: Sanctify Targets"),6,10)
              if loc ~= nil then
@@ -623,12 +620,12 @@ local function runRotation()
              end
         end
              
-		-- Holy Word: Sanctify
-        --    if isChecked("Holy Word: Sanctify") then
-         --       if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
-		--			RunMacroText("/stopspelltarget")
-		--		end
-        --    end
+		-- Old Holy Word: Sanctify
+  			 if isChecked("Use Old HW Sanctify") then
+    			  if castWiseAoEHeal(br.friend,spell.holyWordSanctify,40,getValue("Holy Word: Sanctify"),getValue("Holy Word: Sanctify Targets"),6,false,false) then
+				RunMacroText("/stopspelltarget")
+				end
+		   end
         -- Prayer of Mending
             if isChecked("Prayer of Mending") and getDebuffRemain("player",240447) == 0 and not isMoving("player")  then
                 for i = 1, #br.friend do
