@@ -93,7 +93,7 @@ local function createOptions()
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Agi Pot
-            br.ui:createCheckbox(section,"Potion (Rising Death)")
+            br.ui:createCheckbox(section,"Potion")
         -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
         -- Racial
@@ -519,7 +519,7 @@ local function runRotation()
                 if not trait.primalInstincts.active() then
                     -- opener without Trait
                     if not OPN1 then
-                        Print("Starting Opener without Trait")
+                        Print("Starting Opener without Trait. If you enabled Pre-Pull, it will wait now for the timer")
                         openerCount = openerCount + 1
                         OPN1 = true
                       elseif OPN1 and not AOW1 then  
@@ -528,7 +528,7 @@ local function runRotation()
                             if inRaid and isChecked("Potion") then
                                  if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                                         if canUse(152559) then
-                                         useItem(152559)
+                                                useItem(152559)
                                                     if isChecked("Aspect of the Wild") and useCDs() then
                                                             castOpener("aspectOfTheWild","AOW1", 1)
                                                     else
@@ -547,14 +547,15 @@ local function runRotation()
                                             print("Debug: We are in Raid, prepull is enabled and we NOT used potion")
 
                                         end
-                                else    
+                                elseif not isChecked("Pre-Pull Timer") then       
+
                                                  if isChecked("Aspect of the Wild") and useCDs() then
-                                                        castOpener("aspectOfTheWild","AOW1", 1)
+                                                 castOpener("aspectOfTheWild","AOW1", 1)
                                                 else
                                                         AOW1 = true
                                                         print("Cooldowns or Aspect Disabled")
                                                 end  
-                                     print("Debug: We are in Raid but pre-Pull is disabled")
+                                            print("Debug: We are in Raid but pre-Pull is disabled")
                                 end     
                             elseif inRaid and not isChecked("Potion") then
                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -576,49 +577,6 @@ local function runRotation()
                                 print("Debug: We are not in a Raid")
                             end              
                             -- end of Pre-Pull Logic 
-
-                            if inRaid and isChecked("Potion") and useCDs() then
-                                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                                        if canUse(152559) then
-                                         useItem(152559)
-                                            if isChecked("Aspect of the Wild") and useCDs() then
-                                                castOpener("aspectOfTheWild","AOW1", 1)
-                                                return 
-                                            else
-                                            AOW1 = true
-                                            print("Cooldowns or Aspect Disabled")
-                                            return
-                                            end  
-                                        else
-                                         print("No Potion detected")
-                                            if isChecked("Aspect of the Wild") and useCDs() then
-                                                castOpener("aspectOfTheWild","AOW1", 1)
-                                                return 
-                                            else
-                                            AOW1 = true
-                                            print("Cooldowns or Aspect Disabled")
-                                            return
-                                            end  
-                                        end
-                                else    
-                                      if isChecked("Aspect of the Wild") and useCDs() then
-                                           castOpener("aspectOfTheWild","AOW1", 1) 
-                                            return
-                                        else
-                                            AOW1 = true
-                                            print("Cooldowns or Aspect Disabled")
-                                            return
-                                      end 
-                                end     
-                            else
-                                if isChecked("Aspect of the Wild") and useCDs() then
-                                     castOpener("aspectOfTheWild","AOW1", 1)  
-                                else
-                                    AOW1 = true
-                                    print("Cooldowns or Aspect Disabled")
-                                    return
-                                end 
-                            end
                         
                     elseif AOW1 and not BAR1 then
                          if charges.barbedShot.count() >= 1 then
@@ -667,7 +625,7 @@ local function runRotation()
                     end
                else -- with Trait active
                     if not OPN1 then
-                        Print("Starting Opener")
+                        Print("Starting Opener. If you enabled Pre-Pull, it will wait now for the timer")
                         openerCount = openerCount + 1
                         OPN1 = true
                          elseif OPN1 and not BEAST1 then                                   
@@ -684,7 +642,7 @@ local function runRotation()
                                             print("We are in Raid, prepull is enabled and we NOT used potion")
 
                                         end
-                                else    
+                                elseif not isChecked("Pre-Pull Timer") then    
                                      castOpener("bestialWrath","BEAST1", 1)
                                      print("Debug: We are in Raid but pre-Pull is disabled")
                                 end     
