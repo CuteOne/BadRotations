@@ -887,9 +887,15 @@ local function runRotation()
                      if talent.chimaeraShot then
                         if cast.chimaeraShot() then return end
                     end
-                    --actions+=/a_murder_of_crows (added TTD as requested)
-                     if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
+                    --actions+=/a_murder_of_crows --- NOTE::: Use Crows as Simc say on Raid / DUngeons at Bosses
+                     if inRaid or InInstance and isBoss("target") then
+                       if isChecked("A Murder Of Crows / Barrage") then
+                         if cast.aMurderOfCrows() then return end
+                       end 
+                    else -- Outdoor / Trash
+                        if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
                             if cast.aMurderOfCrows() then return end
+                        end
                     end
 
                     -- actions+=/dire_beast
