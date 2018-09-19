@@ -1180,7 +1180,7 @@ local function runRotation()
         -- Moonfire
             -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
             if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
-                if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and combo < 5 then
+                if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
                     if cast.moonfireFeral() then return end
                 end
             end
