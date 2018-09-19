@@ -79,6 +79,7 @@ local function createOptions()
         --    br.ui:createCheckbox(section,"Flask / Crystal")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createSpinner(section,"Revitalizing Voodoo Totem", 80, 0, 100, 1, "Uses this Trinket when Tank's HP Falls below this set.")           
 		-- Pre-Pot Timer
 			br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
          -- Racial
@@ -183,11 +184,11 @@ local function createOptions()
          br.ui:checkSectionState(section)
          section = br.ui:createSection(br.ui.window.profile, colordh.."AOE Healing") 
 		-- Binding Heal
-            br.ui:createSpinner(section, "Binding Heal",  70,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Binding Heal",  70,  0,  100,  5,  "Cast Binding Heal if anyone falls below this HP.")
         -- Binding Heal Player HP
             br.ui:createSpinnerWithout(section, "Binding Heal Player HP",  80,  0,  100,  5,  "|cffFFBB00Will only cast if Player HP is below this Percentage.");
         -- Binding Heal Targets
-           -- br.ui:createCheckbox(section, "Binding Heal Multi","Will Only cast if 2 of our party/raid need healing excluding me. But will follow the Binding Heal Player HP logic.");         
+            br.ui:createCheckbox(section, "Binding Heal Multi","Will attempt to only use Binding Heal if there are at least 2 allies injured and below set HP");         
         -- Prayer of Healing
             br.ui:createSpinner(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")           
@@ -473,7 +474,17 @@ local function runRotation()
                     if canUse(14) then
                         useItem(14)
                     end
-                end
+                end            
+             --Revitalizing Voodoo
+    		if isChecked("Revitalizing Voodoo Totem") then
+    			for i = 1, #br.friend do
+    			 if br.friend[i].hp <= getValue("Revitalizing Voodoo Totem") then
+    				if hasEquiped(158320) and canUse(158320) and getBuffRemain(br.friend[i].unit,266018) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+    						UseItemByName(158320,br.friend[i].unit)
+    					end
+    				end
+    			end
+    		end
             -- Racial: Blood Elf Arcane Torrent
                 if isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= getValue("Arcane Torrent Mana") then
                     if castSpell("player",racial,false,false,false) then return end
@@ -606,9 +617,6 @@ local function runRotation()
 		            if cd.holyWordSanctify.remain() == 0 and friends.yards40[i].hp < getValue("Holy Word: Sanctify") then
 		                tinsert(sanctifyCandidates,friends.yards40[i])
 		            end
-		            if talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
-		                tinsert(bindingHealCandidates,friends.yards40[i])
-		            end
 		        end
 	        end
      	-- Holy Word: Sanctify
@@ -661,30 +669,34 @@ local function runRotation()
                     if cast.halo() then return end
                 end
             end			
-        --JR Binding Heal Logic Test
-           if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
-            for i=1, #tanks do
-                thisTank = tanks[i]
-                if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and php <= getValue("Binding Heal Player HP") then
-                    if cast.bindingHeal(thisTank.unit, "aoe") then return true end
-                end
-            end
-            if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and php <= getValue("Binding Heal Player HP") then
-                if cast.bindingHeal(lowest.unit, "aoe") then return true end
-            end
-        end 
-		-- Binding Heal
-         --   if isChecked("Binding Heal") and talent.bindingHeal and php <= getValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
-         --       for i = 1, #br.friend do
-         --       	if castWiseAoEHeal(br.friend,spell.bindingHeal,40,getValue("Binding Heal"),2,3,false,true) and isChecked("Binding Heal Multi") then
-		--					RunMacroText("/stopspelltarget") 
-		--			elseif br.friend[i].hp <= getValue("Binding Heal") and not isChecked("Binding Heal Multi") then
-		--				if cast.bindingHeal(br.friend[i].unit) then
-		--					RunMacroText("/stopspelltarget")
-		--				end
-		--			end
-		--		end
-		--	end			
+        --JR Binding Heal Scan
+          if isChecked("Binding Heal Multi") and talent.bindingHeal and friends.yards40[i].hp < getValue("Binding Heal") then
+		                tinsert(bindingHealCandidates,friends.yards40[i])
+		            end
+		-- Binding Heal JR
+        if isChecked("Binding Heal Multi") and isChecked("Binding Heal") then
+	           if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
+	            for i=1, #tanks do
+	                thisTank = tanks[i]
+	                if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and php <= getValue("Binding Heal Player HP") then
+	                    if cast.bindingHeal(thisTank.unit, "aoe") then return true end
+	                end
+	            end
+	            if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and php <= getValue("Binding Heal Player HP") then
+	                if cast.bindingHeal(lowest.unit, "aoe") then return true end
+	            end
+	        end 
+        end
+		-- Binding Heal Single
+            if isChecked("Binding Heal") and not isChecked("Binding Heal Multi") and talent.bindingHeal and php <= getValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+                for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Binding Heal")  then
+						if cast.bindingHeal(br.friend[i].unit) then
+							RunMacroText("/stopspelltarget")
+						end
+					end
+				end
+			end			
         -- Renew
             if isChecked("Renew") then
                 for i = 1, #br.friend do
