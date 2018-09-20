@@ -176,6 +176,25 @@ Tenth 		noCast			True to return True/False instead of casting spell.
 function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,DeadCheck,DistanceSkip,usableSkip,noCast)
 	if GetObjectExists(Unit) --and betterStopCasting(SpellID) ~= true
 		and (not UnitIsDeadOrGhost(Unit) or DeadCheck) then
+		--Quaking helper
+		if getOptionCheck("Quaking Helper") then
+			--Detect channels
+			local channeledSpell = false
+			local costTable = GetSpellPowerCost(SpellID)
+			for _, costInfo in pairs(costTable) do
+				if costInfo.costPerSec > 0 then
+					channeledSpell = true
+				end
+			end
+			-- Quake check
+			local quakeRemain = getDebuffRemain("player", 240448)
+			if quakeRemain > 0 then
+				local spellCastTime = select(4,GetSpellInfo(SpellID))
+				if (spellCastTime > 0 and quakeRemain <= ((spellCastTime+300)/1000)) or (spellCastTime == 0 and channeledSpell and quakeRemain < 1.5) then
+					return false
+				end
+			end
+		end
 		-- we create an usableSkip for some specific spells like hammer of wrath aoe mode
 		if usableSkip == nil then usableSkip = false end
 		-- stop if not enough power for that spell
