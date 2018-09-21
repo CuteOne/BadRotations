@@ -396,43 +396,8 @@ local function runRotation()
                 local thisUnit = br.friend[1].unit
                 if cast.spiritmend(thisUnit) then return end
             end
-        end
-    -- Action List - Extras
-        local function actionList_Extras()
-        -- Dummy Test
-            if isChecked("DPS Testing") then
-                if GetObjectExists("target") then
-                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-                        StopAttack()
-                        ClearTarget()
-                        PetStopAttack()
-                        PetFollow()
-                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
-                        profileStop = true
-                    end
-                end
-            end -- End Dummy Test
-        -- Misdirection
-            if mode.misdirection == 1 then
-                  if isValidUnit("target") then
-                      if inInstance or inRaid then
-                          for i = 1, #br.friend do
-                              if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                  if cast.misdirection(br.friend[i].unit) then return end
-                              end
-                          end
-                      else
-                          if GetUnitExists("pet") then
-                              if cast.misdirection("pet") then return end
-                          end
-                      end
-                  end
-            end
 
-         
-
-
-            if isChecked("Purge") and getValue("Purge") == 1 then
+             if isChecked("Purge") and getValue("Purge") == 1 then
                     for i = 1, #enemies.yards5p do 
                         local thisUnit = enemies.yards5p[i]
                                     --your dispel logic
@@ -474,6 +439,44 @@ local function runRotation()
                             if cast.sporeCloud("target") then return end
                         end
                     end                
+            end
+
+
+
+
+
+            
+        end
+    -- Action List - Extras
+        local function actionList_Extras()
+        -- Dummy Test
+            if isChecked("DPS Testing") then
+                if GetObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        PetStopAttack()
+                        PetFollow()
+                        Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                        profileStop = true
+                    end
+                end
+            end -- End Dummy Test
+        -- Misdirection
+            if mode.misdirection == 1 then
+                  if isValidUnit("target") then
+                      if inInstance or inRaid then
+                          for i = 1, #br.friend do
+                              if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
+                                  if cast.misdirection(br.friend[i].unit) then return end
+                              end
+                          end
+                      else
+                          if GetUnitExists("pet") then
+                              if cast.misdirection("pet") then return end
+                          end
+                      end
+                  end
             end
         end -- End Action List - Extras
     -- Action List - Defensive
@@ -603,13 +606,13 @@ local function runRotation()
                 if not trait.primalInstincts.active() then
                     -- opener without Trait
                     if not OPN1 then
-                        Print("Opener ready. If you enabled Pre-Pull-Timer, it will now wait for it")
+                        Print("Opener ready (I not detected the Trait). If you enabled Pre-Pull-Timer, it will now wait for it")
                         OPN1 = true
                       elseif OPN1 and not AOW1 then  
 
                              -- pre-pull Logic
                             if (inRaid or inInstance) and isChecked("Potion") then
-                                 if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
+                                if isChecked("Pre-Pull Timer")  and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
                                            if getValue("Potion") == 2 then
                                                     if canUse(152559) then
                                                             useItem(152559)
@@ -649,10 +652,10 @@ local function runRotation()
                                                                         else
                                                                                 AOW1 = true
                                                                                 print("Cooldowns or Aspect Disabled")
-                                                                            end  
+                                                                        end  
                                                                 --print("Debug: We are in Raid, prepull is enabled and we NOT used potion because I cant find Agility Potion")
                                                                 end
-                                        end
+                                            end
                                 elseif not isChecked("Pre-Pull Timer") and isValidUnit("target") then       
 
                                                  if isChecked("Aspect of the Wild") and useCDs() then
@@ -663,9 +666,9 @@ local function runRotation()
                                                 end  
                                             --print("Debug: We are in Raid but pre-Pull is disabled")
 
-                                 elseif inCombat and isChecked("Pre-Pull Timer") then
+                                elseif inCombat and isChecked("Pre-Pull Timer") then
                                      --print("Debug: Pre-Pull is Enabled but there was no Timer?! maybe LFR?")
-                                      if isChecked("Aspect of the Wild") and useCDs() then
+                                                if isChecked("Aspect of the Wild") and useCDs() then
                                                  castOpener("aspectOfTheWild","AOW1", 1)
                                                 else
                                                         AOW1 = true
@@ -682,6 +685,21 @@ local function runRotation()
                                                     print("Cooldowns or Aspect Disabled")
                                                 end  
                                 --print("Debug: We are in Raid without Potions enabled")
+                                elseif not isChecked("Pre-Pull Timer") and isValidUnit("target") then 
+                                                   if isChecked("Aspect of the Wild") and useCDs() then
+                                                        castOpener("aspectOfTheWild","AOW1", 1)
+                                                    else
+                                                        AOW1 = true
+                                                        print("Cooldowns or Aspect Disabled")
+                                                    end  
+                                                    print("Debug: We are in Raid/Dungeon without Potions enabled and without Pull Timer")
+                                elseif inCombat and isChecked("Pre-Pull-Timer") then
+                                                if isChecked("Aspect of the Wild") and useCDs() then
+                                                    castOpener("aspectOfTheWild","AOW1", 1)
+                                                else
+                                                    AOW1 = true
+                                                    print("Cooldowns or Aspect Disabled")
+                                                end
                                 end
                             else
                                                 if isChecked("Aspect of the Wild") and useCDs() then
@@ -689,8 +707,8 @@ local function runRotation()
                                                 else
                                                     AOW1 = true
                                                     print("Cooldowns or Aspect Disabled")
-                                                end  
-                               --Print("Debug: We are not in a Raid")
+                                                end 
+                                                Print("Debug: We are not in a Raid/Dungeon so ignoring Potion/Pull-Timer hopefully")
                             end              
                             -- end of Pre-Pull Logic 
                         
@@ -746,12 +764,12 @@ local function runRotation()
                     end
                else -- with Trait active
                     if not OPN1 then
-                        Print("Starting Opener. If you enabled Pre-Pull, it will wait now for the timer")
+                        Print("Opener is ready.(I detected the trait) If you enabled Pre-Pull, it will wait now for the timer")
                         OPN1 = true
                          elseif OPN1 and not BEAST1 then                                   
                             -- pre-pull Logic
                             if (inRaid or inInstance) and isChecked("Potion") then
-                                 if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
+                                if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
                                             if getValue("Potion") == 2 then
                                                     if canUse(152559) then
                                                             useItem(152559)
@@ -797,7 +815,7 @@ local function runRotation()
                                                             end
                                                     end
                                             end  
-                                elseif not isChecked("Pre-Pull Timer") and isValidUnit("target") then    
+                            elseif not isChecked("Pre-Pull Timer") and isValidUnit("target") then    
                                                             if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
                                                             --print("Debug: We are in Raid, prepull is disabled")
@@ -806,7 +824,7 @@ local function runRotation()
                                                             print("Bestial Wrath is disabled")
                                                             --print("Debug: We are in Raid, prepull is disabled and Bestial Wrath is disabled")
                                                             end
-                                elseif inCombat and isChecked("Pre-Pull Timer") then
+                            elseif inCombat and isChecked("Pre-Pull Timer") then
                                                             if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
                                                             --print("Debug: We are in Raid, prepull is enabled but Combat just started. Dungeon or LFR?")
@@ -815,9 +833,8 @@ local function runRotation()
                                                             print("Bestial Wrath is disabled")
                                                             --print("Debug: We are in Raid, prepull is enabled but Combat just started. Dungeon or LFR? + Bestial Wrath is disabled")
                                                             end
-                                     
-                                end     
-                            elseif (inRaid or inInstance) and not isChecked("Potion") then
+                           end              
+                        elseif (inRaid or inInstance) and not isChecked("Potion") then
                                 if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
                                                             if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
@@ -826,9 +843,8 @@ local function runRotation()
                                                             BEAST1 = true
                                                             print("Bestial Wrath is disabled")
                                                             --print("Debug: We are in Raid, prepull is enabled and Potion is disabled + Bestial Wrath is disabled")
-                                                            end
-                                end
-                            else
+                                                            end 
+                                elseif not isChecked("Pre-Pull Timer") and isValidUnit("target") then 
                                                              if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
                                                            -- print("Debug: We are not in a Raid")
@@ -837,7 +853,17 @@ local function runRotation()
                                                             print("Bestial Wrath is disabled")
                                                             --print("Debug: We are not in a Raid and Bestial Wrath is disabled")
                                                             end
-                            end              
+                                elseif inCombat and isChecked("Pre-Pull-Timer") then
+                                                    if br.player.mode.beastialWrath == 1 then
+                                                        castOpener("bestialWrath","BEAST1", 1)
+                                                           -- print("Debug: We are not in a Raid")
+                                                    else
+                                                        BEAST1 = true
+                                                        print("Bestial Wrath is disabled")
+                                                            --print("Debug: We are not in a Raid and Bestial Wrath is disabled")
+                                                    end
+                                end
+                        end             
                             -- end of Pre-Pull Logic            
                         elseif BEAST1 and not MOC1 then
                             if useCDs() and isChecked("A Murder Of Crows") then
