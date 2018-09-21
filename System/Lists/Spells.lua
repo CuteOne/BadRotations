@@ -1081,6 +1081,15 @@ br.lists.spells = {
                 callPet3                    = 83243,
                 callPet4                    = 83244,
                 callPet5                    = 83245,
+                --pet Purges
+                spiritShock                 = 264265,
+                chiJiTranq                  = 264028,
+                naturesGrace                = 264266,
+                netherShock                 = 264264,
+                sonicBlast                  = 264263,
+                soothingWater               = 254262,
+                sporeCloud                  = 254056,
+
                 camouflage                  = 199483,
                 catlikeReflexes             = 263892,
                 claw                        = 16827,
