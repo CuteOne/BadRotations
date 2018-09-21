@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bestialWrath },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bestialWrath }
     };
-    CreateButton("Cooldown",2,0)
+   	CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
@@ -81,8 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Growl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Spirit Mend
-            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+		-- Spirit Mend
+			br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Pet Attacks
             br.ui:createCheckbox(section, "Pet Attacks")
         br.ui:checkSectionState(section)
@@ -130,7 +130,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Counter Shot
             br.ui:createCheckbox(section,"Counter Shot")
-    -- Intimidation
+	-- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
@@ -259,14 +259,14 @@ local function runRotation()
             end
         end
 
-        if leftCombat == nil then leftCombat = GetTime() end
-        if profileStop == nil then profileStop = false end
+   		if leftCombat == nil then leftCombat = GetTime() end
+		if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
         if openerCount == nil then openerCount = 0 end
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
-            openerCount = 0
+			openerCount = 0
             OPN1 = false
             MOC1 = false
             KC1 = false
@@ -350,7 +350,7 @@ local function runRotation()
             if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
                 if cast.mendPet() then return end
             end
-            -- Spirit Mend
+			-- Spirit Mend
             if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and lowestHP < getOptionValue("Spirit Mend") then
                 local thisUnit = br.friend[1]
                 if cast.spiritmend(thisUnit) then return end
@@ -440,7 +440,7 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-            -- Counter Shot
+	        -- Counter Shot
                 if isChecked("Counter Shot") then
                     for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
@@ -504,20 +504,20 @@ local function runRotation()
                 if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-                        if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
-                              if cast.aspectOfTheWild() then return end
-                        end
+        				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+        					  if cast.aspectOfTheWild() then return end
+        				end
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
     -- Action List - Opener
         function actionList_Opener()
-        -- Start Attack
+		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false then
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Begin
-                    if not OPN1 then
+					if not OPN1 then
                         Print("Starting Opener")
                         openerCount = openerCount + 1
                         OPN1 = true
@@ -525,7 +525,7 @@ local function runRotation()
             -- A Murder of Crows
                         -- a_murder_of_crows
                         if useCDs() and isChecked("A Murder Of Crows / Barrage") then
-                            if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return end
+       					    if castOpener("aMurderOfCrows","MOC1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": A Murder of Crows (Uncastable)")
                             openerCount = openerCount + 1
@@ -542,10 +542,10 @@ local function runRotation()
                             KC1 = true
                         end
                     elseif KC1 and not CS1 then
-            -- Cobra Shot
+       		-- Cobra Shot
                         -- cobra_shot
                         if cast.able.cobraShot() then
-                            if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return end
+       					    if castOpener("cobraShot","CS1",openerCount) then openerCount = openerCount + 1; return end
                         else
                             Print(openerCount..": Cobra Shot (Uncastable)")
                             openerCount = openerCount + 1
@@ -557,11 +557,11 @@ local function runRotation()
                         openerCount = 0
                         opener = true
                         return
-                    end
+       				end
                 end
-            elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-                opener = true
-            end
+			elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+				opener = true
+			end
         end -- End Action List - Opener
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -664,7 +664,7 @@ local function runRotation()
                     if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
                         if cast.barbedShot() then return end
                     end
-                    --Cooldowns
+					--Cooldowns
                     if actionList_Cooldowns() then return end
                     --actions+=/a_murder_of_crows
                     if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
@@ -713,8 +713,8 @@ local function runRotation()
                         if cast.cobraShot() then return end
                     end
                 end -- End SimC APL
-            end --End In Combat
-        end --End Rotation Logic
+			end --End In Combat
+		end --End Rotation Logic
     -- end -- End Timer
 end -- End runRotation
 local id = 253
