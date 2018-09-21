@@ -432,49 +432,46 @@ local function runRotation()
          
 
 
-                if isChecked("Purge") and getValue("Purge") == 1 then
-                                for i = 1, #enemies.yards5p do 
-                                    local thisUnit = enemies.yards5p[i]
+            if isChecked("Purge") and getValue("Purge") == 1 then
+                    for i = 1, #enemies.yards5p do 
+                        local thisUnit = enemies.yards5p[i]
                                     --your dispel logic
-                                     if canDispel(thisUnit,spell.spiritShock) and not isBoss() then
-                                         if cast.able.spiritShock() then
-                                                if cast.spiritShock(thisUnit) then return end
-                                        elseif cast.able.chiJiTranq() then
-                                                if cast.chiJiTranq(thisUnit) then return end
-                                        elseif cast.able.naturesGrace() then
-                                                if cast.naturesGrace(thisUnit) then return end
-                                        elseif cast.able.neterShock() then
-                                                if cast.neterShock(thisUnit) then return end
-                                        elseif cast.able.sonicBlast() then
-                                                if cast.sonicBlast(thisUnit) then return end
-                                        elseif cast.able.soothingWater() then
-                                                if cast.soothingWater(thisUnit) then return end
-                                        elseif cast.able.sporeCloud() then
-                                                if cast.sporeCloud(thisUnit) then return end
-                                        end
-                                    end
+                            if canDispel(thisUnit,spell.spiritShock) and not isBoss() then
+                                if cast.able.spiritShock() then
+                                    if cast.spiritShock(thisUnit) then return end
+                                elseif cast.able.chiJiTranq() then
+                                    if cast.chiJiTranq(thisUnit) then return end
+                                elseif cast.able.naturesGrace() then
+                                    if cast.naturesGrace(thisUnit) then return end
+                                elseif cast.able.neterShock() then
+                                    if cast.neterShock(thisUnit) then return end
+                                elseif cast.able.sonicBlast() then
+                                    if cast.sonicBlast(thisUnit) then return end
+                                elseif cast.able.soothingWater() then
+                                    if cast.soothingWater(thisUnit) then return end
+                                elseif cast.able.sporeCloud() then
+                                    if cast.sporeCloud(thisUnit) then return end
                                 end
-                elseif isChecked("Purge") and getValue("Purge") == 2 then
-                                if  canDispel("target",spell.spiritShock) and not isBoss() then
-                                    if cast.able.spiritShock() then
-                                            if cast.spiritShock("target") then return end
-                                    elseif cast.able.chiJiTranq() then
-                                            if cast.chiJiTranq("target") then return end
-                                    elseif cast.able.naturesGrace() then
-                                            if cast.naturesGrace("target") then return end
-                                    elseif cast.able.neterShock() then
-                                            if cast.neterShock("target") then return end
-                                    elseif cast.able.sonicBlast() then
-                                            if cast.sonicBlast("target") then return end
-                                    elseif cast.able.soothingWater() then
-                                            if cast.soothingWater("target") then return end
-                                    elseif cast.able.sporeCloud() then
-                                            if cast.sporeCloud("target") then return end
-                                    end
-                                end
-                end                
-
-
+                            end
+                    end
+            elseif isChecked("Purge") and getValue("Purge") == 2 then
+                    if  canDispel("target",spell.spiritShock) and not isBoss() then
+                        if cast.able.spiritShock() then
+                            if cast.spiritShock("target") then return end
+                        elseif cast.able.chiJiTranq() then
+                            if cast.chiJiTranq("target") then return end
+                        elseif cast.able.naturesGrace() then
+                            if cast.naturesGrace("target") then return end
+                        elseif cast.able.neterShock() then
+                            if cast.neterShock("target") then return end
+                        elseif cast.able.sonicBlast() then
+                            if cast.sonicBlast("target") then return end
+                        elseif cast.able.soothingWater() then
+                            if cast.soothingWater("target") then return end
+                        elseif cast.able.sporeCloud() then
+                            if cast.sporeCloud("target") then return end
+                        end
+                    end                
             end
         end -- End Action List - Extras
     -- Action List - Defensive
@@ -709,13 +706,12 @@ local function runRotation()
                         
                         end
                     elseif MOC1 and not BEAST1 then
-
-                                                            if br.player.mode.beastialWrath == 1 then
-                                                            castOpener("bestialWrath","BEAST1", 4)
-                                                            else
-                                                            BEAST1 = true
-                                                            print("Bestial Wrath disabled")
-                                                            end
+                             if br.player.mode.beastialWrath == 1 then
+                                    castOpener("bestialWrath","BEAST1", 4)
+                            else
+                                BEAST1 = true
+                                print("Bestial Wrath disabled")
+                             end
 
                                              
                     elseif BEAST1 and not KCOM1 then
