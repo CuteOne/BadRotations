@@ -141,7 +141,8 @@ local function createOptions()
 		-- Light of the Martyr
 		br.ui:createSpinner(section, "Light of the Martyr", 40, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createSpinner(section, "Moving LotM", 80, 0, 100, 5, "","|cffFFFFFFisMoving Health Percent to Cast At")
-		br.ui:createCheckbox(section, "LoM after FoL")		
+		br.ui:createSpinner(section, "LoM after FoL", 60, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createDropdownWithout(section, "LoM after FoL Target", {"|cffFFFFFFTanks","|cffFFFFFFAll"}, 1, "|cffFFFFFFTarget for LoM after FoL")
 		br.ui:createSpinner(section, "LotM player HP limit", 50, 0, 100, 5, "","|cffFFFFFFLight of the Martyr Self HP limit", true)
 		br.ui:checkSectionState(section)
 		-------------------------
@@ -748,6 +749,7 @@ local function runRotation()
 			local holyShock40 = nil
 			local lightOfTheMartyrDS = nil
 			local lightOfTheMartyrHS = nil
+			local lightOfTheMartyrTANK = nil
 			local lightOfTheMartyrHP = nil
 			local flashOfLightTANK = nil
 			local flashOfLightInfuse10 = nil
@@ -787,7 +789,10 @@ local function runRotation()
 					if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not UnitIsUnit(br.friend[i].unit,"player") then
 						lightOfTheMartyrDS = br.friend[i].unit
 					end
-					if inInstance and php >= 90 and br.friend[i].hp <= 90 and GetSpellCooldown(20473) >= 1.5 and not UnitIsUnit(br.friend[i].unit,"player") and isCastingSpell(spell.flashOfLight) then
+					if  br.friend[i].hp <= getValue ("LoM after FoL") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetSpellCooldown(20473) >= gcd then
+						lightOfTheMartyrTANK = br.friend[i].unit
+					end
+					if  br.friend[i].hp <= getValue ("LoM after FoL") and GetSpellCooldown(20473) >= gcd and not UnitIsUnit(br.friend[i].unit,"player") then
 						lightOfTheMartyrHS = br.friend[i].unit
 					end
 					if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
@@ -886,8 +891,12 @@ local function runRotation()
 			if lightOfTheMartyrDS ~= nil and php <= getValue ("Critical HP") then
 				if cast.lightOfTheMartyr(lightOfTheMartyrDS) then return end
 			end
-			if isChecked("LoM after FoL") and lightOfTheMartyrHS ~= nil then
-				if CastSpellByName(GetSpellInfo(183998),lightOfTheMartyrHS) then return end
+			if isChecked("LoM after FoL") and isCastingSpell(spell.flashOfLight) and php >= getOptionValue("LotM player HP limit") then
+				if getOptionValue("LoM after FoL Target") == 1 and lightOfTheMartyrTANK ~= nil then
+					if CastSpellByName(GetSpellInfo(183998),lightOfTheMartyrTANK) then return end
+				elseif 	getOptionValue("LoM after FoL Target") == 2 and lightOfTheMartyrHS ~= nil then
+					if CastSpellByName(GetSpellInfo(183998),lightOfTheMartyrHS) then return end
+				end
 			end
 			-- Light of Martyr
 			if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
@@ -914,7 +923,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light") and ((isChecked("Holy Shock") and GetSpellCooldown(20473) > gcd) or not isChecked("Holy Shock")) and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Flash of Light")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
