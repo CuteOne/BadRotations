@@ -73,7 +73,13 @@ function canDispel(Unit,spellID)
 		if spellID == 213644 then typesList = {"Poison", "Disease"} end
 	end
 	if ClassNum == 3 then --Hunter
-		typesList = { }
+		if spellID == 264265 then typesList = { "Magic", "" } end --spiritShock
+		if spellID == 264028 then typesList = { "Magic", "" } end --chiJiTranq
+		if spellID == 264266 then typesList = { "Magic", "" } end --naturesGrace
+		if spellID == 264264 then typesList = { "Magic", "" } end --netherShock
+		if spellID == 264263 then typesList = { "Magic", "" } end --sonicBlast
+		if spellID == 254262 then typesList = { "Magic", "" } end --soothingWater
+		if spellID == 254056 then typesList = { "Magic", "" } end --sporeCloud
 	end
 	if ClassNum == 4 then --Rogue
 		-- Cloak of Shadows
