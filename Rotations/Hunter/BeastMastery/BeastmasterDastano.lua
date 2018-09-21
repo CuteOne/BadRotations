@@ -436,34 +436,36 @@ local function runRotation()
                     for i = 1, #enemies.yards5p do 
                         local thisUnit = enemies.yards5p[i]
                                     --your dispel logic
-                            if canDispel(thisUnit,spell.spiritShock) and not isBoss() then
-                                if cast.able.spiritShock() then
-                                    if cast.spiritShock(thisUnit) then return end
-                                elseif cast.able.chiJiTranq() then
+                            if canDispel(thisUnit,spell.spiritShock) then
+                                if cast.able.spiritShock(thisUnit) then
+                                    if cast.spiritShock(thisUnit) then 
+                                        print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.chiJiTranq(thisUnit) then
                                     if cast.chiJiTranq(thisUnit) then return end
-                                elseif cast.able.naturesGrace() then
+                                elseif cast.able.naturesGrace(thisUnit) then
                                     if cast.naturesGrace(thisUnit) then return end
-                                elseif cast.able.neterShock() then
-                                    if cast.neterShock(thisUnit) then return end
-                                elseif cast.able.sonicBlast() then
+                                elseif cast.able.netherShock(thisUnit) then
+                                    if cast.netherShock(thisUnit) then return end
+                                elseif cast.able.sonicBlast(thisUnit) then
                                     if cast.sonicBlast(thisUnit) then return end
-                                elseif cast.able.soothingWater() then
+                                elseif cast.able.soothingWater(thisUnit) then
                                     if cast.soothingWater(thisUnit) then return end
-                                elseif cast.able.sporeCloud() then
+                                elseif cast.able.sporeCloud(thisUnit) then
                                     if cast.sporeCloud(thisUnit) then return end
                                 end
                             end
                     end
             elseif isChecked("Purge") and getValue("Purge") == 2 then
-                    if  canDispel("target",spell.spiritShock) and not isBoss() then
+                    if  canDispel("target",spell.spiritShock) then
                         if cast.able.spiritShock() then
                             if cast.spiritShock("target") then return end
                         elseif cast.able.chiJiTranq() then
                             if cast.chiJiTranq("target") then return end
                         elseif cast.able.naturesGrace() then
                             if cast.naturesGrace("target") then return end
-                        elseif cast.able.neterShock() then
-                            if cast.neterShock("target") then return end
+                        elseif cast.able.netherShock() then
+                            if cast.netherShock("target") then return end
                         elseif cast.able.sonicBlast() then
                             if cast.sonicBlast("target") then return end
                         elseif cast.able.soothingWater() then
@@ -1070,7 +1072,7 @@ local function runRotation()
                          if cast.aMurderOfCrows() then return end
                        end 
                     else -- Outdoor / Trash
-                        if isChecked("A Murder Of Crows") and ttd("target") < 16 and ttd("target") > 3 then
+                        if isChecked("A Murder Of Crows") and ttd("target") < 22 and ttd("target") > 3 then
                             if cast.aMurderOfCrows() then return end
                         end
                     end
