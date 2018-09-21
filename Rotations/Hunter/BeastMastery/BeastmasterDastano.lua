@@ -403,49 +403,75 @@ local function runRotation()
                                     --your dispel logic
                             if canDispel(thisUnit,spell.spiritShock) then
                                 if cast.able.spiritShock(thisUnit) then
-                                    if cast.spiritShock(thisUnit) then 
-                                        print("casting dispel on ".. UnitName(thisUnit))
+                                    if castSpell(thisUnit,spell.spiritShock,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
                                         return end
                                 elseif cast.able.chiJiTranq(thisUnit) then
-                                    if cast.chiJiTranq(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.chiJiTranq,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 elseif cast.able.naturesGrace(thisUnit) then
-                                    if cast.naturesGrace(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.naturesGrace,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 elseif cast.able.netherShock(thisUnit) then
-                                    if cast.netherShock(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.netherShock,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 elseif cast.able.sonicBlast(thisUnit) then
-                                    if cast.sonicBlast(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.sonicBlast,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 elseif cast.able.soothingWater(thisUnit) then
-                                    if cast.soothingWater(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.soothingWater,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 elseif cast.able.sporeCloud(thisUnit) then
-                                    if cast.sporeCloud(thisUnit) then return end
+                                    if castSpell(thisUnit,spell.sporeCloud,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
                                 end
                             end
                     end
             elseif isChecked("Purge") and getValue("Purge") == 2 then
                     if  canDispel("target",spell.spiritShock) then
-                        if cast.able.spiritShock() then
-                            if cast.spiritShock("target") then return end
-                        elseif cast.able.chiJiTranq() then
-                            if cast.chiJiTranq("target") then return end
-                        elseif cast.able.naturesGrace() then
-                            if cast.naturesGrace("target") then return end
-                        elseif cast.able.netherShock() then
-                            if cast.netherShock("target") then return end
-                        elseif cast.able.sonicBlast() then
-                            if cast.sonicBlast("target") then return end
-                        elseif cast.able.soothingWater() then
-                            if cast.soothingWater("target") then return end
-                        elseif cast.able.sporeCloud() then
-                            if cast.sporeCloud("target") then return end
-                        end
-                    end                
+                          if cast.able.spiritShock("target") then
+                                    if castSpell("target",spell.spiritShock,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.chiJiTranq("target") then
+                                    if castSpell("target",spell.chiJiTranq,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.naturesGrace("target") then
+                                    if castSpell("target",spell.naturesGrace,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.netherShock("target") then
+                                    if castSpell("target",spell.netherShock,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.sonicBlast("target") then
+                                    if castSpell("target",spell.sonicBlast,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.soothingWater("target") then
+                                    if castSpell("target",spell.soothingWater,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.sporeCloud("target") then
+                                    if castSpell("target",spell.sporeCloud,true,false,false,false,false,true) then
+                                             print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                end
+                            end
             end
 
 
 
 
 
-            
+
         end
     -- Action List - Extras
         local function actionList_Extras()
@@ -677,6 +703,7 @@ local function runRotation()
                                     
                                 end     
                             elseif (inRaid or inInstance) and not isChecked("Potion") then
+                                print("We are in correct loop")
                                 if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
                                                 if isChecked("Aspect of the Wild") and useCDs() then
                                                     castOpener("aspectOfTheWild","AOW1", 1)
@@ -693,7 +720,7 @@ local function runRotation()
                                                         print("Cooldowns or Aspect Disabled")
                                                     end  
                                                     print("Debug: We are in Raid/Dungeon without Potions enabled and without Pull Timer")
-                                elseif inCombat and isChecked("Pre-Pull-Timer") then
+                                elseif inCombat and isChecked("Pre-Pull Timer") then
                                                 if isChecked("Aspect of the Wild") and useCDs() then
                                                     castOpener("aspectOfTheWild","AOW1", 1)
                                                 else
@@ -853,7 +880,7 @@ local function runRotation()
                                                             print("Bestial Wrath is disabled")
                                                             --print("Debug: We are not in a Raid and Bestial Wrath is disabled")
                                                             end
-                                elseif inCombat and isChecked("Pre-Pull-Timer") then
+                                elseif inCombat and isChecked("Pre-Pull Timer") then
                                                     if br.player.mode.beastialWrath == 1 then
                                                         castOpener("bestialWrath","BEAST1", 1)
                                                            -- print("Debug: We are not in a Raid")
@@ -1080,12 +1107,11 @@ local function runRotation()
                         if cast.multiShot() then return end
                     end
                     -- actions+=/kill_command
-                    if getDistance("pettarget","pet") < 5 then
+                    if getDistance("pettarget","pet") <= 5 then
                         if cast.killCommand("pettarget") then return end
-                    else
-                        if cd.dash.remain() > gcd then
-                        else
-                            cast.dash()
+                    elseif cd.dash.remain() > gcd then
+                        if cast.able.dash() then
+                            if castSpell("pet",spell.dash,true,false,false,false,false,true) then return end
                         end
                     end
                     --actions+=/chimaera_shot
@@ -1123,11 +1149,11 @@ local function runRotation()
                         if cast.cobraShot() then return end
                     end
                     -- experimental to make sure Rotation not stuck
-                   if power >= 100 and getDistance("pettarget","pet") < 5 then
+                        if power >= 100 and getDistance("pettarget","pet") <= 5 then
                             if cd.dash.remain() > gcd then
                                 if cast.cobraShot() then return end
-                            else
-                                cast.dash()
+                            elseif cast.able.dash() then 
+                                if castSpell("pet",spell.dash,true,false,false,false,false,true) then return end
                             end
                         end 
                 end -- End SimC APL
