@@ -77,6 +77,14 @@ function BadRotationsUpdate(self)
 				if isChecked("Talent Anywhere") then
 					talentAnywhere()
 				end
+
+				--Quaking helper
+				if getOptionCheck("Quaking Helper") then
+					if UnitChannelInfo("player") and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
+						SpellStopCasting()
+					end
+				end
+				
 			-- Blizz CastSpellByName bug bypass
 				if castID then
 					-- Print("Casting by ID")

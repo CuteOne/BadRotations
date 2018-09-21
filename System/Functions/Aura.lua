@@ -73,7 +73,13 @@ function canDispel(Unit,spellID)
 		if spellID == 213644 then typesList = {"Poison", "Disease"} end
 	end
 	if ClassNum == 3 then --Hunter
-		typesList = { }
+		if spellID == 264265 then typesList = { "Magic", "" } end --spiritShock
+		if spellID == 264028 then typesList = { "Magic", "" } end --chiJiTranq
+		if spellID == 264266 then typesList = { "Magic", "" } end --naturesGrace
+		if spellID == 264264 then typesList = { "Magic", "" } end --netherShock
+		if spellID == 264263 then typesList = { "Magic", "" } end --sonicBlast
+		if spellID == 254262 then typesList = { "Magic", "" } end --soothingWater
+		if spellID == 254056 then typesList = { "Magic", "" } end --sporeCloud
 	end
 	if ClassNum == 4 then --Rogue
 		-- Cloak of Shadows
@@ -175,8 +181,7 @@ function canDispel(Unit,spellID)
 						end
 					end
 					if (dispelUnitObj == nil ) then
-						if ((isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getDebuffDuration(Unit, debuffid)
-							* (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay"))
+						if (isChecked("Dispel delay") and (getDebuffDuration(Unit, debuffid) - getDebuffRemain(Unit, debuffid)) > (getValue("Dispel delay")-0.2 + math.random() * 0.4)) or not isChecked("Dispel delay")
 						then
 							HasValidDispel = true
 							break
@@ -195,8 +200,7 @@ function canDispel(Unit,spellID)
 				-- local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
 				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
-					if ((isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getBuffDuration(Unit, buffid)
-						* (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100))) or not isChecked("Dispel delay"))
+					if (isChecked("Dispel delay") and (getBuffDuration(Unit, buffid) - getBuffRemain(Unit, buffid)) > (getValue("Dispel delay")-0.2 + math.random() * 0.4)) or not isChecked("Dispel delay")
 					then
 						HasValidDispel = true
 						break

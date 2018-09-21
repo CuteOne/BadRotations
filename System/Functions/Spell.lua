@@ -57,7 +57,7 @@ function canInterrupt(unit,percentint)
 	local castDuration = 0
 	local castTimeRemain = 0
 	local castPercent = 0 -- Possible to set hard coded value
-	local channelDelay = 0.4 -- Delay to mimick human reaction time for channeled spells
+	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
 	local interruptable = false
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
 	local interruptID = 0
@@ -144,7 +144,7 @@ function canInterrupt(unit,percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (GetTime() - castStartTime/1000) > channelDelay and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTTD(unit)>castTimeRemain or castPercent == 100) then
+				if (GetTime() - castStartTime/1000) > (channelDelay-0.2 + math.random() * 0.4) and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTTD(unit)>castTimeRemain or castPercent == 100) then
 					return true
 				end
 			end
