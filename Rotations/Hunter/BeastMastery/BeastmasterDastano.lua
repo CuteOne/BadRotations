@@ -96,7 +96,7 @@ local function createOptions()
         -- Pet Attacks
             br.ui:createCheckbox(section, "Pet Attacks")
            -- Purge
-           br.ui:createDropdown(section, "Purge", {"Every Unit,Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
+           br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
