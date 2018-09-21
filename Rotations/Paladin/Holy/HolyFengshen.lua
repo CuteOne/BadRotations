@@ -581,7 +581,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and not isBoss() then
+			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and not isBoss("boss1") then
 				if getOptionValue("BoP Target") == 1 then
 					if blessingOfProtectionall ~= nil then
 						if cast.blessingOfProtection(blessingOfProtectionall) then return end
@@ -854,28 +854,8 @@ local function runRotation()
 					end
 				end
 			end
-			-- Bestow Faith
-			if isChecked("Bestow Faith") and cast.able.bestowFaith() and talent.bestowFaith then
-				if getOptionValue("Bestow Faith Target") == 1 then
-					if lowest.hp <= getValue ("Bestow Faith") then
-						if cast.bestowFaith(lowest.unit) then return end
-					end
-				elseif getOptionValue("Bestow Faith Target") == 2 and #tanks > 0 then
-					if tanks[1].hp <= getValue ("Bestow Faith") then
-						if cast.bestowFaith(tanks[1].unit) then return end
-					end
-				elseif 	getOptionValue("Bestow Faith Target") == 3 then
-					if php <= getValue ("Bestow Faith") then
-						if cast.bestowFaith("player") then return end
-					end
-				elseif 	getOptionValue("Bestow Faith Target") == 4 then
-					if lowest.hp <= getValue ("Bestow Faith") then
-						if cast.bestowFaith("player") then return end
-					end
-				end
-			end
 			-- Holy Shock
-			if isChecked("Holy Shock") and cast.able.holyShock() then
+			if isChecked("Holy Shock") and (cast.able.holyShock() or isCastingSpell(spell.flashOfLight)) then
 				if php <= getValue("Critical HP") then
 					if CastSpellByName(GetSpellInfo(20473),"player") then return end
 				end
@@ -912,6 +892,26 @@ local function runRotation()
 			-- Light of Martyr
 			if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
 				if cast.lightOfTheMartyr(lightOfTheMartyrHP) then return end
+			end
+			-- Bestow Faith
+			if isChecked("Bestow Faith") and cast.able.bestowFaith() and talent.bestowFaith then
+				if getOptionValue("Bestow Faith Target") == 1 then
+					if lowest.hp <= getValue ("Bestow Faith") then
+						if cast.bestowFaith(lowest.unit) then return end
+					end
+				elseif getOptionValue("Bestow Faith Target") == 2 and #tanks > 0 then
+					if tanks[1].hp <= getValue ("Bestow Faith") then
+						if cast.bestowFaith(tanks[1].unit) then return end
+					end
+				elseif 	getOptionValue("Bestow Faith Target") == 3 then
+					if php <= getValue ("Bestow Faith") then
+						if cast.bestowFaith("player") then return end
+					end
+				elseif 	getOptionValue("Bestow Faith Target") == 4 then
+					if lowest.hp <= getValue ("Bestow Faith") then
+						if cast.bestowFaith("player") then return end
+					end
+				end
 			end
 			-- Flash of Light
 			if isChecked("Flash of Light") and ((isChecked("Holy Shock") and GetSpellCooldown(20473) > gcd) or not isChecked("Holy Shock")) and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then

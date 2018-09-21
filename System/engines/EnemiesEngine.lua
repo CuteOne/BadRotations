@@ -548,9 +548,9 @@ function getUnitCoeficient(unit)
 					coef = unitHP
 				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
 					coef = UnitHealth(unit)
-				elseif getOptionValue("Wise Target") == 4 then -- Furthest
+				elseif getOptionValue("Wise Target") == 4 then -- Nearest
 					coef = 100 - distance
-				elseif getOptionValue("Wise Target") == 5 then -- Nearest
+				elseif getOptionValue("Wise Target") == 5 then -- Furthest
 					coef = distance
 				else 										   -- Lowest
 					-- if lowest is selected
@@ -566,7 +566,7 @@ function getUnitCoeficient(unit)
 			if getOptionCheck("Tank Threat") then
 				local threat = UnitThreatSituation("player",unit) or -1
 				if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
-					coef = coef + 100
+					coef = coef + 100 - threat
 				end
 			end
 			-- if user checked burn target then we add the value otherwise will be 0

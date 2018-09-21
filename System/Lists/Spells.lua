@@ -1500,6 +1500,7 @@ br.lists.spells = {
                 dempenHarm                  = 122278;
                 innervate                   = 29166;
                 symbolOfHope                = 64901;
+                essenceFont                 = 191837;
                 manaTea                     = 116680,
             },
             debuffs                         = {
