@@ -1152,7 +1152,7 @@ br.lists.spells = {
                 arcaneBlast                 = 30451,
                 arcaneExplosion             = 1449,
                 arcaneFamiliar              = 205022,
-                arcaneMissles               = 5143,
+                arcaneMissiles              = 5143,
                 arcaneOrb                   = 153626,
                 arcanePower                 = 12042,
                 chargedUp                   = 205032,
@@ -1185,7 +1185,6 @@ br.lists.spells = {
                 intensityOfTheTirisgarde    = 241121,
                 markOfAluneth               = 224968,
                 mightOfTheGuardians         = 187318,
-                ruleOfThrees                = 215463,
                 sloooowDown                 = 210730,
                 timeAndSpace                = 238126,
                 torrentialBarrage           = 187304,
@@ -1198,6 +1197,9 @@ br.lists.spells = {
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
+              ruleOfThrees                  = 264774,
+              brainStormBuff                = 273330,
+              clearcastingMage              = 263725,
             },
             debuffs                         = {
               arcaneCharge                  = 36032,
@@ -1223,6 +1225,14 @@ br.lists.spells = {
                 temporalFlux                = 234302,
                 wordsOfPower                = 205035,
             },
+            traits                          = {
+                brainStorm                  = 273326,
+                galvanizingSpark            = 278536,
+                explosiveEcho               = 278537,
+                arcanePummeling             = 270669,
+                arcanePressure              = 274594,
+                anomalousImpact             = 279867,
+            }
         },
         -- Fire
         [63] = {

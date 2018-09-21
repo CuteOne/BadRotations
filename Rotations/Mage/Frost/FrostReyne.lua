@@ -216,7 +216,7 @@ local function runRotation()
             if cast.flurry() then return end
         end
         -- Frozen Orb
-        if cast.frozenOrb() then return end
+        if cast.frozenOrb() and ttd("target") > 6 then return end
         -- Blizzard with 3 targets
         if cast.able.blizzard("best",nil,3,8) then
             if cast.blizzard("best",nil,3,8) then return end
@@ -271,7 +271,7 @@ local function runRotation()
             if cast.flurry() then return end
         end
         -- Cast Frozen Orb on Cooldown
-        if cast.frozenOrb() then return end
+        if cast.frozenOrb() and ttd("target") > 6 then return end
         -- Blizzard with 3 targets
         if cast.able.blizzard("best",nil,3,8) then
             if cast.blizzard("best",nil,3,8) then return end

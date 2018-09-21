@@ -239,7 +239,7 @@ local function actionList_multi()
         end
 
         -- Cast Fury of Elune
-        if cast.able.furyOfElune() and useCDs() and isChecked("Fury of Elune") then
+        if cast.able.furyOfElune() and isChecked("Fury of Elune") then
             if cast.furyOfElune() then return end
         end
 
@@ -284,7 +284,19 @@ local function actionList_multi()
     end
 
 end
+-- Movement Rotation
+    local function actionList_movement()
 
+        -- Alternate between sunfire and moonfire to proc Streaking Stars while moving.
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if cast.last.moonfire() then
+                if cast.sunfire(thisUnit,"aoe") then return true end
+            end
+            if cast.last.sunfire() then
+                if cast.moonfire(thisUnit,"aoe") then return true end
+            end
+        end
 -----------------
 --- Rotations ---
 -----------------
@@ -302,6 +314,10 @@ end
 --- In Combat - Rotations --- 
 -----------------------------
         if inCombat then
+            -- Use Movement rotation if moving
+            if moving then
+                if actionList_move() then return end
+            end
             -- Use multi-target rotation if 3 or more mobs
             if #enemies.yards15t >= 3 then
                 if actionList_multi() then return end
