@@ -352,7 +352,7 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
-      if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat then
+      if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
         if cast.soulstone("player") then return end
       end
 		end -- End Action List - Extras
