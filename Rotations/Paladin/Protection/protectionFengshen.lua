@@ -343,6 +343,8 @@ local function runRotation()
 			{265881},
 			{264556},
 			{270487},
+			{274358},
+			{270447},
 			}
 			for i=1 , #Debuff do
 				local debuff_id = Debuff[i]
@@ -352,12 +354,16 @@ local function runRotation()
 			end
 			local Casting={
 			--spell_id	, spell_name
-			{267899 	, 'Hindering Cleave'}, -- Shrine of the Storm
-			{272457 	, 'Shockwave'}, -- Underrot
-			{260508 	, 'Crush'}, -- Waycrest Manor
-			{249919 	, 'Skewer'}, -- Atal'Dazar
-			{265910 	, 'Tail Thrash'}, -- King's Rest
-			{268586 	, 'Blade Combo'}, -- King's Rest
+			{267899, 'Hindering Cleave'}, -- Shrine of the Storm
+			{272457, 'Shockwave'}, -- Underrot
+			{260508, 'Crush'}, -- Waycrest Manor
+			{249919, 'Skewer'}, -- Atal'Dazar
+			{265910, 'Tail Thrash'}, -- King's Rest
+			{268586, 'Blade Combo'}, -- King's Rest
+			{262277, 'Terrible Thrash'}, -- Fetid Devourer
+			{265248, 'Shatter'}, -- Zek'voz
+			{273316, 'Bloody Cleave'}, -- Zul, Reborn
+			{273282, 'Essence Shear'}, -- Mythrax the Unraveler
 			}
 			for i=1 , #Casting do
 				local spell_id = Casting[i][1]
@@ -447,7 +453,7 @@ local function runRotation()
 					end
 				end
 				-- Blessing of Protection
-				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss() then
+				if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and inCombat and not isBoss("boss1") then
 					-- Player
 					if getOptionValue("Blessing of Protection Target") == 1 then
 						if php <= getValue("Blessing of Protection") then
@@ -556,7 +562,7 @@ local function runRotation()
 				end
 				-- Guardian of Ancient Kings
 				if isChecked("Guardian of Ancient Kings") and cast.able.guardianOfAncientKings() then
-					if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() then
+					if php <= getOptionValue("Guardian of Ancient Kings") and inCombat and not buff.ardentDefender.exists() and not buff.divineShield.exists() then
 						if cast.guardianOfAncientKings() then return end
 					end
 				end
@@ -691,7 +697,7 @@ local function runRotation()
 			---------------------------
 			--- Boss Encounter Case ---
 			---------------------------
-			if br.player.mode.BossCase == 1 and inInstance then
+			if br.player.mode.BossCase == 1 then
 				if BossEncounterCase() then return end
 			end
 			--------------------------
