@@ -100,6 +100,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Health Funnel", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Unending Resolve
             br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            --Soulstone
+            br.ui:createCheckbox(section,"Auto Soulstone Player")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -350,6 +352,9 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
+      if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat then
+        if cast.soulstone("player") then return end
+      end
 		end -- End Action List - Extras
 	-- Action List - Defensive
 		local function actionList_Defensive()
