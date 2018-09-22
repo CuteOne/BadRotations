@@ -27,7 +27,7 @@ function getUpdateRate()
 
 	local FrameRate = GetFramerate() or 0
  	if isChecked("Auto Delay") then
- 		if FrameRate ~= 0 and FrameRate < 100 then
+ 		if FrameRate >= 0 and FrameRate < 100 then
  			updateRate = (100 - FrameRate)/100
  		else
  			updateRate = 0.1
