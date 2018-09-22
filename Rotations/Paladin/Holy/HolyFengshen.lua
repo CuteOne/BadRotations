@@ -307,6 +307,9 @@ local function runRotation()
 				if GetSpellCooldown(20473) == 0 then
 					if CastSpellByName(GetSpellInfo(20473),"target") then return end
 				end
+				if php >= getOptionValue("LotM player HP limit") then
+					if CastSpellByName(GetSpellInfo(183998),"target") then return end
+				end
 				if GetSpellCooldown(20473) ~= 0 then
 					if CastSpellByName(GetSpellInfo(19750),"target") then return end
 				end
@@ -436,7 +439,7 @@ local function runRotation()
 				end
 			end
 			-- Hammer of Justice
-			if cast.able.hammerOfJustice() and (GetObjectID("target") == 131009 or GetObjectID("target") == 134388 or GetObjectID("target") == 129158) and getDistance("target") <= 10 then
+			if cast.able.hammerOfJustice() and (GetObjectID("target") == 131009 or GetObjectID("target") == 134388 or GetObjectID("target") == 129758) and getDistance("target") <= 10 then
 				if cast.hammerOfJustice("target") then return end
 			end
 		end
