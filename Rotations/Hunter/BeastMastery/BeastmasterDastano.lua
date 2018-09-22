@@ -386,6 +386,14 @@ local function runRotation()
                 EnableSpellAutocast(petSprint)
             end
 
+               -- disable auto Mend
+            local petMend = GetSpellInfo(90361)
+            if inInstance or InRaid and isChecked("Mend Pet") then
+                DisableSpellAutocast(petMend)
+            else
+                EnableSpellAutocast(petMend)
+            end
+
             --Heal Hunter with S
             -- Mend Pet
             if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
