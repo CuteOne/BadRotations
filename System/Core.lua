@@ -53,6 +53,29 @@ function ObjectManagerUpdate(self)
 	end
 end
 
+-- Key Pause from Beniamin
+local rotationPause 
+local pauseInterval = 0.25
+
+local ignoreKeys = {
+	"W","A","S","D","SPACE","ENTER","UP","DOWN","LEFT","RIGHT","LALT","RALT","LCTRL","RCTRL","LSHIFT","RSHIFT","TAB"
+}
+
+local keyBoardFrame = CreateFrame("Frame")
+keyBoardFrame:SetPropagateKeyboardInput(true)
+local function testKeys(self,key)
+	local ignorePause = ignoreKeys
+	-- iterate over a list to ignore pause
+	for i = 1, #ignorePause do
+		if string.find(key,ignorePause[i]) then
+			return 
+		end
+	end
+	rotationPause = GetTime()
+end
+
+keyBoardFrame:SetScript("OnKeyDown",testKeys)
+
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -84,7 +107,12 @@ function BadRotationsUpdate(self)
 						SpellStopCasting()
 					end
 				end
-				
+				-- Pause if key press that is not ignored
+				if not GetCurrentKeyBoardFocus() then
+					if rotationPause and GetTime() - rotationPause < pauseInterval then
+						return
+					end
+				end
 			-- Blizz CastSpellByName bug bypass
 				if castID then
 					-- Print("Casting by ID")
