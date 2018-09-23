@@ -271,8 +271,11 @@ local function runRotation()
         local openerCount
 
 
-
+        units.get(5)
+        units.get(30)
         units.get(40)
+        enemies.get(5)
+        enemies.get(30)
         enemies.get(40)
 
         if GetObjectExists("pet") then
@@ -293,6 +296,19 @@ local function runRotation()
                     lowestUnit = thisUnit
                 end
             end
+        end
+
+
+        function TankInRange()
+                    if #br.friend > 1 then
+                        for i = 1, #br.friend do
+                            local friend = br.friend[i]
+                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
+                            return true
+                            end
+                        end
+                    end
+            return false
         end
 
    		if leftCombat == nil then leftCombat = GetTime() end
@@ -407,8 +423,8 @@ local function runRotation()
             if isChecked("Auto Growl") then
                 local _, autoCastEnabled = GetSpellAutocast(spell.growl)
                 if autoCastEnabled then DisableSpellAutocast(spell.growl) end
-                if not isTankInRange() and not buff.prowl.exists("pet") then
-                    if cast.able.misdirection("pet") and #enemies.yards5 > 1 then
+                if not TankInRange() and not buff.prowl.exists("pet") then
+                    if cast.able.misdirection("pet") and #enemies.yards30 > 1 then
                         if cast.misdirection("pet") then return end
                     end
                     if cast.able.growl() then
