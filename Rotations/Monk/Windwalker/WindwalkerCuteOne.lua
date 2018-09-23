@@ -878,7 +878,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- FIGHT!
-            if inCombat and profileStop==false and isValidUnit(units.dyn5) and opener and not isCastingSpell(spell.spinningCraneKick) then
+            if inCombat and profileStop==false and isValidUnit(units.dyn5) and opener and not cast.current.spinningCraneKick() and not cast.current.fistsOfFury() then
     ------------------
     --- Interrupts ---
     ------------------
