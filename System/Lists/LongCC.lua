@@ -7,6 +7,7 @@ br.lists.longCC = {
 	102359, -- Druid - Mass Entanglement
 	209790, -- Hunter - Freezing Arrow
 	187650, -- Hunter - Freezing Trap
+	3355, -- Hunter Freezing Trap Debuff
 	200108, -- Hunter - Ranger's Net
 	213691, -- Hunter - Scatter Shot
 	162488, -- Hunter - Steel Trap

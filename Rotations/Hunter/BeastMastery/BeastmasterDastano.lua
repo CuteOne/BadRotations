@@ -78,6 +78,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Opener",  40,  30,  100,  1,  "|cffFFFFFFPre-Pull Range (Optimal 40, increase for Zul etc.) Min: 1 / Max: 100 / Interval: 1")
              -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (Recommended is 2) (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+         -- AoE Units
+            br.ui:createSpinnerWithout(section, "Combat Delay", 0, 0, 10, 0.1, "|cffFFFFFFSet a Combat Delay to not Ninja-Shoot everything. Opener ignoring Delay")  
         
           
         br.ui:checkSectionState(section)
@@ -89,6 +91,14 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
+          -- Cat-like Reflexes
+            br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
+        -- Claw
+            br.ui:createCheckbox(section, "Claw")
+        -- Dash
+            br.ui:createCheckbox(section, "Dash")
+        -- Prowl
+            br.ui:createCheckbox(section, "Prowl")
         -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Spirit Mend
@@ -149,6 +159,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Counter Shot")
 	-- Intimidation
             br.ui:createCheckbox(section,"Intimidation")
+        -- Freezing Trap
+            br.ui:createCheckbox(section,"Freezing Trap")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -257,8 +269,7 @@ local function runRotation()
         local units                                         = br.player.units
         local use                                           = br.player.use
         local openerCount
-        local petSprint                                     = GetSpellInfo(61684)
-        local hostileOnly                                      = isChecked("Hostiles Only")
+
 
 
         units.get(40)
@@ -318,22 +329,21 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
+           if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
             if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
             elseif isChecked("Auto Summon") then
-                local callPet = nil
-                for i = 1, 5 do
-                    if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
-                end
+                local callPet = spell["callPet"..getValue("Auto Summon")]
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
-                        if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
+                    if cast.able.dismissPet() and UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPets or (UnitExists("pet") and pethp == 0) then
-                            deadPet = false
-                            if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
-                        elseif not deadPets and not (IsPetActive() or UnitExists("pet")) then
-                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime() return true end
+                        if UnitIsDeadOrGhost("pet") or deadPet then
+                            if cast.able.revivePet() then
+                                if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
+                            end
+                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) and not buff.playDead.exists("pet") then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
                 end
@@ -361,44 +371,74 @@ local function runRotation()
                     petMode = "Passive"
                 end
                 -- Pet Attack / retreat
-                if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not UnitIsUnit("target","pettarget") then
-                    -- Print("Pet is switching to your target.")
-                    PetAttack()
-                end
-                if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                if (not UnitExists("pettarget") or not isValidUnit("pettarget")) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+                    for i=1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isValidUnit(thisUnit) or isDummy() then
+                            PetAttack(thisUnit)
+                        end
+                    end
+                elseif (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
                     PetStopAttack()
                     PetFollow()
                 end
+                -- if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not UnitIsUnit("target","pettarget") then
+                --     -- Print("Pet is switching to your target.")
+                --     PetAttack()
+                -- end
+                -- if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                --     PetStopAttack()
+                --     PetFollow()
+                -- end
+            end
+                -- Cat-like Refelexes
+            if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
+                if cast.able.catlikeReflexes() then return end
+            end
+            -- Claw
+            if isChecked("Claw") and cast.able.claw("pettarget") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
+                if cast.claw("pettarget") then return end
+            end
+            -- Dash
+            if isChecked("Dash") and cast.able.dash() and isValidUnit("pettarget") and getDistance("pettarget","pet") > 10 then
+                if cast.dash() then return end
             end
             -- Growl
             if isChecked("Auto Growl") then
-                local petGrowl = GetSpellInfo(2649)
-                if isTankInRange() then
-                    DisableSpellAutocast(petGrowl)
-                else
-                    EnableSpellAutocast(petGrowl)
+                local _, autoCastEnabled = GetSpellAutocast(spell.growl)
+                if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+                if not isTankInRange() and not buff.prowl.exists("pet") then
+                    if cast.able.misdirection("pet") and #enemies.yards5 > 1 then
+                        if cast.misdirection("pet") then return end
+                    end
+                    if cast.able.growl() then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if not isTanking(thisUnit) then
+                                if cast.growl(thisUnit) then return end
+                            end
+                        end
+                    end
                 end
             end
-            -- disable auto Dash in Raid / Dungeons
-            if inInstance or InRaid then
-                DisableSpellAutocast(petSprint)
-            else
-                EnableSpellAutocast(petSprint)
+            -- Play Dead / Wake Up
+            if cast.able.playDead() and not buff.playDead.exists("pet") and getHP("pet") < 20 then
+                if cast.playDead() then return end
             end
-
-               -- disable auto Mend
-            local petMend = GetSpellInfo(90361)
-            if inInstance or InRaid and isChecked("Mend Pet") then
-                DisableSpellAutocast(petMend)
-            else
-                EnableSpellAutocast(petMend)
+            if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() and getHP("pet") >= 20 then
+                if cast.wakeUp() then return end
             end
-
-            --Heal Hunter with S
+            -- Prowl
+            if isChecked("Prowl") and not inCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
+                if cast.prowl() then return end
+            end
             -- Mend Pet
-            if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
+            if isChecked("Mend Pet") and cast.able.mendPet() and UnitExists("pet") and not UnitIsDeadOrGhost("pet")
+                and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+            then
                 if cast.mendPet() then return end
             end
+
 			-- Spirit Mend
             if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and lowestHP < getOptionValue("Spirit Mend") then
                 local thisUnit = br.friend[1].unit
@@ -583,6 +623,16 @@ local function runRotation()
                         end
                     end
                 end
+                 -- Freezing Trap
+                if isChecked("Freezing Trap") and cast.able.freezingTrap() then
+                    for i = 1, #enemies.yards40 do
+                        thisUnit = enemies.yards40[i]
+                        if getDistance(thisUnit) > 8 and getCastTimeRemain(thisUnit) > 3 then
+                            if cast.freezingTrap(thisUnit,"ground") then return true end
+                        end
+                    end
+                end
+
             end -- End useInterrupts check
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
@@ -967,7 +1017,7 @@ local function runRotation()
             -- Summon Pet
                 -- summon_pet
                 if actionList_PetManagement() then return end
-                if isValidUnit("target") and getDistance("target") < 40 and opener == true then
+                if isValidUnit("target") and getDistance("target") < 40 and opener == true and getCombatTime() >= getValue("Combat Delay") then
             -- Cobra Shot
                     if cast.cobraShot("target") then return end
             -- Auto Shot
@@ -1008,7 +1058,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and opener == true then
+            if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and opener == true and getCombatTime() >= getValue("Combat Delay") then
     -----------------
     --- Pet Logic ---
     -----------------
@@ -1115,13 +1165,8 @@ local function runRotation()
                         if cast.multiShot() then return end
                     end
                     -- actions+=/kill_command
-                    if getDistance("pettarget","pet") <= 5 then
-                        if cast.killCommand("pettarget") then return end
-                    elseif cd.dash.remain() > gcd then
-                        if cast.able.dash() then
-                            if castSpell("pet",spell.dash,true,false,false,false,false,true) then return end
-                        end
-                    end
+                    if cast.killCommand("target") then return end
+                 
                     --actions+=/chimaera_shot
                      if talent.chimaeraShot then
                         if cast.chimaeraShot() then return end
@@ -1157,12 +1202,8 @@ local function runRotation()
                         if cast.cobraShot() then return end
                     end
                     -- experimental to make sure Rotation not stuck
-                        if power >= 100 and getDistance("pettarget","pet") <= 5 then
-                            if cd.dash.remain() > gcd then
-                                if cast.cobraShot() then return end
-                            elseif cast.able.dash() then 
-                                if castSpell("pet",spell.dash,true,false,false,false,false,true) then return end
-                            end
+                        if power >= 100 and getDistance("target","pet") > 5 then
+                            if cast.cobraShot() then return end
                         end 
                 end -- End SimC APL
 			end --End In Combat
