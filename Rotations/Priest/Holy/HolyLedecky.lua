@@ -88,9 +88,9 @@ local function createOptions()
 		--  Mana Potion
 		--  br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
 		-- Angelic Feather
-		br.ui:createCheckbox(section,"Angelic Feather","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
+		br.ui:createSpinner(section, "Angelic Feather",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
 		-- Body and Mind
-		br.ui:createCheckbox(section,"Body and Mind","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
+		br.ui:createSpinner(section, "Body and Mind",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
 		-- Holy Word: Chastise
 		br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
@@ -312,13 +312,15 @@ local function runRotation()
 				end
 			end -- End Dummy Test
 			-- Moving
-			if isMoving("player") then
+			if IsMovingTime(getOptionValue("Angelic Feather")) then
 				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
 						RunMacroText("/stopspelltarget")
 					end
 				end
-				-- Body and Mind
+			end
+			-- Moving
+			if IsMovingTime(getOptionValue("Body and Mind")) then
 				if isChecked("Body and Mind") and talent.bodyAndMind then
 					if cast.bodyAndMind("player") then return end
 				end
