@@ -712,7 +712,7 @@ local function runRotation()
 
                              -- pre-pull Logic
                             if (inRaid or inInstance) and isChecked("Potion") then
-                                if isChecked("Pre-Pull Timer")  and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
+                                if isChecked("Pre-Pull Timer")  and PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
                                            if getValue("Potion") == 2 then
                                                     if canUse(152559) then
                                                             useItem(152559)
