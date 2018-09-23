@@ -3005,6 +3005,7 @@ br.lists.spells = {
                 lifeTap                     = 1454,
                 mortalCoil                  = 6789,
                 soulHarvest                 = 196098,
+                soulstone                   = 20707,
                 summonDoomguard             = 18540,
                 summonFelguard              = 30146,
                 summonFelhunter             = 691,
@@ -3023,6 +3024,7 @@ br.lists.spells = {
                 demonicSynergy              = 171982,
                 sindoreiSpite               = 208871,
                 soulHarvest                 = 196098,
+                soulstone                   = 20707,
             },
             debuffs                         = {
 
