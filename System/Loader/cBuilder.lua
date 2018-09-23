@@ -62,32 +62,42 @@ function br.loader:new(spec,specName)
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
         local playerClass = select(2,UnitClass('player'))
-        for unitClass , classTable in pairs(br.lists.spells) do
-            if unitClass == playerClass or unitClass == 'Shared' then
-                for specID, specTable in pairs(classTable) do
-                    if specID == spec or specID == 'Shared' then
-                        for spellType, spellTypeTable in pairs(specTable) do
-                            if self.spell[spellType] == nil then self.spell[spellType] = {} end
-                            for spellRef, spellID in pairs(spellTypeTable) do
-                                self.spell[spellType][spellRef] = spellID
-                                if not IsPassiveSpell(spellID)
-                                    and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
-                                then
-                                    if self.spell.abilities == nil then self.spell.abilities = {} end
-                                    self.spell.abilities[spellRef] = spellID
-                                    self.spell[spellRef] = spellID
-                                    -- Ending the Race War!
-                                    if self.spell.abilities["racial"] == nil then
-                                        local racialID = getRacialID()
-                                        self.spell.abilities["racial"] = racialID
-                                        self.spell["racial"] = racialID
-                                    end
-                                end
-                            end
-                        end
+        local specSpells = br.lists.spells[playerClass][spec]
+        local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
+        local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
+        local function getSpells(spellTable)
+            -- Look through spell type subtables
+            for spellType, spellTypeTable in pairs(spellTable) do
+                -- Create spell type subtable in br.player.spell if not already there.
+                if self.spell[spellType] == nil then self.spell[spellType] = {} end
+                -- Look through spells for spell type
+                for spellRef, spellID in pairs(spellTypeTable) do
+                    -- Assign spell to br.player.spell for the spell type
+                    self.spell[spellType][spellRef] = spellID
+                    -- Assign active spells to Abilities Subtable and base br.player.spell 
+                    if not IsPassiveSpell(spellID)
+                        and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
+                    then
+                        if self.spell.abilities == nil then self.spell.abilities = {} end
+                        self.spell.abilities[spellRef] = spellID
+                        self.spell[spellRef] = spellID
                     end
                 end
             end
+        end
+
+        -- Spec Spells
+        getSpells(specSpells)
+        -- Shared Class Spells
+        getSpells(sharedClassSpells)
+        -- Shared Global Spells
+        getSpells(sharedGlobalSpells)
+        
+        -- Ending the Race War!
+        if self.spell.abilities["racial"] == nil then
+            local racialID = getRacialID()
+            self.spell.abilities["racial"] = racialID
+            self.spell["racial"] = racialID
         end
     end
     -- Update Talent Info

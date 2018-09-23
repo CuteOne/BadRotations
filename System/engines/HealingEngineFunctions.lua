@@ -259,8 +259,8 @@ function getUnitsInRect(width,length, showLines, hp)
 	table.wipe(UnitsInRect)
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
-		if thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
-			local tX, tY = GetObjectPosition(thisUnit.unit)
+		if GetUnitExists(thisUnit) and thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
+			local tX, tY = thisUnit.x, thisUnit.y
 			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 				if showLines then
 					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit.unit))
