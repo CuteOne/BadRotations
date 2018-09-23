@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- PS with CDs
+            br.ui:createCheckbox(section,"Ignore PS units when using CDs")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -206,6 +208,7 @@ local function runRotation()
 
         enemies.get(8,"target")
         enemies.get(10,"target")
+        enemies.get(15,"target")
         enemies.get(30)
         enemies.get(40)
 
@@ -302,12 +305,12 @@ local function runRotation()
                   lowestShadowEmbrace = thisUnit
               end
             end
-            enemies.yards10t = getEnemies(thisUnit, 10, true)
-            if getFacing("player",thisUnit) and #enemies.yards10t > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
+            local unitAroundUnit = getEnemies(thisUnit, 10, true)
+            if getFacing("player",thisUnit) and #unitAroundUnit > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
               seedHit = 0
               seedCorruptionExist = 0
-              for q = 1, #enemies.yards10t do
-                local seedAoEUnit = enemies.yards10t[q]
+              for q = 1, #unitAroundUnit do
+                local seedAoEUnit = unitAroundUnit[q]
                 if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+1 then seedHit = seedHit + 1 end
                 if debuff.corruption.exists(seedAoEUnit) then seedCorruptionExist = seedCorruptionExist + 1 end
               end
@@ -500,7 +503,7 @@ local function runRotation()
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if (useCDs() or isChecked("CDs With Burst Key")) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
+          if (useCDs() or isChecked("CDs With Burst Key")) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return end
           end
           --Agony
@@ -516,8 +519,8 @@ local function runRotation()
             if cast.corruption() then return end
           end
           -- actions+=/phantom_singularity
-          if #enemies.yards10t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") then
-            if cast.phantomSingularity() then return end
+          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") then
+            if cast.phantomSingularity("target", "aoe") then return end
           end
           -- actions+=/vile_taint
           if not moving then
@@ -567,7 +570,7 @@ local function runRotation()
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards10t < getOptionValue("PS Units")))) then
+          if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return end
           end
           -- actions+=/agony,cycle_targets=1,if=remains<=gcd
@@ -582,8 +585,8 @@ local function runRotation()
             if cast.shadowBolt() then return end
           end
           -- actions+=/phantom_singularity,if=time>40&(cooldown.summon_darkglare.remains>=45|cooldown.summon_darkglare.remains<8)
-          if combatTime > 40 and (cd.summonDarkglare.remain() >= 45 or cd.summonDarkglare.remain() < 8) and #enemies.yards10t >= getOptionValue("PS Units") then
-            if cast.phantomSingularity() then return end
+          if combatTime > 40 and (cd.summonDarkglare.remain() >= 45 or cd.summonDarkglare.remain() < 8) and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
+            if cast.phantomSingularity("target", "aoe") then return end
           end
           -- actions+=/vile_taint,if=time>20
           if combatTime > 20 and not moving then
@@ -706,8 +709,8 @@ local function runRotation()
             end
           end
           -- actions+=/phantom_singularity
-          if combatTime <= 40 and #enemies.yards10t >= getOptionValue("PS Units") then
-            if cast.phantomSingularity() then return end
+          if combatTime <= 40 and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
+            if cast.phantomSingularity("target", "aoe") then return end
           end
           -- actions+=/vile_taint
           if not moving then
@@ -774,7 +777,7 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + gcd) then
+            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + gcd) and not moving then
                 if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
                     if summonPet == 1 then
                         if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
