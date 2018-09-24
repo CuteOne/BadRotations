@@ -772,7 +772,7 @@ local function runRotation()
             end
         -- Overpower 
             -- overpower,if=!raid_event.adds.up|(raid_event.adds.up&azerite.seismic_wave.enabled)
-            if cast.able.overpower() and (enemies.yards8 == 1 or (enemies.yards8 > 1 and traits.seismicWave.active())) then 
+            if cast.able.overpower() and (#enemies.yards8 == 1 or (#enemies.yards8 > 1 and traits.seismicWave.active())) then 
                 if cast.overpower() then return end 
             end 
         -- Cleave 
