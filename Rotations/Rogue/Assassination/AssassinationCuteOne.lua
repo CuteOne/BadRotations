@@ -777,18 +777,14 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
         -- Apply Poison
                 -- apply_poison
-                if isChecked("Lethal Poison") then
-                    if getOptionValue("Lethal Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison() then
-                        if cast.deadlyPoison("player") then return end
-                    end
-                    if getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison() then
-                        if cast.woundPoison("player") then return end
-                    end
+                if getOptionValue("Lethal Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison() then
+                    if cast.deadlyPoison("player") then return end
                 end
-                if isChecked("Non-Lethal Poison") then
-                    if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() then
-                        if cast.cripplingPoison("player") then return end
-                    end
+                if getOptionValue("Lethal Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison() then
+                    if cast.woundPoison("player") then return end
+                end
+                if getOptionValue("Non-Lethal Poison") == 1 and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() then
+                    if cast.cripplingPoison("player") then return end
                 end
         -- Stealth
                 -- stealth
