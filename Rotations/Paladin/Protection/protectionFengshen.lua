@@ -425,7 +425,7 @@ local function runRotation()
 						if getHP("mouseover") <= getValue("Lay On Hands") then
 							if cast.layOnHands("mouseover") then return true end
 						end
-					elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) then
+					elseif getHP(lowestUnit) <= getValue("Lay On Hands") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
 						-- Tank
 						if getOptionValue("Lay on Hands Target") == 4 then
 							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
@@ -508,7 +508,7 @@ local function runRotation()
 						if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 							if cast.blessingOfSacrifice("mouseover") then return true end
 						end
-					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not UnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) then
+					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not UnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
 						-- Tank
 						if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then
