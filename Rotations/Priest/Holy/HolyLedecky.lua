@@ -284,6 +284,7 @@ local function runRotation()
 		enemies.get(8)
 		enemies.get(8,"target")
 		enemies.get(40)
+		friends.yards20 = getAllies("player",20)
 		friends.yards40 = getAllies("player",40)
 
 		renewCount = 0
@@ -659,9 +660,9 @@ local function runRotation()
 			--JR Binding Heal Scan
 			local bindingHealCandidates = {}
 			if isChecked("Binding Heal Multi") then
-				for i=1, #friends.yards40 do
-					if friends.yards40[i].hp < getValue("Binding Heal") then
-						tinsert(bindingHealCandidates,friends.yards40[i])
+				for i=1, #friends.yards20 do
+					if friends.yards20[i].hp < getValue("Binding Heal") then
+						tinsert(bindingHealCandidates,friends.yards20[i])
 					end
 				end
 			end
