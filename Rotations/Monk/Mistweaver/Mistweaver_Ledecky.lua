@@ -154,6 +154,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
 		--Enveloping Mists
 		br.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
+		--Enveloping Mists Tanks
+		br.ui:createCheckbox(section, "EM Tanks Only","Only Cast Enveloping Mist on Tanks. Excludes TFT Usage.")
 		--Vivify
 		br.ui:createSpinner(section, "Vivify",  60,  0,  100,  5,  "Health Percent to Cast At")
 		--Jade Statue
@@ -640,20 +642,46 @@ local function runRotation()
 				if cast.renewingMist(lowest.unit) then return end
 			end
 		end
-		--Enveloping Mists Lifecycles Start
-		if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(lowest.unit,115175) > 1 then
-				if getBuffRemain(lowest.unit,115175) == 0 then
-					if cast.soothingMist(lowest.unit) then return end
-				elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
-					if cast.envelopingMist(lowest.unit) then return end
+		--Enveloping Mists Lifecycles Start (Tank Only)
+		if isChecked("EM Tanks Only") then
+			for i = 1, #br.friend do
+				if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
+					if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+						if getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(br.friend[i].unit,115175) > 1 then
+							if getBuffRemain(br.friend[i].unit,115175) == 0 then
+								if cast.soothingMist(br.friend[i].unit) then return end
+							elseif getBuffRemain(br.friend[i].unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+								if cast.envelopingMist(br.friend[i].unit) then return end
+							end
+						end
+					end
+				end
+				--Enveloping Mists Lifecycles Start NO IC
+				if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
+					if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+						if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1  then
+							if cast.envelopingMist(br.friend[i].unit) then return end
+						end
+					end
 				end
 			end
 		end
-		--Enveloping Mists Lifecycles Start NO IC
-		if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1  then
-				if cast.envelopingMist(lowest.unit) then return end
+		--Enveloping Mists Lifecycles Start
+		if not isChecked("EM Tanks Only") then
+			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(lowest.unit,115175) > 1 then
+					if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+						if cast.envelopingMist(lowest.unit) then return end
+					end
+				end
+			end
+			--Enveloping Mists Lifecycles Start NO IC
+			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1  then
+					if cast.envelopingMist(lowest.unit) then return end
+				end
 			end
 		end
 		--Vivify Life Cycles
@@ -675,6 +703,30 @@ local function runRotation()
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		--End of Life Cycles Rotation--
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+		--Enveloping Mist Tanks Only
+		if isChecked("EM Tanks Only") then
+			for i = 1, #br.friend do
+				if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
+					if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+						if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
+							if getBuffRemain(br.friend[i].unit,115175) == 0 then
+								if cast.soothingMist(br.friend[i].unit) then return end
+							elseif getBuffRemain(br.friend[i].unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+								if cast.envelopingMist(br.friend[i].unit) then return end
+							end
+						end
+						--Enveloping Mists NO IC
+						if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
+							if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+								if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
+									if cast.envelopingMist(br.friend[i].unit) then return end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
 		--Enveloping Mists
 		if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
 			if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
