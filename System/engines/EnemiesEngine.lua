@@ -191,14 +191,15 @@ end
 
 -- /dump UnitGUID("target")
 -- /dump getEnemies("target",10)
-function getEnemies(thisUnit,radius,checkNoCombat)
+function getEnemies(thisUnit,radius,checkNoCombat,filterUnitID)
     local startTime = debugprofilestop()
 	local radius = tonumber(radius)
 	local targetDist = getDistance("target","player")
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
-    local thisEnemy, distance
-    if checkNoCombat == nil then checkNoCombat = false end
+	local thisEnemy, distance
+    if filterUnitID == nil then filterUnitID = 0 end
+	if checkNoCombat == nil then checkNoCombat = false end
     if refreshStored == true then
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
     	refreshStored = false
@@ -239,6 +240,16 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 		br.storedTables[checkNoCombat][radius][thisUnit] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
+
+	-- Filter Enemies Table if filterUnitID is > 0
+	if filterUnitID > 0 then
+		for k, v in pairs(enemyTable) do
+			if getUnitID(v.unit) ~= filterUnitID then
+				table.remove(enemyTable, k)
+			end
+		end
+	end
+
     return enemiesTable
 end
 
