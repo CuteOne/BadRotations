@@ -525,7 +525,7 @@ local function runRotation()
             end 
         -- Mortal Strike
             -- mortal_strike,if=debuff.colossus_smash.up&buff.overpower.stack=2&(talent.dreadnaught.enabled|buff.executioners_precision.stack=2)
-            if cast.able.mortalStrike() and (debuff.colossusSmash.exist(units.dyn5) 
+            if cast.able.mortalStrike() and (debuff.colossusSmash.exists(units.dyn5) 
                 and buff.overpower.stack() == 2 and (talent.dreadnaught or buff.executionersPrecision.stack() == 2)) 
             then
                 if cast.mortalStrike() then return end
