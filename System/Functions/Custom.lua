@@ -106,7 +106,7 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
 
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, filterUnitID)
     if radius == nil then radius = maxRange end
     -- return table with combination of every 2 units
     local function getAllCombinationsOfASet(arr, r)
@@ -152,7 +152,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",radius) else allUnitsInRange = getEnemies("player",radius,false) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",radius) else allUnitsInRange = getEnemies("player",radius,false,filterUnitID) end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles

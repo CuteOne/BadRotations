@@ -95,6 +95,10 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
 		br.ui:createCheckbox(section, "Temple of Sethraliss","Will heal the NPC whenever the debuff is removed and when you manually target it.")
+		-- Uldir Zul
+		br.ui:createCheckbox(section, "Purify on Zul Adds","Will use Purify on Zul Adds.")
+		-- Uldir Zul
+		br.ui:createCheckbox(section, "Mass Dispel on Zul Adds","Will use Mass Dispel on Zul Adds.")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
@@ -294,6 +298,7 @@ local function runRotation()
 			end
 		end
 
+		local ZulAddId = 138493 -- NPCid
 
 		--------------------
 		--- Action Lists ---
@@ -501,6 +506,33 @@ local function runRotation()
 				CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
 				return true
 			end
+
+			-- Purify on 138493 Zul Adds
+			if isChecked("Mass Dispel on Zul Adds") then
+
+				local countZulAdds = 0
+
+				for i=1, #enemies.get(40) do
+					thisUnit = enemies.get(40)[i]
+					if getDistance(thisUnit) < 40 and getUnitID(thisUnit) == ZulAddId then
+						countZulAdds = countZulAdds + 1
+					end
+				end
+
+				if countZulAdds >= 3 and getSpellCD(spell.massDispel) == 0 then
+					if castGroundAtBestLocation(spell.massDispel, 15, 1, 30, 0, "dps", ZulAddId) then return end
+				end
+			end
+
+			if isChecked("Purify on Zul Adds") and ((isChecked("Mass Dispel on Zul Adds") and getSpellCD(spell.massDispel) > 1) or not isChecked("Mass Dispel on Zul Adds")) then
+				for i=1, #enemies.get(40) do
+					thisUnit = enemies.get(40)[i]
+					if getDistance(thisUnit) < 40 and getUnitID(thisUnit) == ZulAddId then
+						if cast.purify(thisUnit.unit) then return end
+					end
+				end
+			end
+
 		end -- End Action List - Dispel
 		-- Emergency
 		function actionList_Emergency()
