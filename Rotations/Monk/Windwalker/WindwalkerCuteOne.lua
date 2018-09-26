@@ -675,8 +675,8 @@ local function runRotation()
             end
         -- Chi Burst
             -- chi_burst,if=chi.max-chi>=1&active_enemies=1|chi.max-chi>=2
-            if cast.able.chiBurst() and ((chiMax - chi >= 1 and ((mode.rotation == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) 
-                or (mode.rotation == 3 and enemies.yards12r > 0))) or chiMax - chi >= 2) 
+            if cast.able.chiBurst() and ((chiMax - chi >= 1 and enemies.yards12r == 1) or chiMax - chi >= 2)
+                and ((mode.rotation == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 3 and enemies.yards12r > 0)) 
             then
                 if cast.chiBurst(nil,"rect",1,12) then return true end
             end
@@ -690,15 +690,14 @@ local function runRotation()
             if mode.fsk == 1 and cast.able.flyingSerpentKick() and cast.last.blackoutKick() and chi > 3 and buff.swiftRoundhouse.stack() < 2 then
                 if cast.flyingSerpentKick() then return end
             end
-        -- -- Fists of Fury
-        --     -- fists_of_fury,if=energy.time_to_max>2.5&cooldown.rising_sun_kick.remains>2&buff.swift_roundhouse.stack=2
-        --     if ttm > 2.5 and cd.risingSunKick.remain() > 2 and buff.swiftRoundhouse.stack() == 2 then
-        --         if cast.fistsOfFury(nil,"cone",1,45) then return end
-        --     end
-        -- -- Tiger Palm (inefficient but breaks stall)
-        --     if cast.able.tigerPalm(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm < 1) and cast.last.blackoutKick() then
-        --         if cast.tigerPalm(lowestMark) then return end
-        --     end
+        -- Blackout Kick (inefficient but breaks stall)
+            if cast.able.blackoutKick(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not cast.last.blackoutKick() then
+                if cast.blackoutKick(lowestMark) then return end
+            end            
+        -- Tiger Palm (inefficient but breaks stall)
+            if cast.able.tigerPalm(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not cast.last.tigerPalm() then
+                if cast.tigerPalm(lowestMark) then return end
+            end
         end -- End Action List - Single Target
     -- Action List - AoE
         function actionList_AoE()
