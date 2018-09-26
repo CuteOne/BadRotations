@@ -77,7 +77,7 @@ local function createOptions()
             -- Sweeping Strikes
             br.ui:createCheckbox(section,"Sweeping Strikes")
             -- Warbreaker
-            br.ui:createCheckbox(section,"Warbreaker")
+            br.ui:createSpinner(section,"Warbreaker",  2,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Warbreaker. Min: 1 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -502,7 +502,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0))
+                and #enemies.yards8 >= getOptionValue("Warbreaker")
             then
                 if cast.warbreaker() then return end
             end
@@ -583,7 +583,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotation == 2 and #enemies.yards8 > 0))
+                and #enemies.yards8 >= getOptionValue("Warbreaker")
             then
                 if cast.warbreaker() then return end
             end
@@ -670,7 +670,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotation == 2 and #enemies.yards8 > 0))
+                and #enemies.yards8 >= getOptionValue("Warbreaker")
             then
                 if cast.warbreaker() then return end
             end
@@ -759,7 +759,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or ( mode.rotation == 2 and #enemies.yards8 > 0))
+                and #enemies.yards8 >= getOptionValue("Warbreaker")
             then
                 if cast.warbreaker() then return end
             end
