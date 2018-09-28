@@ -180,7 +180,7 @@ local function createOptions()
 		br.ui:createSpinner(section, "Refreshing Jade Wind",  95,  0,  100,  5,  "Health Percent to Cast At")
 		-- Essence Font
 		br.ui:createSpinner(section, "Essence Font",  80,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Essence Font Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
+		br.ui:createSpinnerWithout(section, "EF Targets",  6,  0,  40,  1,  "Minimum Essence Font Targets")
 		br.ui:createSpinnerWithout(section, "EF Minimum Mana",  40,  0,  100,  5,  "Minimum Mana to cast")
 		br.ui:createSpinner(section, "Essence Font Upwelling", 18, 1, 18, 5, colorWhite.."Will wait until we are at this many stacks of EF before casting.")
 		-- Revival
