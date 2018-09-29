@@ -58,7 +58,7 @@ local rotationPause
 local pauseInterval = 0.25
 
 local ignoreKeys = {
-	"W","A","S","D","SPACE","ENTER","UP","DOWN","LEFT","RIGHT","LALT","RALT","LCTRL","RCTRL","LSHIFT","RSHIFT","TAB"
+	"W","A","S","D","Q","E","SPACE","ENTER","UP","DOWN","LEFT","RIGHT","LALT","RALT","LCTRL","RCTRL","LSHIFT","RSHIFT","TAB"
 }
 
 local keyBoardFrame = CreateFrame("Frame")
