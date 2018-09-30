@@ -519,7 +519,7 @@ local function runRotation()
             if cast.corruption() then return end
           end
           -- actions+=/phantom_singularity
-          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") then
+          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") or (isChecked("Ignore PS units when using CDs") and useCDs()) then
             if cast.phantomSingularity("target", "aoe", 1, 15) then return end
           end
           -- actions+=/vile_taint
