@@ -255,18 +255,20 @@ function getUnitsInRect(width,length, showLines, hp)
 	end
 
 	local unitCounter = 0
-	local UnitsInRect = UnitsInRect or {}
+	local UnitsInRect = {}
 	table.wipe(UnitsInRect)
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
-		if GetUnitExists(thisUnit) and thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
+		if GetUnitExists(thisUnit.unit) and thisUnit.hp <= hp and not UnitIsDeadOrGhost(thisUnit.unit) then
 			local tX, tY = thisUnit.x, thisUnit.y
-			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
-				if showLines then
-					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit.unit))
+			if tX and tY then
+				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+					if showLines then
+						LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit.unit))
+					end
+					unitCounter = unitCounter + 1
+					table.insert(UnitsInRect,thisUnit)
 				end
-				unitCounter = unitCounter + 1
-				table.insert(UnitsInRect,thisUnit)
 			end
 		end
 	end
