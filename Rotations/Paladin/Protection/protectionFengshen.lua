@@ -36,12 +36,6 @@ local function createToggles()
 	[2] = { mode = "Off", value = 2 , overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.shieldOfTheRighteous }
 	};
 	CreateButton("BossCase",5,0)
-	-- Consecration
-	ConsecrationModes = {
-	[2] = { mode = "On", value = 1 , overlay = "Consecration Enabled", tip = "There is no limit to cast Consecration", highlight = 1, icon = br.player.spell.consecration },
-	[1] = { mode = "Off", value = 2 , overlay = "Consecration Disabled", tip = "Disabled.", highlight = 0, icon = br.player.spell.consecration }
-	};
-	CreateButton("Consecration",6,0)
 end
 ---------------
 --- OPTIONS ---
@@ -193,9 +187,7 @@ local function runRotation()
 		UpdateToggle("Defensive",0.25)
 		UpdateToggle("Interrupt",0.25)
 		UpdateToggle("BossCase",0.25)
-		UpdateToggle("Consecration",0.25)
 		br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
-		br.player.mode.Consecration = br.data.settings[br.selectedSpec].toggles["Consecration"]
 		--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 
 		--------------
@@ -255,9 +247,14 @@ local function runRotation()
 		if isChecked("Auto cancel BoP") then
 			if buff.blessingOfProtection.exists() then
 				if cast.handOfReckoning("target") then return end
-			end		
-			if buff.blessingOfProtection.exists() and getDebuffRemain("target",62124) <= 0.2 then
+			end
+			if buff.blessingOfProtection.exists() and getDebuffRemain("target",62124) < 0.2 then
 				RunMacroText("/cancelAura Blessing of Protection")
+			end
+		end
+		if UnitCastingInfo("target") == GetSpellInfo(260793) then
+			if not buff.divineSteed.exists() then
+				if CastSpellByName(GetSpellInfo(190784),"player") then return end
 			end
 		end
 		--------------------
@@ -280,15 +277,19 @@ local function runRotation()
 			end
 		end -- End Action List - Extras
 		local function BossEncounterCase()
+			local hammerOfJusticeCase = nil
 			local blessingOfFreedomCase = nil
 			local blessingOfProtectionCase = nil
 			local cleanseToxinsCase = nil
 			local cleanseToxinsCase2 = nil
 			for i = 1, #br.friend do
+				if getDebuffRemain(br.friend[i].unit,260900) ~= 0 and getDistance(br.friend[i].unit) <= 10 then
+					hammerOfJusticeCase = br.friend[i].unit
+				end
 				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
 					blessingOfFreedomCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 then
 					blessingOfProtectionCase = br.friend[i].unit
 				end
 				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
@@ -304,6 +305,9 @@ local function runRotation()
 					if CastSpellByName(GetSpellInfo(19750),"target") then return end
 				end
 			end
+			if getDebuffRemain("target",260741) ~= 0 then
+				if CastSpellByName(GetSpellInfo(19750),"target") then return end
+			end
 			-- Hammer of Justice
 			if cast.able.hammerOfJustice() then
 				for i = 1, #enemies.yards10 do
@@ -312,6 +316,9 @@ local function runRotation()
 					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129758) and distance <= 10 then
 						if cast.hammerOfJustice(thisUnit) then return end
 					end
+				end
+				if hammerOfJusticeCase ~= nil then
+					if cast.hammerOfJustice(hammerOfJusticeCase) then return end
 				end
 			end
 			-- Blessing of Freedom
@@ -324,7 +331,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if blessingOfProtectionCase ~= nil and cast.able.blessingOfProtection() then
+			if blessingOfProtectionCase ~= nil and not talent.blessingOfSpellwarding and cast.able.blessingOfProtection() then
 				if cast.blessingOfProtection(blessingOfProtectionCase) then return end
 			end
 			-- Cleanse Toxins
@@ -335,7 +342,7 @@ local function runRotation()
 				if cleanseToxinsCase2 ~= nil then
 					if cast.cleanseToxins(cleanseToxinsCase2) then return end
 				end
-			end	
+			end
 			-- Shield of the Righteous
 			local Debuff={
 			--debuff_id
@@ -638,7 +645,7 @@ local function runRotation()
 					for i = 1, #enemies.yards30 do
 						local thisUnit = enemies.yards30[i]
 						local distance = getDistance(thisUnit)
-						if canInterrupt(thisUnit,95) then
+						if canInterrupt(thisUnit,95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 							if distance <= 30 and getFacing("player",thisUnit) then
 								if CastSpellByName(GetSpellInfo(31935),thisUnit) then return end
 							end
@@ -648,7 +655,7 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						-- Hammer of Justice
 						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) then
 							if cast.hammerOfJustice(thisUnit) then return end
@@ -746,7 +753,7 @@ local function runRotation()
 						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and cast.able.consecration() and (#enemies.yards5 >= 1 or br.player.mode.Consecration == 2) and not buff.consecration.exists() then
+					if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and not buff.consecration.exists() then
 						if cast.consecration() then return end
 					end
 					-- Blessed Hammer
