@@ -43,6 +43,16 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Bestial Wrath Disabled", tip = "Bestial Wrath Disabled", highlight = 0, icon = br.player.spell.bestialWrath }
     };
     CreateButton("BestialWrath",6,0)
+
+    PetSummonModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
+        [2] = { mode = "On", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
+        [3] = { mode = "On", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
+        [4] = { mode = "On", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
+        [5] = { mode = "On", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
+        [6] = { mode = "off", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+    };
+    CreateButton("PetSummon",7,0)
     -- -- TT Button
     -- TitanThunderModes = {
     --     [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
@@ -86,7 +96,7 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+           -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
         -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
@@ -204,6 +214,8 @@ local function runRotation()
         UpdateToggle("Misdirection", 0.25)
         br.player.mode.beastialWrath = br.data.settings[br.selectedSpec].toggles["BestialWrath"]
         UpdateToggle("BestialWrath", 0.25)
+        br.player.mode.PetSummon = br.data.settings[br.selectedSpec].toggles["PetSummon"]
+        UpdateToggle("PetSummon", 0.25)
         -- br.player.mode.titanthunder = br.data.settings[br.selectedSpec].toggles["TitanThunder"]
         -- UpdateToggle("TitanThunder", 0.25)
         -- br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
@@ -271,19 +283,19 @@ local function runRotation()
         local openerCount
 
 
-        units.get(5)
-        units.get(30)
+   
         units.get(40)
-        enemies.get(5)
         enemies.get(30)
         enemies.get(40)
+
 
         if GetObjectExists("pet") then
             enemies.get(8,"pet")
             enemies.get(5,"pet")
+            enemies.get(20,"pet")
         end
 
-        local lowestUnit = lowestUnit or units.dyn40
+     --[[   local lowestUnit = lowestUnit or units.dyn40
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if debuff.bestialFerocity.exists(thisUnit) then
@@ -296,6 +308,21 @@ local function runRotation()
                     lowestUnit = thisUnit
                 end
             end
+        end]]
+
+
+        function TankInRange()
+            if isChecked("Auto Growl") then
+                    if #br.friend > 1 then
+                        for i = 1, #br.friend do
+                            local friend = br.friend[i]
+                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
+                            return true
+                            end
+                        end
+                    end
+            end
+            return false
         end
 
 
@@ -348,8 +375,8 @@ local function runRotation()
            if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
             if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") then
-                local callPet = spell["callPet"..getValue("Auto Summon")]
+            elseif br.player.mode.PetSummon ~= 6 then
+                local callPet = spell["callPet"..br.player.mode.PetSummon]
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
                     if cast.able.dismissPet() and UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                         if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
@@ -363,6 +390,7 @@ local function runRotation()
                         end
                     end
                 end
+                
                 if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
                 end
