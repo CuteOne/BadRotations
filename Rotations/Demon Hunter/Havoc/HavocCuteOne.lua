@@ -65,6 +65,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fel Rush Only In Melee")
         -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
+        -- Throw Glaive 
+            br.ui:createCheckbox(section, "Throw Glaive")
         -- Vengeful Retreat
             br.ui:createCheckbox(section, "Vengeful Retreat")
         -- Glide Fall Time
@@ -533,7 +535,7 @@ local function runRotation()
             end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
-            if cast.able.throwGlaive() and getDistance(units.dyn30) > 8 then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and getDistance(units.dyn30) > 8 then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         -- Fel Rush
@@ -550,7 +552,7 @@ local function runRotation()
         --     end
         -- Throw Glaive
             -- throw_glaive,if=talent.demon_blades.enabled
-            if cast.able.throwGlaive() and talent.demonBlades then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         end -- End Action List - Demonic
@@ -694,7 +696,7 @@ local function runRotation()
         --     end
         -- Throw Glaive
             -- throw_glaive,if=talent.demon_blades.enabled
-            if cast.able.throwGlaive() and talent.demonBlades then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         end -- End Action List - Normal
@@ -733,7 +735,7 @@ local function runRotation()
                 if isValidUnit("target") then
                     if UnitReaction("target","player") < 4 then
             -- Throw Glaive
-                        if cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
+                        if isChecked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
                             if cast.throwGlaive("target","aoe") then return end
                         end
             -- Torment

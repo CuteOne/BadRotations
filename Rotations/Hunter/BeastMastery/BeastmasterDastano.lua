@@ -283,9 +283,11 @@ local function runRotation()
         local openerCount
 
 
+   
         units.get(40)
         enemies.get(30)
         enemies.get(40)
+
 
         if GetObjectExists("pet") then
             enemies.get(8,"pet")
@@ -320,6 +322,19 @@ local function runRotation()
                         end
                     end
             end
+            return false
+        end
+
+
+        function TankInRange()
+                    if #br.friend > 1 then
+                        for i = 1, #br.friend do
+                            local friend = br.friend[i]
+                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
+                            return true
+                            end
+                        end
+                    end
             return false
         end
 
@@ -360,7 +375,7 @@ local function runRotation()
            if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
             if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif br.player.mode.beastialWrath ~= 6 then
+            elseif br.player.mode.PetSummon ~= 6 then
                 local callPet = spell["callPet"..br.player.mode.PetSummon]
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
                     if cast.able.dismissPet() and UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then

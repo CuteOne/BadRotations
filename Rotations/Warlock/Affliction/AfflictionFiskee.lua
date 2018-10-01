@@ -519,8 +519,8 @@ local function runRotation()
             if cast.corruption() then return end
           end
           -- actions+=/phantom_singularity
-          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") then
-            if cast.phantomSingularity("target", "aoe") then return end
+          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") or (isChecked("Ignore PS units when using CDs") and useCDs()) then
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
           end
           -- actions+=/vile_taint
           if not moving then
@@ -531,7 +531,7 @@ local function runRotation()
             if cast.darkSoul("player") then return end
           end
           -- actions+=/berserking
-          if isChecked("Racial") and race == "Troll" and useCDs() or isChecked("CDs With Burst Key") and not moving then
+          if isChecked("Racial") and race == "Troll" and (useCDs() or isChecked("CDs With Burst Key")) and not moving then
             if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
@@ -586,7 +586,7 @@ local function runRotation()
           end
           -- actions+=/phantom_singularity,if=time>40&(cooldown.summon_darkglare.remains>=45|cooldown.summon_darkglare.remains<8)
           if combatTime > 40 and (cd.summonDarkglare.remain() >= 45 or cd.summonDarkglare.remain() < 8) and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
-            if cast.phantomSingularity("target", "aoe") then return end
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
           end
           -- actions+=/vile_taint,if=time>20
           if combatTime > 20 and not moving then
@@ -710,7 +710,7 @@ local function runRotation()
           end
           -- actions+=/phantom_singularity
           if combatTime <= 40 and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
-            if cast.phantomSingularity("target", "aoe") then return end
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
           end
           -- actions+=/vile_taint
           if not moving then
