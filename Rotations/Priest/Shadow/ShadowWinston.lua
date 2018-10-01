@@ -1,4 +1,4 @@
-local rotationName = "JR"
+local rotationName = "Winston"
 -- TODO
     -- add twins painful touch logic
 

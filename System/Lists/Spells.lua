@@ -3084,8 +3084,10 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                crushingAssasult            = 278826,
                 deadlyCalm                  = 262228,
                 defensiveStance             = 197690,
+                executionersPrecision       = 272870,
                 inForTheKill                = 215550,
                 overpower                   = 60503,
                 stoneHeart                  = 225947,
@@ -3193,7 +3195,7 @@ br.lists.spells = {
                 shieldBlock                 = 2565,
                 shieldSlam                  = 23922,
                 shieldWall                  = 871,
-                shockwave                             = 46968,
+                shockwave                   = 46968,
                 spellReflection             = 23920,
                 thunderClap                 = 6343,
             },
@@ -3202,6 +3204,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 defensiveStance             = 71,
+                ignorePain                  = 190456,
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
@@ -3209,7 +3212,6 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
-                        ignorePain                          = 190456,
             },
             debuffs                         = {
                 demoralizingShout           = 1160,

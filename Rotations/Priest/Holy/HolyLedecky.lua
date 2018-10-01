@@ -88,9 +88,9 @@ local function createOptions()
 		--  Mana Potion
 		--  br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
 		-- Angelic Feather
-		br.ui:createCheckbox(section,"Angelic Feather","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
+		br.ui:createSpinner(section, "Angelic Feather",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
 		-- Body and Mind
-		br.ui:createCheckbox(section,"Body and Mind","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
+		br.ui:createSpinner(section, "Body and Mind",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
 		-- Holy Word: Chastise
 		br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
@@ -186,7 +186,7 @@ local function createOptions()
 		-- Binding Heal
 		br.ui:createSpinner(section, "Binding Heal",  70,  0,  100,  5,  "Cast Binding Heal if anyone falls below this HP.")
 		-- Binding Heal Player HP
-		br.ui:createSpinnerWithout(section, "Binding Heal Player HP",  80,  0,  100,  5,  "|cffFFBB00Will only cast if Player HP is below this Percentage.");
+		br.ui:createSpinner(section, "Binding Heal Player HP",  80,  0,  100,  5,  "|cffFFBB00Will only cast if Player HP is below this Percentage.");
 		-- Binding Heal Targets
 		br.ui:createCheckbox(section, "Binding Heal Multi","Will attempt to only use Binding Heal if there are at least 2 allies injured and below set HP");
 		-- Prayer of Healing
@@ -312,13 +312,15 @@ local function runRotation()
 				end
 			end -- End Dummy Test
 			-- Moving
-			if isMoving("player") then
+			if IsMovingTime(getOptionValue("Angelic Feather")) then
 				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
 						RunMacroText("/stopspelltarget")
 					end
 				end
-				-- Body and Mind
+			end
+			-- Moving
+			if IsMovingTime(getOptionValue("Body and Mind")) then
 				if isChecked("Body and Mind") and talent.bodyAndMind then
 					if cast.bodyAndMind("player") then return end
 				end
@@ -668,17 +670,17 @@ local function runRotation()
 				if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
 					for i=1, #tanks do
 						thisTank = tanks[i]
-						if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and php <= getValue("Binding Heal Player HP") then
+						if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
 							if cast.bindingHeal(thisTank.unit, "aoe") then return true end
 						end
 					end
-					if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and php <= getValue("Binding Heal Player HP") then
+					if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
 						if cast.bindingHeal(lowest.unit, "aoe") then return true end
 					end
 				end
 			end
 			-- Binding Heal Single
-			if isChecked("Binding Heal") and not isChecked("Binding Heal Multi") and talent.bindingHeal and php <= getValue("Binding Heal Player HP") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+			if isChecked("Binding Heal") and not isChecked("Binding Heal Multi") and talent.bindingHeal and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Binding Heal") then
 						if cast.bindingHeal(br.friend[i].unit) then

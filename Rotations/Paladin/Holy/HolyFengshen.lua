@@ -578,7 +578,7 @@ local function runRotation()
 					if layOnHandsTANK ~= nil then
 						if cast.layOnHands(layOnHandsTANK) then return end
 					end
-				elseif getOptionValue("Lay on Hands Target") == 3 then
+				elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player",267037) == 0 then
 					if php <= getValue("Lay on Hands") then
 						if cast.layOnHands("player") then return end
 					end
