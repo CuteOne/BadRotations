@@ -301,7 +301,7 @@ local function runRotation()
         function actionList_Extras()
         -- Stop Casting
             if isCastingSpell(spell.cracklingJadeLightning) then
-                Print("channeling cjl")
+             --   Print("channeling cjl")
             end
         -- Tiger's Lust
             if isChecked("Tiger's Lust") then
@@ -1018,13 +1018,13 @@ local function runRotation()
                     end
         -- Whirling Dragon Punch
                     if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
-                        Print("Casting Whirling Dragon Punch")
+                     --   Print("Casting Whirling Dragon Punch")
                         if cast.whirlingDragonPunch("player","aoe") then return true end
                     end
         -- Spinning Crane Kick
                     -- if not WasLastCast(SpinningCraneKick) and HasBuff(Serenity) and TargetsInRadius(SpinningCraneKick) >= 3
                     if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                        Print("Casting Spinning Crane Kick")
+                      --  Print("Casting Spinning Crane Kick")
                         if cast.spinningCraneKick(nil,"aoe") then return true end
                     end
         -- Rising Sun Kick
@@ -1038,7 +1038,7 @@ local function runRotation()
         -- Spinning Crane Kick
                     -- if not WasLastCast(SpinningCraneKick) and TargetsInRadius(SpinningCraneKick) >= 3 and CooldownSecRemain(FistsOfFury) > 3
                     if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cd.fistsOfFury.remain() > 3 then
-                        Print("Casting Spinning Crane Kick 2")
+                      --  Print("Casting Spinning Crane Kick 2")
                         if cast.spinningCraneKick(nil,"aoe") then return true end
                     end
         -- Blackout Kick
