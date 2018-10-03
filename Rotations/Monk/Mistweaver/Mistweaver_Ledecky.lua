@@ -529,7 +529,7 @@ local function runRotation()
 						if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
 							if cast.envelopingMist(br.friend[i].unit) then return end
 						end
-				end
+					end
 				end
 				if getOptionValue(colormonk.."Thunder Focus Tea") == 2 then --Renewing Mists TFT
 					if br.friend[i].hp <= getValue("TFT RM") then
@@ -539,7 +539,7 @@ local function runRotation()
 						if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
 							if cast.renewingMists(br.friend[i].unit) then return end
 						end
-				end
+					end
 				end
 			end
 			if getOptionValue(colormonk.."Thunder Focus Tea") == 3 then --Vivify TFT
@@ -550,10 +550,9 @@ local function runRotation()
 					if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
 						if cast.vivify(br.friend[i].unit) then return end
 					end
-			end
+				end
 			end
 		end
-
 		--Thunder Focus Tea NO IC
 		if isChecked(colormonk.."Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(spell.thunderFocusTea) == 0 and not isChecked("Soothing Mist Instant Cast") then
 			for i = 1, #br.friend do
@@ -584,17 +583,21 @@ local function runRotation()
 			end
 		end
 		--Essence Font with Upwelling
-		if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and isChecked("Essence Font Upwelling") and mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
-			if buff.essenceFont.stack() >= getValue("Essence Font Upwelling") then
-				if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
-					if cast.essenceFont() then return end
+		if isChecked("Essence Font Upwelling") and talent.upwelling and not isCastingSpell(spell.essenceFont) then 
+			if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
+				if buff.essenceFont.stack() >= getValue("Essence Font Upwelling") then
+					if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
+						if cast.essenceFont() then return end
+					end
 				end
 			end
 		end
 		--Essence Font
-		if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and not isChecked("Essence Font Upwelling") and mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
-			if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
-				if cast.essenceFont() then return end
+		if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and not talent.upwelling then
+			if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
+				if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
+					if cast.essenceFont() then return end
+				end
 			end
 		end
 		--Revival
@@ -728,19 +731,22 @@ local function runRotation()
 			end
 		end
 		--Enveloping Mists
-		if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
-				if getBuffRemain(lowest.unit,115175) == 0 then
-					if cast.soothingMist(lowest.unit) then return end
-				elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
-					if cast.envelopingMist(lowest.unit) then return end
+		if not isChecked("EM Tanks Only") then
+			if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
+					if getBuffRemain(lowest.unit,115175) == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+						if cast.envelopingMist(lowest.unit) then return end
+					end
 				end
 			end
-		end
-		--Enveloping Mists NO IC
-		if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
-				if cast.envelopingMist(lowest.unit) then return end
+
+			--Enveloping Mists NO IC
+			if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
+					if cast.envelopingMist(lowest.unit) then return end
+				end
 			end
 		end
 		--Vivify
