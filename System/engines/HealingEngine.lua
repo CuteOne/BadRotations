@@ -88,7 +88,7 @@ if not metaTable1 then
 			and UnitIsConnected(tar)
 			and UnitInPhase(tar))
 			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
-			and CheckBadDebuff(tar)
+			--and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
 			and UnitInPhase(tar)
@@ -137,8 +137,13 @@ if not metaTable1 then
 				return 250,250,250
 			end
 			-- Place Dead players at the end of the list
-			if HealCheck(o.unit) ~= true then
-				return 250,250,250
+			if o.hcRefresh == nil or o.hcRefresh < GetTime() - 1 then
+				startTime = debugprofilestop()
+				if HealCheck(o.unit) ~= true then
+					return 250,250,250
+				end
+				br.debug.cpu.healingEngine.HealCheck = debugprofilestop()-startTime
+				o.hcRefresh = GetTime()
 			end
 			-- Place blacklisted spearOfAngush players at the end of the list
 			if o.spearOfAnguishState == 2 then
@@ -206,19 +211,19 @@ if not metaTable1 then
 				end
 			end
 			-- Debuffs HP compensation
-			local debugTimerStartTime = GetTime()
-			local HpDebuffs = novaEngineTables.SpecificHPDebuffs
-			for i = 1, #HpDebuffs do
-				local _,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
-				if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
-					PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
-					break
-				end
-			end
-			local elapsedDebugTime = GetTime() - debugTimerStartTime
-			if elapsedDebugTime > 0.5 then
-				Print("WARNING: Debuff Scan took a long time: "..elapsedDebugTime.." Seconds")
-			end
+			-- local debugTimerStartTime = GetTime()
+			-- local HpDebuffs = novaEngineTables.SpecificHPDebuffs
+			-- for i = 1, #HpDebuffs do
+			-- 	local _,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
+			-- 	if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
+			-- 		PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
+			-- 		break
+			-- 	end
+			-- end
+			-- local elapsedDebugTime = GetTime() - debugTimerStartTime
+			-- if elapsedDebugTime > 0.5 then
+			-- 	Print("WARNING: Debuff Scan took a long time: "..elapsedDebugTime.." Seconds")
+			-- end
 			if getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
 				for i = 1, #br.data.blackList do
 					if o.guid == br.data.blackList[i].guid then
@@ -290,63 +295,63 @@ if not metaTable1 then
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-            if br.data.settings[br.selectedSpec].toggles["isDebugging"] == true then
+            if isChecked("Debug Timers") then
                 local startTime, duration
                 local debugprofilestop = debugprofilestop
 
                 -- assign Name of unit
                 startTime = debugprofilestop()
                 o.name = UnitName(o.unit)
-                br.debug.cpu.healingEngine.UnitName = br.debug.cpu.healingEngine.UnitName + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitName = debugprofilestop()-startTime
 
                 -- assign real GUID of unit
                 startTime = debugprofilestop()
                 o.guid = o:nGUID()
-                br.debug.cpu.healingEngine.nGUID = br.debug.cpu.healingEngine.nGUID + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.nGUID = debugprofilestop()-startTime
 
                 -- assign unit role
                 startTime = debugprofilestop()
                 o.role = o:GetRole()
-                br.debug.cpu.healingEngine.GetRole = br.debug.cpu.healingEngine.GetRole + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetRole = debugprofilestop()-startTime
 
                 -- subgroup number
                 startTime = debugprofilestop()
                 o.subgroup = o:getUnitGroupNumber()
-                br.debug.cpu.healingEngine.getUnitGroupNumber = br.debug.cpu.healingEngine.getUnitGroupNumber+ debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.getUnitGroupNumber = debugprofilestop()-startTime
 
                 -- Short GUID of unit for the SetupTable
                 o.guidsh = select(2, o:nGUID())
 
                 -- set to true if unit should be dispelled
                 startTime = debugprofilestop()
-                o.dispel = o:Dispel(o.unit)
-                br.debug.cpu.healingEngine.Dispel = br.debug.cpu.healingEngine.Dispel + debugprofilestop()-startTime
+                --o.dispel = o:Dispel(o.unit)
+                br.debug.cpu.healingEngine.Dispel = debugprofilestop()-startTime
 
                 -- distance to player
                 startTime = debugprofilestop()
                 o.distance = o:getUnitDistance()
-                br.debug.cpu.healingEngine.getUnitDistance = br.debug.cpu.healingEngine.getUnitDistance + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.getUnitDistance = debugprofilestop()-startTime
 
                 -- Unit's threat situation(1-4)
                 startTime = debugprofilestop()
                 o.threat = UnitThreatSituation(o.unit)
-                br.debug.cpu.healingEngine.UnitThreatSituation = br.debug.cpu.healingEngine.UnitThreatSituation + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitThreatSituation = debugprofilestop()-startTime
 
                 -- Unit HP absolute
                 startTime = debugprofilestop()
                 o.hpabs = UnitHealth(o.unit)
-                br.debug.cpu.healingEngine.UnitHealth = br.debug.cpu.healingEngine.UnitHealth + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitHealth = debugprofilestop()-startTime
 
                 -- Unit HP missing absolute
                 startTime = debugprofilestop()
                 o.hpmissing = UnitHealthMax(o.unit) - UnitHealth(o.unit)
-                br.debug.cpu.healingEngine.hpMissing = br.debug.cpu.healingEngine.hpMissing + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.hpMissing = debugprofilestop()-startTime
 
                 -- Unit HP
                 startTime = debugprofilestop()
-                o.hp = o:CalcHP()
-                o.absorb = select(3, o:CalcHP())
-                br.debug.cpu.healingEngine.absorb = br.debug.cpu.healingEngine.absorb + debugprofilestop()-startTime
+                --o.hp = o:CalcHP()
+                --o.absorb = select(3, o:CalcHP())
+                br.debug.cpu.healingEngine.absorb = debugprofilestop()-startTime
 
                 -- Target's target
                 o.target = tostring(o.unit).."target"
@@ -354,24 +359,24 @@ if not metaTable1 then
                 -- Unit Class
                 startTime = debugprofilestop()
                 o.class = o:GetClass()
-                br.debug.cpu.healingEngine.GetClass = br.debug.cpu.healingEngine.GetClass + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetClass = debugprofilestop()-startTime
 
                 -- Unit is player
                 startTime = debugprofilestop()
                 o.isPlayer = UnitIsPlayer(o.unit)
-                br.debug.cpu.healingEngine.UnitIsPlayer = br.debug.cpu.healingEngine.UnitIsPlayer + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.UnitIsPlayer = debugprofilestop()-startTime
 
                 -- precise unit position
                 startTime = debugprofilestop()
                 if o.refresh == nil or o.refresh < GetTime() - 1 then
                     o.x,o.y,o.z = o:GetPosition()
                 end
-                br.debug.cpu.healingEngine.GetPosition = br.debug.cpu.healingEngine.GetPosition + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.GetPosition = debugprofilestop()-startTime
 
                 --debug
                 startTime = debugprofilestop()
                 o.hp, _, o.absorb = o:CalcHP()
-                br.debug.cpu.healingEngine.absorbANDhp = br.debug.cpu.healingEngine.absorbANDhp + debugprofilestop()-startTime
+                br.debug.cpu.healingEngine.absorbANDhp = debugprofilestop()-startTime
 
             else
                 -- assign Name of unit
@@ -383,7 +388,7 @@ if not metaTable1 then
                 -- subgroup number
                 o.subgroup = o:getUnitGroupNumber()
                 -- set to true if unit should be dispelled
-                o.dispel = o:Dispel(o.unit)
+                --o.dispel = o:Dispel(o.unit)
                 -- distance to player
                 o.distance = o:getUnitDistance()
                 -- Unit's threat situation(1-4)
@@ -418,9 +423,6 @@ if not metaTable1 then
 	function SetupTables() -- Creating the cache (we use this to check if some1 is already in the table)
 		setmetatable(br.friend, metaTable1) -- Set the metaTable of Main to Meta
 		function br.friend:Update()
-			local refreshTimer = 0.666
-			if br.friendTableTimer == nil or br.friendTableTimer <= GetTime() - refreshTimer then
-				br.friendTableTimer = GetTime()
 				-- Print("HEAL PULSE: "..GetTime())		-- debug Print to check update time
 				-- This is for special situations, IE world healing or NPC healing in encounters
 				local selectedMode,SpecialTargets = getOptionValue("Special Heal"), {}
@@ -546,7 +548,6 @@ if not metaTable1 then
 					pulseNovaDebug()
 				end
 				-- update these frames to current br.friend values via a pulse in nova engine
-			end -- timer capsule
 		end
 		-- We are creating the initial Main Table
 		br.friend()

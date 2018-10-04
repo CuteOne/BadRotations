@@ -794,11 +794,11 @@ local function runRotation()
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
 		if dsCastable and buff.divinePurpose.exists() then
-			if cast.divineStorm() then return end
+			if cast.divineStorm("player", "aoe", 1, 8) then return end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
 		if dsCastable and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) then
-			if cast.divineStorm() then return end
+			if cast.divineStorm("player", "aoe", 1, 8) then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
 		if buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
@@ -818,8 +818,8 @@ local function runRotation()
 			if actionList_Finisher() then return end
 		end
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-		if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance(units.dyn8) < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
-			if cast.wakeOfAshes() then return end
+		if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
+			if cast.wakeOfAshes("player", "aoe", 1, 15) then return end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then

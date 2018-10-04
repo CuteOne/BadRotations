@@ -245,17 +245,13 @@ function isLongTimeCCed(Unit)
 		return false
 	end
 	local longTimeCC = br.lists.longCC
-	for k, v in pairs(longTimeCC) do
-		if UnitDebuffID(Unit,longTimeCC[k])~=nil then
+	for i=1,40 do
+		local debuffSpellID = select(10, UnitDebuff(Unit,i))
+		if debuffSpellID == nil then return false end
+		if longTimeCC[tonumber(debuffSpellID)] == true then
 			return true
 		end
 	end
-	-- for i=1,#longTimeCC do
-	-- 	--local checkCC=longTimeCC[i]
-	-- 	if UnitDebuffID(Unit,longTimeCC[i])~=nil then
-	-- 		return true
-	-- 	end
-	-- end
 	return false
 end
 -- if isLooting() then
@@ -372,9 +368,10 @@ end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local playerTarget = UnitIsUnit(Unit,"target")
+	if Unit == "target" then Unit = UnitTarget("player") end
 	local targeting = isTargeting(Unit)
 	local reaction = UnitReaction(Unit,"player") or 10
-	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or enemyListCheck(Unit)) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
+	if not pause(true) and Unit ~= nil and br.units[Unit] ~= nil and (not UnitIsTapDenied(Unit) or isDummy(Unit))
 		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or playerTarget)))
 	then
 		local instance = IsInInstance()
