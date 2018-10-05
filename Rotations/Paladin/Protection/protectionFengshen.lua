@@ -283,7 +283,7 @@ local function runRotation()
 			local cleanseToxinsCase = nil
 			local cleanseToxinsCase2 = nil
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,260900) ~= 0 and getDistance(br.friend[i].unit) <= 10 then
+				if UnitIsCharmed(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 10 then
 					hammerOfJusticeCase = br.friend[i].unit
 				end
 				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
@@ -295,7 +295,7 @@ local function runRotation()
 				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
 					cleanseToxinsCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,6) <= 1 then
+				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,7) < 2 then
 					cleanseToxinsCase2 = br.friend[i].unit
 				end
 			end
