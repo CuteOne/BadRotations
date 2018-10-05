@@ -243,6 +243,78 @@ local function runRotation()
 				lowestUnit = thisUnit
 			end
 		end
+		local StunsBlackList={
+			-- Atal'Dazar
+			[87318] = "Dazar'ai Colossus",
+			[122984] = "Dazar'ai Colossus",
+			[128455] = "T'lonja",
+			[129553] = "Dinomancer Kish'o",
+			[129552] = "Monzumi",
+			-- Freehold
+			[129602] = "Irontide Enforcer",
+			[130400] = "Irontide Crusher",
+			-- King's Rest
+			[133935] = "Animated Guardian",
+			[134174] = "Shadow-Borne Witch Doctor",
+			[134158] = "Shadow-Borne Champion",
+			[137474] = "King Timalji",
+			[137478] = "Queen Wasi",
+			[137486] = "Queen Patlaa",
+			[137487] = "Skeletal Hunting Raptor",
+			[134251] = "Seneschal M'bara",
+			[134331] = "King Rahu'ai",
+			[137484] = "King A'akul",
+			[134739] = "Purification Construct",
+			[137969] = "Interment Construct",
+			[135231] = "Spectral Brute",
+			[138489] = "Shadow of Zul",
+			-- Shrine of the Storm
+			[134144] = "Living Current",
+			[136214] = "Windspeaker Heldis",
+			[134150] = "Runecarver Sorn",
+			[136249] = "Guardian Elemental",
+			[134417] = "Deepsea Ritualist",
+			[136353] = "Colossal Tentacle",
+			[136295] = "Sunken Denizen",
+			[136297] = "Forgotten Denizen",
+			-- Siege of Boralus
+			[129369] = "Irontide Raider",
+			[129373] = "Dockhound Packmaster",
+			[129640] = "Snarling Dockhound",
+			[128969] = "Ashvane Commander",
+			[138255] = "Ashvane Spotter",
+			[138465] = "Ashvane Cannoneer",
+			[135245] = "Bilge Rat Demolisher",
+			-- Temple of Sethraliss
+			[134991] = "Sandfury Stonefist",
+			[139422] = "Scaled Krolusk Tamer",
+			[136076] = "Agitated Nimbus",
+			[134691] = "Static-charged Dervish",
+			[139110] = "Spark Channeler",
+			[136250] = "Hoodoo Hexer",
+			[139946] = "Heart Guardian",
+			-- MOTHERLODE!!
+			[130485] = "Mechanized Peacekeeper",
+			[136139] = "Mechanized Peacekeeper",
+			[136643] = "Azerite Extractor",
+			[134012] = "Taskmaster Askari",
+			[133430] = "Venture Co. Mastermind",
+			[133463] = "Venture Co. War Machine",
+			[133436] = "Venture Co. Skyscorcher",
+			[133482] = "Crawler Mine",
+			-- Underrot
+			[131436] = "Chosen Blood Matron",
+			[133912] = "Bloodsworn Defiler",
+			[138281] = "Faceless Corruptor",
+			-- Tol Dagor
+			[130025] = "Irontide Thug",
+			-- Waycrest Manor
+			[131677] = "Heartsbane Runeweaver",
+			[135329] = "Matron Bryndle",
+			[131812] = "Heartsbane Soulcharmer",
+			[131670] = "Heartsbane Vinetwister",
+			[135365] = "Matron Alma",
+        }
 		-- Auto cancel Blessing of Protection
 		if isChecked("Auto cancel BoP") then
 			if buff.blessingOfProtection.exists() then
@@ -584,7 +656,7 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) then
+				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) and StunsBlackList[GetObjectID(thisUnit)]==nil then
 					if cast.hammerOfJustice(units.dyn10) then return end
 				end
 				-- Flash of Light
@@ -657,7 +729,7 @@ local function runRotation()
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Rebuke
@@ -665,7 +737,7 @@ local function runRotation()
 							if cast.rebuke(thisUnit) then return end
 						end
 						-- Blinding Light
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 then
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.blindingLight() then return end
 						end
 					end
