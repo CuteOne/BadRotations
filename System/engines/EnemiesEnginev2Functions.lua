@@ -37,10 +37,10 @@ function updateOM()
 	local omCounter = 0
 	local fmod = math.fmod
 	local loopSet = floor(GetFramerate()) or 0
-	if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
-		if next(br.enemiesv2) ~= nil then br.enemiesv2 = {} end
-		return
-	end
+	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
+	-- 	if next(br.enemiesv2) ~= nil then br.enemiesv2 = {} end
+	-- 	return
+	-- end
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.objects.targets = 0
 	end

@@ -460,19 +460,28 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
 	local enemyCounter = 0
 	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	local enemiesInRect = enemiesInRect or {}
 	if #enemiesTable > 0 then
+		table.wipe(enemiesInRect)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
-			local tX, tY, tZ = GetObjectPosition(thisUnit)
-			if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
-				if showLines then
-					LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
+			local tX, tY = GetObjectPosition(thisUnit)
+			if tX and tY then
+				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+					if showLines then
+						LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
+					end
+					enemyCounter = enemyCounter + 1
+					table.insert(enemiesInRect,thisUnit)
 				end
-				enemyCounter = enemyCounter + 1
 			end
 		end
 	end
-	return enemyCounter
+	if #enemiesInRect ~= 0 then
+		return enemyCounter, enemiesInRect
+	else
+		return enemyCounter
+	end
 end
 
 -- local function intersects(circle, rect)

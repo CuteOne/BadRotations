@@ -55,7 +55,7 @@ function br.ui:createConfigWindow()
         -- Healing Engine
         section = br.ui:createSection(br.ui.window.config, "Healing Engine")
         br.ui:createCheckbox(section, "HE Active", "Uncheck to disable Healing Engine.\nCan improves FPS if you dont rely on Healing Engine.")
-        br.ui:createCheckbox(section, "Disable Object Manager", "Check to disable OM. Will disable dynamic targetting. Will prevent all spells that require OM from working correctly.")
+        --br.ui:createCheckbox(section, "Disable Object Manager", "Check to disable OM. Will disable dynamic targetting. Will prevent all spells that require OM from working correctly.")
         br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
         br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
         br.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
