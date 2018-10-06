@@ -189,7 +189,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
-        local enemies                                       = enemies or {}
+        local enemies                                       = br.player.enemies 
         local explosiveTarget                               = explosiveTarget
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
@@ -222,15 +222,15 @@ local function runRotation()
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
-        local units                                         = units or {}
+        local units                                         = br.player.units 
         local use                                           = br.player.use
 
-        units.dyn5 = br.player.units(5)
-        units.dyn38 = br.player.units(38)
-        units.dyn40 = br.player.units(40)
-        enemies.yards8 = br.player.enemies(8)
-        enemies.yards8t = br.player.enemies(8,br.player.units(40,true))
-        enemies.yards40 = br.player.enemies(40)
+        units.get(5)
+        units.get(38)
+        units.get(40)
+        enemies.get(8)
+        enemies.get(8,"target")
+        enemies.get(40)
         enemies.yards40r = getEnemiesInRect(10,38,false) or 0
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -998,7 +998,8 @@ local function runRotation()
         end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
-local id = 254
+--local id = 254
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
