@@ -30,6 +30,11 @@ function UnitReaction(Unit,otherUnit)
 	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return 10 end
 	return UnitReaction_Orig(Unit,otherUnit)
 end
+local UnitIsFriend_Orig = UnitIsFriend
+function UnitIsFriend(Unit, otherUnit)
+	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return false end
+	return UnitIsFriend_Orig(Unit,otherUnit)
+end
 function GetUnitExists(Unit)
 	if Unit == nil then return false end
 	return UnitExists(Unit)
