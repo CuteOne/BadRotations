@@ -368,9 +368,8 @@ end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local playerTarget = UnitIsUnit(Unit,"target")
-	if Unit == "target" then Unit = UnitTarget("player") end
-	local targeting = isTargeting(Unit)
 	local reaction = UnitReaction(Unit,"player") or 10
+	local targeting = isTargeting(Unit)
 	if not pause(true) and Unit ~= nil and br.units[Unit] ~= nil and (not UnitIsTapDenied(Unit) or isDummy(Unit))
 		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or playerTarget)))
 	then

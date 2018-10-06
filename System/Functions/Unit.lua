@@ -20,6 +20,16 @@ function GetUnit(Unit)
 	end
 	return nil
 end
+local UnitIsUnit_Orig = UnitIsUnit
+function UnitIsUnit(Unit, otherUnit)
+	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return false end
+	return UnitIsUnit_Orig(Unit,otherUnit)
+end
+local UnitReaction_Orig = UnitReaction
+function UnitReaction(Unit,otherUnit)
+	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return 10 end
+	return UnitReaction_Orig(Unit,otherUnit)
+end
 function GetUnitExists(Unit)
 	if Unit == nil then return false end
 	return UnitExists(Unit)
