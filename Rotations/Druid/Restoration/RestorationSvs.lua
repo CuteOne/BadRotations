@@ -858,83 +858,23 @@ local function runRotation()
 			-- DOT damage to teammates cast Rejuvenation
 			if isChecked("DOT cast Rejuvenation") then
 				local debuff_list={
-				200620, --  Darkheart Thicket
-				196376, --  Archdruid Glaidalis
-				199345, --  Dresaron
-				197546, --  Illysanna Ravencrest
-				211464, --  Court of Stars
-				192131, --  Warlord Parjesh
-				196111, --  Eye of Azshara
-				227325, --  Opera Hall
-				227848, --  Maiden of Virtue
-				227742, --  Moroes
-				227502, --  Mana Devourer
-				229159, --  Viz'aduum
-				185539, --  Helya
-				228253, --  Guarm
-				204531, --  Skorpyron
-				206607, --  Chronomatic Anomaly
-				219966, --  Chronomatic Anomaly
-				219965, --  Chronomatic Anomaly
-				206798, --  Trilliax
-				213166, --  Spellblade Aluriel
-				212587, --  Spellblade Aluriel
-				206936, --  Star Augur Etraeus
-				205649, --  Star Augur Etraeus
-				206464, --  Star Augur Etraeus
-				214486,--   Star Augur Etraeus
-				206480, --  Tichondrius
-				219235, --  High Botanist Tel'arn
-				218809, --  High Botanist Tel'arn
-				206677, --  Krosus
-				209615, --  Elisande
-				211258, --  Elisande
-				206222, --  Gul'dan
-				206221, --  Gul'dan
-				212568, --  Gul'dan
-				233062, --  Goroth
-				230345, --  Goroth
-				231363, --  Goroth
-				233983, --  Demonic Inquisition
-				231998, --  Harjatan
-				231770, --  Harjatan
-				232913, --  Mistress Sassz'ine
-				236519, --  Sisters of the Moon
-				239264, --  Sisters of the Moon
-				236449, --  The Desolate Host
-				236515, --  The Desolate Host
-				235117, --  Maiden of Vigilance
-				242017, --  Fallen Avatar
-				240908, --  Kil'jaeden
-				234310, --  Kil'jaeden
-				241822, --  Kil'jaeden
-				239155, --  Kil'jaeden
+					-- Uldir
+					{spellID = 262313   ,   stacks = 0   ,   secs = 5}, --Malodorous Miasma
+					{spellID = 262314   ,   stacks = 0   ,   secs = 3}, --Putrid Paroxysm
+					{spellID = 264382   ,   stacks = 0   ,   secs = 1}, --Eye Beam
+					{spellID = 264210   ,   stacks = 0   ,   secs = 5}, --Jagged Mandible
+					{spellID = 265360   ,   stacks = 0   ,   secs = 5}, --Roiling Deceit
+					{spellID = 265129   ,   stacks = 0   ,   secs = 5}  --Omega Vector
+					{spellID = 266948   ,   stacks = 0   ,   secs = 5}, --Plague Bomb
+					{spellID = 274358   ,   stacks = 0   ,   secs = 5}, --Rupturing Blood
+					{spellID = 274019   ,   stacks = 0   ,   secs = 1}, --Mind Flay
+					{spellID = 272018   ,   stacks = 0   ,   secs = 1}, --Absorbed in Darkness
+					{spellID = 273359   ,   stacks = 0   ,   secs = 5}, --Shadow Barrage
 				}
 				for i=1, #br.friend do
 					for k,v in pairs(debuff_list) do
-						if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenation.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
+						if getDebuffRemain(br.friend[i].unit,v.spellID) > v.secs and getDebuffStacks(br.friend[i].unit,v.spellID) >= v.stacks and not buff.rejuvenation.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
 							if cast.rejuvenation(br.friend[i].unit) then return end
-						end
-					end
-				end
-				if talent.germination then
-					local debuff2_list={
-					200620, --  Darkheart Thicket
-					196376, --  Archdruid Glaidalis
-					199345, --  Dresaron
-					197546, --  Illysanna Ravencrest
-					211464, --  Court of Stars
-					192131, --  Warlord Parjesh
-					227848, --  Maiden of Virtue
-					227502, --  Mana Devourer
-					229159, --  Viz'aduum
-					185539, --  Helya
-					}
-					for i=1, #br.friend do
-						for k,v in pairs(debuff2_list) do
-							if getDebuffRemain(br.friend[i].unit,v) > 5.0 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-								if cast.rejuvenation(br.friend[i].unit) then return end
-							end
 						end
 					end
 				end
