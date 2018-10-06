@@ -1989,6 +1989,7 @@ br.lists.spells = {
                 overloadedWithLight         = 223166,
                 penitent                    = 246519,
                --powerInfusion               = 10060,
+                powerOfTheDarkSide          = 198069,
                 powerWordShield             = 17,
                 rapture                     = 47536,
                 speedOfThePious             = 197767,
