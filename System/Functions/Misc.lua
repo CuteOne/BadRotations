@@ -370,7 +370,7 @@ function isValidUnit(Unit)
 	local playerTarget = UnitIsUnit(Unit,"target")
 	local reaction = UnitReaction(Unit,"player") or 10
 	local targeting = isTargeting(Unit)
-	if not pause(true) and Unit ~= nil and br.units[Unit] ~= nil and (not UnitIsTapDenied(Unit) or isDummy(Unit))
+	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
 		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or playerTarget)))
 	then
 		local instance = IsInInstance()
