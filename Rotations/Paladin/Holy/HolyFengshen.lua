@@ -423,7 +423,7 @@ local function runRotation()
 			local blessingOfProtectionCase = nil
 			local hammerOfJusticeCase = nil
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
 					blessingOfFreedomCase = br.friend[i].unit
 				end
 				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 then
@@ -435,7 +435,7 @@ local function runRotation()
 			end
 			-- Blessing of Freedom
 			if cast.able.blessingOfFreedom() then
-				if getDebuffRemain("TANK",267899) ~= 0 then
+				if getDebuffRemain("TANK",267899) ~= 0 or getDebuffRemain("TANK",257478) ~= 0 then
 					if cast.blessingOfFreedom("TANK") then return end
 				end
 				if blessingOfFreedomCase ~= nil then

@@ -280,7 +280,6 @@ local function runRotation()
 			-- Siege of Boralus
 			[129369] = "Irontide Raider",
 			[129373] = "Dockhound Packmaster",
-			[129640] = "Snarling Dockhound",
 			[128969] = "Ashvane Commander",
 			[138255] = "Ashvane Spotter",
 			[138465] = "Ashvane Cannoneer",
@@ -358,7 +357,7 @@ local function runRotation()
 				if UnitIsCharmed(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 10 then
 					hammerOfJusticeCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
 					blessingOfFreedomCase = br.friend[i].unit
 				end
 				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 then
@@ -382,11 +381,17 @@ local function runRotation()
 			end
 			-- Hammer of Justice
 			if cast.able.hammerOfJustice() then
+				local HOJ_list={
+				274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
+				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,
+				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129758) and distance <= 10 then
-						if cast.hammerOfJustice(thisUnit) then return end
+					for k,v in pairs(HOJ_list) do
+						if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129758 or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and distance <= 10 then
+							if cast.hammerOfJustice(thisUnit) then return end
+						end
 					end
 				end
 				if hammerOfJusticeCase ~= nil then
@@ -395,7 +400,7 @@ local function runRotation()
 			end
 			-- Blessing of Freedom
 			if cast.able.blessingOfFreedom() then
-				if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 then
+				if getDebuffRemain("player",267899) ~= 0 or getDebuffRemain("player",268896) ~= 0 or getDebuffRemain("player",257478) ~= 0 then
 					if cast.blessingOfFreedom("player") then return end
 				end
 				if blessingOfFreedomCase ~= nil then
@@ -724,21 +729,26 @@ local function runRotation()
 						end
 					end
 				end
+				local BlackList_list={
+				257899,258150,252923,265084
+				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
-						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
-							if cast.hammerOfJustice(thisUnit) then return end
-						end
-						-- Rebuke
-						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
-							if cast.rebuke(thisUnit) then return end
-						end
-						-- Blinding Light
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
-							if cast.blindingLight() then return end
+					for k,v in pairs(BlackList_list) do
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(v) then
+							-- Hammer of Justice
+							if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
+								if cast.hammerOfJustice(thisUnit) then return end
+							end
+							-- Rebuke
+							if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
+								if cast.rebuke(thisUnit) then return end
+							end
+							-- Blinding Light
+							if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+								if cast.blindingLight() then return end
+							end
 						end
 					end
 				end
