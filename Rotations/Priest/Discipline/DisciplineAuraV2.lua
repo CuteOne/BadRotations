@@ -438,7 +438,7 @@ local function runRotation()
                     --blood_fury
                     --arcane_torrent
                     --berserking
-                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (powerDeficit >= 30 and race == "BloodElf")
+                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") or (mana >= 30 and race == "BloodElf")
                    then
                         if race == "LightforgedDraenei" then
                            if cast.racial("target","ground") then return true end

@@ -370,8 +370,9 @@ function isValidUnit(Unit)
 	local playerTarget = UnitIsUnit(Unit,"target")
 	local reaction = UnitReaction(Unit,"player") or 10
 	local targeting = isTargeting(Unit)
+	if playerTarget and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or playerTarget)))
+		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or (playerTarget and not UnitIsFriend(Unit,"player")))))
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
