@@ -635,7 +635,7 @@ local function runRotation()
         -- Fists of Fury 
             -- fists_of_fury,if=energy.time_to_max>3
             if cast.able.fistsOfFury() and ttm > 3 then 
-                if cast.fistsOfFury() then return end 
+                if cast.fistsOfFury(nil,"cone",1,45) then return end 
             end 
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
@@ -729,11 +729,11 @@ local function runRotation()
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Spinning Crane Kick
-            -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2)
+            -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(((chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
             if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() 
-                and (chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2) 
+                and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or ttm <= 3) 
             then
-                if cast.spinningCraneKick() then return end
+                if cast.spinningCraneKick(nil,"aoe") then return end
             end
         -- Chi Burst
             -- chi_burst,if=chi<=3
@@ -741,11 +741,6 @@ local function runRotation()
                 and ((mode.rotaion == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards12r > 0)) 
             then
                 if cast.chiBurst(nil,"rect",1,12) then return true end
-            end
-        -- Racial: Arcane Torrent
-            -- arcane_torrent,if=chi.max-chi>=1&energy.time_to_max>=0.5
-            if cast.able.racial() and isChecked("Racial") and race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5 then
-                if cast.racial() then return true end
             end
         -- Fist of the White Tiger
             -- fist_of_the_white_tiger,if=chi.max-chi>=3&(energy>46|buff.rushing_jade_wind.down)
@@ -779,7 +774,7 @@ local function runRotation()
             end
         -- -- Spinning Crane Kick
         --     if cast.able.spinningCraneKick() and (chiMax - chi < 2 or ttm < 1) and cast.last.blackoutKick() then
-        --         if cast.spinningCraneKick() then return end
+        --         if cast.spinningCraneKick(nil,"aoe") then return end
         --     end
         end -- End Action List - AoE
     -- Action List - Serenity
