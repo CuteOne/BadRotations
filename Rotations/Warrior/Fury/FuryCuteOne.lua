@@ -353,8 +353,8 @@ local function runRotation()
     -- Action List - Single
         function actionList_Single()
         --Seigebreaker
-            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>20
-            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 20 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+            -- siegebreaker
+            if cast.able.siegebreaker() then
                 if cast.siegebreaker() then return end
             end
         -- Rampage
@@ -392,11 +392,9 @@ local function runRotation()
                 if cast.bladestorm() then return end
             end
         -- Dragon Roar
-            -- dragon_roar,if=buff.enrage.up&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.dragonRoar() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and (buff.enrage.exists() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
-            then
-                if cast.dragonRoar() then return end
+            -- dragon_roar,if=buff.enrage.up
+            if cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
+                if cast.dragonRoar(nil,"aoe") then return end
             end
         -- Raging Blow
             -- raging_blow,if=talent.carnage.enabled|(talent.massacre.enabled&rage<80)|(talent.frothing_berserker.enabled&rage<90)
@@ -410,8 +408,8 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind
-            if cast.able.whirlwind() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if cast.whirlwind() then return end
+            if cast.able.whirlwind(nil,"aoe") and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                if cast.whirlwind(nil,"aoe") then return end
             end
         end -- End Action List - Single
     -- Action List - Pre-Combat
@@ -520,13 +518,12 @@ local function runRotation()
             -- Racial
                 -- blood_fury,if=buff.recklessness.up
                 -- berserking,if=buff.recklessness.up
-                -- arcane_torrent,if=rage<40&!buff.recklessness.up
-                -- lights_judgment,if=cooldown.recklessness.remains<3
+                -- lights_judgment,if=buff.recklessness.down
                 -- fireblood,if=buff.recklessness.up
                 -- ancestral_call,if=buff.recklessness.up
                 if cast.able.racial() and useCDs()
                     and ((buff.recklessness.exists() and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
-                        or (not buff.recklessness.exists() and ((rage < 40 and race == "BloodElf") or race == "LightforgedDraenei")))
+                        or (not buff.recklessness.exists() and race == "LightforgedDraenei"))
                 then
                     if race == "LightforgedDraenei" then
                         if cast.racial("target","ground") then return true end
