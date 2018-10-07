@@ -469,16 +469,9 @@ local function runRotation()
     -- Action List - Execute
         function actionList_Execute()
         -- Skullsplitter
-            -- skullsplitter,if=rage<60&((cooldown.deadly_calm.remains>3&!buff.deadly_calm.up)|!talent.deadly_calm.enabled)
-            if cast.able.skullsplitter() and power < 60 and ((cd.deadlyCalm.remain() > 3 and not buff.deadlyCalm.exists()) or not talent.deadlyCalm) then
+            -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
+            if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
                 if cast.skullsplitter() then return end
-            end
-        -- Deadly Calm
-            -- deadly_calm,if=cooldown.bladestorm.remains>6&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.deadlyCalm() and ((cd.bladestorm.remain() > 6 or not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm"))
-                and (cd.colossusSmash.remain() < 2 or (talent.warbreaker and cd.warbreaker.remain() < 2)))
-            then
-                if cast.deadlyCalm() then return end
             end
         -- Ravager
             -- ravager,if=!buff.deadly_calm.up&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
@@ -506,6 +499,11 @@ local function runRotation()
             then
                 if cast.warbreaker() then return end
             end
+        -- Deadly Calm
+            -- deadly_calm
+            if cast.able.deadlyCalm() then
+                if cast.deadlyCalm() then return end
+            end
         -- Bladestorm
             -- bladestorm,if=rage<30&!buff.deadly_calm.up
             if cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
@@ -524,11 +522,14 @@ local function runRotation()
                 if cast.slam() then return end 
             end 
         -- Mortal Strike
-            -- mortal_strike,if=debuff.colossus_smash.up&buff.overpower.stack=2&(talent.dreadnaught.enabled|buff.executioners_precision.stack=2)
-            if cast.able.mortalStrike() and (debuff.colossusSmash.exists(units.dyn5) 
-                and buff.overpower.stack() == 2 and (talent.dreadnaught or buff.executionersPrecision.stack() == 2)) 
-            then
+            -- mortal_strike,if=buff.overpower.stack=2&talent.dreadnaught.enabled|buff.executioners_precision.stack=2
+            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or buff.executionersPrecision.stack() == 2) then
                 if cast.mortalStrike() then return end
+            end
+        -- Execute
+            -- execute,if=buff.deadly_calm.up
+            if cast.able.execute() and (buff.deadlyCalm.exists()) then
+                if cast.execute() then return end
             end
         -- Overpower
             -- overpower
@@ -549,17 +550,9 @@ local function runRotation()
                 if cast.rend() then return end
             end
         -- Skullsplitter
-            -- skullsplitter,if=rage<60&(cooldown.deadly_calm.remains>3|!talent.deadly_calm.enabled)
-            if cast.able.skullsplitter() and (rage < 60 and (cd.deadlyCalm.remain() > 3 or not talent.deadlyCalm)) then
+            -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
+            if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
                 if cast.skullsplitter() then return end
-            end
-        -- Deadly Calm
-            -- deadly_calm,if=(cooldown.bladestorm.remains>6|talent.ravager.enabled&cooldown.ravager.remains>6)&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.deadlyCalm() and ((cd.bladestorm.remain() > 6 or not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")
-                or talent.ravager and (cd.ravager.remain() > 6 or getOptionValue("Ravager") == 3 or (getOptionValue("Ravager") == 2 and not useCDs())))
-                and (cd.colossusSmash.remain() < 2 or (talent.warbreaker and cd.warbreaker.remain() < 2)))
-            then
-                if cast.deadlyCalm() then return end
             end
         -- Ravager
             -- ravager,if=!buff.deadly_calm.up&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
@@ -587,14 +580,20 @@ local function runRotation()
             then
                 if cast.warbreaker() then return end
             end
+        -- Deadly Calm
+            -- deadly_calm
+            if cast.able.deadlyCalm() then
+                if cast.deadlyCalm() then return end
+            end
         -- Execute
             -- execute,if=buff.sudden_death.react
             if cast.able.execute() and buff.suddenDeath.exists() then
                 if cast.execute() then return end
             end
         -- Bladestorm
-            -- bladestorm,if=cooldown.mortal_strike.remains&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)
+            -- bladestorm,if=cooldown.mortal_strike.remains&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
+                and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
                 and ((debuff.colossusSmash.exists(units.dyn5) and not traits.testOfMight.active()) or buff.testOfMight.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
@@ -614,22 +613,27 @@ local function runRotation()
             if cast.able.mortalStrike() then
                 if cast.mortalStrike() then return end
             end
+        -- Whirlwind
+            -- whirlwind,if=talent.fervor_of_battle.enabled&(buff.deadly_calm.up|rage>=60)
+            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle and (buff.deadlyCalm.exists() or rage >= 60)) then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
         -- Overpower
             -- overpower
             if cast.able.overpower() then
                 if cast.overpower() then return end
             end
         -- Whirlwind
-            -- whirlwind,if=talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|(rage>=60|debuff.colossus_smash.up|buff.deadly_calm.up))
-            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle and (not traits.testOfMight.active() 
-                or (rage >= 60 or debuff.colossusSmash.exists(units.dyn5) or buff.deadlyCalm.exists()))) 
+            -- whirlwind,if=talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up)
+            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle 
+                and (not traits.testOfMight.active() or debuff.colossusSmash.exists(units.dyn5))) 
             then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         -- Slam
-            -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|(rage>=60|debuff.colossus_smash.up|buff.deadly_calm.up))
-            if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active() 
-                or (rage >= 60 or debuff.colossusSmash.exists(units.dyn5) or buff.deadlyCalm.exists()))) 
+            -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up|buff.deadly_calm.up|rage>=60)
+            if cast.able.slam() and (not talent.fervorOfBattle and (not trait.testOfMight.active() 
+                or debuff.colossusSmash.exists() or buff.deadlyCalm.exists() or rage >= 60)) 
             then
                 if cast.slam() then return end
             end
@@ -637,21 +641,14 @@ local function runRotation()
     -- Action List - MultiTarget
         function actionList_FiveTarget()
         -- Skullsplitter
-            -- skullsplitter,if=rage<60&(cooldown.deadly_calm.remains>3|!talent.deadly_calm.enabled)
-            if cast.able.skullsplitter() and (rage < 60 and (cd.deadlyCalm.remain() > 3 or not talent.deadlyCalm)) then
+            -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
+            if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
                 if cast.skullsplitter() then return end
             end
-        -- Deadly Calm
-            -- deadly_calm,if=cooldown.bladestorm.remains>6&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.deadlyCalm() and ((cd.bladestorm.remain() > 6 or not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm"))
-                and (cd.colossusSmash.remain() < 2 or (talent.warbreaker and cd.warbreaker.remain() < 2)))
-            then
-                if cast.deadlyCalm() then return end
-            end
         -- Ravager
-            -- ravager,if=!buff.deadly_calm.up&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
+            -- ravager,if=(!talent.warbreaker.enabled|cooldown.warbreaker.remains<2)
             if cast.able.ravager() and (getOptionValue("Ravager") == 1 or (getOptionValue("Ravager") == 2 and useCDs())) and talent.ravager
-                and (not buff.deadlyCalm.exists() and (cd.colossusSmash.remain() < 2 or (talent.warbreaker and cd.warbreaker.remain() < 2)))
+                and (not talent.warbreaker or cd.warbreaker.remain() < 2)
             then
                 -- Best Location
                 if getOptionValue("Ravager") == 1 then
@@ -675,12 +672,17 @@ local function runRotation()
                 if cast.warbreaker() then return end
             end
         -- Bladestorm
-            -- bladestorm,if=buff.sweeping_strikes.down&!buff.deadly_calm.up&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
+            -- bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager 
-                and (not buff.sweepingStrikes.exists() and not buff.deadlyCalm.exists() 
+                and (not buff.sweepingStrikes.exists() and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) 
                 and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) or buff.testOfMight.exists()))                
             then
                 if cast.bladestorm(nil,"aoe") then return end
+            end
+        -- Deadly Calm
+            -- deadly_calm
+            if cast.able.deadlyCalm() then
+                if cast.deadlyCalm() then return end
             end
         -- Cleave
             -- cleave
@@ -704,6 +706,10 @@ local function runRotation()
         -- Whirlwind
             -- whirlwind,if=debuff.colossus_smash.up|(buff.crushing_assault.up&talent.fervor_of_battle.enabled)
             if cast.able.whirlwind(nil,"aoe") and (debuff.colossusSmash.exists(units.dyn5) or (buff.crushingAssasult.exists() and talent.fervorOfBattle)) then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
+            -- whirlwind,if=buff.deadly_calm.up|rage>60
+            if cast.able.whirlwind(nil,"aoe") and (buff.deadlyCalm.exists() or rage > 60) then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         -- Overpower
