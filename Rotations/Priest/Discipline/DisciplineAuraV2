@@ -11,49 +11,31 @@ local colorWhite    = "|cffFFFFFF"
 --- Toggles ---
 ---------------
 local function createToggles()
-    -- Healer Button
-    HealerModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Auto Rotation", tip = "HPS and DPS rotation used.", highlight = 1, icon = br.player.spell.shadowMend},
-        [2] = { mode = "ATO", value = 2 , overlay = "Atonement Rotation", tip = "Atonement will keep applied within limit regardless of HP threshold.", highlight = 0, icon = br.player.spell.shiningForce},
-        [3] = { mode = "DPS", value = 3 , overlay = "DPS Rotation", tip = "DPS only rotation used.", highlight = 0, icon = br.player.spell.penance},
-        [4] = { mode = "Off", value = 4 , overlay = "Atonement Disabled", tip = "Disable Atonement", highlight = 0, icon = br.player.spell.penance}
-    };
-    CreateButton("Healer",1,0)
     -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.divineStar },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.divineStar },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.divineStar }
     };
-    CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",1,0)
     -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.powerWordBarrier},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.powerWordBarrier}
     };
-    CreateButton("Defensive",3,0)
-    HaloModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Halo Enabled", tip = "Halo Enabled.", highlight = 1, icon = br.player.spell.halo},
-        [2] = { mode = "Off", value = 2 , overlay = "Halo Disabled", tip = "Halo Disabled.", highlight = 0, icon = br.player.spell.halo}
-    };
-    CreateButton("Halo",4,0)
-    BurstModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Burst Enabled", tip = "Burst Atonement enabled when getting Innervate/Symbol of Hope.", highlight = 1, icon = br.player.spell.powerWordRadiance},
-        [2] = { mode = "Off", value = 2 , overlay = "Burst Disabled", tip = "Burst Atonement disabled when getting Innervate/Symbol of Hope.", highlight = 0, icon = br.player.spell.powerWordRadiance}
-    };
-    CreateButton("Burst",5,0)
+    CreateButton("Defensive",2,0)
     -- Decurse Button
     DecurseModes = {
         [1] = { mode = "On", value = 1 , overlay = "Decurse Enabled", tip = "Decurse Enabled", highlight = 1, icon = br.player.spell.purify },
         [2] = { mode = "Off", value = 2 , overlay = "Decurse Disabled", tip = "Decurse Disabled", highlight = 0, icon = br.player.spell.purify }
     };
-    CreateButton("Decurse",6,0)
+    CreateButton("Decurse",3,0)
     -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.psychicScream },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.psychicScream }
     };
-    CreateButton("Interrupt",7,0)
+    CreateButton("Interrupt",4,0)
 end
 
 ---------------
@@ -254,16 +236,10 @@ local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
 ---------------
-        UpdateToggle("Healer",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
-        UpdateToggle("Halo",0.25)
-        UpdateToggle("Burst",0.25)
         UpdateToggle("Decurse",0.25)
         UpdateToggle("Interrupt",0.25)
-        br.player.mode.healer = br.data.settings[br.selectedSpec].toggles["Healer"]
-        br.player.mode.halo = br.data.settings[br.selectedSpec].toggles["Halo"]
-        br.player.mode.burst = br.data.settings[br.selectedSpec].toggles["Burst"]
         br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
 
 --------------
@@ -337,7 +313,7 @@ local function runRotation()
         end
 
         local freeMana                                      = buff.innervate.exists() or buff.symbolOfHope.exists()
-        local freeCast                                      = freeMana or mode.healer == 3 or mana > 90
+        local freeCast                                      = freeMana or mana > 90
         local epTrinket                                     = hasEquiped(140805) and getBuffRemain("player", 225766) > 1
         local norganBuff                                    = not isMoving("player") or UnitBuffID("player", 236373) -- Norgannon's Foresight buff
 
@@ -441,7 +417,7 @@ local function runRotation()
                     if cast.desperatePrayer() then return end
                 end
         --Leap Of Faith
-                if isChecked("Leap Of Faith") and (mode.healer == 1 or mode.healer == 2) and inCombat then
+                if isChecked("Leap Of Faith") and inCombat then
                     for i = 1, #br.friend do
                         if br.friend[i].hp <= getValue("Leap Of Faith") and not UnitIsUnit(br.friend[i].unit,"player") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
                             if cast.leapOfFaith(br.friend[i].unit) then return end
@@ -540,9 +516,7 @@ local function runRotation()
                     end
                     if isChecked("OOC Penance") and getSpellCD(spell.penance) <= 0 then
                         if br.friend[i].hp <= getValue("OOC Penance") then
-                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
-                                if cast.penance(br.friend[i].unit) then return end
-                            end
+                            if cast.penance(br.friend[i].unit) then return end
                         end
                     end
                     if norganBuff and (br.friend[i].hp < 90 or flagDebuff == br.friend[i].guid) and lastSpell ~= spell.shadowMend then
@@ -602,7 +576,7 @@ local function runRotation()
                         for n = 1,40 do
                             local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
-                                if (bufftype == "Disease" or bufftype == "Magic") and (mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player"))) then
+                                if (bufftype == "Disease" or bufftype == "Magic") then
                                     if getSpellCD(spell.purify) > 1 and norganBuff and isChecked("Mass Dispel") then
                                         if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
                                     elseif cast.purify(br.friend[i].unit) then return end
