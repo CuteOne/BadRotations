@@ -22,7 +22,7 @@ function GetUnit(Unit)
 end
 local UnitIsUnit_Orig = UnitIsUnit
 function UnitIsUnit(Unit, otherUnit)
-	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return false end
+	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil or Unit == nil or otherUnit == nil then return false end
 	return UnitIsUnit_Orig(Unit,otherUnit)
 end
 local UnitReaction_Orig = UnitReaction
