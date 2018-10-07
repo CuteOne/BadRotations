@@ -864,7 +864,7 @@ local function runRotation()
 					{spellID = 264382   ,   stacks = 0   ,   secs = 1}, --Eye Beam
 					{spellID = 264210   ,   stacks = 0   ,   secs = 5}, --Jagged Mandible
 					{spellID = 265360   ,   stacks = 0   ,   secs = 5}, --Roiling Deceit
-					{spellID = 265129   ,   stacks = 0   ,   secs = 5}  --Omega Vector
+					{spellID = 265129   ,   stacks = 0   ,   secs = 5},  --Omega Vector
 					{spellID = 266948   ,   stacks = 0   ,   secs = 5}, --Plague Bomb
 					{spellID = 274358   ,   stacks = 0   ,   secs = 5}, --Rupturing Blood
 					{spellID = 274019   ,   stacks = 0   ,   secs = 1}, --Mind Flay
