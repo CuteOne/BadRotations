@@ -66,7 +66,7 @@ local colorGold     = "|cffFFDD11"
 ---------------
 local function createOptions()
 	local optionTable
-	
+
 	local function rotationOptions()
 		local section
 		-- General Options
@@ -208,7 +208,7 @@ local cancel_wild = 0
 local function runRotation()
 	-- if br.timer:useTimer("debugRestoration", 0.1) then
 		--print("Running: "..rotationName)
-		
+
 		---------------
 		--- Toggles --- -- List toggles here in order to update when pressed
 		---------------
@@ -269,31 +269,31 @@ local function runRotation()
 		-- local lowestTank                                    = {}    --Tank
 		local bloomCount                                    = 0
 		-- local tHp                                           = 95
-		
+
 		units.get(5)
 		units.get(8)
 		units.get(40)
-		
+
 		enemies.get(5)
 		enemies.get(8)
 		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
-		
+
 		if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
 		-- Temple of Sethraliss
 		if GetObjectID("target") == 133392 and inCombat then
 			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
 				if talent.germination and not buff.rejuvenationGermination.exists("target") then
 					if CastSpellByName(GetSpellInfo(774),"target") then return end
-				end	
+				end
 				if not buff.rejuvenation.exists("target") then
 					if CastSpellByName(GetSpellInfo(774),"target") then return end
 				end
 				if buff.rejuvenation.exists("target") then
 					if CastSpellByName(GetSpellInfo(8936),"target") then return end
-				end	
+				end
 			end
-		end		
+		end
 		--ChatOverlay("|cff00FF00Abundance stacks: "..buff.abundance.stack().."")
 		local function getAllHotCnt(time_remain)
 			hotCnt = 0
@@ -301,32 +301,32 @@ local function runRotation()
 				if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
-				
+
 				if buff.rejuvenation.exists(br.friend[i].unit) and buff.rejuvenation.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
-				
+
 				if buff.regrowth.exists(br.friend[i].unit) and buff.regrowth.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
-				
+
 				if buff.rejuvenationGermination.exists(br.friend[i].unit) and buff.rejuvenationGermination.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
-				
+
 				if buff.wildGrowth.exists(br.friend[i].unit) and buff.wildGrowth.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
-				
+
 				if buff.cenarionWard.exists(br.friend[i].unit) and buff.cenarionWard.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+2
 				end
-				
+
 				if buff.cultivat.exists(br.friend[i].unit) and buff.cultivat.remain(br.friend[i].unit) <= time_remain then
 					hotCnt=hotCnt+1
 				end
 			end
-			
+
 			return hotCnt
 		end
 		--wildGrowth Exist
@@ -673,7 +673,7 @@ local function runRotation()
 			-- Nature's Cure
 			if br.player.mode.decurse == 1 then
 				for i = 1, #friends.yards40 do
-					if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,5) <= 1 then
+					if getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,6) < 2 then
 						if cast.naturesCure(br.friend[i].unit) then return end
 					end
 					if getDebuffRemain(br.friend[i].unit,275014) == 0 then
@@ -821,7 +821,7 @@ local function runRotation()
 							if cast.lifebloom(br.friend[i].unit) then return end
 						end
 					end
-				end					
+				end
 			end
 			-- Cenarion Ward
 			if isChecked("Cenarion Ward") and talent.cenarionWard then
@@ -859,17 +859,102 @@ local function runRotation()
 			if isChecked("DOT cast Rejuvenation") then
 				local debuff_list={
 					-- Uldir
-					{spellID = 262313   ,   stacks = 0   ,   secs = 5}, --Malodorous Miasma
-					{spellID = 262314   ,   stacks = 0   ,   secs = 3}, --Putrid Paroxysm
-					{spellID = 264382   ,   stacks = 0   ,   secs = 1}, --Eye Beam
-					{spellID = 264210   ,   stacks = 0   ,   secs = 5}, --Jagged Mandible
-					{spellID = 265360   ,   stacks = 0   ,   secs = 5}, --Roiling Deceit
-					{spellID = 265129   ,   stacks = 0   ,   secs = 5},  --Omega Vector
-					{spellID = 266948   ,   stacks = 0   ,   secs = 5}, --Plague Bomb
-					{spellID = 274358   ,   stacks = 0   ,   secs = 5}, --Rupturing Blood
-					{spellID = 274019   ,   stacks = 0   ,   secs = 1}, --Mind Flay
-					{spellID = 272018   ,   stacks = 0   ,   secs = 1}, --Absorbed in Darkness
-					{spellID = 273359   ,   stacks = 0   ,   secs = 5}, --Shadow Barrage
+					{spellID = 262313   ,   stacks = 0   ,   secs = 5}, -- Malodorous Miasma
+					{spellID = 262314   ,   stacks = 0   ,   secs = 3}, -- Putrid Paroxysm
+					{spellID = 264382   ,   stacks = 0   ,   secs = 1}, -- Eye Beam
+					{spellID = 264210   ,   stacks = 0   ,   secs = 5}, -- Jagged Mandible
+					{spellID = 265360   ,   stacks = 0   ,   secs = 5}, -- Roiling Deceit
+					{spellID = 265129   ,   stacks = 0   ,   secs = 5}, -- Omega Vector
+					{spellID = 266948   ,   stacks = 0   ,   secs = 5}, -- Plague Bomb
+					{spellID = 274358   ,   stacks = 0   ,   secs = 5}, -- Rupturing Blood
+					{spellID = 274019   ,   stacks = 0   ,   secs = 1}, -- Mind Flay
+					{spellID = 272018   ,   stacks = 0   ,   secs = 1}, -- Absorbed in Darkness
+					{spellID = 273359   ,   stacks = 0   ,   secs = 5}, -- Shadow Barrage
+					-- Freehold
+					{spellID = 257437   ,   stacks = 0   ,   secs = 5}, -- Poisoning Strike
+					{spellID = 267523   ,   stacks = 0   ,   secs = 5}, -- Cutting Surge
+					{spellID = 256363   ,   stacks = 0   ,   secs = 5}, -- Ripper Punch
+					-- Shrine of the Storm
+					{spellID = 264526   ,   stacks = 0   ,   secs = 5}, -- Grasp from the Depths
+					{spellID = 264166   ,   stacks = 0   ,   secs = 1}, -- Undertow
+					{spellID = 268214   ,   stacks = 0   ,   secs = 1}, -- Carve Flesh
+					{spellID = 276297   ,   stacks = 0   ,   secs = 5}, -- Void Seed
+					{spellID = 268322   ,   stacks = 0   ,   secs = 5}, -- Touch of the Drowned
+					-- Siege of Boralus
+					{spellID = 256897   ,   stacks = 0   ,   secs = 5}, -- Clamping Jaws
+					{spellID = 273470   ,   stacks = 0   ,   secs = 3}, -- Gut Shot
+					{spellID = 275014   ,   stacks = 0   ,   secs = 5}, -- Putrid Waters
+					-- Tol Dagor
+					{spellID = 258058   ,   stacks = 0   ,   secs = 1}, -- Squeeze
+					{spellID = 260016   ,   stacks = 0   ,   secs = 3}, -- Itchy Bite
+					{spellID = 260067   ,   stacks = 0   ,   secs = 5}, -- Vicious Mauling
+					{spellID = 258864   ,   stacks = 0   ,   secs = 5}, -- Suppression Fire
+					{spellID = 258917   ,   stacks = 0   ,   secs = 3}, -- Righteous Flames
+					{spellID = 256198   ,   stacks = 0   ,   secs = 5}, -- Azerite Rounds: Incendiary
+					{spellID = 256105   ,   stacks = 0   ,   secs = 1}, -- Explosive Burst
+					-- Waycrest Manor
+					{spellID = 266035   ,   stacks = 0   ,   secs = 1}, -- Bone Splinter
+					{spellID = 260703   ,   stacks = 0   ,   secs = 1}, -- Unstable Runic Mark
+					{spellID = 260741   ,   stacks = 0   ,   secs = 1}, -- Jagged Nettles
+					{spellID = 264050   ,   stacks = 0   ,   secs = 3}, -- Infected Thorn
+					{spellID = 264556   ,   stacks = 0   ,   secs = 2}, -- Tearing Strike
+					{spellID = 264150   ,   stacks = 0   ,   secs = 1}, -- Shatter
+					{spellID = 265761   ,   stacks = 0   ,   secs = 1}, -- Thorned Barrage
+					{spellID = 263905   ,   stacks = 0   ,   secs = 1}, -- Marking Cleave
+					{spellID = 264153   ,   stacks = 0   ,   secs = 3}, -- Spit
+					{spellID = 278456   ,   stacks = 0   ,   secs = 3}, -- Infest
+					{spellID = 271178   ,   stacks = 0   ,   secs = 3}, -- Ravaging Leap
+					{spellID = 265880   ,   stacks = 0   ,   secs = 1}, -- Dread Mark
+					{spellID = 265882   ,   stacks = 0   ,   secs = 1}, -- Lingering Dread
+					{spellID = 264378   ,   stacks = 0   ,   secs = 5}, -- Fragment Soul
+					{spellID = 261438   ,   stacks = 0   ,   secs = 1}, -- Wasting Strike
+					{spellID = 261440   ,   stacks = 0   ,   secs = 1}, -- Virulent Pathogen
+					{spellID = 268202   ,   stacks = 0   ,   secs = 1}, -- Death Lens
+					-- Atal'Dazar
+					{spellID = 253562   ,   stacks = 0   ,   secs = 3}, -- Wildfire
+					{spellID = 254959   ,   stacks = 0   ,   secs = 2}, -- Soulburn
+					{spellID = 255558   ,   stacks = 0   ,   secs = 5}, -- Tainted Blood
+					{spellID = 255814   ,   stacks = 0   ,   secs = 5}, -- Rending Maul
+					{spellID = 250372   ,   stacks = 0   ,   secs = 5}, -- Lingering Nausea
+					{spellID = 250096   ,   stacks = 0   ,   secs = 1}, -- Wracking Pain
+					{spellID = 256577   ,   stacks = 0   ,   secs = 5}, -- Soulfeast
+					-- King's Rest
+					{spellID = 269932   ,   stacks = 0   ,   secs = 3}, -- Gust Slash
+					{spellID = 265773   ,   stacks = 0   ,   secs = 4}, -- Spit Gold
+					{spellID = 270084   ,   stacks = 0   ,   secs = 3}, -- Axe Barrage
+					{spellID = 270865   ,   stacks = 0   ,   secs = 3}, -- Hidden Blade
+					{spellID = 270289   ,   stacks = 0   ,   secs = 3}, -- Purification Beam
+					{spellID = 271564   ,   stacks = 0   ,   secs = 3}, -- Embalming
+					{spellID = 267618   ,   stacks = 0   ,   secs = 3}, -- Drain Fluids
+					{spellID = 270487   ,   stacks = 0   ,   secs = 3}, -- Severing Blade
+					{spellID = 270507   ,   stacks = 0   ,   secs = 5}, -- Poison Barrage
+					{spellID = 266231   ,   stacks = 0   ,   secs = 3}, -- Severing Axe
+					{spellID = 267273   ,   stacks = 0   ,   secs = 3}, -- Poison Nova
+					{spellID = 268419   ,   stacks = 0   ,   secs = 3}, -- Gale Slash
+					-- MOTHERLODE!!
+					{spellID = 269298   ,   stacks = 0   ,   secs = 1}, -- Widowmaker
+					{spellID = 262347   ,   stacks = 0   ,   secs = 1}, -- Static Pulse
+					{spellID = 263074   ,   stacks = 0   ,   secs = 3}, -- Festering Bite
+					{spellID = 262270   ,   stacks = 0   ,   secs = 1}, -- Caustic Compound
+					{spellID = 262794   ,   stacks = 0   ,   secs = 1}, -- Energy Lash
+					{spellID = 259853   ,   stacks = 0   ,   secs = 3}, -- Chemical Burn
+					{spellID = 269092   ,   stacks = 0   ,   secs = 1}, -- Artillery Barrage
+					{spellID = 262348   ,   stacks = 0   ,   secs = 1}, -- Mine Blast
+					{spellID = 260838   ,   stacks = 0   ,   secs = 1}, -- Homing Missile
+					-- Temple of Sethraliss
+					{spellID = 263371   ,   stacks = 0   ,   secs = 1}, -- Conduction
+					{spellID = 272657   ,   stacks = 0   ,   secs = 3}, -- Noxious Breath
+					{spellID = 267027   ,   stacks = 0   ,   secs = 1}, -- Cytotoxin
+					{spellID = 272699   ,   stacks = 0   ,   secs = 3}, -- Venomous Spit
+					{spellID = 268013   ,   stacks = 0   ,   secs = 5}, -- Flame Shock
+					-- Underrot
+					{spellID = 265019   ,   stacks = 0   ,   secs = 1}, -- Savage Cleave
+					{spellID = 265568   ,   stacks = 0   ,   secs = 1}, -- Dark Omen
+					{spellID = 260685   ,   stacks = 0   ,   secs = 5}, -- Taint of G'huun
+					{spellID = 278961   ,   stacks = 0   ,   secs = 5}, -- Decaying Mind
+					{spellID = 260455   ,   stacks = 0   ,   secs = 1}, -- Serrated Fangs
+					{spellID = 273226   ,   stacks = 0   ,   secs = 1}, -- Decaying Spores
+					{spellID = 269301   ,   stacks = 0   ,   secs = 5}, -- Putrid Blood
 				}
 				for i=1, #br.friend do
 					for k,v in pairs(debuff_list) do
@@ -933,31 +1018,29 @@ local function runRotation()
 						for j = 1, #br.friend do
 							if not buff.rejuvenation.exists(br.friend[j].unit) and UnitInRange(br.friend[j].unit) then
 								if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenation--"..spell_name) return end
-								end
 							end
 						end
 					end
 				end
-				if isChecked("DBM cast Rejuvenation") then
-					local Casting={
-					--spell_id	, spell_name
-					{196587 	, 'Soul Burst'}, --Amalgam of Souls
-					{211464 	, 'Fel Detonation'}, --Advisor Melandrus
-					{237276 	, 'Pulverizing Cudgel'}, --Thrashbite the Scornful
-					{193611 	, 'Focused Lightning'}, --Lady Hatecoil
-					{192305 	, 'Eye of the Storm'}, --Hyrja
-					{239132 	, 'Rupture Realities'}, --Fallen Avatar
-					}
-					for i=1 , #Casting do
-						local spell_id = Casting[i][1]
-						local spell_name = Casting[i][2]
-						for j = 1, #br.friend do
-							if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) and UnitInRange(br.friend[j].unit) then
-								if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenation--"..spell_name) return end
-								end
-							end
+				local Casting={
+				--spell_id	, spell_name
+				{196587 	, 'Soul Burst'}, --Amalgam of Souls
+				{211464 	, 'Fel Detonation'}, --Advisor Melandrus
+				{237276 	, 'Pulverizing Cudgel'}, --Thrashbite the Scornful
+				{193611 	, 'Focused Lightning'}, --Lady Hatecoil
+				{192305 	, 'Eye of the Storm'}, --Hyrja
+				{239132 	, 'Rupture Realities'}, --Fallen Avatar
+				}
+				for i=1 , #Casting do
+					local spell_id = Casting[i][1]
+					local spell_name = Casting[i][2]
+					for j = 1, #br.friend do
+						if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) and UnitInRange(br.friend[j].unit) then
+							if cast.rejuvenation(br.friend[j].unit) then Print("DBM cast Rejuvenation--"..spell_name) return end
 						end
 					end
+				end
+			end
 					-- Ephemeral Paradox trinket
 					if buff.innervate.remain() >= 1 then
 						for i=1, #br.friend do
@@ -996,13 +1079,13 @@ local function runRotation()
 						if bear then
 							if br.player.power.rage.amount() >= 10 and php < 80 and not buff.frenziedRegeneration.exists() then
 								if cast.frenziedRegeneration() then return end
-							end						
+							end
 							if br.player.power.rage.amount() >= 60 then
 								if cast.ironfur() then return end
 							end
 							if getDistance(units.dyn5) < 5 then
 							    if cast.mangle(units.dyn5) then return end
-							end	
+							end
 							if getDistance(units.dyn8) < 8 then
 								if cast.thrash(units.dyn8) then return end
 							end
@@ -1164,4 +1247,4 @@ local function runRotation()
 		options = createOptions,
 		run = runRotation,
 		})
-		
+
