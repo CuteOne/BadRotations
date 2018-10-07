@@ -596,6 +596,7 @@ br.lists.spells = {
                 elunesGuidance              = 202060,
                 fieryRedMaimers             = 236757,
                 incarnationKingOfTheJungle  = 102543,
+                ironJaws                    = 276021,
                 jungleStalker               = 252071,
                 predatorySwiftness          = 69369,
                 savageRoar                  = 52610,
@@ -633,6 +634,7 @@ br.lists.spells = {
             },
             traits                          = {
                 powerOfTheMoon              = 273367,
+                wildFleshrending            = 279527,
             }
         },
         -- Guardian

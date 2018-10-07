@@ -249,9 +249,12 @@ local function runRotation()
 		end
 
         local function autoProwl()
-            for i = 1, #enemies.yards20nc do
-                local thisUnit = enemies.yards20nc[i]
-                if UnitReaction(thisUnit,"player") < 4 then return true end
+            if #enemies.yards20nc > 0 then
+                for i = 1, #enemies.yards20nc do
+                    local thisUnit = enemies.yards20nc[i]
+                    -- local react = UnitReaction(thisUnit,"player") or 10
+                    if UnitIsEnemy(thisUnit,"player") and UnitCanAttack(thisUnit,"player") then return true end
+                end
             end
             return false
         end
@@ -1012,14 +1015,18 @@ local function runRotation()
                 end
             end
         -- Maim
-            -- maim,if=buff.fiery_red_maimers.up
-            if cast.able.maim() and (buff.fieryRedMaimers.exists()) then
-                if cast.maim() then return true end
+            -- pool_resource,for_next=1
+            -- maim,if=buff.iron_jaws.up
+            if (cast.pool.maim() or cast.able.maim()) and (buff.ironJaws.exists()) then
+                if cast.pool.main() then ChatOverlay("Pooling For Maim") return true end
+                if cast.able.maim() then 
+                    if cast.maim() then return true end
+                end
             end
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
             if cast.able.ferociousBite() and fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
-                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20)-- or ttd(units.dyn5) <= 8)
+                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20 or (ttd(units.dyn5) <= 8 and debuff.rip.refresh(units.dyn5)))
             then
                 if cast.ferociousBite() then return true end
             end
@@ -1216,10 +1223,12 @@ local function runRotation()
             end
         -- Thrash
             -- pool_resource,for_next=1
-            -- thrash_cat,if=refreshable&(variable.use_thrash=2|spell_targets.thrash_cat>1)
-            -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react
-            if (cast.pool.thrash() or cast.able.thrash()) and multidot and (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) then
-                if useThrash == 2 or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) or (useThrash == 1 and buff.clearcasting.exists()) then
+            -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
+            -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
+            if (cast.pool.thrash() or cast.able.thrash()) and multidot and debuff.thrash.refresh(units.dyn8AOE) then
+                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+                    or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
+                then
                     if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then
                         if cast.thrash("player","aoe") then return true end
@@ -1243,8 +1252,8 @@ local function runRotation()
                 if cast.shred() then return end
             end
         -- Moonfire
-            -- moonfire_cat,if=azerite.power_of_the_moon.enabled
-            -- if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() then
+            -- moonfire_cat,if=azerite.power_of_the_moon.enabled&!buff.incarnation.up
+            -- if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() and not buff.incarnationKingOfTheJungle.exists() then
             --     if cast.moonfire() then return end
             -- end
         -- Shred
