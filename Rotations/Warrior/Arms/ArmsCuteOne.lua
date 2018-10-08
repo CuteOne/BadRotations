@@ -632,7 +632,7 @@ local function runRotation()
             end
         -- Slam
             -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up|buff.deadly_calm.up|rage>=60)
-            if cast.able.slam() and (not talent.fervorOfBattle and (not trait.testOfMight.active() 
+            if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active() 
                 or debuff.colossusSmash.exists() or buff.deadlyCalm.exists() or rage >= 60)) 
             then
                 if cast.slam() then return end
