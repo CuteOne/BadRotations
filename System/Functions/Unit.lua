@@ -22,17 +22,17 @@ function GetUnit(Unit)
 end
 local UnitIsUnit_Orig = UnitIsUnit
 function UnitIsUnit(Unit, otherUnit)
-	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil or Unit == nil or otherUnit == nil then return false end
+	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
 	return UnitIsUnit_Orig(Unit,otherUnit)
 end
 local UnitReaction_Orig = UnitReaction
 function UnitReaction(Unit,otherUnit)
-	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return 10 end
+	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return 10 end
 	return UnitReaction_Orig(Unit,otherUnit)
 end
 local UnitIsFriend_Orig = UnitIsFriend
 function UnitIsFriend(Unit, otherUnit)
-	if GetUnitIsVisible(Unit) == nil or GetUnitIsVisible(otherUnit) == nil then return false end
+	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
 	return UnitIsFriend_Orig(Unit,otherUnit)
 end
 function GetUnitExists(Unit)

@@ -2895,6 +2895,7 @@ br.lists.spells = {
                 demonicPower                = 265273,
                 demonwrath                  = 193440,
                 forbiddenKnowledge          = 278738,
+                netherPortal                = 267218,
                 shadowyInspiration          = 196269,
             },
             debuffs                         = {
