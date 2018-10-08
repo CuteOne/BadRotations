@@ -362,7 +362,7 @@ local function runRotation()
             end
         end
 
-        local penanceCheck = isMoving or not isChecked("Raid Penance") or (buff.powerOfTheDarkSide.exists() and inRaid)
+        local penanceCheck = isMoving("player") or not isChecked("Raid Penance") or (buff.powerOfTheDarkSide.exists() and inRaid)
 
 --------------------
 --- Action Lists ---
