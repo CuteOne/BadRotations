@@ -2219,6 +2219,7 @@ br.lists.spells = {
         -- Assassination
         [259] = {
             abilities                       = {
+                blindside                   = 111240,
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 envenom                     = 32645,
@@ -2240,6 +2241,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                blindside                   = 111240,
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 elaboratePlanning           = 193641,
