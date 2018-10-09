@@ -20,20 +20,20 @@ function GetUnit(Unit)
 	end
 	return nil
 end
-local UnitIsUnit_Orig = UnitIsUnit
+
 function GetUnitIsUnit(Unit, otherUnit)
 	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
-	return UnitIsUnit_Orig(Unit,otherUnit)
+	return UnitIsUnit(Unit,otherUnit)
 end
-local UnitReaction_Orig = UnitReaction
+
 function GetUnitReaction(Unit,otherUnit)
-	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return 10 end
-	return UnitReaction_Orig(Unit,otherUnit)
+	if not UnitIsVisible(Unit) or not UnitIsVisible(otherUnit) then return 10 end
+	 return UnitReaction(Unit,otherUnit)
 end
-local UnitIsFriend_Orig = UnitIsFriend
+
 function GetUnitIsFriend(Unit, otherUnit)
 	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
-	return UnitIsFriend_Orig(Unit,otherUnit)
+	return UnitIsFriend(Unit,otherUnit)
 end
 function GetUnitExists(Unit)
 	if Unit == nil then return false end
