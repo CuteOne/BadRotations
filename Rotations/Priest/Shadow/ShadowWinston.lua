@@ -20,7 +20,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.mindBlast },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.mindBlast }
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
     -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
@@ -53,14 +53,14 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Rotation Mode
-            br.ui:createDropdownWithout(section,"Rotation Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose rotation mode.")
+            -- APL Mode
+            br.ui:createDropdownWithout(section,"APL Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose which APL SimC or JRs test.")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
+             -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Endless Fathoms","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- Strict simc mode
@@ -107,31 +107,31 @@ local function createOptions()
             end
             if hasEquiped(137541) then
                 br.ui:createCheckbox(section,"Moonlit Prism")
-            	br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147019) then
                 br.ui:createCheckbox(section,"Tome of Unravelling Sanity")
-            	br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147002) then
                 br.ui:createCheckbox(section,"Charm of the Rising Tide")
-            	br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137433) then
                 br.ui:createCheckbox(section,"Obelisk of the Void")
-            	br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(133642) then
                 br.ui:createCheckbox(section,"Horn of Valor")
-            	br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(150522) then
                 br.ui:createCheckbox(section,"Skull of Guldan")
-            	br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137329) then
                 br.ui:createCheckbox(section,"Figurehead of the Naglfar")
-            	br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             -- Dark Ascension
             br.ui:createCheckbox(section,"Dark Ascension")
@@ -317,7 +317,7 @@ local function runRotation()
         VTmaxTargets = 1
     end
 
-	--print(tostring(cast.able.voidBolt()))
+    --print(tostring(cast.able.voidBolt()))
 
     -- Keep track of Drain Stacks
     -- Drain stacks will be equal to Voidform stacks, minus any time spent in diepersion and minus any time spent channeling void torrent
@@ -393,6 +393,12 @@ local function runRotation()
     -- Action List - Defensive
     function actionList_Defensive()
         if mode.defensive == 1 and getHP("player")>0 then
+            --Healthstone
+            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasItem(5512) then
+                if canUse(5512) then
+                    useItem(5512)
+                end
+            end
             -- Gift of the Naaru
             if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                 if castSpell("player",racial,false,false,false) then return end
@@ -628,16 +634,18 @@ local function runRotation()
         if not buff.shadowform.exists() then
             cast.shadowform()
         end
+    -- comment out Fort so you are not over casting other priests in raids. if you uncomment it will keep applying so its your fort up. easier to just manual cast i think.
     -- Power Word: Fortitude
-        if not buff.powerWordFortitude.exists() then
-            cast.powerWordFortitude()
-        end
+  --      if not buff.powerWordFortitude.exists() then
+     --       cast.powerWordFortitude()
+    --    end
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
+          -- Endless Fathoms Flask
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskofEndlessFathoms.exists() and canUse(item.flaskofEndlessFathoms) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.flaskOfTheWhisperedPact() then return end
+            if use.flaskofEndlessFathoms() then return end
         end
         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
@@ -1285,7 +1293,7 @@ local function runRotation()
             end
         end
 -- Higher Priority for DOTS in Void Form (Experimental)
-        if getOptionValue("Rotation Mode") == 2 then
+        if getOptionValue("APL Mode") == 2 then
         -- Vampiric Touch
             if not moving and not debuff.vampiricTouch.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(units.dyn40) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                 if cast.vampiricTouch(units.dyn40) then return end
