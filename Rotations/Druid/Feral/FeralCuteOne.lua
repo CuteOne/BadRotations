@@ -1157,7 +1157,7 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
-            if (cast.pool.thrash() or cast.able.thrash()) and multidot then
+            if (cast.pool.thrash() or cast.able.thrash()) then --and multidot then
                 if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrash() then
@@ -1225,7 +1225,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-            if (cast.pool.thrash() or cast.able.thrash()) and multidot and debuff.thrash.refresh(units.dyn8AOE) then
+            if (cast.pool.thrash() or cast.able.thrash()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) then
                 if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                     or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
                 then
@@ -1238,7 +1238,7 @@ local function runRotation()
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>1
-            if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash and multidot
+            if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash --and multidot
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.pool.swipe() then ChatOverlay("Pooling For Swipe") return true end
@@ -1354,14 +1354,14 @@ local function runRotation()
             end
         -- Thrash
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
-            if cast.able.thrash() and multidot then
+            if cast.able.thrash() then --and multidot then
                 if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and debuff.thrash.refresh(units.dyn8AOE) then
                     if cast.thrash("player","aoe") then return true end
                 end
             end
         -- Swipe
             -- if TargetsInRadius(Swipe) >= 3 and not CanRefreshDot(ThrashBleedFeral)
-            if cast.able.swipe() and not talent.brutalSlash and multidot and not debuff.thrash.refresh(units.dyn8)
+            if cast.able.swipe() and not talent.brutalSlash --[[and multidot]] and not debuff.thrash.refresh(units.dyn8)
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.swipe("player","aoe") then return true end
