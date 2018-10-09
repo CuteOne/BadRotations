@@ -303,7 +303,7 @@ function dynamicTarget(range,facing)
 		bestUnit = "target"
 	end
 	if (UnitIsDeadOrGhost("target")	or (not UnitExists("target") and hasThreat(bestUnit))
-		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not UnitIsUnit(bestUnit,"target")))
+		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
 	then
 		TargetUnit(bestUnit)
 	end
@@ -465,7 +465,9 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 		table.wipe(enemiesInRect)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
-			local tX, tY = GetObjectPosition(thisUnit)
+--			if thisUnit ~= "target" then
+				local tX, tY = GetObjectPosition(thisUnit)
+--			end
 			if tX and tY then
 				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 					if showLines then
@@ -547,7 +549,7 @@ function getUnitCoeficient(unit)
 		if distance < 50 then
 			local unitHP = getHP(unit)
 			-- if its our actual target we give it a bonus
-			if UnitIsUnit("target",unit) == true then
+			if GetUnitIsUnit("target",unit) == true then
 				coef = coef + 1
 			end
 			-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
