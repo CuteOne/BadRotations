@@ -281,20 +281,17 @@ local function runRotation()
 		if not isCastingSpell(spell.flashOfLight) and not isCastingSpell(spell.holyLight) then
 			healing_obj = nil
 		end
-		units.dyn5 = units.get(5)
-		units.dyn8 = units.get(8)
-		units.dyn15 = units.get(15)
-		units.dyn30 = units.get(30)
-		units.dyn40 = units.get(40)
-		units.dyn5AoE = units.get(5,true)
-		units.dyn30AoE = units.get(30,true)
-		units.dyn40AoE = units.get(40,true)
-		enemies.yards5 = enemies.get(5)
-		enemies.yards8 = enemies.get(8)
-		enemies.yards10 = enemies.get(10)
-		enemies.yards15 = enemies.get(15)
-		enemies.yards30 = enemies.get(30)
-		enemies.yards40 = enemies.get(40)
+		units.get(5)
+		units.get(8)
+		units.get(15)
+		units.get(30)
+		units.get(40)
+		enemies.get(5)
+		enemies.get(8)
+		enemies.get(10)
+		enemies.get(15)
+		enemies.get(30)
+		enemies.get(40)
 		friends.yards40 = getAllies("player",40*master_coff)
 
 		-- Beacon of Virtue
@@ -318,6 +315,16 @@ local function runRotation()
 				end
 				if GetSpellCooldown(20473) ~= 0 then
 					if CastSpellByName(GetSpellInfo(19750),"target") then return end
+				end
+			end
+		end
+		-- Automatic catch the pig
+		if GetMinimapZoneText() == "Ring of Booty" then
+			for i = 1, ObjectCount() do
+				local ID = ObjectID(ObjectWithIndex(i))
+				local object = ObjectWithIndex(i)
+				if ID == 130099 and ObjectExists(object) and getDistance(object) < 10 then
+					InteractUnit(object)
 				end
 			end
 		end
@@ -704,21 +711,21 @@ local function runRotation()
 				if cast.lightsHammer("best",nil,getValue("Light's Hammer Damage"),10) then return end
 				end
 				-- Judgement
-				if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30AoE) and getDistance(units.dyn30AoE) <= 30 then
-					if cast.judgment(units.dyn30AoE) then return end
+				if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+					if cast.judgment(units.dyn30) then return end
 				end
 				-- Holy Shock
-				if isChecked("Holy Shock Damage") and cast.able.holyShock() and getFacing("player",units.dyn40AoE) and getDistance(units.dyn40AoE) <= 40 then
+				if isChecked("Holy Shock Damage") and cast.able.holyShock() and getFacing("player",units.dyn40) and getDistance(units.dyn40) <= 40 then
 					if cast.holyShock("target") then return end
 				end
 				-- Crusader Strike
-				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5AoE) and getDistance(units.dyn5AoE) <= 5 then
+				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 					if talent.crusadersMight and GetSpellCooldown(20473) > 1.5 then
-						if cast.crusaderStrike(units.dyn5AoE) then return end
-					elseif not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5AoE) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
-						if cast.crusaderStrike(units.dyn5AoE) then return end
+						if cast.crusaderStrike(units.dyn5) then return end
+					elseif not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
+						if cast.crusaderStrike(units.dyn5) then return end
 					elseif buff.avengingCrusader.exists() then
-						if cast.crusaderStrike(units.dyn5AoE) then return end
+						if cast.crusaderStrike(units.dyn5) then return end
 					end
 				end
 			end
@@ -752,9 +759,9 @@ local function runRotation()
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30AoE, "player") and inCombat and getFacing("player",units.dyn30AoE) and getDistance(units.dyn30AoE) <= 30 then
-				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30AoE) then
-					if cast.judgment(units.dyn30AoE) then return end
+			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30, "player") and inCombat and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
+					if cast.judgment(units.dyn30) then return end
 				end
 			end
 			-- Light of Dawn
@@ -1050,17 +1057,17 @@ local function runRotation()
 				end
 			end
 			-- Crusader Strike
-			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not UnitIsFriend(units.dyn5AoE, "player") and getFacing("player",units.dyn5AoE) and getDistance(units.dyn5AoE) <= 5 then
+			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not UnitIsFriend(units.dyn5, "player") and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 				if talent.crusadersMight and GetSpellCooldown(20473) > 1.5 then
-					if cast.crusaderStrike(units.dyn5AoE) then return end
+					if cast.crusaderStrike(units.dyn5) then return end
 				elseif talent.crusadersMight and GetSpellCooldown(85222) > 1.5 then
-					if cast.crusaderStrike(units.dyn5AoE) then return end
+					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30AoE, "player") and getFacing("player",units.dyn30AoE) and getDistance(units.dyn30AoE) <= 30 then
+			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30, "player") and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
 				if talent.fistOfJustice and GetSpellCooldown(853) > 1.5 then
-					if cast.judgment(units.dyn30AoE) then return end
+					if cast.judgment(units.dyn30) then return end
 				end
 			end
 		end
