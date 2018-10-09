@@ -63,8 +63,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Torment")
 		-- Consume Magic
             br.ui:createCheckbox(section,"Consume Magic")
-		-- Consume Magic
+		-- Fel Devestation
             br.ui:createCheckbox(section,"Fel Devastation")
+        -- Throw Glaive 
+            br.ui:createCheckbox(section,"Throw Glaive")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -461,7 +463,7 @@ local function runRotation()
 	                if cast.shear() then return end
                 end
 				-- actions.normal+=/throw_glaive
-                if cast.able.throwGlaive() then
+                if isChecked("Throw Glaive") and cast.able.throwGlaive() then
                     if cast.throwGlaive() then return end
                 end
 			end --End In Combat
