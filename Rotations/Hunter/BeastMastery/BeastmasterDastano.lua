@@ -728,7 +728,7 @@ local function runRotation()
         function actionList_Opener()
 		-- Start Attack
             -- auto_attack
-            if isChecked("Opener") and isBoss("target") and opener == false and UnitReaction("target","player") < 4 then
+            if isChecked("Opener") and isBoss("target") and opener == false and GetUnitReaction("target","player") < 4 then
                 if getDistance("target") <= getValue("Opener") then  -- isValidUnit("target") --[[and 
             -- Begin
                 if not trait.primalInstincts.active() then

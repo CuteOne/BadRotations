@@ -83,7 +83,7 @@ if not metaTable1 then
 	function HealCheck(tar)
 		if ((UnitIsVisible(tar)
 			and not UnitIsCharmed(tar)
-			and UnitReaction("player",tar) > 4
+			and GetUnitReaction("player",tar) > 4
 			and not UnitIsDeadOrGhost(tar)
 			and UnitIsConnected(tar)
 			and UnitInPhase(tar))

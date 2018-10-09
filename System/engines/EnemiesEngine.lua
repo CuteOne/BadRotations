@@ -55,7 +55,7 @@ function cacheOM()
 	end
 	-- Remove entries that are no longer valid
 	for thisEntry, thisUnit in pairs(br.om) do
-		if not GetUnitIsVisible(thisUnit) or UnitReaction("player",thisUnit) >= 5 or getDistance(thisUnit) >= 50 then
+		if not GetUnitIsVisible(thisUnit) or GetUnitReaction("player",thisUnit) >= 5 or getDistance(thisUnit) >= 50 then
 			br.om[thisEntry] = nil
 		end
 	end
@@ -72,7 +72,7 @@ function cacheOM()
 			local thisUnit = GetObjectWithIndex(i)
 			if br.om[thisUnit] == nil and ObjectIsUnit(thisUnit) then
 				if GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
-					and (UnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject)
+					and (GetUnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject)
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					br.om[thisUnit]	= thisUnit
@@ -317,7 +317,7 @@ local function targetNearestEnemy(range)
 	for k,v in pairs(getEnemies("player",range)) do
 		local thisUnit = br.enemy[v]
 		if not UnitIsDeadOrGhost(thisUnit.unit) and getDistance("player",thisUnit.unit) <= range and ObjectIsFacing("player",thisUnit.unit) and getFacing("player", thisUnit.unit) and UnitInPhase(thisUnit.unit) then
-			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and UnitReaction(thisUnit.unit,"player") <= 2 or (UnitExists("pet") and UnitReaction(thisUnit.unit,"pet") <= 2)) then
+			if not isChecked("Hostiles Only") or (getOptionCheck("Hostiles Only") and GetUnitReaction(thisUnit.unit,"player") <= 2 or (UnitExists("pet") and GetUnitReaction(thisUnit.unit,"pet") <= 2)) then
 				bestUnit = thisUnit.unit
 				if isChecked("Target Dynamic Target") and bestUnit ~= nil and (getOptionValue("Dynamic Targetting") == 2 or (getOptionValue("Dynamic Targetting") == 1 and inCombat)) then
 					TargetUnit(bestUnit)

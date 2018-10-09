@@ -733,7 +733,7 @@ local function runRotation()
 
                 end -- End Pre-Pull
                 if isValidUnit("target") then
-                    if UnitReaction("target","player") < 4 then
+                    if GetUnitReaction("target","player") < 4 then
             -- Throw Glaive
                         if isChecked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
                             if cast.throwGlaive("target","aoe") then return end

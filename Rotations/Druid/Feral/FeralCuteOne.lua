@@ -252,7 +252,7 @@ local function runRotation()
             if #enemies.yards20nc > 0 then
                 for i = 1, #enemies.yards20nc do
                     local thisUnit = enemies.yards20nc[i]
-                    -- local react = UnitReaction(thisUnit,"player") or 10
+                    -- local react = GetUnitReaction(thisUnit,"player") or 10
                     if UnitIsEnemy(thisUnit,"player") and UnitCanAttack(thisUnit,"player") then return true end
                 end
             end

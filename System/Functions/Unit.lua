@@ -26,7 +26,7 @@ function GetUnitIsUnit(Unit, otherUnit)
 	return UnitIsUnit_Orig(Unit,otherUnit)
 end
 local UnitReaction_Orig = UnitReaction
-function UnitReaction(Unit,otherUnit)
+function GetUnitReaction(Unit,otherUnit)
 	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return 10 end
 	return UnitReaction_Orig(Unit,otherUnit)
 end

@@ -56,7 +56,7 @@ function updateOM()
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
 				if GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
-					and (UnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or CanLootUnit(UnitGUID(thisUnit)))
+					and (GetUnitReaction("player",thisUnit) < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or CanLootUnit(UnitGUID(thisUnit)))
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					local enemyUnit = unitSetup:new(thisUnit)
