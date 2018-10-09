@@ -553,7 +553,7 @@ local function runRotation()
 			end
 			-- Blessing of Protection
 			if isChecked("Blessing of Protection") then
-				if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat then
+				if getHP(lowestUnit) < getOptionValue("Blessing of Protection") and inCombat and not UnitGroupRolesAssigned(lowestUnit) == "TANK" then
 					if cast.blessingOfProtection(lowestUnit) then return end
 				end
 			end
