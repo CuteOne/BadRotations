@@ -362,7 +362,7 @@ function enemyListCheck(Unit)
 
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
 	 and isSafeToAttack(Unit) and not isCritter(Unit)
-		and (not UnitIsFriend(Unit,"player") or GetUnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
+		and (not GetUnitIsFriend(Unit,"player") or GetUnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
 			or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
@@ -372,7 +372,7 @@ function isValidUnit(Unit)
 	local targeting = isTargeting(Unit)
 	if playerTarget and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or (playerTarget and not UnitIsFriend(Unit,"player")))))
+		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or (playerTarget and not GetUnitIsFriend(Unit,"player")))))
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")

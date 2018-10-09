@@ -256,7 +256,7 @@ local function runRotation()
 		-------------
 		local enemies                                       = br.player.enemies
 		local lastSpell                                     = lastSpellCast
-		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
 		local mode                                          = br.player.mode
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local units                                         = br.player.units
@@ -759,7 +759,7 @@ local function runRotation()
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30, "player") and inCombat and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+			if isChecked("Judgement") and cast.able.judgment() and not GetUnitIsFriend(units.dyn30, "player") and inCombat and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
 				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
 					if cast.judgment(units.dyn30) then return end
 				end
@@ -1057,7 +1057,7 @@ local function runRotation()
 				end
 			end
 			-- Crusader Strike
-			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not UnitIsFriend(units.dyn5, "player") and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
+			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not GetUnitIsFriend(units.dyn5, "player") and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
 				if talent.crusadersMight and GetSpellCooldown(20473) > 1.5 then
 					if cast.crusaderStrike(units.dyn5) then return end
 				elseif talent.crusadersMight and GetSpellCooldown(85222) > 1.5 then
@@ -1065,7 +1065,7 @@ local function runRotation()
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not UnitIsFriend(units.dyn30, "player") and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+			if isChecked("Judgement") and cast.able.judgment() and not GetUnitIsFriend(units.dyn30, "player") and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
 				if talent.fistOfJustice and GetSpellCooldown(853) > 1.5 then
 					if cast.judgment(units.dyn30) then return end
 				end

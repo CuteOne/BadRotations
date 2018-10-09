@@ -235,7 +235,7 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-    local friendly                                      = friendly or UnitIsFriend("target", "player")
+    local friendly                                      = friendly or GetUnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
     local gcdMax                                        = max(0.75, 1.5 / (1 + UnitSpellHaste("player") / 100))
     local hasMouse                                      = GetObjectExists("mouseover")

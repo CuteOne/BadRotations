@@ -467,24 +467,24 @@ local function runRotation()
 		--Revive/Rebirth
 				if isChecked("Rebirth") and inCombat and cast.able.rebirth() then
 					if getOptionValue("Rebirth - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
 						if cast.rebirth("target","dead") then return true end
 					end
 					if getOptionValue("Rebirth - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
 						if cast.rebirth("mouseover","dead") then return true end
 					end
 				end
 				if isChecked("Revive") and not inCombat and cast.able.revive() then
 					if getOptionValue("Revive - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
 						if cast.revive("target","dead") then return true end
 					end
 					if getOptionValue("Revive - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
 						if cast.revive("mouseover","dead") then return true end
 					end
@@ -497,7 +497,7 @@ local function runRotation()
 					if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
 						if cast.removeCorruption("target") then return true end
 					end
-					if getOptionValue("Remove Corruption - Target")==3 and UnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) then
+					if getOptionValue("Remove Corruption - Target")==3 and GetUnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) then
 						if cast.removeCorruption("mouseover") then return true end
 					end
 				end

@@ -246,10 +246,10 @@ local function runRotation()
             if actionList_Defensive() then return end
              -- Redemption
             if isChecked("Redemption") then
-                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
+                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
                 end
-                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
+                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
                     if cast.redemption("mouseover") then return end
                 end
             end
@@ -351,7 +351,7 @@ local function runRotation()
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
+            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not GetUnitIsFriend("target", "player") then
                 --Consecration
                 if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") then
                     if cast.consecration() then return end
@@ -374,7 +374,7 @@ local function runRotation()
                 end
                 -- Crusader Strike
                 if isChecked("Crusader Strike") and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
-                    if not UnitIsFriend(units.dyn5, "player") then
+                    if not GetUnitIsFriend(units.dyn5, "player") then
                         if cast.crusaderStrike(units.dyn5) then return end
                     end
                 end
@@ -531,10 +531,10 @@ local function runRotation()
             if actionList_Defensive() then return end
             -- Redemption
             if isChecked("Redemption") then
-                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
+                if getOptionValue("Redemption") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
                     if cast.redemption("target") then return end
                 end
-                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
+                if getOptionValue("Redemption") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
                     if cast.redemption("mouseover") then return end
                 end
             end
@@ -639,7 +639,7 @@ local function runRotation()
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
             ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not UnitIsFriend("target", "player") then
+            if isChecked("DPS") and lowest.hp >= getValue("DPS") and not GetUnitIsFriend("target", "player") then
                 --Consecration
                 if isChecked("Consecration") and #enemies.yards8 >= getValue("Consecration") and not isMoving("player") then
                     if cast.consecration() then return end
@@ -662,7 +662,7 @@ local function runRotation()
                 end
                 -- Crusader Strike
                 if isChecked("Crusader Strike") and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
-                    if not UnitIsFriend(units.dyn5, "player") then
+                    if not GetUnitIsFriend(units.dyn5, "player") then
                         if cast.crusaderStrike(units.dyn5) then return end
                     end
                 end

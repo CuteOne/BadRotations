@@ -533,12 +533,12 @@ local function runRotation()
                 --Resurrection
             if isChecked("Resurrection") and not inCombat and not isMoving("player") then
                 if getOptionValue("Resurrection - Target") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                 then
                     if cast.resurrection("target","dead") then return end
                 end
                 if getOptionValue("Resurrection - Target") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                 then
                     if cast.resurrection("mouseover","dead") then return end
                 end
@@ -555,7 +555,7 @@ local function runRotation()
         local function actionList_Dispels()
             if mode.decurse == 1 then
                 -- Dispel Magic
-                if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and not UnitIsFriend("target","player") and GetObjectExists("target") then
+                if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and not GetUnitIsFriend("target","player") and GetObjectExists("target") then
                     if cast.dispelMagic("target") then return end
                 end
                 -- Mass Dispel
@@ -743,7 +743,7 @@ local function runRotation()
                     if ptwDebuff and isValidUnit(ptwDebuff) then
                         penanceTarget = ptwDebuff
                     end
-                    if not UnitIsFriend(penanceTarget,"player") then
+                    if not GetUnitIsFriend(penanceTarget,"player") then
                         if cast.penance(penanceTarget) then
                             healCount = 0
                         end
@@ -813,7 +813,7 @@ local function runRotation()
                     if ptwDebuff and isValidUnit(ptwDebuff) then
                         penanceTarget = ptwDebuff
                     end
-                    if not UnitIsFriend(penanceTarget,"player") then
+                    if not GetUnitIsFriend(penanceTarget,"player") then
                         if cast.penance(penanceTarget) then
                             healCount = 0
                         end

@@ -31,7 +31,7 @@ function GetUnitReaction(Unit,otherUnit)
 	return UnitReaction_Orig(Unit,otherUnit)
 end
 local UnitIsFriend_Orig = UnitIsFriend
-function UnitIsFriend(Unit, otherUnit)
+function GetUnitIsFriend(Unit, otherUnit)
 	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
 	return UnitIsFriend_Orig(Unit,otherUnit)
 end

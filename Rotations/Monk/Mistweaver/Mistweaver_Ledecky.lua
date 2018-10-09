@@ -283,7 +283,7 @@ local function runRotation()
 
 		local enemies                                       = br.player.enemies
 		local lastSpell                                     = lastSpellCast
-		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
 		local mode                                          = br.player.mode
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local units                                         = br.player.units

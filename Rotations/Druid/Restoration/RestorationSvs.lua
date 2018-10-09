@@ -512,16 +512,16 @@ local function runRotation()
 				-- Rebirth
 				if isChecked("Rebirth") and not moving then
 					if getOptionValue("Rebirth - Target") == 1
-						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player") then
+						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						if cast.rebirth("target","dead") then return end
 					end
 					if getOptionValue("Rebirth - Target") == 2
-						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player") then
+						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
 						if cast.rebirth("mouseover","dead") then return end
 					end
 					if getOptionValue("Rebirth - Target") == 3 then
 						for i =1, #br.friend do
-							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsFriend(br.friend[i].unit,"player") then
+							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
 								if cast.rebirth(br.friend[i].unit,"dead") then return end
 							end
 						end

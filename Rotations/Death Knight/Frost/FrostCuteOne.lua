@@ -300,12 +300,12 @@ local function runRotation()
         -- Raise Ally
                 if isChecked("Raise Ally") then
                     if cast.able.raiseAlly("target","dead") and getOptionValue("Raise Ally - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.raiseAlly("target","dead") then return true end
                     end
                     if cast.able.raiseAlly("mouseover","dead") and getOptionValue("Raise Ally - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.raiseAlly("mouseover","dead") then return true end
                     end

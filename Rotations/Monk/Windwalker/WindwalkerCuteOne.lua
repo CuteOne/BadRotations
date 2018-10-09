@@ -312,12 +312,12 @@ local function runRotation()
         -- Resuscitate
             if isChecked("Resuscitate") then
                 if getOptionValue("Resuscitate") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                 then
                     if cast.resuscitate("target") then return true end
                 end
                 if getOptionValue("Resuscitate") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                 then
                     if cast.resuscitate("mouseover") then return true end
                 end

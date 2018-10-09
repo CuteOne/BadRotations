@@ -212,7 +212,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or GetUnitIsUnit("player",Unit)) -- Player
-			or (Unit ~= nil and UnitIsFriend("player",Unit))  -- Ally
+			or (Unit ~= nil and GetUnitIsFriend("player",Unit))  -- Ally
 			or IsHackEnabled("AlwaysFacing")
 		then
 			FacingCheck = true
@@ -332,7 +332,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
 		if (Unit == nil or GetUnitIsUnit("player",Unit)) or -- Player
-			(Unit ~= nil and UnitIsFriend("player",Unit)) then  -- Ally
+			(Unit ~= nil and GetUnitIsFriend("player",Unit)) then  -- Ally
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy
 			return false
@@ -616,7 +616,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                     	castDebug()
                     	return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
-                elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and UnitIsFriend(thisUnit,"player") then
+                elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player") then
                     castDebug()
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif debug == "norm" and hasEnemies then

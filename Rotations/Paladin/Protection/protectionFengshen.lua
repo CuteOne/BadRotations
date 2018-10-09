@@ -213,7 +213,7 @@ local function runRotation()
 		local php           = br.player.health
 		local race          = br.player.race
 		local racial        = br.player.getRacial()
-		local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+		local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
 		local solo          = GetNumGroupMembers() == 0
 		local spell         = br.player.spell
 		local talent        = br.player.talent

@@ -341,7 +341,7 @@ local function runRotation()
                 end
             end
         -- Tricks of the Trade
-            if isChecked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and inCombat and UnitExists("focus") and UnitIsFriend("focus") then
+            if isChecked("Tricks of the Trade on Focus") and cast.able.tricksOfTheTrade("focus") and inCombat and UnitExists("focus") and GetUnitIsFriend("focus") then
                 if cast.tricksOfTheTrade("focus") then return end
             end
         end -- End Action List - Extras

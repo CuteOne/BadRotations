@@ -166,7 +166,7 @@ function canDispel(Unit,spellID)
 	local ValidDebuffType = false
 	local i = 1
 	if UnitInPhase(Unit) then
-		if UnitIsFriend("player",Unit)then
+		if GetUnitIsFriend("player",Unit)then
 			while UnitDebuff(Unit,i) do
 				local _,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 				-- local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
