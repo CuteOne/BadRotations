@@ -5,7 +5,7 @@
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 if not metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,UnitIsUnit
+	local getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 	br.friend = {} -- This is our main Table that the world will see
@@ -133,7 +133,7 @@ if not metaTable1 then
 				return 250,250,250
 			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
-			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not UnitIsUnit("player", o.unit) then
+			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
 				return 250,250,250
 			end
 			-- Place Dead players at the end of the list
@@ -246,7 +246,7 @@ if not metaTable1 then
 		-- Returns unit class
 		function o:GetClass()
 			if UnitGroupRolesAssigned(o.unit) == "NONE" then
-				if UnitIsUnit("player",o.unit) then
+				if GetUnitIsUnit("player",o.unit) then
 					return UnitClass("player")
 				end
 				if novaEngineTables.roleTable[UnitName(o.unit)] ~= nil then
@@ -290,7 +290,7 @@ if not metaTable1 then
 		end
 		-- Unit distance to player
 		function o:getUnitDistance()
-			if UnitIsUnit("player",o.unit) then return 0 end
+			if GetUnitIsUnit("player",o.unit) then return 0 end
 			return getDistance("player",o.unit)
 		end
 		-- Updating the values of the Unit

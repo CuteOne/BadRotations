@@ -494,7 +494,7 @@ local function runRotation()
                 if talent.ferventMartyr then
                     if getBuffStacks("player", 223316) == 2 then
                         for i = 1, #br.friend do
-                            if br.friend[i].hp <= getValue ("Light of the Martyr") and not UnitIsUnit(br.friend[i].unit,"player") then
+                            if br.friend[i].hp <= getValue ("Light of the Martyr") and not GetUnitIsUnit(br.friend[i].unit,"player") then
                                 if cast.lightOfTheMartyr(br.friend[i].unit) then return end
                             end
                         end
@@ -520,7 +520,7 @@ local function runRotation()
             -- Emergency Martyr Heals
             if isMoving("player") or isChecked("Non Moving Martyr") then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= 20 and not UnitIsUnit(br.friend[i].unit,"player") then
+                    if br.friend[i].hp <= 20 and not GetUnitIsUnit(br.friend[i].unit,"player") then
                         if cast.lightOfTheMartyr(br.friend[i].unit) then return end
                     end
                 end

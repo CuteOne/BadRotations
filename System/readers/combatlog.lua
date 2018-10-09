@@ -84,7 +84,7 @@ function br.read.combatLog()
             -- Last Cast Success for Spec Abilities Only
             if param == "SPELL_CAST_SUCCESS" then
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                    if isInCombat("player") and GetUnitIsUnit(sourceName,"player") then
                         if br.player ~= nil then
                             for k, v in pairs(br.player.spell.abilities) do
                                 if v == spell then
@@ -104,7 +104,7 @@ function br.read.combatLog()
             then
                 -- Print(tostring(param).." | "..tostring(sourceName).." | "..tostring(spellName).."("..spell..")".." | "..tostring(destName))
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                    if isInCombat("player") and GetUnitIsUnit(sourceName,"player") then
                         if spell == lastCast then
                             lastCast = lastCast2
                             lastCast2 = lastCast3
@@ -160,7 +160,7 @@ function br.read.combatLog()
             --[[ Item Use Success Recorder ]]
             if param == "SPELL_CAST_SUCCESS" then
                 if sourceName ~= nil then
-                    if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                    if isInCombat("player") and GetUnitIsUnit(sourceName,"player") then
                         if usePot == nil then
                             usePot = true
                         end
@@ -180,7 +180,7 @@ function br.read.combatLog()
                 --[[ Cast Failed --> Queue]]
                 if param == "SPELL_CAST_FAILED" then
                     if sourceName ~= nil then
-                        if isInCombat("player") and UnitIsUnit(sourceName,"player") and spell ~= botSpell and not botCast
+                        if isInCombat("player") and GetUnitIsUnit(sourceName,"player") and spell ~= botSpell and not botCast
                             and spell ~= 48018 and spell ~= 48020 -- Warlock: Demonic Circle
                         then
                             -- set destination
@@ -218,7 +218,7 @@ function br.read.combatLog()
                 if param == "SPELL_CAST_SUCCESS" then
                     if botCast == true then botCast = false end
                     if sourceName ~= nil then
-                        if isInCombat("player") and UnitIsUnit(sourceName,"player") then
+                        if isInCombat("player") and GetUnitIsUnit(sourceName,"player") then
                             if #br.player.queue ~= 0 then
                                 for i = 1, #br.player.queue do
                                     if spell == br.player.queue[i].id then
@@ -381,13 +381,13 @@ function br.read.combatLog()
                                             if debuff[k].bleed[thisUnit] == nil then debuff[k].bleed[thisUnit] = 0 end
                                             if param == "SPELL_AURA_REMOVED" then
                                                 debuff[k].bleed[thisUnit] = 0
-                                                if UnitIsUnit(thisUnit,"target") then
+                                                if GetUnitIsUnit(thisUnit,"target") then
                                                     debuff[k].bleed["target"] = 0
                                                 end
                                             end
                                             if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
                                                 debuff[k].bleed[thisUnit] = debuff[k].calc()
-                                                if UnitIsUnit(thisUnit,"target") then
+                                                if GetUnitIsUnit(thisUnit,"target") then
                                                     debuff[k].bleed["target"] = debuff[k].calc()
                                                 end
                                             end
@@ -542,13 +542,13 @@ function br.read.combatLog()
                                         if debuff[k].bleed[thisUnit] == nil then debuff[k].bleed[thisUnit] = 0 end
                                         if param == "SPELL_AURA_REMOVED" then
                                             debuff[k].bleed[thisUnit] = 0
-                                            if UnitIsUnit(thisUnit,"target") then
+                                            if GetUnitIsUnit(thisUnit,"target") then
                                                 debuff[k].bleed["target"] = 0
                                             end
                                         end
                                         if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
                                             debuff[k].bleed[thisUnit] = debuff[k].calc()
-                                            if UnitIsUnit(thisUnit,"target") then
+                                            if GetUnitIsUnit(thisUnit,"target") then
                                                 debuff[k].bleed["target"] = debuff[k].calc()
                                             end
                                         end

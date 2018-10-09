@@ -21,7 +21,7 @@ function GetUnit(Unit)
 	return nil
 end
 local UnitIsUnit_Orig = UnitIsUnit
-function UnitIsUnit(Unit, otherUnit)
+function GetUnitIsUnit(Unit, otherUnit)
 	if not GetUnitIsVisible(Unit) or not GetUnitIsVisible(otherUnit) then return false end
 	return UnitIsUnit_Orig(Unit,otherUnit)
 end
@@ -302,7 +302,7 @@ function isInstanceBoss(unit)
 		end
 		for i = 1, 5 do
 			local bossNum = "boss"..i
-			if UnitIsUnit(bossNum,unit) then return true end
+			if GetUnitIsUnit(bossNum,unit) then return true end
 		end
 	end
 	return false

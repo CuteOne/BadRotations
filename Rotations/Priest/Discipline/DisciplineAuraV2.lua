@@ -419,7 +419,7 @@ local function runRotation()
         --Leap Of Faith
                 if isChecked("Leap Of Faith") and inCombat then
                     for i = 1, #br.friend do
-                        if br.friend[i].hp <= getValue("Leap Of Faith") and not UnitIsUnit(br.friend[i].unit,"player") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
+                        if br.friend[i].hp <= getValue("Leap Of Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
                             if cast.leapOfFaith(br.friend[i].unit) then return end
                         end
                     end
@@ -826,7 +826,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.purgeTheWicked.remain(thisUnit) < 6 then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwDebuff = thisUnit
@@ -841,7 +841,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.shadowWordPain.remain(thisUnit) < 4.8 then
                                     if cast.shadowWordPain(thisUnit) then
                                         healCount = 0

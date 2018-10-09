@@ -694,6 +694,7 @@ local function runRotation()
         
         if inCombat and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and isChecked("Pet Attack") then
             if not UnitIsUnit("target","pettarget") then
+            if not GetUnitIsUnit("target","pettarget") then
                 PetAttack()
             end
         else

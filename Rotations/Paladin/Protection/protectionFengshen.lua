@@ -592,7 +592,7 @@ local function runRotation()
 						if getHP("mouseover") <= getValue("Blessing Of Sacrifice") then
 							if cast.blessingOfSacrifice("mouseover") then return true end
 						end
-					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not UnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
+					elseif getHP(lowestUnit) <= getValue("Blessing Of Sacrifice") and not GetUnitIsUnit(lowestUnit,"player") and UnitInRange(lowestUnit) and getDebuffRemain(lowestUnit,267037) == 0 then
 						-- Tank
 						if getOptionValue("Blessing Of Sacrifice Target") == 3 then
 							if UnitGroupRolesAssigned(lowestUnit) == "TANK" then

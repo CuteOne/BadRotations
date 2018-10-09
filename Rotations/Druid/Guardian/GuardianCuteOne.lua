@@ -630,7 +630,7 @@ local function runRotation()
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if isValidUnit(thisUnit) and (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                 -- moonfire,if=buff.galactic_guardian.up=1&(!ticking|dot.moonfire.remains<=4.8)
                                 if buff.galacticGuardian.exists() and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) then
                                     if cast.moonfire(thisUnit) then return end
@@ -654,7 +654,7 @@ local function runRotation()
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if isValidUnit(thisUnit) and (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                 -- moonfire,if=dot.moonfire.remains<=4.8
                                 if debuff.moonfire.refresh(thisUnit) then
                                     if cast.moonfire(thisUnit) then return end

@@ -458,7 +458,7 @@ local function runRotation()
             if buff.rapture.exists("player") then
                 if isChecked("Obey Atonement Limits") then
                     for i = 1, #br.friend do
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) and (maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) and (maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
                             if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                                 if cast.powerWordShield(br.friend[i].unit) then return end
                             end
@@ -466,7 +466,7 @@ local function runRotation()
                     end
                 else
                     for i = 1, #br.friend do
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player"))  then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player"))  then
                             if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
                                 if cast.powerWordShield(br.friend[i].unit) then return end
                             end
@@ -477,7 +477,7 @@ local function runRotation()
             -- Getting Innervate/Symbol of Hope. Don't waste it
             if not buff.rapture.exists("player") and mode.burst == 1 and freeMana then
                 for i = 1, #br.friend do
-                    if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                    if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                         if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and not buff.powerWordShield.exists(br.friend[i].unit) then
                             if cast.powerWordShield(br.friend[i].unit) then return end
                         end
@@ -496,14 +496,14 @@ local function runRotation()
             end
             if not buff.rapture.exists("player") and ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or (mode.healer == 2 and (inCombat or #enemies.yards40 > 0)) or not isChecked("Alternate Heal & Damage")) then
                 for i = 1, #br.friend do
-                    if mode.healer == 2 or epTrinket or (getBuffRemain("player", spell.buffs.atonement, "player") < 1 and UnitIsUnit(br.friend[i].unit,"player")) then
+                    if mode.healer == 2 or epTrinket or (getBuffRemain("player", spell.buffs.atonement, "player") < 1 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                         actionList_SpreadAtonement(i)
                     elseif (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.friend[i].hp <= getValue("Tank Atonement HP") then
                         if mode.healer == 1 then
                             actionList_SpreadAtonement(i)
                         end
                     elseif (br.friend[i].role ~= "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK") and br.friend[i].hp <= getValue("Party Atonement HP") then
-                        if mode.healer == 1 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                        if mode.healer == 1 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                             actionList_SpreadAtonement(i)
                         end
                     end
@@ -514,7 +514,7 @@ local function runRotation()
             if isChecked("Shadow Mend Emergency") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Shadow Mend Emergency") then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
                     end
@@ -698,7 +698,7 @@ local function runRotation()
                     end
                     if isChecked("OOC Penance") and getSpellCD(spell.penance) <= 0 then
                         if br.friend[i].hp <= getValue("OOC Penance") then
-                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                                 if cast.penance(br.friend[i].unit) then return end
                             end
                         end
@@ -773,7 +773,7 @@ local function runRotation()
             --Leap Of Faith
             if isChecked("Leap Of Faith") and (mode.healer == 1 or mode.healer == 2) and inCombat then
                 for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Leap Of Faith") and not UnitIsUnit(br.friend[i].unit,"player") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
+                    if br.friend[i].hp <= getValue("Leap Of Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK" then
                         if cast.leapOfFaith(br.friend[i].unit) then return end
                     end
                 end
@@ -792,7 +792,7 @@ local function runRotation()
             if isChecked("Pain Suppression") and inCombat then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Pain Suppression") and getBuffRemain(br.friend[i].unit, spell.painSuppression, "player") < 1 then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                             if cast.painSuppression(br.friend[i].unit) then
                                 actionList_MitigateDamage(i)
                             end
@@ -809,7 +809,7 @@ local function runRotation()
             --Shining Force
             if isChecked("Shining Force") and talent.shiningForce and inCombat then
                 if getLowAllies(getValue("Shining Force")) >= 1 then
-                    if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(lowest.unit,"player")) then
+                    if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(lowest.unit,"player")) then
                         if cast.shiningForce(lowest.unit) then return end
                     end
                 end
@@ -875,7 +875,7 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") > 1 then
                         if (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,225484)) or (br.friend[i].hp <= 90 and UnitDebuffID(br.friend[i].unit,240559)) or UnitDebuffID(br.friend[i].unit,200238) then
-                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                            if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                                 actionList_MitigateDamage(i)
                             end
                         end
@@ -886,7 +886,7 @@ local function runRotation()
             if isChecked("Shadow Mend") then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Shadow Mend") and getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                             if cast.shadowMend(br.friend[i].unit) then return end
                         end
                     end
@@ -896,7 +896,7 @@ local function runRotation()
             if isChecked("Penance Heal") and getSpellCD(spell.penance) <= 0 then
                 for i = 1, #br.friend do
                     if br.friend[i].hp <= getValue("Penance Heal") then
-                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player")) then
+                        if mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player")) then
                             if cast.penance(br.friend[i].unit) then return end
                         end
                     end
@@ -920,7 +920,7 @@ local function runRotation()
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                                if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                     if debuff.purgeTheWicked.remain(thisUnit) < gcd then
                                         if cast.purgeTheWicked(thisUnit,"aoe") then
                                             ptwDebuff = thisUnit
@@ -935,7 +935,7 @@ local function runRotation()
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
                             if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                                if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                                if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                     if debuff.shadowWordPain.remain(thisUnit) < gcd then
                                         if cast.shadowWordPain(thisUnit,"aoe") then
                                             ptwDebuff = thisUnit
@@ -952,7 +952,7 @@ local function runRotation()
                     if not debuff.schism.exists(schismBuff) then
                         schismBuffnew = units.dyn40
                     end
-                    if UnitIsUnit(schismBuffnew,"target") or hasThreat(schismBuffnew) or isDummy(schismBuffnew) then
+                    if GetUnitIsUnit(schismBuffnew,"target") or hasThreat(schismBuffnew) or isDummy(schismBuffnew) then
                         if debuff.schism.remain(schismBuffnew) < gcd then
                             if cast.schism(schismBuffnew) then
                                 schismBuff = schismBuffnew
@@ -1090,7 +1090,7 @@ local function runRotation()
                         for n = 1,40 do
                             local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
                             if buff then
-                                if (bufftype == "Disease" or bufftype == "Magic") and (mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and UnitIsUnit(br.friend[i].unit,"player"))) then
+                                if (bufftype == "Disease" or bufftype == "Magic") and (mode.healer == 1 or mode.healer == 2 or (mode.healer == 3 and GetUnitIsUnit(br.friend[i].unit,"player"))) then
                                     if getSpellCD(spell.purify) > 1 and norganBuff and isChecked("Mass Dispel") then
                                         if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
                                     elseif cast.purify(br.friend[i].unit) then return end
@@ -1345,7 +1345,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.purgeTheWicked.remain(thisUnit) < 6 then
                                     if cast.purgeTheWicked(thisUnit) then
                                         ptwDebuff = thisUnit
@@ -1360,7 +1360,7 @@ local function runRotation()
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if (isChecked("SW:P/PtW Targets") and currTargets() < getValue("SW:P/PtW Targets")) or not isChecked("SW:P/PtW Targets") then
-                            if UnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
+                            if GetUnitIsUnit(thisUnit,"target") or hasThreat(thisUnit) or isDummy(thisUnit) then
                                 if debuff.shadowWordPain.remain(thisUnit) < 4.8 then
                                     if cast.shadowWordPain(thisUnit) then
                                         healCount = 0

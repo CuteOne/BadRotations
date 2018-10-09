@@ -144,7 +144,7 @@ function getEnemiesInCone(length,angle)
 
     for i = 1, #enemiesTable do
         local thisUnit = enemiesTable[i]
-        if not UnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsEnemy(thisUnit,"player")) then
+        if not GetUnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsEnemy(thisUnit,"player")) then
             local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
             if playerX and unitX then
                 local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)

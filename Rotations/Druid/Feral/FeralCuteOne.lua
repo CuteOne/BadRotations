@@ -991,7 +991,7 @@ local function runRotation()
             if (cast.pool.rip() or cast.able.rip()) and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if getDistance(thisUnit) < 5 then
                             if (not debuff.rip.exists(thisUnit) or debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth)
                                 or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
@@ -1064,7 +1064,7 @@ local function runRotation()
             if cast.able.rip() and debuff.rip.count() < 5 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if debuff.rip.refresh(thisUnit) and (buff.savageRoar.exists() or not talent.savageRoar) and not talent.sabertooth
                             and ttd(thisUnit) - debuff.rip.remain(thisUnit) > 2 * 2
                         then
@@ -1172,7 +1172,7 @@ local function runRotation()
             if (cast.pool.rake() or cast.able.rake()) and debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
                         if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                         then
@@ -1214,7 +1214,7 @@ local function runRotation()
             if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                    if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                         if debuff.moonfireFeral.refresh(thisUnit) then --or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
                            if cast.moonfireFeral(thisUnit) then return true end
                         end
@@ -1318,7 +1318,7 @@ local function runRotation()
             if cast.able.rake() and debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                         if not talent.bloodtalons and debuff.rake.refresh(thisUnit) then
                             if cast.rake(thisUnit) then return true end
                         end
@@ -1345,7 +1345,7 @@ local function runRotation()
             if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                    if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                         if (debuff.moonfireFeral.refresh(thisUnit) --[[or (isDummy(thisUnit) and getDistance(thisUnit) < 8)]]) and debuff.rake.exists(thisUnit) and (ttd(thisUnit) > 10 or (isDummy(thisUnit) and getDistance(thisUnit) < 8)) then
                            if cast.moonfireFeral(thisUnit) then return true end
                         end

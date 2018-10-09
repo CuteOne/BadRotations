@@ -736,7 +736,7 @@ local function runRotation()
             if not mode.rotation == 3 and debuff.shadowWordPain.remainCount(gcdMax) < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax and not recentlyCast(thisUnit, spell.shadowWordPain, 1.1*gcdMax)
+                    if not GetUnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax and not recentlyCast(thisUnit, spell.shadowWordPain, 1.1*gcdMax)
                     then
                         if cast.shadowWordPain(thisUnit,"aoe") then
                             -- Print("cast SWP on extra with misery")
@@ -1473,7 +1473,7 @@ local function runRotation()
             if debuff.shadowWordPain.remainCount(gcdMax) < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax then
+                    if not GetUnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax then
                         if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end

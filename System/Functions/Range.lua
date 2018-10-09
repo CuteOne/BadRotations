@@ -8,8 +8,8 @@ function getDistance(Unit1,Unit2,option)
     if Unit1 == nil or Unit2 == nil then return 100 end
     if option == nil then option = "none" end
     -- Check if objects exists and are visible
-    if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true))
-        and (UnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true))
+    if (GetUnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) == true))
+        and (GetUnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) == true))
     then
         -- Modifier for Balance Affinity range change (Druid - Not Balance)
         local rangeMod = 0
@@ -126,7 +126,7 @@ function getTotemDistance(Unit1)
   if GetUnitIsVisible(Unit1) then
     -- local objectCount = GetObjectCount() or 0
     for i = 1,GetObjectCount() do
-      if UnitIsUnit(UnitCreator(ObjectWithIndex(i)), "Player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
+      if GetUnitIsUnit(UnitCreator(ObjectWithIndex(i)), "Player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
         X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
       end
     end

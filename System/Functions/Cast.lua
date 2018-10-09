@@ -18,7 +18,7 @@ function castAoEHeal(spellID,numUnits,missingHP,rangeValue)
 			-- i start a second iteration where i scan unit ranges from one another.
 			for j = 1,#br.friend do
 				-- i make sure i dont compute unit range to hisself.
-				if not UnitIsUnit(br.friend[i].unit,br.friend[j].unit) then
+				if not GetUnitIsUnit(br.friend[i].unit,br.friend[j].unit) then
 					-- table the units
 					br.friend[i].distanceTable[j] = { distance = getDistance(br.friend[i].unit,br.friend[j].unit),unit = br.friend[j].unit,hp = br.friend[j].hp }
 				end
@@ -211,7 +211,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 		if spellRange == nil or (spellRange < 4 and DistanceSkip==false) then spellRange = 4 end
 		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
-		if (Unit == nil or UnitIsUnit("player",Unit)) -- Player
+		if (Unit == nil or GetUnitIsUnit("player",Unit)) -- Player
 			or (Unit ~= nil and UnitIsFriend("player",Unit))  -- Ally
 			or IsHackEnabled("AlwaysFacing")
 		then
@@ -230,7 +230,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 				if SpamAllowed == false then
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
+						if (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
 							if noCast then
 								return true
 							else
@@ -254,7 +254,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 							end
 						end
 					end
-				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
+				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or br.units[Unit] ~= nil or getLineOfSight("player",Unit) == true) then
 					if noCast then
 						return true
 					else
@@ -331,7 +331,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 		if spellRange == nil or (spellRange < 4 and DistanceSkip==false) then spellRange = 4 end
 		if DistanceSkip == true then spellRange = 40 end
 		-- Check unit,if it's player then we can skip facing
-		if (Unit == nil or UnitIsUnit("player",Unit)) or -- Player
+		if (Unit == nil or GetUnitIsUnit("player",Unit)) or -- Player
 			(Unit ~= nil and UnitIsFriend("player",Unit)) then  -- Ally
 			FacingCheck = true
 		elseif isSafeToAttack(Unit) ~= true then -- enemy
@@ -348,7 +348,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 				if SpamAllowed == false then
 					-- get our last/current cast
 					if timersTable == nil or (timersTable ~= nil and (timersTable[SpellID] == nil or timersTable[SpellID] <= GetTime() -0.6)) then
-						if (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+						if (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
 							if noCast then
 								return true
 							else
@@ -366,7 +366,7 @@ function castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,Known
 							end
 						end
 					end
-				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (UnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
+				elseif (FacingCheck == true or getFacing("player",Unit) == true) and (GetUnitIsUnit("player",Unit) or getLineOfSight("player",Unit) == true) then
 					if noCast then
 						return true
 					else

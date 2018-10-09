@@ -447,7 +447,7 @@ local function runRotation()
                     if getOptionValue("Marked For Death") == 2 then
                         for i = 1, #enemies.yards30 do
                             local thisUnit = enemies.yards30[i]
-                            if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                 if ttd(thisUnit) < comboDeficit * 1.5 or comboDeficit >= comboMax then
                                     if cast.markedForDeath(thisUnit) then return end
                                 end

@@ -98,8 +98,8 @@ end
 -- 	local obj1ID = GetObjectID(Unit1)
 -- 	local obj2ID = GetObjectID(Unit2)
 -- 	if skipLoSTable[obj1ID] ~= nil or skipLoSTable[obj2ID] ~= nil then return true end
--- 	if (UnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1)))
--- 		and (UnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2)))
+-- 	if (GetUnitIsUnit(Unit1,"player") or (GetObjectExists(Unit1) and GetUnitIsVisible(Unit1)))
+-- 		and (GetUnitIsUnit(Unit2,"player") or (GetObjectExists(Unit2) and GetUnitIsVisible(Unit2)))
 -- 	then
 -- 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
 -- 		local X2,Y2,Z2 = GetObjectPosition(Unit2)
@@ -362,12 +362,12 @@ function enemyListCheck(Unit)
 
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
 	 and isSafeToAttack(Unit) and not isCritter(Unit)
-		and (not UnitIsFriend(Unit,"player") or UnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
+		and (not UnitIsFriend(Unit,"player") or GetUnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
 			or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
-	local playerTarget = UnitIsUnit(Unit,"target")
+	local playerTarget = GetUnitIsUnit(Unit,"target")
 	local reaction = UnitReaction(Unit,"player") or 10
 	local targeting = isTargeting(Unit)
 	if playerTarget and not enemyListCheck("target") then return false end

@@ -858,7 +858,7 @@ local function runRotation()
             if inCombat and isValidUnit(units.dyn5) then
             -- Auto Attack
                 --auto_attack
-                -- if IsCurrentSpell(6603) and not UnitIsUnit(units.dyn5,"target") then
+                -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
                 --     StopAttack()
                 -- else
                 --     StartAttack(units.dyn5)

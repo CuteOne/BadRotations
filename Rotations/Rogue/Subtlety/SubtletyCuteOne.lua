@@ -309,7 +309,7 @@ local function runRotation()
         local function getPocketPicked()
             for i = 1, #enemies.yards10nc do
                 local thisUnit = enemies.yards10nc[i]
-                if (UnitIsUnit(thisUnit,"target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
+                if (GetUnitIsUnit(thisUnit,"target") or mode.pickPocket == 2) and mode.pickPocket ~= 3 then
                     if not isPicked(thisUnit) and not isDummy(thisUnit) then
                         if mode.pickPocket == 2 and debuff.sap.remain(thisUnit) < 1 then
                             if cast.sap(thisUnit) then return end
@@ -569,7 +569,7 @@ local function runRotation()
             if isChecked("Nightblade Multidot") and cast.able.nightblade() then
                 for i=1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (UnitIsUnit(thisUnit,units.dyn10) and not multidot)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn10) and not multidot)) then
                         if (#enemies.yards10 >= 2 and (talent.secretTechnique or trait.nightsVengeance.active() or #enemies.yards10 <= 5)
                             and not buff.shadowDance.exists() and ttd(thisUnit) >= (5 + (2 * combo)) and debuff.nightblade.refresh(thisUnit))
                         then

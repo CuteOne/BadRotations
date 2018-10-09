@@ -908,7 +908,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
+                    if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
                     if isChecked("Shadowfury Key") and (SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus()) then

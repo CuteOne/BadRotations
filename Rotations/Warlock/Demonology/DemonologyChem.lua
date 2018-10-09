@@ -544,7 +544,7 @@ local function runRotation()
                             DSB1 = true
                         end
                 -- Pet Attack
-                        if not UnitIsUnit("pettarget","target") then
+                        if not GetUnitIsUnit("pettarget","target") then
                             PetAttack()
                         end
                 -- Doom
@@ -903,7 +903,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if not UnitIsUnit("pettarget","target") then
+                    if not GetUnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
 

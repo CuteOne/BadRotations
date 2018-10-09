@@ -626,11 +626,11 @@ local function runRotation()
         if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
             for i=1, #tanks do
                 thisTank = tanks[i]
-                if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") then
+                if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") then
                     if cast.bindingHeal(thisTank.unit, "aoe") then return true end
                 end
             end
-            if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") then
+            if lowest.hp <= getValue("Binding Heal") and not GetUnitIsUnit(lowest.unit,"player") then
                 if cast.bindingHeal(lowest.unit, "aoe") then return true end
             end
         end

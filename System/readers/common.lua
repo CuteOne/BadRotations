@@ -344,7 +344,7 @@ function br.read.commonReaders()
 			local SpellID 		= select(5,...)
 			if botCast == true then botCast = false end
 	        if sourceName ~= nil then
-	            if UnitIsUnit(sourceName,"player") then
+	            if GetUnitIsUnit(sourceName,"player") then
 
 	            end
 	        end

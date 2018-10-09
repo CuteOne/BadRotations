@@ -670,11 +670,11 @@ local function runRotation()
 				if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
 					for i=1, #tanks do
 						thisTank = tanks[i]
-						if thisTank.hp <= getValue("Binding Heal") and not UnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
+						if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
 							if cast.bindingHeal(thisTank.unit, "aoe") then return true end
 						end
 					end
-					if lowest.hp <= getValue("Binding Heal") and not UnitIsUnit(lowest.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
+					if lowest.hp <= getValue("Binding Heal") and not GetUnitIsUnit(lowest.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
 						if cast.bindingHeal(lowest.unit, "aoe") then return true end
 					end
 				end
@@ -716,7 +716,7 @@ local function runRotation()
 			-- Leap of Faith
 			if isChecked("Leap of Faith") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Leap of Faith") and not UnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
+					if br.friend[i].hp <= getValue("Leap of Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
 						if cast.leapOfFaith(br.friend[i].unit) then return end
 					end
 				end

@@ -328,7 +328,7 @@ local function runRotation()
                     petMode = "Passive"
                 end
                 -- Pet Attack / retreat
-                if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not UnitIsUnit("target","pettarget") then
+                if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not GetUnitIsUnit("target","pettarget") then
                     -- Print("Pet is switching to your target.")
                     PetAttack()
                 end

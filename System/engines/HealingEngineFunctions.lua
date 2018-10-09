@@ -206,7 +206,7 @@ function inLoSHealer()
 	end
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i].unit
-		if not UnitIsUnit(thisUnit,"player") and  UnitGroupRolesAssigned(thisUnit) == "HEALER" then
+		if not GetUnitIsUnit(thisUnit,"player") and  UnitGroupRolesAssigned(thisUnit) == "HEALER" then
 			drawHealers(thisUnit)
 		end
 	end
@@ -288,7 +288,7 @@ function getUnitsInCone(length,angle,hp)
         local thisUnit = br.friend[i].unit
 		if thisUnit.hp <= hp then
 			if br.friend[i].distance <= Length then			
-		        if not UnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsFriend(thisUnit,"player")) then
+		        if not GetUnitIsUnit(thisUnit,"player") and (isDummy(thisUnit) or UnitIsFriend(thisUnit,"player")) then
 		            local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
 		            if playerX and unitX then
 		                local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
