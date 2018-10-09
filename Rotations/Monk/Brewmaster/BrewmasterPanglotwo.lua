@@ -277,7 +277,8 @@ local function runRotation()
         end    
 	-- Action List - Interrupts
         local function actionList_Interrupts()
-                for i=1, #getEnemies("player",20) do
+                if useInterrupts() then
+			for i=1, #getEnemies("player",20) do
                     thisUnit = getEnemies("player",20)[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -301,6 +302,7 @@ local function runRotation()
                         end
                     end
                 end
+end
         end -- End Action List - Interrupts
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
