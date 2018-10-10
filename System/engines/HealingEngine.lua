@@ -98,7 +98,6 @@ if not metaTable1 then
 	end
 	function memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if not GetUnitIsVisible(unit) then return false end
 		if memberSetup.cache[getGUID(unit)] then return false end
 		local o = {}
 		setmetatable(o, memberSetup)
