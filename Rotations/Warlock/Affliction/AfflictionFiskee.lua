@@ -223,38 +223,38 @@ local function runRotation()
         local corruptionTick = 2 / (1 + (GetHaste()/100))
         local siphonTick = 3 / (1 + (GetHaste()/100))
 
-
-
         if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
+        
         function debuff.unstableAffliction.stack(unit)
-            local uaStack = 0
-            if unit == nil then unit = units.dyn40 end
-            if debuff.unstableAffliction1.exists(unit,"exact") then uaStack = 1 end
-            if debuff.unstableAffliction2.exists(unit,"exact") then uaStack = 2 end
-            if debuff.unstableAffliction3.exists(unit,"exact") then uaStack = 3 end
-            if debuff.unstableAffliction4.exists(unit,"exact") then uaStack = 4 end
-            if debuff.unstableAffliction5.exists(unit,"exact") then uaStack = 5 end
-            return uaStack
-        end
-
-        function debuff.unstableAffliction.remain(stack,unit)
-            if unit == nil then unit = units.dyn40 end
-            return debuff["unstableAffliction"..stack].remain(unit,"exact")
-        end
-
-        function debuff.unstableAffliction.duration(stack,unit)
-            if unit == nil then unit = units.dyn40 end
-            if duration == nil then duration = 0 end
-            if stack == nil then
-                for i = 1, 5 do
-                    if debuff.unstableAffliction.remain(i,unit) > 0 then
-                        duration = debuff["unstableAffliction"..i].duration(unit,"exact")
-                    end
-                end
-            else
-                duration = debuff["unstableAffliction"..stack].duration(unit,"exact")
+          local uaStack = 0
+          if unit == nil then
+            if GetUnitExists("target") then unit = "target"
+            else unit = units.dyn40
             end
-            return duration
+          end
+          for i=1,40 do
+            local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+            if (buffSpellID == debuff.unstableAffliction1 or buffSpellID == debuff.unstableAffliction2 or buffSpellID == debuff.unstableAffliction3 or
+            buffSpellID == debuff.unstableAffliction4 or buffSpellID == debuff.unstableAffliction5) and buffCaster == "player" then uaStack = uaStack + 1 end
+          end
+          return uaStack
+        end
+
+        function debuff.unstableAffliction.remain(unit)
+          local remain = 0
+          if unit == nil then
+            if GetUnitExists("target") then unit = "target"
+            else unit = units.dyn40
+            end
+          end
+          for i=1,40 do
+            local _,_,_,_,_,buffExpire,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+            if (buffSpellID == debuff.unstableAffliction1 or buffSpellID == debuff.unstableAffliction2 or buffSpellID == debuff.unstableAffliction3 or
+            buffSpellID == debuff.unstableAffliction4 or buffSpellID == debuff.unstableAffliction5) and buffCaster == "player" then
+              if buffExpire - GetTime() > remain then remain = buffExpire - GetTime() end
+            end
+          end
+          return remain
         end
 
         -- Opener Variables
@@ -547,7 +547,7 @@ local function runRotation()
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
-          if not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
+          if not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/call_action_list,name=fillers
@@ -754,14 +754,14 @@ local function runRotation()
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving and debuff.unstableAffliction.remain(1) <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
+          if not spammableSeed and not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return end
           end
           -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
           if not spammableSeed and not moving then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(1, thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
+                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
                   if cast.unstableAffliction(thisUnit) then return end
                 end
             end
