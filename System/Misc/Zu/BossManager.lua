@@ -26,13 +26,15 @@ end)
 end
 function bossHelper()
 	-- Automatic catch the pig
-	if GetMinimapZoneText() == "Ring of Booty" then
-		for i = 1, ObjectCount() do
-			local ID = ObjectID(ObjectWithIndex(i))
-			local object = ObjectWithIndex(i)
-			if ID == 130099 and ObjectExists(object) and getDistance(object) < 10 then
-				InteractUnit(object)
+	if EWT~=nil then
+		if GetMinimapZoneText() == "Ring of Booty" then
+			for i = 1, ObjectCount() do
+				local ID = ObjectID(ObjectWithIndex(i))
+				local object = ObjectWithIndex(i)
+				if ID == 130099 and ObjectExists(object) and getDistance(object) < 10 then
+					InteractUnit(object)
+				end
 			end
 		end
-	end
+	end	
 end

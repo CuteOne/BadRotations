@@ -87,9 +87,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Ardent Defender",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		-- Blinding Light
 		br.ui:createSpinner(section, "Blinding Light - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percentage to use at")
-		br.ui:createSpinner(section, "Blinding Light - AoE", 3, 0, 10, 1, "|cffFFFFFFNumber of Units in 10 Yards to Cast At")
 		-- Cleanse Toxin
-		br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+		br.ui:createDropdown(section, "Clease Toxin", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFFFFFFPlayer and Target","|cffFF0000Mouseover Target","|cffFFFFFFAny}, 3, "|ccfFFFFFFTarget to Cast On")
 		-- Divine Shield
 		br.ui:createSpinner(section, "Divine Shield",  5,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		-- Flash of Light
@@ -172,12 +171,11 @@ local function createOptions()
 	}}
 	return optionTable
 end
-
 ----------------
 --- ROTATION ---
 ----------------
 local function runRotation()
-	if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
+	-- if br.timer:useTimer("debugProtection", math.random(0.1,0.2)) then
 		--Print("Running: "..rotationName)
 		---------------
 		--- Toggles ---
@@ -220,13 +218,13 @@ local function runRotation()
 		local ttd           = getTTD("target")
 		local units         = br.player.units
 
-		units.dyn5 = units.get(5,true)
-		units.dyn10 = units.get(10)
-		units.dyn30 = units.get(30,true)
-		enemies.yards5 = enemies.get(5)
-		enemies.yards8 = enemies.get(8)
-		enemies.yards10 = enemies.get(10)
-		enemies.yards30 = enemies.get(30)
+		units.get(5)
+		units.get(10)
+		units.get(30)
+		enemies.get(5)
+		enemies.get(8)
+		enemies.get(10)
+		enemies.get(30)
 
 		if profileStop == nil then profileStop = false end
 		if consecrationCastTime == nil then consecrationCastTime = 0 end
@@ -323,10 +321,14 @@ local function runRotation()
 				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
+		-- healing Sethraliss
 		if UnitCastingInfo("target") == GetSpellInfo(260793) then
 			if not buff.divineSteed.exists() then
 				if CastSpellByName(GetSpellInfo(190784),"player") then return end
 			end
+		end
+		if br.player.mode.BossCase == 1 then
+			bossHelper()
 		end
 		--------------------
 		--- Action Lists ---
@@ -471,7 +473,7 @@ local function runRotation()
 					end
 				end
 				-- Divine Shield
-				if isChecked("Divine Shield") and cast.able.divineShield() then
+				if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() then
 					if php <= getOptionValue("Divine Shield") and inCombat then
 						if cast.divineShield() then return end
 					end
@@ -621,21 +623,32 @@ local function runRotation()
 				end
 				-- Cleanse Toxins
 				if isChecked("Clease Toxin") and cast.able.cleanseToxins() then
-					if getOptionValue("Clease Toxin")==1 and canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
-						if cast.cleanseToxins("player") then return end
-					end
-					if getOptionValue("Clease Toxin")==2 and canDispel("target",spell.cleanseToxins) then
-						if cast.cleanseToxins("target") then return end
-					end
-					if getOptionValue("Clease Toxin")==3 and canDispel("mouseover",spell.cleanseToxins) then
-						if cast.cleanseToxins("mouseover") then return end
+					if getOptionValue("Clease Toxin")==1 then
+						if canDispel("player",spell.cleanseToxins) and getDebuffRemain("player",261440) == 0 then
+							if cast.cleanseToxins("player") then return end
+						end
+					elseif getOptionValue("Clease Toxin")==2 then
+							if canDispel("target",spell.cleanseToxins) then
+								if cast.cleanseToxins("target") then return end
+							end
+					elseif getOptionValue("Clease Toxin")==3 then
+							if (canDispel("player",spell.cleanseToxins) or canDispel("target",spell.cleanseToxins)) and getDebuffRemain("player",261440) == 0 then
+								if cast.cleanseToxins("target") then return end
+							end
+					elseif getOptionValue("Clease Toxin")==4 then
+						if canDispel("mouseover",spell.cleanseToxins) then
+							if cast.cleanseToxins("mouseover") then return end
+						end
+					elseif getOptionValue("Clease Toxin")==5 then
+						for i = 1, #br.friend do
+							if canDispel(br.friend[i].unit,spell.cleanseToxins) and getDebuffRemain(br.friend[i].unit,261440) == 0 then
+								if cast.cleanseToxins(br.friend[i].unit) then return end
+							end
+						end
 					end
 				end
 				-- Blinding Light
 				if isChecked("Blinding Light - HP") and talent.blindingLight and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
-					if cast.blindingLight() then return end
-				end
-				if isChecked("Blinding Light - AoE") and talent.blindingLight and #enemies.yards10 >= getOptionValue("Blinding Light - AoE") and inCombat then
 					if cast.blindingLight() then return end
 				end
 				-- Shield of the Righteous
@@ -729,26 +742,22 @@ local function runRotation()
 						end
 					end
 				end
-				local BlackList_list={
-				257899,258150,252923,265084
-				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					for k,v in pairs(BlackList_list) do
-						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(v) then
-							-- Hammer of Justice
-							if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
-								if cast.hammerOfJustice(thisUnit) then return end
-							end
-							-- Rebuke
-							if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
-								if cast.rebuke(thisUnit) then return end
-							end
-							-- Blinding Light
-							if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
-								if cast.blindingLight() then return end
-							end
+					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and 
+					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(265084) then
+						-- Hammer of Justice
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
+							if cast.hammerOfJustice(thisUnit) then return end
+						end
+						-- Rebuke
+						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
+							if cast.rebuke(thisUnit) then return end
+						end
+						-- Blinding Light
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+							if cast.blindingLight() then return end
 						end
 					end
 				end
@@ -800,7 +809,9 @@ local function runRotation()
 			----------------------------
 			--- Out of Combat Opener ---
 			----------------------------
-			if actionList_Opener() then return end
+			if not inCombat then
+				if actionList_Opener() then return end
+			end
 			--------------------------
 			--- In Combat Rotation ---
 			--------------------------
@@ -816,22 +827,28 @@ local function runRotation()
 				----------------------------------
 				--- In Combat - Begin Rotation ---
 				----------------------------------
+				-- Start Attack
+				if getDistance(units.dyn5) <= 5 then
+					StartAttack(units.dyn5)
+				end
 				--------------------------------
 				----- In Combat - Feng APL -----
 				--------------------------------
 				if getOptionValue("APL Mode") == 1 then
 					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 then
+					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and ((charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3
+					and not buff.shieldOfTheRighteous.exists())) and getDistance(units.dyn5) <= 5 and (not sotrTime or GetTime() - sotrTime > 0.5 ) then
 						if CastSpellByName(GetSpellInfo(53600)) then return end
+						sotrTime = GetTime()
 					end
 					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
 						-- Judgment
 						if isChecked("Judgment") and cast.able.judgment() then
-							if cast.judgment() then return end
+							if cast.judgment(units.dyn30) then return end
 						end
 						-- Avenger's Shield
 						if isChecked("Avenger's Shield") and cast.able.avengersShield() then
-							if CastSpellByName(GetSpellInfo(31935)) then return end
+							if CastSpellByName(GetSpellInfo(31935),units.dyn30) then return end
 						end
 					end
 					-- Consecration
@@ -844,7 +861,7 @@ local function runRotation()
 					end
 					-- Hammer of the Righteous
 					if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-						if cast.hammerOfTheRighteous() then return end
+						if cast.hammerOfTheRighteous(units.dyn5) then return end
 					end
 				end
 				--------------------------------
@@ -920,7 +937,7 @@ local function runRotation()
 				end
 			end -- End In Combat
 		end -- End Profile
-	end -- Timer
+	-- end -- Timer
 end -- runRotation
 local id = 66
 if br.rotations[id] == nil then br.rotations[id] = {} end
