@@ -576,8 +576,8 @@ local function runRotation()
     -- Action List - Filler
         local function actionList_Filler()
         -- Rockbiter
-            -- rockbiter,if=maelstrom<70
-            if cast.able.rockbiter() and power < 70 then
+            -- rockbiter,if=maelstrom<70&!buff.strength_of_earth.up
+            if cast.able.rockbiter() and power < 70 and not buff.stengthOfTheEarth.exists() then
                 if cast.rockbiter() then return true end
             end
         -- Crash Lightning

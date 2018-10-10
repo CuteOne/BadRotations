@@ -2626,6 +2626,7 @@ br.lists.spells = {
                 prolongedPower              = 229206,
                 resonanceTotem              = 262147,
                 stormbringer                = 201846,
+                strengthOfTheEarth          = 273465,
             },
             debuffs                         = {
                 earthenSpike                = 188089,
