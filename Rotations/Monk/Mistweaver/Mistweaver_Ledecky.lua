@@ -423,7 +423,7 @@ local function runRotation()
 			end
 		end
 		-- Temple of Sethraliss
-		if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Sethraliss") then
+		if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Sethraliss Logic") then
 			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
 				if GetSpellCooldown(115175) == 0 and getBuffRemain("target",115175) == 0 then
 					if CastSpellByName(GetSpellInfo(115175),"target") then return end

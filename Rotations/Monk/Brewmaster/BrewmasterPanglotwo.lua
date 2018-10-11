@@ -191,6 +191,7 @@ local function runRotation()
         enemies.get(5)
         enemies.get(8) 
         enemies.get(8,"target")
+        enemies.get(20)
         enemies.get(30)
 
 --------------------
@@ -277,9 +278,9 @@ local function runRotation()
         end    
 	-- Action List - Interrupts
         local function actionList_Interrupts()
-                if useInterrupts() then
-			for i=1, #getEnemies("player",20) do
-                    thisUnit = getEnemies("player",20)[i]
+            if useInterrupts()
+                for i=1, #enemies.yards20 do
+                    thisUnit = enemies.yards20[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance <= 5 then
@@ -302,7 +303,7 @@ local function runRotation()
                         end
                     end
                 end
-end
+            end
         end -- End Action List - Interrupts
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -376,35 +377,53 @@ end
 	
 	-- Blackout Combo Rotation
     local function actionList_AutoBlackout()
+        if buff.blackoutCombo.exists() then
+            if cast.kegSmash() then return end
+            if not ((cast.able.breathOfFire() and debuff.kegSmash.exists()) or cast.able.kegSmash()) and power > 45 then
+				if cast.tigerPalm() then return end
+            end
+            if not cast.able.kegSmash() and debuff.kegSmash.exists() then
+                if cast.breathOfFire() then return end
+            end
+        else
+            if cast.blackoutStrike() then return end
+            if buff.rushingJadeWind.exists() and not cast.able.breathOfFire() and power > 45 then
+                if cast.tigerPalm() then return end
+            end
+            if cast.breathOfFire() then return end
+            if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+				if cast.rushingJadeWind() then return end
+            end
+        end
+ 
+
         --Print("BoC")
 		-- Keg Smash
-			if not buff.blackoutCombo.exists() then
-				if cast.kegSmash() then return end
-			end
+--			if buff.blackoutCombo.exists() then
+--				if cast.kegSmash() then return end
+--			end
 		-- Black out Strike
-			if cast.blackoutStrike() then return end
+--			if cast.blackoutStrike() then return end
 		-- Tiger Palm
-			if (buff.blackoutCombo.exists() and #enemies.yards8 < 3) or
-			(power > 55 and not cast.able.breathOfFire()) then
-				if cast.tigerPalm() then return end
-			end
+--			if not cast.able.kegSmash() and (power > 55) then
+--				if cast.tigerPalm() then return end
+--			end
 		-- Breath of Fire
-			if (buff.blackoutCombo.exists() and #enemies.yards8 >= 3) or
-			(#enemies.yards8 < 3 and not buff.blackoutCombo.exists() and debuff.kegSmash.exists()) then 
-				if cast.breathOfFire() then return end
-			end
+--			if not cast.able.kegSmash() and debuff.kegSmash.exists() then 
+--				if cast.breathOfFire() then return end
+--			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
-				if cast.rushingJadeWind() then return end
-			end
+--			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+--				if cast.rushingJadeWind() then return end
+--			end
 		-- Chi Wave 
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiWave() then return end
-			end
+--			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--				if cast.chiWave() then return end
+--			end
 		-- Chi Burst 
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiBurst() then return end
-			end
+--			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--				if cast.chiBurst() then return end
+--			end
 	end
 	
 	-- Brews Rotations
