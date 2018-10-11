@@ -278,7 +278,7 @@ local function runRotation()
         end    
 	-- Action List - Interrupts
         local function actionList_Interrupts()
-            if useInterrupts()
+            if useInterrupts() then
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
                     distance = getDistance(thisUnit)
