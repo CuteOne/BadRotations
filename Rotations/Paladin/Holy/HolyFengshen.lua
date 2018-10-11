@@ -301,7 +301,7 @@ local function runRotation()
 				local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
 					if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and isCastingSpell(spell.flashOfLight)) or
 					(#lowHealthCandidates >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and GetSpellCooldown(20473) < gcd) then
-						if CastSpellByName(GetSpellInfo(200025),lowest.unit) then return end
+						if CastSpellByName(GetSpellInfo(200025),br.friend[i].unit) then return end
 					end
 				end
 			end
