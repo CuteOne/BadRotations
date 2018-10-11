@@ -297,7 +297,7 @@ local function runRotation()
 		-- Beacon of Virtue
 		if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 			for i= 1, #br.friend do
-			if GetUnitIsVisible(br.friend[i].unit) then
+			if UnitInRange(br.friend[i].unit) then
 				local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
 					if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and isCastingSpell(spell.flashOfLight)) or
 					(#lowHealthCandidates >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and GetSpellCooldown(20473) < gcd) then
