@@ -83,6 +83,9 @@ local function createOptions()
 		if br.player.race == "Draenei" then
 			br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		end
+		if br.player.race == "BloodElf" then
+			br.ui:createCheckbox(section, "Arcane Torrent")
+		end
 		-- Ardent Defender
 		br.ui:createSpinner(section, "Ardent Defender",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
 		-- Blinding Light
@@ -332,6 +335,15 @@ local function runRotation()
 				if CastSpellByName(GetSpellInfo(190784),"player") then return end
 			end
 		end
+		-- Arcane Torrent
+		if isChecked("Arcane Torrent") then
+			for i=1, #enemies.yards8 do
+			local thisUnit = enemies.yards8[i]
+				if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+					if CastSpellByName(GetSpellInfo(select(7, GetSpellInfo(GetSpellInfo(69179))))) then return end
+				end
+			end
+		end
 		if br.player.mode.BossCase == 1 then
 			bossHelper()
 		end
@@ -370,7 +382,7 @@ local function runRotation()
 				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
 					blessingOfProtectionCase = br.friend[i].unit
 				end
-				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
+				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 or getDebuffRemain(br.friend[i].unit,278961) ~= 0 then
 					cleanseToxinsCase = br.friend[i].unit
 				end
 				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,7) < 2 then
@@ -390,7 +402,7 @@ local function runRotation()
 			if cast.able.hammerOfJustice() then
 				local HOJ_list={
 				274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
-				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,
+				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,
 				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
@@ -469,8 +481,7 @@ local function runRotation()
 			if useDefensive() then
 				-- Pot/Stoned
 				if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-					and inCombat and (hasHealthPot() or hasItem(5512))
-					then
+					and inCombat and (hasHealthPot() or hasItem(5512))then
 					if canUse(5512) then
 						useItem(5512)
 					elseif canUse(healPot) then

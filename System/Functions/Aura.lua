@@ -168,6 +168,10 @@ function canDispel(Unit,spellID)
 		-- Consume Magic
 		if spellID == 278326 then typesList = { "Magic" } end
 	end
+	if br.player.race == "BloodElf" then --Blood Elf
+		-- Arcane Torrent
+		if spellID == select(7, GetSpellInfo(GetSpellInfo(69179))) then typesList = { "Magic" } end
+	end
 	local function ValidType(debuffType)
 		local typeCheck = false
 		if typesList == nil then
