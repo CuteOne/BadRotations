@@ -145,7 +145,7 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "Efflorescence recast delay", 20, 1, 30, 1, colorWhite.."Delay to recast Efflo in seconds.")
 		br.ui:createDropdown(section,"Efflorescence Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFEfflorescence usage.", true)
 		-- Lifebloom
-		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFNormal","|cffFFFFFFBoss1 Target","|cffFFFFFFAny"}, 1, "|cffFFFFFFTarget for Lifebloom")
+		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFTank","|cffFFFFFFBoss1 Target","|cffFFFFFFSelf","|cffFFFFFFFocus"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
 		br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
 		-- Ironbark
@@ -340,16 +340,11 @@ local function runRotation()
 			end
 			return false
 		end
-		local SootheList={
-		255824,257476,257739,269976,272888,259975,265081,266209,257260,
-		}
 		if isChecked("Auto Soothe") and cast.able.soothe() then
-			for i = 1, #enemies.yards40 do
+			for i=1, #enemies.yards40 do
 			local thisUnit = enemies.yards40[i]
-				for k,v in pairs(SootheList) do
-					if getBuffRemain(thisUnit,v) ~= 0 then
-						if cast.soothe(thisUnit) then return end
-					end
+				if canDispel(thisUnit, spell.soothe) then
+					if cast.soothe(thisUnit) then return end
 				end
 			end
 		end
@@ -781,7 +776,7 @@ local function runRotation()
 			-- Lifebloom
 			if isChecked("Lifebloom") then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 and (getOptionValue("Lifebloom") == 3 or (UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit))) then
+					if br.friend[i].hp <= 70 and buff.lifebloom.remain(br.friend[i].unit) < 5 and buff.lifebloom.remain(br.friend[i].unit) > 0 then
 						if cast.lifebloom(br.friend[i].unit) then return end
 					end
 				end
@@ -831,10 +826,13 @@ local function runRotation()
 					end
 				end
 				if getOptionValue("Lifebloom") == 3 then
-					for i = 1, #br.friend do
-						if br.friend[i].hp <= 99 and not buff.lifebloom.exists(br.friend[i].unit) then
-							if cast.lifebloom(br.friend[i].unit) then return end
-						end
+					if not buff.lifebloom.exists("player") then
+						if cast.lifebloom("player") then return end
+					end
+				end
+				if getOptionValue("Lifebloom") == 4 then
+					if not buff.lifebloom.exists("focus") and UnitInRange("focus") then
+						if cast.lifebloom("focus") then return end
 					end
 				end
 			end
