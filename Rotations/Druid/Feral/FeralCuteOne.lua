@@ -33,8 +33,8 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
 -- Cleave Button
 	CleaveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
-        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrash }
+        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.rake },
+        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.rake }
     };
     CreateButton("Cleave",5,0)
 -- Prowl Button
@@ -207,7 +207,7 @@ local function runRotation()
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
+        local multidot                                      = br.player.mode.cleave == 1 and br.player.mode.rotation < 3
         local php                                           = br.player.health
         local potion                                        = br.player.potion
         local pullTimer                                     = PullTimerRemain() --br.DBM:getPulltimer()
@@ -1151,14 +1151,18 @@ local function runRotation()
             end
         -- Brutal Slash
             -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
-            if cast.able.brutalSlash() and talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or mode.rotation == 2) then
+            if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3
+                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+            then
                 if cast.brutalSlash("player","aoe",getOptionValue("Brutal Slash Targets")) then return true end
             end
         -- Thrash
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
             if (cast.pool.thrash() or cast.able.thrash()) then --and multidot then
-                if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) and ((mode.rotation == 1 and #enemies.yards8 > 2) or mode.rotation == 2) then
+                if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) 
+                    and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+                then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
@@ -1195,8 +1199,8 @@ local function runRotation()
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
             --if talent.brutalSlash and ((buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax)
             --    or (charges.brutalSlash.recharge(true) < cd.tigersFury.remain()))
-            if cast.able.brutalSlash() and talent.brutalSlash and ((buff.tigersFury.exists() and getOptionValue("Brutal Slash Targets") == 1)
-                or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or mode.rotation == 2)
+            if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3 and ((buff.tigersFury.exists() and getOptionValue("Brutal Slash Targets") == 1)
+                or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                 or charges.brutalSlash.timeTillFull() < gcdMax)
             then
                 if cast.able.regrowth() and talent.bloodtalons and not buff.bloodtalons.exists() and equiped.ailuroPouncers() and buff.predatorySwiftness.stack() > 0 then
@@ -1225,8 +1229,9 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-            if (cast.pool.thrash() or cast.able.thrash()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) then
-                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+            if (cast.pool.thrash() or cast.able.thrash()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) and mode.rotation < 3 then
+                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
+                    or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                     or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
                 then
                     if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
