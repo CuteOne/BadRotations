@@ -86,6 +86,8 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
 		-- Overhealing Cancel
 		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
+		-- Auto Soothe
+		br.ui:createCheckbox(section, "Auto Soothe")
 		-- Necrotic Rot
 		br.ui:createSpinner (section, "Necrotic Rot", 30, 0, 100, 1, "","|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
 		-- Affixes Helper
@@ -337,6 +339,19 @@ local function runRotation()
 				end
 			end
 			return false
+		end
+		local SootheList={
+		255824,257476,257739,269976,272888,259975,265081,266209,257260,
+		}
+		if isChecked("Auto Soothe") and cast.able.soothe() then
+			for i = 1, #enemies.yards40 do
+			local thisUnit = enemies.yards40[i]
+				for k,v in pairs(SootheList) do
+					if getBuffRemain(thisUnit,v) ~= 0 then
+						if cast.soothe(thisUnit) then return end
+					end
+				end
+			end
 		end
 		--------------------
 		--- Action Lists ---
