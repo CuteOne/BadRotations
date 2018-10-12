@@ -53,7 +53,7 @@ local function createOptions()
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Auto cancel Blessing of Protection
-		br.ui:createCheckbox(section, "Auto cancel BoP")		
+		br.ui:createCheckbox(section, "Auto cancel BoP")
 		-- Taunt
 		br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
@@ -312,6 +312,11 @@ local function runRotation()
 			[131670] = "Heartsbane Vinetwister",
 			[135365] = "Matron Alma",
         }
+		local HOJ_unitList={
+			[131009] = "Spirit of Gold",
+			[134388] = "A Knot of Snakes",
+			[129758] = "Irontide Grenadier",
+        }
 		-- Auto cancel Blessing of Protection
 		if isChecked("Auto cancel BoP") then
 			if buff.blessingOfProtection.exists() then
@@ -356,13 +361,13 @@ local function runRotation()
 			local cleanseToxinsCase = nil
 			local cleanseToxinsCase2 = nil
 			for i = 1, #br.friend do
-				if UnitIsCharmed(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 10 then
+				if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
 					hammerOfJusticeCase = br.friend[i].unit
 				end
 				if getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
 					blessingOfFreedomCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
 					blessingOfProtectionCase = br.friend[i].unit
 				end
 				if (getDebuffRemain(br.friend[i].unit,269686) ~= 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") or getDebuffRemain(br.friend[i].unit,257777) ~= 0 then
@@ -391,7 +396,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					for k,v in pairs(HOJ_list) do
-						if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129758 or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and distance <= 10 then
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and distance <= 10 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 					end
@@ -745,7 +750,7 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and 
+					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
 					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(265084) then
 						-- Hammer of Justice
 						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
