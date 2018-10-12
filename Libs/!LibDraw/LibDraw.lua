@@ -4,41 +4,41 @@ local LibDraw
 local sin, cos, atan, atan2, sqrt, rad = math.sin, math.cos, math.atan, math.atan2, math.sqrt, math.rad
 local tinsert, tremove = tinsert, tremove
 
--- patch WorldToScreen for 6.2 / 2.1.2 update 
-local WorldToScreen_Original = WorldToScreen;
+
 local function WorldToScreen (wX, wY, wZ)
-        local sX, sY = WorldToScreen_Original(wX, wY, wZ);
-        if sX and sY then
-                return sX, -(WorldFrame:GetTop() - sY);
-        else
-                return sX, sY;
-        end
+	local sX, sY = _G.WorldToScreen(wX, wY, wZ);
+	if sX and sY then
+		return sX, -(WorldFrame:GetTop() - sY);
+	else
+		return sX, sY;
+	end
 end
 
 if LibStub then
 	-- LibStub version control
-	LibDraw = LibStub:NewLibrary("LibDraw-1.0", 1)
+	LibDraw = LibStub:NewLibrary("LibDraw-1.0", 3)
 	if not LibDraw then return end
 else
 	-- Pretty much LibStub
 	LibDraw = {
-		version = 1.1
+		version = 1.3
 	}
 	if _G['LibDraw'] and _G['LibDraw'].version and _G['LibDraw'].version > LibDraw.version then
 		return
 	else
 		_G['LibDraw'] = LibDraw
-	end	
+	end
 end
 
 LibDraw.line = LibDraw.line or { r = 0, g = 1, b = 0, a = 1, w = 1 }
-LibDraw.texture = "Interface\\AddOns\\BadRotations\\Libs\\!LibDraw\\Media\\LineTemplate"
 LibDraw.level = "BACKGROUND"
 LibDraw.callbacks = { }
 
 if not LibDraw.canvas then
 	LibDraw.canvas = CreateFrame("Frame", WorldFrame)
 	LibDraw.canvas:SetAllPoints(WorldFrame)
+  LibDraw.lines = { }
+  LibDraw.lines_used = { }
 	LibDraw.textures = { }
 	LibDraw.textures_used = { }
 	LibDraw.fontstrings = { }
@@ -68,7 +68,7 @@ function LibDraw.SetWidth(w)
 end
 
 function LibDraw.Line(sx, sy, sz, ex, ey, ez)
-	if not FireHack then return end
+	if not WorldToScreen then return end
 
 	local sx, sy = WorldToScreen(sx, sy, sz)
 	local ex, ey = WorldToScreen(ex, ey, ez)
@@ -136,77 +136,47 @@ function LibDraw.Array(vectors, x, y, z, rotationX, rotationY, rotationZ)
 	end
 end
 
-local LINEFACTOR = 256/254;
-local LINEFACTOR_2 = LINEFACTOR / 2;
-
 function LibDraw.Draw2DLine(sx, sy, ex, ey)
 
-	if not FireHack or not sx or not sy or not ex or not ey then return end
-	local T = tremove(LibDraw.textures) or false
-	if T == false then
-		T = LibDraw.canvas:CreateTexture(nil, "BACKGROUND")
-		T:SetDrawLayer(LibDraw.level)
+	if not WorldToScreen or not sx or not sy or not ex or not ey then return end
+
+	local L = tremove(LibDraw.lines) or false
+	if L == false then
+		L = CreateFrame("Frame", LibDraw.canvas)
+    L.line = L:CreateLine()
+		L.line:SetDrawLayer(LibDraw.level)
 	end
-	T:SetTexture(LibDraw.texture)
-	tinsert(LibDraw.textures_used, T)
+	tinsert(LibDraw.lines_used, L)
 
-	-- Determine dimensions and center point of line
-	local dx, dy = ex - sx, ey - sy
-	local cx, cy = (sx + ex) * 0.5, (sy + ey) * 0.5
+  L:ClearAllPoints()
 
-	-- Normalize direction if necessary
-	if (dx < 0) then
-	  dx,dy = -dx, -dy
-	end
+  if sx > ex and sy > ey or  sx < ex and sy < ey  then
+    L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
+    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
+    L.line:SetStartPoint('TOPRIGHT')
+    L.line:SetEndPoint('BOTTOMLEFT')
+  elseif sx < ex and sy > ey then
+    L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
+    L:SetPoint("BOTTOMRIGHT", LibDraw.canvas, "TOPLEFT", ex, ey)
+    L.line:SetStartPoint('TOPLEFT')
+    L.line:SetEndPoint('BOTTOMRIGHT')
+  elseif sx > ex and sy < ey then
+    L:SetPoint("TOPRIGHT", LibDraw.canvas, "TOPLEFT", sx, sy)
+    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", ex, ey)
+    L.line:SetStartPoint('TOPLEFT')
+    L.line:SetEndPoint('BOTTOMRIGHT')
+  else
+    -- wat, I don't like this, not one bit
+    L:SetPoint("TOPLEFT", LibDraw.canvas, "TOPLEFT", sx, sy)
+    L:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", sx, ey)
+    L.line:SetStartPoint('TOPLEFT')
+    L.line:SetEndPoint('BOTTOMLEFT')
+  end
 
-	-- Calculate actual length of line
-	local l = sqrt((dx * dx) + (dy * dy))
+  L.line:SetThickness(LibDraw.line.w)
+	L.line:SetColorTexture(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
 
-	-- Quick escape if it's zero length
-	if (l == 0) then
-		T:SetTexCoord(0,0,0,0,0,0,0,0)
-		T:SetPoint("BOTTOMLEFT", C, "TOPLEFT", cx,cy)
-		T:SetPoint("TOPRIGHT",   C, "TOPLEFT", cx,cy)
-		return
-	end
-
-	-- Sin and Cosine of rotation, and combination (for later)
-	local s,c = -dy / l, dx / l
-	local sc = s * c
-
-	-- Calculate bounding box size and texture coordinates
-	local Bwid, Bhgt, BLx, BLy, TLx, TLy, TRx, TRy, BRx, BRy
-	if (dy >= 0) then
-		Bwid = ((l * c) - (LibDraw.line.w * s)) * LINEFACTOR_2
-		Bhgt = ((LibDraw.line.w * c) - (l * s)) * LINEFACTOR_2
-		BLx, BLy, BRy = (LibDraw.line.w / l) * sc, s * s, (l / LibDraw.line.w) * sc
-		BRx, TLx, TLy, TRx = 1 - BLy, BLy, 1 - BRy, 1 - BLx
-		TRy = BRx;
-	else
-		Bwid = ((l * c) + (LibDraw.line.w * s)) * LINEFACTOR_2
-		Bhgt = ((LibDraw.line.w * c) + (l * s)) * LINEFACTOR_2
-		BLx, BLy, BRx = s * s, -(l / LibDraw.line.w) * sc, 1 + (LibDraw.line.w / l) * sc
-		BRy, TLx, TLy, TRy = BLx, 1 - BRx, 1 - BLx, 1 - BLy
-		TRx = TLy
-	end
-	
-	if TLx > 10000 then TLx = 10000 elseif TLx < -10000 then TLx = -10000 end
-	if TLy > 10000 then TLy = 10000 elseif TLy < -10000 then TLy = -10000 end
-	if BLx > 10000 then BLx = 10000 elseif BLx < -10000 then BLx = -10000 end
-	if BLy > 10000 then BLy = 10000 elseif BLy < -10000 then BLy = -10000 end
-	if TRx > 10000 then TRx = 10000 elseif TRx < -10000 then TRx = -10000 end
-	if TRy > 10000 then TRy = 10000 elseif TRy < -10000 then TRy = -10000 end
-	if BRx > 10000 then BRx = 10000 elseif BRx < -10000 then BRx = -10000 end
-	if BRy > 10000 then BRy = 10000 elseif BRy < -10000 then BRy = -10000 end
-
-	T:ClearAllPoints()
-
-	-- Set texture coordinates and anchors
-	T:SetTexCoord(TLx, TLy, BLx, BLy, TRx, TRy, BRx, BRy)
-	T:SetPoint("BOTTOMLEFT", LibDraw.canvas, "TOPLEFT", cx - Bwid, cy - Bhgt)
-	T:SetPoint("TOPRIGHT",   LibDraw.canvas, "TOPLEFT", cx + Bwid, cy + Bhgt)
-	T:SetVertexColor(LibDraw.line.r, LibDraw.line.g, LibDraw.line.b, LibDraw.line.a)
-	T:Show()
+	L:Show()
 
 end
 
@@ -262,7 +232,7 @@ function LibDraw.Texture(config, x, y, z, alphaA)
 	local left, right, top, bottom, scale =  config.left, config.right, config.top, config.bottom, config.scale
 	local alpha = config.alpha or alphaA
 
-	if not FireHack or not texture or not width or not height or not x or not y or not z then return end
+	if not WorldToScreen or not texture or not width or not height or not x or not y or not z then return end
 	if not left or not right or not top or not bottom then
 		left = 0
 		right = 1
@@ -345,13 +315,13 @@ function LibDraw.Box(x, y, z, width, height, rotation, offset_x, offset_y)
 	local half_height = height * 0.5
 
 	local p1x, p1y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y - half_width + offset_y, z, rotation)
-	local p2x, p2y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation) 
-	local p3x, p3y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation) 
-	local p4x, p4y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y - half_width + offset_y, z, rotation) 
+	local p2x, p2y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation)
+	local p3x, p3y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation)
+	local p4x, p4y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y - half_width + offset_y, z, rotation)
 	local p5x, p5y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y + half_width + offset_y, z, rotation)
-	local p6x, p6y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation) 
-	local p7x, p7y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation) 
-	local p8x, p8y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y + half_width + offset_y, z, rotation) 
+	local p6x, p6y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y - half_width + offset_y, z, rotation)
+	local p7x, p7y = LibDraw.rotateZ(x, y, z, x - half_width + offset_x, y + half_width + offset_y, z, rotation)
+	local p8x, p8y = LibDraw.rotateZ(x, y, z, x + half_width + offset_x, y + half_width + offset_y, z, rotation)
 
 	LibDraw.Line(p1x, p1y, z, p2x, p2y, z)
 	LibDraw.Line(p3x, p3y, z, p4x, p4y, z)
@@ -423,6 +393,10 @@ function LibDraw.clearCanvas()
 	for i = #LibDraw.fontstrings_used, 1, -1 do
 		LibDraw.fontstrings_used[i]:Hide()
 		tinsert(LibDraw.fontstrings, tremove(LibDraw.fontstrings_used))
+	end
+  for i = #LibDraw.lines_used, 1, -1 do
+		LibDraw.lines_used[i]:Hide()
+		tinsert(LibDraw.lines, tremove(LibDraw.lines_used))
 	end
 end
 
