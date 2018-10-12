@@ -654,14 +654,16 @@ local function runRotation()
 			-- Wild Growth
 			if isChecked("Wild Growth") then
 				for i=1, #br.friend do
-					local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
-					local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit,30,getValue("Soul of the Forest + Wild Growth"),#br.friend)
-					if #lowHealthCandidates >= getValue("Wild Growth Targets") and (talent.soulOfTheForest or hasEquiped(151636)) and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 and GetSpellCooldown(48438) <= 1 then
-						if cast.swiftmend(lowestHP) then return end
-					elseif #lowHealthCandidates2 >= getValue("Soul of the Forest + Wild Growth Targets") and buff.soulOfTheForest.exists() and not moving and getDebuffRemain("player",240447) == 0 then
-						if cast.wildGrowth(br.friend[i].unit) then return end
-					elseif #lowHealthCandidates >= getValue("Wild Growth Targets") and not moving and getDebuffRemain("player",240447) == 0 then
-						if cast.wildGrowth(br.friend[i].unit) then return end
+					if UnitInRange(br.friend[i].unit) then
+						local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Wild Growth"),#br.friend)
+						local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit,30,getValue("Soul of the Forest + Wild Growth"),#br.friend)
+						if #lowHealthCandidates >= getValue("Wild Growth Targets") and (talent.soulOfTheForest or hasEquiped(151636)) and not buff.soulOfTheForest.exists() and getBuffRemain("player",242315) == 0 and GetSpellCooldown(48438) <= 1 then
+							if cast.swiftmend(lowestHP) then return end
+						elseif #lowHealthCandidates2 >= getValue("Soul of the Forest + Wild Growth Targets") and buff.soulOfTheForest.exists() and not moving and getDebuffRemain("player",240447) == 0 then
+							if cast.wildGrowth(br.friend[i].unit) then return end
+						elseif #lowHealthCandidates >= getValue("Wild Growth Targets") and not moving and getDebuffRemain("player",240447) == 0 then
+							if cast.wildGrowth(br.friend[i].unit) then return end
+						end
 					end
 				end
 			end
