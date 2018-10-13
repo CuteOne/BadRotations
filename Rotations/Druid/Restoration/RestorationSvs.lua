@@ -806,24 +806,23 @@ local function runRotation()
 			end
 			-- Lifebloom
 			if isChecked("Lifebloom") then
-				if inInstance then
+				bloomCount = 0
+				for i=1, #br.friend do
+					if buff.lifebloom.exists(br.friend[i].unit) then
+						bloomCount = bloomCount + 1
+					end
+				end
+				if getOptionValue("Lifebloom") == 1 then
 					for i = 1, #br.friend do
-						if not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) then
 							if cast.lifebloom(br.friend[i].unit) then return end
 						end
 					end
-				else
-					if inRaid then
-						bloomCount = 0
-						for i=1, #br.friend do
-							if buff.lifebloom.exists(br.friend[i].unit) then
-								bloomCount = bloomCount + 1
-							end
-						end
-						for i = 1, #br.friend do
-							if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) and ((getOptionValue("Lifebloom") == 1 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or (getOptionValue("Lifebloom") == 2 and GetUnitIsUnit(br.friend[i].unit,"boss1target"))) then
-								if cast.lifebloom(br.friend[i].unit) then return end
-							end
+				end
+				if getOptionValue("Lifebloom") == 2 then
+					for i = 1, #br.friend do
+						if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and GetUnitIsUnit(br.friend[i].unit,"boss1target") and UnitInRange(br.friend[i].unit) then
+							if cast.lifebloom(br.friend[i].unit) then return end
 						end
 					end
 				end
