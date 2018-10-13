@@ -43,6 +43,11 @@ local function createOptions()
         -- Mirror Image
             br.ui:createCheckbox(section,"Mirror Image")
         br.ui:checkSectionState(section)
+    -- Frozen Orb I guess
+        frozenOrbSection = br.ui:createSection(br.ui.window.profile, "Frozen Orb")
+            -- Should we use frozen orb?
+            br.ui:createCheckbox(frozenOrbSection, "Use Frozen Orb")
+        br.ui:checkSectionState(frozenOrbSection)
     end
     optionTable = {{
         [1] = "Rotation Options",
@@ -165,7 +170,9 @@ local function runRotation()
             if cast.icyVeins() then return end
         end
         -- Cast Frozen Orb on Cooldown
-        if cast.frozenOrb() then return end
+        if isChecked("Use Frozen Orb") then
+            if cast.frozenOrb() then return end
+        end
         -- Blizzard with 3 targets
         if cast.able.blizzard("best",nil,3,8) then
             if cast.blizzard("best",nil,3,8) then return end
@@ -216,7 +223,9 @@ local function runRotation()
             if cast.flurry() then return end
         end
         -- Frozen Orb
-        if cast.frozenOrb() then return end
+         if isChecked("Use Frozen Orb") then
+            if cast.frozenOrb() then return end
+        end
         -- Blizzard with 3 targets
         if cast.able.blizzard("best",nil,3,8) then
             if cast.blizzard("best",nil,3,8) then return end
@@ -271,7 +280,9 @@ local function runRotation()
             if cast.flurry() then return end
         end
         -- Cast Frozen Orb on Cooldown
-        if cast.frozenOrb() then return end
+         if isChecked("Use Frozen Orb") then
+            if cast.frozenOrb() then return end
+        end
         -- Blizzard with 3 targets
         if cast.able.blizzard("best",nil,3,8) then
             if cast.blizzard("best",nil,3,8) then return end
@@ -322,6 +333,11 @@ local function runRotation()
              -- Thermal Void Rotation
             if talent.thermalVoid then
                 if actionList_tv() then return end
+            end
+            -- Ray of Frost
+            if talent.rayOfFrost then
+                Print("Ray of Frost is not supported with this profile.")
+                Print("Please use a real talent.")
             end
             end -- End In Combat Rotation
 
