@@ -149,7 +149,7 @@ function cCharacter:new(class)
 -- Update Character Stats
 	function self.getCharacterInfo()
 		self.gcd 				= self.getGlobalCooldown()
-		self.gcdMax 			= max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
+		self.gcdMax 			= self.getGlobalCooldown(true)
 		self.health 			= getHP("player")
 		self.instance 			= select(2,IsInInstance())
 		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
@@ -185,15 +185,16 @@ function cCharacter:new(class)
 	end
 
 -- Returns the Global Cooldown time
-	function self.getGlobalCooldown()
-    	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
-        local gcd = getSpellCD(61304)
-        local gcdMIN = 0.75
-        if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
-        	return 1
-        else
-        	return gcd > gcdMIN and gcd or gcdMIN
-        end
+	function self.getGlobalCooldown(max)
+		local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+		if max == true then 		
+			if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
+				return 1
+			else
+				return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
+			end
+		end
+		return getSpellCD(61304)
     end
 
 -- Starts auto attack when in melee range and facing enemy
