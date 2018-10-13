@@ -84,7 +84,7 @@ local function createOptions()
 			br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percentage to use at")
 		end
 		if br.player.race == "BloodElf" then
-			br.ui:createCheckbox(section, "Arcane Torrent")
+			br.ui:createCheckbox(section, "Arcane Torrent Dispel")
 		end
 		-- Ardent Defender
 		br.ui:createSpinner(section, "Ardent Defender",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at")
@@ -336,7 +336,7 @@ local function runRotation()
 			end
 		end
 		-- Arcane Torrent
-		if isChecked("Arcane Torrent") then
+		if isChecked("Arcane Torrent Dispel") then
 			for i=1, #enemies.yards8 do
 			local thisUnit = enemies.yards8[i]
 				if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
@@ -402,7 +402,7 @@ local function runRotation()
 			if cast.able.hammerOfJustice() then
 				local HOJ_list={
 				274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
-				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,
+				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,265540,
 				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
@@ -762,7 +762,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(265084) then
+					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
 						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
@@ -772,7 +772,7 @@ local function runRotation()
 							if cast.rebuke(thisUnit) then return end
 						end
 						-- Blinding Light
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.blindingLight() then return end
 						end
 					end
@@ -825,9 +825,7 @@ local function runRotation()
 			----------------------------
 			--- Out of Combat Opener ---
 			----------------------------
-			if not inCombat then
-				if actionList_Opener() then return end
-			end
+			if actionList_Opener() then return end
 			--------------------------
 			--- In Combat Rotation ---
 			--------------------------

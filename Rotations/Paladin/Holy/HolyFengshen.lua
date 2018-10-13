@@ -59,6 +59,9 @@ local function createOptions()
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Auto Beacon
 		br.ui:createCheckbox(section, "Auto Beacon")
+		if br.player.race == "BloodElf" then
+			br.ui:createCheckbox(section, "Arcane Torrent Dispel")
+		end		
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "","|cffFFFFFFSelect Redemption Mode.")
 		-- Critical
@@ -294,6 +297,82 @@ local function runRotation()
 		enemies.get(40)
 		friends.yards40 = getAllies("player",40*master_coff)
 
+		local StunsBlackList={
+			-- Atal'Dazar
+			[87318] = "Dazar'ai Colossus",
+			[122984] = "Dazar'ai Colossus",
+			[128455] = "T'lonja",
+			[129553] = "Dinomancer Kish'o",
+			[129552] = "Monzumi",
+			-- Freehold
+			[129602] = "Irontide Enforcer",
+			[130400] = "Irontide Crusher",
+			-- King's Rest
+			[133935] = "Animated Guardian",
+			[134174] = "Shadow-Borne Witch Doctor",
+			[134158] = "Shadow-Borne Champion",
+			[137474] = "King Timalji",
+			[137478] = "Queen Wasi",
+			[137486] = "Queen Patlaa",
+			[137487] = "Skeletal Hunting Raptor",
+			[134251] = "Seneschal M'bara",
+			[134331] = "King Rahu'ai",
+			[137484] = "King A'akul",
+			[134739] = "Purification Construct",
+			[137969] = "Interment Construct",
+			[135231] = "Spectral Brute",
+			[138489] = "Shadow of Zul",
+			-- Shrine of the Storm
+			[134144] = "Living Current",
+			[136214] = "Windspeaker Heldis",
+			[134150] = "Runecarver Sorn",
+			[136249] = "Guardian Elemental",
+			[134417] = "Deepsea Ritualist",
+			[136353] = "Colossal Tentacle",
+			[136295] = "Sunken Denizen",
+			[136297] = "Forgotten Denizen",
+			-- Siege of Boralus
+			[129369] = "Irontide Raider",
+			[129373] = "Dockhound Packmaster",
+			[128969] = "Ashvane Commander",
+			[138255] = "Ashvane Spotter",
+			[138465] = "Ashvane Cannoneer",
+			[135245] = "Bilge Rat Demolisher",
+			-- Temple of Sethraliss
+			[134991] = "Sandfury Stonefist",
+			[139422] = "Scaled Krolusk Tamer",
+			[136076] = "Agitated Nimbus",
+			[134691] = "Static-charged Dervish",
+			[139110] = "Spark Channeler",
+			[136250] = "Hoodoo Hexer",
+			[139946] = "Heart Guardian",
+			-- MOTHERLODE!!
+			[130485] = "Mechanized Peacekeeper",
+			[136139] = "Mechanized Peacekeeper",
+			[136643] = "Azerite Extractor",
+			[134012] = "Taskmaster Askari",
+			[133430] = "Venture Co. Mastermind",
+			[133463] = "Venture Co. War Machine",
+			[133436] = "Venture Co. Skyscorcher",
+			[133482] = "Crawler Mine",
+			-- Underrot
+			[131436] = "Chosen Blood Matron",
+			[133912] = "Bloodsworn Defiler",
+			[138281] = "Faceless Corruptor",
+			-- Tol Dagor
+			[130025] = "Irontide Thug",
+			-- Waycrest Manor
+			[131677] = "Heartsbane Runeweaver",
+			[135329] = "Matron Bryndle",
+			[131812] = "Heartsbane Soulcharmer",
+			[131670] = "Heartsbane Vinetwister",
+			[135365] = "Matron Alma",
+		}
+		local HOJ_unitList={
+			[131009] = "Spirit of Gold",
+			[134388] = "A Knot of Snakes",
+			[129758] = "Irontide Grenadier",
+		}
 		-- Beacon of Virtue
 		if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and not IsMounted() then
 			for i= 1, #br.friend do
@@ -320,6 +399,15 @@ local function runRotation()
 				end
 			end
 		end
+		-- Arcane Torrent
+		if isChecked("Arcane Torrent Dispel") then
+			for i=1, #enemies.yards8 do
+			local thisUnit = enemies.yards8[i]
+				if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+					if CastSpellByName(GetSpellInfo(select(7, GetSpellInfo(GetSpellInfo(69179))))) then return end
+				end
+			end
+		end		
 		bossHelper()
 		-----------------
 		--- Rotations ---
@@ -358,7 +446,7 @@ local function runRotation()
 		local function PrePull()
 			-- Pre-Pull Timer
 			if isChecked("Pre-Pull Timer") then
-				if pullTimer <= getOptionValue("Pre-Pull Timer") then 
+				if pullTimer <= getOptionValue("Pre-Pull Timer") then
 					if canUse(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						return true
@@ -426,10 +514,10 @@ local function runRotation()
 				if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
 					blessingOfFreedomCase = br.friend[i].unit
 				end
-				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 then
+				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
 					blessingOfProtectionCase = br.friend[i].unit
 				end
-				if UnitIsCharmed(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 10 then
+				if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
 					hammerOfJusticeCase = br.friend[i].unit
 				end
 			end
@@ -449,11 +537,17 @@ local function runRotation()
 				end
 			end
 			if cast.able.hammerOfJustice() then
+				local HOJ_list={
+				274400,274383,257756,276292,268273,256897,272542,272888,269266,258317,258864,259711,258917,264038,253239,269931,270084,270482,270506,270507,267433,
+				267354,268702,268846,268865,258908,264574,272659,272655,267237,265568,277567,265540,
+				}
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if (GetObjectID(thisUnit) == 131009 or GetObjectID(thisUnit) == 134388 or GetObjectID(thisUnit) == 129758) and distance <= 10 then
-						if cast.hammerOfJustice(thisUnit) then return end
+					for k,v in pairs(HOJ_list) do
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and distance <= 10 then
+							if cast.hammerOfJustice(thisUnit) then return end
+						end
 					end
 				end
 				if hammerOfJusticeCase ~= nil then
@@ -488,7 +582,8 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and distance <= 10 then
+					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil
+					and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
 						if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() then
 							if cast.hammerOfJustice(thisUnit) then return end
