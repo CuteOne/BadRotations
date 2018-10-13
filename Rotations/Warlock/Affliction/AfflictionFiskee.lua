@@ -74,6 +74,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
         -- Shadowfury key
             br.ui:createDropdown(section,"Shadowfury Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFShadowfury stun with logic to hit most mobs.")
+        -- No Dot units
+            br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -130,13 +132,13 @@ local function createOptions()
     }}
     return optionTable
 end
-
 ----------------
 --- ROTATION ---
 ----------------
 local function runRotation()
     -- if br.timer:useTimer("debugAffliction", math.random(0.15,0.3)) then
         --Print("Running: "..rotationName)
+
 
 ---------------
 --- Toggles ---
@@ -224,7 +226,7 @@ local function runRotation()
         local siphonTick = 3 / (1 + (GetHaste()/100))
 
         if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
-        
+
         function debuff.unstableAffliction.stack(unit)
           local uaStack = 0
           if unit == nil then
@@ -256,7 +258,16 @@ local function runRotation()
           end
           return remain
         end
-
+        -- Blacklist dots
+        local noDotUnits = {
+          [135824]=true, -- Nerubian Voidweaver
+          [139057]=true, -- Nazmani Bloodhexer
+          [129359]=true, -- Sawtooth Shark
+        }
+        local function noDotCheck(unit)
+          if isChecked("Dot Blacklist") and noDotUnits[GetObjectID(unit)] then return true end
+          return false
+        end
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
             -- openerCount = 0
@@ -306,7 +317,7 @@ local function runRotation()
               end
             end
             local unitAroundUnit = getEnemies(thisUnit, 10, true)
-            if getFacing("player",thisUnit) and #unitAroundUnit > seedTargetsHit and (ttd(thisUnit) > cast.time.seedOfCorruption()+1 or getHP(thisUnit) == 100) then
+            if getFacing("player",thisUnit) and #unitAroundUnit > seedTargetsHit and (ttd(thisUnit) > 8 or ttd(thisUnit) == -1) then
               seedHit = 0
               seedCorruptionExist = 0
               for q = 1, #unitAroundUnit do
@@ -314,7 +325,7 @@ local function runRotation()
                 if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+1 then seedHit = seedHit + 1 end
                 if debuff.corruption.exists(seedAoEUnit) then seedCorruptionExist = seedCorruptionExist + 1 end
               end
-              if seedHit > seedTargetsHit then
+              if seedHit > seedTargetsHit or (GetUnitIsUnit(thisUnit, "target") and seedHit >= seedTargetsHit) then
                 seedTarget = thisUnit
                 seedTargetsHit = seedHit
                 seedTargetCorruptionExist = seedCorruptionExist
@@ -472,6 +483,10 @@ local function runRotation()
           if not moving and not cast.last.drainLife() and (buff.inevitableDemise.stack() == 100 or (useCDs() and buff.inevitableDemise.stack() > 60 and ttd("target") <= 10)) and (thp >= 20 or not talent.drainSoul) and ttd("target") > 5 then
             if cast.drainLife() then return end
           end
+          -- haunt
+          if not moving then
+            if cast.haunt() then return end
+          end
           -- actions.fillers+=/drain_soul,interrupt_global=1,chain=1
           if not moving and not cast.current.drainSoul() then
             if cast.drainSoul() then
@@ -561,12 +576,8 @@ local function runRotation()
                 dsInterrupt = false
                 return end
           end
-          -- apply seed if corruption is missing on % of seed targets
-          if not moving and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption() and seedTargetCorruptionExist / seedTargetsHit <= 0.33 then
-            if cast.seedOfCorruption(seedTarget) then return end
-          end
           -- actions+=/haunt
-          if not moving then
+          if not moving and seedTargetsHit <= 2 then
             if cast.haunt() then return end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
@@ -576,7 +587,7 @@ local function runRotation()
           -- actions+=/agony,cycle_targets=1,if=remains<=gcd
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.agony.exists(thisUnit) and debuff.agony.remain(thisUnit) <= gcd then
+              if debuff.agony.exists(thisUnit) and debuff.agony.remain(thisUnit) <= gcd + cast.time.shadowBolt() and (ttd(thisUnit) > 8 or ttd(thisUnit) == -1) then
                 if cast.agony(thisUnit) then return end
               end
           end
@@ -593,7 +604,7 @@ local function runRotation()
             if cast.vileTaint() then return end
           end
           -- actions+=/seed_of_corruption,if=dot.corruption.remains<=action.seed_of_corruption.cast_time+time_to_shard+4.2*(1-talent.creeping_death.enabled*0.15)&spell_targets.seed_of_corruption_aoe>=3+talent.writhe_in_agony.enabled&!dot.seed_of_corruption.remains&!action.seed_of_corruption.in_flight
-          if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption() then
+          if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
             if cast.seedOfCorruption(seedTarget) then return end
           end
           -- Agony on seed dot if missing
@@ -602,27 +613,27 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
-          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10 or thp == 100) then
+          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10  or ttd("target") == -1) then
             if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
               if cast.agony() then return end
             end
           end
           for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
-                if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
-                  if cast.agony(thisUnit) then return end
-                end
+            local thisUnit = enemies.yards40[i]
+            if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
+                if cast.agony(thisUnit) then return end
               end
+            end
           end
-          if ttd("target") > 10 and debuff.agony.exists() and debuff.agony.refresh() then
+          if (ttd("target") > 10 or ttd(thisUnit) == -1) and debuff.agony.exists() and debuff.agony.refresh() then
             if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
               if cast.agony() then return end
             end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if ttd(thisUnit) > 10 and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
+              if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
                 if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
                   if cast.agony(thisUnit) then return end
                 end
@@ -631,7 +642,7 @@ local function runRotation()
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=1,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies>=8)|active_enemies=1)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 1 and ttd(thisUnit) > 10 then
+              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -639,7 +650,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() == 1 and ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if debuff.siphonLife.count() == 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -648,7 +659,7 @@ local function runRotation()
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=2,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=7)|active_enemies=2)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 2 and ttd(thisUnit) > 10 then
+              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 2 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -656,7 +667,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 3 and ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if debuff.siphonLife.count() < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -665,7 +676,7 @@ local function runRotation()
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=3,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=6)|active_enemies=3)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 3 and ttd(thisUnit) > 10 then
+              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -673,7 +684,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 4 and ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if debuff.siphonLife.count() < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -682,7 +693,7 @@ local function runRotation()
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=4,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=5)|active_enemies=4)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 4 and ttd(thisUnit) > 10 then
+              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -690,7 +701,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 5 and ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if debuff.siphonLife.count() < 5 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
                   if cast.siphonLife(thisUnit) then return end
                 end
@@ -698,12 +709,12 @@ local function runRotation()
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
           if seedTargetsHit < 3 + writheInAgonyValue or moving then
-            if debuff.corruption.refresh() and (ttd("target") > 10 or thp == 100) then
-              if cast.corruption() then return end
+            if (debuff.corruption.refresh("target") or not debuff.corruption.exists("target")) and (ttd("target") > 10 or ttd("target") == -1) then
+              if cast.corruption("target") then return end
             end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or getHP(thisUnit) == 100) then
+                if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                   if cast.corruption(thisUnit) then return end
                 end
             end
@@ -744,7 +755,7 @@ local function runRotation()
           if not spammableSeed and not moving and not useCDs() and debuff.unstableAffliction.stack() >= 1 and shards >= 2 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.unstableAffliction.stack(thisUnit) == 0 and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
+                if debuff.unstableAffliction.stack(thisUnit) == 0 and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
                   if cast.unstableAffliction(thisUnit) then return end
                 end
             end
@@ -761,7 +772,7 @@ local function runRotation()
           if not spammableSeed and not moving then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() then
+                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
                   if cast.unstableAffliction(thisUnit) then return end
                 end
             end
