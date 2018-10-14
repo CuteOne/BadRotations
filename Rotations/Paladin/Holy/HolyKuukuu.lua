@@ -860,7 +860,8 @@ end -- End runRotation
                 if isChecked("Boss Helper") then
                         bossManager()
                 end
-local id = 65
+--local id = 65
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
