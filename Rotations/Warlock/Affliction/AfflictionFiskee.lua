@@ -156,6 +156,7 @@ local function runRotation()
         local addsIn                                        = 999
         local activePet                                     = br.player.pet
         local activePetId                                   = br.player.petId
+        local agonyCount                                    = br.player.debuff.agony.count()
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
@@ -196,6 +197,7 @@ local function runRotation()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
         local shards                                        = br.player.power.soulShards.amount()
+        local siphonCount                                   = br.player.debuff.siphonLife.count()
         local summonPet                                     = getOptionValue("Summon Pet")
         local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
@@ -342,8 +344,8 @@ local function runRotation()
         end
         -- average = 1.0 / ( 0.184 * std::pow( active_agonies, -2.0 / 3.0 ) ) * dot_tick_time.total_seconds() / active_agonies;
         local timeToShard = 10
-        if(debuff.agony.count() > 0) then
-          timeToShard = 1.0 / (0.184 * math.pow(debuff.agony.count(), -2.0 / 3.0)) * agonyTick / debuff.agony.count()
+        if(agonyCount > 0) then
+          timeToShard = 1.0 / (0.184 * math.pow(agonyCount, -2.0 / 3.0)) * agonyTick / agonyCount
         end
 
 --------------------
@@ -461,89 +463,89 @@ local function runRotation()
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
           if debuff.agony.exists() or debuff.corruption.exists() then
-            if cast.deathbolt() then return end
+            if cast.deathbolt() then return true end
           end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
           if moving and buff.nightfall.exists() and not talent.drainSoul then
-            if cast.shadowBolt() then return end
+            if cast.shadowBolt() then return true end
           end
           -- actions.fillers+=/agony,if=buff.movement.up&!(talent.siphon_life.enabled&(prev_gcd.1.agony&prev_gcd.2.agony&prev_gcd.3.agony)|prev_gcd.1.agony)
           if moving and (not ((talent.siphonLife and (cast.last.agony(1) or cast.last.agony(2) or cast.last.agony(3))) or not talent.siphonLife and cast.last.agony(1)) or talent.absoluteCorruption) then
-            if cast.agony() then return end
+            if cast.agony() then return true end
           end
           -- actions.fillers+=/siphon_life,if=buff.movement.up&!(prev_gcd.1.siphon_life&prev_gcd.2.siphon_life&prev_gcd.3.siphon_life)
           if moving and not cast.last.siphonLife() then
-            if cast.siphonLife() then return end
+            if cast.siphonLife() then return true end
           end
           -- actions.fillers+=/corruption,if=buff.movement.up&!prev_gcd.1.corruption&!talent.absolute_corruption.enabled
           if moving and not cast.last.corruption() and (not talent.absoluteCorruption or not debuff.corruption.exists()) then
-            if cast.corruption() then return end
+            if cast.corruption() then return true end
           end
           -- actions.fillers+=/drain_life,if=(buff.inevitable_demise.stack=100|buff.inevitable_demise.stack>60&target.time_to_die<=10)&(target.health.pct>=20|!talent.drain_soul.enabled)
           if not moving and not cast.last.drainLife() and (buff.inevitableDemise.stack() == 100 or (useCDs() and buff.inevitableDemise.stack() > 60 and ttd("target") <= 10)) and (thp >= 20 or not talent.drainSoul) and ttd("target") > 5 then
-            if cast.drainLife() then return end
+            if cast.drainLife() then return true end
           end
           -- haunt
           if not moving then
-            if cast.haunt() then return end
+            if cast.haunt() then return true end
           end
           -- actions.fillers+=/drain_soul,interrupt_global=1,chain=1
           if not moving and not cast.current.drainSoul() then
             if cast.drainSoul() then
               dsInterrupt = true
-              return end
+              return true end
           end
           -- actions.fillers+=/shadow_bolt,cycle_targets=1,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2&!debuff.shadow_embrace.remains&!action.shadow_bolt.in_flight
           if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and not talent.drainSoul then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if not debuff.shadowEmbrace.exists(thisUnit) then
-                  if cast.shadowBolt(thisUnit) then return end
+                  if cast.shadowBolt(thisUnit) then return true end
                 end
             end
           end
           -- actions.fillers+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2
           if not moving and talent.shadowEmbrace and talent.absoluteCorruption and #enemies.yards40 == 2 and not talent.drainSoul then
-            if cast.shadowBolt(lowestShadowEmbrace) then return end
+            if cast.shadowBolt(lowestShadowEmbrace) then return true end
           end
           -- actions.fillers+=/shadow_bolt
           if not moving and not talent.drainSoul then
-            if cast.shadowBolt() then return end
+            if cast.shadowBolt() then return true end
           end
         end
     -- Action List - Burst Target
         local function actionList_BurstTarget()
           -- actions+=/haunt
           if not moving then
-            if cast.haunt() then return end
+            if cast.haunt() then return true end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
           if (useCDs() or isChecked("CDs With Burst Key")) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
-            if cast.summonDarkglare("player") then return end
+            if cast.summonDarkglare("player") then return true end
           end
           --Agony
           if ttd("target") > 10 and debuff.agony.refresh() then
-            if cast.agony() then return end
+            if cast.agony() then return true end
           end
           --Siphon life
           if ttd("target") > 10 and debuff.siphonLife.refresh() and (not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) then
-              if cast.siphonLife() then return end
+              if cast.siphonLife() then return true end
           end
           --Corruption
           if ttd("target") > 10 and debuff.corruption.refresh() then
-            if cast.corruption() then return end
+            if cast.corruption() then return true end
           end
           -- actions+=/phantom_singularity
           if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") or (isChecked("Ignore PS units when using CDs") and useCDs()) then
-            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return true end
           end
           -- actions+=/vile_taint
           if not moving then
-            if cast.vileTaint() then return end
+            if cast.vileTaint() then return true end
           end
           -- actions+=/dark_soul
           if useCDs() or isChecked("CDs With Burst Key") and not moving then
-            if cast.darkSoul("player") then return end
+            if cast.darkSoul("player") then return true end
           end
           -- actions+=/berserking
           if isChecked("Racial") and race == "Troll" and (useCDs() or isChecked("CDs With Burst Key")) and not moving then
@@ -551,22 +553,22 @@ local function runRotation()
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
           if not moving and ttd("target") > 2 and (((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
           if ((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) then
-            if actionList_Fillers() then return end
+            if actionList_Fillers() then return true end
           end
           --UA
           if not moving and not cast.last.summonDarkglare() and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction()) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
           if not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/call_action_list,name=fillers
-          if actionList_Fillers() then return end
+          if actionList_Fillers() then return true end
         end
     -- Action List - Rotation
         local function actionList_Rotation()
@@ -574,158 +576,158 @@ local function runRotation()
           if dsTarget ~= nil and (not cast.current.drainSoul() or (cast.current.drainSoul() and dsInterrupt)) and not moving and shards < 5 then
               if cast.drainSoul(dsTarget) then
                 dsInterrupt = false
-                return end
+                return true end
           end
           -- actions+=/haunt
           if not moving and seedTargetsHit <= 2 then
-            if cast.haunt() then return end
+            if cast.haunt() then return true end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
           if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
-            if cast.summonDarkglare("player") then return end
+            if cast.summonDarkglare("player") then return true end
           end
           -- actions+=/agony,cycle_targets=1,if=remains<=gcd
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if debuff.agony.exists(thisUnit) and debuff.agony.remain(thisUnit) <= gcd + cast.time.shadowBolt() and (ttd(thisUnit) > 8 or ttd(thisUnit) == -1) then
-                if cast.agony(thisUnit) then return end
+                if cast.agony(thisUnit) then return true end
               end
           end
           -- actions+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&talent.absolute_corruption.enabled&active_enemies=2&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=execute_time*2+travel_time&!action.shadow_bolt.in_flight
           if talent.shadowEmbrace and not talent.drainSoul and talent.absoluteCorruption and #enemies.yards40 == 2 and debuff.shadowEmbrace.exists() and debuff.shadowEmbrace.remain() <= cast.time.shadowBolt() * 2 + travelTime and not cast.last.shadowBolt() then
-            if cast.shadowBolt() then return end
+            if cast.shadowBolt() then return true end
           end
           -- actions+=/phantom_singularity,if=time>40&(cooldown.summon_darkglare.remains>=45|cooldown.summon_darkglare.remains<8)
           if combatTime > 40 and (cd.summonDarkglare.remain() >= 45 or cd.summonDarkglare.remain() < 8) and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
-            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return true end
           end
           -- actions+=/vile_taint,if=time>20
           if combatTime > 20 and not moving then
-            if cast.vileTaint() then return end
+            if cast.vileTaint() then return true end
           end
           -- actions+=/seed_of_corruption,if=dot.corruption.remains<=action.seed_of_corruption.cast_time+time_to_shard+4.2*(1-talent.creeping_death.enabled*0.15)&spell_targets.seed_of_corruption_aoe>=3+talent.writhe_in_agony.enabled&!dot.seed_of_corruption.remains&!action.seed_of_corruption.in_flight
           if not moving and debuff.corruption.remain(seedTarget) <= cast.time.seedOfCorruption() + timeToShard + 4.2 *(1 - creepingDeathValue * 0.15) and seedTargetsHit >= 3 + writheInAgonyValue and debuff.seedOfCorruption.count() == 0 and not cast.last.seedOfCorruption(1) and not cast.last.seedOfCorruption(2) then
-            if cast.seedOfCorruption(seedTarget) then return end
+            if cast.seedOfCorruption(seedTarget) then return true end
           end
           -- Agony on seed dot if missing
           if not debuff.agony.exists(seedTarget) and debuff.seedOfCorruption.exists(seedTarget) then
-            if cast.agony(seedTarget) then return end
+            if cast.agony(seedTarget) then return true end
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
-          if not debuff.agony.exists() and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10  or ttd("target") == -1) then
-            if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
-              if cast.agony() then return end
+          if not debuff.agony.exists() and agonyCount < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10  or ttd("target") == -1) then
+            if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) then
+              if cast.agony() then return true end
             end
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.agony.exists(thisUnit) and debuff.agony.count() < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-              if (talent.creepingDeath and debuff.agony.count() < 6) or (not talent.creepingDeath and debuff.agony.count() < 8) then
-                if cast.agony(thisUnit) then return end
+            if not debuff.agony.exists(thisUnit) and agonyCount < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) then
+                if cast.agony(thisUnit) then return true end
               end
             end
           end
           if (ttd("target") > 10 or ttd(thisUnit) == -1) and debuff.agony.exists() and debuff.agony.refresh() then
-            if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
-              if cast.agony() then return end
+            if (talent.creepingDeath and agonyCount < 7) or (not talent.creepingDeath and agonyCount < 9) then
+              if cast.agony() then return true end
             end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
-                if (talent.creepingDeath and debuff.agony.count() < 7) or (not talent.creepingDeath and debuff.agony.count() < 9) then
-                  if cast.agony(thisUnit) then return end
+                if (talent.creepingDeath and agonyCount < 7) or (not talent.creepingDeath and agonyCount < 9) then
+                  if cast.agony(thisUnit) then return true end
                 end
               end
           end
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=1,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies>=8)|active_enemies=1)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() == 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if siphonCount == 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=2,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=7)|active_enemies=2)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 2 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 2 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if siphonCount < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=3,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=6)|active_enemies=3)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if siphonCount < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=4,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=5)|active_enemies=4)
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.count() < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if debuff.siphonLife.count() < 5 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if siphonCount < 5 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
                 if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
-                  if cast.siphonLife(thisUnit) then return end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
           if seedTargetsHit < 3 + writheInAgonyValue or moving then
             if (debuff.corruption.refresh("target") or not debuff.corruption.exists("target")) and (ttd("target") > 10 or ttd("target") == -1) then
-              if cast.corruption("target") then return end
+              if cast.corruption("target") then return true end
             end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.corruption.refresh(thisUnit) and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-                  if cast.corruption(thisUnit) then return end
+                  if cast.corruption(thisUnit) then return true end
                 end
             end
           end
           -- actions+=/phantom_singularity
           if combatTime <= 40 and (#enemies.yards15t >= getOptionValue("PS Units") or (isChecked("Ignore PS units when using CDs") and useCDs())) then
-            if cast.phantomSingularity("target", "aoe", 1, 15) then return end
+            if cast.phantomSingularity("target", "aoe", 1, 15) then return true end
           end
           -- actions+=/vile_taint
           if not moving then
-            if cast.vileTaint() then return end
+            if cast.vileTaint() then return true end
           end
           -- actions+=/dark_soul
           if useCDs() and not moving then
@@ -737,48 +739,48 @@ local function runRotation()
           end
           -- actions+=/unstable_affliction,if=soul_shard>=5
           if shards >= 5 and not moving and ttd("target") > 2 + cast.time.unstableAffliction() then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
           if not moving and ttd("target") > 2 and useCDs() and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction() then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
           if (useCDs() and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) or mode.ua == 2 then
-            if actionList_Fillers() then return end
+            if actionList_Fillers() then return true end
           end
           -- actions+=/seed_of_corruption,if=variable.spammable_seed
           if spammableSeed and not moving then
-            if cast.seedOfCorruption(seedTarget) then return end
+            if cast.seedOfCorruption(seedTarget) then return true end
           end
           --spread UA on non boss before stacking
           if not spammableSeed and not moving and not useCDs() and debuff.unstableAffliction.stack() >= 1 and shards >= 2 then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.unstableAffliction.stack(thisUnit) == 0 and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
-                  if cast.unstableAffliction(thisUnit) then return end
+                  if cast.unstableAffliction(thisUnit) then return true end
                 end
             end
           end
           -- actions+=/unstable_affliction,if=!prev_gcd.1.summon_darkglare&!variable.spammable_seed&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+cast_time&active_enemies=1|target.time_to_die<=8+cast_time*soul_shard)
           if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
           if not spammableSeed and not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
-              if cast.unstableAffliction() then return end
+              if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
           if not spammableSeed and not moving then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
-                  if cast.unstableAffliction(thisUnit) then return end
+                  if cast.unstableAffliction(thisUnit) then return true end
                 end
             end
           end
           -- actions+=/call_action_list,name=fillers
-          if actionList_Fillers() then return end
+          if actionList_Fillers() then return true end
         end -- End Action List - Haunt
     -- Action List - Opener
         local function actionList_Opener()
@@ -853,21 +855,21 @@ local function runRotation()
                         end
                         -- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3
                         if not moving and #getEnemies("target", 10, true) >= 3 then
-                          if cast.seedOfCorruption("target") then return end
+                          if cast.seedOfCorruption("target") then return true end
                         end
                         -- actions.precombat+=/haunt
                         if not moving then
-                          if cast.haunt("target") then return end
+                          if cast.haunt("target") then return true end
                         end
                         -- actions.precombat+=/shadow_bolt,if=!talent.haunt.enabled&spell_targets.seed_of_corruption_aoe<3
                         if not moving and #getEnemies("target", 10, false) < 3 and not talent.haunt and not talent.drainSoul then
-                          if cast.shadowBolt("target") then return end
+                          if cast.shadowBolt("target") then return true end
                         end
                         --else agony
-                        if cast.agony("target") then return end
+                        if cast.agony("target") then return true end
                         --low level
                         if level < 10 and not moving then
-                            if cast.shadowBolt() then return end
+                            if cast.shadowBolt() then return true end
                         end
                     end
                 end
