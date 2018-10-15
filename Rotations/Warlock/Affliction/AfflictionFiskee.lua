@@ -76,6 +76,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Shadowfury Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFShadowfury stun with logic to hit most mobs.")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
+        -- Spread agony on single target
+            br.ui:createCheckbox(section, "Spread Agony on ST", "|cffFFFFFF Check to spread agony when running in single target")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -555,6 +557,25 @@ local function runRotation()
           if not moving and ttd("target") > 2 and (((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
               if cast.unstableAffliction() then return true end
           end
+          --Spread agony
+          if isChecked("Spread Agony on ST") and mode.rotation == 3 then
+            -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
+            -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
+            if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) and agonyCount < getOptionValue("Multi-Dot Limit") then
+              for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not debuff.agony.exists(thisUnit) and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+                    if cast.agony(thisUnit) then return true end
+                end
+              end
+            end
+            for i = 1, #enemies.yards40 do
+              local thisUnit = enemies.yards40[i]
+              if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
+                if cast.agony(thisUnit) then return true end
+              end
+            end
+          end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
           if ((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) then
             if actionList_Fillers() then return true end
@@ -615,99 +636,40 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
-          if not debuff.agony.exists() and agonyCount < getOptionValue("Multi-Dot Limit") and (ttd("target") > 10  or ttd("target") == -1) then
-            if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) then
-              if cast.agony() then return true end
+          if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) and agonyCount < getOptionValue("Multi-Dot Limit") then
+            for i = 1, #enemies.yards40 do
+              local thisUnit = enemies.yards40[i]
+              if not debuff.agony.exists(thisUnit) and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+                  if cast.agony(thisUnit) then return true end
+              end
             end
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.agony.exists(thisUnit) and agonyCount < getOptionValue("Multi-Dot Limit") and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-              if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) then
-                if cast.agony(thisUnit) then return true end
-              end
+            if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
+              if cast.agony(thisUnit) then return true end
             end
           end
-          if (ttd("target") > 10 or ttd(thisUnit) == -1) and debuff.agony.exists() and debuff.agony.refresh() then
-            if (talent.creepingDeath and agonyCount < 7) or (not talent.creepingDeath and agonyCount < 9) then
-              if cast.agony() then return true end
+          -- actions.dots+=/siphon_life,target_if=min:remains,if=(active_dot.siphon_life<8-talent.creeping_death.enabled-spell_targets.sow_the_seeds_aoe)&target.time_to_die>10&refreshable&!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)
+          if talent.siphonLife then
+            if siphonCount < (8 - creepingDeathValue - seedTargetsHit) and siphonCount < getOptionValue("Multi-Dot Limit") then
+              for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if not debuff.siphonLife.exists(thisUnit) and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
+                  if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction())) then
+                    if cast.siphonLife(thisUnit) then return true end
+                  end
+                end
+              end
             end
-          end
-          for i = 1, #enemies.yards40 do
+            for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and debuff.agony.exists(thisUnit) and debuff.agony.refresh(thisUnit) then
-                if (talent.creepingDeath and agonyCount < 7) or (not talent.creepingDeath and agonyCount < 9) then
-                  if cast.agony(thisUnit) then return true end
-                end
-              end
-          end
-          -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=1,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies>=8)|active_enemies=1)
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
+              if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction())) then
                   if cast.siphonLife(thisUnit) then return true end
                 end
               end
-          end
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if siphonCount == 1 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 >= 8) or (#enemies.yards40 == 1) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=2,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=7)|active_enemies=2)
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 2 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if siphonCount < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 7) or (#enemies.yards40 == 2) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=3,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=6)|active_enemies=3)
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 3 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if siphonCount < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 6) or (#enemies.yards40 == 3) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          -- actions+=/siphon_life,cycle_targets=1,max_cycle_targets=4,if=refreshable&target.time_to_die>10&((!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)&active_enemies=5)|active_enemies=4)
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if not debuff.siphonLife.exists(thisUnit) and siphonCount < 4 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
-          end
-          for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if siphonCount < 5 and (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) and #enemies.yards40 == 5) or (#enemies.yards40 == 4) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
+            end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
           if seedTargetsHit < 3 + writheInAgonyValue or moving then
