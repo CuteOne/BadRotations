@@ -84,6 +84,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Bladestorm
             br.ui:createCheckbox(section,"Bladestorm")
+			-- Heroic Throw
+            br.ui:createCheckbox(section,"Heroic Throw")
             -- Dragon Roar
             br.ui:createCheckbox(section,"Dragon Roar")
             -- Recklessness
@@ -345,8 +347,9 @@ local function runRotation()
                 end
         -- Heroic Throw
                 -- heroic_throw
-                if cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
-                    if cast.heroicThrow("target") then return end
+				if isChecked("Heroic Throw")
+					and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
+						if cast.heroicThrow("target") then return end
                 end
             end
         end
@@ -386,8 +389,9 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=prev_gcd.1.rampage&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
+            if isChecked("Bladestorm") 
+				and	cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
+					and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.bladestorm() then return end
             end
