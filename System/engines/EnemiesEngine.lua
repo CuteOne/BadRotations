@@ -203,7 +203,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
     	refreshStored = false
     end
-    if br.storedTables[checkNoCombat] ~= nil then
+    if checkNoCombat == false and br.storedTables[checkNoCombat] ~= nil then
 		if br.storedTables[checkNoCombat][radius] ~= nil then
 			if br.storedTables[checkNoCombat][radius][thisUnit] ~= nil then
 				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
