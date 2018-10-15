@@ -379,8 +379,24 @@ local function runRotation()
 			if UnitInRange(br.friend[i].unit) then
 				local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
 					if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and isCastingSpell(spell.flashOfLight)) or
-					(#lowHealthCandidates >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and GetSpellCooldown(20473) < gcd) then
+					(#lowHealthCandidates >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd) then
 						if CastSpellByName(GetSpellInfo(200025),br.friend[i].unit) then return end
+					end
+				end
+			end
+		end
+		-- Jagged Nettles and Dessication logic
+		if isBoss("boss1") then
+			for i= 1, #br.friend do
+				if getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,267626) ~= 0 then
+					if getSpellCD(20473) == 0 then
+						if cast.holyShock(br.friend[i].unit) then return end
+					end
+					if php >= getOptionValue("LotM player HP limit") and not GetUnitIsUnit(br.friend[i].unit,"player") then
+						if cast.lightOfTheMartyr(br.friend[i].unit) then return end
+					end
+					if getSpellCD(20473) ~= 0 then
+						if cast.flashOfLight(br.friend[i].unit) then return end
 					end
 				end
 			end
@@ -388,13 +404,13 @@ local function runRotation()
 		-- Temple of Sethraliss
 		if GetObjectID("target") == 133392 and inCombat then
 			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-				if GetSpellCooldown(20473) == 0 then
+				if getSpellCD(20473) == 0 then
 					if CastSpellByName(GetSpellInfo(20473),"target") then return end
 				end
 				if php >= getOptionValue("LotM player HP limit") then
 					if CastSpellByName(GetSpellInfo(183998),"target") then return end
 				end
-				if GetSpellCooldown(20473) ~= 0 then
+				if getSpellCD(20473) ~= 0 then
 					if CastSpellByName(GetSpellInfo(19750),"target") then return end
 				end
 			end
@@ -407,7 +423,7 @@ local function runRotation()
 					if CastSpellByName(GetSpellInfo(select(7, GetSpellInfo(GetSpellInfo(69179))))) then return end
 				end
 			end
-		end		
+		end
 		bossHelper()
 		-----------------
 		--- Rotations ---
@@ -808,7 +824,7 @@ local function runRotation()
 				end
 				-- Crusader Strike
 				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-					if talent.crusadersMight and GetSpellCooldown(20473) > 1.5 then
+					if talent.crusadersMight and getSpellCD(20473) > 1.5 then
 						if cast.crusaderStrike(units.dyn5) then return end
 					elseif not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
 						if cast.crusaderStrike(units.dyn5) then return end
@@ -909,10 +925,10 @@ local function runRotation()
 					if br.friend[i].hp <= 90 and buff.divineShield.exists("player") and not GetUnitIsUnit(br.friend[i].unit,"player") then
 						lightOfTheMartyrDS = br.friend[i].unit
 					end
-					if  br.friend[i].hp <= getValue ("LoM after FoL") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetSpellCooldown(20473) >= gcd then
+					if  br.friend[i].hp <= getValue ("LoM after FoL") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and getSpellCD(20473) >= gcd then
 						lightOfTheMartyrTANK = br.friend[i].unit
 					end
-					if  br.friend[i].hp <= getValue ("LoM after FoL") and GetSpellCooldown(20473) >= gcd and not GetUnitIsUnit(br.friend[i].unit,"player") then
+					if  br.friend[i].hp <= getValue ("LoM after FoL") and getSpellCD(20473) >= gcd and not GetUnitIsUnit(br.friend[i].unit,"player") then
 						lightOfTheMartyrHS = br.friend[i].unit
 					end
 					if br.friend[i].hp <= getValue ("Light of the Martyr") and not GetUnitIsUnit(br.friend[i].unit,"player") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
@@ -1103,7 +1119,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and cast.able.holyLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and GetSpellCooldown(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
+			if isChecked("Holy Light") and cast.able.holyLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and getSpellCD(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
 				if inRaid and isChecked("Mastery bonus") then
 					if holyLight10 ~= nil then
 						if cast.holyLight(holyLight10) then healing_obj = holyLight10 return end
@@ -1146,15 +1162,15 @@ local function runRotation()
 			end
 			-- Crusader Strike
 			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not GetUnitIsFriend(units.dyn5, "player") and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-				if talent.crusadersMight and GetSpellCooldown(20473) > 1.5 then
+				if talent.crusadersMight and getSpellCD(20473) > 1.5 then
 					if cast.crusaderStrike(units.dyn5) then return end
-				elseif talent.crusadersMight and GetSpellCooldown(85222) > 1.5 then
+				elseif talent.crusadersMight and getSpellCD(85222) > 1.5 then
 					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end
 			-- Judgement
 			if isChecked("Judgement") and cast.able.judgment() and not GetUnitIsFriend(units.dyn30, "player") and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
-				if talent.fistOfJustice and GetSpellCooldown(853) > 1.5 then
+				if talent.fistOfJustice and getSpellCD(853) > 1.5 then
 					if cast.judgment(units.dyn30) then return end
 				end
 			end
