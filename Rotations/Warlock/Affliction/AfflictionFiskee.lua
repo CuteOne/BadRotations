@@ -218,6 +218,14 @@ local function runRotation()
 
         if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
 
+        local function isTotem(unit)
+          local creatureType = UnitCreatureType(unit)
+          if creatureType ~= nil then
+            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+          end
+          return false
+        end
+
         function debuff.unstableAffliction.stack(unit)
           local uaStack = 0
           if unit == nil then
@@ -257,6 +265,7 @@ local function runRotation()
         }
         local function noDotCheck(unit)
           if isChecked("Dot Blacklist") and noDotUnits[GetObjectID(unit)] then return true end
+          if isTotem(unit) then return true end
           return false
         end
         -- Opener Variables
