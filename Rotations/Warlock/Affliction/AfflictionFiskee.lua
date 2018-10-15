@@ -154,12 +154,9 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
         local activePet                                     = br.player.pet
         local activePetId                                   = br.player.petId
         local agonyCount                                    = br.player.debuff.agony.count()
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
@@ -172,7 +169,6 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
@@ -185,16 +181,11 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
         local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
-        local moveIn                                        = 999
         local moving                                        = isMoving("player")
-        local perk                                          = br.player.perk
         local pet                                           = br.player.pet.list
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local race                                          = br.player.race
@@ -211,11 +202,7 @@ local function runRotation()
         local units                                         = br.player.units
 
         units.get(40)
-
-        enemies.get(8,"target")
-        enemies.get(10,"target")
         enemies.get(15,"target")
-        enemies.get(30)
         enemies.get(40)
 
 		    if leftCombat == nil then leftCombat = GetTime() end
@@ -752,26 +739,26 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + gcd) and not moving then
-                if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
-                    if summonPet == 1 then
-                        if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
-                            if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
-                        elseif lastSpell ~= spell.summonImp then
-                            if cast.summonImp("player") then castSummonId = spell.summonImp; return end
-                        end
-                    end
-                    if summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
-                        if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
-                    end
-                    if summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
-                        if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
-                    end
-                    if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
-                        if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
-                    end
-                    if summonPet == 5 then return end
+            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + 2) and not moving then
+              if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
+                if summonPet == 1 then
+                  if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
+                      if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
+                  elseif lastSpell ~= spell.summonImp then
+                      if cast.summonImp("player") then castSummonId = spell.summonImp; return end
+                  end
                 end
+                if summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
+                end
+                if summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
+                end
+                if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
+                end
+                if summonPet == 5 then return end
+              end
             end
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask
