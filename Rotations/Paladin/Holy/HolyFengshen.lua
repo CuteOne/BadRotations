@@ -527,14 +527,16 @@ local function runRotation()
 			local blessingOfProtectionCase = nil
 			local hammerOfJusticeCase = nil
 			for i = 1, #br.friend do
-				if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
-					blessingOfFreedomCase = br.friend[i].unit
-				end
-				if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
-					blessingOfProtectionCase = br.friend[i].unit
-				end
-				if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
-					hammerOfJusticeCase = br.friend[i].unit
+				if UnitInRange(br.friend[i].unit) then
+					if getDebuffRemain(br.friend[i].unit,268896) ~= 0 or getDebuffRemain(br.friend[i].unit,264526) ~= 0 or getDebuffRemain(br.friend[i].unit,258058) ~= 0 then
+						blessingOfFreedomCase = br.friend[i].unit
+					end
+					if getDebuffRemain(br.friend[i].unit,255421) ~= 0 or getDebuffRemain(br.friend[i].unit,256038) ~= 0 or getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,258875) ~= 0 then
+						blessingOfProtectionCase = br.friend[i].unit
+					end
+					if UnitIsCharmed(br.friend[i].unit) and getDebuffRemain(br.friend[i].unit,272407) == 0 and getDistance(br.friend[i].unit) <= 10 then
+						hammerOfJusticeCase = br.friend[i].unit
+					end
 				end
 			end
 			-- Blessing of Freedom
@@ -623,11 +625,13 @@ local function runRotation()
 			LightCount = 0
 			FaithCount = 0
 			for i=1, #br.friend do
-				if buff.beaconOfLight.exists(br.friend[i].unit) then
-					LightCount = LightCount + 1
-				end
-				if buff.beaconOfFaith.exists(br.friend[i].unit) then
-					FaithCount = FaithCount + 1
+				if UnitInRange(br.friend[i].unit) then
+					if buff.beaconOfLight.exists(br.friend[i].unit) then
+						LightCount = LightCount + 1
+					end
+					if buff.beaconOfFaith.exists(br.friend[i].unit) then
+						FaithCount = FaithCount + 1
+					end
 				end
 			end
 			for i=1, #br.friend do
@@ -794,16 +798,16 @@ local function runRotation()
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local function DPS()
-			if (mode.DPS == 1 and isChecked("DPS") and lowest.hp > getValue("DPS")) or buff.avengingCrusader.exists() then
+			if buff.avengingCrusader.exists() and getFacing("player","target") then
+				if cast.judgment("target") then return end
+				if cast.crusaderStrike("target") then return end
+			end
+			if mode.DPS == 1 and isChecked("DPS") and lowest.hp > getValue("DPS") then
 				if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
 					TargetUnit("focustarget")
 				end
-				-- Start Attack
-				if getDistance(units.dyn5) <= 5 then
-					StartAttack(units.dyn5)
-				end
 				--Consecration
-				if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain(units.dyn8,204242) == 0 and not isMoving("player") and not buff.avengingCrusader.exists() then
+				if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target",204242) == 0 and not isMoving("player") and not buff.avengingCrusader.exists() then
 					if cast.consecration() then return end
 				end
 				-- Holy Prism
@@ -815,22 +819,16 @@ local function runRotation()
 				if cast.lightsHammer("best",nil,getValue("Light's Hammer Damage"),10) then return end
 				end
 				-- Judgement
-				if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+				if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30) then
 					if cast.judgment(units.dyn30) then return end
 				end
 				-- Holy Shock
-				if isChecked("Holy Shock Damage") and cast.able.holyShock() and getFacing("player",units.dyn40) and getDistance(units.dyn40) <= 40 then
+				if isChecked("Holy Shock Damage") and cast.able.holyShock() and getFacing("player",units.dyn40) then
 					if cast.holyShock("target") then return end
 				end
 				-- Crusader Strike
-				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-					if talent.crusadersMight and getSpellCD(20473) > 1.5 then
-						if cast.crusaderStrike(units.dyn5) then return end
-					elseif not talent.crusadersMight and (charges.crusaderStrike.count() == 2 or debuff.judgement.exists(units.dyn5) or (charges.crusaderStrike.count() >= 1 and charges.crusaderStrike.recharge() < 3)) then
-						if cast.crusaderStrike(units.dyn5) then return end
-					elseif buff.avengingCrusader.exists() then
-						if cast.crusaderStrike(units.dyn5) then return end
-					end
+				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) then
+					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end
 		end
@@ -863,8 +861,8 @@ local function runRotation()
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not GetUnitIsFriend(units.dyn30, "player") and inCombat and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
-				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
+			if isChecked("Judgement") and cast.able.judgment() and inCombat and getFacing("player",units.dyn30) then
+				if (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) or traits.graceoftheJusticar then
 					if cast.judgment(units.dyn30) then return end
 				end
 			end
@@ -1059,8 +1057,8 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
-				if php <= getValue("Critical HP") then
+			if isChecked("Ê¥¹âÉÁÏÖ")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
+				if php <= getValue("½ô¼±ÖÎÁÆ") then
 					if cast.flashOfLight("player") then return end
 				end
 				if #tanks > 0 then
@@ -1161,15 +1159,13 @@ local function runRotation()
 				end
 			end
 			-- Crusader Strike
-			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and not GetUnitIsFriend(units.dyn5, "player") and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
-				if talent.crusadersMight and getSpellCD(20473) > 1.5 then
-					if cast.crusaderStrike(units.dyn5) then return end
-				elseif talent.crusadersMight and getSpellCD(85222) > 1.5 then
+			if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) then
+				if talent.crusadersMight and (getSpellCD(20473) > 1.5 or getSpellCD(85222) > 1.5) then
 					if cast.crusaderStrike(units.dyn5) then return end
 				end
 			end
 			-- Judgement
-			if isChecked("Judgement") and cast.able.judgment() and not GetUnitIsFriend(units.dyn30, "player") and getFacing("player",units.dyn30) and getDistance(units.dyn30) <= 30 then
+			if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30) then
 				if talent.fistOfJustice and getSpellCD(853) > 1.5 then
 					if cast.judgment(units.dyn30) then return end
 				end

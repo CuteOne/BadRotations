@@ -1733,6 +1733,7 @@ br.lists.spells = {
             },
             traits                          = {
                 breakingDawn                = 278594;
+				graceoftheJusticar          = 278593;
             },
         },
         -- Protection
