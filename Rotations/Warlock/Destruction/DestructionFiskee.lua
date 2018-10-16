@@ -404,7 +404,7 @@ local function runRotation()
                 end
               end
             -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=8&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if (ttd("target") > 10 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                 if cast.havoc() then return true end
               end
             end
@@ -447,7 +447,7 @@ local function runRotation()
             end
             -- actions.cata+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&remains<=cooldown.cataclysm.remains
             if immolateCount < getOptionValue("Multi-Dot Limit") then
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
               for i = 1, #enemies.yards40 do
@@ -544,7 +544,7 @@ local function runRotation()
                 end
               end
             -- actions.fnb+=/havoc,if=spell_targets.rain_of_fire<=4&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if (ttd("target") > 10 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                 if cast.havoc() then return true end
               end
             end
@@ -588,7 +588,7 @@ local function runRotation()
             -- actions.fnb+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&spell_targets.incinerate<=8
             if #enemies.yards10t <= 8 then
               if immolateCount < getOptionValue("Multi-Dot Limit") then
-                if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+                if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                     if cast.immolate() then return true end
                 end
                 for i = 1, #enemies.yards40 do
@@ -598,7 +598,7 @@ local function runRotation()
                   end
                 end
               end
-              if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
               for i = 1, #enemies.yards40 do
@@ -682,7 +682,7 @@ local function runRotation()
                 end
               end
             -- actions.inf+=/havoc,if=spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if (ttd("target") > 10 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                 if cast.havoc() then return true end
               end
             end
@@ -725,7 +725,7 @@ local function runRotation()
             end
             -- actions.inf+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable
             if immolateCount < getOptionValue("Multi-Dot Limit") then
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
               for i = 1, #enemies.yards40 do
@@ -735,7 +735,7 @@ local function runRotation()
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                 if cast.immolate() then return true end
             end
             for i = 1, #enemies.yards40 do
@@ -815,7 +815,7 @@ local function runRotation()
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
             if immolateCount < getOptionValue("Multi-Dot Limit") then --TODO Add CB thingy
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
               for i = 1, #enemies.yards40 do
@@ -825,7 +825,7 @@ local function runRotation()
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                 if cast.immolate() then return true end
             end
             for i = 1, #enemies.yards40 do
