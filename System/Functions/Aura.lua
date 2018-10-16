@@ -191,7 +191,8 @@ function canDispel(Unit,spellID)
 	if UnitInPhase(Unit) then
 		if GetUnitIsFriend("player",Unit)then
 			while UnitDebuff(Unit,i) do
-				local _,_,_,debuffType,debuffDuration,debuffRemain,_,_,_,debuffid = UnitDebuff(Unit,i)
+				local _,_,_,debuffType,debuffDuration,debuffExpire,_,_,_,debuffid = UnitDebuff(Unit,i)
+				local debuffRemain = debuffExpire - GetTime();
 				-- local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 				-- Blackout Debuffs
 				if ((debuffType and ValidType(debuffType))) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker
@@ -219,7 +220,8 @@ function canDispel(Unit,spellID)
 			end
 		else
 			while UnitBuff(Unit,i) do
-				local _,_,_,buffType,buffDuration,buffRemain,_,_,_,buffid = UnitBuff(Unit,i)
+				local _,_,_,buffType,buffDuration,buffExpire,_,_,_,buffid = UnitBuff(Unit,i)
+				local buffRemain = buffExpire - GetTime();
 				-- local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
 				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
