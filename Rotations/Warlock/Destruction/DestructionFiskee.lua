@@ -856,7 +856,7 @@ local function runRotation()
               if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
-              if not mode.rotation == 3 then
+              if mode.rotation == 1 or mode.rotation == 2 then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
                   if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
@@ -868,7 +868,7 @@ local function runRotation()
             if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3) then
                 if cast.immolate() then return true end
             end
-            if not mode.rotation == 3 then
+            if mode.rotation == 1 or mode.rotation == 2 then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
