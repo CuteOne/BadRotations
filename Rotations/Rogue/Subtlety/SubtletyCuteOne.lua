@@ -519,7 +519,6 @@ local function runRotation()
                         cast.vanish();
                         vanishTime = GetTime();
                         StopAttack();
-                        cast.shadowstrike();
                         return
                     end
                 end
@@ -712,7 +711,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if not cast.last.vanish() and getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists() then
+                    if not cast.last.vanish() and getDistance("target") < 5 and (not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()) then
                         StartAttack()
                     end
                 end
@@ -769,8 +768,8 @@ local function runRotation()
                     end
         -- Auto Attack
                     -- auto_attack
-                    if not cast.last.vanish() and not stealthingAll and not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
-                        StartAttack(units.dyn5)
+                    if not cast.last.vanish() and (not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()) and not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                        StartAttack()
                     end
         -- Nightblade
                     -- nightblade,if=target.time_to_die>6&remains<gcd.max&combo_points>=4-(time<10)*2

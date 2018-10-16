@@ -843,7 +843,7 @@ local function runRotation()
                     if cast.shadowstep("target") then return end
                 end
         -- Start Attack
-                if getDistance(units.dyn5) < 5 and not cast.last.vanish() then
+                if getDistance(units.dyn5) < 5 and not cast.last.vanish() and (not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()) then
                     StartAttack()
                 end
         -- Call Action List - Stealthed
