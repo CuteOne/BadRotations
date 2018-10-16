@@ -1057,8 +1057,8 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked(" •π‚…¡œ÷")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
-				if php <= getValue("ΩÙº±÷Œ¡∆") then
+			if isChecked("Flash of Light")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
+				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
 				if #tanks > 0 then
