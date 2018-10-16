@@ -155,6 +155,7 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local hasPet                                        = IsPetActive()
@@ -207,29 +208,60 @@ local function runRotation()
           if isChecked("Dot Blacklist") and noDotUnits[GetObjectID(unit)] then return true end
           return false
         end
+
+
         --Infernal
-        local infernal = false
+        infernalActive = infernalActive or false
+        infernalTime = infernalTime or nil
+        local infernalRemain = 0
+        local foundInfernal = false
         if pet ~= nil then
           for k, v in pairs(pet) do
-            local thisUnit = pet[k].id or 0
-            if thisUnit == 89 then
-              infernal = true
+            local thisUnit = pet[k] or 0
+            if thisUnit.id == 89 and not UnitIsDeadOrGhost(thisUnit.unit) then
+              if not infernalActive then
+                infernalTime = GetTime()
+              end
+              foundInfernal = true
+              infernalActive = true
               break
             end
           end
         end
-        --Havoc remain
+        if not foundInfernal then infernalActive = false end
+        if infernalActive then infernalRemain = infernalTime - GetTime() + 31 end
+
+        --Havoc stuff
+        local havocCheckUnits = 0
+        local havocCheck = false
         local havocRemain = 0
         local havocMult = 0
         for i = 1, #enemies.yards40 do
           local thisUnit = enemies.yards40[i]
           local remain = debuff.havoc.remain(thisUnit)
           if remain > havocRemain then havocRemain = remain end
+          if ttd(thisUnit) > (cast.time.chaosBolt() + gcdMax + 1) or ttd(thisUnit) == -1 then havocCheckUnits = havocCheckUnits + 1 end
+          if havocCheckUnits >= 2 and not havocCheck then havocCheck = true end
         end
         if 1 + havocRemain > cast.time.chaosBolt() then havocMult = 0 end
+
         --internalCombustion value
         local icValue = 0
         if talent.internalCombustion then icValue = 1 end
+
+        ---Target move timer
+        if lastTargetX == nil then lastTargetX, lastTargetY, lastTargetZ = 0,0,0 end
+        targetMoveCheck = targetMoveCheck or false
+        if br.timer:useTimer("targetMove", 0.8) or combatTime < 0.2 then
+          if GetObjectExists("target") then
+            local currentX, currentY, currentZ = GetObjectPosition("target")
+            targetMoveDistance = math.sqrt(((currentX-lastTargetX)^2)+((currentY-lastTargetY)^2)+((currentZ-lastTargetZ)^2))
+            lastTargetX, lastTargetY, lastTargetZ = GetObjectPosition("target")
+            if targetMoveDistance < 3 then targetMoveCheck = true
+            else targetMoveCheck = false end
+          end
+        end
+
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
             -- openerCount = 0
@@ -384,7 +416,7 @@ local function runRotation()
           end
           if not moving then
             -- actions.cata+=/cataclysm
-            if not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
+            if (not isMoving("target") or targetMoveCheck) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -396,7 +428,7 @@ local function runRotation()
               if cast.channelDemonfire() then return true end
             end
             -- actions.cata+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=8&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if #enemies.yards8t <= 8 and talent.grimoireOfSupremacy and infernal then --TODO add infernal remain?
+            if #enemies.yards8t <= 8 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
@@ -409,7 +441,7 @@ local function runRotation()
               end
             end
             -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&active_enemies<=8&((108*spell_targets.rain_of_fire%3)<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if talent.grimoireOfSupremacy and infernal and #enemies.yards40 <= 8 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
+            if talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards40 <= 8 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
               if not debuff.havoc.exists() and ttd("target") > 6 then
                 if cast.chaosBolt() then return true end
               end
@@ -422,15 +454,17 @@ local function runRotation()
             end
             -- actions.cata+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4
             if #enemies.yards8t <= 4 then
-              for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
+              if havocCheck then
+                for i = 1, #enemies.yards40 do
+                  local thisUnit = enemies.yards40[i]
+                  if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                    if cast.havoc(thisUnit) then return true end
+                  end
                 end
-              end
-            -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
-                if cast.havoc() then return true end
+              -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
+                if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
+                  if cast.havoc() then return true end
+                end
               end
             -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=4
               if havocRemain > cast.time.chaosBolt() then
@@ -536,7 +570,7 @@ local function runRotation()
               if cast.channelDemonfire() then return true end
             end
             -- actions.fnb+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if #enemies.yards8t <= 4 and talent.grimoireOfSupremacy and infernal then --TODO add infernal remain?
+            if #enemies.yards8t <= 4 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
@@ -549,7 +583,7 @@ local function runRotation()
               end
             end
             -- actions.fnb+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&active_enemies<=4&((108*spell_targets.rain_of_fire%3)<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if talent.grimoireOfSupremacy and infernal and #enemies.yards40 <= 4 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
+            if talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards40 <= 4 and ((108 * #enemies.yards8t % 3) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
               if not debuff.havoc.exists() and ttd("target") > 6 then
                 if cast.chaosBolt() then return true end
               end
@@ -562,15 +596,17 @@ local function runRotation()
             end
             -- actions.fnb+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4
             if #enemies.yards8t <= 4 then
-              for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
+              if havocCheck then
+                for i = 1, #enemies.yards40 do
+                  local thisUnit = enemies.yards40[i]
+                  if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                    if cast.havoc(thisUnit) then return true end
+                  end
                 end
-              end
-            -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
-                if cast.havoc() then return true end
+              -- actions.cata+=/havoc,if=spell_targets.rain_of_fire<=4
+                if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
+                  if cast.havoc() then return true end
+                end
               end
             -- actions.cata+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=4
               if havocRemain > cast.time.chaosBolt() then
@@ -662,7 +698,7 @@ local function runRotation()
           end
           if not moving then
             -- actions.inf+=/cataclysm
-            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
+            if talent.cataclysm and (#enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs"))) and (not isMoving("target") or targetMoveCheck) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -674,7 +710,7 @@ local function runRotation()
               if cast.channelDemonfire() then return true end
             end
             -- actions.inf+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&talent.grimoire_of_supremacy.enabled&pet.infernal.active&pet.infernal.remains<=10
-            if #enemies.yards8t <= 4 + icValue and talent.grimoireOfSupremacy and infernal then --TODO add infernal remain?
+            if #enemies.yards8t <= 4 + icValue and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
@@ -687,7 +723,7 @@ local function runRotation()
               end
             end
             -- actions.inf+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&talent.grimoire_of_supremacy.enabled&pet.infernal.remains>execute_time&spell_targets.rain_of_fire<=4+talent.internal_combustion.enabled&((108*spell_targets.rain_of_fire%(3-0.16*spell_targets.rain_of_fire))<(240*(1+0.08*buff.grimoire_of_supremacy.stack)%2*(1+buff.active_havoc.remains>execute_time)))
-            if talent.grimoireOfSupremacy and infernal and #enemies.yards8t <= 4 + icValue and ((108 * #enemies.yards8t %(3 - 0.16*#enemies.yards8t)) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
+            if talent.grimoireOfSupremacy and infernalActive and infernalRemain > cast.time.chaosBolt()+1 and #enemies.yards8t <= 4 + icValue and ((108 * #enemies.yards8t %(3 - 0.16*#enemies.yards8t)) < (240*(1+0.08*buff.grimoireOfSupremacy.stack())%2*havocMult)) then
               if not debuff.havoc.exists() and ttd("target") > 6 then
                 if cast.chaosBolt() then return true end
               end
@@ -700,15 +736,17 @@ local function runRotation()
             end
             -- actions.inf+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10&spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
             if #enemies.yards8t <= 3 and (talent.eradication or talent.internalCombustion) then
-              for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
-                  if cast.havoc(thisUnit) then return true end
+              if havocCheck then
+                for i = 1, #enemies.yards40 do
+                  local thisUnit = enemies.yards40[i]
+                  if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                    if cast.havoc(thisUnit) then return true end
+                  end
                 end
-              end
-            -- actions.inf+=/havoc,if=spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
-              if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
-                if cast.havoc() then return true end
+              -- actions.inf+=/havoc,if=spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
+                if (ttd("target") > 10 or ttd("target") == -1) and not debuff.havoc.exists(thisUnit) then
+                  if cast.havoc() then return true end
+                end
               end
             -- actions.inf+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&buff.active_havoc.remains>execute_time&spell_targets.rain_of_fire<=3&(talent.eradication.enabled|talent.internal_combustion.enabled)
               if havocRemain > cast.time.chaosBolt() then
@@ -797,7 +835,7 @@ local function runRotation()
 
         local function actionList_Rotation()
           -- actions=run_action_list,name=cata,if=spell_targets.infernal_awakening>=3&talent.cataclysm.enabled
-          if #enemies.yards10t >= 3 then
+          if #enemies.yards10t >= 3 and not mode.rotation == 3 then
             if talent.cataclysm then
               if actionList_cata() then return end
           -- actions+=/run_action_list,name=fnb,if=spell_targets.infernal_awakening>=3&talent.fire_and_brimstone.enabled
@@ -810,7 +848,7 @@ local function runRotation()
           end
           if not moving then
             -- actions+=/cataclysm
-            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
+            if talent.cataclysm and (#enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs"))) and (not isMoving("target") or targetMoveCheck) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
@@ -818,20 +856,24 @@ local function runRotation()
               if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
                   if cast.immolate() then return true end
               end
-              for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                    if cast.immolate(thisUnit) then return true end
+              if not mode.rotation == 3 then
+                for i = 1, #enemies.yards40 do
+                  local thisUnit = enemies.yards40[i]
+                  if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                      if cast.immolate(thisUnit) then return true end
+                  end
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3) then
                 if cast.immolate() then return true end
             end
-            for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                if cast.immolate(thisUnit) then return true end
+            if not mode.rotation == 3 then
+              for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                  if cast.immolate(thisUnit) then return true end
+                end
               end
             end
             -- actions+=/call_action_list,name=cds
@@ -843,18 +885,20 @@ local function runRotation()
               if cast.channelDemonfire() then return true end
             end
             -- actions+=/havoc,cycle_targets=1,if=!(target=sim.target)&target.time_to_die>10
-            for i = 1, #enemies.yards40 do
-              local thisUnit = enemies.yards40[i]
-              if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
-                if cast.havoc(thisUnit) then return true end
+            if havocCheck then
+              for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (ttd(thisUnit) > 10 or ttd(thisUnit) == -1) and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                  if cast.havoc(thisUnit) then return true end
+                end
+              end
+              -- actions+=/havoc,if=active_enemies>1
+              if (ttd("target") > 10 or ttd("target") == -1) and #enemies.yards40 > 1 and not debuff.havoc.exists(thisUnit) then
+                if cast.havoc() then return true end
               end
             end
-            -- actions+=/havoc,if=active_enemies>1
-            if (ttd("target") > 10 or ttd("target") == -1) and #enemies.yards40 > 1 and not debuff.havoc.exists(thisUnit) then
-              if cast.havoc() then return true end
-            end
             -- actions+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
-            if not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3 then
               if cast.soulFire() then return true end
             end
             for i = 1, #enemies.yards40 do
@@ -878,7 +922,7 @@ local function runRotation()
           end
           -- actions+=/conflagrate,cycle_targets=1,if=!debuff.havoc.remains&((talent.flashover.enabled&buff.backdraft.stack<=2)|(!talent.flashover.enabled&buff.backdraft.stack<2))
           if (talent.flashover and buff.backdraft.stack() <= 2) or (not talent.flashover and buff.backdraft.stack() < 2) then
-            if not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3 then
               if cast.conflagrate() then return true end
             end
             for i = 1, #enemies.yards40 do
@@ -890,7 +934,7 @@ local function runRotation()
           end
           -- actions+=/shadowburn,cycle_targets=1,if=!debuff.havoc.remains&((charges=2|!buff.backdraft.remains|buff.backdraft.remains>buff.backdraft.stack*action.incinerate.execute_time))
           if charges.shadowburn.count() == 2 or not buff.backdraft.exists("player") or (buff.backdraft.remain("player") > (buff.backdraft.stack() * cast.time.incinerate())) then
-            if not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3 then
               if cast.shadowburn() then return true end
             end
             for i = 1, #enemies.yards40 do
@@ -902,7 +946,7 @@ local function runRotation()
           end
           if not moving then
             -- actions+=/incinerate,cycle_targets=1,if=!debuff.havoc.remains
-            if not debuff.havoc.exists() or #enemies.yards40 == 1 then
+            if not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3 then
               if cast.incinerate() then return true end
             end
             for i = 1, #enemies.yards40 do
