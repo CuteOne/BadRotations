@@ -836,7 +836,7 @@ local function runRotation()
 
         local function actionList_Rotation()
           -- actions=run_action_list,name=cata,if=spell_targets.infernal_awakening>=3&talent.cataclysm.enabled
-          if #enemies.yards10t >= 3 and not mode.rotation == 3 then
+          if #enemies.yards10t >= 3 and mode.rotation ~= 3 then
             if talent.cataclysm then
               if actionList_cata() then return end
           -- actions+=/run_action_list,name=fnb,if=spell_targets.infernal_awakening>=3&talent.fire_and_brimstone.enabled
@@ -1023,8 +1023,12 @@ local function runRotation()
                       end
                       -- actions.precombat+=/incinerate,if=!talent.soul_fire.enabled
                       if not talent.soulFire then
-                        if cast.incinerate() then return true end
+                        if not moving then
+                          if cast.incinerate() then return true end
+                        else
+                          if cast.conflagrate() then return true end
                         end
+                      end
                     end
                 end
             end -- End No Combat
