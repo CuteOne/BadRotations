@@ -198,6 +198,7 @@ local function runRotation()
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
 
+        if lastImmolateT ~= nil and (lastImmolateT + 1.6) < GetTime() then lastImmolate = nil end
         -- Blacklist dots
         local noDotUnits = {
           [135824]=true, -- Nerubian Voidweaver
@@ -420,8 +421,8 @@ local function runRotation()
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
+              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             -- actions.cata+=/channel_demonfire
             if talent.channelDemonfire and ttd("target") > 5 then
@@ -481,23 +482,23 @@ local function runRotation()
             end
             -- actions.cata+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&remains<=cooldown.cataclysm.remains
             if immolateCount < getOptionValue("Multi-Dot Limit") then
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                  if cast.immolate() then return true end
+              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                    if cast.immolate(thisUnit) then return true end
+                if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                    if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() and (not useCDs() or debuff.immolate.remain() <= cd.cataclysm.remain()) then
-                if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and not debuff.havoc.exists() and (not useCDs() or debuff.immolate.remain() <= cd.cataclysm.remain()) then
+                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) and (not useCDs() or debuff.immolate.remain(thisUnit) <= cd.cataclysm.remain()) then
-                if cast.immolate(thisUnit) then return true end
+              if not GetUnitIsUnit(thisUnit, lastImmolate) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) and (not useCDs() or debuff.immolate.remain(thisUnit) <= cd.cataclysm.remain()) then
+                if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
               end
             end
           end
@@ -562,8 +563,8 @@ local function runRotation()
           end
           if not moving then
             -- actions.fnb+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
+              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             -- actions.cata+=/channel_demonfire
             if talent.channelDemonfire and ttd("target") > 5 then
@@ -624,23 +625,23 @@ local function runRotation()
             -- actions.fnb+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable&spell_targets.incinerate<=8
             if #enemies.yards10t <= 8 then
               if immolateCount < getOptionValue("Multi-Dot Limit") then
-                if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                    if cast.immolate() then return true end
+                if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                    if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                      if cast.immolate(thisUnit) then return true end
+                  if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                      if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                   end
                 end
               end
-              if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                  if cast.immolate() then return true end
+              if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                  if cast.immolate(thisUnit) then return true end
+                if not GetUnitIsUnit(thisUnit, lastImmolate) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                  if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
             end
@@ -702,8 +703,8 @@ local function runRotation()
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
-            if talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
-              if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
+              if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             -- actions.inf+=/channel_demonfire
             if talent.channelDemonfire and ttd("target") > 5 then
@@ -763,23 +764,23 @@ local function runRotation()
             end
             -- actions.inf+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&refreshable
             if immolateCount < getOptionValue("Multi-Dot Limit") then
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                  if cast.immolate() then return true end
+              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                    if cast.immolate(thisUnit) then return true end
+                if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                    if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                if cast.immolate(thisUnit) then return true end
+              if not GetUnitIsUnit(thisUnit, lastImmolate) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
               end
             end
           end
@@ -853,26 +854,26 @@ local function runRotation()
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
             if immolateCount < getOptionValue("Multi-Dot Limit") then --TODO Add CB thingy
-              if not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
-                  if cast.immolate() then return true end
+              if not GetUnitIsUnit(lastImmolate, "target") and not debuff.immolate.exists() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1) then
+                  if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
               end
               if mode.rotation == 1 or mode.rotation == 2 then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                      if cast.immolate(thisUnit) then return true end
+                  if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                      if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                   end
                 end
               end
             end
-            if debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3) then
-                if cast.immolate() then return true end
+            if not GetUnitIsUnit(lastImmolate, "target") and debuff.immolate.exists() and debuff.immolate.refresh() and (ttd("target") > 4 or ttd("target") == -1) and (not debuff.havoc.exists() or #enemies.yards40 == 1 or mode.rotation == 3) then
+                if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
             end
             if mode.rotation == 1 or mode.rotation == 2 then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
-                  if cast.immolate(thisUnit) then return true end
+                if not GetUnitIsUnit(thisUnit, lastImmolate) and (ttd(thisUnit) > 4 or ttd(thisUnit) == -1) and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                  if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
             end
