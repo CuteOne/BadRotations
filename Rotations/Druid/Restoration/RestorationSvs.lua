@@ -241,6 +241,7 @@ local function runRotation()
 		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		-- local gcd                                           = br.player.gcd
+		local gcdMax                                        = br.player.gcdMax
 		local healPot                                       = getHealthPot()
 		local inCombat                                      = br.player.inCombat
 		local inInstance                                    = br.player.instance=="party"
@@ -509,8 +510,10 @@ local function runRotation()
 			-- Regrowth
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and getDebuffRemain("player",240447) == 0 then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
-						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
+					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and (not regrowthTime or GetTime() - regrowthTime > gcdMax) and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
+						if cast.regrowth(br.friend[i].unit) then
+						regrowth_target = br.friend[i]
+						regrowthTime = GetTime() return end
 					elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
 					end
@@ -850,8 +853,10 @@ local function runRotation()
 			-- Regrowth
 			if isChecked("Regrowth") and (not moving or buff.incarnationTreeOfLife.exists()) and getDebuffRemain("player",240447) == 0 then
 				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
-						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
+					if br.friend[i].hp <= getValue("Regrowth Clearcasting") and buff.clearcasting.remain() > 1.5 and (not regrowthTime or GetTime() - regrowthTime > gcdMax) and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
+						if cast.regrowth(br.friend[i].unit) then
+						regrowth_target = br.friend[i]
+						regrowthTime = GetTime() return end
 					elseif br.friend[i].hp <= getValue("Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i] return end
 					elseif br.friend[i].hp <= getValue("Regrowth") and buff.regrowth.remain(br.friend[i].unit) <= 1 and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then

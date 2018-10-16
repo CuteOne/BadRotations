@@ -329,12 +329,6 @@ local function runRotation()
 				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
-		-- healing Sethraliss
-		if UnitCastingInfo("target") == GetSpellInfo(260793) then
-			if not buff.divineSteed.exists() then
-				if CastSpellByName(GetSpellInfo(190784),"player") then return end
-			end
-		end
 		-- Arcane Torrent
 		if isChecked("Arcane Torrent Dispel") then
 			for i=1, #enemies.yards8 do
@@ -387,6 +381,12 @@ local function runRotation()
 				end
 				if getDebuffRemain(br.friend[i].unit,261440) >= 2 and #getAllies(br.friend[i].unit,7) < 2 then
 					cleanseToxinsCase2 = br.friend[i].unit
+				end
+			end
+			-- Avoid indigestion
+			if UnitCastingInfo("target") == GetSpellInfo(260793) then
+				if not buff.divineSteed.exists() then
+					if CastSpellByName(GetSpellInfo(190784),"player") then return end
 				end
 			end
 			-- Flash of Light
