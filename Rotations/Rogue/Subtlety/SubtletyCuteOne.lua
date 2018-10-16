@@ -514,8 +514,8 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Vanish
                 -- vanish,if=!variable.shd_threshold&debuff.find_weakness.remains<1&combo_points.deficit>1
-                if useCDs() and isChecked("Vanish") and not solo and not cast.last.shadowmeld() and not buff.shadowmeld.exists() then
-                    if cast.able.vanish() and (not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1 and comboDeficit > 1) then
+                if useCDs() and isChecked("Vanish") --[[and not solo]] and not cast.last.shadowmeld() and not buff.shadowmeld.exists() and not buff.shadowDance.exists() and gcd <= getLatency()*1.5 then
+                    if cast.able.shadowstrike() and (not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1 and comboDeficit > 1) then
                         if cast.vanish() then vanishTime = GetTime(); return end
                     end
                 end
@@ -656,11 +656,11 @@ local function runRotation()
             end
         -- Backstab / Gloomblade
             -- gloomblade
-            if cast.able.gloomblade() and talent.gloomblade then
+            if cast.able.gloomblade() and talent.gloomblade and not stealthingRogue then
                 if cast.gloomblade() then return end
             end
             -- backstab
-            if cast.able.backstab() and not talent.gloomblade then
+            if cast.able.backstab() and not talent.gloomblade and not stealthingRogue then
                 if cast.backstab() then return end
             end
         end -- End Action List - Generators

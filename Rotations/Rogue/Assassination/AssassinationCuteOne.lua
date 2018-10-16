@@ -159,7 +159,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugAssassination", math.random(0.15,0.3)) then
+    -- if br.timer:useTimer("debugAssassination", math.random(0.15,0.3)) then
         --Print("Running: "..rotationName)
 
 ---------------
@@ -298,8 +298,6 @@ local function runRotation()
             end
             return false
         end
-
-        -- ChatOverlay(tostring(rotationDebug))
 
 --------------------
 --- Action Lists ---
@@ -465,7 +463,7 @@ local function runRotation()
                     end
                 end
         -- Vanish
-                if isChecked("Vanish") and (useCDs() or burst) and not solo then
+                if isChecked("Vanish") and (useCDs() or burst) and gcd == 0 and not solo then
                     -- vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                     if cast.able.vanish() and (talent.subterfuge and not debuff.garrote.exists(units.dyn5) and singleTarget) then
                         if cast.vanish() then return end
@@ -873,7 +871,7 @@ local function runRotation()
                     end
             end -- End In Combat
         end -- End Profile
-    end -- Timer
+    -- end -- Timer
 end -- runRotation
 local id = 259
 if br.rotations[id] == nil then br.rotations[id] = {} end
