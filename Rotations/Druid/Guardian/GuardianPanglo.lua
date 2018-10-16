@@ -54,9 +54,9 @@ local function createOptions()
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- Travel Shapeshifts
-            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Auto Shapeshifts","|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")
         -- Displacer Beast / Wild Charge
-            br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
 		-- Auto Maul
 			br.ui:createCheckbox(section,"Auto Maul (SIMC)")
 		-- Maul At
@@ -93,6 +93,9 @@ local function createOptions()
         -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
             br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+        -- Remove Corruption
+            br.ui:createCheckbox(section,"Remove Corruption")
+            br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Revive
@@ -221,29 +224,37 @@ local function runRotation()
 --- Action Lists ---
 --------------------
 	-- Action List - Extras
-		local function actionList_Extras()
-		-- Shapeshift Form Management
-			if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
-			-- Flight Form
-				if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-	                if cast.travelForm() then return end
-		        end
-			-- Aquatic Form
-			    if swimming and not travel and not hastar and not deadtar then
-				  	if cast.travelForm() then return end
-				end
-            -- Bear Form
-                if not bear then
-                    -- Bear Form when not in combat and target selected and within 20yrds
-                    if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) and not buff.dash.exists() then
-                        if cast.bearForm() then return end
-                    end
-                    --Bear Form when in combat and not flying
-                    if inCombat and not flying and not buff.dash.exists() then
-                        if cast.bearForm() then return end
-                    end
+	local function actionList_Extras()
+        if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
+            -- Flight Form
+                if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
+                    if cast.travelForm("player") then return end
                 end
-            end -- End Shapeshift Form Management
+            -- Aquatic Form
+                if swimming and not travel and not hastar and not deadtar then
+                    if cast.travelForm("player") then return end
+                end
+            -- Bear/Travel Form
+                if not inCombat and not buff.dash.exists() and not br.player.buff.prowl.exists() then
+                    if isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
+                if not bear then
+                    if cast.bearForm("player") then return end
+                end
+                elseif not travel and not IsIndoors() and moving and GetTime()-isMovingStartTime > 2 then
+                    if cast.travelForm("player") then return end
+                elseif not cat and IsIndoors() and moving and GetTime()-isMovingStartTime > 2 then
+                    if cast.catForm("player") then return end
+                end
+            end
+              -- prowl after cat?
+                if cat and not inCombat and not buff.prowl.exists() then
+                    if cast.prowl() then return end
+                end
+            --Bear Form when in combat and not flying
+                if inCombat and not flying and not buff.dash.exists() and not bear and not (travel and moving) then
+                if cast.bearForm("player") then return end
+            end
+        end -- End Shapeshift Form Management
 		-- Taunt
 		if isChecked("Taunt") and inInstance then
 			for i = 1, #enemies.yards30 do
@@ -252,8 +263,14 @@ local function runRotation()
 					if cast.growl(thisUnit) then return end
 				end
 			end
-		end
-		end -- End Action List - Extras
+        end
+        --Wild Charge
+        if isChecked("Wild Charge") then
+            if getDistance("target") > 9 and cast.able.wildCharge() and inCombat then
+                if cast.wildCharge("target") then return end
+            end
+        end
+	end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() and not buff.prowl.exists() and not flight then
@@ -303,6 +320,18 @@ local function runRotation()
                 if isChecked("Regrowth") then
                     if php <= getOptionValue("Regrowth") and not inCombat then
                         if cast.regrowth("player") then return end
+                    end
+                end
+        -- Remove Corruption
+                if isChecked("Remove Corruption") then
+                    if getOptionValue("Remove Corruption - Target")==1 and canDispel("player",spell.removeCorruption) then
+                        if cast.removeCorruption("player") then return end
+                    end
+                    if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
+                        if cast.removeCorruption("target") then return end
+                    end
+                    if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
+                        if cast.removeCorruption("mouseover") then return end
                     end
                 end
         --Revive/Rebirth
