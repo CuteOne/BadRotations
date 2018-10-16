@@ -346,7 +346,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
         -- actions.cds=summon_infernal,if=target.time_to_die>=210|!cooldown.dark_soul_instability.remains|target.time_to_die<=30+gcd|!talent.dark_soul_instability.enabled
-        if (ttd("target") >= 210 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) and not isMoving("target") then
+        if (ttd("target") >= 210 or ttd("target") == -1 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) then
           if cast.summonInfernal("target", "ground") then return true end
         end
         -- actions.cds+=/dark_soul_instability,if=target.time_to_die>=140|pet.infernal.active|target.time_to_die<=20+gcd
@@ -384,7 +384,7 @@ local function runRotation()
           end
           if not moving then
             -- actions.cata+=/cataclysm
-            if not isMoving("target") and ttd("target") > 6 then
+            if not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -662,7 +662,7 @@ local function runRotation()
           end
           if not moving then
             -- actions.inf+=/cataclysm
-            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and ttd("target") > 6 then
+            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -810,7 +810,7 @@ local function runRotation()
           end
           if not moving then
             -- actions+=/cataclysm
-            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and ttd("target") > 6 then
+            if talent.cataclysm and #enemies.yards8t >= getOptionValue("Cataclysm Units") and not isMoving("target") and (ttd("target") > 4 or ttd("target") == -1) then
               if cast.cataclysm("target", "ground") then return true end
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
