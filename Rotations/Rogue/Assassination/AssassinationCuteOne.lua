@@ -466,17 +466,17 @@ local function runRotation()
                 if isChecked("Vanish") and (useCDs() or burst) and gcd == 0 and not solo then
                     -- vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                     if cast.able.vanish() and (talent.subterfuge and not debuff.garrote.exists(units.dyn5) and singleTarget) then
-                        if cast.vanish() then return end
+                        if cast.vanish() then StopAttack(); return end
                     end
                     -- vanish,if=talent.exsanguinate.enabled&(talent.nightstalker.enabled|talent.subterfuge.enabled&variable.single_target)&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier<=1)
                     if cast.able.vanish() and (talent.exsanguinate and (talent.nightstalker or talent.subterfuge and singleTarget) and comboPoints >= comboMax
                         and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active() or debuff.garrote.applied(units.dyn5) <= 1))
                     then
-                        if cast.vanish() then return end
+                        if cast.vanish() then StopAttack(); return end
                     end
                     -- vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
                     if cast.able.vanish() and (talent.nightstalker and not talent.exsanguinate and comboPoints >= comboMax and debuff.vendetta.exists(units.dyn5)) then
-                        if cast.vanish() then return end
+                        if cast.vanish() then StopAttack(); return end
                     end
                     -- vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
                     if cast.able.vanish() and (talent.subterfuge and (not talent.exsanguinate or not singleTarget)
@@ -484,11 +484,11 @@ local function runRotation()
                         and (#enemies.yards8 <= getOptionValue("Fan of Knives") and comboDeficit >= 1 + getOptionValue("Fan of Knives")
                         or #enemies.yards8 >= getOptionValue("Fan of Knives") and comboDeficit >= 4))
                     then
-                        if cast.vanish() then return end
+                        if cast.vanish() then StopAttack(); return end
                     end
                     -- vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable
                     if cast.able.vanish() and (talent.masterAssassin and not stealthingAll and masterAssassinRemain <= 0 and not debuff.rupture.refresh(units.dyn8)) then
-                        if cast.vanish() then return end
+                        if cast.vanish() then StopAttack(); return end
                     end
                 end
         -- Exsanguinate
@@ -843,7 +843,7 @@ local function runRotation()
                     if cast.shadowstep("target") then return end
                 end
         -- Start Attack
-                if getDistance(units.dyn5) < 5 then
+                if getDistance(units.dyn5) < 5 and not cast.last.vanish() then
                     StartAttack()
                 end
         -- Call Action List - Stealthed

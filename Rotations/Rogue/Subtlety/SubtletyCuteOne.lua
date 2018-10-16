@@ -516,7 +516,11 @@ local function runRotation()
                 -- vanish,if=!variable.shd_threshold&debuff.find_weakness.remains<1&combo_points.deficit>1
                 if useCDs() and isChecked("Vanish") --[[and not solo]] and not cast.last.shadowmeld() and not buff.shadowmeld.exists() and not buff.shadowDance.exists() and gcd <= getLatency()*1.5 then
                     if cast.able.shadowstrike() and (not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1 and comboDeficit > 1) then
-                        if cast.vanish() then vanishTime = GetTime(); return end
+                        cast.vanish();
+                        vanishTime = GetTime();
+                        StopAttack();
+                        cast.shadowstrike();
+                        return
                     end
                 end
         -- Shadowmeld
@@ -708,7 +712,7 @@ local function runRotation()
                         if cast.shadowstrike("target") then return end
                     end
         -- Start Attack
-                    if getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists() then
+                    if not cast.last.vanish() and getDistance("target") < 5 and not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists() then
                         StartAttack()
                     end
                 end
@@ -765,7 +769,7 @@ local function runRotation()
                     end
         -- Auto Attack
                     -- auto_attack
-                    if not stealthingAll and not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                    if not cast.last.vanish() and not stealthingAll and not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
                         StartAttack(units.dyn5)
                     end
         -- Nightblade
