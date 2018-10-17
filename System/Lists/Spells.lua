@@ -2811,6 +2811,7 @@ br.lists.spells = {
                 wrathOfConsumption          = 199472,
             },
             buffs                           = {
+                cascadingCalamity           = 275378,
                 compoundingHorror           = 199281,
                 deadwindHarvester           = 216708,
                 demonicPower                = 196099,
@@ -2860,7 +2861,7 @@ br.lists.spells = {
                 writheInAgony               = 196102,
             },
             traits                          = {
-                cascadingCalamity           = 277639,
+                cascadingCalamity           = 275372,
             }
         },
         -- Demonology

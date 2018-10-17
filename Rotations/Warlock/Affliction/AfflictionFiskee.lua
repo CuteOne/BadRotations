@@ -237,7 +237,7 @@ local function runRotation()
           for i=1,40 do
             local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
             if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-            buffSpellID == 233498 or buffSpellID == 233499) and buffCaster == "player" then uaStack = uaStack + 1 end
+            buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then uaStack = uaStack + 1 end
           end
           return uaStack
         end
@@ -252,8 +252,8 @@ local function runRotation()
           for i=1,40 do
             local _,_,_,_,_,buffExpire,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
             if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
-            buffSpellID == 233498 or buffSpellID == 233499) and buffCaster == "player" then
-              if buffExpire - GetTime() > remain then remain = buffExpire - GetTime() end
+            buffSpellID == 233498 or buffSpellID == 233499) and GetUnitIsUnit(buffCaster, "player") then
+              if (buffExpire - GetTime()) > remain then remain = (buffExpire - GetTime()) end
             end
           end
           return remain
@@ -271,7 +271,8 @@ local function runRotation()
         end
         --azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
         local cascadingValue = 0
-        if traits.cascadingCalamity.active() and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = 1 end
+        if traits.cascadingCalamity.active() and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
+
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
             -- openerCount = 0
@@ -308,8 +309,14 @@ local function runRotation()
         local seedTargetsHit = 1
         local lowestShadowEmbrace = lowestShadowEmbrace or "target"
 
+        -- Boss check - stolen from Ash
+        local inBossFight = false
+
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
+            if isBoss(thisUnit) then
+                inBossFight = true
+            end
             if debuff.shadowEmbrace.exists(thisUnit) then
               if debuff.shadowEmbrace.exists(lowestShadowEmbrace) then
                   shadowEmbraceRemaining = debuff.shadowEmbrace.remain(lowestShadowEmbrace)
@@ -464,7 +471,7 @@ local function runRotation()
 
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
-          if debuff.agony.exists() or debuff.corruption.exists() then
+          if not moving and debuff.agony.exists() or debuff.corruption.exists() then
             if cast.deathbolt() then return true end
           end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
@@ -700,7 +707,7 @@ local function runRotation()
             if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=soul_shard>=5
-          if shards >= 5 and not moving and ttd("target") > 2 + cast.time.unstableAffliction() then
+          if shards >= 5 and not spammableSeed and not moving and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
@@ -715,16 +722,16 @@ local function runRotation()
           if spammableSeed and not moving then
             if cast.seedOfCorruption(seedTarget) then return true end
           end
-          -- actions+=/unstable_affliction,if=!prev_gcd.1.summon_darkglare&!variable.spammable_seed&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+cast_time&active_enemies=1|target.time_to_die<=8+cast_time*soul_shard)
-          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
+          -- actions.spenders+=/unstable_affliction,if=!variable.use_seed&!prev_gcd.1.summon_darkglare&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+execute_time&active_enemies=1|target.time_to_die<=8+execute_time*soul_shard)
+          if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction() and not traits.cascadingCalamity.active()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
               if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
           if not spammableSeed and not moving and debuff.unstableAffliction.remain() <= (cast.time.unstableAffliction() + cascadingValue) and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return true end
           end
-          -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving and (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) then
+          --actions.spenders+=/unstable_affliction,cycle_targets=1,if=!variable.use_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding&(!azerite.cascading_calamity.enabled|buff.cascading_calamity.remains>time_to_shard)
+          if not spammableSeed and not moving and (((not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (not traits.cascadingCalamity.active() or (buff.cascadingCalamity.remain() > timeToShard))) or not inBossFight)  then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if debuff.unstableAffliction.remain(thisUnit) <= (cast.time.unstableAffliction() + cascadingValue) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
