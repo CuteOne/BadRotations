@@ -907,7 +907,7 @@ local function runRotation()
 			local lightOfTheMartyrM30 = nil
 			local lightOfTheMartyrM40 = nil
 			for i = 1, #br.friend do
-				if UnitInRange(br.friend[i].unit) then
+				if UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit,"player") then
 					if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and getDistance(br.friend[i].unit) <= (10*master_coff) then
 						holyShock10 = br.friend[i].unit
 					end
