@@ -3092,7 +3092,6 @@ br.lists.spells = {
                 crushingAssasult            = 278826,
                 deadlyCalm                  = 262228,
                 defensiveStance             = 197690,
-                executionersPrecision       = 272870,
                 inForTheKill                = 215550,
                 overpower                   = 60503,
                 stoneHeart                  = 225947,
@@ -3103,6 +3102,7 @@ br.lists.spells = {
             debuffs                         = {
                 colossusSmash               = 208086,
                 deepWounds                  = 262115,
+                executionersPrecision       = 272870,
                 rend                        = 772,
             },
             glyphs                          = {
