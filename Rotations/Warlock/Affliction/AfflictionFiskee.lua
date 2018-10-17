@@ -170,7 +170,7 @@ local function runRotation()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
+        local gcd                                           = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local hasPet                                        = IsPetActive()
@@ -196,6 +196,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP("target")
+        local traits                                        = br.player.traits
         local travelTime                                    = getDistance("target")/16
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
@@ -235,8 +236,8 @@ local function runRotation()
           end
           for i=1,40 do
             local _,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-            if (buffSpellID == debuff.unstableAffliction1 or buffSpellID == debuff.unstableAffliction2 or buffSpellID == debuff.unstableAffliction3 or
-            buffSpellID == debuff.unstableAffliction4 or buffSpellID == debuff.unstableAffliction5) and buffCaster == "player" then uaStack = uaStack + 1 end
+            if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
+            buffSpellID == 233498 or buffSpellID == 233499) and buffCaster == "player" then uaStack = uaStack + 1 end
           end
           return uaStack
         end
@@ -250,8 +251,8 @@ local function runRotation()
           end
           for i=1,40 do
             local _,_,_,_,_,buffExpire,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-            if (buffSpellID == debuff.unstableAffliction1 or buffSpellID == debuff.unstableAffliction2 or buffSpellID == debuff.unstableAffliction3 or
-            buffSpellID == debuff.unstableAffliction4 or buffSpellID == debuff.unstableAffliction5) and buffCaster == "player" then
+            if (buffSpellID == 233490 or buffSpellID == 233496 or buffSpellID == 233497 or
+            buffSpellID == 233498 or buffSpellID == 233499) and buffCaster == "player" then
               if buffExpire - GetTime() > remain then remain = buffExpire - GetTime() end
             end
           end
@@ -268,6 +269,9 @@ local function runRotation()
           if isTotem(unit) then return true end
           return false
         end
+        --azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
+        local cascadingValue = 0
+        if traits.cascadingCalamity.active() and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = 1 end
         -- Opener Variables
         if not inCombat and not GetObjectExists("target") then
             -- openerCount = 0
@@ -711,28 +715,19 @@ local function runRotation()
           if spammableSeed and not moving then
             if cast.seedOfCorruption(seedTarget) then return true end
           end
-          --spread UA on non boss before stacking
-          if not spammableSeed and not moving and not useCDs() and debuff.unstableAffliction.stack() >= 1 and shards >= 2 then
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if debuff.unstableAffliction.stack(thisUnit) == 0 and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
-                  if cast.unstableAffliction(thisUnit) then return true end
-                end
-            end
-          end
           -- actions+=/unstable_affliction,if=!prev_gcd.1.summon_darkglare&!variable.spammable_seed&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+cast_time&active_enemies=1|target.time_to_die<=8+cast_time*soul_shard)
           if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and #enemies.yards40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
               if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
+          if not spammableSeed and not moving and debuff.unstableAffliction.remain() <= (cast.time.unstableAffliction() + cascadingValue) and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return true end
           end
           -- actions+=/unstable_affliction,cycle_targets=1,if=!variable.spammable_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding
-          if not spammableSeed and not moving then
+          if not spammableSeed and not moving and (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if (not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (debuff.unstableAffliction.remain(thisUnit) <= cast.time.unstableAffliction() or debuff.unstableAffliction.stack(thisUnit) == 0) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
+                if debuff.unstableAffliction.remain(thisUnit) <= (cast.time.unstableAffliction() + cascadingValue) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
                   if cast.unstableAffliction(thisUnit) then return true end
                 end
             end

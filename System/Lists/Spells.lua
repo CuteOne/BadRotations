@@ -2859,6 +2859,9 @@ br.lists.spells = {
                 vileTaint                   = 278350,
                 writheInAgony               = 196102,
             },
+            traits                          = {
+                cascadingCalamity           = 277639,
+            }
         },
         -- Demonology
         [266] = {
