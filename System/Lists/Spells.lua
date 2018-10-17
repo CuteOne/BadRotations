@@ -564,6 +564,7 @@ br.lists.spells = {
                 stellarDrift                = 202354,
                 warriorOfElune              = 202425,
                 soulOfTheForest             = 114107,
+                photosynthesis              = 274902,
             },
         },
         -- Feral

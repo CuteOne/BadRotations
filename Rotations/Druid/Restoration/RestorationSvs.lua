@@ -236,7 +236,7 @@ local function runRotation()
 		-- local cd                                            = br.player.cd
 		-- local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
-		local drinking                                      = UnitBuff("player",192002) ~= nil or UnitBuff("player",167152) ~= nil or UnitBuff("player",192001) ~= nil
+		local drinking                                      = getBuffRemain("player",192002) == 0 and getBuffRemain("player",167152) == 0 and getBuffRemain("player",192001) == 0
 		local enemies                                       = br.player.enemies
 		local friends                                       = friends or {}
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
@@ -329,8 +329,11 @@ local function runRotation()
 					hotCnt=hotCnt+1
 				end
 			end
-
 			return hotCnt
+		end
+		-- Photosynthesis logic
+		if getOptionValue("Lifebloom") == 1 and talent.photosynthesis and not buff.lifebloom.exists("player") and isCastingSpell(spell.wildGrowth) then
+			if CastSpellByName(GetSpellInfo(33763),"player") then return end
 		end
 		--wildGrowth Exist
 		local function wildGrowthExist()
@@ -1225,7 +1228,7 @@ local function runRotation()
 					---------------------------------
 					--- Out Of Combat - Rotations ---
 					---------------------------------
-					if not inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
+					if not inCombat and not IsMounted() and not flight and not stealthed and drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
 						if isChecked("Swiftmend + Wild Growth key") and (SpecificToggle("Swiftmend + Wild Growth key") and not GetCurrentKeyBoardFocus()) then
 							if actionList_SoTFWG() then return end
 						end
@@ -1238,7 +1241,7 @@ local function runRotation()
 					-----------------------------
 					--- In Combat - Rotations ---
 					-----------------------------
-					if inCombat and not IsMounted() and not flight and not stealthed and not drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
+					if inCombat and not IsMounted() and not flight and not stealthed and drinking and not buff.shadowmeld.exists() and not isCastingSpell(spell.tranquility) and not UnitDebuffID("player",188030) then
 						if isChecked("Swiftmend + Wild Growth key") and (SpecificToggle("Swiftmend + Wild Growth key") and not GetCurrentKeyBoardFocus()) then
 							if actionList_SoTFWG() then return end
 						end
