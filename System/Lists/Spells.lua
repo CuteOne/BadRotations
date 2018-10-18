@@ -2604,7 +2604,7 @@ br.lists.spells = {
                 stormstrike                 = 17364,
                 sundering                   = 197214,
                 totemMastery                = 262395,
-                windstrike                  = 17364,
+                windstrike                  = 115356, --17364,
             },
             artifacts                       = {
 
