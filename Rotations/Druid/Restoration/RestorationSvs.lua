@@ -148,6 +148,7 @@ local function createOptions()
 		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFTank","|cffFFFFFFBoss1 Target","|cffFFFFFFSelf","|cffFFFFFFFocus"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
 		br.ui:createSpinner(section, "Cenarion Ward",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createDropdownWithout(section, "Cenarion Ward Target", {"|cffFFFFFFTank","|cffFFFFFFBoss1 Target","|cffFFFFFFSelf","|cffFFFFFFAny"}, 1, "|cffFFFFFFcast Cenarion Ward Target")
 		-- Ironbark
 		br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "","Health Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Ironbark Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Ironbark Target")
@@ -845,11 +846,27 @@ local function runRotation()
 			end
 			-- Cenarion Ward
 			if isChecked("Cenarion Ward") and talent.cenarionWard then
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.cenarionWard.exists(br.friend[i].unit) and GetUnitIsUnit(br.friend[i].unit,"boss1target") then
-						if cast.cenarionWard(br.friend[i].unit) then return end
-					elseif not inRaid and br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.cenarionWard.exists(br.friend[i].unit) then
-						if cast.cenarionWard(br.friend[i].unit) then return end
+				if getOptionValue("Cenarion Ward Target") == 1 then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and not buff.cenarionWard.exists(br.friend[i].unit) then
+							if cast.cenarionWard(br.friend[i].unit) then return end
+						end
+					end
+				elseif getOptionValue("Cenarion Ward Target") == 2 then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cenarion Ward") and GetUnitIsUnit(br.friend[i].unit,"boss1target") and not buff.cenarionWard.exists(br.friend[i].unit) then
+							if cast.cenarionWard(br.friend[i].unit) then return end
+						end
+					end
+				elseif getOptionValue("Cenarion Ward Target") == 3 then
+					if php <= getValue("Cenarion Ward") and not buff.cenarionWard.exists("player") then
+						if cast.cenarionWard("player") then return end
+					end
+				elseif getOptionValue("Cenarion Ward Target") == 4 then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Cenarion Ward") and  not buff.cenarionWard.exists(br.friend[i].unit) then
+							if cast.cenarionWard(br.friend[i].unit) then return end
+						end
 					end
 				end
 			end
