@@ -563,7 +563,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					for k,v in pairs(HOJ_list) do
-						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getDebuffRemain(thisUnit,226510) ~= 0 and distance <= 10 then
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) ~= 0 and distance <= 10 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 					end
@@ -603,7 +603,7 @@ local function runRotation()
 					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil
 					and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getDebuffRemain(thisUnit,226510) ~= 0 then
+						if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) ~= 0 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Blinding Light
