@@ -533,15 +533,15 @@ local function runRotation()
             if cast.summonDarkglare("player") then return true end
           end
           --Agony
-          if ttd("target") > 10 and debuff.agony.refresh() then
+          if (ttd("target") > 10 or ttd("target") == -1) and debuff.agony.refresh() then
             if cast.agony() then return true end
           end
           --Siphon life
-          if ttd("target") > 10 and debuff.siphonLife.refresh() and (not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) then
+          if (ttd("target") > 10 or ttd("target") == -1) and debuff.siphonLife.refresh() and (not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction()) then
               if cast.siphonLife() then return true end
           end
           --Corruption
-          if ttd("target") > 10 and debuff.corruption.refresh() then
+          if (ttd("target") > 10 or ttd("target") == -1) and debuff.corruption.refresh() then
             if cast.corruption() then return true end
           end
           -- actions+=/phantom_singularity

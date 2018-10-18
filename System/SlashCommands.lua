@@ -66,25 +66,9 @@ end
 local function forewardDisengage() -- from Stinky Twitch
 	local s, d, e = GetSpellCooldown(781)
 	if s == 0 then
-		MoveForwardStart()
-		C_Timer.After(.10, function()
-			MoveForwardStop()
-			MoveBackwardStop()
-			MoveAndSteerStop()
-			JumpOrAscendStart()
-			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
-		end)
-		C_Timer.After(.25, function()
+			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2), true)
 			CastSpellByID(781)
-		end)
-		MoveForwardStart()
-		C_Timer.After(.30, function()
-			MoveForwardStop()
-			MoveBackwardStop()
-			MoveAndSteerStop()
-			JumpOrAscendStart()
-			UnitSetFacing(mod(ObjectFacing("player") + math.pi, math.pi * 2))
-		end)
+			FaceDirection(mod(ObjectFacing("player") + math.pi, math.pi * 2), true)
 	end
 end
 
