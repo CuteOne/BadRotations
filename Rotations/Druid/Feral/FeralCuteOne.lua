@@ -1018,7 +1018,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- maim,if=buff.iron_jaws.up
             if (cast.pool.maim() or cast.able.maim()) and (buff.ironJaws.exists()) then
-                if cast.pool.main() then ChatOverlay("Pooling For Maim") return true end
+                if cast.pool.maim() then ChatOverlay("Pooling For Maim") return true end
                 if cast.able.maim() then 
                     if cast.maim() then return true end
                 end
