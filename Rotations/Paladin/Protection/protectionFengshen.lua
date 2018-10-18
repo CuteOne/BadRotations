@@ -408,7 +408,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					for k,v in pairs(HOJ_list) do
-						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and distance <= 10 then
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getDebuffRemain(thisUnit,226510) ~= 0 and distance <= 10 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 					end
@@ -690,7 +690,7 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) and StunsBlackList[GetObjectID(units.dyn10)]==nil then
+				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) and getDebuffRemain(units.dyn10,226510) ~= 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
 					if cast.hammerOfJustice(units.dyn10) then return end
 				end
 				-- Flash of Light
@@ -762,9 +762,9 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
+					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and getDebuffRemain(thisUnit,226510) ~= 0 then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getDebuffRemain(thisUnit,226510) ~= 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Rebuke
