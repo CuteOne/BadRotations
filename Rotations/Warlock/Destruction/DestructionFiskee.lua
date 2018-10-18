@@ -154,7 +154,7 @@ local function runRotation()
         local equiped                                       = br.player.equiped
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
+        local gcd                                           = br.player.gcdMax
         local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
@@ -245,6 +245,13 @@ local function runRotation()
           if havocCheckUnits >= 2 and not havocCheck then havocCheck = true end
         end
         if 1 + havocRemain > cast.time.chaosBolt() then havocMult = 0 end
+
+        --RoF stuff
+        local rofUnits = 0
+        for i = 1, #enemies.yards10t do
+          local thisUnit = enemies.yards10t[i]
+          if ttd(thisUnit) > 3 or ttd(thisUnit) == -1 then rofUnits = rofUnits + 1 end
+        end
 
         --internalCombustion value
         local icValue = 0
@@ -502,9 +509,9 @@ local function runRotation()
               end
             end
           end
+          if not moving then
           -- actions.cata+=/rain_of_fire
           if cast.rainOfFire("target", "ground") then return true end
-          if not moving then
             -- actions.cata+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if not debuff.havoc.exists() or #enemies.yards40 == 1 then
               if cast.soulFire() then return true end
@@ -646,9 +653,9 @@ local function runRotation()
               end
             end
           end
+          if not moving then
           -- actions.fnb+=/rain_of_fire
           if cast.rainOfFire("target", "ground") then return true end
-          if not moving then
             -- actions.fnb+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains&spell_targets.incinerate=3
             if #enemies.yards10t == 3 then
               if not debuff.havoc.exists() or #enemies.yards40 == 1 then
@@ -784,9 +791,9 @@ local function runRotation()
               end
             end
           end
+          if not moving then
           -- actions.inf+=/rain_of_fire
           if cast.rainOfFire("target", "ground") then return true end
-          if not moving then
             -- actions.inf+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if not debuff.havoc.exists() or #enemies.yards40 == 1 then
               if cast.soulFire() then return true end
@@ -836,7 +843,7 @@ local function runRotation()
 
         local function actionList_Rotation()
           -- actions=run_action_list,name=cata,if=spell_targets.infernal_awakening>=3&talent.cataclysm.enabled
-          if #enemies.yards10t >= 3 and mode.rotation ~= 3 then
+          if rofUnits >= 3 and mode.rotation ~= 3 then
             if talent.cataclysm then
               if actionList_cata() then return end
           -- actions+=/run_action_list,name=fnb,if=spell_targets.infernal_awakening>=3&talent.fire_and_brimstone.enabled
