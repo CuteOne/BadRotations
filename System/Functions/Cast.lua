@@ -53,6 +53,12 @@ end
 function castGround(Unit,SpellID,maxDistance,minDistance,radius)
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
+	if IsMouseButtonDown(2) then
+			mouselookup = true
+	else
+			mouselookup = false
+	end
+	MouselookStop()
 	if GetUnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
 		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
 		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
@@ -61,7 +67,13 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius)
 		local X,Y,Z = GetObjectPosition(Unit)
 		--local distanceToGround = getGroundDistance(Unit) or 0
 		ClickPosition(X,Y,Z) --distanceToGround
+		if mouselookup then
+				MouselookStart()
+		end
 		return true
+	end
+	if mouselookup then
+			MouselookStart()
 	end
 	return false
 end
@@ -605,10 +617,8 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
                 elseif debug == "ground" then
 			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) and hasEnemies then
 	                    if getLineOfSight(thisUnit) then
-	                        if not IsMouseButtonDown(2) then
-	                            castDebug()
-	                            return castGround(thisUnit,spellCast,maxRange,minRange,effectRng)
-	                        end
+                          castDebug()
+                          return castGround(thisUnit,spellCast,maxRange,minRange,effectRng)
 	                    end
 	                end
                 elseif debug == "aoe" then
