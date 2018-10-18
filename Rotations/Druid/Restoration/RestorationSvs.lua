@@ -99,10 +99,6 @@ local function createOptions()
 		br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
-		-- The Deceiver's Grand Design
-		br.ui:createDropdown(section, "The Deceiver's Grand Design" , {"|cffFFFFFFTank","|cffFFFFFFHealer/Tank"}, 1, "|cffFFFFFFcast The Deceiver's Grand Design Target")
-		-- Archive of Faith
-		br.ui:createSpinner(section, "Archive of Faith", 50, 0, 100, 5, "","|cffFFFFFFTanks Health Percent to Cast At")
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
@@ -598,28 +594,6 @@ local function runRotation()
 				if isChecked("Innervate") and mana ~= nil and not moving then
 					if getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80 then
 						if cast.innervate("player") then return end
-					end
-				end
-				-- The Deceiver's Grand Design
-				if isChecked("The Deceiver's Grand Design") and hasEquiped(147007) and canUse(147007) then
-					for i = 1, #br.friend do
-						if getOptionValue("The Deceiver's Grand Design") == 1 then
-							if getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-								UseItemByName(147007,br.friend[i].unit)
-							end
-						elseif getOptionValue("The Deceiver's Grand Design") == 2 then
-							if getBuffRemain(br.friend[i].unit,242622) == 0 and (UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER") and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-								UseItemByName(147007,br.friend[i].unit)
-							end
-						end
-					end
-				end
-				-- Archive of Faith
-				if isChecked("Archive of Faith") then
-					for i = 1, #br.friend do
-						if hasEquiped(147006) and canUse(147006) and br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-							UseItemByName(147006,br.friend[i].unit)
-						end
 					end
 				end
 				-- Trinkets
