@@ -501,12 +501,13 @@ local function runRotation()
                     if cast.spittingCobra() then return end
                 end
                 --actions+=/stampede,if=buff.bestial_wrath.up|cooldown.bestial_wrath.remains<gcd|target.time_to_die<15
-                if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcd or ttd(units.dyn40) < 15) then
+                if isChecked("Stampede") and talent.stampede and (buff.bestialWrath.exists() or cd.bestialWrath.remain() < gcdmax or ttd(units.dyn40) < 15) then
                     if cast.stampede() then return end
                 end
-        				if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
-        					  if cast.aspectOfTheWild() then return end
-        				end
+				--Aspect of the wild
+        		if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+        			if cast.aspectOfTheWild() then return end
+        		end
 
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -660,14 +661,20 @@ local function runRotation()
                       --PetAttack
                       PetAttack()
                     end
+					--Hold rotation for perfect Frenzy placement
+					if (charges.barbedShot.recharge() <= 1.5 or charges.barbedShot.frac() >= 1) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= 1.5 and buff.frenzy.remain("pet") > 0.5 then return end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcd and charges.barbedShot.frac() > 1) then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcdMax and charges.barbedShot.frac() >= 1) or charges.barbedShot.frac() >= 2 then
                         if cast.barbedShot() then return end
                     end
 					--Cooldowns
                     if actionList_Cooldowns() then return end
+					-- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
+                    if not buff.frenzy.exists("pet") and charges.barbedShot.frac() >= 2 then
+                        if cast.barbedShot() then return end
+                    end
                     --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 16 and ttd("target") > 3 then
+                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 22 and ttd("target") > 3 then
                         if cast.aMurderOfCrows() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
@@ -692,10 +699,6 @@ local function runRotation()
                     if talent.direBeast then
                         if cast.direBeast() then return end
                     end
-                    -- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
-                    if not buff.frenzy.exists("pet") and charges.barbedShot.timeTillFull() < gcd then
-                        if cast.barbedShot() then return end
-                    end
                     -- actions+=/barrage
                     if isChecked("A Murder Of Crows / Barrage") and #enemies.yards8p >= 1 then
                         if cast.barrage() then return end
@@ -708,7 +711,7 @@ local function runRotation()
                     end
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
                     if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or
-                        (cd.killCommand.remain() > 1 + gcd and cd.bestialWrath.remain() > ttm) or (cast.cost.cobraShot() + powerRegen*(cd.killCommand.remain() - 1)>cast.cost.killCommand()))
+                        (cd.killCommand.remain() > 1 + gcdMax and cd.bestialWrath.remain() > ttm) or power > 90)
                     then
                         if cast.cobraShot() then return end
                     end
