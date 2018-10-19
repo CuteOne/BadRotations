@@ -81,6 +81,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Party Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
             br.ui:createSpinnerWithout(section, "Tank Atonement HP",  95,  0,  100,  1,  "|cffFFFFFFApply Atonement to Tank using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95")
             br.ui:createSpinnerWithout(section, "Max Atonements", 3, 1, 40, 1, "|cffFFFFFFMax Atonements to Keep Up At Once. Default: 3")
+            br.ui:createDropdown(section,"Atonement Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to press to spam atonements on everyone.")
             --Alternate Heal & Damage
             br.ui:createSpinner(section, "Alternate Heal & Damage",  1,  1,  5,  1,  "|cffFFFFFFAlternate Heal & Damage. How many Atonement applied before back to doing damage. Default: 1")
             --Power Word: Shield
@@ -170,12 +171,11 @@ local function createOptions()
             br.ui:createSpinner(section, "Rapture",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 60")
             br.ui:createSpinner(section, "Rapture (Tank Only)", 60, 0, 100, 5, "|cffFFFFFFTank Health Percent to Cast At. Default: 60")
             br.ui:createSpinnerWithout(section, "Rapture Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum Rapture Targets. Default: 3")
-            --Power Word: Barrier
-            br.ui:createSpinner(section, "Power Word: Barrier",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
-            br.ui:createSpinnerWithout(section, "PWB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets. Default: 3")
-            --Luminous Barrier
-            br.ui:createSpinner(section, "Luminous Barrier", 30, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 30")
-            br.ui:createSpinnerWithout(section, "LB Targets", 3, 0, 40, 1, "|cffFFFFFFMinimum LB Targets. Default: 3")
+            --Power Word: Barrier/Luminous Barrier
+            br.ui:createSpinner(section, "PW:B/LB",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 50")
+            br.ui:createSpinnerWithout(section, "PW:B/LB Targets",  3,  0,  40,  1,  "|cffFFFFFFMinimum PWB Targets. Default: 3")
+            br.ui:createCheckbox(section,"PW:B/LB on Melee","Only cast on Melee")
+            br.ui:createDropdown(section,"PW:B/LB Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." PW:B/LB manual usage.")
             --Evangelism
             br.ui:createSpinner(section, "Evangelism",  70,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 70")
             br.ui:createSpinnerWithout(section, "Evangelism Targets",  3,  0,  40,  1,  "|cffFFFFFFTarget count to Cast At. Default: 3")
@@ -609,6 +609,20 @@ local function runRotation()
             end
         end
         local function actionList_AMR()
+            -- Atonement Key
+            if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
+                if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 then
+                    if cast.powerWordRadiance(br.friend[1].unit) then return end
+                else 
+                    if atonementCount ~= 0 then
+                        for i = 1, #br.friend do
+                            if getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then 
+                                if cast.powerWordShield(br.friend[i]) then return true end
+                            end
+                        end
+                    end
+                end
+            end
             -- Pain Suppression
             if isChecked("Pain Suppression Tank") and inCombat and useCDs then
                 for i = 1, #br.friend do
@@ -618,9 +632,48 @@ local function runRotation()
                 end
             end
             -- Power Word: Barrier
-            if isChecked("Power Word: Barrier") and not talent.luminousBarrier and useCDs then
-                if getLowAllies(getValue("Power Word: Barrier")) >= getValue("PWB Targets") then
-                    if cast.powerWordBarrier(lowest.unit) then return end
+            if (SpecificToggle("PW:B/LB Key") and not GetCurrentKeyBoardFocus()) and isChecked("PW:B/LB Key") and useCDs then
+                if not talent.luminousBarrier then
+                    if CastSpellByName(GetSpellInfo(spell.powerWordBarrier),"cursor") then return end
+                else 
+                    if CastSpellByName(GetSpellInfo(spell.luminousBarrier),"cursor") then return end
+                end
+            end
+            if isChecked("PW:B/LB") then
+                if isChecked("PW:B/LB on Melee") then
+                    -- get melee players
+                    for i=1, #tanks do
+                        -- get the tank's target
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil then
+                            -- get players in melee range of tank's target
+                            local meleeFriends = getAllies(tankTarget,5)
+                            -- get the best ground circle to encompass the most of them
+                            local loc = nil
+                            local meleeHurt = {}
+                            for j=1, #meleeFriends do
+                                if meleeFriends[i].hp < getValue("PW:B/LB") then
+                                    tinsert(meleeHurt,meleeFriends[i])
+                                end
+                            end
+                            if #meleeHurt >= getValue("PW:B/LB Targets") then
+                                loc = getBestGroundCircleLocation(meleeHurt,getValue("PW:B/LB Targets"),6,8)
+                            end
+                            if loc ~= nil then
+                                if talent.luminousBarrier then
+                                    if castGroundAtLocation(loc, spell.luminousBarrier) then return true end
+                                else
+                                    if castGroundAtLocation(loc, spell.powerWordBarrier) then return true end
+                                end
+                            end
+                        end
+                    end
+                else
+                    if talent.luminousBarrier then
+                        if castWiseAoEHeal(br.friend,spell.luminousBarrier,10,getValue("PW:B/LB Targets"),getValue("PW:B/LB Targets"),6,true, true) then return end
+                    else
+                        if castWiseAoEHeal(br.friend,spell.powerWordBarrier,10,getValue("PW:B/LB Targets"),getValue("PW:B/LB Targets"),6,true, true) then return end
+                    end
                 end
             end
              --Trinkets
@@ -675,12 +728,6 @@ local function runRotation()
             if isChecked("Evangelism") and talent.evangelism and (atonementCount >= getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") and not freeMana then
                 if getLowAllies(getValue("Evangelism")) >= getValue("Evangelism Targets") then
                     if cast.evangelism() then return end
-                end
-            end
-            -- Luminous Barrier
-            if isChecked("Luminous Barrier") and talent.luminousBarrier and useCDs then
-                if getLowAllies(getValue("Luminous Barrier")) >= getValue("LB Targets") then
-                    if cast.luminousBarrier(lowest.unit) then return end
                 end
             end
             -- Mindbender
