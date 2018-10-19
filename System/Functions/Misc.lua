@@ -358,12 +358,12 @@ function isTargeting(Unit,MatchUnit)
 end
 function enemyListCheck(Unit)
 	local distance = getDistance(Unit,"player")
+	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit,"player")
 	--local playerObj = GetObjectWithGUID(UnitGUID("player"))
-
 	return GetObjectExists(Unit) and not UnitIsDeadOrGhost(Unit) and UnitInPhase(Unit) and UnitCanAttack("player",Unit) and distance < 50
-	 and isSafeToAttack(Unit) and not isCritter(Unit)
-		and (not GetUnitIsFriend(Unit,"player") or GetUnitIsUnit(thisUnit,"pet") or UnitCreator(thisUnit) == ObjectPointer("player")
-			or GetObjectID(thisUnit) == 11492) and getLineOfSight("player", Unit)
+	and isSafeToAttack(Unit) and not isCritter(Unit)
+	and mcCheck and not GetUnitIsUnit(Unit,"pet") and UnitCreator(Unit) ~= ObjectPointer("player")
+	and GetObjectID(Unit) ~= 11492 and getLineOfSight("player", Unit)
 end
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
@@ -371,9 +371,10 @@ function isValidUnit(Unit)
 	local reaction = GetUnitReaction(Unit,"player") or 10
 	local targeting = isTargeting(Unit)
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
+	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or (UnitIsCharmed(Unit) and UnitCanAttack("player",Unit)))) or not GetUnitIsFriend(Unit,"player");
 	if playerTarget and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and reaction < 5 and (not hostileOnly or (hostileOnly and (reaction < 4 or targeting or isDummy(Unit) or (playerTarget and not GetUnitIsFriend(Unit,"player"))))) and not isCC
+		and ((reaction < 5 and not hostileOnly) or (hostileOnly and reaction < 4) or isDummy(Unit)) and mcCheck and not isCC
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
