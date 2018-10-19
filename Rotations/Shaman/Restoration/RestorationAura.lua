@@ -520,32 +520,36 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
                 if isChecked("Healing Rain") and not buff.healingRain.exists() then
-                    -- get melee players
-                    for i=1, #tanks do
-                        -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil then
-                            -- get players in melee range of tank's target
-                            local meleeFriends = getAllies(tankTarget,5)
-                            -- get the best ground circle to encompass the most of them
-                            local loc = nil
-                            if isChecked("Healing Rain on CD") and #meleeFriends >= getValue("Healing Rain Targets") then
-                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
-                            else
-                                local meleeHurt = {}
-                                for j=1, #meleeFriends do
-                                    if meleeFriends[i].hp < getValue("Healing Rain") then
-                                        tinsert(meleeHurt,meleeFriends[i])
+                    if isChecked("Healing Rain on Melee") then
+                        -- get melee players
+                        for i=1, #tanks do
+                            -- get the tank's target
+                            local tankTarget = UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil then
+                                -- get players in melee range of tank's target
+                                local meleeFriends = getAllies(tankTarget,5)
+                                -- get the best ground circle to encompass the most of them
+                                local loc = nil
+                                if isChecked("Healing Rain on CD") and #meleeFriends >= getValue("Healing Rain Targets") then
+                                    loc = getBestGroundCircleLocation(meleeFriends,getValue("Healing Rain Targets"),6,10)
+                                else
+                                    local meleeHurt = {}
+                                    for j=1, #meleeFriends do
+                                        if meleeFriends[i].hp < getValue("Healing Rain") then
+                                            tinsert(meleeHurt,meleeFriends[i])
+                                        end
+                                    end
+                                    if #meleeHurt >= getValue("Healing Rain Targets") then
+                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
                                     end
                                 end
-                                if #meleeHurt >= getValue("Healing Rain Targets") then
-                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Healing Rain Targets"),6,10)
+                                if loc ~= nil then
+                                    if castGroundAtLocation(loc, spell.healingRain) then return true end
                                 end
                             end
-                            if loc ~= nil then
-                                if castGroundAtLocation(loc, spell.healingRain) then return true end
-                            end
                         end
+                    else
+                        if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Healing Rain"),getValue("Healing Rain Targets"),6,true, true) then return end
                     end
                 end
             end
@@ -572,32 +576,36 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
                 end
                 if isChecked("Downpour") then
-                    -- get melee players
-                    for i=1, #tanks do
-                        -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil then
-                            -- get players in melee range of tank's target
-                            local meleeFriends = getAllies(tankTarget,5)
-                            -- get the best ground circle to encompass the most of them
-                            local loc = nil
-                            if isChecked("Downpour on CD") and #meleeFriends >= getValue("Downpour Targets") then
-                                loc = getBestGroundCircleLocation(meleeFriends,getValue("Downpour Targets"),6,10)
-                            else
-                                local meleeHurt = {}
-                                for j=1, #meleeFriends do
-                                    if meleeFriends[j].hp < getValue("Downpour") then
-                                        tinsert(meleeHurt,meleeFriends[j])
+                    if isChecked("Downpour on Melee") then
+                        -- get melee players
+                        for i=1, #tanks do
+                            -- get the tank's target
+                            local tankTarget = UnitTarget(tanks[i].unit)
+                            if tankTarget ~= nil then
+                                -- get players in melee range of tank's target
+                                local meleeFriends = getAllies(tankTarget,5)
+                                -- get the best ground circle to encompass the most of them
+                                local loc = nil
+                                if isChecked("Downpour on CD") and #meleeFriends >= getValue("Downpour Targets") then
+                                    loc = getBestGroundCircleLocation(meleeFriends,getValue("Downpour Targets"),6,10)
+                                else
+                                    local meleeHurt = {}
+                                    for j=1, #meleeFriends do
+                                        if meleeFriends[j].hp < getValue("Downpour") then
+                                            tinsert(meleeHurt,meleeFriends[j])
+                                        end
+                                    end
+                                    if #meleeHurt >= getValue("Downpour Targets") then
+                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
                                     end
                                 end
-                                if #meleeHurt >= getValue("Downpour Targets") then
-                                    loc = getBestGroundCircleLocation(meleeHurt,getValue("Downpour Targets"),6,10)
+                                if loc ~= nil then
+                                    if castGroundAtLocation(loc, spell.downpour) then return true end
                                 end
                             end
-                            if loc ~= nil then
-                                if castGroundAtLocation(loc, spell.downpour) then return true end
-                            end
                         end
+                    else
+                        if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then return end
                     end
                 end 
             end
