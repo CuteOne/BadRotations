@@ -1151,7 +1151,7 @@ local function runRotation()
                     end
             -- Call Action List - Cleave
                     -- call_action_list,name=cleave,if=active_enemies>1
-                    if eagleSconut() > 1 then 
+                    if eagleScout() > 1 then 
                         if actionList_Cleave() then return end
                     end
             -- Arcane Torrent 
