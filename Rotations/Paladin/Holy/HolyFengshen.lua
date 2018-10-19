@@ -67,7 +67,7 @@ local function createOptions()
 		-- Critical
 		br.ui:createSpinner (section, "Critical HP", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Critical Heals")
 		-- Overhealing Cancel
-		br.ui:createSpinner (section, "Overhealing Cancel", 95, 0, 100, 5, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
+		br.ui:createSpinner (section, "Overhealing Cancel", 99, 0, 100, 1, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
 		br.ui:checkSectionState(section)
 		-------------------------
 		------ DEFENSIVES -------
@@ -238,7 +238,7 @@ local function runRotation()
 		local php                                           = br.player.health
 		local spell                                         = br.player.spell
 		local talent                                        = br.player.talent
-		local gcd                                           = br.player.gcd
+		local gcd                                           = br.player.gcdMax
 		local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = getBuffRemain("player",192002) == 0 and getBuffRemain("player",167152) == 0 and getBuffRemain("player",192001) == 0
@@ -935,22 +935,22 @@ local function runRotation()
 					if br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 						flashOfLightTANK = br.friend[i].unit
 					end
-					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (10*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
+					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (10*master_coff) and buff.infusionOfLight.remain("player") > gcd then
 						flashOfLightInfuse10 = br.friend[i].unit
 					elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (10*master_coff) then
 						flashOfLight10 = br.friend[i].unit
 					end
-					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (20*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
+					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (20*master_coff) and buff.infusionOfLight.remain("player") > gcd then
 						flashOfLightInfuse20 = br.friend[i].unit
 					elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (20*master_coff) then
 						flashOfLight20 = br.friend[i].unit
 					end
-					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (30*master_coff) and buff.infusionOfLight.remain("player") > 1.5 then
+					if br.friend[i].hp <= getValue("FoL Infuse") and getDistance(br.friend[i].unit) <= (30*master_coff) and buff.infusionOfLight.remain("player") > gcd then
 						flashOfLightInfuse30 = br.friend[i].unit
 					elseif br.friend[i].hp <= getValue("Flash of Light") and getDistance(br.friend[i].unit) <= (30*master_coff) then
 						flashOfLight30 = br.friend[i].unit
 					end
-					if br.friend[i].hp <= getValue("FoL Infuse") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") and buff.infusionOfLight.remain("player") > 1.5 then
+					if br.friend[i].hp <= getValue("FoL Infuse") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") and buff.infusionOfLight.remain("player") > gcd then
 						flashOfLightInfuse40 = br.friend[i].unit
 					elseif br.friend[i].hp <= getValue("Flash of Light") and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot") then
 						flashOfLight40 = br.friend[i].unit
@@ -994,7 +994,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Shock
-			if isChecked("Holy Shock") and (cast.able.holyShock() or isCastingSpell(spell.flashOfLight)) then
+			if isChecked("Holy Shock") then
 				if php <= getValue("Critical HP") then
 					if cast.holyShock("player") then return end
 				end
@@ -1037,7 +1037,7 @@ local function runRotation()
 				if cast.lightOfTheMartyr(lightOfTheMartyrHP) then return end
 			end
 			-- Bestow Faith
-			if isChecked("Bestow Faith") and cast.able.bestowFaith() and talent.bestowFaith then
+			if isChecked("Bestow Faith") and cast.able.bestowFaith() and talent.bestowFaith and getSpellCD(20473) ~= 0 then
 				if getOptionValue("Bestow Faith Target") == 1 then
 					if lowest.hp <= getValue ("Bestow Faith") and UnitInRange(lowest.unit) then
 						if cast.bestowFaith(lowest.unit) then return end
@@ -1057,7 +1057,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light")  and cast.able.flashOfLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Flash of Light")  and not isMoving("player") and getDebuffRemain("player",240447) == 0 and getSpellCD(20473) ~= 0 then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return end
 				end
@@ -1117,7 +1117,7 @@ local function runRotation()
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and cast.able.holyLight() and not isMoving("player") and getDebuffRemain("player",240447) == 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and getSpellCD(20473) > 0 and lastSpell ~= spell.flashOfLight)) then
+			if isChecked("Holy Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and getSpellCD(20473) ~= 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and flashOfLightInfuse40 == nil)) then
 				if inRaid and isChecked("Mastery bonus") then
 					if holyLight10 ~= nil then
 						if cast.holyLight(holyLight10) then healing_obj = holyLight10 return end
