@@ -200,16 +200,25 @@ local function runRotation()
 
         if lastImmolateT ~= nil and (lastImmolateT + 1.6) < GetTime() then lastImmolate = nil end
         -- Blacklist dots
+        local function isTotem(unit)
+          local creatureType = UnitCreatureType(unit)
+          if creatureType ~= nil then
+            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+          end
+          return false
+        end
+
         local noDotUnits = {
           [135824]=true, -- Nerubian Voidweaver
           [139057]=true, -- Nazmani Bloodhexer
           [129359]=true, -- Sawtooth Shark
+          [134503]=true, -- Silithid Warrior
         }
         local function noDotCheck(unit)
-          if isChecked("Dot Blacklist") and noDotUnits[GetObjectID(unit)] then return true end
+          if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+          if isTotem(unit) then return true end
           return false
         end
-
 
         --Infernal
         infernalActive = infernalActive or false
