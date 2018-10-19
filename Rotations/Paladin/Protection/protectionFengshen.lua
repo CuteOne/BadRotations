@@ -791,7 +791,7 @@ local function runRotation()
 					if cast.judgment("target") then return end
 				end
 				-- Start Attack
-				if IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
 					StartAttack()
 				end
 			end
