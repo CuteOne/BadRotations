@@ -824,7 +824,7 @@ local function runRotation()
 				end
 				-- Holy Shock
 				if isChecked("Holy Shock Damage") and cast.able.holyShock() and getFacing("player",units.dyn40) then
-					if cast.holyShock("target") then return end
+					if cast.holyShock(units.dyn40) then return end
 				end
 				-- Crusader Strike
 				if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player",units.dyn5) then
