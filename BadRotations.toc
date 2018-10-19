@@ -78,11 +78,9 @@ System\drawer\drawer.lua
 
 System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
-System\Engines\EnemiesEnginev2.lua
 System\Engines\EnemiesEngineCollections.lua
 System\Engines\EnemiesEngineFrame.lua
 System\Engines\EnemiesEngineFunctions.lua
-System\Engines\EnemiesEnginev2Functions.lua
 System\Engines\HealingEngine.lua
 System\Engines\HealingEngineCollections.lua
 System\Engines\HealingEngineFrame.lua
