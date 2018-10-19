@@ -183,6 +183,7 @@ local function runRotation()
         local ttd               = getTTD
         local ttm               = br.player.power.energy.ttm()
         local units             = br.player.units
+        local staggerPct        = (UnitStagger("player") / UnitHealthMax("player")*100)
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -329,7 +330,7 @@ local function runRotation()
 				if cast.breathOfFire() then return end
 			end
 		-- High Energy TP
-			if (power > 55) and buff.rushingJadeWind.exists() and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if (power > 55) and buff.rushingJadeWind.exists() and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return end
 			end
 		-- Rushing Jade Wind
@@ -356,7 +357,7 @@ local function runRotation()
 				if cast.breathOfFire() then return end
 			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire())) then
 				if cast.rushingJadeWind() then return end
 			end
 		-- Chi Burst 
@@ -429,19 +430,22 @@ local function runRotation()
 	-- Brews Rotations
 	local function actionList_Brews()
 		--Black Ox Brew
-            if isChecked("Black Ox Brew") and (charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew then
-                if cast.blackoxBrew() then return end
+            if isChecked("Black Ox Brew") then
+                if ((charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew) or 
+                    (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
+                    if cast.blackoxBrew() then return end
+                end
             end
         -- Auto Purify
 			if isChecked("Auto Purify") then
                 if debuff.heavyStagger.exists("player") or 
-                (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5))) then
+                ((staggerPct < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5))) then
 					if cast.purifyingBrew() then return end
 				end
             end
 		-- Percentage Purify
 			if isChecked("Stagger dmg % to purify") then
-                if ((UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.frac() > 0.5)) then
+                if (staggerPct >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.frac() > 0.5)) then
                     if cast.purifyingBrew() then return end
                 end
             end	
