@@ -408,7 +408,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					for k,v in pairs(HOJ_list) do
-						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) ~= 0 and distance <= 10 then
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 					end
@@ -690,7 +690,8 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) and getBuffRemain(units.dyn10,226510) ~= 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
+				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) 
+				and getBuffRemain(units.dyn10,226510) == 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
 					if cast.hammerOfJustice(units.dyn10) then return end
 				end
 				-- Flash of Light
@@ -762,9 +763,9 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and getBuffRemain(thisUnit,226510) ~= 0 then
+					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) ~= 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Rebuke
@@ -785,13 +786,13 @@ local function runRotation()
 		end -- End Action List - PreCombat
 		-- Action List - Opener
 		local function actionList_Opener()
-			if isValidUnit("target") then
-				if isChecked("Judgment") and getDistance("target") <= 30 and getFacing("player","target") then
+			if isValidUnit("target") and getFacing("player","target") then
+				if isChecked("Judgment") and getDistance("target") <= 30 then
 					if cast.judgment("target") then return end
 				end
 				-- Start Attack
-				if getDistance("target") <= 5 then
-					StartAttack("target")
+				if IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+					StartAttack()
 				end
 			end
 		end -- End Action List - Opener
