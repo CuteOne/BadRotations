@@ -720,16 +720,22 @@ local function runRotation()
                     end
             -- Call Action List - Buffs
                     -- call_action_list,name=buffs
-                    if actionList_Buffs() then return true end
+                    if not buff.stormbringer.exists() and not buff.ascendance.exists() then 
+                        if actionList_Buffs() then return true end
+                    end
             -- Call Action List - Cooldowns
                     -- call_action_list,name=CDs
                     if actionList_Cooldowns() then return true end
             -- Call Action List - Core
                     -- call_action_list,name=core
-                    if actionList_Core() then return true end
+                    if not buff.ascendance.exists() then 
+                        if actionList_Core() then return true end
+                    end
             -- Call Action List - Filler
                     -- call_action_list,name=filler
-                    if actionList_Filler() then return true end
+                    if not buff.ascendance.exists() then 
+                        if actionList_Filler() then return true end
+                    end
                 end -- End SimC APL
     ----------------------
     --- AskMrRobot APL ---
