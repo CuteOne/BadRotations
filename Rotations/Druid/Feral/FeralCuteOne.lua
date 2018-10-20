@@ -235,7 +235,7 @@ local function runRotation()
         -- Get List of Enemies for Range
         -- enemies.get(range, from unit, no combat, variable)
         enemies.get(40) -- makes enemies.yards40
-        enemies.get(20,"player",true) -- makes enemies.yards40nc
+        enemies.get(20,"player",true) -- makes enemies.yards20nc
         enemies.get(13)
         enemies.get(8)
         enemies.get(5)
@@ -249,11 +249,13 @@ local function runRotation()
 		end
 
         local function autoProwl()
-            if #enemies.yards20nc > 0 then
-                for i = 1, #enemies.yards20nc do
-                    local thisUnit = enemies.yards20nc[i]
-                    -- local react = GetUnitReaction(thisUnit,"player") or 10
-                    if UnitIsEnemy(thisUnit,"player") and UnitCanAttack(thisUnit,"player") then return true end
+            if not inCombat and not buff.prowl.exists() then
+                if #enemies.yards20nc > 0 then
+                    for i = 1, #enemies.yards20nc do
+                        local thisUnit = enemies.yards20nc[i]
+                        local react = GetUnitReaction(thisUnit,"player") or 10
+                        if react < 4 and UnitIsEnemy("player",thisUnit) and UnitCanAttack("player",thisUnit) then return true end
+                    end
                 end
             end
             return false
@@ -1253,7 +1255,7 @@ local function runRotation()
             end
         -- Shred
             -- shred,if=buff.clearcasting.react
-            if cast.able.shred() and buff.clearcasting.exists() then
+            if cast.able.shred() and (buff.clearcasting.exists() or ttd(units.dyn5) <= 4) then
                 if cast.shred() then return end
             end
         -- Moonfire
