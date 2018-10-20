@@ -408,7 +408,7 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					for k,v in pairs(HOJ_list) do
-						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) ~= 0 and distance <= 10 then
+						if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 					end
@@ -690,7 +690,8 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) and getBuffRemain(units.dyn10,226510) ~= 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
+				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) 
+				and getBuffRemain(units.dyn10,226510) == 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
 					if cast.hammerOfJustice(units.dyn10) then return end
 				end
 				-- Flash of Light
@@ -728,7 +729,7 @@ local function runRotation()
 						if castSpell("player",racial,false,false,false) then return end
 					end
 				end
-				if getDistance(units.dyn5) <= 5 then
+				if GetUnitExists(units.dyn5) then
 					-- Seraphim
 					if isChecked("Seraphim") and cast.able.seraphim() and talent.seraphim and charges.shieldOfTheRighteous.frac() >= 1.99 and (getOptionValue("Seraphim") <= ttd ) then
 						if cast.seraphim() then return end
@@ -762,9 +763,9 @@ local function runRotation()
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
-					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) and getBuffRemain(thisUnit,226510) ~= 0 then
+					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) ~= 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
 						end
 						-- Rebuke
@@ -785,13 +786,13 @@ local function runRotation()
 		end -- End Action List - PreCombat
 		-- Action List - Opener
 		local function actionList_Opener()
-			if isValidUnit("target") then
-				if isChecked("Judgment") and getDistance("target") <= 30 and getFacing("player","target") then
+			if isValidUnit("target") and getFacing("player","target") then
+				if isChecked("Judgment") and getDistance("target") <= 30 then
 					if cast.judgment("target") then return end
 				end
 				-- Start Attack
-				if getDistance("target") <= 5 then
-					StartAttack("target")
+				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+					StartAttack()
 				end
 			end
 		end -- End Action List - Opener
@@ -846,14 +847,14 @@ local function runRotation()
 				--------------------------------
 				if getOptionValue("APL Mode") == 1 then
 					-- Shield of the Righteous
-					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and getDistance(units.dyn5) <= 5 and (not sotrTime or GetTime() - sotrTime > 0.5 ) then
+					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and (not sotrTime or GetTime() - sotrTime > 0.5 ) then
 						if (not talent.seraphim and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) 
 						or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
 							if CastSpellByName(GetSpellInfo(53600)) then return end
 							sotrTime = GetTime()
 						end
 					end
-					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+					if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
 						-- Judgment
 						if isChecked("Judgment") and cast.able.judgment() then
 							if cast.judgment(units.dyn30) then return end
@@ -864,7 +865,7 @@ local function runRotation()
 						end
 					end
 					-- Consecration
-					if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and not buff.consecration.exists() then
+					if isChecked("Consecration") and cast.able.consecration() and GetUnitExists(units.dyn5) and not buff.consecration.exists() then
 						if cast.consecration() then return end
 					end
 					-- Blessed Hammer
@@ -872,7 +873,7 @@ local function runRotation()
 						if cast.blessedHammer() then return end
 					end
 					-- Hammer of the Righteous
-					if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and getDistance(units.dyn5) <= 5 then
+					if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and not talent.blessedHammer and getFacing("player",units.dyn5) and GetUnitExists(units.dyn5) then
 						if cast.hammerOfTheRighteous(units.dyn5) then return end
 					end
 				end
@@ -880,7 +881,7 @@ local function runRotation()
 				--- In Combat - SimCraft APL ---
 				--------------------------------
 				if getOptionValue("APL Mode") == 2 then
-					if isChecked("Shield of the Righteous") and getDistance(units.dyn5) <= 5 and getFacing("player",units.dyn5) then
+					if isChecked("Shield of the Righteous") and GetUnitExists(units.dyn5) and getFacing("player",units.dyn5) then
 						--actions+=/shield_of_the_righteous,if=(buff.avengers_valor.up&cooldown.shield_of_the_righteous.charges_fractional>=2.5)&(cooldown.seraphim.remains>gcd|!talent.seraphim.enabled)
 						if cast.able.shieldOfTheRighteous() and ((buff.avengersValor.exists() and charges.shieldOfTheRighteous.frac()>=2.5) and (cd.seraphim.remain()>gcd or not talent.seraphim)) then
 							if cast.shieldOfTheRighteous() then return end
@@ -904,7 +905,7 @@ local function runRotation()
 					if isChecked("Racial") and cast.able.racial() and buff.seraphim.exists() and buff.seraphim.remain()<3 and race == "LightforgedDraenei" then
 						if cast.racial() then return end
 					end
-					if getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+					if GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
 						--actions+=/avengers_shield,if=((cooldown.shield_of_the_righteous.charges_fractional>2.5&!buff.avengers_valor.up)|active_enemies>=2)&cooldown_react
 						if isChecked("Avenger's Shield") and cast.able.avengersShield() and (((charges.shieldOfTheRighteous.frac()>2.5 and not buff.avengersValor.exists()) or #enemies.yards8>=2) and cd.avengersShield.remain() == 0) then
 							if cast.avengersShield() then return end
@@ -929,7 +930,7 @@ local function runRotation()
 						end
 					end
 					--actions+=/judgment,if=cooldown_react|!talent.crusaders_judgment.enabled
-					if isChecked("Judgment") and cast.able.judgment() and (cd.judgment.remain() == 0 or not talent.crusadersJudgment) and getDistance(units.dyn30) <= 30 and getFacing("player",units.dyn30) then
+					if isChecked("Judgment") and cast.able.judgment() and (cd.judgment.remain() == 0 or not talent.crusadersJudgment) and GetUnitExists(units.dyn30) and getFacing("player",units.dyn30) then
 						if cast.judgment() then return end
 					end
 					--actions+=/lights_judgment,if=!talent.seraphim.enabled|buff.seraphim.up

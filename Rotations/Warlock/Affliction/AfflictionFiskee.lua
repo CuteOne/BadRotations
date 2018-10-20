@@ -263,9 +263,10 @@ local function runRotation()
           [135824]=true, -- Nerubian Voidweaver
           [139057]=true, -- Nazmani Bloodhexer
           [129359]=true, -- Sawtooth Shark
+          [134503]=true, -- Silithid Warrior
         }
         local function noDotCheck(unit)
-          if isChecked("Dot Blacklist") and noDotUnits[GetObjectID(unit)] then return true end
+          if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
           if isTotem(unit) then return true end
           return false
         end
