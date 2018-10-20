@@ -189,7 +189,7 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
-        local enemies                                       = br.player.enemies 
+        local enemies                                       = br.player.enemies
         local explosiveTarget                               = explosiveTarget
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local fatality                                      = false
@@ -222,7 +222,7 @@ local function runRotation()
         local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
-        local units                                         = br.player.units 
+        local units                                         = br.player.units
         local use                                           = br.player.use
 
         units.get(5)
@@ -318,7 +318,7 @@ local function runRotation()
         if br.player.petInfo ~= nil then
             for k,v in pairs(br.player.petInfo) do
                 local thisPet = br.player.petInfo[k]
-                if thisPet.id == 11492 and #getObjectEnemies(thisPet.unit,5) > 0 then
+                if thisPet.id == 11492 and #getEnemies(thisPet.unit,5) > 0 then
                     -- Print("Explosions!!!!")
                     CastSpellByName(GetSpellInfo(spell.explosiveShotDetonate))
                     break
