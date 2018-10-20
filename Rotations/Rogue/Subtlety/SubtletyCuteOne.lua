@@ -277,6 +277,7 @@ local function runRotation()
         if vanishTime == nil then vanishTime = GetTime() end
         if ShDCdTime == nil then ShDCdTime = GetTime() end
         if ShdMTime == nil then ShdMTime = GetTime() end
+
         -- SimC Specific Variables
         -- variable,name=stealth_threshold,value=25+talent.vigor.enabled*35+talent.master_of_shadows.enabled*25+talent.shadow_focus.enabled*20+talent.alacrity.enabled*10+15*(spell_targets.shuriken_storm>=3)
         local stealthThreshold = 25 + (vigorous * 35) + (masterShadow * 25) + (focused * 20) + (alacrity * 10) + (15 * manyTargets)
@@ -285,6 +286,9 @@ local function runRotation()
 
 
         -- Custom Functions
+        local function timeSinceVanish()
+            return GetTime() - vanishTime 
+        end
         local function usePickPocket()
             if buff.stealth.exists() and not inCombat and (mode.pickPocket == 1 or mode.pickPocket == 2) then
                 return true
@@ -514,7 +518,7 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Vanish
                 -- vanish,if=!variable.shd_threshold&debuff.find_weakness.remains<1&combo_points.deficit>1
-                if useCDs() and isChecked("Vanish")and not solo and not cast.last.shadowmeld() and not buff.shadowmeld.exists() and not buff.shadowDance.exists() and gcd <= getLatency()*1.5 then
+                if useCDs() and isChecked("Vanish") and not solo and not cast.last.shadowmeld() and not buff.shadowmeld.exists() and not buff.shadowDance.exists() and gcd <= getLatency()*1.5 then
                     if cast.able.vanish() and (not shdThreshold and debuff.findWeakness.remain(units.dyn5) < 1 and comboDeficit > 1) then
                         cast.vanish();
                         vanishTime = GetTime();
@@ -659,11 +663,11 @@ local function runRotation()
             end
         -- Backstab / Gloomblade
             -- gloomblade
-            if cast.able.gloomblade() and talent.gloomblade and not stealthingRogue then
+            if cast.able.gloomblade() and talent.gloomblade and not stealthingRogue and timeSinceVanish() > 0.5 then
                 if cast.gloomblade() then return end
             end
             -- backstab
-            if cast.able.backstab() and not talent.gloomblade and not stealthingRogue then
+            if cast.able.backstab() and not talent.gloomblade and not stealthingRogue and timeSinceVanish() > 0.5 then
                 if cast.backstab() then return end
             end
         end -- End Action List - Generators
