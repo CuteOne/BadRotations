@@ -350,12 +350,14 @@ function isValidTarget(Unit)
 		end
 	end
 end
+
 function isTargeting(Unit,MatchUnit)
 	if GetUnit(Unit) == nil then return false end
 	if UnitTarget(GetUnit(Unit)) == nil then return false end
 	if MatchUnit == nil then MatchUnit = "player" end
 	return UnitTarget(GetUnit(Unit)) == ObjectPointer(MatchUnit)
 end
+
 function enemyListCheck(Unit)
 	local distance = getDistance(Unit,"player")
 	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or UnitIsCharmed(Unit))) or not GetUnitIsFriend(Unit,"player")
@@ -365,6 +367,7 @@ function enemyListCheck(Unit)
 	and mcCheck and not GetUnitIsUnit(Unit,"pet") and UnitCreator(Unit) ~= ObjectPointer("player")
 	and GetObjectID(Unit) ~= 11492 and getLineOfSight("player", Unit)
 end
+
 function isValidUnit(Unit)
 	local hostileOnly = isChecked("Hostiles Only")
 	local playerTarget = GetUnitIsUnit(Unit,"target")
@@ -372,7 +375,7 @@ function isValidUnit(Unit)
 	local targeting = isTargeting(Unit)
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or (UnitIsCharmed(Unit) and UnitCanAttack("player",Unit)))) or not GetUnitIsFriend(Unit,"player");
-	if playerTarget and not enemyListCheck("target") then return false end
+	if playerTarget and br.units[ObjectPointer("target")] == nil and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
 		and ((reaction < 5 and not hostileOnly) or (hostileOnly and reaction < 4) or isDummy(Unit)) and mcCheck and not isCC
 	then
@@ -384,6 +387,7 @@ function isValidUnit(Unit)
 	end
 	return false
 end
+
 function SpecificToggle(toggle)
 	if customToggle then
 		return false
