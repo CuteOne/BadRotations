@@ -166,10 +166,10 @@ end
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
-	local radius = tonumber(radius)
-	local targetDist = getDistance("target","player")
-	local enemyTable = checkNoCombat and br.units or br.enemy
-	local enemiesTable = {}
+		local radius = tonumber(radius)
+		local targetDist = getDistance("target","player")
+		local enemyTable = checkNoCombat and br.units or br.enemy
+		local enemiesTable = {}
     local thisEnemy, distance
     if checkNoCombat == nil then checkNoCombat = false end
     if refreshStored == true then
