@@ -862,7 +862,7 @@ local function runRotation()
 			end
 			-- Judgement
 			if isChecked("Judgement") and cast.able.judgment() and inCombat and getFacing("player",units.dyn30) then
-				if (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) or traits.graceoftheJusticar then
+				if talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30) then
 					if cast.judgment(units.dyn30) then return end
 				end
 			end
