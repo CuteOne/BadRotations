@@ -47,7 +47,7 @@ local function createOptions()
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
         -- Dummy DPS Test
-            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+            br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             --Ghost Wolf
@@ -66,6 +66,18 @@ local function createOptions()
             br.ui:createCheckbox(section,"Storm Elemental/Fire Elemental", "Check to use Storm/Fire Elemental")
             br.ui:createCheckbox(section,"Earth Elemental", "Check to use Earth Elemental")
             br.ui:createCheckbox(section, "Ascendance", "Check to use Ascendance")
+        br.ui:checkSectionState(section)
+        -------------------------
+        ---  TARGET OPTIONS   ---  -- Define Target Options
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Targets")
+            br.ui:createSpinner(section, "Maximum FlameShock Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use FlameShock in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "Maximum LB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Lava Burst in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "Maximum EB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Elemental Blast in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "SK Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Storm Keeper. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "LMT Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Liquid Magma Totem. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "Earthquake Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Earthquake. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinner(section, "Lava Beam Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Lava Beam. Min: 1 / Max: 10 / Interval: 1" )
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -177,9 +189,8 @@ local function runRotation()
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        
-        enemies.get(5)  --enemies.yards5
-        enemies.get(10) --enemies.yards10
+
+        enemies.get(10)
         enemies.get(20) --enemies.yards20
         enemies.get(30) --enemies.yards30 = br.player.enemies(30)
         enemies.get(40) --enemies.yards40 
@@ -325,7 +336,7 @@ local function runRotation()
         local function actionList_AoE()
             --Storm Keeper
             --actions.aoe=stormkeeper,if=talent.stormkeeper.enabled
-            if talent.stormKeeper then
+            if talent.stormKeeper and #enemies.yards40 >= getValue("SK Targets") then
                 if cast.stormKeeper() then return true end
             end
             -- Ascendance
@@ -335,12 +346,12 @@ local function runRotation()
             end
             -- Liquid Magma Totem
             --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
-            if talent.liquidMagmaTotem and useCDs then
+            if talent.liquidMagmaTotem and useCDs and #enemies.yards40 >= getValue("LMT Targets") then
                 if cast.liquidMagmaTotem("target") then return true end
             end
             -- Flame Shock
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
-            if #enemies.yards40 < 4 then
+            if #enemies.yards40 <= getValue("Maximum FlameShock Targets") then
                 for i=1, #enemies.yards40 do
                     if debuff.flameShock.remain(enemies.yards40[i].unit) < 5.4 then
                         if cast.flameShock() then return true end
@@ -349,22 +360,22 @@ local function runRotation()
             end
             -- Earthquake
             --actions.aoe+=/earthquake
-            if #enemies.yards8t >= 3 then
+            if #enemies.yards8t >= getValue("Earthquake Targets") then
                 if cast.earthquake("target","ground") then return true end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-            if buff.lavaSurge.exists()  and #enemies.yards40 < 4 then
+            if buff.lavaSurge.exists()  and #enemies.yards40 <= getValue("Maximum LB Targets") then
                 if cast.lavaBurst() then return true end
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-            if talent.elementalBlast and #enemies.yards40 < 4 then
+            if talent.elementalBlast and #enemies.yards40 <= getValue("Maximum EB Targets") then
                 if cast.elementalBlast() then return true end
             end
             -- Lava Beam
             --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
-            if buff.ascendance.exists() then
+            if buff.ascendance.exists() and #enemies.yards40 >= getValue("Lava Beam Targets") then
                 if cast.lavaBeam() then return true end
             end             
             -- Chain Lightning
@@ -410,18 +421,18 @@ local function runRotation()
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs and #enemies.yards8t < 3 and talent.stormKeeper then
+            if useCDs and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
                 if cast.stormKeeper() then return true end
             end
             -- Liquid Magma Totem
             --actions.single_target+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs and #enemies.yards8t < 3 and talent.liquidMagmaTotem then
+            if useCDs and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem then
                 if cast.liquidMagmaTotem() then return true end
             end
             
             -- Earthquake
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
-            if not talent.exposedElements and #enemies.yards8t > 1 then
+            if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets")  then
                 if cast.earthquake("target","ground") then return true end
             end
             
@@ -466,7 +477,7 @@ local function runRotation()
             end
             -- Lava Beam
             --actions.single_target+=/lava_beam,if=talent.ascendance.enabled&active_enemies>1&spell_targets.lava_beam>1
-            if talent.ascendance and buff.ascendance.exists() and #enemies.yards40 > 1 then
+            if talent.ascendance and buff.ascendance.exists() and #enemies.yards40 >= getValue("Lava Beam Targets") then
                 if cast.lavaBeam() then return true end
             end
             -- Chain Lightning
@@ -546,7 +557,7 @@ local function runRotation()
                 if cast.totemMastery() then return true end
             end
             -- Earthquake
-            if #enemies.yards8t >= 3 then
+            if #enemies.yards8t >= getValue("Earthquake Targets") then
                 if cast.earthquake("target","ground") then return true end
             end
             -- Earth Shock
@@ -554,11 +565,11 @@ local function runRotation()
                 if cast.earthShock() then return true end
             end
             -- Liquid Magma Totem
-            if useCDs and #enemies.yards8t >= 2 then
+            if useCDs and #enemies.yards8t >= getValue("LMT Targets") then
                 if cast.liquidMagmaTotem("target") then return true end
             end
             -- Stormkeeper
-            if useCDs and #enemies.yards8t >= 3 and talent.stormKeeper then
+            if useCDs and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
                 if cast.stormKeeper() then return true end
             end
             -- Elemental Blast
@@ -566,7 +577,7 @@ local function runRotation()
                 if cast.elementalBlast() then return true end
             end
             -- Lava Beam (3+ Targets)
-            if #enemies.yards40 >= 3 and buff.ascendance.exists() then
+            if #enemies.yards40 >= getValue("Lava Beam Targets") and buff.ascendance.exists() then
                 if cast.lavaBeam() then return true end
             end
             -- Chain Lightning (3+ Targets)
@@ -592,10 +603,6 @@ local function runRotation()
             -- Ascendance
             if isChecked("Ascendance") and useCDs and cd.lavaBurst.remain() > 0 then
                 if cast.ascendance() then return true end
-            end
-            -- Lava Beam
-            if #enemies.yards40 > 1 and buff.ascendance.exists() then
-                if cast.lavaBeam() then return true end
             end
             -- Chain Lightning
             if #enemies.yards40 > 1 and not buff.ascendance.exists() then
@@ -630,29 +637,47 @@ local function runRotation()
                 actionList_Defensive()
                 --Simc
                 if getOptionValue("APL Mode") == 1 then
-                        --actions+=/totem_mastery,if=talent.totem_mastery.enabled&buff.resonance_totem.remains<2
-                        if talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain()< 2) then
-                            if cast.totemMastery() then return true end
-                        end
-                        --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-                        if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs then
-                            if cast.fireElemental() then return true end
-                        else    
-                            if isChecked("Storm Elemental/Fire Elemental")then
-                                if cast.stormElemental() then return true end
-                            end
-                        end
-                        --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                        if useCDs and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
-                            if cast.earthElemental() then return true end
-                        end
-                        if (#enemies.yards40 > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
-                            if actionList_AoE() then return true end
+                            -- Racial Buffs
+                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs
+                    then
+                        if race == "LightforgedDraenei" then
+                            if cast.racial("target","ground") then return true end
                         else
-                            if (#enemies.yards40 <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
-                                if actionList_ST() then return true end
-                            end
+                            if cast.racial("player") then return true end
                         end
+                    end
+                    --Trinkets
+                    if isChecked("Trinkets") and useCDs and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end
+                    --actions+=/totem_mastery,if=talent.totem_mastery.enabled&buff.resonance_totem.remains<2
+                    if talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain()< 2) then
+                        if cast.totemMastery() then return true end
+                    end
+                    --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
+                    if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs then
+                        if cast.fireElemental() then return true end
+                    else    
+                        if isChecked("Storm Elemental/Fire Elemental") and useCDs then
+                            if cast.stormElemental() then return true end
+                        end
+                    end
+                    --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
+                    if useCDs and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
+                        if cast.earthElemental() then return true end
+                    end
+                    if (#enemies.yards40 > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
+                        if actionList_AoE() then return true end
+                    else
+                        if (#enemies.yards40 <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
+                            if actionList_ST() then return true end
+                        end
+                    end
                 --AMR
                 else 
                     if getOptionValue("APL Mode") == 2 then
