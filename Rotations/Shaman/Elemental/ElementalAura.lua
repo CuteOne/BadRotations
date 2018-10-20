@@ -177,8 +177,9 @@ local function runRotation()
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-
-        enemies.get(10)
+        
+        enemies.get(5)  --enemies.yards5
+        enemies.get(10) --enemies.yards10
         enemies.get(20) --enemies.yards20
         enemies.get(30) --enemies.yards30 = br.player.enemies(30)
         enemies.get(40) --enemies.yards40 
