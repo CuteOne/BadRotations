@@ -690,7 +690,7 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("制裁之锤 - HP") and inCombat then
+				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat then
 					for i = 1, #enemies.yards10 do
 						local thisUnit = enemies.yards10[i]
 						if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
