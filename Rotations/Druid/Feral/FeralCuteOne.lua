@@ -993,7 +993,7 @@ local function runRotation()
             if (cast.pool.rip() or cast.able.rip()) and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and not UnitIsCharmed(thisUnit) then
                         if getDistance(thisUnit) < 5 then
                             if (not debuff.rip.exists(thisUnit) or debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth)
                                 or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
@@ -1028,7 +1028,8 @@ local function runRotation()
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
             if cast.able.ferociousBite() and fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
-                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20 or (ttd(units.dyn5) <= 8 and debuff.rip.refresh(units.dyn5)))
+                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20 
+                    or (ttd(units.dyn5) <= 8 and debuff.rip.refresh(units.dyn5)) or UnitIsCharmed(units.dyn5))
             then
                 if cast.ferociousBite() then return true end
             end
@@ -1178,7 +1179,7 @@ local function runRotation()
             if (cast.pool.rake() or cast.able.rake()) and debuff.rake.count() < 3 then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) and not UnitIsCharmed(thisUnit) then
                         if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                         then
@@ -1192,7 +1193,7 @@ local function runRotation()
             end
         -- Moonfire
             -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-            if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
+            if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 and not UnitIsCharmed(units.dyn40) then
                 if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
                     if cast.moonfireFeral() then return end
                 end
@@ -1220,7 +1221,7 @@ local function runRotation()
             if cast.able.moonfireFeral() and talent.lunarInspiration and debuff.moonfireFeral.count() < 5 then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                    if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and not UnitIsCharmed(thisUnit) then
                         if debuff.moonfireFeral.refresh(thisUnit) then --or (isDummy(thisUnit) and getDistance(thisUnit) < 8) then
                            if cast.moonfireFeral(thisUnit) then return true end
                         end
@@ -1255,7 +1256,7 @@ local function runRotation()
             end
         -- Shred
             -- shred,if=buff.clearcasting.react
-            if cast.able.shred() and (buff.clearcasting.exists() or ttd(units.dyn5) <= 4) then
+            if cast.able.shred() and (buff.clearcasting.exists() or ttd(units.dyn5) <= 4 or UnitIsCharmed(units.dyn5)) then
                 if cast.shred() then return end
             end
         -- Moonfire
