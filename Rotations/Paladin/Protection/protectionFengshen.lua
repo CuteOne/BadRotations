@@ -690,9 +690,13 @@ local function runRotation()
 					if castSpell("player",racial,false,false,false) then return end
 				end
 				-- Hammer of Justice
-				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("Hammer of Justice - HP") and inCombat and not isBoss(units.dyn10) 
-				and getBuffRemain(units.dyn10,226510) == 0 and StunsBlackList[GetObjectID(units.dyn10)]==nil then
-					if cast.hammerOfJustice(units.dyn10) then return end
+				if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and php <= getOptionValue("制裁之锤 - HP") and inCombat then
+					for i = 1, #enemies.yards10 do
+						local thisUnit = enemies.yards10[i]
+						if isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+							if cast.hammerOfJustice(thisUnit) then return end
+						end
+					end
 				end
 				-- Flash of Light
 				if isChecked("Flash of Light") then
