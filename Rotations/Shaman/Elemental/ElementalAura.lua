@@ -7,7 +7,7 @@ local function createToggles() -- Define custom toggles
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.liquidMagmaTotem },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight =1 , icon = br.player.spell.chainLightning },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight =1, icon = br.player.spell.chainLightning },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spell.lightningBolt },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.thunderstorm}
     };
@@ -178,6 +178,8 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        enemies.get(10)
+        enemies.get(20) --enemies.yards20
         enemies.get(30) --enemies.yards30 = br.player.enemies(30)
         enemies.get(40) --enemies.yards40 
         enemies.get(8,"target") -- enemies.yards8t
@@ -204,10 +206,6 @@ local function runRotation()
                     if cast.ghostWolf() then return true end
                 end
             end
-        -- Purge
-            if isChecked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                if cast.purge() then return true end
-            end
         -- Water Walking
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
@@ -226,6 +224,10 @@ local function runRotation()
         end
         -- Action List - Defensive
         local function actionList_Defensive()
+            -- Purge
+            if isChecked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+                if cast.purge() then return true end
+            end
             if useDefensive() then
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
@@ -615,14 +617,14 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+            if not inCombat then
                 actionList_PreCombat()
+                actionList_Extra()
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                actionList_Extra()
                 actionList_Interrupt()
                 actionList_Defensive()
                 --Simc
