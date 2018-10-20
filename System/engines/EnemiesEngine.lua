@@ -6,6 +6,7 @@ if not metaTable2 then
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 	br.om = {} -- This is our main Table that the world will see
+	br.ttd = {} -- Time to die table
 	unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	unitSetup.cache = {} -- This is for the cache Table to check against
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
@@ -30,15 +31,6 @@ if not metaTable2 then
 		if unit and type(unit) == "string" then
 			o.unit = unit
 		end
-		-- returns unit GUID
-		function o:nGUID()
-			local nShortHand = ""
-			if GetUnitExists(unit) then
-				targetGUID = ObjectGUID(unit)
-				nShortHand = ObjectGUID(unit):sub(-5)
-			end
-			return targetGUID, nShortHand
-		end
 		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
 		function o:GetPosition()
 			if GetUnitIsVisible(o.unit) then
@@ -54,36 +46,85 @@ if not metaTable2 then
 		end
 		--Function time to die
 		function o:unitTtd()
-			if o.ttdRefresh == nil then o.ttdRefresh = GetTime() return 99 end
-			if o.hpmissing == 0 then return 99
-			else
-				if o.hpmissinglast == nil then o.hpmissinglast = o.hpmissing end
-				local diff = o.hpmissing - o.hpmissinglast
-				local timeSinceLast = GetTime() - o.ttdRefresh
-				local ttdDps = diff / timeSinceLast
-				o.hpmissinglast = o.hpmissing
-				o.ttdRefresh = GetTime()
-				if ttdDps ~= 0 then return o.hpabs/ttdDps else return 99 end
+			local value
+			if o.hp == 0 then return -1 end
+			if o.hp == 100 or isDummy(o.unit) then return 999 end
+			local timeNow = GetTime()
+			-- Reset unit if HP is higher
+			if br.ttd[o.unit] ~= nil and (br.ttd[o.unit].lasthp < o.hp or #br.ttd[o.unit].values == 0) then
+				br.ttd[o.unit] = nil
 			end
+			-- initialize new unit
+			if br.ttd[o.unit] == nil then
+				br.ttd[o.unit] = { } -- create unit
+				br.ttd[o.unit].values = { } -- create value table
+				value = {time = 0, hp = o.hp} -- create initial values
+				tinsert(br.ttd[o.unit].values, 1, value) -- insert unit
+				br.ttd[o.unit].lasthp = o.hp -- store current hp pct
+				br.ttd[o.unit].startTime = timeNow -- store current time
+				br.ttd[o.unit].lastTime = 0 --store last time value
+				return 999
+			end
+			local ttdUnit = br.ttd[o.unit]
+			-- add current value to ttd table if HP changed or more than X sec since last update
+			if o.hp ~= ttdUnit.lasthp or (timeNow - ttdUnit.startTime - ttdUnit.lastTime) > 0.5 then
+				value = {time = timeNow - ttdUnit.startTime, hp = o.hp}
+				tinsert(ttdUnit.values, 1, value)
+				br.ttd[o.unit].lasthp = o.hp
+				br.ttd[o.unit].lastTime = timeNow - ttdUnit.startTime
+			end
+			-- clean units
+			local valueCount = #ttdUnit.values
+			while valueCount > 0 and (valueCount > 100 or (timeNow - ttdUnit.startTime - ttdUnit.values[valueCount].time) > 10) do
+				ttdUnit.values[valueCount] = nil
+				valueCount = valueCount - 1
+			end
+			-- calculate ttd if more than 3 values
+			valueCount = #ttdUnit.values
+			if valueCount > 1 then
+				-- linear regression calculation from https://github.com/herotc/hero-lib/
+				local a, b = 0, 0
+      	local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
+				local x, y
+				for i = 1, valueCount do
+					x, y = ttdUnit.values[i].time, ttdUnit.values[i].hp
+					Ex2 = Ex2 + x * x
+	        Ex = Ex + x
+	        Exy = Exy + x * y
+	        Ey = Ey + y
+				end
+				local invariant = 1 / (Ex2 * valueCount - Ex * Ex)
+				a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
+      	b = (valueCount * Exy * invariant) - (Ex * Ey * invariant)
+				if b ~= 0 then
+					local ttdSec = (0 - a) / b
+					ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
+					if ttdSec > 0 then
+						return ttdSec
+					end
+					return -1 -- TTD under 0
+				end
+			end
+			return 999 -- not enough values
 		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
       -- assign Name of unit
       o.name = UnitName(o.unit)
       -- assign real GUID of unit and Short GUID of unit for the SetupTable
-      o.guid, o.guidsh = o:nGUID()
+      o.guid = UnitGUID(o.unit)
       -- distance to player
       --o.distance = getDistance("player",o.unit)
       -- Unit's threat situation(1-4)
       --o.threat = UnitThreatSituation("player", o.unit)
-      -- Unit HP absolute
-      --o.hpabs = ObjectDescriptor(o.unit, GetOffset("CGUnitData__Health"), Types.Int)
-			-- Unit max HP
-			--o.hpmax = ObjectDescriptor(o.unit, GetOffset("CGUnitData__MaxHealth"), Types.Int)
-			-- Unit HP missing absolute
-			--o.hpmissing = o.hpmax - o.hpabs
-      -- Unit HP and Absorb
-      --o.hp = o.hpabs / o.hpmax * 100
+			if getOptionCheck("Enhanced Time to Die") then
+	      -- Unit HP absolute
+	      o.hpabs = ObjectDescriptor(o.unit, GetOffset("CGUnitData__Health"), Types.Int)
+				-- Unit max HP
+				o.hpmax = ObjectDescriptor(o.unit, GetOffset("CGUnitData__MaxHealth"), Types.Int)
+	      -- Unit HP and Absorb
+	      o.hp = o.hpabs / o.hpmax * 100
+			end
 			-- Is valid unit
 			if o.validUnitRefresh == nil or o.validUnitRefresh < GetTime() - 0.5 then
 				o.isValidUnit = isValidUnit(o.unit)
@@ -101,9 +142,9 @@ if not metaTable2 then
 			-- Is unit pet
 			--o.isPet = ObjectCreator(o.unit) == GetObjectWithGUID(UnitGUID("player"))
 			-- TTD
-			-- if o.ttdRefresh == nil or o.ttdRefresh < GetTime() - 2 then
-			-- 	o.ttd = o:unitTtd()
-			-- end
+			if getOptionCheck("Enhanced Time to Die") then
+				o.ttd = o:unitTtd()
+			end
 			-- add unit to setup cache
 			unitSetup.cache[o.unit] = o -- Add unit to SetupTable
 		end
@@ -118,16 +159,36 @@ if not metaTable2 then
 		function br.om:Update()
 			br.omTableTimer = GetTime()
 			local i=1
+			if getOptionCheck("Debug TTD") then LibDraw.clearCanvas() end -- clear canvas for ttd
 			while i <= #br.om do
 				if not GetUnitIsVisible(br.om[i].unit) or getDistance(br.om[i].unit) > 50 then
 					for j,v in pairs(unitSetup.cache) do
 						if br.om[i].unit == j then
 							unitSetup.cache[j] = nil
+							-- reset time to die
+							if br.ttd[j] ~= nil then
+								br.ttd[j] = nil
+							end
 						end
 					end
 					tremove(br.om, i)
 				else
 					br.om[i]:UpdateUnit()
+					--TTD drawing
+					if getOptionCheck("Debug TTD") and br.om[i].enemyListCheck and br.om[i].isValidUnit then
+						local ox, oy, oz = ObjectPosition(br.om[i].unit)
+						local size = 1.75
+						if UnitCombatReach(br.om[i].unit) > 0 then size = UnitCombatReach(br.om[i].unit) / 0.857 end
+						oz = oz + size + 2
+						local mult = 10^2
+						local ttdText
+						if getOptionCheck("Enhanced Time to Die") then
+							ttdText = "TTD: " .. math.floor(br.om[i].ttd * mult + 0.5) / mult
+						else
+							ttdText = "TTD: " .. math.floor(getTTD(br.om[i].unit) * mult + 0.5) / mult
+						end
+						LibDraw.Text(ttdText, "DiesalFontNormal", ox, oy, oz)
+					end
 					i = i + 1
 				end
 			end

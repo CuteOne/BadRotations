@@ -61,6 +61,11 @@ function TTDRefresh()
 end
 
 function getTTD(unit)
+	if getOptionCheck("Enhanced Time to Die") then
+		if unit == "target" and GetObjectExists("target") then unit = UnitTarget("player") end
+		if unitSetup.cache[unit] ~= nil then return unitSetup.cache[unit].ttd end
+		return -2
+	end
 	if isDummy() then return 99 end
 	TTDRefresh()
 	local thisUnit = unit
