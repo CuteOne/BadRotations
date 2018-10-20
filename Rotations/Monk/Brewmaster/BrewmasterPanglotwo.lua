@@ -52,9 +52,9 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
 		-- Let Rotation Deal with Purifying (SIMC)
-			br.ui:createCheckbox(section,"Purify at High Stagger")
+			br.ui:createCheckbox(section,"High Stagger Debuff")
         -- Stagger dmg % to purify
-            br.ui:createSpinner(section, "Stagger dmg % to purify",  150,  0,  300,  10,  "Stagger dmg % to purify")
+            br.ui:createSpinner(section, "Stagger dmg % to purify",  100,  0,  300,  5,  "Stagger dmg % to purify")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinket 1")
             br.ui:createCheckbox(section,"Trinket 2")
@@ -437,10 +437,9 @@ local function runRotation()
                 end
             end
         -- Auto Purify
-			if isChecked("Auto Purify") then
-                if debuff.heavyStagger.exists("player") or 
-                ((staggerPct < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5))) then
-					if cast.purifyingBrew() then return end
+			if isChecked("High Stagger Debuff") then
+                if debuff.heavyStagger.exists("player") then
+                    if cast.purifyingBrew() then return end
 				end
             end
 		-- Percentage Purify
