@@ -940,7 +940,7 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and not IsMounted() then
-                actionList_Movement()
+                actionList_Extras()
                 actionList_PreCombat()
                 actionList_OOCHealing()
             end -- End Out of Combat Rotation
@@ -950,7 +950,7 @@ local function runRotation()
             if inCombat and not IsMounted() then
                 actionList_Interrupts()
                 actionList_Dispels()
-                actionList_Movement()
+                actionList_Extras()
                 actionList_Defensive()
                 actionList_Cooldowns()
                 actionList_AMR()
