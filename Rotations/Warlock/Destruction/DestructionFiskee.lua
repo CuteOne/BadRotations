@@ -38,8 +38,8 @@ end
 --- OPTIONS ---
 ---------------
 local function createOptions()
+    local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
     local optionTable
-
     local function rotationOptions()
         local section
     -- General Options
@@ -62,8 +62,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
-        -- Shadowfury key
-            br.ui:createDropdown(section,"Shadowfury Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFShadowfury stun with logic to hit most mobs.")
+        -- Shadowfury Hotkey
+            br.ui:createDropdown(section,"Shadowfury Hotkey", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         br.ui:checkSectionState(section)
@@ -197,6 +197,14 @@ local function runRotation()
         if castSummonId == nil then castSummonId = 0 end
         if summonTime == nil then summonTime = 0 end
 
+        --Keybindings
+        local shadowfuryKey = false
+        if getOptionValue("Shadowfury Hotkey") ~= 1 then
+          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey")-1)]
+          if shadowfuryKey == nil then shadowfuryKey = false end
+        end
+
+        --ttd
         local function ttd(unit)
           local ttdSec = getTTD(unit)
           if getOptionCheck("Enhanced Time to Die") then return ttdSec end
@@ -1104,7 +1112,7 @@ local function runRotation()
                     if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
-                    if isChecked("Shadowfury Key") and (SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus()) then
+                    if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
                       if cast.shadowfury("best",false,1,8) then return end
                     end
                     -- rotation

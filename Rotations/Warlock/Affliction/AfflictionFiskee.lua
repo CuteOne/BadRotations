@@ -1,6 +1,6 @@
 local rotationName = "Fiskee - 8.0.1"
-
 local dsInterrupt = false
+
 ---------------
 --- Toggles ---
 ---------------
@@ -47,6 +47,7 @@ local function createOptions()
     local optionTable
 
     local function rotationOptions()
+        local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
@@ -72,8 +73,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Burst Target Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFKey for bursting current target.")
         -- CDs with Burst target key
             br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
-        -- Shadowfury key
-            br.ui:createDropdown(section,"Shadowfury Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFShadowfury stun with logic to hit most mobs.")
+        -- Shadowfury Hotkey
+            br.ui:createDropdown(section,"Shadowfury Hotkey", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         -- Spread agony on single target
@@ -140,8 +141,6 @@ end
 local function runRotation()
     -- if br.timer:useTimer("debugAffliction", math.random(0.15,0.3)) then
         --Print("Running: "..rotationName)
-
-
 ---------------
 --- Toggles ---
 ---------------
@@ -215,6 +214,13 @@ local function runRotation()
           if getOptionCheck("Enhanced Time to Die") then return ttdSec end
           if ttdSec == -1 then return 999 end
           return ttdSec
+        end
+
+        --Keybindings
+        local shadowfuryKey = false
+        if getOptionValue("Shadowfury Hotkey") ~= 1 then
+          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey")-1)]
+          if shadowfuryKey == nil then shadowfuryKey = false end
         end
 
         --if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
@@ -859,53 +865,53 @@ local function runRotation()
 -----------------------
 --- Extras Rotation ---
 -----------------------
-            if actionList_Extras() then return end
+        if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
 --------------------------
-            if actionList_Defensive() then return end
+        if actionList_Defensive() then return end
 -----------------------
 --- Opener Rotation ---
 -----------------------
-            if opener == false and isChecked("Opener") and isBoss("target") then
-                if actionList_Opener() then return end
-            end
+        if opener == false and isChecked("Opener") and isBoss("target") then
+            if actionList_Opener() then return end
+        end
 ---------------------------
 --- Pre-Combat Rotation ---
 ---------------------------
-			     if actionList_PreCombat() then return end
+	     if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
-                and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
-    ------------------------------
-    --- In Combat - Interrupts ---
-    ------------------------------
-                if actionList_Interrupts() then return end
-    ---------------------------
-    --- SimulationCraft APL ---
-    ---------------------------
-                if getOptionValue("APL Mode") == 1 then
-        -- Pet Attack
-                    if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
-                        PetAttack()
-                    end
-                    if isChecked("Shadowfury Key") and (SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus()) then
-                      if cast.shadowfury("best",false,1,8) then return end
-                    end
-                    --CDs
-                    if useCDs() then
-                      if actionList_Cooldowns() then return end
-                    end
-                    -- Burst
-                    if (isChecked("Burst Target Key") and (SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus())) or mode.rotation == 3 then
-                        if actionList_BurstTarget() then return end
-                    end
-                    -- rotation
-                    if actionList_Rotation() then return end
+        if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
+            and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
+------------------------------
+--- In Combat - Interrupts ---
+------------------------------
+            if actionList_Interrupts() then return end
+---------------------------
+--- SimulationCraft APL ---
+---------------------------
+            if getOptionValue("APL Mode") == 1 then
+    -- Pet Attack
+                if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
+                    PetAttack()
+                end
+                if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+                  if cast.shadowfury("best",false,1,8) then return end
+                end
+                --CDs
+                if useCDs() then
+                  if actionList_Cooldowns() then return end
+                end
+                -- Burst
+                if (isChecked("Burst Target Key") and SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus()) or mode.rotation == 3 then
+                    if actionList_BurstTarget() then return end
+                end
+                -- rotation
+                if actionList_Rotation() then return end
 
-                end -- End SimC APL
+            end -- End SimC APL
 			end --End In Combat
 		end --End Rotation Logic
     end -- End Timer

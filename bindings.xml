@@ -1,4 +1,4 @@
- <Bindings>  
+ <Bindings>
 
     <Binding name="Start/Stop Toggle" description="Hold to use toggle rotation on/off" runOnUp="true" category="BadRotations">
             if keystate == "down" then mainButton:Click(); end
@@ -14,9 +14,23 @@
     </Binding>
     <Binding name="Interrupt Toggle" description="Hold to use toggle interrupts" runOnUp="true" category="BadRotations">
             if keystate == "down" then customToggle = true; toggleKey = "Interrupt"; UpdateToggle("Interrupt",0.25); else customToggle = nil; toggleKey = nil; end
-    </Binding> 
+    </Binding>
     <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadRotations">
             if keystate == "down" then forceHeal = true; else forceHeal = nil; end
     </Binding>
-    
+    <Binding name="Rotation Function 1" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
+            if keystate == "down" then rotationFunction1 = true; else rotationFunction1 = false; end
+    </Binding>
+    <Binding name="Rotation Function 2" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
+            if keystate == "down" then rotationFunction2 = true; else rotationFunction2 = false; end
+    </Binding>
+    <Binding name="Rotation Function 3" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
+            if keystate == "down" then rotationFunction3 = true; else rotationFunction3 = false; end
+    </Binding>
+    <Binding name="Rotation Function 4" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
+            if keystate == "down" then rotationFunction4 = true; else rotationFunction4 = false; end
+    </Binding>
+    <Binding name="Rotation Function 5" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
+            if keystate == "down" then rotationFunction5 = true; else rotationFunction5 = false; end
+    </Binding>
  </Bindings>
