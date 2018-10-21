@@ -49,6 +49,8 @@ local function createOptions()
         -------- UTILITY --------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Utility")
+            -- Auto Buff Fortitude
+            br.ui:createCheckbox(section,"Power Word Fortitude", "Check to auto buff Fortitude on party.")
             -- OOC Healing
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
             br.ui:createSpinner(section,"OOC Penance", 95, 0, 100, 5,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat penance healing|cffFFBB00.")
@@ -587,7 +589,7 @@ local function runRotation()
                 end
             end
         end
-        local function actionList_Movement()
+        local function actionList_Extras()
             -- Angelic Feather
             if IsMovingTime(getOptionValue("Angelic Feather")) then
                 if not runningTime then runningTime = GetTime()
@@ -605,6 +607,13 @@ local function runRotation()
                 if isChecked("Body and Soul") and talent.bodyAndSoul and not buff.bodyAndSoul.exists("player") and GetTime() >= bnSTimer + 6 then
                     if cast.powerWordShield("player") then
                     bnSTimer = GetTime() return end
+                end
+            end
+            if isChecked("Power Word: Fortitude") and br.timer:userTimer("PW:F Delay", 2) then
+                for i = 1, i < #br.friend do
+                    if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") then
+                        if cast.powerWordFortitude() then return true end
+                    end
                 end
             end
         end
