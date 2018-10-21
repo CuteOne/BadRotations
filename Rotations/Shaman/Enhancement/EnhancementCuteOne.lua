@@ -728,14 +728,10 @@ local function runRotation()
                     if actionList_Cooldowns() then return true end
             -- Call Action List - Core
                     -- call_action_list,name=core
-                    if not buff.ascendance.exists() then 
-                        if actionList_Core() then return true end
-                    end
+                    if actionList_Core() then return true end
             -- Call Action List - Filler
                     -- call_action_list,name=filler
-                    if not buff.ascendance.exists() then 
-                        if actionList_Filler() then return true end
-                    end
+                    if actionList_Filler() then return true end
                 end -- End SimC APL
     ----------------------
     --- AskMrRobot APL ---
