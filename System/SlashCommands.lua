@@ -84,6 +84,7 @@ function slashHelpList()
 	SlashCommandHelp("br queue clear","Clears the Spell Queue of all queued spells.")
 	SlashCommandHelp("br queue add spellId","Adds the Spell to the Queue by Spell Id.")
 	SlashCommandHelp("br queue remove spellId","Removes the Spell from the Queue by Spell Id.")
+	SlashCommandHelp("br showui","Shows a list of toggleable UI elements, IE: /br showui main")
 	SlashCommandHelp("br updaterate", "Displays Current Update Rate")
 	if select(2, UnitClass("player")) == "HUNTER" then
 		SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
@@ -227,7 +228,7 @@ function handler(message, editbox)
 		            		Print("Spell Not Found: Failed to remove |cFFFF0000"..spellName.."|r from the queue. ")
 		            	end
 		            end
-		        end
+				end
 			elseif msg2 == nil then
 				Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list.")
 			end
@@ -238,6 +239,37 @@ function handler(message, editbox)
 		updateRate()
 	elseif msg == "disengage" then
 		forewardDisengage()
+	elseif msg1 == "showui" then 
+		if msg2 == "main" then 
+			-- Show/Hide Bot Options
+			if br.ui.window.config.parent == nil then
+				br.ui:createConfigWindow()
+			else
+				br.ui:toggleWindow("config")
+			end
+		elseif msg2 == "profile" then
+			-- Show/Hide Profile Option
+			br.ui:toggleWindow("profile")
+		elseif msg2 == "togglebar" then 
+			-- Show/Hide Toggle Bar
+			if UnitAffectingCombat("player") then
+				Print("Combat Lockdown detected. Unable to modify button bar. Please try again when out of combat.")
+			else 
+				if br.data.settings[br.selectedSpec].toggles["Main"] == 1 then
+					br.data.settings[br.selectedSpec].toggles["Main"] = 0
+					mainButton:Hide()
+				else
+					br.data.settings[br.selectedSpec].toggles["Main"] = 1
+					mainButton:Show()
+				end
+			end
+		elseif msg2 == nil then
+			-- Show UI Options 
+			Print("Please provide one of the following options with showUI\n"..
+				"|cFFFF0000 main |r - Shows/Hides main bot options\n"..
+				"|cFFFF0000 profile |r - Shows/Hides profile options\n"..
+				"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n")
+		end
 	else
 	    Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
 	end
