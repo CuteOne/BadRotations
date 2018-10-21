@@ -362,9 +362,10 @@ function br.read.combatLog()
                 if source == UnitGUID("player") then
                     if destination ~= nil and destination ~= "" then
                         local thisUnit = thisUnit
+                        local destination = GetObjectWithGUID(destination)
                         if FireHack then
                             if GetObjectExists(destination) then
-                                thisUnit = GetObjectWithGUID(destination)
+                                thisUnit = destination
                             elseif GetObjectExists("target") then
                                 thisUnit = GetObjectWithGUID(UnitGUID("target"))
                             else
@@ -523,9 +524,10 @@ function br.read.combatLog()
                 if source == UnitGUID("player") then
                     if destination ~= nil and destination ~= "" then
                         local thisUnit = thisUnit
+                        local destination = GetObjectWithGUID(destination)
                         if FireHack then
                             if GetObjectExists(destination) then
-                                thisUnit = GetObjectWithGUID(destination)
+                                thisUnit = destination
                             elseif GetObjectExists("target") then
                                 thisUnit = GetObjectWithGUID(UnitGUID("target"))
                             else
