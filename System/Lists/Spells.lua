@@ -544,6 +544,7 @@ br.lists.spells = {
                 powerOfEluneTheMoonGoddness = 208284,
                 sephuzSecret                = 208052,
                 astralAcceleration          = 242232,
+                newMoonController           = -2027671,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -566,7 +567,17 @@ br.lists.spells = {
                 warriorOfElune              = 202425,
                 soulOfTheForest             = 114107,
                 photosynthesis              = 274902,
+                newMoon                     = 202767,
             },
+            traits                          = {
+                dawningSun                  = 276152,
+                highNoon                    = 278505,
+                livelySpirit                = 279642,
+                lunarShrapnel               = 278507,
+                powerOfTheMoon              = 273367,
+                streakingStars              = 272871,
+                sunblaze                    = 274397,
+            }
         },
         -- Feral
         [103] = {
@@ -1226,6 +1237,14 @@ br.lists.spells = {
                 supernova                   = 157980,
                 temporalFlux                = 234302,
                 wordsOfPower                = 205035,
+            },
+            traits                         = {
+                anomalousImpact             = 279867,
+                arcanePressure              = 274594,
+                arcanePummeling             = 270669,
+                brainStorm                  = 273326,
+                explosiveEcho               = 278537,
+                galvanizingSpark            = 278536,
             },
         },
         -- Fire
