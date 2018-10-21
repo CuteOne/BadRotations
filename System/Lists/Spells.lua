@@ -104,6 +104,7 @@ br.lists.spells = {
                 bloodShield                 = 77535,
                 crimsonScourge              = 81136,
                 dancingRuneWeapon           = 81256,
+                runeTap                     = 194679,
                 tombstone                   = 219809,
                 vampiricBlood               = 55233,
             },
