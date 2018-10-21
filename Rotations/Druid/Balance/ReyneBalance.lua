@@ -75,7 +75,6 @@ local function runRotation()
 --------------
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
-        local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
@@ -91,10 +90,8 @@ local function runRotation()
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local moving                                        = isMoving("player")
         local perk                                          = br.player.perk
         local petInfo                                       = br.player.petInfo
         local php                                           = br.player.health
@@ -102,25 +99,25 @@ local function runRotation()
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount, br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
-        local solo                                          = br.player.instance=="none"
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local dt                                            = date("%H:%M:%S")
-        local debug                                         = false
-        -- custom locals
+        local trait                                         = br.player.traits
+        
+        -- Balance Locals
         local astralPower                                   = br.player.power.astralPower.amount()
         local astralPowerDeficit                            = br.player.power.astralPower.deficit()
         local travel                                        = br.player.buff.travelForm.exists()
         local flight                                        = br.player.buff.flightForm.exists()
-        local moonkin                                       = br.player.buff.balanceForm.exists()
+        local chicken                                       = br.player.buff.balanceForm.exists()
         local cat                                           = br.player.buff.catForm.exists()
         local bear                                          = br.player.buff.bearForm.exists()
         local noform                                        = GetShapeshiftForm()==0
-        local hasteAmount           = 1/(1+(GetHaste()/100))
-        local latency               = getLatency()
+        local hasteAmount                                   = 1/(1+(GetHaste()/100))
+        local latency                                       = getLatency()
 
         units.get(40)
         enemies.get(15, "target")
@@ -135,7 +132,7 @@ local function runRotation()
 --------------------
 
 -- Action List - Single/Two Target
-local function actionList_single()
+local function actionList_main()
 
     -- Make sure we're in moonkin form if we're not in another form
     if noform then
@@ -145,18 +142,18 @@ local function actionList_single()
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 6 then
+        if debuff.moonfire.remain(thisUnit) < 3 and ttd(thisUnit) > 3 then
             if cast.moonfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 5 then
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 3 and debuff.sunfire.remain(thisUnit) < 3 then
             if cast.sunfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.stellarFlare.remain(thisUnit) < 7 then
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 3 and debuff.stellarFlare.remain(thisUnit) < 3 then
             if cast.stellarFlare(thisUnit,"aoe") then return true end
         end
     end
 
     -- Cooldowns
         -- Cast Force of Nature
-        if cast.able.forceOfNature() and useCDs() and isChecked("Force of Nature") then
+        if cast.able.forceOfNature() and useCDs() and isChecked("Force of Nature") and astralPowerDeficit > 20 then
             if cast.forceOfNature("best") then return end
         end
 
@@ -166,18 +163,49 @@ local function actionList_single()
         end
 
         -- Cast Incarnation
-        if cast.able.incarnationChoseOfElune() and useCDs() and isChecked("Incarnation") then
+        if cast.able.incarnationChoseOfElune() and useCDs() and isChecked("Incarnation") and astralPower >= 40 then
             if cast.incarnationChoseOfElune() then return end
         end
 
         -- Cast Celestial Alignment
-        if cast.able.celestialAlignment() and useCDs() and isChecked("Celestial Alignment") then
+        if cast.able.celestialAlignment() and useCDs() and isChecked("Celestial Alignment") and astralPower >= 40 then
             if cast.celestialAlignment() then return end
         end
 
+    -- trait.brainStorm.active()
+
+
+
+    -- Cast Starfall with Lunar Shrapnel
+    if cast.able.starfall("best", nil, 2, 15) and talent.soulOfTheForest and talent.stellarDrift and trait.lunarShrapnel.active() then
+        if cast.starfall() then return end
+    end
+
+    -- Cast Starfall
+    if cast.able.starfall("best", nil, 3, 15) then
+        if cast.starfall() then return end
+    end
+
     -- Cast Starsurge
-    if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) then
+    if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) and not cast.able.starfall("best", nil, 3, 15) then
         if cast.starsurge() then return end
+    end
+
+     -- Apply Moonfire and Sunfire to all targets that can be refreshed
+     for i = 1, #enemies.yards40 do
+        local thisUnit = enemies.yards40[i]
+        if isValidUnit(thisUnit) and ttd(thisUnit) > 5.4 and debuff.sunfire.remain(thisUnit) < 5.4 then
+            if cast.sunfire(thisUnit,"aoe") then return true end
+        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 7.2 and debuff.stellarFlare.remain(thisUnit) < 7.2 then
+            if cast.stellarFlare(thisUnit,"aoe") then return true end
+        elseif debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 then
+            if cast.moonfire(thisUnit,"aoe") then return true end
+        end
+    end
+
+    -- Cast New Moon
+    if cast.able.newMoon() and astralPowerDeficit > (10 * (1+ buff.newMoonController.stack())) then
+        if cast.newMoon() then return end
     end
 
     -- Cast Solar Wrath with Empowerment
@@ -190,97 +218,31 @@ local function actionList_single()
         if cast.lunarStrike() then return end
     end
 
-    -- Cast Solar Wrath with Empowerment
-    if cast.able.solarWrath() and buff.solarEmpowerment.exists() then
-        if cast.solarWrath() then return end
-    end
-
-    -- Cast Solar Wrath without empowerment, without cleave
-    if cast.able.solarWrath() and #enemies.yards8t < 2 then
-        if cast.solarWrath() then return end
-    end
-
-    -- Cast Lunar Strike without empowerment, with cleave
-    if cast.able.lunarStrike() and #enemies.yards8t >= 2 then
-        if cast.lunarStrike() then return end
-    end
-
-end
-
--- Action List - Multi Target
-local function actionList_multi()
-
-    -- Make sure we're in moonkin form if we're not in another form
-    if noform then
-        if cast.balanceForm() then return end
-    end
-
-     -- Cast Starfall
-    if cast.able.starfall("best", nil, 3, 15) then
-        if cast.starfall() then return end
-    end
-
-    -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
-    for i = 1, #enemies.yards40 do
-        local thisUnit = enemies.yards40[i]
-        if debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 6 then
-            if cast.moonfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.sunfire.remain(thisUnit) < 5 then
-            if cast.sunfire(thisUnit,"aoe") then return true end
-        elseif isValidUnit(thisUnit) and ttd(thisUnit) > 6 and debuff.stellarFlare.remain(thisUnit) < 7 then
-            if cast.stellarFlare(thisUnit,"aoe") then return true end
-        end
-    end
-
-    -- Cooldowns
-        -- Cast Force of Nature
-        if cast.able.forceOfNature() and useCDs() and isChecked("Force of Nature") then
-            if cast.forceOfNature("best") then return end
-        end
-
-        -- Cast Fury of Elune
-        if cast.able.furyOfElune() and useCDs() and isChecked("Fury of Elune") then
-            if cast.furyOfElune() then return end
-        end
-
-        -- Cast Incarnation
-        if cast.able.incarnationChoseOfElune() and useCDs() and isChecked("Incarnation") then
-            if cast.incarnationChoseOfElune() then return end
-        end
-
-        -- Cast Celestial Alignment
-        if cast.able.celestialAlignment() and useCDs() and isChecked("Celestial Alignment") then
-            if cast.celestialAlignment() then return end
-        end
-
-        -- Cast Warrior of Elune
-        if cast.able.warriorOfElune() and useCDs() and isChecked("Warrior of Elune") then
-            if cast.warriorOfElune() then return end
-        end
-
-    -- Cast Lunar Strike with Empowerment
-    if cast.able.lunarStrike() and buff.lunarEmpowerment.exists() then
-        if cast.lunarStrike() then return end
-    end
-
     -- Cast Lunar Strike with Warrior of Elune
     if cast.able.lunarStrike() and buff.warriorOfElune.exists() then
         if cast.lunarStrike() then return end
-    end
+    end    
 
     -- Cast Solar Wrath with Empowerment
     if cast.able.solarWrath() and buff.solarEmpowerment.exists() then
         if cast.solarWrath() then return end
     end
 
+    -- Cast Lunar Strike without empowerment, with cleave
+    if cast.able.lunarStrike() and #enemies.yards8t >= 3 then
+        if cast.lunarStrike() then return end
+    end
+
     -- Cast Solar Wrath without empowerment, without cleave
-    if cast.able.solarWrath() and #enemies.yards8t < 2 then
+    if cast.able.solarWrath() then
         if cast.solarWrath() then return end
     end
 
-    -- Cast Lunar Strike without empowerment, with cleave
-    if cast.able.lunarStrike() and #enemies.yards8t >= 2 then
-        if cast.lunarStrike() then return end
+    if cast.able.moonfire() and moving then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if cast.moonfire(thisUnit,"aoe") then return true end
+        end
     end
 
 end
@@ -302,13 +264,7 @@ end
 --- In Combat - Rotations --- 
 -----------------------------
         if inCombat then
-            -- Use multi-target rotation if 3 or more mobs
-            if #enemies.yards15t >= 3 then
-                if actionList_multi() then return end
-            end
-            -- Single Target/Cleave Rotation
-            if actionList_single() then return end
-
+            if actionList_main() then return end
             end -- End In Combat Rotation
 
         end -- Pause
