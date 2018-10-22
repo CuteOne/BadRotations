@@ -176,6 +176,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.staminaBig)
         local friendly                                      = friendly or UnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
@@ -524,7 +525,7 @@ local function runRotation()
                   return cast.blooddrinker()
                 end
                 -- marrowrend,if=(buff.bone_shield.remains<=rune.time_to_3|buff.bone_shield.remains<=(gcd+cooldown.blooddrinker.ready*talent.blooddrinker.enabled*2)|buff.bone_shield.stack<3)&runic_power.deficit>=20
-                if cast.able.marrowrend() and ((buff.boneShield.remain() <= runeTimeTill(3) or buff.boneShield.remain() <= (gcd + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2) or buff.boneShield.stack() < 3) and runicPowerDeficit >= 20) then
+                if cast.able.marrowrend() and ((buff.boneShield.remain() <= runeTimeTill(3) or buff.boneShield.remain() <= (gcdMax + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2) or buff.boneShield.stack() < 3) and runicPowerDeficit >= 20) then
                   return cast.marrowrend()
                 end
                 -- blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
@@ -548,11 +549,11 @@ local function runRotation()
                   return cast.deathAndDecay("player")
                 end
                 -- rune_strike,if=(charges_fractional>=1.8|buff.dancing_rune_weapon.up)&rune.time_to_3>=gcd
-                if talent.runeStrike and cast.able.runeStrike() and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and runeTimeTill(3) >= gcd) then
+                if talent.runeStrike and cast.able.runeStrike() and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and runeTimeTill(3) >= gcdMax) then
                   return cast.runeStrike()
                 end
                 -- heart_strike,if=buff.dancing_rune_weapon.up|rune.time_to_4<gcd
-                if cast.able.heartStrike() and (buff.dancingRuneWeapon.exists() or runeTimeTill(4) < gcd) then
+                if cast.able.heartStrike() and (buff.dancingRuneWeapon.exists() or runeTimeTill(4) < gcdMax) then
                   return cast.heartStrike()
                 end
                 -- blood_boil,if=buff.dancing_rune_weapon.up
@@ -572,7 +573,7 @@ local function runRotation()
                   return cast.bloodBoil()
                 end
                 -- heart_strike,if=rune.time_to_3<gcd|buff.bone_shield.stack>6
-                if cast.able.heartStrike() and (runeTimeTill(3) < gcd or buff.boneShield.stack() > 6) then
+                if cast.able.heartStrike() and (runeTimeTill(3) < gcdMax or buff.boneShield.stack() > 6) then
                   return cast.heartStrike()
                 end
                 -- rune_strike

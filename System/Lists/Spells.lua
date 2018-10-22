@@ -210,7 +210,8 @@ br.lists.spells = {
         -- Unholy
         [252] = {
             abilities                       = {
-                armyoftheDead               = 42650,
+                apocalypse                  = 220143,
+                armyOfTheDead               = 42650,
                 asphyxiate                  = 108194,
                 chainsOfIce                 = 45524,
                 corpseShield                = 207319,
@@ -229,6 +230,7 @@ br.lists.spells = {
                 raiseDead                   = 46584,
                 scourgeStrike               = 55090,
                 summonGargoyle              = 49206,
+                unholyBlight                = 115989,
 
             },
             artifacts                       = {
@@ -243,6 +245,7 @@ br.lists.spells = {
                 necrosis                    = 207346,
                 soulReaper                  = 215711,
                 suddenDoom                  = 49530,
+                unholyFrenzy                = 207289,
             },
             debuffs                         = {
                 chainsOfIce                 = 45524,
