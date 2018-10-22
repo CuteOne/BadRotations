@@ -568,21 +568,16 @@ local function runRotation()
                 --Purify
                 for i = 1, #br.friend do
                     --High Botanist Tel'arn Parasitic Fetter dispel helper
-                    if isChecked("Parasitic Fetter Dispel Helper Raid") and UnitDebuffID(br.friend[i].unit,218304) then
+                    if isChecked("Parasitic Fetter Dispel Helper Raid") and UnitDebuffID(br.friend[i].unit,218304) and canDispel(br.friend[i].unit, spell.purify) then
                         if #getAllies(br.friend[i].unit,15) < 2 then
                             if cast.purify(br.friend[i].unit) then return end
                         end
-                    elseif UnitDebuffID(br.friend[i].unit,145206) then
+                    elseif UnitDebuffID(br.friend[i].unit,145206) and canDispel(br.friend[i].unit, spell.purify) then
                         if cast.purify(br.friend[i].unit) then return end
                     else
-                        for n = 1,40 do
-                            local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-                            if buff then
-                                if (bufftype == "Disease" or bufftype == "Magic") then
-                                    if getSpellCD(spell.purify) > 1 and norganBuff and isChecked("Mass Dispel") then
-                                        if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
-                                    elseif cast.purify(br.friend[i].unit) then return end
-                                end
+                        for i = 1, #br.friend do
+                            if canDispel(br.friend[i].unit, spell.purify) then
+                                if cast.purify(br.friend[i].unit) then return true end
                             end
                         end
                     end
