@@ -3,7 +3,7 @@
 if not metaTable2 then
 	-- localizing the commonly used functions while inside loops
 	local getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit
-	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
+	local UnitDebuff,UnitExists = UnitDebuff,UnitExists
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 	br.om = {} -- This is our main Table that the world will see
 	br.ttd = {} -- Time to die table
@@ -119,9 +119,9 @@ if not metaTable2 then
       --o.threat = UnitThreatSituation("player", o.unit)
 			if getOptionCheck("Enhanced Time to Die") then
 	      -- Unit HP absolute
-	      o.hpabs = ObjectDescriptor(o.unit, GetOffset("CGUnitData__Health"), Types.Int)
+	      o.hpabs = UnitHealth(o.unit)
 				-- Unit max HP
-				o.hpmax = ObjectDescriptor(o.unit, GetOffset("CGUnitData__MaxHealth"), Types.Int)
+				o.hpmax = UnitHealthMax(o.unit)
 	      -- Unit HP and Absorb
 	      o.hp = o.hpabs / o.hpmax * 100
 			end
