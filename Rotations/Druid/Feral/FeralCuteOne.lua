@@ -316,6 +316,7 @@ local function runRotation()
         
         -- Multi-Dot HP Limit Set
         local function canDoT(unit)
+            if not isBoss() then return true end
             local unitHealthMax = UnitHealthMax(unit)
             local maxHealth = 0
             for i = 1, #enemies.yards5 do
@@ -324,7 +325,7 @@ local function runRotation()
                     maxHealth = thisMaxHealth 
                 end 
             end 
-            return (isBoss() and unitHealthMax > maxHealth / 10) or not isBoss()
+            return unitHealthMax > maxHealth / 10
         end
         
         -- TF Predator Snipe
