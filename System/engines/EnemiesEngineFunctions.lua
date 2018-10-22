@@ -65,7 +65,7 @@ function updateOM()
 					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or CanLootUnit(UnitGUID(thisUnit)))
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
-					local enemyUnit = br.unitSetup:new(thisUnit)
+					local enemyUnit = unitSetup:new(thisUnit)
 					if enemyUnit then tinsert(br.om, enemyUnit) end
 				end
 			if isChecked("Debug Timers") then
@@ -94,10 +94,10 @@ function PopulateUnitTables()
 	end
 	-- Clean Up
 	-- Units
-	for k, v in pairs(br.units) do if not br.unitSetup.cache[br.units[k].unit] or br.unitSetup.cache[br.units[k].unit].enemyListCheck == false then br.units[k] = nil end end
+	for k, v in pairs(br.units) do if not unitSetup.cache[br.units[k].unit] or unitSetup.cache[br.units[k].unit].enemyListCheck == false then br.units[k] = nil end end
 	-- Pets
 	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
-		for k,v in pairs(br.player.pet.list) do if not br.unitSetup.cache[br.player.pet.list[k].unit] or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
+		for k,v in pairs(br.player.pet.list) do if not unitSetup.cache[br.player.pet.list[k].unit] or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
 	end
 	-- Lootables
 	for k, v in pairs(br.lootable) do
@@ -105,7 +105,7 @@ function PopulateUnitTables()
 		if not hasLoot or not GetObjectExists(br.lootable[k].unit) then br.lootable[k] = nil end
 	end
 	-- Enemies
-	for k, v in pairs(br.enemy) do if not br.unitSetup.cache[br.enemy[k].unit] or br.unitSetup.cache[br.enemy[k].unit].enemyListCheck == false or br.unitSetup.cache[br.enemy[k].unit].isValidUnit == false then br.enemy[k] = nil end end
+	for k, v in pairs(br.enemy) do if not unitSetup.cache[br.enemy[k].unit] or unitSetup.cache[br.enemy[k].unit].enemyListCheck == false or unitSetup.cache[br.enemy[k].unit].isValidUnit == false then br.enemy[k] = nil end end
 	-- Cycle the Object Manager
 	local omCounter = 0;
 	if br.om ~= nil then

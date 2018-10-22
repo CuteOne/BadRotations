@@ -7,15 +7,15 @@ if not metaTable2 then
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 	br.om = {} -- This is our main Table that the world will see
 	br.ttd = {} -- Time to die table
-	br.unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
-	br.unitSetup.cache = {} -- This is for the cache Table to check against
+	unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
+	unitSetup.cache = {} -- This is for the cache Table to check against
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
 		name = "Enemies Table",
 		author = "Bubba",
 	}
 	-- Creating a default Unit to default to on a check
-	br.unitSetup.__index = {
+	unitSetup.__index = {
 		name = "dangerousbeast",
 		hp = 100,
 		unit = "noob",
@@ -23,11 +23,11 @@ if not metaTable2 then
 		guidsh = 0,
 	}
 
-	function br.unitSetup:new(unit)
+	function unitSetup:new(unit)
 		-- Seeing if we have already cached this unit before
-		if br.unitSetup.cache[unit] then return false end
+		if unitSetup.cache[unit] then return false end
 		local o = {}
-		setmetatable(o, br.unitSetup)
+		setmetatable(o, unitSetup)
 		if unit and type(unit) == "string" then
 			o.unit = unit
 		end
@@ -146,11 +146,11 @@ if not metaTable2 then
 				o.ttd = o:unitTtd()
 			end
 			-- add unit to setup cache
-			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
+			unitSetup.cache[o.unit] = o -- Add unit to SetupTable
 		end
 		-- Adding the user and functions we just created to this cached version in case we need it again
 		-- This will also serve as a good check for if the unit is already in the table easily
-		br.unitSetup.cache[o.unit] = o
+		unitSetup.cache[o.unit] = o
 		return o
 	end
 	-- Setting up the tables on either Wipe or Initial Setup
@@ -162,9 +162,9 @@ if not metaTable2 then
 			if getOptionCheck("Debug TTD") then LibDraw.clearCanvas() end -- clear canvas for ttd
 			while i <= #br.om do
 				if not GetUnitIsVisible(br.om[i].unit) or getDistance(br.om[i].unit) > 50 then
-					for j,v in pairs(br.unitSetup.cache) do
+					for j,v in pairs(unitSetup.cache) do
 						if br.om[i].unit == j then
-							br.unitSetup.cache[j] = nil
+							unitSetup.cache[j] = nil
 							-- reset time to die
 							if br.ttd[j] ~= nil then
 								br.ttd[j] = nil
