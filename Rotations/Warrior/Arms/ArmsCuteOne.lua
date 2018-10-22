@@ -895,7 +895,8 @@ local function runRotation()
             -- Sweeping Strikes
                 -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
                 if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
-                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active())
+                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active() 
+                    or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
                 then
                     if cast.sweepingStrikes() then return end
                 end
