@@ -37,7 +37,7 @@ local function createOptions()
     local function rotationOptions()
         local section
     -- Cooldown Options
-    section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+    section = br.ui:createSection(br.ui.window.profile, "Options")
     -- Celestial Alignment
         br.ui:createCheckbox(section,"Celestial Alignment")
     -- Warrior of Elune
@@ -48,6 +48,8 @@ local function createOptions()
         br.ui:createCheckbox(section,"Force of Nature")   
     -- Incarnation
         br.ui:createCheckbox(section,"Incarnation")   
+    -- Hold Starsurge
+        br.ui:createCheckbox(section,"Hold Starsurge to 90")   
     br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -187,7 +189,12 @@ local function actionList_main()
     end
 
     -- Cast Starsurge
-    if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) and not cast.able.starfall("best", nil, 3, 15) then
+    if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) and not cast.able.starfall("best", nil, 3, 15) and not isChecked("Hold Starsurge to 90") then
+        if cast.starsurge() then return end
+    end
+
+    -- Cast Starsurge
+    if cast.able.starsurge() and (buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3) and not cast.able.starfall("best", nil, 3, 15) and astralPower >= 90 then
         if cast.starsurge() then return end
     end
 
