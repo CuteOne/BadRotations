@@ -755,10 +755,10 @@ local function runRotation()
 				if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
 					for i = 1, #enemies.yards30 do
 						local thisUnit = enemies.yards30[i]
-						local distance = getDistance(thisUnit)
-						if canInterrupt(thisUnit,95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
-							if distance <= 30 and getFacing("player",thisUnit) then
+						if canInterrupt(thisUnit,100) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
+							if getFacing("player",thisUnit) then
 								if CastSpellByName(GetSpellInfo(31935),thisUnit) then return end
+								InterruptTime = GetTime()
 							end
 						end
 					end
@@ -769,15 +769,16 @@ local function runRotation()
 					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and
 					UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
-						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and distance <= 10 and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Hammer of Justice - INT") and cast.able.hammerOfJustice() and not isBoss(thisUnit) and getBuffRemain(thisUnit,226510) == 0 and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.hammerOfJustice(thisUnit) then return end
+							InterruptTime = GetTime()
 						end
 						-- Rebuke
-						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 then
+						if isChecked("Rebuke - INT") and cast.able.rebuke() and distance <= 5 and (not InterruptTime or GetTime() - InterruptTime > 0.5) then
 							if cast.rebuke(thisUnit) then return end
 						end
 						-- Blinding Light
-						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
+						if isChecked("Blinding Light - INT") and cast.able.blindingLight() and talent.blindingLight and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil then
 							if cast.blindingLight() then return end
 						end
 					end
