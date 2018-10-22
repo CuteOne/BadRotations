@@ -483,15 +483,10 @@ local function runRotation()
 			if br.player.mode.purify == 1 then
 				if isChecked("Purify") then
 					for i = 1, #br.friend do
-						for n = 1,40 do
-							local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-							if buff then
-								if (bufftype == "Disease" or bufftype == "Magic") then
-									if getSpellCD(spell.purify) > 1 and isChecked("Mass Dispel Alternative") then
-										if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
-									elseif cast.purify(br.friend[i].unit) then return end
-								end
-							end
+						if getSpellCD(spell.purify) > 1 and isChecked("Mass Dispel Alternative") and canDispel(br.friend[i].unit, spell.massDispel)	then
+							if castGround(br.friend[i].unit, spell.massDispel, 30) then return end
+						elseif canDispel(br.friend[i].unit, spell.purify) then
+							if cast.purify(br.friend[i].unit) then return end
 						end
 					end
 				end

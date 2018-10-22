@@ -32,7 +32,7 @@ function UnitBuffID(unit,spellID,filter)
 			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
 			if buffName == nil then return nil end
 			if buffSpellID == spellID then
-				return UnitBuff(unit,i) 
+				return UnitBuff(unit,i)
 			end
 		end
 	else
@@ -50,7 +50,7 @@ function UnitDebuffID(unit,spellID,filter)
 			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 			if buffName == nil then return nil end
 			if buffSpellID == spellID then
-				return UnitBuff(unit,i) 
+				return UnitBuff(unit,i)
 			end
 		end
 	else
@@ -205,7 +205,7 @@ function canDispel(Unit,spellID)
 						end
 					end
 					if (dispelUnitObj == nil ) then
-						if (isChecked("Dispel delay") and (debuffDuration - debuffRemain) > (getValue("Dispel delay")-0.2 + math.random() * 0.4)) or not isChecked("Dispel delay")
+						if (isChecked("Dispel delay") and (debuffDuration - debuffRemain) > (getValue("Dispel delay")-0.3 + math.random() * 0.6)) or not isChecked("Dispel delay")
 						then
 							HasValidDispel = true
 							break
@@ -225,7 +225,7 @@ function canDispel(Unit,spellID)
 				-- local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
 				-- Blackout Debuffs
 				if ((buffType and ValidType(buffType))) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
-					if (isChecked("Dispel delay") and (buffDuration - buffRemain) > (getValue("Dispel delay")-0.2 + math.random() * 0.4)) or not isChecked("Dispel delay")
+					if (isChecked("Dispel delay") and (buffDuration - buffRemain) > (getValue("Dispel delay")-0.3 + math.random() * 0.6)) or not isChecked("Dispel delay")
 					then
 						HasValidDispel = true
 						break
@@ -240,8 +240,8 @@ end
 function getAuraDuration(Unit,AuraID,Source)
 	local duration = select(5,UnitAuraID(Unit,AuraID,Source))
 	if duration ~= nil then
-		duration = duration * 1 
-		return duration 
+		duration = duration * 1
+		return duration
 	end
 	--if UnitAuraID(Unit,AuraID,Source) ~= nil then
 	--	return select(5,UnitAuraID(Unit,AuraID,Source))*1
@@ -272,8 +272,8 @@ end
 function getDebuffDuration(Unit,DebuffID,Source)
 	local duration = select(5,UnitDebuffID(Unit,DebuffID,Source))
 	if duration ~= nil then
-		duration = duration * 1 
-		return duration 
+		duration = duration * 1
+		return duration
 	end
 	-- if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
 	-- 	return select(5,UnitDebuffID(Unit,DebuffID,Source))*1
@@ -355,8 +355,8 @@ end
 function getBuffDuration(Unit,BuffID,Source)
 	local duration = select(5,UnitBuffID(Unit,BuffID,Source))
 	if duration ~= nil then
-		duration = duration * 1 
-		return duration 
+		duration = duration * 1
+		return duration
 	end
 	-- if UnitBuffID(Unit,BuffID,Source) ~= nil then
 	-- 	return select(5,UnitBuffID(Unit,BuffID,Source))*1
