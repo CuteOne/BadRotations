@@ -60,8 +60,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
             -- RTb Prepull
             br.ui:createCheckbox(section, "RTB Prepull")
-            -- Sap
-            br.ui:createCheckbox(section, "Sap (solo)", "|cffFFFFFF Sap units near target when solo")
             -- Stealth
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
         br.ui:checkSectionState(section)
@@ -121,6 +119,15 @@ local function createOptions()
             br.ui:createCheckbox(section, "Between the Eyes")
             -- Interrupt Percentage
             br.ui:createSpinner(section,  "Interrupt At",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+        br.ui:checkSectionState(section)
+        -------------------------
+        ----- EXTRA OPTIONS -----
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Extras")
+        -- Sap
+            br.ui:createCheckbox(section, "Sap (solo)", "|cffFFFFFF Sap units near target when solo")
+        -- Grappling Hook
+            br.ui:createSpinner(section, "Grappling Hook",  20,  5,  35,  5,  "|cffFFBB00Minimum distance to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -277,8 +284,11 @@ local function runRotation()
 --- Action Lists ---
 --------------------
     -- Action List - Extras
-        --[[local function actionList_Extras()
-        end -- End Action List - Extras]]
+        local function actionList_Extras()
+          if isChecked("Grappling Hook") and getDistance("target") >= getOptionValue("Grappling Hook") and isValidUnit("target") then
+            if cast.grapplingHook("target", "ground") then return end
+          end
+        end -- End Action List - Extras
     -- Action List - DefensiveModes
         local function actionList_Defensive()
             if useDefensive() and not stealth then
@@ -544,7 +554,7 @@ local function runRotation()
 -----------------------
 --- Extras Rotation ---
 -----------------------
-            --if actionList_Extras() then return end
+            if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
 --------------------------
