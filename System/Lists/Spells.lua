@@ -2977,6 +2977,7 @@ br.lists.spells = {
                 shadowLock                  = 171138,
                 soulFire                    = 6353,
                 spellLock                   = 19647,
+                spellLockgrimoire           = 132409,
             },
             artifacts                       = {
 
