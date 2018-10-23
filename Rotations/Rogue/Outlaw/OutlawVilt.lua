@@ -60,6 +60,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Marked For Death - Precombat")
             -- RTb Prepull
             br.ui:createCheckbox(section, "RTB Prepull")
+            -- Sap
+            br.ui:createCheckbox(section, "Sap (solo)", "|cffFFFFFF Sap units near target when solo")
             -- Stealth
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
         br.ui:checkSectionState(section)
@@ -215,7 +217,9 @@ local function runRotation()
         enemies.get(5)
         enemies.get(7)
         enemies.get(8)
+        enemies.get(10, "player", true)
         enemies.get(20)
+        enemies.get(20, "player", true)
         enemies.get(30)
 
         if talent.acrobaticStikes then rangeMod = 3 else rangeMod = 0 end
@@ -259,7 +263,7 @@ local function runRotation()
             end
             if combo >= combospend then
                 return true
-            else 
+            else
                 return false
             end
         end
@@ -302,7 +306,7 @@ local function runRotation()
                 for i = 1, #enemies.yards20 do
                     local thisUnit = enemies.yards20[i]
                     local distance = getDistance(thisUnit)
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and hasThreat(thisUnit) then
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                         if distance < 5 then
         -- Kick
                             -- kick
@@ -368,7 +372,7 @@ local function runRotation()
             -- adrenaline_rush,if=!buff.adrenaline_rush.up&energy.time_to_max>1
             if cast.able.adrenalineRush() and isChecked("Adrenaline Rush") and not buff.adrenalineRush.exists() and ttm >= gcd then
                 if cast.adrenalineRush() then return end
-            end    
+            end
     -- Ghostly Strike
             -- actions.cds+=/ghostly_strike,if=variable.blade_flurry_sync&combo_points.deficit>=1+buff.broadside.up
             if cast.able.ghostlyStrike() and isChecked("Ghostly Strike") and bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
@@ -396,13 +400,8 @@ local function runRotation()
                     if getOptionValue("Stealth") == 1 then
                         if cast.stealth("player") then return end
                     end
-                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay then
-                        for i = 1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
-                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                                if cast.stealth("player") then return end
-                            end
-                        end
+                    if #enemies.yards20nc > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay+0.5 then
+                      if cast.stealth("player") then return end
                     end
                 end
             end
@@ -416,9 +415,18 @@ local function runRotation()
             if cast.able.rollTheBones() and not inCombat and isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 and isValidUnit("target") and getDistance("target") <= 10 then
                 if cast.rollTheBones() then return end
             end
+        -- SAP
+            if getOptionValue("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and debuff.sap.count() == 0 then
+              for i = 1, #enemies.yards10nc do
+                  local thisUnit = enemies.yards10nc[i]
+                  if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) then
+                    if cast.sap(thisUnit) then return end
+                  end
+              end
+            end
         end -- End Action List - PreCombat
     -- Action List - Finishers
-        local function actionList_Finishers()        
+        local function actionList_Finishers()
             if isChecked("RTB/Slice and Dice") then
         -- Slice and Dice
                 if talent.sliceAndDice and cast.able.sliceAndDice() then
@@ -464,7 +472,7 @@ local function runRotation()
             end
         end -- End Action List - Build
     -- Action List - Opener
-        local function actionList_Opener()                    
+        local function actionList_Opener()
         -- Opener
             if not inCombat then
                 if combo >= 5 then
@@ -487,7 +495,7 @@ local function runRotation()
             end
         end
     -- Action List - Stealth
-        local function actionList_Stealth()            
+        local function actionList_Stealth()
         -- Ambush
             --ambush,if=variable.ambush_condition
             if stealthingAll then
@@ -501,18 +509,18 @@ local function runRotation()
                 if cd.global.remain() <= getLatency() and not solo and ambushCondition() and isValidUnit("target") and getDistance("target") <= 5 then
                     -- vanish,if=variable.ambush_condition
                     if cast.able.vanish() and cd.vanish.remain() == 0 and useCDs() and isChecked("Vanish") and GetTime() >= vanishTime + cd.global.remain() then
-                        if cast.vanish() then 
-                            vanishTime = GetTime(); 
-                            cast.ambush(); 
-                            return 
+                        if cast.vanish() then
+                            vanishTime = GetTime();
+                            cast.ambush();
+                            return
                         end
         -- Shadowmeld
                     -- shadowmeld,if=variable.ambush_condition
                     elseif cast.able.shadowmeld() and cd.shadowmeld.remain() == 0 and useCDs() and isChecked("Racial") and GetTime() >= vanishTime + cd.global.remain() and race == "NightElf" and not isMoving("player") then
-                        if cast.shadowmeld() then 
-                            vanishTime = GetTime(); 
-                            cast.ambush(); 
-                            return 
+                        if cast.shadowmeld() then
+                            vanishTime = GetTime();
+                            cast.ambush();
+                            return
                         end
                     end
                 end
@@ -583,7 +591,7 @@ local function runRotation()
                 if not stealthingAll then
                 -- Marked for Death
                     if cast.able.markedForDeath() then
-                        if mode.mfd == 1 then                            
+                        if mode.mfd == 1 then
                             if comboDeficit >= ComboMaxSpend() - 1 then
                                 if cast.markedForDeath("target") then return end
                             end
@@ -605,7 +613,7 @@ local function runRotation()
                         end
                         end
                     end
-                    
+
     -- Finishers
                     -- call_action_list,name=finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
                     if shouldFinish() then
