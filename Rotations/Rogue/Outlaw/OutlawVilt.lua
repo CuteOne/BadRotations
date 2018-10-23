@@ -204,14 +204,6 @@ local function runRotation()
         local units                                         = br.player.units
         local lootDelay                                     = getOptionValue("LootDelay")
 
-        local HeroLibEnabled = HeroLib and true or false
-        if HeroLibNotified == nil then HeroLibNotified = false end
-        if not HeroLibEnabled and not HeroLibNotified then
-            Print("Consider installing and downloading HeroLib for more accurate TimeToDie calculations.")
-            Print("You can find it on Curse/Twitch app, or on Github.")
-            HeroLibNotified = true
-        end
-
         units.get(5)
         units.get(30)
         enemies.get(5)
@@ -266,6 +258,20 @@ local function runRotation()
             else
                 return false
             end
+        end
+
+        --sap count (getDebuffCount but checking ooc units)
+        local function getSapCount()
+        	local counter = 0
+        	for k, v in pairs(br.units) do
+        		local thisUnit = br.units[k].unit
+        		if GetObjectExists(thisUnit) then
+        			if UnitDebuffID(thisUnit,6770,"player") then
+        				counter = counter + 1
+        			end
+        		end
+        	end
+        	return tonumber(counter)
         end
 --------------------
 --- Action Lists ---
@@ -416,7 +422,7 @@ local function runRotation()
                 if cast.rollTheBones() then return end
             end
         -- SAP
-            if getOptionValue("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and debuff.sap.count() == 0 then
+            if getOptionValue("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and getSapCount() == 0 then
               for i = 1, #enemies.yards10nc do
                   local thisUnit = enemies.yards10nc[i]
                   if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) and not UnitAffectingCombat(thisUnit) then
