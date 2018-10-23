@@ -69,6 +69,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             -- Piercing Howl
             br.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
+			-- Rampage Fast
+			br.ui:createCheckbox(section,"Faster Rampage", "Uses Rampage faster")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -360,18 +362,27 @@ local function runRotation()
             if cast.able.siegebreaker() then
                 if cast.siegebreaker() then return end
             end
-        -- Rampage
-            -- rampage,if=buff.recklessness.up|(talent.frothing_berserker.enabled|talent.carnage.enabled&(buff.enrage.remains<gcd|rage>90)|talent.massacre.enabled&(buff.enrage.remains<gcd|rage>90))
-            if cast.able.rampage() and (buff.recklessness.exists() or (talent.frothingBerserker or talent.carnage
-                and (buff.enrage.remain() < gcd or rage > 90) or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
-            then
-                if cast.rampage() then return end
-            end
-        -- Execute
+	    -- Rampage
+	    if isChecked("Faster Rampage") then
+               if cast.able.rampage() and buff.recklessness.exists()
+		    or (talent.carnage and (buff.enrage.exists() or rage > 75))
+		    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
+		    or (talent.massacre and (buff.enrage.exists() or rage > 85)) 
+	        then
+		     if cast.rampage() then return end
+	        end
+            else
+	        if cast.able.rampage() and (buff.recklessness.exists()
+	           or talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
+		   or (talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+                then
+                    if cast.rampage() then return end
+                end
+	    end	
             -- execute,if=buff.enrage.up
             if cast.able.execute() and (buff.enrage.exists()) then
                 if cast.execute() then return end
-            end
+	      end
         -- Bloodthirst
             -- bloodthirst,if=buff.enrage.down
             if cast.able.bloodthirst() and (not buff.enrage.exists()) then
