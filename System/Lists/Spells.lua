@@ -210,7 +210,7 @@ br.lists.spells = {
         -- Unholy
         [252] = {
             abilities                       = {
-                apocalypse                  = 220143,
+                apocalypse                  = 275699,
                 armyOfTheDead               = 42650,
                 asphyxiate                  = 108194,
                 chainsOfIce                 = 45524,
