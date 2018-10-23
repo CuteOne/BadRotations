@@ -442,10 +442,10 @@ local function runRotation()
             end
             -- food,type=pickled_eel
             -- snapshot_stats
-            -- potion,name=old_war
+            -- potion,name=Potion Of Bursting blood
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(127844) then
-                    useItem(127844)
+                if canUse(152560) then
+                    useItem(152560)
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -499,8 +499,8 @@ local function runRotation()
             -- Potions
                 -- potion
                 if useCDs() and getDistance("target") < 5 and inRaid and isChecked("Potion") then
-                    if canUse(127844) then
-                        useItem(127844)
+                    if canUse(152560) then
+                        useItem(152560)
                     end
                 end
             -- Furious Slash
@@ -509,11 +509,6 @@ local function runRotation()
                     or buff.furiousSlash.remain() < 3 or (cd.recklessness.remain() < 3 and buff.furiousSlash.remain() < 9)))
                 then
                     if cast.furiousSlash() then return end
-                end
-            -- Bloodthirst
-                -- bloodthirst,if=equipped.kazzalax_fujiedas_fury&(buff.fujiedas_fury.down|remains<2)
-                if cast.able.bloodthirst() and (equiped.kazzalaxFujiedasFury and (not buff.fujiedasFury.exists() or buff.fujiedasFury.remain(units.dyn5) < 2)) then
-                    if cast.bloodthirst() then return end
                 end
             -- Rampage
                 -- rampage,if=cooldown.recklessness.remains<3
