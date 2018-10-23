@@ -419,7 +419,7 @@ local function runRotation()
             if getOptionValue("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and debuff.sap.count() == 0 then
               for i = 1, #enemies.yards10nc do
                   local thisUnit = enemies.yards10nc[i]
-                  if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) then
+                  if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) and not UnitAffectingCombat(thisUnit) then
                     if cast.sap(thisUnit) then return end
                   end
               end
