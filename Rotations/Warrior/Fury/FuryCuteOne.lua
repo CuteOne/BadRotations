@@ -373,8 +373,8 @@ local function runRotation()
 	        end
             else
 	        if cast.able.rampage() and (buff.recklessness.exists()
-	           or talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
-		   or (talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+	           or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
+		   or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
                 then
                     if cast.rampage() then return end
                 end
