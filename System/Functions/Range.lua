@@ -1,5 +1,32 @@
+local testSpell = {
+    ["WAR"] = 6552,
+    ["PAL" ] = 35395,
+    ["ROGUE"] = 1766,
+    ["DK"] = 49998,
+    ["MONK"] = 100780,
+    ["SHAMAN"] = 17364,
+    ["DRUIDBC"] = 106832,
+    ["DHH"] = 162794,
+    ["DHV"] = 214743,
+    ["SHUNTER"] = 185855
+}
+
 function getDistance(Unit1,Unit2,option)
     currentDist = 100
+    local meleeSpell = nil
+    if testSpell[select(2,UnitClass("player"))] ~= nil then
+        meleeSpell = testSpell[select(2,UnitClass("player"))]
+    elseif select(2,UnitClass("player")) == "DRUID" and (GetShapeshiftForm()==1 or GetShapeshiftForm()==3)  then
+        meleeSpell = testSpell["DRUIDBC"]
+    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
+        meleeSpell = testSpell["SHUNTER"]
+    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
+        meleeSpell = testSpell["SHAMAN"]
+    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 577 then
+        meleeSpell = testSpell["DHH"]
+    elseif select(1,GetSpecializationInfo(GetSpecialization())) == 581 then
+        meleeSpell = testSpell["DHV"]
+    end
     -- If Unit2 is nil we compare player to Unit1
     if Unit2 == nil then
         Unit2 = Unit1
@@ -45,6 +72,7 @@ function getDistance(Unit1,Unit2,option)
         if option == "dist2" then return dist2 end
         if option == "dist3" then return dist3 end
         if option == "dist4" then return dist4 end
+        if option == "meleeRange" then return meleeRange end
         if GetSpecializationInfo(GetSpecialization()) == 255 then
             if dist > meleeRange then
                 currentDist = dist
@@ -65,6 +93,11 @@ function getDistance(Unit1,Unit2,option)
     -- Modifier for Mastery: Sniper Training (Hunter - Marksmanship)
         if currentDist < 100 and isKnown(193468) and option ~= "noMod" then
             currentDist = currentDist - (currentDist * 0.12)
+        end
+        if meleeSpell ~= nil then
+            if IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then 
+                currentDist = 0
+            end
         end
     end
     return currentDist
