@@ -440,7 +440,7 @@ local function runRotation()
             end
         -- Obliterate
             -- obliterate,if=runic_power.deficit>=(25+talent.runic_attenuation.enabled*3)
-            if cast.able.obliterate() and (runicPowerDeficit >= (25 + attenutation * 3)) then
+            if cast.able.obliterate() and (runicPowerDeficit >= (25 + attenuation * 3)) then
                 if cast.obliterate() then return true end
             end
         -- Glacial Advance
