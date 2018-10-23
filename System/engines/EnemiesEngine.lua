@@ -45,7 +45,8 @@ if not metaTable2 then
 			end
 		end
 		--Function time to die
-		function o:unitTtd()
+		function o:unitTtd(targetPercentage)
+			if targetPercentage == nil then targetPercentage = 0 end
 			local value
 			if o.hp == 0 then return -1 end
 			if o.hp == 100 or isDummy(o.unit) then return 999 end
@@ -97,7 +98,7 @@ if not metaTable2 then
 				a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
       	b = (valueCount * Exy * invariant) - (Ex * Ey * invariant)
 				if b ~= 0 then
-					local ttdSec = (0 - a) / b
+					local ttdSec = (targetPercentage - a) / b
 					ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
 					if ttdSec > 0 then
 						return ttdSec
