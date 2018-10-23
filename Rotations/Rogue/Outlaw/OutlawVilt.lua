@@ -280,13 +280,35 @@ local function runRotation()
         	end
         	return tonumber(counter)
         end
+
+        --Hook cast with logic not to cast directly on object
+        local function castHook(unit)
+          if getSpellCD(195457) == 0 and getDistance("player",unit) < 40 then
+            if IsMouseButtonDown(2) then
+                mouselookup = true
+            else
+                mouselookup = false
+            end
+            local combatReachUnit = max(1.5, UnitCombatReach(unit))
+            local combatRange = max(6, UnitCombatReach("player") + combatReachUnit + 1.3)
+            MouselookStop()
+            local X,Y,Z = GetPositionBetweenObjects(unit, "player", combatRange)
+            CastSpellByName(GetSpellInfo(195457))
+            ClickPosition(X,Y,Z)
+            if mouselookup then
+                MouselookStart()
+            end
+            return true
+          end
+          return false
+        end
 --------------------
 --- Action Lists ---
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
           if isChecked("Grappling Hook") and getDistance("target") >= getOptionValue("Grappling Hook") and isValidUnit("target") then
-            if cast.grapplingHook("target", "ground") then return end
+            if castHook("target") then return end
           end
         end -- End Action List - Extras
     -- Action List - DefensiveModes
