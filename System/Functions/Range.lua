@@ -58,7 +58,7 @@ function getDistance(Unit1,Unit2,option)
         --Unit1 Position
         if br.unitSetup.cache[Unit1] ~= nil and br.unitSetup.cache[Unit1].posX ~= nil then
           X1,Y1,Z1 = br.unitSetup.cache[Unit1].posX, br.unitSetup.cache[Unit1].posY, br.unitSetup.cache[Unit1].posZ
-        elseif GetUnitIsUnit(Unit1,"player") and br.player.posX ~= nil then
+        elseif GetUnitIsUnit(Unit1,"player") and br.player ~= nil and br.player.posX ~= nil then
           X1,Y1,Z1 = br.player.posX, br.player.posY, br.player.posZ
         else
           X1,Y1,Z1 = GetObjectPosition(Unit1)
@@ -66,7 +66,7 @@ function getDistance(Unit1,Unit2,option)
         --Unit2 Position
         if br.unitSetup.cache[Unit2] ~= nil and br.unitSetup.cache[Unit2].posX ~= nil then
           X2,Y2,Z2 = br.unitSetup.cache[Unit2].posX, br.unitSetup.cache[Unit2].posY, br.unitSetup.cache[Unit2].posZ
-        elseif GetUnitIsUnit(Unit2,"player") and br.player.posX ~= nil then
+        elseif GetUnitIsUnit(Unit2,"player") and br.player ~= nil and br.player.posX ~= nil then
           X2,Y2,Z2 = br.player.posX, br.player.posY, br.player.posZ
         else
           X2,Y2,Z2 = GetObjectPosition(Unit2)
