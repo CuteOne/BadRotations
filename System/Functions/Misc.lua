@@ -377,7 +377,7 @@ function isValidUnit(Unit)
 	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or (UnitIsCharmed(Unit) and UnitCanAttack("player",Unit)))) or not GetUnitIsFriend(Unit,"player");
 	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then return false end
 	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target") and (not UnitIsTapDenied(Unit) or isDummy(Unit))
-		and ((reaction < 5 and not hostileOnly) or (hostileOnly and reaction < 4) or isDummy(Unit)) and mcCheck and not isCC
+		and ((reaction < 5 and not hostileOnly) or (hostileOnly and (reaction < 4 or playerTarget or targeting)) or isDummy(Unit)) and mcCheck and not isCC
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
