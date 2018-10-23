@@ -846,29 +846,38 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 and not cast.last.vanish() and (not buff.stealth.exists() or not buff.vanish.exists() or not buff.shadowmeld.exists()) then
                     StartAttack()
                 end
+        -- Multi-Garrote
+                if cast.able.garrote() and buff.subterfuge.exists() and (debuff.garrote.count() < 3 or debuff.garrote.count() >= #enemies.yards5) then 
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if debuff.garrote.refresh(thisUnit) then 
+                            if cast.garrote(thisUnit) then return end 
+                        end
+                    end 
+                end 
         -- Call Action List - Stealthed
                 -- call_action_list,name=stealthed,if=stealthed.rogue
                 if stealthedRogue then
                     if actionList_Stealthed() then return end
                 end
         -- Call Action List - Cooldowns
-                    -- call_action_list,name=cds
-                    if actionList_Cooldowns() then return end
+                -- call_action_list,name=cds
+                if actionList_Cooldowns() then return end
         -- Call Action List - Dot
-                    -- call_action_list,name=dot
-                    if actionList_Dot() then return end
+                -- call_action_list,name=dot
+                if actionList_Dot() then return end
         -- Call Action List - Direct
-                    -- call_action_list,name=direct
-                    if actionList_Direct() then return end
+                -- call_action_list,name=direct
+                if actionList_Direct() then return end
         -- Racials
-                    -- arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
-                    -- arcane_pulse
-                    -- lights_judgment
-                    if isChecked("Racial") and cast.able.racial() and ((race == "Nightborne" or race == "LightforgedDraenei")
-                        or (race == "BloodElf" and energyDeficit >= 15 + energyRegenCombined))
-                    then
-                        if cast.racial() then return end
-                    end
+                -- arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
+                -- arcane_pulse
+                -- lights_judgment
+                if isChecked("Racial") and cast.able.racial() and ((race == "Nightborne" or race == "LightforgedDraenei")
+                    or (race == "BloodElf" and energyDeficit >= 15 + energyRegenCombined))
+                then
+                    if cast.racial() then return end
+                end
             end -- End In Combat
         end -- End Profile
     -- end -- Timer
