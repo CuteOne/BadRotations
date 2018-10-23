@@ -51,9 +51,27 @@ function getDistance(Unit1,Unit2,option)
                 end
             end
         end
-    -- Get the distance
-        local X1,Y1,Z1 = GetObjectPosition(Unit1)
-        local X2,Y2,Z2 = GetObjectPosition(Unit2)
+        --See if we already have a position, else grab position
+        local X1,Y1,Z1,X2,Y2,Z2 = 0,0,0,0,0,0
+        if not string.find(Unit1,"0x") then Unit1 = ObjectPointer(Unit1) end
+        if not string.find(Unit2,"0x") then Unit2 = ObjectPointer(Unit2) end
+        --Unit1 Position
+        if br.unitSetup.cache[Unit1] ~= nil and br.unitSetup.cache[Unit1].posX ~= nil then
+          X1,Y1,Z1 = br.unitSetup.cache[Unit1].posX, br.unitSetup.cache[Unit1].posY, br.unitSetup.cache[Unit1].posZ
+        elseif GetUnitIsUnit(Unit1,"player") and br.player.posX ~= nil then
+          X1,Y1,Z1 = br.player.posX, br.player.posY, br.player.posZ
+        else
+          X1,Y1,Z1 = GetObjectPosition(Unit1)
+        end
+        --Unit2 Position
+        if br.unitSetup.cache[Unit2] ~= nil and br.unitSetup.cache[Unit2].posX ~= nil then
+          X2,Y2,Z2 = br.unitSetup.cache[Unit2].posX, br.unitSetup.cache[Unit2].posY, br.unitSetup.cache[Unit2].posZ
+        elseif GetUnitIsUnit(Unit2,"player") and br.player.posX ~= nil then
+          X2,Y2,Z2 = br.player.posX, br.player.posY, br.player.posZ
+        else
+          X2,Y2,Z2 = GetObjectPosition(Unit2)
+        end
+        -- Get the distance
         local TargetCombatReach = UnitCombatReach(Unit2) or 0
         local PlayerCombatReach = UnitCombatReach(Unit1) or 0
         local MeleeCombatReachConstant = 4/3
@@ -95,7 +113,7 @@ function getDistance(Unit1,Unit2,option)
             currentDist = currentDist - (currentDist * 0.12)
         end
         if meleeSpell ~= nil then
-            if IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then 
+            if IsSpellInRange(select(1,GetSpellInfo(meleeSpell)),Unit2) == 1 then
                 currentDist = 0
             end
         end

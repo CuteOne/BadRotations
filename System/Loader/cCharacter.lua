@@ -43,8 +43,8 @@ function cCharacter:new(class)
     }
         self.flask.wod.buff         = {
         -- Agility
-        agilityLow 		= 251836, 	
-        agilityBig 		= 251836, 	
+        agilityLow 		= 251836,
+        agilityBig 		= 251836,
         -- Intellect
         intellectLow       	= 251837,
         intellectBig     	= 251837,
@@ -160,6 +160,7 @@ function cCharacter:new(class)
 		else
 		    self.petId 			= 0
 		end
+		self.posX, self.posY, self.posZ = GetObjectPosition("player")
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -187,7 +188,7 @@ function cCharacter:new(class)
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown(max)
 		local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
-		if max == true then 		
+		if max == true then
 			if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
 				return 1
 			else

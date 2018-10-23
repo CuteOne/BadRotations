@@ -31,19 +31,6 @@ if not metaTable2 then
 		if unit and type(unit) == "string" then
 			o.unit = unit
 		end
-		-- sets actual position of unit in engine, shouldnt refresh more than once/sec
-		function o:GetPosition()
-			if GetUnitIsVisible(o.unit) then
-				o.refresh = GetTime()
-				local x,y,z = GetObjectPosition(o.unit)
-				x = math.ceil(x*100)/100
-				y = math.ceil(y*100)/100
-				z = math.ceil(z*100)/100
-				return x,y,z
-			else
-				return 0,0,0
-			end
-		end
 		--Function time to die
 		function o:unitTtd(targetPercentage)
 			if targetPercentage == nil then targetPercentage = 0 end
@@ -140,8 +127,8 @@ if not metaTable2 then
 				o.enemyListCheck = enemyListCheck(o.unit)
 				o.enemyRefresh = GetTime()
 			end
-			-- Is unit pet
-			--o.isPet = ObjectCreator(o.unit) == GetObjectWithGUID(UnitGUID("player"))
+			-- ObjectPosition
+			o.posX, o.posY, o.posZ = GetObjectPosition(o.unit)
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then
 				o.ttd = o:unitTtd()
