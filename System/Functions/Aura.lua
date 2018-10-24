@@ -400,28 +400,6 @@ function getBuffCount(spellID)
   	end
   	return tonumber(counter)
 end
--- if getDebuffDuration("target",12345) < 3 then
-function getDebuffDuration(Unit,DebuffID,Source)
-	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return select(5,UnitDebuffID(Unit,DebuffID,Source))*1
-	end
-	return 0
-end
--- if getDebuffRemain("target",12345) < 3 then
-function getDebuffRemain(Unit,DebuffID,Source)
-	if UnitDebuffID(Unit,DebuffID,Source) ~= nil then
-		return (select(6,UnitDebuffID(Unit,DebuffID,Source)) - GetTime())
-	end
-	return 0
-end
--- if getDebuffStacks("target",138756) > 0 then
-function getDebuffStacks(Unit,DebuffID,Source)
-	if UnitDebuffID(Unit,DebuffID,Source) then
-		return (select(3,UnitDebuffID(Unit,DebuffID,Source)))
-	else
-		return 0
-	end
-end
 -- if getDisease(30,true,min) < 2 then
 function getDisease(range,aoe,mod)
     if mod == nil then mod = "min" end

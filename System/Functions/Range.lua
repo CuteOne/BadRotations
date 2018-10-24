@@ -51,23 +51,29 @@ function getDistance(Unit1,Unit2,option)
                 end
             end
         end
-        --See if we already have a position, else grab position
+        --See if we already have a position, else get position
         local X1,Y1,Z1,X2,Y2,Z2 = 0,0,0,0,0,0
-        if not string.find(Unit1,"0x") then Unit1 = ObjectPointer(Unit1) end
-        if not string.find(Unit2,"0x") then Unit2 = ObjectPointer(Unit2) end
+        if not string.find(Unit1,"0x") then Unit1 = GetObjectWithGUID(UnitGUID(Unit1)) end
+        if not string.find(Unit2,"0x") then Unit2 = GetObjectWithGUID(UnitGUID(Unit2)) end
         --Unit1 Position
-        if br.unitSetup.cache[Unit1] ~= nil and br.unitSetup.cache[Unit1].posX ~= nil then
+        local unit1GUID = select(2,getGUID(Unit1))
+        if br.unitSetup ~= nil and br.unitSetup.cache[Unit1] ~= nil and br.unitSetup.cache[Unit1].posX ~= nil then
           X1,Y1,Z1 = br.unitSetup.cache[Unit1].posX, br.unitSetup.cache[Unit1].posY, br.unitSetup.cache[Unit1].posZ
         elseif GetUnitIsUnit(Unit1,"player") and br.player ~= nil and br.player.posX ~= nil then
           X1,Y1,Z1 = br.player.posX, br.player.posY, br.player.posZ
+        elseif isChecked("HE Active") and br.memberSetup ~= nil and br.memberSetup.cache[unit1GUID] ~= nil and br.memberSetup.cache[unit1GUID].x ~= nil then
+          X1,Y1,Z1 = br.memberSetup.cache[unit1GUID].x, br.memberSetup.cache[unit1GUID].y, br.memberSetup.cache[unit1GUID].z
         else
           X1,Y1,Z1 = GetObjectPosition(Unit1)
         end
         --Unit2 Position
-        if br.unitSetup.cache[Unit2] ~= nil and br.unitSetup.cache[Unit2].posX ~= nil then
+        local unit2GUID = select(2,getGUID(Unit2))
+        if br.unitSetup ~= nil and br.unitSetup.cache[Unit2] ~= nil and br.unitSetup.cache[Unit2].posX ~= nil then
           X2,Y2,Z2 = br.unitSetup.cache[Unit2].posX, br.unitSetup.cache[Unit2].posY, br.unitSetup.cache[Unit2].posZ
         elseif GetUnitIsUnit(Unit2,"player") and br.player ~= nil and br.player.posX ~= nil then
           X2,Y2,Z2 = br.player.posX, br.player.posY, br.player.posZ
+        elseif isChecked("HE Active") and br.memberSetup ~= nil and br.memberSetup.cache[unit2GUID] ~= nil and br.memberSetup.cache[unit2GUID].x ~= nil then
+          X2,Y2,Z2 = br.memberSetup.cache[unit2GUID].x, br.memberSetup.cache[unit2GUID].y, br.memberSetup.cache[unit2GUID].z
         else
           X2,Y2,Z2 = GetObjectPosition(Unit2)
         end
