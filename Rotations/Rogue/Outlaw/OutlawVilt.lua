@@ -284,19 +284,30 @@ local function runRotation()
         --Hook cast with logic not to cast directly on object
         local function castHook(unit)
           if getSpellCD(195457) == 0 and getDistance("player",unit) < 40 then
-            if IsMouseButtonDown(2) then
+            if IsMouselooking() then
                 mouselookup = true
+                MouselookStop()
             else
                 mouselookup = false
             end
-            local combatReachUnit = max(1.5, UnitCombatReach(unit))
-            local combatRange = max(6, UnitCombatReach("player") + combatReachUnit + 1.3)
-            MouselookStop()
+            local combatRange = max(5, UnitCombatReach("player") + UnitCombatReach(unit) + 1.3)
             local X,Y,Z = GetPositionBetweenObjects(unit, "player", combatRange)
-            CastSpellByName(GetSpellInfo(195457))
+            CastSpellByName(GetSpellInfo(spell.grapplingHook))
             ClickPosition(X,Y,Z)
+            if IsAoEPending() then
+              CancelPendingSpell()
+              return false
+            end
             if mouselookup then
                 MouselookStart()
+            end
+            if not inCombat then
+              if not stealth then
+                cast.stealth()
+              end
+              if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 then
+                cast.rollTheBones()
+              end
             end
             return true
           end
