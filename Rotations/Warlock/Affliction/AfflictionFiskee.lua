@@ -324,7 +324,6 @@ local function runRotation()
 
         -- Boss check - stolen from Ash
         local inBossFight = false
-
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if isBoss(thisUnit) then
@@ -438,24 +437,24 @@ local function runRotation()
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
-            if useInterrupts() then
-            if talent.grimoireOfSacrifice then
-                for i=1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
+      if useInterrupts() then
+        if talent.grimoireOfSacrifice then
+          for i=1, #enemies.yards40 do
+            thisUnit = enemies.yards40[i]
             if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                if cast.spellLockgrimoire(thisUnit) then return end
-                end
-            end
+              if cast.spellLockgrimoire(thisUnit) then return end
+          end
+        end
 
-            elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
-                    for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
-                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-					  if activePetId == 417 then
-                    if cast.spellLock(thisUnit) then return end
-                    end
+        elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
+          for i=1, #enemies.yards40 do
+            thisUnit = enemies.yards40[i]
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+  		          if activePetId == 417 then
+                  if cast.spellLock(thisUnit) then return end
                 end
             end
+          end
         end
       end -- End useInterrupts check
 		end -- End Action List - Interrupts
@@ -676,18 +675,14 @@ local function runRotation()
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
                 if not debuff.siphonLife.exists(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
-                  if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction())) then
-                    if cast.siphonLife(thisUnit) then return true end
-                  end
+                  if cast.siphonLife(thisUnit) then return true end
                 end
               end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
               if ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
-                if ((not useCDs() or cd.summonDarkglare.remain() > shards * cast.time.unstableAffliction())) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
+                if cast.siphonLife(thisUnit) then return true end
               end
             end
           end
@@ -751,6 +746,10 @@ local function runRotation()
                   if cast.unstableAffliction(thisUnit) then return true end
                 end
             end
+          end
+          --actions.spenders+=/unstable_affliction,if=cooldown.deathbolt.up&prev_gcd.1.summon_darkglare
+          if not moving and cast.last.summonDarkglare() and cd.deathbolt.remain() == 0 then
+            if cast.unstableAffliction() then return true end
           end
           -- actions+=/call_action_list,name=fillers
           if actionList_Fillers() then return true end
