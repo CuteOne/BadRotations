@@ -520,7 +520,7 @@ function br.read.combatLog()
                 canPickpocket = false
             end
             --[[ Bleed Recorder --]]
-            if GetSpecialization() == 1 then
+             if GetSpecialization() == 1 then
                 if source == UnitGUID("player") then
                     if destination ~= nil and destination ~= "" then
                         local thisUnit = thisUnit
@@ -536,23 +536,54 @@ function br.read.combatLog()
                             if br.player ~= nil and getDistance(thisUnit) < 40 then
                                 local debuff = br.player.debuff
                                 local debuffID = br.player.spell.debuffs
+
+                                
+
+
                                 if debuffID ~= nil then
-                                    if spell == debuffID.garrote or spell == debuffID.rupture then
-                                        if spell == debuffID.garrote then k = "garrote" end
-                                        if spell == debuffID.rupture then k = "rupture" end
-                                        if debuff[k].bleed == nil then debuff[k].bleed = {} end
-                                        if debuff[k].bleed[thisUnit] == nil then debuff[k].bleed[thisUnit] = 0 end
-                                        if param == "SPELL_AURA_REMOVED" then
-                                            debuff[k].bleed[thisUnit] = 0
+
+                                if spell==200806 then
+                                        if debuff.rupture.exsa == nil then debuff.rupture.exsa = {} end
+                                        if debuff.garrote.exsa == nil then debuff.garrote.exsa = {} end
+                                        if debuff.garrote.exsa[thisUnit] == nil then debuff.garrote.exsa[thisUnit] = true end
+                                        if debuff.rupture.exsa[thisUnit] == nil then debuff.rupture.exsa[thisUnit] = true end
+
+                                        if param == "SPELL_CAST_SUCCESS" then
+                                            debuff.rupture.exsa[thisUnit] = true 
+                                            debuff.garrote.exsa[thisUnit] = true 
+                                            
                                             if GetUnitIsUnit(thisUnit,"target") then
-                                                debuff[k].bleed["target"] = 0
+                                                debuff.rupture.exsa["target"] = true
+                                                debuff.garrote.exsa["target"] = true
                                             end
                                         end
-                                        if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                            debuff[k].bleed[thisUnit] = debuff[k].calc()
-                                            if GetUnitIsUnit(thisUnit,"target") then
-                                                debuff[k].bleed["target"] = debuff[k].calc()
+                                end 
+
+                                                                   
+                                    if spell == debuffID.rupture or spell == debuffID.garrote then
+                                        if spell == debuffID.rupture then k = "rupture" end
+                                        if spell == debuffID.garrote then k = "garrote" end
+                                        if debuff[k].bleed == nil then debuff[k].bleed = {} end
+
+                                            if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                                debuff[k].bleed[thisUnit] = debuff[k].calc()
+                                                debuff[k].exsa[thisUnit] = false
+                                                if GetUnitIsUnit(thisUnit,"target") then
+                                                    debuff[k].bleed["target"] = debuff[k].calc()
+                                                    debuff[k].exsa["target"] = false
+                                                end
                                             end
+
+
+                                            if param == "SPELL_AURA_REMOVED" then
+                                                debuff[k].bleed[thisUnit] = 0
+                                                debuff[k].exsa[thisUnit] = false
+                                                if GetUnitIsUnit(thisUnit,"target") then
+                                                    debuff[k].bleed["target"] = 0
+                                                    debuff[k].exsa["target"] = false
+                                                end
+                                            end
+
                                         end
                                     end
                                 end
@@ -560,7 +591,6 @@ function br.read.combatLog()
                         end
                     end
                 end
-            end
         end
         function cl:Shaman(...) -- 7
             local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination,
