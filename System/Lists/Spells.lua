@@ -549,7 +549,7 @@ br.lists.spells = {
                 sephuzSecret                = 208052,
                 astralAcceleration          = 242232,
                 newMoonController           = -2027671,
-                starlord                    = 279709				
+                starlord                    = 279709                
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -1759,7 +1759,7 @@ br.lists.spells = {
             },
             traits                          = {
                 breakingDawn                = 278594;
-				graceoftheJusticar          = 278593;
+                graceoftheJusticar          = 278593;
             },
         },
         -- Protection
@@ -2247,11 +2247,13 @@ br.lists.spells = {
         [259] = {
             abilities                       = {
                 blindside                   = 111240,
+                crimsonTempest              = 121411,
                 cripplingPoison             = 3408,
                 deadlyPoison                = 2823,
                 envenom                     = 32645,
                 evasion                     = 5277,
                 eviscerate                  = 196819,
+                exsanguinate                = 200806,
                 fanOfKnives                 = 51723,
                 garrote                     = 703,
                 kidneyShot                  = 408,
@@ -2276,7 +2278,8 @@ br.lists.spells = {
                 hiddenBlades                = 270070,
                 leechingPoison              = 108211,
                 sharpenedBlades             = 272916,
-                stealth                     = 1784,
+                masterAssassins             = 255989,
+                stealth                     = 1784 or 115191,
                 subterfuge                  = 115192,
                 theDreadlordsDeceit         = 208692,
                 woundPoison                 = 8679,
@@ -2314,6 +2317,7 @@ br.lists.spells = {
                 venomRush                   = 152152,
             },
             traits                          = {
+                DoubleDose                  = 273007,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
             }
@@ -2389,6 +2393,7 @@ br.lists.spells = {
                 sharkInfestedWaters         = 193357,
                 skullAndCrossbones          = 199603,
                 sliceAndDice                = 5171,
+                snakeeeyes                  = 275863,
                 stealth                     = 1784,
                 swordplay                   = 211669,
                 trueBearing                 = 193359,
@@ -2413,6 +2418,11 @@ br.lists.spells = {
                 sliceAndDice                = 5171,
                 weaponmaster                = 200733,
                 quickDraw                   = 196938,
+            },
+             traits                          = {
+                deadshot                    = 272935,
+                aceupyoursleeve             = 278676,
+                snakeeyes                   = 275846,
             },
         },
         -- Subtlety
