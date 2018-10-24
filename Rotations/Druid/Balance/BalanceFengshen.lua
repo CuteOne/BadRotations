@@ -28,13 +28,13 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     };
     CreateButton("Interrupt",4,0)
--- Starfall Placement Button	
+-- Starfall Placement Button
     StarfallPlacementModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Auto placement of Starfall", tip = "Auto placement of Starfall", highlight = 1, icon = br.player.spell.starfall },
         [2] = { mode = "Target", value = 2 , overlay = "Place Starfall on center of target", tip = "Place Starfall on center of target", highlight = 1, icon = br.player.spell.starfall },
         [3] = { mode = "Player", value = 2 , overlay = "Place Starfall on center of player", tip = "Place Starfall on center of player", highlight = 1, icon = br.player.spell.starfall }
     };
-    CreateButton("StarfallPlacement",5,0)	
+    CreateButton("StarfallPlacement",5,0)
 end
 
 ---------------
@@ -53,7 +53,7 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
-	br.ui:checkSectionState(section)		
+	br.ui:checkSectionState(section)
 	-- Defensive Options
 	section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		br.ui:createSpinner(section, "Potion/Healthstone",  20,  0,  100,  5,  "Health Percent to Cast At")
@@ -65,12 +65,13 @@ local function createOptions()
 	br.ui:checkSectionState(section)
 	-- Interrupts Options
 	section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-		br.ui:createCheckbox(section, "Solar Beam")	
+		br.ui:createCheckbox(section, "Solar Beam")
 		br.ui:createCheckbox(section, "Mighty Bash")
 		br.ui:createSpinner(section,  "InterruptAt",  50,  0,  100,  5,  "","|cffFFBB00Cast Percentage to use at.")
 	br.ui:checkSectionState(section)	
     -- Cooldown Options
     section = br.ui:createSection(br.ui.window.profile, "Cooldown")
+        br.ui:createCheckbox(section,"Racial")
         br.ui:createCheckbox(section,"Warrior of Elune")
         br.ui:createCheckbox(section,"Incarnation")
         br.ui:createCheckbox(section,"Celestial Alignment")
@@ -136,7 +137,7 @@ local function runRotation()
 		local units                                         = br.player.units
 		local dt                                            = date("%H:%M:%S")
 		local trait                                         = br.player.traits
-		
+		local race                                          = br.player.race
 		-- Balance Locals
 		local astralPower                                   = br.player.power.astralPower.amount()
 		local astralPowerDeficit                            = br.player.power.astralPower.deficit()
@@ -152,13 +153,13 @@ local function runRotation()
 		local starfallPlacement                             = "playerGround"
 
 		units.get(40)
-		enemies.get(15)
-		enemies.get(8)
+		enemies.get(15,"target")
+		enemies.get(8,"target")
 		enemies.get(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-		
+
 	local function FutureAstralPower()
 		if isCastingSpell() then
 			return astralPower
@@ -193,25 +194,25 @@ local function runRotation()
 local function actionList_OOC()
 	-- Regrowth
 	if isChecked("OOC Regrowth") and php <= getValue("OOC Regrowth") then
-		if cast.regrowth("player") then return end
+		if cast.regrowth("player") then return true end
 	end
 	if isChecked("Auto Shapeshifts") then
 		-- Flight Form
 		if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-			if cast.travelForm("player") then return end
+			if cast.travelForm("player") then return true end
 		end
 		-- Travel Form
 		if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
-			if cast.travelForm("player") then return end
+			if cast.travelForm("player") then return true end
 		end
 		if not inCombat and moving and not travel and not IsMounted() and not IsIndoors() then
-			if cast.travelForm("player") then return end
+			if cast.travelForm("player") then return true end
 		end
 		-- Cat Form
 		if not cat and not IsMounted() then
 			-- Cat Form when not swimming or flying or stag and not in combat
 			if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
-				if cast.catForm("player") then return end
+				if cast.catForm("player") then return true end
 			end
 		end
 	end
@@ -220,7 +221,7 @@ end
 local function actionList_main()
     -- Make sure we're in moonkin form if we're not in another form
     if noform then
-        if cast.balanceForm() then return end
+        if cast.balanceForm() then return true end
     end
 	-- Defensive
 	if useDefensive() then
@@ -242,22 +243,22 @@ local function actionList_main()
 		end
 		-- Regrowth
 		if isChecked("inCombat Regrowth") and php <= getValue("inCombat Regrowth") then
-			if cast.regrowth("player") then return end
+			if cast.regrowth("player") then return true end
 		end
 		-- Rebirth
 		if isChecked("Rebirth") and not moving then
 			if getOptionValue("Rebirth") == 1
 				and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-				if cast.rebirth("target","dead") then return end
+				if cast.rebirth("target","dead") then return true end
 			end
 			if getOptionValue("Rebirth") == 2
 				and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-				if cast.rebirth("mouseover","dead") then return end
+				if cast.rebirth("mouseover","dead") then return true end
 			end
 			if getOptionValue("Rebirth") == 3 then
 				for i =1, #br.friend do
 					if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-						if cast.rebirth(br.friend[i].unit,"dead") then return end
+						if cast.rebirth(br.friend[i].unit,"dead") then return true end
 					end
 				end
 			end
@@ -271,7 +272,7 @@ local function actionList_main()
 			if canInterrupt(thisUnit,getValue("InterruptAt")) then
 				-- Solar Beam
 				if isChecked("Solar Beam") and cast.able.solarBeam() then
-					if cast.solarBeam(thisUnit) then return true end
+					if cast.solarBeam(thisUnit) then return end
 				end
 				-- Mighty Bash
 				if isChecked("Mighty Bash") and talent.mightyBash and cast.able.mightyBash() and getDistance(thisUnit) <= 10 then
@@ -280,103 +281,107 @@ local function actionList_main()
 			end
 		end
 	end
-	
+
 	if isChecked("Auto Soothe") and cast.able.soothe() then
 		for i=1, #enemies.yards40 do
 		local thisUnit = enemies.yards40[i]
 			if canDispel(thisUnit, spell.soothe) then
-				if cast.soothe(thisUnit) then return end
+				if cast.soothe(thisUnit) then return true end
 			end
 		end
 	end
-	
+
 	-- Cooldowns
 	if useCDs() then
+		-- Racial
+		if isChecked("Racial") and cast.able.racial() and (buff.celestialAlignment.exists() or buff.incarnation.exists() and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei")) then
+			if cast.racial() then return end
+		end
 		-- Warrior of Elune
 		if isChecked("Warrior of Elune") and cast.able.warriorOfElune() and talent.warriorOfElune then
-			if cast.warriorOfElune("player") then return end
-		end	
+			if cast.warriorOfElune("player") then return true end
+		end
         -- Incarnation
         if isChecked("Incarnation") and cast.able.incarnationChoseOfElune() and talent.incarnationChoseOfElune and (FutureAstralPower() >= 40) then
-            if cast.incarnationChoseOfElune("player") then return end
+            if cast.incarnationChoseOfElune("player") then return true end
         end
         -- Celestial Alignment
         if isChecked("Celestial Alignment") and not talent.incarnationChoseOfElune and cast.able.celestialAlignment() and (FutureAstralPower() >= 40) then
-            if cast.celestialAlignment("player") then return end
+            if cast.celestialAlignment("player") then return true end
         end
         -- Fury of Elune
         if isChecked("Fury of Elune") and talent.furyOfElune and cast.able.furyOfElune() then
-            if cast.furyOfElune("best") then return end
+            if cast.furyOfElune("best") then return true end
         end
         -- Force of Nature
         if isChecked("Force of Nature") and talent.forceOfNature and cast.able.forceOfNature() then
-            if cast.forceOfNature("best") then return end
+            if cast.forceOfNature("best") then return true end
         end
 	end
-	
+
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 then
+        if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
             if cast.sunfire(thisUnit,"aoe") then return true end
-        elseif debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 then
-            if cast.moonfire(thisUnit,"aoe") then return true end			
-        elseif debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 then
+        elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+            if cast.moonfire(thisUnit,"aoe") then return true end
+        elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
             if cast.stellarFlare(thisUnit,"aoe") then return true end
         end
     end
 
 	-- Rotations
-	if cast.able.lunarStrike() and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards15 < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
-		if cast.lunarStrike() then return end
+	if cast.able.lunarStrike() and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
+		if cast.lunarStrike() then return true end
 	end
 	if cast.able.solarWrath() and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
-		if cast.solarWrath() then return end
+		if cast.solarWrath() then return true end
 	end
-	
+
 	if cast.able.starsurge() and #enemies.yards40 < 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / 40)) > ttd()) and FutureAstralPower() >= 40 then
-		if cast.starsurge() then return end
+		if cast.starsurge() then return true end
 	end
 	if cast.able.starfall() and #enemies.yards40 >= 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and ((talent.soulOfTheForest and FutureAstralPower() >= 40)or FutureAstralPower() >= 50) then
-		if cast.starfall(starfallPlacement, nil, 3, starfallRadius) then return end
+		if cast.starfall(starfallPlacement, nil, 3, starfallRadius) then return true end
 	end
-	if cast.able.newMoon() and (astralPowerDeficit > 10 + (gcd / 1.5)) then
-		if cast.newMoon() then return end
+	if cast.able.newMoon() and (astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5)) then
+		if cast.newMoon() then return true end
 	end
-	if cast.able.halfMoon() and (astralPowerDeficit > 20 + (gcd / 1.5)) then
-		if cast.halfMoon() then return end
+	if cast.able.halfMoon() and (astralPowerDeficit > 20 + (getCastTime(spell.halfMoon) / 1.5)) then
+		if cast.halfMoon() then return true end
 	end
-	if cast.able.fullMoon() and (astralPowerDeficit > 40 + (gcd / 1.5)) then
-		if cast.fullMoon() then return end
+	if cast.able.fullMoon() and (astralPowerDeficit > 40 + (getCastTime(spell.fullMoon) / 1.5)) then
+		if cast.fullMoon() then return true end
 	end
 	if cast.able.lunarStrike() and (buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists()) then
-		if cast.lunarStrike() then return end
+		if cast.lunarStrike() then return true end
 	end
-	if (#enemies.yards15 >= 2) then
+	if (#enemies.yards8t >= 2) then
 		-- Cleave situation: prioritize lunar strike empower > solar wrath empower > lunar strike
 		if cast.able.lunarStrike() and buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
-			if cast.lunarStrike() then return end
+			if cast.lunarStrike() then return true end
 		end
 		if cast.able.solarWrath() and buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
-			if cast.solarWrath() then return end
+			if cast.solarWrath() then return true end
 		end
 		if cast.able.lunarStrike() and (true) then
-			if cast.lunarStrike() then return end
+			if cast.lunarStrike() then return true end
 		end
 	else
 		-- ST situation: prioritize solar wrath empower > lunar strike empower > solar wrath
 		if cast.able.solarWrath() and buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
-			if cast.solarWrath() then return end
-		end	
+			if cast.solarWrath() then return true end
+		end
 		if cast.able.lunarStrike() and buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
-			if cast.lunarStrike() then return end
+			if cast.lunarStrike() then return true end
 		end
 		if cast.able.solarWrath() and (true) then
-			if cast.solarWrath() then return end
-		end		
+			if cast.solarWrath() then return true end
+		end
 	end
 	if cast.able.moonfire() and (true) then
-		if cast.moonfire() then return end
+		if cast.moonfire() then return true end
 	end
 end
 -----------------
@@ -393,14 +398,14 @@ end
 				if actionList_OOC() then return end
             end -- End Out of Combat Rotation
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
 			if inCombat and not travel then
 				if actionList_main() then return end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
-end -- End runRotation 
+end -- End runRotation
 
 
 local id = 102
