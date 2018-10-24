@@ -28,6 +28,13 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     };
     CreateButton("Interrupt",4,0)
+-- Starfall Placement Button	
+    StarfallPlacementModes = {
+        [1] = { mode = "Auto", value = 1 , overlay = "Auto placement of Starfall", tip = "Auto placement of Starfall", highlight = 1, icon = br.player.spell.starfall },
+        [2] = { mode = "Target", value = 2 , overlay = "Place Starfall on center of target", tip = "Place Starfall on center of target", highlight = 1, icon = br.player.spell.starfall },
+        [3] = { mode = "Player", value = 2 , overlay = "Place Starfall on center of player", tip = "Place Starfall on center of player", highlight = 1, icon = br.player.spell.starfall }
+    };
+    CreateButton("StarfallPlacement",5,0)	
 end
 
 ---------------
@@ -52,7 +59,6 @@ local function createOptions()
 		br.ui:createSpinner(section, "Potion/Healthstone",  20,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "Renewal",  25,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "Barkskin",  60,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinner(section, "Regrowth",  30,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "inCombat Regrowth",  30,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinner(section, "OOC Regrowth",  80,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createDropdown(section, "Rebirth", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "|cffFFFFFFTarget to cast on")
@@ -88,67 +94,71 @@ local function runRotation()
 ---------------
 --- Toggles --- -- List toggles here in order to update when pressed
 ---------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
+		UpdateToggle("Rotation",0.25)
+		UpdateToggle("Cooldown",0.25)
+		UpdateToggle("Defensive",0.25)
+		UpdateToggle("Interrupt",0.25)
+		UpdateToggle("StarfallPlacement",0.25)
+		br.player.mode.starfallPlacement = br.data.settings[br.selectedSpec].toggles["StarfallPlacement"]
 --------------
 --- Locals ---
 --------------
-        local buff                                          = br.player.buff
-        local cast                                          = br.player.cast
-        local combatTime                                    = getCombatTime()
-        local cd                                            = br.player.cd
-        local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
-        local debuff                                        = br.player.debuff
-        local enemies                                       = br.player.enemies
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
-        local gcd                                           = br.player.gcd
-        local hasMouse                                      = GetObjectExists("mouseover")
-        local inCombat                                      = br.player.inCombat
-        local inInstance                                    = br.player.instance=="party"
-        local inRaid                                        = br.player.instance=="raid"
-        local level                                         = br.player.level
-        local lowestHP                                      = br.friend[1].unit
-        local mode                                          = br.player.mode
-        local perk                                          = br.player.perk
-        local petInfo                                       = br.player.petInfo
-        local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
-        local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount, br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
-        local pullTimer                                     = br.DBM:getPulltimer()
-        local racial                                        = br.player.getRacial()
-        local spell                                         = br.player.spell
-        local talent                                        = br.player.talent
-        local ttd                                           = getTTD
-        local ttm                                           = br.player.power.mana.ttm()
-        local units                                         = br.player.units
-        local dt                                            = date("%H:%M:%S")
-        local trait                                         = br.player.traits
-        
-        -- Balance Locals
-        local astralPower                                   = br.player.power.astralPower.amount()
-        local astralPowerDeficit                            = br.player.power.astralPower.deficit()
-        local travel                                        = br.player.buff.travelForm.exists()
-        local flight                                        = br.player.buff.flightForm.exists()
-        local chicken                                       = br.player.buff.balanceForm.exists()
-        local cat                                           = br.player.buff.catForm.exists()
-        local bear                                          = br.player.buff.bearForm.exists()
-        local noform                                        = GetShapeshiftForm()==0
-        local hasteAmount                                   = 1/(1+(GetHaste()/100))
-        local latency                                       = getLatency()
+		local buff                                          = br.player.buff
+		local cast                                          = br.player.cast
+		local combatTime                                    = getCombatTime()
+		local cd                                            = br.player.cd
+		local charges                                       = br.player.charges
+		local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+		local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+		local debuff                                        = br.player.debuff
+		local enemies                                       = br.player.enemies
+		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+		local friendly                                      = friendly or GetUnitIsFriend("target", "player")
+		local gcd                                           = br.player.gcd
+		local hasMouse                                      = GetObjectExists("mouseover")
+		local inCombat                                      = br.player.inCombat
+		local inInstance                                    = br.player.instance=="party"
+		local inRaid                                        = br.player.instance=="raid"
+		local level                                         = br.player.level
+		local lowestHP                                      = br.friend[1].unit
+		local mode                                          = br.player.mode
+		local perk                                          = br.player.perk
+		local petInfo                                       = br.player.petInfo
+		local php                                           = br.player.health
+		local playerMouse                                   = UnitIsPlayer("mouseover")
+		local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount, br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
+		local pullTimer                                     = br.DBM:getPulltimer()
+		local racial                                        = br.player.getRacial()
+		local spell                                         = br.player.spell
+		local talent                                        = br.player.talent
+		local ttd                                           = getTTD
+		local ttm                                           = br.player.power.mana.ttm()
+		local units                                         = br.player.units
+		local dt                                            = date("%H:%M:%S")
+		local trait                                         = br.player.traits
+		
+		-- Balance Locals
+		local astralPower                                   = br.player.power.astralPower.amount()
+		local astralPowerDeficit                            = br.player.power.astralPower.deficit()
+		local travel                                        = br.player.buff.travelForm.exists()
+		local flight                                        = br.player.buff.flightForm.exists()
+		local chicken                                       = br.player.buff.balanceForm.exists()
+		local cat                                           = br.player.buff.catForm.exists()
+		local bear                                          = br.player.buff.bearForm.exists()
+		local noform                                        = GetShapeshiftForm()==0
+		local hasteAmount                                   = 1/(1+(GetHaste()/100))
+		local latency                                       = getLatency()
+		local starfallRadius                                = 15
+		local starfallPlacement                             = "playerGround"
 
-        units.get(40)
-        enemies.get(15)
-        enemies.get(8)
-        enemies.get(40)
+		units.get(40)
+		enemies.get(15)
+		enemies.get(8)
+		enemies.get(40)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-
+		
 	local function FutureAstralPower()
 		if isCastingSpell() then
 			return astralPower
@@ -170,6 +180,13 @@ local function runRotation()
 			end
 		end
 	end
+
+    if talent.stellarDrift then starfallRadius = 15*1.2 end
+    if mode.starfallPlacement == 1 then
+        starfallPlacement = "best"
+    elseif mode.starfallPlacement == 2 then
+        starfallPlacement = "targetGround"
+    end
 --------------------
 --- Action Lists ---
 --------------------
@@ -288,11 +305,11 @@ local function actionList_main()
             if cast.celestialAlignment("player") then return end
         end
         -- Fury of Elune
-        if isChecked("Fury of Elune") and talent.furyOfElune and cast.able.furyOfElune() and ((buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) or (getSpellCD(102560) > 30 or getSpellCD(194223) > 30)) then
-            if cast.furyOfElune("player") then return end
+        if isChecked("Fury of Elune") and talent.furyOfElune and cast.able.furyOfElune() then
+            if cast.furyOfElune("best") then return end
         end
         -- Force of Nature
-        if isChecked("Force of Nature") and talent.forceOfNature and cast.able.forceOfNature() and ((buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) or (getSpellCD(102560) > 30 or getSpellCD(194223) > 30)) then
+        if isChecked("Force of Nature") and talent.forceOfNature and cast.able.forceOfNature() then
             if cast.forceOfNature("best") then return end
         end
 	end
@@ -321,7 +338,7 @@ local function actionList_main()
 		if cast.starsurge() then return end
 	end
 	if cast.able.starfall() and #enemies.yards40 >= 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and ((talent.soulOfTheForest and FutureAstralPower() >= 40)or FutureAstralPower() >= 50) then
-		if cast.starfall() then return end
+		if cast.starfall(starfallPlacement, nil, 3, starfallRadius) then return end
 	end
 	if cast.able.newMoon() and (astralPowerDeficit > 10 + (gcd / 1.5)) then
 		if cast.newMoon() then return end
@@ -372,13 +389,13 @@ end
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat then
+            if not inCombat and not buff.prowl.exists() then
 				if actionList_OOC() then return end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-			if inCombat then
+			if inCombat and not travel then
 				if actionList_main() then return end
             end -- End In Combat Rotation
         end -- Pause
