@@ -109,4 +109,6 @@ br.lists.dummies = {
 	[113864] = "Raider's Training Dummy",     -- Lvl ?? (Trueshot Lodge) - Damage
 	[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 	[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
+	[144081] = "Training Dummy",     		  -- Dazal'alor 4 dummies
+	[144086] = "Raider's Training Dummy",     -- Dazal'alor
 }
