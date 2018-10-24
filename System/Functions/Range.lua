@@ -53,8 +53,8 @@ function getDistance(Unit1,Unit2,option)
         end
         --See if we already have a position, else get position
         local X1,Y1,Z1,X2,Y2,Z2 = 0,0,0,0,0,0
-        if not string.find(Unit1,"0x") then Unit1 = ObjectPointer(Unit1) end
-        if not string.find(Unit2,"0x") then Unit2 = ObjectPointer(Unit2) end
+        if not string.find(Unit1,"0x") then Unit1 = GetObjectWithGUID(UnitGUID(Unit1)) end
+        if not string.find(Unit2,"0x") then Unit2 = GetObjectWithGUID(UnitGUID(Unit2)) end
         --Unit1 Position
         local unit1GUID = select(2,getGUID(Unit1))
         if br.unitSetup ~= nil and br.unitSetup.cache[Unit1] ~= nil and br.unitSetup.cache[Unit1].posX ~= nil then
