@@ -322,13 +322,15 @@ local function actionList_main()
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards40 do
         local thisUnit = enemies.yards40[i]
-        if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
-            if cast.sunfire(thisUnit,"aoe") then return true end
-        elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
-            if cast.moonfire(thisUnit,"aoe") then return true end
-        elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
-            if cast.stellarFlare(thisUnit,"aoe") then return true end
-        end
+		if getFacing(thisUnit) then
+			if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
+				if cast.sunfire(thisUnit,"aoe") then return true end
+			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+				if cast.moonfire(thisUnit,"aoe") then return true end
+			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+				if cast.stellarFlare(thisUnit,"aoe") then return true end
+			end
+		end
     end
 
 	-- Rotations
@@ -388,13 +390,13 @@ end
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or buff.shadowmeld.exists() or buff.prowl.exists() then
             return true
         else
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-            if not inCombat and not buff.prowl.exists() then
+            if not inCombat then
 				if actionList_OOC() then return end
             end -- End Out of Combat Rotation
 -----------------------------
