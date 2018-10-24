@@ -108,7 +108,9 @@ local function createOptions()
         -- Unending Resolve
             br.ui:createSpinner(section, "Unending Resolve", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             --Soulstone
-            br.ui:createCheckbox(section,"Auto Soulstone Player")
+            br.ui:createCheckbox(section,"Auto Soulstone Player", "|cffFFFFFF Will put soulstone on player outside raids and dungeons")
+            --Soulstone mouseover
+            br.ui:createCheckbox(section,"Auto Soulstone Mouseover", "|cffFFFFFF Auto soulstone your mouseover if dead")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -389,6 +391,10 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
+      --Soulstone mouseover
+      if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+        if cast.soulstone("mouseover","dead") then return true end
+      end
       if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
         if cast.soulstone("player") then return end
       end
