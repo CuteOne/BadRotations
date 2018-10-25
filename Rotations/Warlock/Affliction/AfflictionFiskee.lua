@@ -133,8 +133,7 @@ local function createOptions()
     end
     optionTable = {{
         [1] = "Rotation Options",
-        [2] = rotationOptions,
-    }}
+        [2] = rotationOptions}}
     return optionTable
 end
 ----------------
@@ -184,7 +183,7 @@ local function runRotation()
         local level                                         = br.player.level
         local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
-        local moving                                        = isMoving("player")
+        local moving                                        = isMoving("player") ~= false or br.player.moving
         local pet                                           = br.player.pet.list
         local php                                           = br.player.health
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
@@ -347,7 +346,7 @@ local function runRotation()
               seedCorruptionExist = 0
               for q = 1, #unitAroundUnit do
                 local seedAoEUnit = unitAroundUnit[q]
-                if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+1 then seedHit = seedHit + 1 end
+                if ttd(seedAoEUnit) > cast.time.seedOfCorruption()+3 then seedHit = seedHit + 1 end
                 if debuff.corruption.exists(seedAoEUnit) then seedCorruptionExist = seedCorruptionExist + 1 end
               end
               if seedHit > seedTargetsHit or (GetUnitIsUnit(thisUnit, "target") and seedHit >= seedTargetsHit) then
@@ -392,7 +391,7 @@ local function runRotation()
 				end
 			end -- End Dummy Test
       --Soulstone mouseover
-      if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+      if isChecked("Auto Soulstone Mouseover") and inCombat and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
         if cast.soulstone("mouseover","dead") then return true end
       end
       if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
@@ -661,6 +660,9 @@ local function runRotation()
           end
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=6,if=talent.creeping_death.enabled&target.time_to_die>10&refreshable
           -- actions+=/agony,cycle_targets=1,max_cycle_targets=8,if=(!talent.creeping_death.enabled)&target.time_to_die>10&refreshable
+          if not debuff.agony.exists("target") and ttd("target") > 10 then
+            if cast.agony("target") then return true end
+          end
           if (talent.creepingDeath and agonyCount < 6) or (not talent.creepingDeath and agonyCount < 8) and agonyCount < getOptionValue("Multi-Dot Limit") then
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
@@ -676,20 +678,21 @@ local function runRotation()
             end
           end
           -- actions.dots+=/siphon_life,target_if=min:remains,if=(active_dot.siphon_life<8-talent.creeping_death.enabled-spell_targets.sow_the_seeds_aoe)&target.time_to_die>10&refreshable&!(cooldown.summon_darkglare.remains<=soul_shard*action.unstable_affliction.execute_time)
-          if talent.siphonLife then
-            if siphonCount < (8 - creepingDeathValue - seedTargetsHit) and siphonCount < getOptionValue("Multi-Dot Limit") then
-              for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if not debuff.siphonLife.exists(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
-                  if cast.siphonLife(thisUnit) then return true end
-                end
-              end
+          if talent.siphonLife and siphonCount < (8 - creepingDeathValue - seedTargetsHit) and siphonCount < getOptionValue("Multi-Dot Limit") then
+            if (not debuff.siphonLife.exists("target") or debuff.siphonLife.refresh("target")) and ttd("target") > 10 then
+              if cast.siphonLife("target") then return true end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if not debuff.siphonLife.exists(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
                 if cast.siphonLife(thisUnit) then return true end
               end
+            end
+          end
+          for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if ttd(thisUnit) > 10 and (debuff.siphonLife.exists(thisUnit) and debuff.siphonLife.refresh(thisUnit)) then
+              if cast.siphonLife(thisUnit) then return true end
             end
           end
           -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
@@ -699,7 +702,13 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if debuff.corruption.refresh(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
+                if not debuff.corruption.exists(thisUnit) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
+                  if cast.corruption(thisUnit) then return true end
+                end
+            end
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (debuff.corruption.exists(thisUnit) and debuff.corruption.refresh(thisUnit)) and ttd(thisUnit) > 10 and not noDotCheck(thisUnit) then
                   if cast.corruption(thisUnit) then return true end
                 end
             end
