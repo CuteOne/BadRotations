@@ -767,9 +767,6 @@ local function runRotation()
 					if cast.soothingMist(lowest.unit) then return end
 				end
 			end
-			-- Soothing Mist Debug. Temporary Fix for Jade Serpent Statue which causes rotation to freeze when the statue has soothing mist on a target we want to execute the rotation on.
-			-- The only way the rotation will resume, is if it casts soothing mists on a different target other than the target we want to heal.
-			-- I don't know how to fix this and if there is someone who can, please do.
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--DPS Mode Section--
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
