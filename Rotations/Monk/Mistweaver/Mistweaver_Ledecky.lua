@@ -205,10 +205,6 @@ local function createOptions()
 		------ Debug Testing ------
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "DEBUG TESTING")
-		--JSS Fix
-		br.ui:createSpinner(section, "JSS Fix",  90,  0,  100,  5,  " If JSS is talented and summoned. The rotation will effectively break. To workaround this, this option will casts Soothing Mist on myself if any of our party drops below this HP threshold.")
-		--JSS Fix 2
-		br.ui:createSpinner(section, "JSS Fix 2",  80,  0,  100,  5,  "Ignore. Testing Purposes Only.")
 		br.ui:checkSectionState(section)
 	end
 	optionTable = {{
@@ -316,22 +312,22 @@ local function runRotation()
 		if not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
 			--Enveloping Mists OOC
 			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") then
-				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 and getBuffRemain(lowest.unit,115175) > 1 then
-					if getBuffRemain(lowest.unit,115175) == 0 then
+				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
+					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
 						if cast.soothingMist(lowest.unit) then return end
 					end
-					if getBuffRemain(lowest.unit,115175) > 1 then
+					if getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
 						if cast.envelopingMist(lowest.unit) then return end
 					end
 				end
 			end
 			--Vivify OOC
 			if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") then
-				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit,115175) > 1 then
-					if getBuffRemain(lowest.unit,115175) == 0 then
+				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
+					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
 						if cast.soothingMist(lowest.unit) then return end
 					end
-					if getBuffRemain(lowest.unit,115175) > 1 then
+					if getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
 						if cast.vivify(lowest.unit) then return end
 					end
 				end
@@ -374,454 +370,438 @@ local function runRotation()
 			end
 		end -- End Interrupt Check
 
-		if inCombat then --Start
+		if inCombat and not isCastingSpell(spell.essenceFont) then --Start
 
-			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-			--Defensives--
-			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-			--Healing Elixir
-			if isChecked("Healing Elixir") and talent.healingElixir and not isCastingSpell(spell.essenceFont) then
-				if php <= getValue("Healing Elixir") then
-					if cast.healingElixir("player") then return end
+				----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+				--Defensives--
+				----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+				--Healing Elixir
+				if isChecked("Healing Elixir") and talent.healingElixir then
+					if php <= getValue("Healing Elixir") then
+						if cast.healingElixir("player") then return end
+					end
+			    end
+			--Mana Tea
+			if isChecked("Mana Tea") and talent.manaTea then
+				if mana <= getValue("Mana Tea") then
+					if cast.manaTea("player") then return end
 				end
-		end
-		--Mana Tea
-		if isChecked("Mana Tea") and talent.manaTea and not isCastingSpell(spell.essenceFont) then
-			if mana <= getValue("Mana Tea") then
-				if cast.manaTea("player") then return end
 			end
-		end
-		--Dampen Harm
-		if isChecked(colorwarrior.."Dampen Harm") and talent.dampenHarm and not isCastingSpell(spell.essenceFont) then
-			if php <= getValue(colorwarrior.."Dampen Harm") then
-				if cast.dampenHarm("player") then return end
+			--Dampen Harm
+			if isChecked(colorwarrior.."Dampen Harm") and talent.dampenHarm then
+				if php <= getValue(colorwarrior.."Dampen Harm") then
+					if cast.dampenHarm("player") then return end
+				end
 			end
-		end
-		--Fortifying Brew
-		if isChecked(colorwarrior.."Fortifying Brew") and php <= getValue(colorwarrior.."Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
-			if cast.fortifyingBrew() then return end
-		end
-		--Healthstone
-		if isChecked(colorwarrior.."Healthstone") and php <= getValue(colorwarrior.."Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-			if canUse(5512) then
-				useItem(5512) return true
-			elseif canUse(healPot) then
-				useItem(healPot) return true end
-		end
-		-- Arcane Torrent
-		if isChecked(colorshaman.."Arcane Torrent") and mana <= getValue(colorshaman.."Arcane Torrent") and br.player.race == "BloodElf" then
-			if castSpell("player",racial,false,false,false) then return end
-		end
-		--Revitalizing Voodoo
-		if isChecked("Revitalizing Voodoo Totem") then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue("Revitalizing Voodoo Totem") then
-					if hasEquiped(158320) and canUse(158320) and getBuffRemain(br.friend[i].unit,266018) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
-						UseItemByName(158320,br.friend[i].unit)
+			--Fortifying Brew
+			if isChecked(colorwarrior.."Fortifying Brew") and php <= getValue(colorwarrior.."Fortifying Brew") and cd.fortifyingBrew.remain() == 0 then
+				if cast.fortifyingBrew() then return end
+			end
+			--Healthstone
+			if isChecked(colorwarrior.."Healthstone") and php <= getValue(colorwarrior.."Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
+				if canUse(5512) then
+					useItem(5512) return true
+				elseif canUse(healPot) then
+					useItem(healPot) return true end
+			end
+			-- Arcane Torrent
+			if isChecked(colorshaman.."Arcane Torrent") and mana <= getValue(colorshaman.."Arcane Torrent") and br.player.race == "BloodElf" then
+				if castSpell("player",racial,false,false,false) then return end
+			end
+			--Revitalizing Voodoo
+			if isChecked("Revitalizing Voodoo Totem") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Revitalizing Voodoo Totem") then
+						if hasEquiped(158320) and canUse(158320) and getBuffRemain(br.friend[i].unit,266018) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+							UseItemByName(158320,br.friend[i].unit)
+						end
 					end
 				end
 			end
-		end
-		-- Temple of Sethraliss
-		if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Sethraliss Logic") then
-			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-				if GetSpellCooldown(115175) == 0 and getBuffRemain("target",115175) == 0 then
-					if CastSpellByName(GetSpellInfo(115175),"target") then return end
-				elseif getBuffRemain("target",115175) > 1 then
-					if CastSpellByName(GetSpellInfo(124682),"target") then return end
-				elseif getBuffRemain("target",115175) > 1 and getBuffRemain("target",124682) > 1 then
-					if CastSpellByName(GetSpellInfo(116670),"target") then return end
+			-- Temple of Sethraliss
+			if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Sethraliss Logic") then
+				if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+					if GetSpellCooldown(115175) == 0 and getBuffRemain("target",115175,"EXACT") == 0 then
+						if CastSpellByName(GetSpellInfo(115175),"target") then return end
+					elseif getBuffRemain("target",115175,"EXACT") > 1 then
+						if CastSpellByName(GetSpellInfo(124682),"target") then return end
+					elseif getBuffRemain("target",115175,"EXACT") > 1 and getBuffRemain("target",124682) > 1 then
+						if CastSpellByName(GetSpellInfo(116670),"target") then return end
+					end
 				end
 			end
-		end
 
-		-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
-		-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Life Cocoon
-		if isChecked("Life Cocoon") then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue("Life Cocoon") and getBuffRemain(br.friend[i].unit, spell.lifeCocoon, "player") < 1 then
-					-- if getValue("Life Cocoon Mode") == 1 and br.friend[i].role == "TANK" then
-					if cast.lifeCocoon(br.friend[i].unit) then return end
-					-- elseif getValue("Life Cocoon Mode") == 2 then
-					--     if cast.lifeCocoon(br.friend[i].unit) then return end
-					-- end
+			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing----Single Target Healing--
+			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Life Cocoon
+			if isChecked("Life Cocoon") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Life Cocoon") and getBuffRemain(br.friend[i].unit, spell.lifeCocoon, "player") < 1 then
+						-- if getValue("Life Cocoon Mode") == 1 and br.friend[i].role == "TANK" then
+						if cast.lifeCocoon(br.friend[i].unit) then return end
+						-- elseif getValue("Life Cocoon Mode") == 2 then
+						--     if cast.lifeCocoon(br.friend[i].unit) then return end
+						-- end
+					end
 				end
 			end
-		end
-		-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Dispels--
-		-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		if br.player.mode.detox == 1 then
-			--Detox
-			if isChecked("Detox") and not isCastingSpell(spell.essenceFont) then
-				for i = 1, #br.friend do
-					for n = 1,40 do
-						local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-						if buff then
-							if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
-								if cast.detox(br.friend[i].unit) then
-									detox = 0
+			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Dispels--
+			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			if br.player.mode.detox == 1 then
+				--Detox
+				if isChecked("Detox") and not isCastingSpell(spell.essenceFont) then
+					for i = 1, #br.friend do
+						for n = 1,40 do
+							local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
+							if buff then
+								if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
+									if cast.detox(br.friend[i].unit) then
+										detox = 0
+									end
 								end
 							end
 						end
 					end
 				end
 			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Emergency Healing--
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Enveloping Mists Myself
-		if isChecked("Enveloping Mist Player") and isChecked("Soothing Mist Instant Cast") then
-			if php <= getValue("Enveloping Mist Player") and getBuffRemain("player",124682) < 1 then
-				if getBuffRemain("player",115175) == 0 then
-					if cast.soothingMist("player") then return end
-				elseif getBuffRemain("player",115175) > 1 then
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Emergency Healing--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Enveloping Mists Myself
+			if isChecked("Enveloping Mist Player") and isChecked("Soothing Mist Instant Cast") then
+				if php <= getValue("Enveloping Mist Player") and getBuffRemain("player",124682) < 1 then
+					if getBuffRemain("player",115175,"EXACT") == 0 then
+						if cast.soothingMist("player") then return end
+					elseif getBuffRemain("player",115175,"EXACT") > 1 then
+						if cast.envelopingMist("player") then return end
+
+					end
+				end
+			end
+			--Enveloping Mist Myself - NO IC
+			if isChecked("Enveloping Mist Player") and not isChecked("Soothing Mist Instant Cast") then
+				if php <= getValue("Enveloping Mist Player") and getBuffRemain("player",124682) < 1 then
 					if cast.envelopingMist("player") then return end
-
 				end
 			end
-		end
-		--Enveloping Mist Myself - NO IC
-		if isChecked("Enveloping Mist Player") and not isChecked("Soothing Mist Instant Cast") then
-			if php <= getValue("Enveloping Mist Player") and getBuffRemain("player",124682) < 1 then
-				if cast.envelopingMist("player") then return end
+			--Vivify Myself
+			if isChecked("Vivify Player") and isChecked("Soothing Mist Instant Cast") then
+				if php <= getValue("Vivify Player") then
+					if getBuffRemain("player",115175,"EXACT") == 0 then
+						if cast.soothingMist("player") then return end
+					elseif getBuffRemain("player",115175,"EXACT") > 1 then
+						if cast.vivify("player") then return end
+
+					end
+				end
 			end
-		end
-		--Vivify Myself
-		if isChecked("Vivify Player") and isChecked("Soothing Mist Instant Cast") then
-			if php <= getValue("Vivify Player") then
-				if getBuffRemain("player",115175) == 0 then
-					if cast.soothingMist("player") then return end
-				elseif getBuffRemain("player",115175) > 1 then
+			--Vivify Myself NO IC
+			if isChecked("Vivify Player") and not isChecked("Soothing Mist Instant Cast") then
+				if php <= getValue("Vivify Player") then
 					if cast.vivify("player") then return end
-
 				end
 			end
-		end
-		--Vivify Myself NO IC
-		if isChecked("Vivify Player") and not isChecked("Soothing Mist Instant Cast") then
-			if php <= getValue("Vivify Player") then
-				if cast.vivify("player") then return end
-			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Thunder Focus Tea Section--
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Thunder Focus Tea Start
-		if isChecked(colormonk.."Thunder Focus Tea") and GetSpellCooldown(spell.thunderFocusTea) == 0 then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue(colormonk.."Thunder Focus Tea") then
-					if cast.thunderFocusTea() then return end
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Thunder Focus Tea Section--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Thunder Focus Tea Start
+			if isChecked(colormonk.."Thunder Focus Tea") and GetSpellCooldown(spell.thunderFocusTea) == 0 then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue(colormonk.."Thunder Focus Tea") then
+						if cast.thunderFocusTea() then return end
+					end
 				end
 			end
-		end
-		--Thunder Focus Tea
-		if isChecked(colormonk.."Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(spell.thunderFocusTea) == 0 and isChecked("Soothing Mist Instant Cast") then
-			for i = 1, #br.friend do
-				if getOptionValue(colormonk.."Thunder Focus Tea") == 1 then --Enveloping Mists TFT
-					if br.friend[i].hp <= getValue("TFT EM") then
-						if getBuffRemain(br.friend[i].unit,115175) == 0 then
+			--Thunder Focus Tea
+			if isChecked(colormonk.."Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(spell.thunderFocusTea) == 0 and isChecked("Soothing Mist Instant Cast") then
+				for i = 1, #br.friend do
+					if getOptionValue(colormonk.."Thunder Focus Tea") == 1 then --Enveloping Mists TFT
+						if br.friend[i].hp <= getValue("TFT EM") then
+							if getBuffRemain(br.friend[i].unit,115175,"EXACT") == 0 then
+								if cast.soothingMist(br.friend[i].unit) then return end
+							end
+							if getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 and buff.thunderFocusTea.remain("player") > 1 then
+								if cast.envelopingMist(br.friend[i].unit) then return end
+							end
+						end
+					end
+					if getOptionValue(colormonk.."Thunder Focus Tea") == 2 then --Renewing Mists TFT
+						if br.friend[i].hp <= getValue("TFT RM") then
+							if getBuffRemain(br.friend[i].unit,115175,"EXACT") == 0 then
+								if cast.soothingMist(br.friend[i].unit) then return end
+							end
+							if getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 and buff.thunderFocusTea.remain("player") > 1 then
+								if cast.renewingMists(br.friend[i].unit) then return end
+							end
+						end
+					end
+				end
+				if getOptionValue(colormonk.."Thunder Focus Tea") == 3 then --Vivify TFT
+					if br.friend[i].hp <= getValue("TFT Vivify") then
+						if getBuffRemain(br.friend[i].unit,115175,"EXACT") == 0 then
 							if cast.soothingMist(br.friend[i].unit) then return end
 						end
-						if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
+						if getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 and buff.thunderFocusTea.remain("player") > 1 then
+							if cast.vivify(br.friend[i].unit) then return end
+						end
+					end
+				end
+			end
+			--Thunder Focus Tea NO IC
+			if isChecked(colormonk.."Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(spell.thunderFocusTea) == 0 and not isChecked("Soothing Mist Instant Cast") then
+				for i = 1, #br.friend do
+					if getOptionValue(colormonk.."Thunder Focus Tea") == 1 then --Enveloping Mists TFT
+						if br.friend[i].hp <= getValue("TFT EM") and buff.thunderFocusTea.remain("player") > 1 then
 							if cast.envelopingMist(br.friend[i].unit) then return end
-						end
 					end
-				end
-				if getOptionValue(colormonk.."Thunder Focus Tea") == 2 then --Renewing Mists TFT
-					if br.friend[i].hp <= getValue("TFT RM") then
-						if getBuffRemain(br.friend[i].unit,115175) == 0 then
-							if cast.soothingMist(br.friend[i].unit) then return end
-						end
-						if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
+					end
+					if getOptionValue(colormonk.."Thunder Focus Tea") == 2 then --Renewing Mists TFT
+						if br.friend[i].hp <= getValue("TFT RM") and buff.thunderFocusTea.remain("player") > 1 then
 							if cast.renewingMists(br.friend[i].unit) then return end
+					end
+					end
+				end
+				if getOptionValue(colormonk.."Thunder Focus Tea") == 3 then --Vivify TFT
+					if br.friend[i].hp <= getValue("TFT Vivify") and buff.thunderFocusTea.remain("player") > 1 then
+						if cast.vivify(br.friend[i].unit) then return end
+				end
+				end
+			end
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Refreshing Jade Wind
+			if isChecked("Refreshing Jade Wind") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(196725) == 0 then
+				if lowest.hp <= getValue("Refreshing Jade Wind") then
+					if cast.refreshingJadeWind() then return end
+				end
+			end
+			--Essence Font with Upwelling
+			if isChecked("Essence Font Upwelling") and talent.upwelling and not isCastingSpell(spell.essenceFont) then 
+				if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
+					if buff.essenceFont.stack() >= getValue("Essence Font Upwelling") then
+						if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
+							if cast.essenceFont() then return end
 						end
 					end
 				end
 			end
-			if getOptionValue(colormonk.."Thunder Focus Tea") == 3 then --Vivify TFT
-				if br.friend[i].hp <= getValue("TFT Vivify") then
-					if getBuffRemain(br.friend[i].unit,115175) == 0 then
-						if cast.soothingMist(br.friend[i].unit) then return end
-					end
-					if getBuffRemain(br.friend[i].unit,115175) > 1 and buff.thunderFocusTea.remain("player") > 1 then
-						if cast.vivify(br.friend[i].unit) then return end
-					end
-				end
-			end
-		end
-		--Thunder Focus Tea NO IC
-		if isChecked(colormonk.."Thunder Focus Tea") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(spell.thunderFocusTea) == 0 and not isChecked("Soothing Mist Instant Cast") then
-			for i = 1, #br.friend do
-				if getOptionValue(colormonk.."Thunder Focus Tea") == 1 then --Enveloping Mists TFT
-					if br.friend[i].hp <= getValue("TFT EM") and buff.thunderFocusTea.remain("player") > 1 then
-						if cast.envelopingMist(br.friend[i].unit) then return end
-				end
-				end
-				if getOptionValue(colormonk.."Thunder Focus Tea") == 2 then --Renewing Mists TFT
-					if br.friend[i].hp <= getValue("TFT RM") and buff.thunderFocusTea.remain("player") > 1 then
-						if cast.renewingMists(br.friend[i].unit) then return end
-				end
-				end
-			end
-			if getOptionValue(colormonk.."Thunder Focus Tea") == 3 then --Vivify TFT
-				if br.friend[i].hp <= getValue("TFT Vivify") and buff.thunderFocusTea.remain("player") > 1 then
-					if cast.vivify(br.friend[i].unit) then return end
-			end
-			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing----AOE Healing
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Refreshing Jade Wind
-		if isChecked("Refreshing Jade Wind") and not isCastingSpell(spell.essenceFont) and GetSpellCooldown(196725) == 0 then
-			if lowest.hp <= getValue("Refreshing Jade Wind") then
-				if cast.refreshingJadeWind() then return end
-			end
-		end
-		--Essence Font with Upwelling
-		if isChecked("Essence Font Upwelling") and talent.upwelling and not isCastingSpell(spell.essenceFont) then 
-			if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
-				if buff.essenceFont.stack() >= getValue("Essence Font Upwelling") then
+			--Essence Font
+			if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and not talent.upwelling then
+				if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
 					if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
 						if cast.essenceFont() then return end
 					end
 				end
 			end
-		end
-		--Essence Font
-		if isChecked("Essence Font") and not isCastingSpell(spell.essenceFont) and not talent.upwelling then
-			if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
-				if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
-					if cast.essenceFont() then return end
+			--Revival
+			if isChecked("Revival") and not isCastingSpell(spell.essenceFont) then
+				if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then
+					if cast.revival() then return end
 				end
 			end
-		end
-		--Revival
-		if isChecked("Revival") and not isCastingSpell(spell.essenceFont) then
-			if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") then
-				if cast.revival() then return end
+			--Chi Ji
+			if isChecked("Chi Ji") and not isCastingSpell(spell.essenceFont) then
+				if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then
+					if cast.invokeChiJi(lowest.unit) then return end
+				end
 			end
-		end
-		--Chi Ji
-		if isChecked("Chi Ji") and not isCastingSpell(spell.essenceFont) then
-			if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") then
-				if cast.invokeChiJi(lowest.unit) then return end
+			--Jade Statue
+			if isChecked(colormage.."Summon Jade Serpent") and lowest.hp >= 55 and talent.summonJadeSerpentStatue then
+				--player
+				if getOptionValue(colormage.."Summon Jade Serpent") == 1 then
+					param = "player"
+					--target
+				elseif getOptionValue(colormage.."Summon Jade Serpent") == 2 and GetObjectExists("target") then
+					param = "target"
+					--tank
+				elseif getOptionValue(colormage.."Summon Jade Serpent") == 3 and #getTanksTable() > 0 then
+					local tanks = getTanksTable()
+					param = tanks[1].unit
+				else
+					param = "player"
+				end
+				if tsPX == nil or tsPY == nil then
+					tsPX, tsPY, tsPZ = GetObjectPosition(param)
+					if cast.summonJadeSerpentStatue(param) then return true end
+				elseif getDistanceToObject("player",tsPX,tsPY,tsPZ) > 40 then
+					tsPX, tsPY, tsPZ = GetObjectPosition(param)
+					if cast.summonJadeSerpentStatue(param) then return true end
+				end
 			end
-		end
-		--Jade Statue
-		if isChecked(colormage.."Summon Jade Serpent") and lowest.hp >= 55 and talent.summonJadeSerpentStatue then
-			--player
-			if getOptionValue(colormage.."Summon Jade Serpent") == 1 then
-				param = "player"
-				--target
-			elseif getOptionValue(colormage.."Summon Jade Serpent") == 2 and GetObjectExists("target") then
-				param = "target"
-				--tank
-			elseif getOptionValue(colormage.."Summon Jade Serpent") == 3 and #getTanksTable() > 0 then
-				local tanks = getTanksTable()
-				param = tanks[1].unit
-			else
-				param = "player"
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Life Cycles Rotation--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Renewing Mist
+			if isChecked("Renewing Mist") and not isCastingSpell(spell.essenceFont) then
+				if lowest.hp <= getValue("Renewing Mist")
+					and getBuffRemain(lowest.unit, spell.renewingMist, "player") < 1 then
+					if cast.renewingMist(lowest.unit) then return end
+				end
 			end
-			if tsPX == nil or tsPY == nil then
-				tsPX, tsPY, tsPZ = GetObjectPosition(param)
-				if cast.summonJadeSerpentStatue(param) then return true end
-			elseif getDistanceToObject("player",tsPX,tsPY,tsPZ) > 40 then
-				tsPX, tsPY, tsPZ = GetObjectPosition(param)
-				if cast.summonJadeSerpentStatue(param) then return true end
-			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Life Cycles Rotation--
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Renewing Mist
-		if isChecked("Renewing Mist") and not isCastingSpell(spell.essenceFont) then
-			if lowest.hp <= getValue("Renewing Mist")
-				and getBuffRemain(lowest.unit, spell.renewingMist, "player") < 1 then
-				if cast.renewingMist(lowest.unit) then return end
-			end
-		end
-		--Enveloping Mists Lifecycles Start (Tank Only)
-		if isChecked("EM Tanks Only") then
-			for i = 1, #br.friend do
-				if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
-					if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-						if getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(br.friend[i].unit,115175) > 1 then
-							if getBuffRemain(br.friend[i].unit,115175) == 0 then
-								if cast.soothingMist(br.friend[i].unit) then return end
-							elseif getBuffRemain(br.friend[i].unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+			--Enveloping Mists Lifecycles Start (Tank Only)
+			if isChecked("EM Tanks Only") then
+				for i = 1, #br.friend do
+					if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
+						if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+							if getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 then
+								if getBuffRemain(br.friend[i].unit,115175,"EXACT") == 0 then
+									if cast.soothingMist(br.friend[i].unit) then return end
+								elseif getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
+									if cast.envelopingMist(br.friend[i].unit) then return end
+								end
+							end
+						end
+					end
+					--Enveloping Mists Lifecycles Start NO IC
+					if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
+						if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+							if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1  then
 								if cast.envelopingMist(br.friend[i].unit) then return end
 							end
+						end
+					end
+				end
+			end
+			--Enveloping Mists Lifecycles Start
+			if not isChecked("EM Tanks Only") then
+				if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
+					if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
+						if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
+							if cast.soothingMist(lowest.unit) then return end
+						elseif getBuffRemain(lowest.unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
+							if cast.envelopingMist(lowest.unit) then return end
 						end
 					end
 				end
 				--Enveloping Mists Lifecycles Start NO IC
 				if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
-					if br.friend[i].hp <= getValue("Enveloping Mist Lifecycles") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-						if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1  then
-							if cast.envelopingMist(br.friend[i].unit) then return end
-						end
-					end
-				end
-			end
-		end
-		--Enveloping Mists Lifecycles Start
-		if not isChecked("EM Tanks Only") then
-			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and isChecked("Soothing Mist Instant Cast") then
-				if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 and getBuffRemain(lowest.unit,115175) > 1 then
-					if getBuffRemain(lowest.unit,115175) == 0 then
-						if cast.soothingMist(lowest.unit) then return end
-					elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+					if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1  then
 						if cast.envelopingMist(lowest.unit) then return end
 					end
 				end
 			end
-			--Enveloping Mists Lifecycles Start NO IC
-			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") and not isChecked("Soothing Mist Instant Cast") then
-				if lowest.hp <= getValue("Enveloping Mist Lifecycles") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1  then
-					if cast.envelopingMist(lowest.unit) then return end
+			--Vivify Life Cycles
+			if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") and getBuffRemain("player",197916) > 1 and isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Vivify Lifecycles") and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
+					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					elseif getBuffRemain(lowest.unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
+						if cast.vivify(lowest.unit) then return end
+					end
 				end
 			end
-		end
-		--Vivify Life Cycles
-		if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") and getBuffRemain("player",197916) > 1 and isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Vivify Lifecycles") and getBuffRemain(lowest.unit,115175) > 1 then
-				if getBuffRemain(lowest.unit,115175) == 0 then
-					if cast.soothingMist(lowest.unit) then return end
-				elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+			--Vivify Life Cycles NO IC
+			if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") and getBuffRemain("player",197916) > 1 and not isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Vivify Lifecycles") and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
 					if cast.vivify(lowest.unit) then return end
 				end
 			end
-		end
-		--Vivify Life Cycles NO IC
-		if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") and getBuffRemain("player",197916) > 1 and not isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Vivify Lifecycles") and getBuffRemain(lowest.unit,115175) > 1 then
-				if cast.vivify(lowest.unit) then return end
-			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--End of Life Cycles Rotation--
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--Enveloping Mist Tanks Only
-		if isChecked("EM Tanks Only") then
-			for i = 1, #br.friend do
-				if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
-					if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-						if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
-							if getBuffRemain(br.friend[i].unit,115175) == 0 then
-								if cast.soothingMist(br.friend[i].unit) then return end
-							elseif getBuffRemain(br.friend[i].unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
-								if cast.envelopingMist(br.friend[i].unit) then return end
-							end
-						end
-						--Enveloping Mists NO IC
-						if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
-							if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-								if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--End of Life Cycles Rotation--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--Enveloping Mist Tanks Only
+			if isChecked("EM Tanks Only") then
+				for i = 1, #br.friend do
+					if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
+						if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+							if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
+								if getBuffRemain(br.friend[i].unit,115175,"EXACT") == 0 then
+									if cast.soothingMist(br.friend[i].unit) then return end
+								elseif getBuffRemain(br.friend[i].unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
 									if cast.envelopingMist(br.friend[i].unit) then return end
+								end
+							end
+							--Enveloping Mists NO IC
+							if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
+								if br.friend[i].hp <= getValue("Enveloping Mist") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+									if getBuffRemain(br.friend[i].unit, spell.envelopingMist, "player") < 1 then
+										if cast.envelopingMist(br.friend[i].unit) then return end
+									end
 								end
 							end
 						end
 					end
 				end
 			end
-		end
-		--Enveloping Mists
-		if not isChecked("EM Tanks Only") then
-			if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
-				if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
-					if getBuffRemain(lowest.unit,115175) == 0 then
-						if cast.soothingMist(lowest.unit) then return end
-					elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+			--Enveloping Mists
+			if not isChecked("EM Tanks Only") then
+				if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
+					if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
+						if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
+							if cast.soothingMist(lowest.unit) then return end
+						elseif getBuffRemain(lowest.unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
+							if cast.envelopingMist(lowest.unit) then return end
+						end
+					end
+				end
+
+				--Enveloping Mists NO IC
+				if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
+					if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
 						if cast.envelopingMist(lowest.unit) then return end
 					end
 				end
 			end
-
-			--Enveloping Mists NO IC
-			if isChecked("Enveloping Mist") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
-				if lowest.hp <= getValue("Enveloping Mist") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 1 then
-					if cast.envelopingMist(lowest.unit) then return end
+			--Vivify
+			if isChecked("Vivify") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Vivify") then
+					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
+						if cast.soothingMist(lowest.unit) then return end
+					elseif getBuffRemain(lowest.unit,115175,"EXACT") > 1 and isCastingSpell(spell.soothingMist) then
+						if cast.vivify(lowest.unit) then return end
+					end
 				end
 			end
-		end
-		--Vivify
-		if isChecked("Vivify") and not isCastingSpell(spell.essenceFont) and isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Vivify") then
-				if getBuffRemain(lowest.unit,115175) == 0 then
-					if cast.soothingMist(lowest.unit) then return end
-				elseif getBuffRemain(lowest.unit,115175) > 1 and isCastingSpell(spell.soothingMist) then
+			--Vivify NO IC
+			if isChecked("Vivify") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
+				if lowest.hp <= getValue("Vivify") then
 					if cast.vivify(lowest.unit) then return end
 				end
 			end
-		end
-		--Vivify NO IC
-		if isChecked("Vivify") and not isCastingSpell(spell.essenceFont) and not isChecked("Soothing Mist Instant Cast") then
-			if lowest.hp <= getValue("Vivify") then
-				if cast.vivify(lowest.unit) then return end
-			end
-		end
-		-- Soothing Mist 2
-		if isChecked("Soothing Mist") and not isCastingSpell(spell.essenceFont) then
-			if lowest.hp <= getValue("Soothing Mist") and getBuffRemain(lowest.unit,115175) == 0 then
-				if cast.soothingMist(lowest.unit) then return end
-			end
-		end
-		-- Soothing Mist Debug. Temporary Fix for Jade Serpent Statue which causes rotation to freeze when the statue has soothing mist on a target we want to execute the rotation on.
-		-- The only way the rotation will resume, is if it casts soothing mists on a different target other than the target we want to heal.
-		-- I don't know how to fix this and if there is someone who can, please do.
-
-		--JSS Fix
-		if isChecked("JSS Fix") and not isCastingSpell(spell.essenceFont) and not isCastingSpell(spell.soothingMist) and getBuffRemain("player",115175) == 0 then
-			if lowest.hp <= getValue("JSS Fix") then
-				if cast.soothingMist("player") then return end
-			end
-		end
-		--JSS Fix 2
-		if isChecked("JSS Fix 2") and not isCastingSpell(spell.essenceFont) then
-			for i = 1, #br.friend do
-				if br.friend[i].hp <= getValue("JSF") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and php > 95 then
-					if cast.soothingMist("player") then return end
+			-- Soothing Mist 2
+			if isChecked("Soothing Mist") and not isCastingSpell(spell.essenceFont) then
+				if lowest.hp <= getValue("Soothing Mist") and getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
+					if cast.soothingMist(lowest.unit) then return end
 				end
 			end
-		end
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		--DPS Mode Section--
-		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			-- Soothing Mist Debug. Temporary Fix for Jade Serpent Statue which causes rotation to freeze when the statue has soothing mist on a target we want to execute the rotation on.
+			-- The only way the rotation will resume, is if it casts soothing mists on a different target other than the target we want to heal.
+			-- I don't know how to fix this and if there is someone who can, please do.
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+			--DPS Mode Section--
+			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-		--DPS Mode--
-		if br.player.mode.dps == 1 then
-			if lowest.hp >= getValue("DPS Mode") then
-				if talent.risingThunder then
-					if cast.risingSunKick() then return true end
-				end
-				if  isChecked(colordh.."Spinning Crane Kick") and not talent.spiritOfTheCrane and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
-					if cast.spinningCraneKick() then return true end
-				elseif #enemies.yards5 >= 1 then
-					if isChecked(colordh.."Rising Sun Kick") and cd.risingSunKick.remain()  == 0 then
+			--DPS Mode--
+			if br.player.mode.dps == 1 then
+				if lowest.hp >= getValue("DPS Mode") then
+					if talent.risingThunder then
 						if cast.risingSunKick() then return true end
 					end
-					if buff.teachingsOfTheMonastery.stack() == 3 then
-						if cast.blackoutKick() then return true end
+					if  isChecked(colordh.."Spinning Crane Kick") and not talent.spiritOfTheCrane and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
+						if cast.spinningCraneKick() then return true end
+					elseif #enemies.yards5 >= 1 then
+						if isChecked(colordh.."Rising Sun Kick") and cd.risingSunKick.remain()  == 0 then
+							if cast.risingSunKick() then return true end
+						end
+						if buff.teachingsOfTheMonastery.stack() == 3 then
+							if cast.blackoutKick() then return true end
+						end
+						if cast.tigerPalm() then return true end
+					elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked(colordh.."Crackling Jade Lightning") then
+						if cast.cracklingJadeLighting() then return true end
 					end
-					if cast.tigerPalm() then return true end
-				elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked(colordh.."Crackling Jade Lightning") then
-					if cast.cracklingJadeLighting() then return true end
 				end
 			end
-		end
-		return false
-
+			return false
 		end -- End In Combat Rotation
 	end -- End Timer
 end -- End runRotation
 
 if isChecked("Boss Helper") then
-	bossManager()
+	bossHelper()
 end
 local id = 270
 if br.rotations[id] == nil then br.rotations[id] = {} end
