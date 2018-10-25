@@ -85,6 +85,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Trinkets")
         -- Dancing Rune Weapon
             br.ui:createCheckbox(section, "Dancing Rune Weapon")
+            br.ui:createCheckbox(section, "Tombstone")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -420,14 +421,27 @@ local function runRotation()
                         useItem(14)
                     end
                 end
-        -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,buff.tigers_fury | berserking,buff.tigers_fury | arcane_torrent,buff.tigers_fury
-                if isChecked("Racial") and (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") then
-                    if castSpell("player",racial,false,false,false) then return end
+                if isChecked("Racial") then
+                  -- blood_fury,if=cooldown.dancing_rune_weapon.ready&(!cooldown.blooddrinker.ready|!talent.blooddrinker.enabled)
+                  if br.player.race == "Orc" and cast.able.racial() and (not cd.dancingRuneWeapon.exists() and (cd.blooddrinker.exists())) then
+                    return cast.racial()
+                  end
+                  -- arcane_torrent,if=runic_power.deficit>20
+                  if br.player.race == "BloodElf" and cast.able.racial() and (runicPowerDeficit > 20) then
+                    return cast.racial()
+                  end
                 end
-        -- Dancing Rune Weapon
                 if isChecked("Dancing Rune Weapon") then
-                    if cast.dancingRuneWeapon() then return end
+                  -- dancing_rune_weapon,if=!talent.blooddrinker.enabled|!cooldown.blooddrinker.ready
+                  if cast.able.dancingRuneWeapon() and (not talent.blooddrinker or cd.blooddrinker.exists()) then
+                    return cast.dancingRuneWeapon()
+                  end
+                end
+                if isChecked("Tombstone") then
+                  -- tombstone,if=buff.bone_shield.stack>=7
+                  if cast.able.tombstone() and (buff.boneShield.stack() >= 7) then
+                    return cast.tombstone()
+                  end
                 end
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
@@ -504,29 +518,17 @@ local function runRotation()
     --------------------------
     ---- Chem (SimC 8.0) APL --
     ---------------------------
-                -- blood_fury,if=cooldown.dancing_rune_weapon.ready&(!cooldown.blooddrinker.ready|!talent.blooddrinker.enabled)
-                if br.player.race == "Orc" and cast.able.racial() and (not cd.dancingRuneWeapon.exists() and (cd.blooddrinker.exists())) then
-                  return cast.racial()
-                end
-                -- dancing_rune_weapon,if=!talent.blooddrinker.enabled|!cooldown.blooddrinker.ready
-                if cast.able.dancingRuneWeapon() and (not talent.blooddrinker or cd.blooddrinker.exists()) then
-                  return cast.dancingRuneWeapon()
-                end
-                -- tombstone,if=buff.bone_shield.stack>=7
-                if cast.able.tombstone() and (buff.boneShield.stack() >= 7) then
-                  return cast.tombstone()
-                end
                 -- death_strike,if=runic_power.deficit<=10
                 if cast.able.deathStrike() and (runicPowerDeficit <= 10) then
-                  return cast.deathStrike()
+                  return cast.deathStrike("target")
                 end
                 -- blooddrinker,if=!buff.dancing_rune_weapon.up
                 if cast.able.blooddrinker() and (not buff.dancingRuneWeapon.exists()) then
-                  return cast.blooddrinker()
+                  return cast.blooddrinker("target")
                 end
                 -- marrowrend,if=(buff.bone_shield.remains<=rune.time_to_3|buff.bone_shield.remains<=(gcd+cooldown.blooddrinker.ready*talent.blooddrinker.enabled*2)|buff.bone_shield.stack<3)&runic_power.deficit>=20
                 if cast.able.marrowrend() and ((buff.boneShield.remain() <= runeTimeTill(3) or buff.boneShield.remain() <= (gcdMax + bloodDrinkerCheck * (talent.blooddrinker and 1 or 0) * 2) or buff.boneShield.stack() < 3) and runicPowerDeficit >= 20) then
-                  return cast.marrowrend()
+                  return cast.marrowrend("target")
                 end
                 -- blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
                 if cast.able.bloodBoil() and (charges.bloodBoil.frac() >= 1.8 and (buff.hemostasis.stack() <= (5 - #enemies.yards10) or #enemies.yards10 > 2)) then
@@ -534,7 +536,7 @@ local function runRotation()
                 end
                 -- marrowrend,if=buff.bone_shield.stack<5&talent.ossuary.enabled&runic_power.deficit>=15
                 if cast.able.marrowrend() and (buff.boneShield.stack() < 5 and talent.ossuary and runicPowerDeficit >= 15) then
-                  return cast.marrowrend()
+                  return cast.marrowrend("target")
                 end
                 -- bonestorm,if=runic_power>=100&!buff.dancing_rune_weapon.up
                 if cast.able.bonestorm() and (runicPower >= 100 and not buff.dancingRuneWeapon.exists()) then
@@ -542,7 +544,7 @@ local function runRotation()
                 end
                 -- death_strike,if=runic_power.deficit<=(15+buff.dancing_rune_weapon.up*5+spell_targets.heart_strike*talent.heartbreaker.enabled*2)|target.time_to_die<10
                 if cast.able.deathStrike() and (runicPowerDeficit <= (15 + (buff.dancingRuneWeapon.exists() and 1 or 0) * 5 + #enemies.yards8 * (talent.heartbreaker and 1 or 0) * 2) or ttd("target") < 10) then
-                  return cast.deathStrike()
+                  return cast.deathStrike("target")
                 end
                 -- death_and_decay,if=spell_targets.death_and_decay>=3
                 if cast.able.deathAndDecay() and (#enemies.yards8 >= 3) then
@@ -550,11 +552,11 @@ local function runRotation()
                 end
                 -- rune_strike,if=(charges_fractional>=1.8|buff.dancing_rune_weapon.up)&rune.time_to_3>=gcd
                 if talent.runeStrike and cast.able.runeStrike() and ((charges.runeStrike.frac() >= 1.8 or buff.dancingRuneWeapon.exists()) and runeTimeTill(3) >= gcdMax) then
-                  return cast.runeStrike()
+                  return cast.runeStrike("target")
                 end
                 -- heart_strike,if=buff.dancing_rune_weapon.up|rune.time_to_4<gcd
                 if cast.able.heartStrike() and (buff.dancingRuneWeapon.exists() or runeTimeTill(4) < gcdMax) then
-                  return cast.heartStrike()
+                  return cast.heartStrike("target")
                 end
                 -- blood_boil,if=buff.dancing_rune_weapon.up
                 if cast.able.bloodBoil() and (buff.dancingRuneWeapon.exists()) then
@@ -574,15 +576,11 @@ local function runRotation()
                 end
                 -- heart_strike,if=rune.time_to_3<gcd|buff.bone_shield.stack>6
                 if cast.able.heartStrike() and (runeTimeTill(3) < gcdMax or buff.boneShield.stack() > 6) then
-                  return cast.heartStrike()
+                  return cast.heartStrike("target")
                 end
                 -- rune_strike
                 if talent.runeStrike and cast.able.runeStrike() then
-                  return cast.runeStrike()
-                end
-                -- arcane_torrent,if=runic_power.deficit>20
-                if br.player.race == "BloodElf" and cast.able.racial() and (runicPowerDeficit > 20) then
-                  return cast.racial()
+                  return cast.runeStrike("target")
                 end
                 --end
             end --End In Combat
