@@ -560,7 +560,7 @@ local function runRotation()
                     if cast.dispelMagic("target") then return true end
                 end
                 -- Mass Dispel
-                if norganBuff and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) then
+                if norganBuff and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) and getSpellCD(spell.massDispel) <= gcdMax then
                     CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
                     return true
                 end
@@ -613,7 +613,7 @@ local function runRotation()
             -- Atonement Key
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
-                    if cast.powerWordRadiance(br.friend[1].unit) then return true end
+                    if cast.powerWordRadiance(br.friend[1].unit) then end
                 else 
                     if atonementCount ~= 0 or isMoving("player") then
                         for i = 1, #br.friend do
@@ -622,6 +622,9 @@ local function runRotation()
                             end
                         end
                     end
+                end
+                if talent.evangelism and getSpellCD(spell.evangelism) <= gcd and isChecked("Evangelism") then
+                    if cast.evangelism() then end
                 end
             end
             if isMoving("player") and isChecked("Shadow Word: Pain/Purge The Wicked") and (getSpellCD(spell.penance) > gcdMax or (getSpellCD(spell.penance) <= gcdMax and debuff.purgeTheWicked.count() == 0 and debuff.shadowWordPain.count() == 0)) then
