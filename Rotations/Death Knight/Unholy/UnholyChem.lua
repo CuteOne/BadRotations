@@ -65,14 +65,19 @@ local function createOptions()
         -- br.ui:createDropdownWithout(section, "Trinket 2 Condition", {colorWhite.."On Cooldown",colorWhite.."On Boss Health",colorWhite.."On Self Health"}, 1, colorWhite.."On Cooldown = Use Trinket whenever available, value doesn't matter; On Boss Health = Use Trinket when boss health is below value; On Self Health = Use Trinket when your health is below value;")
         -- br.ui:createSpinner(section, "Trinket 2",  60,  0,  100,  5,  colorRed.."When to use Trinket 2")
         -- br.ui:checkSectionState(section)
-        ------------------------
-        --- COOLDOWN OPTIONS --- -- Define Cooldown Options
-        ------------------------
-        -- section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-        -- br.ui:createCheckbox(section, "Use Racial")
-        -- br.ui:createCheckbox(section, "Gargoyle / Dark Arbiter")
-        -- br.ui:createCheckbox(section, colorGreen.."Dark Transformation")
-        -- br.ui:checkSectionState(section)
+        ----------------------
+        -- COOLDOWN OPTIONS --- -- Define Cooldown Options
+        ----------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+        br.ui:createCheckbox(section, "Racial")
+        br.ui:createCheckbox(section, "Apocalypse")
+        br.ui:createCheckbox(section, "Army of the Dead")
+        br.ui:createCheckbox(section, "Dark Transformation")
+        br.ui:createCheckbox(section, "Summmon Gargoyle")
+        br.ui:createCheckbox(section, "Unholy Frenzy")
+        br.ui:createCheckbox(section, "Soul Reaper")
+        br.ui:createCheckbox(section, "Unholy Blight")
+        br.ui:checkSectionState(section)
         ------------------------
         --- Pet OPTIONS --- -- 
         ------------------------
@@ -427,32 +432,47 @@ end
 
 
 local function actionList_Cooldowns()
+  if isChecked("Racial") then
+      -- arcane_torrent,if=runic_power.deficit>65&(cooldown.summon_gargoyle.remains|!talent.summon_gargoyle.enabled)&rune.deficit>=5
+    if br.player.race == "BloodElf" and cast.able.racial() and (runicPowerDeficit > 65 and (not talent.summonGargoyle or cd.summonGargoyle.remain()) and runesDeficit >= 5) then
+        if cast.racial() then return end
+    end
+    -- blood_fury,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
+    if br.player.race == "Orc" and cast.able.racial() and (not talent.summonGargoyle or pet.gargoyle.active) then
+        if cast.racial() then return end
+    end
+    -- berserking,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
+    if br.player.race == "Troll" and cast.able.racial() and (not talent.summonGargoyle or pet.gargoyle.active) then
+        if cast.racial() then return end
+    end
+  end
+
   -- army_of_the_dead
-  if cast.able.armyOfTheDead() then
+  if isChecked("Army of the Dead") and cast.able.armyOfTheDead() then
       if cast.armyOfTheDead() then return end
   end
   -- apocalypse,if=debuff.festering_wound.stack>=4
-  if cast.able.apocalypse() and (debuff.festeringWound.stack("target") >= 4) then
+  if isChecked("Apocalypse") and  cast.able.apocalypse() and (debuff.festeringWound.stack("target") >= 4) then
       if cast.apocalypse("target") then return end
   end
   -- dark_transformation
-  if cast.able.darkTransformation() then
+  if  isChecked("Dark Transformation") and cast.able.darkTransformation() then
       if cast.darkTransformation() then return end
   end
   -- summon_gargoyle,if=runic_power.deficit<14
-  if talent.summonGargoyle and cast.able.summonGargoyle() and (runicPowerDeficit < 14) then
+  if  isChecked("Summon Gargoyle") and talent.summonGargoyle and cast.able.summonGargoyle() and (runicPowerDeficit < 14) then
       if cast.summonGargoyle() then return end
   end
   -- unholy_frenzy,if=debuff.festering_wound.stack<4
-  if cast.able.unholyFrenzy() and (debuff.festeringWound.stack("target") < 4) then
+  if  isChecked("Unholy Frenzy") and cast.able.unholyFrenzy() and (debuff.festeringWound.stack("target") < 4) then
       if cast.unholyFrenzy() then return end
   end
   -- unholy_frenzy,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
-  if cast.able.unholyFrenzy() and (#enemies.yards8 >= 2 and ((cd.deathAndDecay.remain() <= gcdMax and not talent.defile) or (cd.defile.remain() <= gcdMax and talent.defile))) then
+  if  isChecked("Unholy Frenzy") and cast.able.unholyFrenzy() and (#enemies.yards8 >= 2 and ((cd.deathAndDecay.remain() <= gcdMax and not talent.defile) or (cd.defile.remain() <= gcdMax and talent.defile))) then
       if cast.unholyFrenzy() then return end
   end
   -- soul_reaper,target_if=target.time_to_die<8&target.time_to_die>4
-  if talent.soulReaper and cast.able.soulReaper() and (ttd("target") < 8 and ttd("target") > 4) then
+  if  isChecked("Soul Reaper") and talent.soulReaper and cast.able.soulReaper() and (ttd("target") < 8 and ttd("target") > 4) then
       if cast.soulReaper("target") then return end
   end
   -- -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_frenzy.up)
@@ -460,7 +480,7 @@ local function actionList_Cooldowns()
   --     if cast.soulReaper() then return end
   -- end
   -- unholy_blight
-  if cast.able.unholyBlight() then
+  if  isChecked("Unholy Blight") and cast.able.unholyBlight() then
       if cast.unholyBlight() then return end
   end
 end
@@ -471,19 +491,6 @@ local function actionList_Rotation()
   if talent.summonGargoyle and cd.summonGargoyle.remains() < 5 then
     poolingForGargoyle = 1
   end
-  -- arcane_torrent,if=runic_power.deficit>65&(cooldown.summon_gargoyle.remains|!talent.summon_gargoyle.enabled)&rune.deficit>=5
-  if br.player.race == "BloodElf" and cast.able.racial() and (runicPowerDeficit > 65 and (not talent.summonGargoyle or cd.summonGargoyle.remain()) and runesDeficit >= 5) then
-      if cast.racial() then return end
-  end
-  -- blood_fury,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-  if br.player.race == "Orc" and cast.able.racial() and (not talent.summonGargoyle or pet.gargoyle.active) then
-      if cast.racial() then return end
-  end
-  -- berserking,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-  if br.player.race == "Troll" and cast.able.racial() and (not talent.summonGargoyle or pet.gargoyle.active) then
-      if cast.racial() then return end
-  end
-
   -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled
   --TODO: parsing use_item
   -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
