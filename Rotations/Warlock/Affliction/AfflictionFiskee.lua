@@ -488,7 +488,7 @@ local function runRotation()
 
         local function actionList_Fillers()
           -- actions.fillers=deathbolt
-          if not moving and debuff.agony.exists() or debuff.corruption.exists() then
+          if not moving and (debuff.agony.exists() or debuff.corruption.exists()) then
             if cast.deathbolt() then return true end
           end
           -- actions.fillers+=/shadow_bolt,if=buff.movement.up&buff.nightfall.remains
@@ -611,6 +611,10 @@ local function runRotation()
           -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
           if not moving and debuff.unstableAffliction.remain() <= cast.time.unstableAffliction() and ttd("target") > 2 + cast.time.unstableAffliction() then
               if cast.unstableAffliction() then return true end
+          end
+          --actions.spenders+=/unstable_affliction,if=cooldown.deathbolt.up&prev_gcd.1.summon_darkglare
+          if not moving and cast.last.summonDarkglare() and cd.deathbolt.remain() == 0 then
+            if cast.unstableAffliction() then return true end
           end
           -- actions+=/call_action_list,name=fillers
           if actionList_Fillers() then return true end
