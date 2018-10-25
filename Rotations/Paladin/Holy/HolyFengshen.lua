@@ -566,7 +566,7 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or HOJ_list[select(9,UnitCastingInfo(thisUnit))]~=nil or HOJ_list[select(7,GetSpellInfo(UnitChannelInfo(unit)))]~=nil) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
+					if (HOJ_unitList[GetObjectID(thisUnit)]~=nil or HOJ_list[select(9,UnitCastingInfo(thisUnit))]~=nil or HOJ_list[select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))]~=nil) and getBuffRemain(thisUnit,226510) == 0 and distance <= 10 then
 						if cast.hammerOfJustice(thisUnit) then return true end
 					end
 				end
