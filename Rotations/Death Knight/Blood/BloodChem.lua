@@ -72,6 +72,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Active Mitigation","|cffFFFFFF to use Active Mitigation for select spells.")
         -- Active Mitigation
             br.ui:createCheckbox(section,"Blooddrinker")
+        -- Death's Advance whenever available outside of combat
+          br.ui:createCheckbox(section, "Death's Advance (OOC)", "Death's Advance whenever available outside of combat")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -330,6 +332,20 @@ local function runRotation()
                     end
                 end
             end
+
+            if isChecked("Death's Advance (OOC)") then
+              if cast.able.deathsAdvance then
+                if cast.deathsAdvance() then return end
+              end
+            end
+
+            -- for i = 1, #enemies.yards30 do
+            --   local thisUnit = enemies.yards30[i]
+            --   if UnitCreatureTypes(thisUnit) == "Undead" then
+            --     if cast.controlUndead(thisUnit) then return end
+            --   end
+            -- end
+
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
