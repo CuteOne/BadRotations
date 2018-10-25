@@ -247,6 +247,8 @@ function br.read.commonReaders()
 	--[[ Combat Log Reader --]]
 	local superReaderFrame = CreateFrame('Frame')
 	superReaderFrame:RegisterEvent("CHAT_MSG_ADDON")
+	superReaderFrame:RegisterEvent("PLAYER_STARTED_MOVING")
+	superReaderFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
 	superReaderFrame:RegisterEvent("PLAYER_TOTEM_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_SENT")
@@ -267,10 +269,13 @@ function br.read.commonReaders()
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end
-        -- Update Player Info
-        if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
+		-- Player moving
+		if event == "PLAYER_STARTED_MOVING" then if br.player ~= nil then br.player.moving = true end return end
+		if event == "PLAYER_STOPPED_MOVING" then if br.player ~= nil then br.player.moving = false end return end
+    -- Update Player Info
+    if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
 			br.updatePlayerInfo = true
-        end
+    end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then
