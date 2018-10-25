@@ -132,7 +132,7 @@ local function createOptions()
         -- Maim
             br.ui:createCheckbox(section,"Maim")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupts",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At (0 is random)")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -627,7 +627,7 @@ local function runRotation()
 				if isChecked("Skull Bash") and cast.able.skullBash() then
 					for i=1, #enemies.yards13 do
 						thisUnit = enemies.yards13[i]
-						if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if cast.skullBash(thisUnit) then return true end
 						end
 					end
@@ -636,7 +636,7 @@ local function runRotation()
     			if isChecked("Mighty Bash") and cast.able.mightyBash() then
     				for i=1, #enemies.yards5 do
                         thisUnit = enemies.yards5[i]
-						if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if cast.mightyBash(thisUnit) then return true end
 						end
 					end
@@ -645,7 +645,7 @@ local function runRotation()
     			if isChecked("Maim") and cast.able.maim() then
     				for i=1, #enemies.yards5 do
                         thisUnit = enemies.yards5[i]
-    					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and comboPoints > 0 and not buff.fieryRedMaimers.exists() then --and isInPvP() then
+    					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and comboPoints > 0 and not buff.fieryRedMaimers.exists() then --and isInPvP() then
     						if cast.maim(thisUnit) then return true end
 		    			end
 	            	end
