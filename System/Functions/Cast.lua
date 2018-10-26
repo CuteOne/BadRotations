@@ -638,14 +638,10 @@ function castQueue()
 	-- Catch for spells not registering on Combat log
 	if br.player ~= nil then
 		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
-			local spellID = br.player.queue[1].id
-			--local spellName,_,texture = GetSpellInfo(spellID)
-			local thisUnit = br.player.queue[1].target
-			createCastFunction(thisUnit,nil,nil,nil,spellID)
-			if getOptionCheck("Start/Stop BadRotations") then
-				mainButton:SetNormalTexture(texture)
-				lastSpellCast = spellID
-				lastSpellTarget = UnitGUID(thisUnit)
+			for i=1, #br.player.queue do
+				local spellID = br.player.queue[i].id
+				local thisUnit = br.player.queue[i].target
+				if createCastFunction(thisUnit,nil,nil,nil,spellID) then return end
 			end
 		end
 	end
