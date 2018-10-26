@@ -63,7 +63,9 @@ local function createOptions()
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
         -- Shadowfury Hotkey
-            br.ui:createDropdown(section,"Shadowfury Hotkey", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
+            br.ui:createDropdown(section,"Shadowfury Hotkey (hold)", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
+        -- Shadowfury Target
+            br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         br.ui:checkSectionState(section)
@@ -201,8 +203,8 @@ local function runRotation()
 
         --Keybindings
         local shadowfuryKey = false
-        if getOptionValue("Shadowfury Hotkey") ~= 1 then
-          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey")-1)]
+        if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
+          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey (hold)")-1)]
           if shadowfuryKey == nil then shadowfuryKey = false end
         end
 
@@ -340,8 +342,15 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
-      if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
-        if cast.shadowfury("best",false,1,8) then return end
+      if isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+        if getOptionValue("Shadowfury Target") == 1 then
+          if cast.shadowfury("best",false,1,8) then return end
+        elseif getOptionValue("Shadowfury Target") == 2 then
+          if cast.shadowfury("target", "ground") then return end
+        elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and select(2,IsUsableSpell(spell.shadowfury)) and getSpellCD(spell.shadowfury) == 0 then
+          CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor")
+          return
+        end
       end
       if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
         if cast.soulstone("mouseover","dead") then return true end
