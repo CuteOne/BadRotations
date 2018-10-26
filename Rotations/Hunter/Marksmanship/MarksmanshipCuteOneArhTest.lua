@@ -210,10 +210,14 @@ local function runRotation()
 --------------------
 			    -- Action List - Single
                 function actionList_Single()
-                    --Aimed shot actions.st+=/aimed_shot,if=buff.precise_shots.down&(buff.double_tap.down&full_recharge_time<cast_time+gcd|buff.lethal_shots.up)
-					if not buff.preciseShots.exists() and (getHP(unit) > 80 or getHP(unit) < 20) then
-						if cast.aimedShot() then return end
-					end
+
+                    --Aimed shot supposed to cast aimed shot at units under careful aim talent influence
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                            if (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnit") > (cast.time.aimedShot() + 1) then
+                                if cast.aimedShot(thisUnit) then return true end
+                            end
+                    end
                     --Arcane shot actions.st+=/arcane_shot,if=buff.precise_shots.up&(cooldown.aimed_shot.full_recharge_time<gcd*buff.precise_shots.stack+action.aimed_shot.cast_time|buff.lethal_shots.up)
 					if buff.preciseShots.exists() and (cd.aimedShot.remain() < gcdMax * buff.preciseShots.stack() + cast.time.aimedShot() or buff.lethalShots.exists()) then
 						if cast.arcaneShot() then return end
@@ -242,14 +246,23 @@ local function runRotation()
 					if (power + (cast.regen.steadyShot() + 10) < powerMax) or (talent.lethalShots and not buff.lethalShots.exists()) then
 						if cast.steadyShot() then return end
 					end
-					--Arcane shot actions.st+=/arcane_shot
-					if cast.arcaneShot() then return end
+                    --Arcane shot actions.st+=/arcane_shot
+                    if power > 70 then
+                    if cast.arcaneShot() then return end
+                    end
 			 end		
 					
 			-- Action List - AOE
             function actionList_AOE()
+                    --Aimed shot supposed to cast aimed shot at units under careful aim talent influence
+                    for i = 1, #enemies.yards8t do
+                        local thisUnit = #enemies.yards8t[i]
+                            if buff.trickShots.exists() and (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnits") > (cast.time.aimedShot() + 1) then
+                                if cast.aimedShot(thisUnit) then return true end
+                            end
+                    end
                     --Aimed shot actions.st+=/aimed_shot,if=buff.precise_shots.down&(buff.double_tap.down&full_recharge_time<cast_time+gcd|buff.lethal_shots.up)
-					if buff.trickShots.exists() and not buff.preciseShots.exists() and (getHP(unit) > 80 or getHP(unit) < 20) then
+					if buff.trickShots.exists() and not buff.preciseShots.exists() then
 						if cast.aimedShot() then return end
 					end
 					--Rapid fire actions.trickshots+=/rapid_fire,if=buff.trick_shots.up&!talent.barrage.enabled

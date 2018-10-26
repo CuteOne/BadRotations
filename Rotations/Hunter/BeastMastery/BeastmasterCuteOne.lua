@@ -259,6 +259,17 @@ local function runRotation()
             end
         end
 
+        local bestUnit = "target"
+        local lowestAbs = 999
+        for i = 1, #enemies.yards40 do
+          local thisUnit = enemies.yards40[i]
+          local ttdAbs = math.abs(ttd(thisUnit)-14)
+          if ttdAbs < lowestAbs then 
+            bestUnit = enemies.yards40[i]
+            lowestAbs = ttdAbs
+          end
+        end
+
    		if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
         if opener == nil then opener = false end
@@ -493,8 +504,8 @@ local function runRotation()
                     useItem(142117);
                     return true
                 end
-                if isChecked("A Murder Of Crows / Barrage") and (cd.bestialWrath.remain() < 3 or cd.bestialWrath.remain() > 30) then
-                    if cast.aMurderOfCrows() then return end
+                if isChecked("A Murder Of Crows / Barrage") then
+                    if cast.aMurderOfCrows(bestUnit) then return end
                 end
                 --actions+=/spitting_cobra
                 if isChecked("Spitting Cobra") and talent.spittingCobra then
@@ -648,6 +659,12 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
             -- Start Attack
                     StartAttack()
+                    --Hold rotation for perfect Frenzy placement
+					if (charges.barbedShot.recharge() <= 1.5 or charges.barbedShot.frac() >= 1) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= 1.5 and buff.frenzy.remain("pet") > 0.5 then return end
+                    --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcdMax and charges.barbedShot.frac() >= 1) or charges.barbedShot.frac() >= 2 then
+                        if cast.barbedShot() then return end
+                    end
                     --Pet Attacks
                     if not UnitIsDeadOrGhost("pet") and not deadPets and isChecked("Pet Attacks") then
                       if getDistance("pettarget","pet") < 5 then
@@ -661,21 +678,11 @@ local function runRotation()
                       --PetAttack
                       PetAttack()
                     end
-					--Hold rotation for perfect Frenzy placement
-					if (charges.barbedShot.recharge() <= 1.5 or charges.barbedShot.frac() >= 1) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= 1.5 and buff.frenzy.remain("pet") > 0.5 then return end
-                    --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcdMax and charges.barbedShot.frac() >= 1) or charges.barbedShot.frac() >= 2 then
-                        if cast.barbedShot() then return end
-                    end
 					--Cooldowns
                     if actionList_Cooldowns() then return end
 					-- actions+=/barbed_shot,if=pet.cat.buff.frenzy.down|full_recharge_time<gcd.max
                     if not buff.frenzy.exists("pet") and charges.barbedShot.frac() >= 2 then
                         if cast.barbedShot() then return end
-                    end
-                    --actions+=/a_murder_of_crows
-                    if isChecked("A Murder Of Crows / Barrage") and ttd("target") < 22 and ttd("target") > 3 then
-                        if cast.aMurderOfCrows() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
                     if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
