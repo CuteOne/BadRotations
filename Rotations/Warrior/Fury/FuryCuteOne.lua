@@ -408,7 +408,7 @@ local function runRotation()
             end
         -- Dragon Roar
             -- dragon_roar,if=buff.enrage.up
-            if cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
+            if isChecked("Dragon Roar") and cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
                 if cast.dragonRoar(nil,"aoe") then return end
             end
         -- Raging Blow
