@@ -176,7 +176,7 @@ local function runRotation()
         local hasPet                                        = IsPetActive()
         local healPot                                       = getHealthPot()
         local heirloomNeck                                  = 122663 or 122664
-        local inCombat                                      = br.player.inCombat
+        local inCombat                                      = isInCombat("player")
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local lastSpell                                     = lastSpellCast
@@ -390,6 +390,9 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
+      if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+        if cast.shadowfury("best",false,1,8) then return end
+      end
       --Soulstone mouseover
       if isChecked("Auto Soulstone Mouseover") and inCombat and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
         if cast.soulstone("mouseover","dead") then return true end
@@ -781,7 +784,9 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Summon Pet
             -- summon_pet,if=!talent.grimoire_of_supremacy.enabled&(!talent.grimoire_of_sacrifice.enabled|buff.demonic_power.down)
-            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + 2) and not moving then
+            local petPadding = 2
+            if talent.grimoireOfSacrifice then petPadding = 5 end
+            if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + petPadding) and not moving then
               if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
                 if summonPet == 1 then
                   if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
@@ -802,19 +807,16 @@ local function runRotation()
                 if summonPet == 5 then return end
               end
             end
+            -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
+            if talent.grimoireOfSacrifice and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+                if cast.grimoireOfSacrifice() then return end
+            end
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Flask
                 -- flask,type=whispered_pact
             -- Food
                 -- food,type=azshari_salad
                 if (not isChecked("Opener") or opener == true) then
-                -- Augmentation
-                    -- augmentation,type=defiled
-                -- Grimoire of Sacrifice
-                    -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-                    if talent.grimoireOfSacrifice and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
-                        if cast.grimoireOfSacrifice() then return end
-                    end
                     if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
                         if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
                             if canUse(142117) and not buff.prolongedPower.exists() then
@@ -915,9 +917,6 @@ local function runRotation()
                 if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
                     PetAttack()
                 end
-                if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
-                  if cast.shadowfury("best",false,1,8) then return end
-                end
                 --CDs
                 if useCDs() then
                   if actionList_Cooldowns() then return end
@@ -941,4 +940,5 @@ tinsert(br.rotations[id],{
     toggles = createToggles,
     options = createOptions,
     run = runRotation,
+    shadowFruy = false
 })

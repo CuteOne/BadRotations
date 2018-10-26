@@ -291,24 +291,7 @@ function castSpell(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip,
 	end
 	return false
 end
--- Cast Spell Queue
-function castQueue()
-	-- Catch for spells not registering on Combat log
-	if br.player ~= nil then
-		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
-			local spellID = br.player.queue[1].id
-			local spellName,_,texture = GetSpellInfo(spellID)
-			local thisUnit = br.player.queue[1].target
-			CastSpellByName(spellName,thisUnit)
-			if getOptionCheck("Start/Stop BadRotations") then
-				mainButton:SetNormalTexture(texture)
-				lastSpellCast = spellID
-				lastSpellTarget = UnitGUID(thisUnit)
-			end
-		end
-	end
-	return
-end
+
 --[[castSpellMacro(Unit,SpellID,FacingCheck,MovementCheck,SpamAllowed,KnownSkip)
 Parameter 	Value
 First 	 	UnitID 			Enter valid UnitID
@@ -648,4 +631,19 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index)
     elseif debug == "debug" then
         return false
     end
+end
+
+-- Cast Spell Queue
+function castQueue()
+	-- Catch for spells not registering on Combat log
+	if br.player ~= nil then
+		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
+			for i=1, #br.player.queue do
+				local spellID = br.player.queue[i].id
+				local thisUnit = br.player.queue[i].target
+				if createCastFunction(thisUnit,nil,nil,nil,spellID) then return end
+			end
+		end
+	end
+	return
 end
