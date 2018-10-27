@@ -177,6 +177,8 @@ local function runRotation()
         -- br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
         -- UpdateToggle("MurderofCrows",0.25)
 
+        if isChecked("Spirit Mend") then br.friend:Update() end
+
 
 --------------
 --- Locals ---
@@ -348,6 +350,13 @@ local function runRotation()
                     PetFollow()
                 end
             end
+
+            -- Spirit Mend
+            if isChecked("Spirit Mend") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPets and lowestHP < getOptionValue("Spirit Mend") then
+                local thisUnit = br.friend[1].unit
+                if cast.spiritmend(thisUnit) then return end
+            end
+
             -- Growl
             if isChecked("Auto Growl") then
                 local petGrowl = GetSpellInfo(2649)
