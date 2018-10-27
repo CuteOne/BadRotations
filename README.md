@@ -103,6 +103,7 @@ Vilt    | Unknown |  8.0  |   100% | :interrobang:
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
 CuteOne |  Full   |  8.0  |   100% | :white_check_mark:
+Aura    |  Full   |  8.0  |   90%  | :white_check_mark:
 
 - Unholy
 
@@ -280,7 +281,7 @@ CuteOne |  Full   | 8.0 |    95% | :white_check_mark:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-Aura    |  Full   | 8.1   |   90% | :white_check_mark:
+Aura    |  Full   | 8.0   |   90% | :white_check_mark:
 
 - Enhancement
 
@@ -292,7 +293,7 @@ CuteOne |  Full   | 8.0 |   90% | :white_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Aura   |  Full   | 8.1   |   90%  |  :white_check_mark:
+Aura   |  Full   | 8.0   |   90%  |  :white_check_mark:
 
 ### Warlock
 
