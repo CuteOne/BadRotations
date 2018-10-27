@@ -123,20 +123,20 @@ function BadRotationsUpdate(self)
 			    -- Initialize Player
 				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
 					brLoaded = false
-	        br.player = br.loader:new(playerSpec,br.selectedSpec)
-	        setmetatable(br.player, {__index = br.loader})
-	        br.player:createOptions()
-	        br.player:createToggles()
-	        br.player:update()
+					br.player = br.loader:new(playerSpec,br.selectedSpec)
+					setmetatable(br.player, {__index = br.loader})
+					br.player:createOptions()
+					br.player:createToggles()
+					br.player:update()
 					Print("Loaded Profile: "..br.player.rotation.name)
 					br.rotationChanged = false
-		    end
+		    	end
 				-- Queue Casting
 				if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
 					if castQueue() then return end
 				end
 			    -- Update Player
-		    if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
+		    	if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 					br.player:update()
 				end
 			-- Healing Engine
@@ -147,22 +147,25 @@ function BadRotationsUpdate(self)
 				autoLoot()
 			-- Close windows and swap br.selectedSpec on Spec Change
 				if select(2,GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
-	    	-- Closing the windows will save the position
-	        br.ui:closeWindow("all")
-	    	-- Update Selected Spec/Profile
-	        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-	        br.activeSpecGroup = GetActiveSpecGroup()
-	        br:loadSettings()
-	        -- Recreate Config Window and commandHelp with new Spec
-	        if br.ui.window.config.parent == nil then br.ui:createConfigWindow() end
+	    		-- Closing the windows will save the position
+	        		br.ui:closeWindow("all")
+	    		-- Update Selected Spec/Profile
+	        		br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+					br.activeSpecGroup = GetActiveSpecGroup()
+					br:loadSettings()
+					br.rotationChanged = true
+	        	-- Recreate Config Window and commandHelp with new Spec
+					br.ui.window.config = {}
+					br.ui:createConfigWindow()
+					br.ui:toggleWindow("config")
 					commandHelp = nil
 					commandHelp = ""
 					slashHelpList()
-		    end
+		    	end
 
 			-- Display Distance on Main Icon
-	    	targetDistance = getDistance("target") or 0
-	    	displayDistance = math.ceil(targetDistance)
+	    		targetDistance = getDistance("target") or 0
+	    		displayDistance = math.ceil(targetDistance)
 				mainText:SetText(displayDistance)
 
 			-- LoS Line Draw
@@ -172,7 +175,7 @@ function BadRotationsUpdate(self)
 
 		    -- get DBM Timer/Bars
 			    -- global -> br.DBM.Timer
-		    br.DBM:getBars()
+		   		br.DBM:getBars()
 
 			-- Accept dungeon queues
 				br:AcceptQueues()
@@ -181,7 +184,7 @@ function BadRotationsUpdate(self)
 				ProfessionHelper()
 
 		    -- Rotation Log
-	    	br.ui:toggleDebugWindow()
+	    		br.ui:toggleDebugWindow()
 			end --End Update Check
 		end -- End Update In Progress Check
  	end -- End Main Button Active Check

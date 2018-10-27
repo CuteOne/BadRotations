@@ -75,9 +75,7 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                 br.data = {}
                 br.data = deepcopy(br.dungeon)
                 print("Dungeon Data Loaded")
-                br.ui:closeWindow("all")
-                br:loadSettings()
-                ReloadUI()
+                br.rotationChanged = true  
             else
                 print("Dungeon Settings do not exist.")
             end
@@ -86,9 +84,7 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                 br.data = {}
                 br.data = deepcopy(br.mdungeon)
                 print("Mythic Dungeon Data Loaded")
-                br.ui:closeWindow("all")
-                br:loadSettings()
-                ReloadUI()
+                br.rotationChanged = true
             else
                 print("Mythic Dungeon settings do not exist.")
             end
@@ -97,9 +93,7 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                 br.data = {}
                 br.data = deepcopy(br.raid)
                 print("Raid Data Loaded")
-                br.ui:closeWindow("all")
-                br:loadSettings()
-                ReloadUI()
+                br.rotationChanged = true
             else
                 print("Raid settings do not exist.")
             end
@@ -108,9 +102,7 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
                 br.data = {}
                 br.data = deepcopy(br.mraid)
                 print("Mythic Raid Data Loaded")
-                br.ui:closeWindow("all")
-                br:loadSettings()
-                ReloadUI()
+                br.rotationChanged = true
             else
                 print("Mythic Raid settings do not exist.")
             end
