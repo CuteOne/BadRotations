@@ -60,8 +60,10 @@ local function createOptions()
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
-      	-- Phantom Singularity
+      	-- Cataclysm Units
       			br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
+        -- Cataclysm Target
+            br.ui:createDropdownWithout(section, "Cataclysm Target", {"Target", "Best"}, 1, "|cffFFFFFFCataclysm target")
         -- Shadowfury Hotkey
             br.ui:createDropdown(section,"Shadowfury Hotkey (hold)", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
         -- Shadowfury Target
@@ -75,8 +77,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-        -- PS with CDs
+        -- Cata with CDs
             br.ui:createCheckbox(section,"Ignore Cataclysm units when using CDs")
+        -- Summon Infernal Target
+            br.ui:createDropdownWithout(section, "Summon Infernal Target", {"Target", "Best"}, 1, "|cffFFFFFFSummon Infernal Target")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -429,7 +433,11 @@ local function runRotation()
 			if getDistance(units.dyn40) < 40 then
         -- actions.cds=summon_infernal,if=target.time_to_die>=210|!cooldown.dark_soul_instability.remains|target.time_to_die<=30+gcd|!talent.dark_soul_instability.enabled
         if (ttd("target") >= 210 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) then
-          if cast.summonInfernal("target", "ground") then return true end
+          if getOptionValue("Summon Infernal Target") == 1 then
+            if cast.summonInfernal("target", "ground") then return true end
+          elseif getOptionValue("Summon Infernal Target") == 2 then
+            if cast.summonInfernal("best",false,1,8) then return true end
+          end
         end
         -- actions.cds+=/dark_soul_instability,if=target.time_to_die>=140|pet.infernal.active|target.time_to_die<=20+gcd
         if ttd("target") >= 140 or infernal or ttd("target") <= 20 + gcd then
@@ -466,8 +474,16 @@ local function runRotation()
           end
           if not moving then
             -- actions.cata+=/cataclysm
-            if (not isMoving("target") or targetMoveCheck) then
-              if cast.cataclysm("target", "ground") then return true end
+            if getOptionValue("Cataclysm Target") == 1 then
+              if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) and (not isMoving("target") or targetMoveCheck) then
+                if cast.cataclysm("target", "ground") then return true end
+              end
+            elseif getOptionValue("Cataclysm Target") == 2 then
+              if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
+                if cast.cataclysm("best",false,1,8) then return true end
+              else
+                if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+              end
             end
             -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
             if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
@@ -747,10 +763,6 @@ local function runRotation()
             if cast.rainOfFire("target", "ground") then return true end
           end
           if not moving then
-            -- actions.inf+=/cataclysm
-            if talent.cataclysm and (#enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs"))) and (not isMoving("target") or targetMoveCheck) then
-              if cast.cataclysm("target", "ground") then return true end
-            end
             -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
             if not GetUnitIsUnit(lastImmolate, "target") and talent.channelDemonfire and not debuff.immolate.exists() and cd.channelDemonfire.remain() <= cast.time.chaosBolt() then
               if cast.immolate() then lastImmolate = "target"; lastImmolateT = GetTime(); return true end
@@ -898,8 +910,16 @@ local function runRotation()
           end
           if not moving then
             -- actions+=/cataclysm
-            if talent.cataclysm and (#enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs"))) and (not isMoving("target") or targetMoveCheck) then
-              if cast.cataclysm("target", "ground") then return true end
+            if getOptionValue("Cataclysm Target") == 1 then
+              if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) and (not isMoving("target") or targetMoveCheck) then
+                if cast.cataclysm("target", "ground") then return true end
+              end
+            elseif getOptionValue("Cataclysm Target") == 2 then
+              if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
+                if cast.cataclysm("best",false,1,8) then return true end
+              else
+                if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+              end
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)
             if immolateCount < getOptionValue("Multi-Dot Limit") then --TODO Add CB thingy

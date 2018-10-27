@@ -70,7 +70,7 @@ local function createOptions()
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
         -- Burst target key
-            br.ui:createDropdown(section,"Burst Target Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFKey for bursting current target.")
+            br.ui:createDropdown(section,"Burst Target Key (hold)", rotationKeys, 1, "","|cffFFFFFFKey for bursting current target.")
         -- CDs with Burst target key
             br.ui:createCheckbox(section, "CDs With Burst Key", "|cffFFFFFF Pop CDs with burst key, ignoring CD setting")
         -- Shadowfury Hotkey
@@ -221,11 +221,15 @@ local function runRotation()
 
         --Keybindings
         local shadowfuryKey = false
+        local burstKey = false
         if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
           shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey (hold)")-1)]
           if shadowfuryKey == nil then shadowfuryKey = false end
         end
-
+        if getOptionValue("Burst Target Key (hold)") ~= 1 then
+          burstKey = _G["rotationFunction"..(getOptionValue("Burst Target Key (hold)")-1)]
+          if burstKey == nil then burstKey = false end
+        end
         --if isBoss() then dotHPLimit = getOptionValue("Multi-Dot HP Limit")/10 else dotHPLimit = getOptionValue("Multi-Dot HP Limit") end
 
         if hasEquiped(132394) then agonyTick = 2 * 0.9 else agonyTick = 2 / (1 + (GetHaste()/100)) end
@@ -560,7 +564,7 @@ local function runRotation()
             if cast.haunt() then return true end
           end
           -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-          if (useCDs() or isChecked("CDs With Burst Key")) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
+          if (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units")))) then
             if cast.summonDarkglare("player") then return true end
           end
           --Agony
@@ -576,7 +580,7 @@ local function runRotation()
             if cast.corruption() then return true end
           end
           -- actions+=/phantom_singularity
-          if #enemies.yards15t >= getOptionValue("PS Units") or isChecked("CDs With Burst Key") or (isChecked("Ignore PS units when using CDs") and useCDs()) then
+          if #enemies.yards15t >= getOptionValue("PS Units") or (isChecked("CDs With Burst Key") and burstKey) or (isChecked("Ignore PS units when using CDs") and useCDs()) then
             if cast.phantomSingularity("target", "aoe", 1, 15) then return true end
           end
           -- actions+=/vile_taint
@@ -588,11 +592,11 @@ local function runRotation()
             if cast.darkSoul("player") then return true end
           end
           -- actions+=/berserking
-          if isChecked("Racial") and race == "Troll" and (useCDs() or isChecked("CDs With Burst Key")) and not moving then
+          if isChecked("Racial") and race == "Troll" and (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and not moving then
             if cast.racial("player") then return true end
           end
           -- actions+=/unstable_affliction,if=cooldown.summon_darkglare.remains<=soul_shard*cast_time
-          if not moving and ttd("target") > 2 and (((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
+          if not moving and ttd("target") > 2 and (((useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and cd.summonDarkglare.remain() <= shards * cast.time.unstableAffliction()) or (not useCDs() and not isChecked("CDs With Burst Key"))) then
               if cast.unstableAffliction() then return true end
           end
           --Spread agony
@@ -615,7 +619,7 @@ local function runRotation()
             end
           end
           -- actions+=/call_action_list,name=fillers,if=(cooldown.summon_darkglare.remains<time_to_shard*(5-soul_shard)|cooldown.summon_darkglare.up)&time_to_die>cooldown.summon_darkglare.remains
-          if ((useCDs() or isChecked("CDs With Burst Key")) and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) then
+          if ((useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and cd.summonDarkglare.remain() < timeToShard * (5 - shards) and ttd("target") > cd.summonDarkglare.remain()) then
             if actionList_Fillers() then return true end
           end
           --UA
@@ -933,7 +937,7 @@ local function runRotation()
                   if actionList_Cooldowns() then return end
                 end
                 -- Burst
-                if (isChecked("Burst Target Key") and SpecificToggle("Burst Target Key") and not GetCurrentKeyBoardFocus()) or mode.rotation == 3 then
+                if (isChecked("Burst Target Key (hold)") and burstKey and not GetCurrentKeyBoardFocus()) or mode.rotation == 3 then
                     if actionList_BurstTarget() then return end
                 end
                 -- rotation
