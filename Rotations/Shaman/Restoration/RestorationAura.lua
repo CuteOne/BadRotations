@@ -73,7 +73,10 @@ local function createOptions()
          -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
-            br.ui:createDropdownWithout(section, "Trinkets", {"1st Only","2nd Only","Both","None"}, 4, "Select Trinket Usage.")
+            br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
+            br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
+            br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  4,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)
             br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
             br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
         -- Cloudburst Totem
@@ -274,7 +277,7 @@ local function runRotation()
             if isChecked("Water Walking") and not inCombat and IsSwimming() then
                 if cast.waterWalking() then return end
             end
-        end -- End Action List - Extras
+        end -- End Action List - Extras	
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() then
@@ -407,6 +410,10 @@ local function runRotation()
             if debuff.flameShock.remain(units.dyn40) > getCastTime(spell.lavaBurst) or level < 20 then
                 if cast.lavaBurst() then return end
             end
+		-- Chain Lightning
+			if #enemies.yards40 > 2 then 		
+            if cast.chainLightning() then return end		
+			end			
         -- Lightning Bolt
             if cast.lightningBolt() then return end
         end -- End Action List - DPS
@@ -425,33 +432,35 @@ local function runRotation()
                     end
                 end
             end
-        -- Racial Buff
-            if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") then
-                if race == "LightforgedDraenei" then
-                   if cast.racial("target","ground") then return true end
-                else
-                   if cast.racial("player") then return true end
+            -- Racial Buff
+            if useCDs() then
+                if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") then
+                    if race == "LightforgedDraenei" then
+                    if cast.racial("target","ground") then return true end
+                    else
+                    if cast.racial("player") then return true end
+                    end
                 end
             end
         -- Trinkets
-            if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                useItem(13)
-                return true
-            end
-            if isChecked("Trinket 2") and canUse(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                useItem(14)
-                return true
-            end
-            if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
-                if GetItemCooldown(158320) <= gcd then
-                    useItem(158320)
+                if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
+                    if GetItemCooldown(158320) <= gcd then
+                        useItem(158320)
+                    end
                 end
-            end
-            if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
-                if GetItemCooldown(160649) <= gcd then
-                    useItem(160649)
+                if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
+                    if GetItemCooldown(160649) <= gcd then
+                        useItem(160649)
+                    end
                 end
-            end
+                if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+                    useItem(13)
+                    return true
+                end
+                if isChecked("Trinket 2") and canUse(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+                    useItem(14)
+                    return true
+                end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving then
                 if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
@@ -470,7 +479,7 @@ local function runRotation()
                 if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                     if cast.ascendance() then return end    
                 end
-            end
+            end	
         -- Earth Shield
             if talent.earthShield then
                 -- check if shield already exists
