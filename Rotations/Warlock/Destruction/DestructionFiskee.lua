@@ -32,6 +32,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.fear}
     };
     CreateButton("Interrupt",4,0)
+-- Cataclysm Button
+    CataclysmModes = {
+      [1] = { mode = "On", value = 1 , overlay = "Cataclysm enabled", tip = "Will use Cataclysm", highlight = 1, icon = br.player.spell.unstableAffliction},
+      [2] = { mode = "Off", value = 2 , overlay = "Cataclysm disabled", tip = "Will not use Cataclysm", highlight = 0, icon = br.player.spell.corruption}
+    };
+    CreateButton("Cataclysm",5,0)
 end
 
 ---------------
@@ -60,8 +66,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
-      	-- Cataclysm Units
-      			br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
+        -- Cataclysm Units
+            br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
         -- Cataclysm Target
             br.ui:createDropdownWithout(section, "Cataclysm Target", {"Target", "Best"}, 1, "|cffFFFFFFCataclysm target")
         -- Shadowfury Hotkey
@@ -70,6 +76,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
+        -- Predict movement
+            br.ui:createCheckbox(section, "Predict Movement (Cata)", "|cffFFFFFF Predict movement of units for cataclysm (works best in solo/dungeons)")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -142,6 +150,7 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        br.player.mode.cata = br.data.settings[br.selectedSpec].toggles["Cataclysm"]
 
 --------------
 --- Locals ---
@@ -410,20 +419,20 @@ local function runRotation()
             if useInterrupts() then
             if talent.grimoireOfSacrifice then
                 for i=1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
-            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                if cast.spellLockgrimoire(thisUnit) then return end
+                  local thisUnit = enemies.yards40[i]
+                  if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if cast.spellLockgrimoire(thisUnit) then return end
                 end
             end
 
             elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
               for i=1, #enemies.yards40 do
-              thisUnit = enemies.yards40[i]
-              if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-        			  if activePetId == 417 then
-                  if cast.spellLock(thisUnit) then return end
+                local thisUnit = enemies.yards40[i]
+                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                  if activePetId == 417 then
+                    if cast.spellLock(thisUnit) then return end
+                  end
                 end
-              end
             end
         end
       end -- End useInterrupts check
@@ -474,15 +483,29 @@ local function runRotation()
           end
           if not moving then
             -- actions.cata+=/cataclysm
-            if getOptionValue("Cataclysm Target") == 1 then
-              if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) and (not isMoving("target") or targetMoveCheck) then
-                if cast.cataclysm("target", "ground") then return true end
-              end
-            elseif getOptionValue("Cataclysm Target") == 2 then
-              if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
-                if cast.cataclysm("best",false,1,8) then return true end
-              else
-                if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+            if mode.cata == 1 then
+              if getOptionValue("Cataclysm Target") == 1 then
+                if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) then
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("target","ground",1,8,spell.cataclysm,nil,true) then return true end
+                  elseif not isMoving("target") or targetMoveCheck then
+                    if cast.cataclysm("target", "ground") then return true end
+                  end
+                end
+              elseif getOptionValue("Cataclysm Target") == 2 then
+                if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("best",false,1,8,spell.cataclysm,nil,true) then return true end
+                  else
+                    if cast.cataclysm("best",false,1,8) then return true end
+                  end
+                else
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("best",false,getOptionValue("Cataclysm Units"),8,spell.cataclysm,nil,true) then return true end
+                  else
+                    if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+                  end
+                end
               end
             end
             -- actions.cata+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -910,15 +933,29 @@ local function runRotation()
           end
           if not moving then
             -- actions+=/cataclysm
-            if getOptionValue("Cataclysm Target") == 1 then
-              if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) and (not isMoving("target") or targetMoveCheck) then
-                if cast.cataclysm("target", "ground") then return true end
-              end
-            elseif getOptionValue("Cataclysm Target") == 2 then
-              if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
-                if cast.cataclysm("best",false,1,8) then return true end
-              else
-                if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+            if mode.cata == 1 then
+              if getOptionValue("Cataclysm Target") == 1 then
+                if #enemies.yards8t >= getOptionValue("Cataclysm Units") or (useCDs() and isChecked("Ignore Cataclysm units when using CDs")) then
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("target","ground",1,8,spell.cataclysm,nil,true) then return true end
+                  elseif not isMoving("target") or targetMoveCheck then
+                    if cast.cataclysm("target", "ground") then return true end
+                  end
+                end
+              elseif getOptionValue("Cataclysm Target") == 2 then
+                if useCDs() and isChecked("Ignore Cataclysm units when using CDs") then
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("best",false,1,8,spell.cataclysm,nil,true) then return true end
+                  else
+                    if cast.cataclysm("best",false,1,8) then return true end
+                  end
+                else
+                  if isChecked("Predict Movement (Cata)") then
+                    if createCastFunction("best",false,getOptionValue("Cataclysm Units"),8,spell.cataclysm,nil,true) then return true end
+                  else
+                    if cast.cataclysm("best",false,getOptionValue("Cataclysm Units"),8) then return true end
+                  end
+                end
               end
             end
             -- actions+=/immolate,cycle_targets=1,if=!debuff.havoc.remains&(refreshable|talent.internal_combustion.enabled&action.chaos_bolt.in_flight&remains-action.chaos_bolt.travel_time-5<duration*0.3)

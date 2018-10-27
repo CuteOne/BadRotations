@@ -67,8 +67,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Multi-Dot Limit
             br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
-      	-- Phantom Singularity
-      			br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
+        -- Phantom Singularity
+            br.ui:createSpinnerWithout(section, "PS Units", 4, 1, 10, 1, "|cffFFFFFFNumber of Units Phantom Singularity will be cast on.")
         -- Burst target key
             br.ui:createDropdown(section,"Burst Target Key (hold)", rotationKeys, 1, "","|cffFFFFFFKey for bursting current target.")
         -- CDs with Burst target key

@@ -1,6 +1,3 @@
-
-
-
 -- Functions from coders for public use
 
 --[[                                                                                                ]]
@@ -106,8 +103,9 @@ function castGroundAtUnit(spellID, radius, minUnits, maxRange, minRange, spellTy
 
 end
 
-function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType)
+function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange, spellType, castTime)
     if radius == nil then radius = maxRange end
+    if maxRange == nil then maxRange = radius end
     -- return table with combination of every 2 units
     local function getAllCombinationsOfASet(arr, r)
         if(r > #arr) then
@@ -144,15 +142,20 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     end
 
     --check if unit is inside of a circle
-    local function unitInCircle(unit, cx, cy, radius)
-        local uX, uY = GetObjectPosition(unit)
+    local function unitInCircle(unit, cx, cy, radius, castTime)
+        local uX, uY = 0, 0
+        if castTime == nil or castTime == 0 then
+          uX, uY = GetObjectPosition(unit)
+        else
+          uX, uY = GetFuturePostion(unit, castTime)
+        end
         local rUnit = UnitBoundingRadius(unit)
         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
     end
 
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
-    if spellType == "heal" then allUnitsInRange = getAllies("player",radius) else allUnitsInRange = getEnemies("player",radius,false) end
+    if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
 
     local testCircles = {}
     --for every combination of units make 2 circles, and put in testCircles
@@ -161,7 +164,12 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         for i, val in pairs(combs) do
             local temp = {}
             for j, combination in pairs(val) do
-                local tX, tY, tZ = GetObjectPosition(combination)
+                local tX, tY, tZ = 0,0,0
+                if castTime == nil or castTime == 0 then
+                  tX, tY, tZ = GetObjectPosition(combination)
+                else
+                  tX, tY, tZ = GetFuturePostion(combination, castTime)
+                end
                 if(j==#val) then
                     temp.xii = tX;
                     temp.yii = tY;
@@ -206,17 +214,17 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         temp2 = 0
         for j=1, #allUnitsInRange do
             if spellType == "heal" then
-                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius) then
+                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
                 end
-                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius) then
+                if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
                 end
             else
-                if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius) then
+                if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
                 end
-                if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius) then
+                if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
                 end
             end
@@ -245,7 +253,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         local thisUnit = allUnitsInRange[i]
         nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
         if nmro >= bestCircle.nro then
-            bestCircle.x, bestCircle.y, bestCircle.z= GetObjectPosition(thisUnit)
+            if castTime == nil or castTime == 0 then
+              bestCircle.x, bestCircle.y, bestCircle.z = GetObjectPosition(thisUnit)
+            else
+              bestCircle.x, bestCircle.y, bestCircle.z = GetFuturePostion(thisUnit, castTime)
+            end
             bestCircle.nro = nmro
             break;
         end
@@ -253,7 +265,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
 
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
-        bestCircle.x,bestCircle.y,bestCircle.z = GetObjectPosition("target")
+        if castTime == nil or castTime == 0 then
+          bestCircle.x, bestCircle.y, bestCircle.z = GetObjectPosition("target")
+        else
+          bestCircle.x, bestCircle.y, bestCircle.z = GetFuturePostion("target", castTime)
+        end
         if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
@@ -805,6 +821,15 @@ function br.DBM:getTimer(spellID, time)
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
 
+-- Future position
+function GetFuturePostion(unit, castTime)
+  local distance = GetUnitSpeed(unit) * castTime
+  local x,y,z = GetObjectPosition(unit)
+  local angle = ObjectFacing(unit)
+  x = x + math.cos(angle) * distance
+  y = y + math.sin(angle) * distance
+  return x, y, z
+end
 
 function PullTimerRemain(returnBool)
     if returnBool == nil then returnBool = false end
