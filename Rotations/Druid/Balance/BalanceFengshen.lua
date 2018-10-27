@@ -316,7 +316,7 @@ local function actionList_main()
 	-- Cooldowns
 	if useCDs() then
 		-- Racial
-		if isChecked("Racial") and cast.able.racial() and (buff.celestialAlignment.exists() or buff.incarnation.exists() and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei")) then
+		if isChecked("Racial") and cast.able.racial() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists() and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei")) then
 			if cast.racial() then return end
 		end
 		-- Warrior of Elune
