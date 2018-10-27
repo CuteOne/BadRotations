@@ -360,7 +360,7 @@ local function runRotation()
                     if actionList_Single() then return end
                 end
                 -- Action List - AOE
-                if #enemies.yards8t > 2 or mode.rotation == 2 then
+                if #enemies.yards8t > 2 or mode.rotation ~= 2 then
                     if actionList_AOE() then return end
                 end        
             end
