@@ -266,11 +266,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
         if castTime == nil or castTime == 0 then
-          bestCircle.x, bestCircle.y, bestCircle.z = GetObjectPosition("target")
+            if castGround("target",spellID,maxRange,minRange,radius,castTime) then return true else return false end
         else
-          bestCircle.x, bestCircle.y, bestCircle.z = GetFuturePostion("target", castTime)
+            bestCircle.x, bestCircle.y, bestCircle.z = GetFuturePostion("target", castTime)
+            if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
         end
-        if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
     if bestCircle.nro < minUnits then return false end
 
