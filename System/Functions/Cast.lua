@@ -53,6 +53,8 @@ end
 function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 	if radius == nil then radius = maxDistance end
 	if minDistance == nil then minDistance = 0 end
+	local groundDistance = getDistance("player",Unit,"dist4")
+	local distance = getDistance("player",Unit)
 	if IsMouseButtonDown(2) then
 			mouselookup = true
 	else
@@ -60,7 +62,7 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 	end
 	MouselookStop()
 	if GetUnitExists(Unit) and getSpellCD(SpellID) == 0 and getLineOfSight("player",Unit)
-		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
+		and distance < maxDistance and distance >= minDistance
 		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
 	then
 		CastSpellByName(GetSpellInfo(SpellID))
@@ -71,6 +73,7 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 			X,Y,Z = GetFuturePostion(Unit, castTime)
 		end
 		--local distanceToGround = getGroundDistance(Unit) or 0
+		if groundDistance > maxDistance then X,Y,Z = GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
 		ClickPosition(X,Y,Z) --distanceToGround
 		if mouselookup then
 				MouselookStart()
