@@ -208,6 +208,7 @@ function isInMelee(Unit)
 end
 
 function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
+    if not isChecked("Safe Damage Check") then return true end 
     local maxRange = select(6,GetSpellInfo(spellID))
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then maxRange = tonumber(effectRng) else maxRange = tonumber(maxRange) end
@@ -222,11 +223,7 @@ function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
         enemiesValid    = #getEnemies(Unit,effectRng)
         enemiesAll      = #getEnemies(Unit,effectRng,true)
     end
-    if isChecked("Safe Damage Check") then
-        return enemiesValid >= minUnits and enemiesValid >= enemiesAll
-    else
-        return true
-    end
+    return enemiesValid >= minUnits and enemiesValid >= enemiesAll
 end
 
 function inRange(spellID,unit)
