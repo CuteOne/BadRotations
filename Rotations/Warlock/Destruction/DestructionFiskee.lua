@@ -63,7 +63,9 @@ local function createOptions()
       	-- Phantom Singularity
       			br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
         -- Shadowfury Hotkey
-            br.ui:createDropdown(section,"Shadowfury Hotkey", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
+            br.ui:createDropdown(section,"Shadowfury Hotkey (hold)", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
+        -- Shadowfury Target
+            br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         br.ui:checkSectionState(section)
@@ -201,8 +203,8 @@ local function runRotation()
 
         --Keybindings
         local shadowfuryKey = false
-        if getOptionValue("Shadowfury Hotkey") ~= 1 then
-          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey")-1)]
+        if getOptionValue("Shadowfury Hotkey (hold)") ~= 1 then
+          shadowfuryKey = _G["rotationFunction"..(getOptionValue("Shadowfury Hotkey (hold)")-1)]
           if shadowfuryKey == nil then shadowfuryKey = false end
         end
 
@@ -233,6 +235,8 @@ local function runRotation()
         local function noDotCheck(unit)
           if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
           if isTotem(unit) then return true end
+          unitCreator = UnitCreator(unit)
+          if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
           return false
         end
 
@@ -338,8 +342,15 @@ local function runRotation()
 					end
 				end
 			end -- End Dummy Test
-      if isChecked("Shadowfury Hotkey") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
-        if cast.shadowfury("best",false,1,8) then return end
+      if isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
+        if getOptionValue("Shadowfury Target") == 1 then
+          if cast.shadowfury("best",false,1,8) then return end
+        elseif getOptionValue("Shadowfury Target") == 2 then
+          if cast.shadowfury("target", "ground") then return end
+        elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and select(2,IsUsableSpell(spell.shadowfury)) and getSpellCD(spell.shadowfury) == 0 then
+          CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor")
+          return
+        end
       end
       if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
         if cast.soulstone("mouseover","dead") then return true end
@@ -470,7 +481,7 @@ local function runRotation()
             if #enemies.yards8t <= 8 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                   if cast.havoc(thisUnit) then return true end
                 end
               end
@@ -486,7 +497,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -496,7 +507,7 @@ local function runRotation()
               if havocCheck then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                     if cast.havoc(thisUnit) then return true end
                   end
                 end
@@ -512,7 +523,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -549,7 +560,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -560,7 +571,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.havoc.exists(thisUnit) then
+            if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
               if cast.conflagrate(thisUnit) then return true end
             end
           end
@@ -571,7 +582,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -583,7 +594,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -612,7 +623,7 @@ local function runRotation()
             if #enemies.yards8t <= 4 and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                   if cast.havoc(thisUnit) then return true end
                 end
               end
@@ -628,7 +639,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -638,7 +649,7 @@ local function runRotation()
               if havocCheck then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                     if cast.havoc(thisUnit) then return true end
                   end
                 end
@@ -654,7 +665,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -694,7 +705,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) then
+                if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                   if cast.soulFire(thisUnit) then return true end
                 end
               end
@@ -707,7 +718,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.conflagrate(thisUnit) then return true end
               end
             end
@@ -719,7 +730,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -752,7 +763,7 @@ local function runRotation()
             if #enemies.yards8t <= 4 + icValue and talent.grimoireOfSupremacy and infernalActive and infernalRemain <= 10 and havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                   if cast.havoc(thisUnit) then return true end
                 end
               end
@@ -768,7 +779,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -778,7 +789,7 @@ local function runRotation()
               if havocCheck then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                  if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                     if cast.havoc(thisUnit) then return true end
                   end
                 end
@@ -794,7 +805,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 then
+                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -831,7 +842,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -842,7 +853,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.havoc.exists(thisUnit) then
+            if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
               if cast.conflagrate(thisUnit) then return true end
             end
           end
@@ -853,7 +864,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -865,7 +876,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -927,7 +938,7 @@ local function runRotation()
             if havocCheck then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") then
+                if ttd(thisUnit) > 10 and not debuff.havoc.exists(thisUnit) and not GetUnitIsUnit(thisUnit, "target") and not noDotCheck(thisUnit) then
                   if cast.havoc(thisUnit) then return true end
                 end
               end
@@ -942,7 +953,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -966,7 +977,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.conflagrate(thisUnit) then return true end
               end
             end
@@ -978,7 +989,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -990,7 +1001,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) then
+              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end

@@ -318,7 +318,7 @@ local function runRotation()
 --------------------
     -- Action List - Extras
         local function actionList_Extras()
-          if isChecked("Grappling Hook") and getDistance("target") >= getOptionValue("Grappling Hook") and isValidUnit("target") then
+          if isChecked("Grappling Hook") and getDistance("target") >= getOptionValue("Grappling Hook") and isValidUnit("target") and getFacing("player","target") then
             if castHook("target") then return end
           end
         end -- End Action List - Extras

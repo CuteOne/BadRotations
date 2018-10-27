@@ -775,13 +775,11 @@ function br.DBM:getTimer(spellID, time)
         local hasTimer = false
         local isBelowTime = false
         local currentTimer = 0
-
         for i = 1, #br.DBM.Timer do
             -- Check if timer with spell id is present
-            if br.DBM.Timer[i].spellid == spellID then
+            if tonumber(br.DBM.Timer[i].spellid) == spellID then
                 hasTimer = true
                 currentTimer = br.DBM.Timer[i].timer
-
                 -- if a time is given set var to true
                 if time then
                     if currentTimer <= time then
@@ -790,7 +788,6 @@ function br.DBM:getTimer(spellID, time)
                 end
             end
         end
-
         -- if a time is given return true if timer and below given time
         -- else return time
         if time ~= nil then
