@@ -403,7 +403,7 @@ local function runRotation()
           if cast.shadowfury("best",false,1,8) then return end
         elseif getOptionValue("Shadowfury Target") == 2 then
           if cast.shadowfury("target", "ground") then return end
-        elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and select(2,IsUsableSpell(spell.shadowfury)) and getSpellCD(spell.shadowfury) == 0 then
+        elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and getSpellCD(spell.shadowfury) == 0 then
           CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor")
           return
         end
