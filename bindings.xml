@@ -18,6 +18,9 @@
     <Binding name="Force Heal" description="Hold to use force healing" runOnUp="true" category="BadRotations">
             if keystate == "down" then forceHeal = true; else forceHeal = nil; end
     </Binding>
+    <Binding name="Reload Profile" description="Hold to reload the Profile" runOnUp="true" category="BadRotations">
+            if keystate == "down" then br.rotationChanged = true end
+    </Binding>
     <Binding name="Rotation Function 1" description="Custom functions in rotation" runOnUp="true" category="BadRotations">
             if keystate == "down" then rotationFunction1 = true; else rotationFunction1 = false; end
     </Binding>
