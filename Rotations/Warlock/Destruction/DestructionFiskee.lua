@@ -74,6 +74,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Shadowfury Hotkey (hold)", rotationKeys, 1, "","|cffFFFFFFShadowfury stun with logic to hit most mobs. Uses keys from Bad Rotation keybindings in WoW settings")
         -- Shadowfury Target
             br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
+        -- Rain of Fire Target
+            br.ui:createDropdownWithout(section, "Rain of Fire Target", {"Target", "Best"}, 1, "|cffFFFFFFRain of Fire target")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         -- Predict movement
@@ -243,7 +245,9 @@ local function runRotation()
           [135824]=true, -- Nerubian Voidweaver
           [139057]=true, -- Nazmani Bloodhexer
           [129359]=true, -- Sawtooth Shark
+          [129448]=true, -- Hammer Shark
           [134503]=true, -- Silithid Warrior
+          [137458]=true, -- Rotting Spore
         }
         local function noDotCheck(unit)
           if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
@@ -479,7 +483,11 @@ local function runRotation()
           end
           -- actions.cata+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 then
-            if cast.rainOfFire("target", "ground") then return true end
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
           end
           if not moving then
             -- actions.cata+=/cataclysm
@@ -536,7 +544,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -562,7 +570,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                  if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -575,7 +583,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
                     if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
@@ -585,21 +593,25 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) and (not useCDs() or debuff.immolate.remain(thisUnit) <= cd.cataclysm.remain()) then
+              if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) and (not useCDs() or debuff.immolate.remain(thisUnit) <= cd.cataclysm.remain()) then
                 if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
               end
             end
           end
           if not moving then
-          -- actions.cata+=/rain_of_fire
-          if cast.rainOfFire("target", "ground") then return true end
+            -- actions.cata+=/rain_of_fire
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
             -- actions.cata+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if not debuff.havoc.exists() or #enemies.yards40 == 1 then
               if cast.soulFire() then return true end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -610,7 +622,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+            if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
               if cast.conflagrate(thisUnit) then return true end
             end
           end
@@ -621,7 +633,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -633,7 +645,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -647,7 +659,11 @@ local function runRotation()
           end
           -- actions.fnb+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 then
-            if cast.rainOfFire("target", "ground") then return true end
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
           end
           if not moving then
             -- actions.fnb+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -678,7 +694,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -704,7 +720,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                  if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -718,7 +734,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                  if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
                       if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                   end
                 end
@@ -728,15 +744,19 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
                   if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
             end
           end
           if not moving then
-          -- actions.fnb+=/rain_of_fire
-          if cast.rainOfFire("target", "ground") then return true end
+            -- actions.fnb+=/rain_of_fire
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
             -- actions.fnb+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains&spell_targets.incinerate=3
             if #enemies.yards10t <= 3 then
               if not debuff.havoc.exists() or #enemies.yards40 == 1 then
@@ -744,7 +764,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+                if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                   if cast.soulFire(thisUnit) then return true end
                 end
               end
@@ -757,7 +777,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.conflagrate(thisUnit) then return true end
               end
             end
@@ -769,7 +789,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -783,7 +803,11 @@ local function runRotation()
           end
           -- actions.inf+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 then
-            if cast.rainOfFire("target", "ground") then return true end
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
           end
           if not moving then
             -- actions.inf+=/immolate,if=talent.channel_demonfire.enabled&!remains&cooldown.channel_demonfire.remains<=action.chaos_bolt.execute_time
@@ -814,7 +838,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                   if cast.chaosBolt(thisUnit) then return true end
                 end
               end
@@ -840,7 +864,7 @@ local function runRotation()
                 end
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not debuff.havoc.exists(thisUnit) and ttd(thisUnit) > 6 and not noDotCheck(thisUnit) then
+                  if ttd(thisUnit) > 6 and ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
@@ -853,7 +877,7 @@ local function runRotation()
               end
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
                     if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
@@ -863,21 +887,25 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
                 if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
               end
             end
           end
           if not moving then
           -- actions.inf+=/rain_of_fire
-          if cast.rainOfFire("target", "ground") then return true end
+            if getOptionValue("Rain of Fire Target") == 1 then
+              if cast.rainOfFire("target", "ground") then return true end
+            else
+              if cast.rainOfFire("best",false,3,10) then return true end
+            end
             -- actions.inf+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if not debuff.havoc.exists() or #enemies.yards40 == 1 then
               if cast.soulFire() then return true end
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -888,7 +916,7 @@ local function runRotation()
           end
           for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+            if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
               if cast.conflagrate(thisUnit) then return true end
             end
           end
@@ -899,7 +927,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -911,7 +939,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
@@ -966,7 +994,7 @@ local function runRotation()
               if mode.rotation == 1 or mode.rotation == 2 then
                 for i = 1, #enemies.yards40 do
                   local thisUnit = enemies.yards40[i]
-                  if not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                  if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and not debuff.immolate.exists(thisUnit) and ttd(thisUnit) > 4 and not noDotCheck(thisUnit) and not debuff.havoc.exists(thisUnit) then
                       if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                   end
                 end
@@ -978,7 +1006,7 @@ local function runRotation()
             if mode.rotation == 1 or mode.rotation == 2 then
               for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
+                if ObjectIsFacing("player", thisUnit) and not GetUnitIsUnit(thisUnit, lastImmolate) and ttd(thisUnit) > 4 and debuff.immolate.exists(thisUnit) and debuff.immolate.refresh(thisUnit) and not debuff.havoc.exists(thisUnit) then
                   if cast.immolate(thisUnit) then lastImmolate = thisUnit; lastImmolateT = GetTime(); return true end
                 end
               end
@@ -1010,7 +1038,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.soulFire(thisUnit) then return true end
               end
             end
@@ -1021,7 +1049,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and (cast.time.chaosBolt() + (getDistance(thisUnit)/16)) < ttd(thisUnit) and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and (cast.time.chaosBolt() + (getDistance(thisUnit)/16)) < ttd(thisUnit) and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
               (talent.eradication and debuff.eradication.remain(thisUnit) <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) and ttd(thisUnit) > 6 then
                 if cast.chaosBolt(thisUnit) then return true end
               end
@@ -1034,7 +1062,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.conflagrate(thisUnit) then return true end
               end
             end
@@ -1046,7 +1074,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.shadowburn(thisUnit) then return true end
               end
             end
@@ -1058,7 +1086,7 @@ local function runRotation()
             end
             for i = 1, #enemies.yards40 do
               local thisUnit = enemies.yards40[i]
-              if not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
+              if ObjectIsFacing("player", thisUnit) and not debuff.havoc.exists(thisUnit) and not noDotCheck(thisUnit) then
                 if cast.incinerate(thisUnit) then return true end
               end
             end
