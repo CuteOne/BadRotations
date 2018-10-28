@@ -345,12 +345,12 @@ local function actionList_main()
             if cast.furyOfElune("best") then return true end
         end
         -- Force of Nature
-        if isChecked("Force of Nature") and talent.forceOfNature and cast.able.forceOfNature() then
+        if isChecked("Force of Nature") and not moving and talent.forceOfNature and cast.able.forceOfNature() then
             if cast.forceOfNature("best") then return true end
         end
 	end
 
-	if isChecked("Starfall priority") and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+	if isChecked("Starfall priority") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", nil, getValue("Starfall priority"), starfallRadius) then return true end
 	end
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
@@ -376,7 +376,7 @@ local function actionList_main()
 	if #enemies.yards45 < 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
 	end
-	if isChecked("Starfall") and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+	if isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", nil, getValue("Starfall"), starfallRadius) then return true end
 	end
 	if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
@@ -399,7 +399,9 @@ local function actionList_main()
 		if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
 			if cast.solarWrath() then return true end
 		end
-		if cast.lunarStrike() then return true end
+		if cast.able.solarWrath() then
+			if cast.lunarStrike() then return true end
+		end	
 	elseif not moving then
 		-- ST situation: prioritize solar wrath empower > lunar strike empower > solar wrath
 		if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
@@ -408,8 +410,10 @@ local function actionList_main()
 		if buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
 			if cast.lunarStrike() then return true end
 		end
-		if cast.solarWrath() then return true end
-	end
+		if cast.able.solarWrath() then
+			if cast.solarWrath() then return true end
+		end
+	end	
 	if getFacing("player", "target") then
 		if cast.moonfire() then return true end
 	end
