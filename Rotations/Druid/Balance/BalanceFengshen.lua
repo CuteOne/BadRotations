@@ -47,7 +47,7 @@ local function createOptions()
 	-- General Options
 	section = br.ui:createSection(br.ui.window.profile, "General")
 		-- Pre-Pull Timer
-		-- br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+		br.ui:createSpinner(section, "Pre-Pull Timer",  2.5,  0,  10,  0.5,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
 		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
 		-- Auto Soothe
@@ -144,7 +144,8 @@ local function runRotation()
 		local latency                                       = getLatency()
 		local starfallPlacement                             = "playerGround"
 		local starfallAstralPower                           = 50
-
+		local starfallRadius                                = 12
+		
 		units.get(40)
 		enemies.get(8,"target")
 		enemies.get(12,"target")
@@ -175,7 +176,9 @@ local function runRotation()
 			end
 		end
 	end
-
+	if talent.stellarDrift then
+		starfallRadius = 15
+	end
 	if talent.soulOfTheForest then
 		starfallAstralPower = 40
 	end
@@ -188,6 +191,12 @@ local function runRotation()
 --- Action Lists ---
 --------------------
 local function actionList_OOC()
+	-- Pre-Pull Timer
+	if isChecked("Pre-Pull Timer") then
+		if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+			if cast.solarWrath() then return true end
+		end
+	end
 	-- Regrowth
 	if isChecked("OOC Regrowth") and not moving and php <= getValue("OOC Regrowth") then
 		if cast.regrowth("player") then return true end
@@ -333,21 +342,21 @@ local function actionList_main()
         end
         -- Fury of Elune
         if isChecked("Fury of Elune") and talent.furyOfElune and cast.able.furyOfElune() then
-            if cast.furyOfElune("target") then return true end
+            if cast.furyOfElune("best") then return true end
         end
         -- Force of Nature
         if isChecked("Force of Nature") and talent.forceOfNature and cast.able.forceOfNature() then
-            if cast.forceOfNature("target","ground") then return true end
+            if cast.forceOfNature("best") then return true end
         end
 	end
 
-	if isChecked("Starfall priority") and ((talent.stellarDrift and #enemies.yards15t >= getValue("Starfall priority")) or #enemies.yards12t >= getValue("Starfall priority")) and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
-		if cast.starfall("target","ground") then return true end
+	if isChecked("Starfall priority") and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+		if cast.starfall("best", nil, getValue("Starfall priority"), starfallRadius) then return true end
 	end
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
     for i = 1, #enemies.yards45 do
         local thisUnit = enemies.yards45[i]
-		if ObjectIsFacing("player",thisUnit) then
+		if getFacing("player", thisUnit) then
 			if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
 				if cast.sunfire(thisUnit,"aoe") then return true end
 			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
@@ -367,8 +376,8 @@ local function actionList_main()
 	if #enemies.yards45 < 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
 	end
-	if isChecked("Starfall") and ((talent.stellarDrift and #enemies.yards15t >= getValue("Starfall")) or #enemies.yards12t >= getValue("Starfall")) and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
-		if cast.starfall("target","ground") then return true end
+	if isChecked("Starfall") and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+		if cast.starfall("best", nil, getValue("Starfall"), starfallRadius) then return true end
 	end
 	if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
 		if cast.newMoon() then return true end
@@ -401,7 +410,7 @@ local function actionList_main()
 		end
 		if cast.solarWrath() then return true end
 	end
-	if UnitExists("target") and ObjectIsFacing("player","target") then
+	if getFacing("player", "target") then
 		if cast.moonfire() then return true end
 	end
 end
