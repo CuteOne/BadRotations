@@ -763,11 +763,8 @@ local function runRotation()
 						if br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
 							if cast.renew(br.friend[i].unit) then return end
 						end
-						if not isChecked("Renew Limit") then
-							if br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
-								if cast.renew(br.friend[i].unit) then return end
-							end
-						end
+					elseif br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
+						if cast.renew(br.friend[i].unit) then return end
 					end
 				end
 			end
