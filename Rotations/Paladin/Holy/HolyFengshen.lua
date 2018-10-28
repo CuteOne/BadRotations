@@ -241,13 +241,14 @@ local function runRotation()
 		local gcd                                           = br.player.gcdMax
 		local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
-		local drinking                                      = getBuffRemain("player",192002) == 0 and getBuffRemain("player",167152) == 0 and getBuffRemain("player",192001) == 0
+		local drinking                                      = getBuffRemain("player",192002) ~= 0 or getBuffRemain("player",167152) ~= 0 or getBuffRemain("player",192001) ~= 0
 		local inCombat                                      = br.player.inCombat
 		local inInstance                                    = br.player.instance=="party"
 		local inRaid                                        = br.player.instance=="raid"
 		local race                                          = br.player.race
 		local racial                                        = br.player.getRacial()
 		local traits                                        = br.player.traits
+		local moving                                        = isMoving("player")
 		-------------
 		-- Raid
 		-------------
@@ -379,7 +380,7 @@ local function runRotation()
 			if UnitInRange(br.friend[i].unit) then
 				local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit,30,getValue("Beacon of Virtue"),#br.friend)
 					if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and isCastingSpell(spell.flashOfLight)) or
-					(#lowHealthCandidates >= getValue("BoV Targets") and isMoving("player") and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd) then
+					(#lowHealthCandidates >= getValue("BoV Targets") and moving and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd) then
 						if CastSpellByName(GetSpellInfo(200025),br.friend[i].unit) then return end
 					end
 				end
@@ -511,10 +512,10 @@ local function runRotation()
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local function CanIRess()
 			if isChecked("Redemption") then
-				if getOptionValue("Redemption")==1 and not isMoving("player") and resable and UnitInRange("target") then
+				if getOptionValue("Redemption")==1 and not moving and resable and UnitInRange("target") then
 					if cast.redemption("target","dead") then return true end
 				end
-				if getOptionValue("Redemption")==2 and not isMoving("player") and resable and UnitInRange("mouseover") then
+				if getOptionValue("Redemption")==2 and not moving and resable and UnitInRange("mouseover") then
 					if cast.redemption("mouseover","dead") then return true end
 				end
 			end
@@ -602,7 +603,7 @@ local function runRotation()
 				for i = 1, #enemies.yards10 do
 					local thisUnit = enemies.yards10[i]
 					local distance = getDistance(thisUnit)
-					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and distance <= 10 and not isBoss(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil
+					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) and distance <= 10 and not UnitExists(thisUnit) and StunsBlackList[GetObjectID(thisUnit)]==nil
 					and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
 						-- Hammer of Justice
 						if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit,226510) == 0 then
@@ -724,7 +725,7 @@ local function runRotation()
 				end
 			end
 			-- Blessing of Protection
-			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and not isBoss("boss1") then
+			if isChecked("Blessing of Protection") and cast.able.blessingOfProtection() and not UnitExists("boss1") then
 				if getOptionValue("BoP Target") == 1 then
 					if blessingOfProtectionall ~= nil then
 						if cast.blessingOfProtection(blessingOfProtectionall) then return true end
@@ -790,7 +791,7 @@ local function runRotation()
 					if cast.auraMastery() then return true end
 				end
 			end
-			if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not isMoving("player") then
+			if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving then
 				if getLowAllies(getValue("Light's Hammer")) >= getValue("Light's Hammer Targets") then
 					if castGroundAtBestLocation(spell.lightsHammer, 20, 0, 40, 0, "heal") then return true end
 				end
@@ -809,7 +810,7 @@ local function runRotation()
 					TargetUnit("focustarget")
 				end
 				--Consecration
-				if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target",204242) == 0 and not isMoving("player") and not buff.avengingCrusader.exists() then
+				if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target",204242) == 0 and not moving and not buff.avengingCrusader.exists() then
 					if cast.consecration() then return true end
 				end
 				-- Holy Prism
@@ -817,7 +818,7 @@ local function runRotation()
 				if cast.holyPrism("player") then return true end
 				end
 				-- Light's Hammer
-				if isChecked("Light's Hammer Damage") and talent.lightsHammer and ast.able.lightsHammer() and not isMoving("player") then
+				if isChecked("Light's Hammer Damage") and talent.lightsHammer and ast.able.lightsHammer() and not moving then
 				if cast.lightsHammer("best",nil,getValue("Light's Hammer Damage"),10) then return true end
 				end
 				-- Judgement
@@ -855,7 +856,7 @@ local function runRotation()
 				end
 			end
 			--Beacon of Virtue
-			if isChecked("Beacon of Virtue") and cast.able.beaconOfVirtue() and talent.beaconOfVirtue and not isMoving("player") and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and getCastTime(spell.flashOfLight) < getSpellCD(spell.beaconOfVirtue) and not moving then
 				if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
 					if lowest.hp <= getValue("Beacon of Virtue") then
 						if cast.flashOfLight(lowest.unit) then BOV = lowest.unit return end
@@ -910,7 +911,7 @@ local function runRotation()
 			local lightOfTheMartyrM40 = nil
 			for i = 1, #br.friend do
 				if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit,"player") then
-					if inRaid then
+					if isChecked("Mastery bonus") and inRaid then
 						if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (10*master_coff) then
 							holyShock10 = br.friend[i].unit
 						end
@@ -939,7 +940,7 @@ local function runRotation()
 					if br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						flashOfLightTANK = br.friend[i].unit
 					end
-					if inRaid then
+					if isChecked("Mastery bonus") and inRaid then
 						if br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (10*master_coff) and buff.infusionOfLight.remain("player") > gcd then
 							flashOfLightInfuse10 = br.friend[i].unit
 						elseif br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (10*master_coff) then
@@ -961,7 +962,7 @@ local function runRotation()
 					elseif br.friend[i].hp <= getValue("Flash of Light") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						flashOfLight40 = br.friend[i].unit
 					end
-					if inRaid then
+					if isChecked("Mastery bonus") and inRaid then
 						if br.friend[i].hp <= getValue("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].distance <= (10*master_coff) then
 							lightOfTheMartyrBF10 = br.friend[i].unit
 						end
@@ -975,7 +976,7 @@ local function runRotation()
 					if br.friend[i].hp <= getValue ("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						lightOfTheMartyrBF40 = br.friend[i].unit
 					end
-					if inRaid then
+					if isChecked("Mastery bonus") and inRaid then
 						if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (10*master_coff) then
 							holyLight10 = br.friend[i].unit
 						end
@@ -989,7 +990,7 @@ local function runRotation()
 					if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].hp >= getValue("Critical HP") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						holyLight40 = br.friend[i].unit
 					end
-					if inRaid then
+					if isChecked("Mastery bonus") and inRaid then
 						if br.friend[i].hp <= getValue("Moving LotM") and not GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].distance <= (10*master_coff) then
 							lightOfTheMartyrM10 = br.friend[i].unit
 						end
@@ -1018,16 +1019,14 @@ local function runRotation()
 				if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
 					if cast.holyShock(lowest.unit) then return true end
 				end
-				if inRaid and isChecked("Mastery bonus") then
-					if holyShock10 ~= nil then
-						if cast.holyShock(holyShock10) then return true end
-					end
-					if holyShock20 ~= nil then
-						if cast.holyShock(holyShock20) then return true end
-					end
-					if holyShock30 ~= nil then
-						if cast.holyShock(holyShock30) then return true end
-					end
+				if holyShock10 ~= nil then
+					if cast.holyShock(holyShock10) then return true end
+				end
+				if holyShock20 ~= nil then
+					if cast.holyShock(holyShock20) then return true end
+				end
+				if holyShock30 ~= nil then
+					if cast.holyShock(holyShock30) then return true end
 				end
 				if holyShock40 ~= nil then
 					if cast.holyShock(holyShock40) then return true end
@@ -1069,7 +1068,7 @@ local function runRotation()
 				end
 			end
 			-- Flash of Light
-			if isChecked("Flash of Light")  and not isMoving("player") and getDebuffRemain("player",240447) == 0 and getSpellCD(20473) ~= 0 then
+			if isChecked("Flash of Light")  and not moving and getSpellCD(20473) ~= 0 then
 				if php <= getValue("Critical HP") then
 					if cast.flashOfLight("player") then return true end
 				end
@@ -1084,25 +1083,23 @@ local function runRotation()
 				if flashOfLightTANK ~= nil then
 					if cast.flashOfLight(flashOfLightTANK) then healing_obj = flashOfLightTANK return true end
 				end
-				if inRaid and isChecked("Mastery bonus") then
-					if flashOfLightInfuse10 ~= nil then
-						if cast.flashOfLight(flashOfLightInfuse10) then healing_obj = flashOfLightInfuse10 return true end
-					end
-					if flashOfLight10 ~= nil then
-						if cast.flashOfLight(flashOfLight10) then healing_obj = flashOfLight10 return true end
-					end
-					if flashOfLightInfuse20 ~= nil then
-						if cast.flashOfLight(flashOfLightInfuse20) then healing_obj = flashOfLightInfuse20 return true end
-					end
-					if flashOfLight20 ~= nil then
-						if cast.flashOfLight(flashOfLight20) then healing_obj = flashOfLight20 return true end
-					end
-					if flashOfLightInfuse30 ~= nil then
-						if cast.flashOfLight(flashOfLightInfuse30) then healing_obj = flashOfLightInfuse30 return true end
-					end
-					if flashOfLight30 ~= nil then
-						if cast.flashOfLight(flashOfLight30) then healing_obj = flashOfLight30 return true end
-					end
+				if flashOfLightInfuse10 ~= nil then
+					if cast.flashOfLight(flashOfLightInfuse10) then healing_obj = flashOfLightInfuse10 return true end
+				end
+				if flashOfLight10 ~= nil then
+					if cast.flashOfLight(flashOfLight10) then healing_obj = flashOfLight10 return true end
+				end
+				if flashOfLightInfuse20 ~= nil then
+					if cast.flashOfLight(flashOfLightInfuse20) then healing_obj = flashOfLightInfuse20 return true end
+				end
+				if flashOfLight20 ~= nil then
+					if cast.flashOfLight(flashOfLight20) then healing_obj = flashOfLight20 return true end
+				end
+				if flashOfLightInfuse30 ~= nil then
+					if cast.flashOfLight(flashOfLightInfuse30) then healing_obj = flashOfLightInfuse30 return true end
+				end
+				if flashOfLight30 ~= nil then
+					if cast.flashOfLight(flashOfLight30) then healing_obj = flashOfLight30 return true end
 				end
 				if flashOfLightInfuse40 ~= nil then
 					if cast.flashOfLight(flashOfLightInfuse40) then healing_obj = flashOfLightInfuse40 return true end
@@ -1113,40 +1110,36 @@ local function runRotation()
 			end
 			-- Light of Martyr and Bestow Faith
 			if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getOptionValue("Bestow Faith Target") == 4 then
-				if inRaid and isChecked("Mastery bonus") then
-					if lightOfTheMartyrBF10 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrBF10) then return true end
-					end
-					if lightOfTheMartyrBF20 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrBF20) then return true end
-					end
-					if lightOfTheMartyrBF30 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrBF30) then return true end
-					end
+				if lightOfTheMartyrBF10 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrBF10) then return true end
+				end
+				if lightOfTheMartyrBF20 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrBF20) then return true end
+				end
+				if lightOfTheMartyrBF30 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrBF30) then return true end
 				end
 				if lightOfTheMartyrBF40 ~= nil then
 					if cast.lightOfTheMartyr(lightOfTheMartyrBF40) then return true end
 				end
 			end
 			-- Holy Light
-			if isChecked("Holy Light") and not isMoving("player") and getDebuffRemain("player",240447) == 0 and getSpellCD(20473) ~= 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > 1 and flashOfLightInfuse40 == nil)) then
-				if inRaid and isChecked("Mastery bonus") then
-					if holyLight10 ~= nil then
-						if cast.holyLight(holyLight10) then healing_obj = holyLight10 return true end
-					end
-					if holyLight20 ~= nil then
-						if cast.holyLight(holyLight20) then healing_obj = holyLight20 return true end
-					end
-					if holyLight30 ~= nil then
-						if cast.holyLight(holyLight30) then healing_obj = holyLight30 return true end
-					end
+			if isChecked("Holy Light") and not moving and getSpellCD(20473) ~= 0 and (getOptionValue("Holy Light Infuse") == 1 or (getOptionValue("Holy Light Infuse") == 2 and buff.infusionOfLight.remain() > getCastTime(spell.holyLight) and flashOfLightInfuse40 == nil)) then
+				if holyLight10 ~= nil then
+					if cast.holyLight(holyLight10) then healing_obj = holyLight10 return true end
+				end
+				if holyLight20 ~= nil then
+					if cast.holyLight(holyLight20) then healing_obj = holyLight20 return true end
+				end
+				if holyLight30 ~= nil then
+					if cast.holyLight(holyLight30) then healing_obj = holyLight30 return true end
 				end
 				if holyLight40 ~= nil then
 					if cast.holyLight(holyLight40) then healing_obj = holyLight40 return true end
 				end
 			end
 			-- Moving Martyr
-			if isChecked("Moving LotM") and isMoving("player") and php >= getOptionValue("LotM player HP limit") then
+			if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") then
 				if #tanks > 0 then
 					if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit,209858) < getValue("Necrotic Rot") then
 						if cast.lightOfTheMartyr(tanks[1].unit) then return true end
@@ -1155,16 +1148,14 @@ local function runRotation()
 				if lowest.hp <= getValue("Critical HP") and not GetUnitIsUnit(lowest.unit,"player") and getDebuffStacks(lowest.unit,209858) < getValue("Necrotic Rot") then
 					if cast.lightOfTheMartyr(lowest.unit) then return true end
 				end
-				if inRaid and isChecked("Mastery bonus") then
-					if lightOfTheMartyrM10 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrM10) then return true end
-					end
-					if lightOfTheMartyrM20 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrM20) then return true end
-					end
-					if lightOfTheMartyrM30 ~= nil then
-						if cast.lightOfTheMartyr(lightOfTheMartyrM30) then return true end
-					end
+				if lightOfTheMartyrM10 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrM10) then return true end
+				end
+				if lightOfTheMartyrM20 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrM20) then return true end
+				end
+				if lightOfTheMartyrM30 ~= nil then
+					if cast.lightOfTheMartyr(lightOfTheMartyrM30) then return true end
 				end
 				if lightOfTheMartyrM40 ~= nil then
 					if cast.lightOfTheMartyr(lightOfTheMartyrM40) then return true end
@@ -1183,37 +1174,42 @@ local function runRotation()
 				end
 			end
 		end
-		---------------------------------
-		--- Out Of Combat - Rotations ---
-		---------------------------------
-		if not inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and not UnitDebuffID("player",188030) then
-			if key() then return end
-			if PrePull() then return end
-			if CanIRess() then return end
-			if Cleanse() then return end
-			if isChecked("OOC Healing") then
+	if (not IsMounted() or buff.divineSteed.exists()) then
+		if pause() or isCastingSpell(spell.redemption) or isCastingSpell(spell.absolution) or drinking then
+			return true
+		else
+			---------------------------------
+			--- Out Of Combat - Rotations ---
+			---------------------------------
+			if not inCombat then
+				if key() then return end
+				if PrePull() then return end
+				if CanIRess() then return end
+				if Cleanse() then return end
+				if isChecked("OOC Healing") then
+					if isChecked("Auto Beacon") and not talent.beaconOfVirtue then if Beacon() then return end end
+					if AOEHealing() then return end
+					if SingleTarget() then return end
+				end
+			end
+			-----------------------------
+			--- In Combat - Rotations ---
+			-----------------------------
+			if inCombat then
+				if key() then return end
+				if BossEncounterCase() then return end
+				overhealingcancel()
+				if actionList_Defensive() then return end
+				if Cleanse() then return end
+				if Interrupt() then return end
 				if isChecked("Auto Beacon") and not talent.beaconOfVirtue then if Beacon() then return end end
+				if useCDs() then if Cooldowns() then return end end
+				if DPS() then return end
 				if AOEHealing() then return end
 				if SingleTarget() then return end
 			end
 		end
-		-----------------------------
-		--- In Combat - Rotations ---
-		-----------------------------
-		if inCombat and (not IsMounted() or buff.divineSteed.exists()) and not isCastingSpell(spell.redemption) and not isCastingSpell(spell.absolution) and drinking and not UnitDebuffID("player",188030) then
-			if key() then return end
-			if BossEncounterCase() then return end
-			overhealingcancel()
-			if actionList_Defensive() then return end
-			if Cleanse() then return end
-			if Interrupt() then return end
-			if isChecked("Auto Beacon") and not talent.beaconOfVirtue then if Beacon() then return end end
-			if useCDs() then if Cooldowns() then return end end
-			if DPS() then return end
-			if AOEHealing() then return end
-			if SingleTarget() then return end
-		end
-	-- end
+	end	
 end -- End runRotation
 --if isChecked("Boss Helper") then
 --      bossManager()
