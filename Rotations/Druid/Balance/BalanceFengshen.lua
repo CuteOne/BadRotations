@@ -342,7 +342,7 @@ local function actionList_main()
         end
         -- Fury of Elune
         if isChecked("Fury of Elune") and talent.furyOfElune and cast.able.furyOfElune() then
-            if cast.furyOfElune("best") then return true end
+            if cast.furyOfElune("target") then return true end
         end
         -- Force of Nature
         if isChecked("Force of Nature") and not moving and talent.forceOfNature and cast.able.forceOfNature() then
