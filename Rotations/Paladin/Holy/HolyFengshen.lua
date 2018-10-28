@@ -104,8 +104,10 @@ local function createOptions()
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  3,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
+		br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1, "","")
 		br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  3,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)
+		br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1, "","")
 		-- Lay on Hands
 		br.ui:createSpinner(section, "Lay on Hands", 20, 0, 100, 5, "","|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFAll","|cffFFFFFFTanks", "|cffFFFFFFSelf"}, 1, "|cffFFFFFFTarget for LoH")
@@ -761,16 +763,34 @@ local function runRotation()
 				end
 			end
 			-- Trinkets
-			if isChecked("Trinket 1") and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-				if canUse(13) then
-					useItem(13)
-					return true
+			if isChecked("Trinket 1") and canUse(13) then
+				if getOptionValue("Trinket 1 Mode") == 1 then
+					if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+						useItem(13)
+						return true
+					end
+				elseif getOptionValue("Trinket 1 Mode") == 2 then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Trinket 1") then
+							UseItemByName(select(1,GetInventoryItemID("player",13)),br.friend[i].unit)
+							return true
+						end
+					end
 				end
 			end
-			if isChecked("Trinket 2") and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-				if canUse(14) then
-					useItem(14)
-					return true
+			if isChecked("Trinket 2") and canUse(14) then
+				if getOptionValue("Trinket 2 Mode") == 1 then
+					if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+						useItem(14)
+						return true
+					end
+				elseif getOptionValue("Trinket 2 Mode") == 2 then
+					for i = 1, #br.friend do
+						if br.friend[i].hp <= getValue("Trinket 2") then
+							UseItemByName(select(1,GetInventoryItemID("player",14)),br.friend[i].unit)
+							return true
+						end
+					end
 				end
 			end
 			-- Holy Avenger
@@ -1209,7 +1229,7 @@ local function runRotation()
 				if SingleTarget() then return end
 			end
 		end
-	end	
+	end
 end -- End runRotation
 --if isChecked("Boss Helper") then
 --      bossManager()
