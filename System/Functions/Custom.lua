@@ -153,6 +153,18 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
         return math.abs((uX - cx) * (uX - cx) + (uY - cy) * (uY - cy)) <= (rUnit + radius) * (rUnit + radius);
     end
 
+    --distance from center to unit
+    local function unitDistanceCenter(unit, cx, cy, castTime)
+        local uX, uY = 0, 0
+        if castTime == nil or castTime == 0 then
+            uX, uY = GetObjectPosition(unit)
+        else
+            uX, uY = GetFuturePostion(unit, castTime)
+        end
+        local rUnit = UnitBoundingRadius(unit)
+        return math.sqrt(((uX-cx)^2) + ((uY-cy)^2))
+    end
+
     if minRange == nil then minRange = 0 end
     local allUnitsInRange = {}
     if spellType == "heal" then allUnitsInRange = getAllies("player",maxRange) else allUnitsInRange = getEnemies("player",maxRange,false) end
@@ -210,22 +222,28 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     --for every circle in testCircles, get units inside this circle, and return the circle with most units inside
     for i=1, #testCircles do
         local thisCircle = testCircles[i]
-        temp1 = 0
-        temp2 = 0
+        local temp1 = 0
+        local temp2 = 0
+        local temp1Units = { }
+        local temp2Units = { }
         for j=1, #allUnitsInRange do
             if spellType == "heal" then
                 if unitInCircle(allUnitsInRange[j].unit,thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
+                    tinsert(temp1Units,allUnitsInRange[j])
                 end
                 if unitInCircle(allUnitsInRange[j].unit,thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
+                    tinsert(temp2Units,allUnitsInRange[j])
                 end
             else
                 if unitInCircle(allUnitsInRange[j],thisCircle.xfc,thisCircle.yfc, radius, castTime) then
                     temp1 = temp1 + 1
+                    tinsert(temp1Units,allUnitsInRange[j])
                 end
                 if unitInCircle(allUnitsInRange[j],thisCircle.xsc,thisCircle.ysc, radius, castTime) then
                     temp2 = temp2 + 1
+                    tinsert(temp2Units,allUnitsInRange[j])
                 end
             end
         end
@@ -234,28 +252,34 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             bestCircle.y = thisCircle.yfc
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp1
+            bestCircle.units = {}
+            for p = 1, #temp1Units do tinsert(bestCircle.units,temp1Units[p]) end
         elseif temp2 > temp1  and temp2 > bestCircle.nro then
             bestCircle.x = thisCircle.xsc
             bestCircle.y = thisCircle.ysc
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp2
+            bestCircle.units = {}
+            for p = 1, #temp2Units do tinsert(bestCircle.units,temp2Units[p]) end
         elseif temp2 == temp1 and temp2 > bestCircle.nro then
             bestCircle.x = thisCircle.xsc
             bestCircle.y = thisCircle.ysc
             bestCircle.z = thisCircle.z
             bestCircle.nro = temp2
+            bestCircle.units = {}
+            for p = 1, #temp2Units do tinsert(bestCircle.units,temp2Units[p]) end
         end
-
     end
+    --print(#bestCircle.units)
 
     -- check if units of the best circle is equal of circle of unit, if it is, then cast on this unit
-    for i=1,#allUnitsInRange do
-        local thisUnit = allUnitsInRange[i]
-        nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
-        if nmro >= bestCircle.nro and nmro >= minUnits then
-            if castGround(thisUnit,spellID,maxRange,minRange,radius,castTime) then return true else return false end
-        end
-    end
+    -- for i=1,#allUnitsInRange do
+    --     local thisUnit = allUnitsInRange[i]
+    --     nmro = getUnits(thisUnit,allUnitsInRange, radius - 3)
+    --     if nmro >= bestCircle.nro and nmro >= minUnits then
+    --         if castGround(thisUnit,spellID,maxRange,minRange,radius,castTime) then return true else return false end
+    --     end
+    -- end
 
     --check with minUnits
     if minUnits == 1 and bestCircle.nro == 0 and GetUnitExists("target") then
@@ -264,6 +288,22 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
     if bestCircle.nro < minUnits then return false end
 
     if bestCircle.x ~= 0 and bestCircle.y ~= 0 and bestCircle.z ~= 0 then
+        --Calculate x/y position with shortest dist to units
+        local shortestDistance = 999
+        local newBestCircleX, newBestCircleY = 0,0
+        for x = bestCircle.x - radius, bestCircle.x + radius do
+            for y = bestCircle.y - radius, bestCircle.y + radius do
+                local totalDistance = 0
+                for i = 1, #bestCircle.units do
+                    totalDistance = totalDistance + unitDistanceCenter(bestCircle.units[i], x, y, castTime)
+                end
+                if totalDistance < shortestDistance then
+                    shortestDistance = totalDistance
+                    newBestCircleX, newBestCircleY = x, y
+                end
+            end
+        end
+        bestCircle.x, bestCircle.y = newBestCircleX, newBestCircleY
         if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
@@ -812,12 +852,33 @@ end
 
 -- Future position
 function GetFuturePostion(unit, castTime)
-  local distance = GetUnitSpeed(unit) * castTime
-  local x,y,z = GetObjectPosition(unit)
-  local angle = ObjectFacing(unit)
-  x = x + math.cos(angle) * distance
-  y = y + math.sin(angle) * distance
-  return x, y, z
+    local distance = GetUnitSpeed(unit) * castTime
+    if distance > 0 then
+        local x,y,z = GetObjectPosition(unit)
+        local angle = ObjectFacing(unit)
+        --If Unit have a target, let's make sure they don't collide
+        local unitTarget = UnitTarget(unit)
+        local unitTargetDist = 0
+        if unitTarget ~= nil then
+            --Lets get predicted position of unit target aswell
+            if GetUnitSpeed(unitTarget) > 0 then
+                local tDistance = GetUnitSpeed(unitTarget) * castTime
+                local tX,tY,tZ = GetObjectPosition(unitTarget)
+                local tAngle = ObjectFacing(unitTarget)
+                tX = tX + math.cos(tAngle) * tDistance
+                tY = tY + math.sin(tAngle) * tDistance
+                unitTargetDist = math.sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
+                if unitTargetDist < distance then distance = unitTargetDist end
+            else
+                unitTargetDist = getDistance(unitTarget, unit, "dist")
+                if unitTargetDist < distance then distance = unitTargetDist end
+            end
+        end
+        x = x + math.cos(angle) * distance
+        y = y + math.sin(angle) * distance
+        return x, y, z
+    end
+    return GetObjectPosition(unit)
 end
 
 function PullTimerRemain(returnBool)
