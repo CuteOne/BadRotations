@@ -852,12 +852,33 @@ end
 
 -- Future position
 function GetFuturePostion(unit, castTime)
-  local distance = GetUnitSpeed(unit) * castTime
-  local x,y,z = GetObjectPosition(unit)
-  local angle = ObjectFacing(unit)
-  x = x + math.cos(angle) * distance
-  y = y + math.sin(angle) * distance
-  return x, y, z
+    local distance = GetUnitSpeed(unit) * castTime
+    if distance > 0 then
+        local x,y,z = GetObjectPosition(unit)
+        local angle = ObjectFacing(unit)
+        --If Unit have a target, let's make sure they don't collide
+        local unitTarget = UnitTarget(unit)
+        local unitTargetDist = 0
+        if unitTarget ~= nil then
+            --Lets get predicted position of unit target aswell
+            if GetUnitSpeed(unitTarget) > 0 then
+                local tDistance = GetUnitSpeed(unitTarget) * castTime
+                local tX,tY,tZ = GetObjectPosition(unitTarget)
+                local tAngle = ObjectFacing(unitTarget)
+                tX = tX + math.cos(tAngle) * tDistance
+                tY = tY + math.sin(tAngle) * tDistance
+                unitTargetDist = math.sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
+                if unitTargetDist < distance then distance = unitTargetDist end
+            else
+                unitTargetDist = getDistance(unitTarget, unit, "dist")
+                if unitTargetDist < distance then distance = unitTargetDist end
+            end
+        end
+        x = x + math.cos(angle) * distance
+        y = y + math.sin(angle) * distance
+        return x, y, z
+    end
+    return GetObjectPosition(unit)
 end
 
 function PullTimerRemain(returnBool)
