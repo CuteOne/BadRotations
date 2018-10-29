@@ -789,7 +789,7 @@ local function runRotation()
             -- bladestorm,if=(debuff.colossus_smash.up&raid_event.adds.in>target.time_to_die)|raid_event.adds.up&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
 			if mode.bladeStorm == 1
             and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
-                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) or buff.testOfMight.exists())                
+                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
