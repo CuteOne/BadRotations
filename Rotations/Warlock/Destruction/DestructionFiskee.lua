@@ -9,15 +9,15 @@ local function createToggles()
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.chaosBolt},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.cataclysm},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.drainSoul},
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.incinerate},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healthFunnel}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.summonDoomguard},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.summonDoomguard},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.summonDoomguard}
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.darkSoul},
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.darkSoul},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.incinerate}
     };
    	CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -28,16 +28,22 @@ local function createToggles()
     CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.fear},
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.fear}
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.spellLock},
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.spellLock}
     };
     CreateButton("Interrupt",4,0)
 -- Cataclysm Button
     CataclysmModes = {
-      [1] = { mode = "On", value = 1 , overlay = "Cataclysm enabled", tip = "Will use Cataclysm", highlight = 1, icon = br.player.spell.unstableAffliction},
-      [2] = { mode = "Off", value = 2 , overlay = "Cataclysm disabled", tip = "Will not use Cataclysm", highlight = 0, icon = br.player.spell.corruption}
+      [1] = { mode = "On", value = 1 , overlay = "Cataclysm enabled", tip = "Will use Cataclysm", highlight = 1, icon = br.player.spell.cataclysm},
+      [2] = { mode = "Off", value = 2 , overlay = "Cataclysm disabled", tip = "Will not use Cataclysm", highlight = 0, icon = br.player.spell.cataclysm}
     };
     CreateButton("Cataclysm",5,0)
+-- Summon Infernal Button
+    InfernalModes = {
+      [1] = { mode = "On", value = 1 , overlay = "Summon Infernal enabled", tip = "Will use Summon Infernal", highlight = 1, icon = br.player.spell.summonInfernal},
+      [2] = { mode = "Off", value = 2 , overlay = "Summon Infernal disabled", tip = "Will not use Summon Infernal", highlight = 0, icon = br.player.spell.darkSoul}
+    };
+    CreateButton("Infernal",6,0)
 end
 
 ---------------
@@ -153,6 +159,7 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.cata = br.data.settings[br.selectedSpec].toggles["Cataclysm"]
+        br.player.mode.infernal = br.data.settings[br.selectedSpec].toggles["Infernal"]
 
 --------------
 --- Locals ---
@@ -459,7 +466,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
         -- actions.cds=summon_infernal,if=target.time_to_die>=210|!cooldown.dark_soul_instability.remains|target.time_to_die<=30+gcd|!talent.dark_soul_instability.enabled
-        if (ttd("target") >= 210 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) then
+        if mode.infernal == 1 and (ttd("target") >= 210 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) then
           if getOptionValue("Summon Infernal Target") == 1 then
             if cast.summonInfernal("target", "ground") then return true end
           elseif getOptionValue("Summon Infernal Target") == 2 then
