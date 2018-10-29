@@ -80,6 +80,21 @@ function useItem(itemID)
 	end
 	return false
 end
+function useItemGround(Unit,itemID,maxDistance,minDistance,radius)
+	if radius == nil then radius = maxDistance end
+	if minDistance == nil then minDistance = 0 end
+	if GetUnitExists(Unit) and getLineOfSight("player",Unit)
+		and getDistance("player",Unit) < maxDistance and getDistance("player",Unit) >= minDistance
+		and #getEnemies(Unit,radius) >= #getEnemies(Unit,radius,true)
+	then
+		useItem(itemID)
+		local X,Y,Z = GetObjectPosition(Unit)
+		--local distanceToGround = getGroundDistance(Unit) or 0
+		ClickPosition(X,Y,Z) --distanceToGround
+		return true
+	end
+	return false
+end
 function hasHealthPot()
 	local potion = br.player.potion
 	if potion.health == nil then return false end
