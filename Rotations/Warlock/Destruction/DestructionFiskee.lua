@@ -71,7 +71,7 @@ local function createOptions()
         -- Mana Tap
             br.ui:createSpinner(section, "Life Tap HP Limit", 30, 0, 100, 5, "|cffFFFFFFHP Limit that Life Tap will not cast below.")
         -- Multi-Dot Limit
-            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 0, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+            br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 8, 1, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
         -- Cataclysm Units
             br.ui:createSpinnerWithout(section, "Cataclysm Units", 1, 1, 10, 1, "|cffFFFFFFNumber of Units Cataclysm will be cast on.")
         -- Cataclysm Target
@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Shadowfury Target", {"Best", "Target", "Cursor"}, 1, "|cffFFFFFFShadowfury target")
         -- Rain of Fire Target
             br.ui:createDropdownWithout(section, "Rain of Fire Target", {"Target", "Best"}, 1, "|cffFFFFFFRain of Fire target")
+        -- Multi-Dot Limit
+            br.ui:createSpinnerWithout(section, "Rain of Fire Units", 3, 1, 10, 1, "|cffFFFFFFMinimum units to cast rain of fire")
         -- No Dot units
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         -- Predict movement
@@ -358,7 +360,7 @@ local function runRotation()
             local remain = enemyTable40[i].havocRemain
             if remain > havocRemain then havocRemain = remain end
           end
-          if enemyTable40[i].ttd > (cast.time.chaosBolt() + gcdMax + 3) then havocCheckUnits = havocCheckUnits + 1 end
+          if enemyTable40[i].ttd > (cast.time.chaosBolt() + gcdMax + 4) then havocCheckUnits = havocCheckUnits + 1 end
           if havocCheckUnits >= 2 and not havocCheck then havocCheck = true end
           if enemyTable40[i].ttd > 3 and not cataCheck then cataCheck = true end
         end
@@ -569,10 +571,10 @@ local function runRotation()
           end
           -- actions.cata+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 and spellUsable(spell.rainOfFire) then
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
           end
           if not moving then
@@ -686,10 +688,10 @@ local function runRotation()
               end
             end
             -- actions.cata+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
             -- actions.cata+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if spellUsable(spell.soulFire) then
@@ -749,10 +751,10 @@ local function runRotation()
           end
           -- actions.fnb+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 and spellUsable(spell.rainOfFire) then
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
           end
           if not moving then
@@ -842,10 +844,10 @@ local function runRotation()
           end
           if not moving then
             -- actions.fnb+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
             -- actions.fnb+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains&spell_targets.incinerate=3
             if #enemies.yards10t <= 3 and spellUsable(spell.soulFire) then
@@ -893,10 +895,10 @@ local function runRotation()
           end
           -- actions.inf+=/rain_of_fire,if=soul_shard>=4.5
           if shards >= 4.5 then
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
           end
           if not moving then
@@ -984,10 +986,10 @@ local function runRotation()
           end
           if not moving then
           -- actions.inf+=/rain_of_fire
-            if getOptionValue("Rain of Fire Target") == 1 then
+            if getOptionValue("Rain of Fire Target") == 1 and #enemies.yards10t >= getOptionValue("Rain of Fire Units") then
               if cast.rainOfFire("target", "ground") then return true end
             else
-              if cast.rainOfFire("best",false,3,10) then return true end
+              if cast.rainOfFire("best",false,getOptionValue("Rain of Fire Units"),10) then return true end
             end
             -- actions.inf+=/soul_fire,cycle_targets=1,if=!debuff.havoc.remains
             if not havocDebuffExist() or #enemyTable40 == 1 then
