@@ -15,8 +15,9 @@ local function createToggles()
 -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.darkSoul},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.darkSoul},
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.incinerate}
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.darkSoul},
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.incinerate},
+        [4] = { mode = "Lust", value = 4 , overlay = "Cooldowns With Lust", tip = "Cooldowns will be used with bloodlust or simlar effects.", highlight = 0, icon = br.player.spell.darkSoul}
     };
    	CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -293,7 +294,7 @@ local function runRotation()
               if enemyTable40[i].facing then enemyScore = enemyScore + 10 end
               if enemyTable40[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
               if enemyTable40[i].havocRemain == 0 then enemyScore = enemyScore + 5 end
-              if enemyScore == nil then enemyScore = 0 end
+              if type(enemyScore) ~= "number" then enemyScore = 0 end
               enemyTable40[i].enemyScore = enemyScore
             end
             table.sort(enemyTable40, function(x,y)

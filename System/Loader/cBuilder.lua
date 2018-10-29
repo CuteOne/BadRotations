@@ -74,7 +74,7 @@ function br.loader:new(spec,specName)
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- Assign spell to br.player.spell for the spell type
                     self.spell[spellType][spellRef] = spellID
-                    -- Assign active spells to Abilities Subtable and base br.player.spell 
+                    -- Assign active spells to Abilities Subtable and base br.player.spell
                     if not IsPassiveSpell(spellID)
                         and (spellType == 'abilities' or spellType == 'traits' or spellType == 'talents')
                     then
@@ -92,7 +92,7 @@ function br.loader:new(spec,specName)
         getSpells(sharedClassSpells)
         -- Shared Global Spells
         getSpells(sharedGlobalSpells)
-        
+
         -- Ending the Race War!
         if self.spell.abilities["racial"] == nil then
             local racialID = getRacialID()
@@ -332,7 +332,7 @@ function br.loader:new(spec,specName)
                     -- return rake
                     return multiplier*RakeMultiplier
                 end
-                
+
             end
 
             if GetSpecializationInfo(GetSpecialization()) == 259 then
@@ -712,12 +712,12 @@ function br.loader:new(spec,specName)
                                 self.debuff[k].exsa[l] = nil
                             elseif not self.debuff[k].exists(l) then
                                 self.debuff[k].exsa[l] = false
-                            end 
+                            end
                         end
                     end
                 end
             end
-        end    
+        end
 
 ---------------
 --- TOGGLES ---
@@ -831,7 +831,7 @@ function br.loader:new(spec,specName)
 
     function useCDs()
         local cooldown = self.mode.cooldown
-        if (cooldown == 1 and isBoss()) or cooldown == 2 then
+        if (cooldown == 1 and isBoss()) or cooldown == 2 or (cooldown == 4 and hasBloodLust()) then
             return true
         else
             return false
