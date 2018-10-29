@@ -61,7 +61,7 @@ local function createOptions()
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  2,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Pre-Pull Timer",  2,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull. Min: 1 / Max: 10 / Interval: 1")
         -- Opener
             --br.ui:createCheckbox(section,"Opener")
         -- Pet Management
@@ -95,6 +95,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- Potion
+            br.ui:createCheckbox(section,"Potion")
+        -- Pre Pot
+            br.ui:createCheckbox(section,"Pre Pot", "|cffFFFFFF Requires Pre-Pull timer to be active")
         -- Cata with CDs
             br.ui:createCheckbox(section,"Ignore Cataclysm units when using CDs")
         -- Summon Infernal Target
@@ -204,7 +208,7 @@ local function runRotation()
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
         local power, powmax, powgen, powerDeficit           = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen(), br.player.power.mana.deficit()
-        local pullTimer                                     = br.DBM:getPulltimer()
+        local pullTimer                                     = PullTimerRemain()
         local race                                          = br.player.race
         local shards                                        = (UnitPowerDisplayMod(Enum.PowerType.SoulShards) ~= 0) and (UnitPower("player", Enum.PowerType.SoulShards, true) / UnitPowerDisplayMod(Enum.PowerType.SoulShards)) or 0
         local summonPet                                     = getOptionValue("Summon Pet")
@@ -522,7 +526,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
         -- actions.cds=summon_infernal,if=target.time_to_die>=210|!cooldown.dark_soul_instability.remains|target.time_to_die<=30+gcd|!talent.dark_soul_instability.enabled
-        if mode.infernal == 1 and (ttd("target") >= 210 or not cd.darkSoul.exists() or ttd("target") <= 30 + gcd or not talent.darkSoul) then
+        if mode.infernal == 1 and (ttd("target") >= 215 or not cd.darkSoul.exists() or buff.darkSoul.remain() > 15 or ttd("target") <= 35 + gcd or not talent.darkSoul) then
           if getOptionValue("Summon Infernal Target") == 1 then
             if cast.summonInfernal("target", "ground") then return true end
           elseif getOptionValue("Summon Infernal Target") == 2 then
@@ -530,7 +534,7 @@ local function runRotation()
           end
         end
         -- actions.cds+=/dark_soul_instability,if=target.time_to_die>=140|pet.infernal.active|target.time_to_die<=20+gcd
-        if ttd("target") >= 140 or infernal or ttd("target") <= 20 + gcd then
+        if ttd("target") >= 145 or infernalActive or ttd("target") <= 25 + gcd then
           if cast.darkSoul("player") then return true end
         end
         if isChecked("Racial") and not moving then
@@ -541,6 +545,11 @@ local function runRotation()
                     if cast.racial("player") then return true end
                 end
             end
+        end
+        --actions.cds+=/potion,if=pet.infernal.active|target.time_to_die<65
+        if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (infernalActive or ttd("target") < 65) then
+          use.battlePotionOfIntellect()
+          return true
         end
         if isChecked("Trinkets") then
             if canUse(13) then
@@ -1228,10 +1237,10 @@ local function runRotation()
             -- Food
                 -- food,type=azshari_salad
                 if (not isChecked("Opener") or opener == true) then
-                    if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                    if useCDs() and isChecked("Pre-Pull Timer") then
                         if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
-                            if canUse(142117) and not buff.prolongedPower.exists() then
-                                useItem(142117);
+                            if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
+                                use.battlePotionOfIntellect()
                                 return true
                             end
                         end
