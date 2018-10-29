@@ -289,9 +289,9 @@ local function runRotation()
           if #enemyTable40 > 1 then
             for i = 1, #enemyTable40 do
               local hpNorm = (5-1)/(highestHP-lowestHP)*(enemyTable40[i].hpabs-highestHP)+5 -- normalization of HP value, high is good
-              if hpNorm ~= hpNorm then hpNorm = 0 end -- NaN check
+              if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
               local distance20Norm = (3-1)/(distance20Max-distance20Min)*(enemyTable40[i].distance20-distance20Min)+1 -- normalization of distance 20, low is good
-              if distance20Norm ~= distance20Norm then distance20Norm = 0 end -- NaN check
+              if distance20Norm ~= distance20Norm or tostring(distance20Norm) == tostring(0/0) then distance20Norm = 0 end -- NaN check
               local enemyScore = hpNorm + distance20Norm
               if enemyTable40[i].facing then enemyScore = enemyScore + 10 end
               if enemyTable40[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
