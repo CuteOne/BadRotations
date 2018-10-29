@@ -44,21 +44,20 @@ function isCCed(Unit)
 end
 
 --cast spell on position x,y,z
-function castAtPosition(X,Y,Z, SpellID)
-    CastSpellByName(GetSpellInfo(SpellID))
+function castAtPosition(X,Y,Z, SpellID)    
     local i = -100
-    if IsMouseButtonDown(2) then
-        mouselookup = true
-    else
-        mouselookup = false
+    local mouselookActive = false
+    if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
     end
-    MouselookStop()
+    CastSpellByName(GetSpellInfo(SpellID))
     while IsAoEPending() and i <= 100 do
         ClickPosition(X,Y,Z)
         Z = i
         i = i + 1
     end
-    if mouselookup then
+    if mouselookActive then
         MouselookStart()
     end
     if i >= 100 and IsAoEPending() then return false end
