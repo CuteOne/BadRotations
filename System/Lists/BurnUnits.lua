@@ -20,12 +20,14 @@ br.lists.burnUnits = {
 	[71076] = { coef = 25 }, -- Proving ground healer
 	-- Legion
 	[117264] = {coef = 200, name = "Maiden of Valor", buff = 241008}, -- burn Maiden of Valor if buff is present
-	[120651] = { coef = 150, name = "Fel Explosives"}, -- M+ Affix
+	[120651] = { coef = 150, name = "Explosives"}, -- M+ Affix
 	-- [115642] = { coef = 100}, -- Umbral Imps - Challenge mode
 	-- [115638] = { coef = 175, buff = 243113},
 	-- [115641] = { coef = 150}, -- Smoldering Imps
 	-- [115640] = { coef = 125}, -- Fuming Imps
 	-- [115719] = { coef = 200}, -- Imp Servents
+	-- BFA
+	[141851] = {coef = 150, name = "Spawn of G'huun"},
 	-- Uldir
 	[135016] = {coef = 200, name = "Plague Amalgam"},
 }
