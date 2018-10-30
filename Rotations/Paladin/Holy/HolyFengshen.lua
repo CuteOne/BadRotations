@@ -812,8 +812,8 @@ local function runRotation()
 				end
 			end
 			if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving then
-				if castWiseAoEHeal(br.friend,spell.lightsHammer,10,getValue("Light's Hammer"),getValue("Light's Hammer Targets"),nil,false,true) then
-			end
+				if castWiseAoEHeal(br.friend,spell.lightsHammer,10,getValue("Light's Hammer"),getValue("Light's Hammer Targets"),nil,false,true) then return true end
+			end	
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
