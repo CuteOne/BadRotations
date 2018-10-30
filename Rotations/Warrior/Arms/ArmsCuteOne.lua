@@ -230,7 +230,7 @@ local function runRotation()
         units.get(8)
         enemies.get(8)
         enemies.get(20)
-		enemies.yards8f   = getEnemiesInCone(180,8)
+	  enemies.yards8f   = getEnemiesInCone(180,8)
 
 
         if profileStop == nil then profileStop = false end
@@ -472,13 +472,13 @@ local function runRotation()
         -- Storm Bolt
                 -- storm_bolt
                 if isChecked("Storm Bolt")
-    				and cast.able.stormBolt("target") then
+    	           and cast.able.stormBolt("target") then
                         if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
-		if isChecked("Heroic Throw")
-				and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
-                        if cast.heroicThrow("target") then return end
+                if isChecked("Heroic Throw")
+	           and not cast.last.heroicLeap() and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0) then
+                       if cast.heroicThrow then return end
                 end
             end
         end
