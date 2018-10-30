@@ -248,6 +248,21 @@ local function runRotation()
             end
         end
 
+        -- Multi-Dot HP Limit Set
+        local function canDoT(unit)
+            if not isBoss() then return true end
+            local unitHealthMax = UnitHealthMax(unit)
+            local maxHealth = 0
+            for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                local thisMaxHealth = UnitHealthMax(thisUnit)
+                if thisMaxHealth > maxHealth then 
+                    maxHealth = thisMaxHealth 
+                end 
+            end 
+            return unitHealthMax > maxHealth / 10
+        end
+
         -- Opener Reset
         if opener == nil then opener = false end
         if openerCount == nil then openerCount = 0 end
@@ -545,7 +560,7 @@ local function runRotation()
             end   
         -- Serpent Sting 
             -- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<gcd
-            if cast.able.serpentSting() and buff.vipersVenom.exists() and buff.vipersVenom.remain() < gcdMax then 
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and buff.vipersVenom.exists() and buff.vipersVenom.remain() < gcdMax then 
                 if cast.serpentSting() then return end 
             end
         -- Kill Command 
@@ -562,7 +577,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd|!talent.vipers_venom.enabled&!dot.serpent_sting.ticking&!buff.coordinated_assault.up|refreshable&(azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
-            if cast.able.serpentSting() and (debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax or (not talent.vipersVenom and not debuff.serpentSting.exists(units.dyn40) 
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax or (not talent.vipersVenom and not debuff.serpentSting.exists(units.dyn40) 
                 and not buff.coordinatedAssault.exists()) or (debuff.serpentSting.refresh(units.dyn40) and (traits.latentPoison.active() or traits.venomousFangs.active())))            
             then
                 if cast.serpentSting() then return end
@@ -611,7 +626,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up
-            if cast.able.serpentSting() and (debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists()) then
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists()) then
                 if cast.serpentSting() then return end
             end
         -- Wildfire Bomb
@@ -674,7 +689,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
-            if cast.able.serpentSting(lowestSerpentSting) and (buff.vipersVenom.exists()) then
+            if cast.able.serpentSting(lowestSerpentSting) and canDoT(lowestSerpentSting) and ttd(lowestSerpentSting) > 3 and (buff.vipersVenom.exists()) then
                 if cast.serpentSting(lowestSerpentSting) then return end
             end
         -- Carve
@@ -694,7 +709,9 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,target_if=min:remains,if=refreshable&buff.tip_of_the_spear.stack<3
-            if cast.able.serpentSting(lowestSerpentSting) and (debuff.serpentSting.refresh(lowestSerpentSting) and buff.tipOfTheSpear.stack() < 3) then
+            if cast.able.serpentSting(lowestSerpentSting) and canDoT(lowestSerpentSting) and ttd(lowestSerpentSting) > 3 
+                and (debuff.serpentSting.refresh(lowestSerpentSting) and buff.tipOfTheSpear.stack() < 3) 
+            then
                 if cast.serpentSting(lowestSerpentSting) then return end
             end
         -- Mongoose Bite
@@ -748,7 +765,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=buff.vipers_venom.up|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled|buff.mongoose_fury.stack=5)
-            if cast.able.serpentSting() and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) and (not talent.mongooseBite or not talent.vipersVenom
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) and (not talent.mongooseBite or not talent.vipersVenom
                 or nextBomb(spell.volatileBomb) and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active() or buff.mongooseFury.stack() == 5))
             then
                 if cast.serpentSting() then return end
@@ -782,7 +799,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=refreshable
-            if cast.able.serpentSting() and (debuff.serpentSting.refresh(units.dyn40)) then
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40)) then
                 if cast.serpentSting() then return end
             end
         -- Wildfire Bomb
@@ -798,7 +815,7 @@ local function runRotation()
         local function actionList_mbApWfiSt()
         -- Serpent Sting
             -- serpent_sting,if=!dot.serpent_sting.ticking
-            if cast.able.serpentSting() and (not debuff.serpentSting.exists(units.dyn40)) then
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (not debuff.serpentSting.exists(units.dyn40)) then
                 if cast.serpentSting() then return end
             end
         -- Wildfire Bomb
@@ -841,7 +858,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=buff.vipers_venom.up|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
-            if cast.able.serpentSting() and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40)
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40)
                 and (not talent.mongooseBite or not talent.vipersVenom or nextBomb(spell.volatileBomb)
                 and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active()))
             then
@@ -854,7 +871,7 @@ local function runRotation()
             end
         -- Serpent Sting
             -- serpent_sting,if=refreshable
-            if cast.able.serpentSting() and (debuff.serpentSting.refresh(units.dyn40)) then
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40)) then
                 if cast.serpentSting() then return end
             end
         -- Wildfire Bomb
@@ -954,7 +971,7 @@ local function runRotation()
                     if cast.steelTrap("target") then return end
                 end
         -- Serpent Sting
-                if cast.able.serpentSting("target") and not debuff.serpentSting.exists("target") then
+                if cast.able.serpentSting("target") and ttd("target") > 3 and not debuff.serpentSting.exists("target") then
                     if cast.serpentSting("target") then return end
                 end
         -- Start Attack
