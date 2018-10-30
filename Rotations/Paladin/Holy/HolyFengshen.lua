@@ -812,9 +812,7 @@ local function runRotation()
 				end
 			end
 			if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving then
-				if getLowAllies(getValue("Light's Hammer")) >= getValue("Light's Hammer Targets") then
-					if castGroundAtBestLocation(spell.lightsHammer, 20, 0, 40, 0, "heal") then return true end
-				end
+				if castWiseAoEHeal(br.friend,spell.lightsHammer,10,getValue("Light's Hammer"),getValue("Light's Hammer Targets"),nil,false,true) then
 			end
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
