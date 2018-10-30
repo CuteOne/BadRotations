@@ -7,9 +7,9 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.volley },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheWild}
+        --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.volley },
+        [2] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
+        --[4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheWild}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -703,6 +703,10 @@ local function runRotation()
                     then
                         if cast.multiShot() then return end
                     end
+                    -- actions+=/kill_command if target hp < 35%
+                    if cast.able.killCommand() and getHP("pettarget") < 35 then
+                        if cast.killCommand("pettarget") then return end
+                      end
                     -- actions+=/chimaera_shot
                     if talent.chimaeraShot then
                         if cast.chimaeraShot() then return end
