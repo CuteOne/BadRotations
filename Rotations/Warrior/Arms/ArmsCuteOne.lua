@@ -7,16 +7,16 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cleave },
-        --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mortalStrike },
-        --[4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.victoryRush}
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.whirlwind },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mortalStrike },
+        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.victoryRush}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleShout },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleShout },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleShout }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avatar },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.avatar },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -37,18 +37,18 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge }
     };
     CreateButton("Mover",5,0)
+-- Bladestorm
+    BladestormModes = {
+        [1] = { mode = "Auto", value = 1 , overlay = "Bladestorm auto usage", tip = "Will use bladestorm", highlight = 1, icon = br.player.spell.bladestorm },
+        [2] = { mode = "Manual", value = 2 , overlay = "Bladestorm use for yourself", tip = "Will NOT use Bladestorm", highlight = 0, icon = br.player.spell.bladestorm }
+    };
+    CreateButton("Bladestorm",6,0)
 -- Heroic Charge
     HeroicModes = {
         [1] = { mode = "On", value = 1 , overlay = "Heroic Charge Enabled", tip = "Will use Heroic Charge.", highlight = 1, icon = br.player.spell.heroicLeap },
         [2] = { mode = "Off", value = 2 , overlay = "Heroic Charge Disabled", tip = "Will NOT use Heroic Charge.", highlight = 0, icon = br.player.spell.heroicLeap }
     };
-    CreateButton("Heroic",6,0)
--- Bladestorm
-    BladestormModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Bladestorm auto mode", tip = "WIll use bladestorm Automatically", highlight = 1, icon = br.player.spell.bladestorm },
-        [2] = { mode = "Manual", value = 2 , overlay = "Bladestorm manual use", tip = "Will not use Bladestorm", highlight = 0, icon = br.player.spell.bladestorm }
-    };
-    CreateButton("Bladestorm",7,0)
+    CreateButton("Heroic",7,0)
 end
 
 ---------------
@@ -74,6 +74,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
             -- Charge
             br.ui:createCheckbox(section,"Charge", "Check to use Charge")
+			-- Heroic Throw
+            br.ui:createCheckbox(section,"Heroic Throw", "Check to use Heroic Throw out of range")
             -- Hamstring
             br.ui:createCheckbox(section,"Hamstring", "Check to use Hamstring")
             -- Heroic Leap
@@ -84,8 +86,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Sweeping Strikes")
             -- Warbreaker
             br.ui:createSpinner(section,"Warbreaker",  2,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Warbreaker. Min: 1 / Max: 10 / Interval: 1")
-			-- Heroic Throw
-            br.ui:createCheckbox(section,"Heroic Throw")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -160,10 +160,10 @@ local function createOptions()
             br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Mover Toggle
             br.ui:createDropdownWithout(section,  "Mover Mode", br.dropOptions.Toggle,  6)
-            -- Heroic Toggle
-            br.ui:createDropdownWithout(section,  "Heroic Mode", br.dropOptions.Toggle,  6)
 			-- Bladestorm Toggle
             br.ui:createDropdownWithout(section,  "Bladestorm Mode", br.dropOptions.Toggle,  6)
+            -- Heroic Toggle
+            br.ui:createDropdownWithout(section,  "Heroic Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -191,10 +191,10 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+		UpdateToggle("Bladestorm",0.25)
+		br.player.mode.bladeStorm = br.data.settings[br.selectedSpec].toggles["Bladestorm"]
         UpdateToggle("Heroic",0.25)
         br.player.mode.heroic = br.data.settings[br.selectedSpec].toggles["Heroic"]
-		UpdateToggle("Bladestorm",0.25)
-        br.player.mode.bladeStorm = br.data.settings[br.selectedSpec].toggles["Bladestorm"]
 
 --------------
 --- Locals ---
@@ -230,6 +230,8 @@ local function runRotation()
         units.get(8)
         enemies.get(8)
         enemies.get(20)
+		enemies.yards8f   = getEnemiesInCone(180,8)
+
 
         if profileStop == nil then profileStop = false end
 
@@ -253,7 +255,6 @@ local function runRotation()
                 end
             end
         end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -468,14 +469,15 @@ local function runRotation()
                 end
         -- Storm Bolt
                 -- storm_bolt
-                if isChecked("Storm Bolt") and cast.able.stormBolt("target") then
-                    if cast.stormBolt("target") then return end
+                if isChecked("Storm Bolt")
+    				and cast.able.stormBolt("target") then
+                        if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
                 -- heroic_throw
 				if isChecked("Heroic Throw")
 					and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
-                    if cast.heroicThrow("target") then return end
+                        if cast.heroicThrow("target") then return end
                 end
             end
         end
@@ -518,26 +520,26 @@ local function runRotation()
                 if cast.deadlyCalm() then return end
             end
         -- Bladestorm
-            -- bladestorm,if=rage<30&!buff.deadly_calm.up
-			if mode.bladeStorm == 1			
-			and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and #enemies.yards8 >= getOptionValue("Bladestorm")) and not talent.ravager
-				and getDistance(units.dyn8) < 8 and (rage < 30 and not buff.deadlyCalm.exists())
-			then
-				if cast.bladestorm(nil,"aoe") then return end
+            -- bladestorm,if=rage<30&!buff.deadly_calm.up&bladestorm.mode==1
+            if mode.bladestorm == 1	
+			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
+                and getDistance(units.dyn8) < 8 and (rage < 30 and not buff.deadlyCalm.exists() and not buff.sweepingStrikes.exsits())
+            then
+                if cast.bladestorm(nil,"aoe") then return end
             end
         -- Cleave
             -- cleave,if=spell_targets.whirlwind>2
-            if cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 0)) then
                 if cast.cleave(nil,"aoe") then return end
             end
-        -- Slam 
+        -- Slam
             -- slam,if=buff.crushing_assault.up
-            if cast.able.slam() and buff.crushingAssasult.exists() then 
-                if cast.slam() then return end 
-            end 
+            if cast.able.slam() and buff.crushingAssasult.exists() then
+                if cast.slam() then return end
+            end
         -- Mortal Strike
             -- mortal_strike,if=buff.overpower.stack=2&talent.dreadnaught.enabled|buff.executioners_precision.stack=2
-            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or debuff.executionersPrecision.stack(units.dyn5) == 2) then
+            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or getDebuffStacks("target",272870,"player") == 2) then
                 if cast.mortalStrike() then return end
             end
         -- Execute
@@ -547,7 +549,7 @@ local function runRotation()
             end
         -- Overpower
             -- overpower
-            if cast.able.overpower() then
+            if cast.able.overpower() and not (buff.overpower.stack() == 2) then
                 if cast.overpower() then return end
             end
         -- Execute
@@ -606,16 +608,16 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=cooldown.mortal_strike.remains&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-			if mode.bladeStorm == 1
-            and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and #enemies.yards8 >= getOptionValue("Bladestorm")) and not talent.ravager and cd.mortalStrike.remain() > 0
-                and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
+            if mode.bladestorm == 1	
+			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
+                and (not buff.sweepingStrikes.exists() and not talent.deadlyCalm or not buff.deadlyCalm.exists())
                 and ((debuff.colossusSmash.exists(units.dyn5) and not traits.testOfMight.active()) or buff.testOfMight.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
         -- Cleave
             -- cleave,if=spell_targets.whirlwind>2
-            if cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 2)) then
                 if cast.cleave(nil,"aoe") then return end
             end
         -- Overpower
@@ -688,8 +690,8 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-			if mode.bladeStorm == 1
-            and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and #enemies.yards8 >= getOptionValue("Bladestorm")) and not talent.ravager 
+            if mode.bladestorm == 1            
+			    and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and #enemies.yards8 >= getOptionValue("Bladestorm")) and not talent.ravager 
                 and (not buff.sweepingStrikes.exists() and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) 
                 and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) or buff.testOfMight.exists()))                
             then
@@ -702,7 +704,7 @@ local function runRotation()
             end
         -- Cleave
             -- cleave
-            if cast.able.cleave(nil,"aoe") then
+            if talent.cleave and cast.able.cleave(nil,"aoe") and enemies.yards8f > 2 then
                 if cast.cleave(nil,"aoe") then return end
             end
         -- Execute
@@ -787,9 +789,9 @@ local function runRotation()
             end
         -- Bladestorm 
             -- bladestorm,if=(debuff.colossus_smash.up&raid_event.adds.in>target.time_to_die)|raid_event.adds.up&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-			if mode.bladeStorm == 1
-            and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
-                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
+            if mode.bladestorm == 1
+			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm")  
+			    and not talent.ravager and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
@@ -800,7 +802,7 @@ local function runRotation()
             end 
         -- Cleave 
             -- cleave,if=spell_targets.whirlwind>2
-            if cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 0)) then
                 if cast.cleave(nil,"aoe") then return end
             end
         -- Execute 
@@ -896,10 +898,11 @@ local function runRotation()
                 -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
                 if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
                     and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active() or cd.warbreaker.remain() > 8
-                    or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
+					or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
                 then
                     if cast.sweepingStrikes() then return end
                 end
+				-- if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) then
             -- Action List - HAC 
                 -- run_action_list,name=hac,if=raid_event.adds.exists
                 if ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) and #enemies.yards8 < 5 then
