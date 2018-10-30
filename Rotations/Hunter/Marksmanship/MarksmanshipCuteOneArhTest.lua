@@ -214,7 +214,7 @@ local function runRotation()
                     --Aimed shot supposed to cast aimed shot at units under careful aim talent influence
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                            if (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnit") > (cast.time.aimedShot() + 1) then
+                            if (getHP(thisUnit) > 80 or getHP(thisUnit) < 20) and ttd("thisUnit") > (cast.time.aimedShot() + 2) then
                                 if cast.aimedShot(thisUnit) then return true end
                             end
                     end
