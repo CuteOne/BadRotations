@@ -474,9 +474,8 @@ local function runRotation()
                         if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
-                -- heroic_throw
-				if isChecked("Heroic Throw")
-					and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
+		if isChecked("Heroic Throw")
+				and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
                         if cast.heroicThrow("target") then return end
                 end
             end
