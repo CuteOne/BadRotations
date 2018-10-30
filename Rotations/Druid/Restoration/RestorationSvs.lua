@@ -608,20 +608,20 @@ local function runRotation()
 						if getHP("mouseover") <= getValue("Ironbark") then
 							if cast.ironbark("mouseover") then return true end
 						end
-					elseif br.friend[i].hp <= getValue("Ironbark") then
-						if getOptionValue("Ironbark Target") == 4 then
-							if (br.friend[i].unit) == "TANK" then
-								if cast.ironbark(br.friend[i].unit) then return true end
-							end
-						elseif getOptionValue("Ironbark Target") == 5 then
-							if (br.friend[i].unit) == "HEALER" then
-								if cast.ironbark(br.friend[i].unit) then return true end
-							end
-						elseif getOptionValue("Ironbark Target") == 6 then
-							if (br.friend[i].unit) == "HEALER" or (br.friend[i].unit) == "TANK" then
-								if cast.ironbark(br.friend[i].unit) then return true end
-							end
-						elseif  getOptionValue("Ironbark Target") == 7 then
+					elseif getOptionValue("Ironbark Target") == 4 then
+						if br.friend[i].hp <= getValue("Ironbark") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+							if cast.ironbark(br.friend[i].unit) then return true end
+						end
+					elseif getOptionValue("Ironbark Target") == 5 then
+						if br.friend[i].hp <= getValue("Ironbark") and UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+							if cast.ironbark(br.friend[i].unit) then return true end
+						end
+					elseif getOptionValue("Ironbark Target") == 6 then
+						if br.friend[i].hp <= getValue("Ironbark") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+							if cast.ironbark(br.friend[i].unit) then return true end
+						end
+					elseif getOptionValue("Ironbark Target") == 7 then
+						if br.friend[i].hp <= getValue("Ironbark") then
 							if cast.ironbark(br.friend[i].unit) then return true end
 						end
 					end
