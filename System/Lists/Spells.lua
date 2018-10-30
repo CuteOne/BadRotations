@@ -3168,6 +3168,7 @@ br.lists.spells = {
                 furiousSlash                = 202539,
                 meatCleaver                 = 85739,
                 recklessness                = 1719,
+                whirlwind					= 85739,
             },
             debuffs                         = {
                 siegebreaker                = 280773,
