@@ -706,7 +706,7 @@ local function runRotation()
 				end
 			end
 			-- Cenarion Ward
-			if isChecked("Cenarion Ward") and not inCombat and talent.cenarionWard then
+			if isChecked("Cenarion Ward") and inCombat and talent.cenarionWard then
 				for i = 1, #br.friend do
 					if getOptionValue("Cenarion Ward Target") == 1 then
 						if br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
@@ -764,7 +764,7 @@ local function runRotation()
 		-- All players Rejuvenation
 		local function actionList_Rejuvenation()
 			-- DOT damage to teammates cast Rejuvenation
-			if isChecked("DOT cast Rejuvenation") and inCombat then
+			if isChecked("DOT cast Rejuvenation") then
 				local debuff_list={
 				-- Uldir
 				{spellID = 262313   ,   stacks = 0   ,   secs = 5}, -- Malodorous Miasma
@@ -875,7 +875,7 @@ local function runRotation()
 				end
 			end
 			--DBM cast Rejuvenation
-			if isChecked("DBM cast Rejuvenation") and inCombat then
+			if isChecked("DBM cast Rejuvenation") then
 				local precast_spell_list={
 				--spell_id	, precast_time	,	spell_name
 				{214652 	, 5				,	'Acidic Fragments'},
@@ -946,7 +946,7 @@ local function runRotation()
 			-- Mana hundred percent cast rejuvenation
 			if inRaid then
 				for i = 1, #br.friend do
-					if not travel and inCombat and mana >= 99 and not buff.rejuvenation.exists(br.friend[i].unit) then
+					if not travel and mana >= 99 and not buff.rejuvenation.exists(br.friend[i].unit) then
 						if cast.rejuvenation(br.friend[i].unit) then return true end
 					end
 				end
