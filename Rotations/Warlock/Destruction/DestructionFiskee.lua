@@ -128,6 +128,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Auto Soulstone Player", "|cffFFFFFF Will put soulstone on player outside raids and dungeons")
             --Soulstone mouseover
             br.ui:createCheckbox(section,"Auto Soulstone Mouseover", "|cffFFFFFF Auto soulstone your mouseover if dead")
+            --Dispel
+            br.ui:createCheckbox(section,"Auto Dispel/Purge", "|cffFFFFFF Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -263,6 +265,84 @@ local function runRotation()
           if isTotem(unit) then return true end
           local unitCreator = UnitCreator(unit)
           if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
+          return false
+        end
+
+      --Defensive dispel whitelist, value is for range to allies on the unit you are dispelling
+        local dDispelList = {
+          [255584]=0, -- Molten Gold
+          [257908]=0, -- Oiled Blade
+          [270920]=0, -- seduction
+          [268233]=0, -- Electrifying Shock
+          [268896]=0, -- Mind Rend
+          [272571]=0, -- choking-waters
+          [275014]=5, -- putrid-waters
+          [268008]=0, -- snake-charm
+          [280605]=0, -- brain-freeze
+          [275102]=0, -- shocking-claw
+          [268797]=0, -- transmute-enemy-to-goo
+          [268846]=0, -- echo-blade
+          [263891]=0, -- grasping-thorns
+        }
+
+        --Offensive dispel whitelist, value is for range to allies on the unit you are dispelling
+        local oDispelList = {
+          [255579]=0, -- Gilded Claws
+          [257397]=0, -- Healing Balm
+          [273432]=0, -- Bound by Shadow
+          [270901]=0, -- Induce Regeneration
+          [267977]=0, -- tidal-surge
+          [268030]=0, -- mending-rapids
+          [276767]=0, -- Consuming Void
+          [272659]=0, -- electrified-scales
+          [269896]=0, -- embryonic-vigor
+          [269129]=0, -- accumulated-charge
+          [268709]=0, -- earth-shield
+          [263215]=0, -- tectonic-barrier
+          [262947]=0, -- azerite-injection
+          [262540]=0, -- overcharge
+          [265091]=0, -- gift-of-ghuun
+          [266201]=0, -- bone-shield
+          [258133]=0, -- darkstep
+          [258153]=0, -- watery-dome
+          [278567]=0, -- soul-fetish
+        }
+
+        local function dispelUnit(unit)
+          local i = 1
+          local remain
+          local validDispel = false
+          local dispelDuration = 0
+          if UnitInPhase(unit) then
+            if GetUnitIsFriend("player",unit)then
+              while UnitDebuff(unit,i) do
+                local _,_,_,dispelType,debuffDuration,expire,_,_,_,dispelId = UnitDebuff(unit,i)                
+                if ((dispelType and dispelType == "Magic")) and dDispelList[dispelId] ~= nil and (dDispelList[dispelId] == 0 or (dDispelList[dispelId] > 0 and #getAllies(unit, dDispelList[dispelId]) == 1)) then
+                  dispelDuration = debuffDuration
+                  remain = expire - GetTime()
+                  validDispel = true
+                  break
+                end
+                i = i + 1
+              end
+            else
+              while UnitBuff(unit,i) do
+                local _,_,_,dispelType,buffDuration,expire,_,_,_,dispelId = UnitBuff(unit,i)
+                if ((dispelType and dispelType == "Magic")) and oDispelList[dispelId] ~= nil and (oDispelList[dispelId] == 0 or (oDispelList[dispelId] > 0 and #getAllies(unit, oDispelList[dispelId]) == 0)) then
+                  dispelDuration = buffDuration
+                  remain = expire - GetTime()
+                  validDispel = true
+                  break
+                end
+                i = i + 1
+              end
+            end
+          end
+          local dispelDelay = 1.5
+          if isChecked("Dispel delay") then dispelDelay = getValue("Dispel delay") end
+          if validDispel and (dispelDuration - remain) > (dispelDelay-0.3 + math.random() * 0.6) then
+            return true
+          end
           return false
         end
 
@@ -478,6 +558,26 @@ local function runRotation()
                     useItem(heirloomNeck)
                 end
             end
+        end
+        --dispel logic for m+
+        if inInstance and isChecked("Auto Dispel/Purge") then
+          if spellUsable(spell.devourMagic) then
+            for i = 1, #enemyTable40 do
+              local thisUnit = enemyTable40[i].unit
+              if dispelUnit(thisUnit) then
+                if cast.devourMagic(thisUnit) then return true end
+              end
+            end
+          end
+          if spellUsable(spell.singeMagic) or spellUsable(spell.singeMagicGrimoire) then
+            for i = 1, #br.friend do
+              local thisUnit = br.friend[i].unit
+              if dispelUnit(thisUnit) then
+                if cast.singeMagic(thisUnit) then return true end
+                if cast.singeMagicGrimoire(thisUnit) then return true end
+              end
+            end
+          end
         end
 -- Gift of the Naaru
         if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
