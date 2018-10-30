@@ -26,4 +26,6 @@ br.lists.burnUnits = {
 	-- [115641] = { coef = 150}, -- Smoldering Imps
 	-- [115640] = { coef = 125}, -- Fuming Imps
 	-- [115719] = { coef = 200}, -- Imp Servents
+	-- Uldir
+	[135016] = {coef = 200, name = "Plague Amalgam"},
 }
