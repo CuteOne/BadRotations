@@ -8,7 +8,7 @@ local function createToggles()
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
         --[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.volley },
-        [2] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
+        [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
         --[4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheWild}
     };
     CreateButton("Rotation",1,0)
@@ -37,6 +37,16 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
     CreateButton("Misdirection",5,0)
+    --Pet summon
+    PetSummonModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
+        [2] = { mode = "On", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
+        [3] = { mode = "On", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
+        [4] = { mode = "On", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
+        [5] = { mode = "On", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
+        [6] = { mode = "off", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+    };
+    CreateButton("PetSummon",6,0)
     -- -- TT Button
     -- TitanThunderModes = {
     --     [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
@@ -74,7 +84,7 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+           -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
         -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
@@ -85,6 +95,8 @@ local function createOptions()
 			br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Pet Attacks
             br.ui:createCheckbox(section, "Pet Attacks")
+        -- Purge
+            br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -172,6 +184,8 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
         UpdateToggle("Misdirection", 0.25)
+        br.player.mode.PetSummon = br.data.settings[br.selectedSpec].toggles["PetSummon"]
+        UpdateToggle("PetSummon", 0.25)
         -- br.player.mode.titanthunder = br.data.settings[br.selectedSpec].toggles["TitanThunder"]
         -- UpdateToggle("TitanThunder", 0.25)
         -- br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
@@ -244,6 +258,8 @@ local function runRotation()
 
         if GetObjectExists("pet") then
             enemies.get(8,"pet")
+            enemies.get(5,"pet")
+            enemies.get(20,"pet")
         end
 
         local lowestUnit = lowestUnit or units.dyn40
@@ -259,6 +275,33 @@ local function runRotation()
                     lowestUnit = thisUnit
                 end
             end
+        end
+
+        function TankInRange()
+            if isChecked("Auto Growl") then
+                    if #br.friend > 1 then
+                        for i = 1, #br.friend do
+                            local friend = br.friend[i]
+                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
+                            return true
+                            end
+                        end
+                    end
+            end
+            return false
+        end
+
+
+        function TankInRange()
+                    if #br.friend > 1 then
+                        for i = 1, #br.friend do
+                            local friend = br.friend[i]
+                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
+                            return true
+                            end
+                        end
+                    end
+            return false
         end
 
         local bestUnit = "target"
@@ -298,25 +341,25 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
+            if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
             if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") then
-                local callPet = nil
-                for i = 1, 5 do
-                    if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
-                end
+            elseif br.player.mode.PetSummon ~= 6 then
+                local callPet = spell["callPet"..br.player.mode.PetSummon]
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) and not UnitIsDeadOrGhost("pet") then
-                        if cast.dismissPet() then waitForPetToAppear = GetTime() return true end
+                    if cast.able.dismissPet() and UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                        if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPets or (UnitExists("pet") and pethp == 0) then
-                            deadPet = false
-                            if cast.revivePet("player") then waitForPetToAppear = GetTime() return true end
-                        elseif not deadPets and not (IsPetActive() or UnitExists("pet")) then
-                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime() return true end
+                        if UnitIsDeadOrGhost("pet") or deadPet then
+                            if cast.able.revivePet() then
+                                if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
+                            end
+                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) and not buff.playDead.exists("pet") then
+                            if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
                 end
+                
                 if waitForPetToAppear == nil then
                     waitForPetToAppear = GetTime()
                 end
@@ -356,6 +399,78 @@ local function runRotation()
                 local thisUnit = br.friend[1].unit
                 if cast.spiritmend(thisUnit) then return end
             end
+
+            -- Purge
+            if isChecked("Purge") and getValue("Purge") == 1 then
+                for i = 1, #enemies.yards5p do 
+                    local thisUnit = enemies.yards5p[i]
+                                --your dispel logic
+                        if canDispel(thisUnit,spell.spiritShock) then
+                            if cast.able.spiritShock(thisUnit) then
+                                if castSpell(thisUnit,spell.spiritShock,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.chiJiTranq(thisUnit) then
+                                if castSpell(thisUnit,spell.chiJiTranq,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.naturesGrace(thisUnit) then
+                                if castSpell(thisUnit,spell.naturesGrace,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.netherShock(thisUnit) then
+                                if castSpell(thisUnit,spell.netherShock,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.sonicBlast(thisUnit) then
+                                if castSpell(thisUnit,spell.sonicBlast,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.soothingWater(thisUnit) then
+                                if castSpell(thisUnit,spell.soothingWater,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.sporeCloud(thisUnit) then
+                                if castSpell(thisUnit,spell.sporeCloud,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            end
+                        end
+                end
+        elseif isChecked("Purge") and getValue("Purge") == 2 then
+                if  canDispel("target",spell.spiritShock) then
+                      if cast.able.spiritShock("target") then
+                                if castSpell("target",spell.spiritShock,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.chiJiTranq("target") then
+                                if castSpell("target",spell.chiJiTranq,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.naturesGrace("target") then
+                                if castSpell("target",spell.naturesGrace,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.netherShock("target") then
+                                if castSpell("target",spell.netherShock,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.sonicBlast("target") then
+                                if castSpell("target",spell.sonicBlast,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.soothingWater("target") then
+                                if castSpell("target",spell.soothingWater,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                            elseif cast.able.sporeCloud("target") then
+                                if castSpell("target",spell.sporeCloud,true,false,false,false,false,true) then
+                                         print("casting dispel on ".. UnitName(thisUnit))
+                                    return end
+                                end
+                            end
+                        end
+                    end
 
             -- Growl
             if isChecked("Auto Growl") then
@@ -724,7 +839,7 @@ local function runRotation()
                         if cast.barrage() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
+                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
