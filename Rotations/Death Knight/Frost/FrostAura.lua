@@ -254,7 +254,7 @@ local function runRotation()
                 end
         -- Death Strike
                 if isChecked("Death Strike") and cast.able.deathStrike() and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
-                    and (not talent.breathOfSindragosa or ((cd.breathOfSindragosa.remain() > 15 and not breathOfSindragosaActive) or not useCDs() or not isChecked("Breath of Sindragosa")))
+                    and (not talent.breathOfSindragosa or ((cd.breathOfSindragosa.remain() > 15 and not breathOfSindragosaActive or not useCDs()) or not isChecked("Breath of Sindragosa")))
                 then
                     if cast.deathStrike() then return true end
                 end
@@ -307,7 +307,7 @@ local function runRotation()
                 if cast.howlingBlast() then return true end
             end
             -- Frost Strike (Icy Talons)
-            if talent.icyTalons and buff.icyTalons.exists() and buff.icyTalons.remain("target") <= gcdMax and talent.breathOfSindragosa and cd.breathOfSindragosa.remain("target") > gcd and not buff.breathOfSindragosa.exists() then
+            if talent.icyTalons and buff.icyTalons.exists() and buff.icyTalons.remain("target") <= gcdMax and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain("target") > gcd or not useCDs()) and not buff.breathOfSindragosa.exists() then
                 if cast.frostStrike() then return true end
             end
             -- Pillar of Frost
@@ -343,7 +343,7 @@ local function runRotation()
                 if cast.howlingBlast() then return true end
             end
             -- Frost Strike
-            if (talent.breathOfSindragosa and cd.breathOfSindragosa.remain() > gcdMax and not buff.breathOfSindragosa.exists()) or not talent.breathOfSindragosa then
+            if (talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists()) or not talent.breathOfSindragosa then
                 if cast.frostStrike() then return true end
             end
             -- Howling Blast (Pillar of Frost)
@@ -399,7 +399,7 @@ local function runRotation()
             if talent.glacialAdvance and not talent.breathOfSindragosa then
                 if cast.glacialAdvance() then return true end
             end
-            if talent.glacialAdvance and talent.breathOfSindragosa and cd.breathOfSindragosa.remain() > gcdMax and not buff.breathOfSindragosa.exists() then
+            if talent.glacialAdvance and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs) and not buff.breathOfSindragosa.exists() then
                 if cast.glacialAdvance() then return true end
             end
             -- Frostscythe 
@@ -420,7 +420,7 @@ local function runRotation()
             if not talent.breathOfSindragosa then
                 if cast.frostStrike() then return true end
             end
-            if talent.breathOfSindragosa and cd.breathOfSindragosa.remain() > gcdMax and not buff.breathOfSindragosa.exists() then
+            if talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs) and not buff.breathOfSindragosa.exists() then
                 if cast.frostStrike() then return true end
             end
         end
