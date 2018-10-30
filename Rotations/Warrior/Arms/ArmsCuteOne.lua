@@ -463,8 +463,10 @@ local function runRotation()
         -- Charge
                 -- charge
                 if isChecked("Charge") and cast.able.charge("target") and getDistance("target") >= 8 then
-                    if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or not isChecked("Heroic Leap") or level < 26 then
-                        if cast.charge("target") then return end
+                    if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) 
+		        or (talent.boundingStride and cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 28)
+			or not isChecked("Heroic Leap") or level < 26 then
+                     if cast.charge("target") then return end
                     end
                 end
         -- Storm Bolt
