@@ -271,6 +271,7 @@ local function runRotation()
       --Defensive dispel whitelist, value is for range to allies on the unit you are dispelling
         local dDispelList = {
           [255584]=0, -- Molten Gold
+          [255041]=0, -- terrifying-screech
           [257908]=0, -- Oiled Blade
           [270920]=0, -- seduction
           [268233]=0, -- Electrifying Shock
@@ -316,7 +317,7 @@ local function runRotation()
           if UnitInPhase(unit) then
             if GetUnitIsFriend("player",unit)then
               while UnitDebuff(unit,i) do
-                local _,_,_,dispelType,debuffDuration,expire,_,_,_,dispelId = UnitDebuff(unit,i)                
+                local _,_,_,dispelType,debuffDuration,expire,_,_,_,dispelId = UnitDebuff(unit,i)
                 if ((dispelType and dispelType == "Magic")) and dDispelList[dispelId] ~= nil and (dDispelList[dispelId] == 0 or (dDispelList[dispelId] > 0 and #getAllies(unit, dDispelList[dispelId]) == 1)) then
                   dispelDuration = debuffDuration
                   remain = expire - GetTime()

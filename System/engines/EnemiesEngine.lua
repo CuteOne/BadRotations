@@ -72,18 +72,18 @@ if not metaTable2 then
 			if valueCount > 1 then
 				-- linear regression calculation from https://github.com/herotc/hero-lib/
 				local a, b = 0, 0
-      	local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
+				local Ex2, Ex, Exy, Ey = 0, 0, 0, 0
 				local x, y
 				for i = 1, valueCount do
 					x, y = ttdUnit.values[i].time, ttdUnit.values[i].hp
 					Ex2 = Ex2 + x * x
-	        Ex = Ex + x
-	        Exy = Exy + x * y
-	        Ey = Ey + y
+					Ex = Ex + x
+					Exy = Exy + x * y
+					Ey = Ey + y
 				end
 				local invariant = 1 / (Ex2 * valueCount - Ex * Ex)
 				a = (-Ex * Exy * invariant) + (Ex2 * Ey * invariant)
-      	b = (valueCount * Exy * invariant) - (Ex * Ey * invariant)
+				b = (valueCount * Exy * invariant) - (Ex * Ey * invariant)
 				if b ~= 0 then
 					local ttdSec = (targetPercentage - a) / b
 					ttdSec = math.min(999, ttdSec - (timeNow - ttdUnit.startTime))
@@ -118,10 +118,14 @@ if not metaTable2 then
 				o.isValidUnit = isValidUnit(o.unit)
 				o.validUnitRefresh = GetTime()
 			end
-			-- Unit in combat
-			--o.inCombat = UnitAffectingCombat(o.unit)
-			-- Unit is boss
-			--o.boss = isBoss(o.unit)
+			------DEBUG VALUES-----
+			-- o.unitAffectingCombat = UnitAffectingCombat(o.unit)
+			-- o.isBoss = isBoss(o.unit)
+			-- o.reaction = GetUnitReaction(o.unit,"player")
+			-- o.canAttack = UnitCanAttack("player",o.unit)
+			-- o.hasThreat = hasThreat(o.unit)
+			-- o.unitTarget = UnitTarget(GetUnit(o.unit))
+			o.objectID = ObjectID(o.unit)
 			-- EnemyListCheck
 			if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
 				o.enemyListCheck = enemyListCheck(o.unit)
@@ -131,7 +135,11 @@ if not metaTable2 then
 			o.posX, o.posY, o.posZ = GetObjectPosition(o.unit)
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then
-				o.ttd = o:unitTtd()
+				if o.objectID == 140853 then -- If mother, TTD is 10 pct
+					o.ttd = o:unitTtd(10)
+				else
+					o.ttd = o:unitTtd()
+				end				
 			end
 			-- add unit to setup cache
 			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
