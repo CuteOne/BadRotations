@@ -531,7 +531,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	if getOptionCheck("Quaking Helper") then
 		--Detect channels
 		local channeledSpell = false
-		local costTable = GetSpellPowerCost(SpellID)
+		local costTable = GetSpellPowerCost(spellID)
 		for _, costInfo in pairs(costTable) do
 			if costInfo.costPerSec > 0 then
 				channeledSpell = true
