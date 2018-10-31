@@ -61,7 +61,7 @@ local function createOptions()
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  2,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffFFFFFFWill precast incinerate on pull if pulltimer is active")
         -- Opener
             --br.ui:createCheckbox(section,"Opener")
         -- Pet Management
@@ -100,7 +100,7 @@ local function createOptions()
         -- Potion
             br.ui:createCheckbox(section,"Potion")
         -- Pre Pot
-            br.ui:createCheckbox(section,"Pre Pot", "|cffFFFFFF Requires Pre-Pull timer to be active")
+            br.ui:createCheckbox(section,"Pre Pot", "|cffFFFFFF Requires Pre-Pull logic to be active")
         -- Cata with CDs
             br.ui:createCheckbox(section,"Ignore Cataclysm units when using CDs")
         -- Summon Infernal Target
@@ -188,7 +188,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
+        local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcdMax
         local gcdMax                                        = br.player.gcdMax
@@ -207,7 +207,7 @@ local function runRotation()
         local lootDelay                                     = getOptionValue("LootDelay")
         local manaPercent                                   = br.player.power.mana.percent()
         local mode                                          = br.player.mode
-        local moving                                        = isMoving("player")
+        local moving                                        = isMoving("player") ~= false or br.player.moving
         local pet                                           = br.player.pet.list
         local php                                           = br.player.health
         local playerMouse                                   = UnitIsPlayer("mouseover")
@@ -265,6 +265,7 @@ local function runRotation()
           if isTotem(unit) then return true end
           local unitCreator = UnitCreator(unit)
           if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
+          if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
           return false
         end
 
@@ -495,6 +496,8 @@ local function runRotation()
             -- SOH1 = false
             -- DRN1 = false
             -- opener = false
+            prePull = false
+            ppInc = false
         end
 
         -- Pet Data
@@ -604,24 +607,23 @@ local function runRotation()
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
-            if useInterrupts() then
-            if talent.grimoireOfSacrifice then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                  if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                    if cast.spellLockgrimoire(thisUnit) then return end
-                end
+      if useInterrupts() then
+        if talent.grimoireOfSacrifice then
+          for i = 1, #enemyTable40 do
+            local thisUnit = enemyTable40[i].unit
+              if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                if cast.spellLockgrimoire(thisUnit) then return end
             end
-
-            elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
-              for i = 1, #enemyTable40 do
-                local thisUnit = enemyTable40[i].unit
-                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                  if activePetId == 417 then
-                    if cast.spellLock(thisUnit) then return end
-                  end
-                end
+        end
+        elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
+          for i = 1, #enemyTable40 do
+            local thisUnit = enemyTable40[i].unit
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+              if activePetId == 417 then
+                if cast.spellLock(thisUnit) then return end
+              end
             end
+          end
         end
       end -- End useInterrupts check
 		end -- End Action List - Interrupts
@@ -629,7 +631,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if getDistance(units.dyn40) < 40 then
         -- actions.cds=summon_infernal,if=target.time_to_die>=210|!cooldown.dark_soul_instability.remains|target.time_to_die<=30+gcd|!talent.dark_soul_instability.enabled
-        if mode.infernal == 1 and (ttd("target") >= 215 or not cd.darkSoul.exists() or buff.darkSoul.remain() > 15 or ttd("target") <= 35 + gcd or not talent.darkSoul) then
+        if mode.infernal == 1 and (ttd("target") >= 215 or not cd.darkSoul.exists() or buff.darkSoul.remain() > 15 or ttd("target") <= 35 + gcd or not talent.darkSoul or mode.cooldown == 4) then
           if getOptionValue("Summon Infernal Target") == 1 then
             if cast.summonInfernal("target", "ground") then return true end
           elseif getOptionValue("Summon Infernal Target") == 2 then
@@ -637,7 +639,7 @@ local function runRotation()
           end
         end
         -- actions.cds+=/dark_soul_instability,if=target.time_to_die>=140|pet.infernal.active|target.time_to_die<=20+gcd
-        if ttd("target") >= 145 or infernalActive or ttd("target") <= 25 + gcd then
+        if ttd("target") >= 145 or infernalActive or ttd("target") <= 25 + gcd or mode.cooldown == 4 then
           if cast.darkSoul("player") then return true end
         end
         if isChecked("Racial") and not moving then
@@ -1340,12 +1342,13 @@ local function runRotation()
             -- Food
                 -- food,type=azshari_salad
                 if (not isChecked("Opener") or opener == true) then
-                    if useCDs() and isChecked("Pre-Pull Timer") then
-                        if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
+                    if useCDs() and isChecked("Pre-Pull Logic") and GetObjectExists("target") and getDistance("target") < 40 then
+                      local incinerateExecute = cast.time.incinerate() + (getDistance("target")/25)
+                        if pullTimer <= incinerateExecute then
                             if isChecked("Pre Pot") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() then
                                 use.battlePotionOfIntellect()
-                                return true
                             end
+                            if ppInc == false then if cast.incinerate("target") then ppInc = true; return true end end
                         end
                     end -- End Pre-Pull
                     if isValidUnit("target") and getDistance("target") < 40 and (not isChecked("Opener") or opener == true) then
@@ -1383,53 +1386,52 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
-            if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
-                PetStopAttack()
-                PetFollow()
-            end
-            return true
+          if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
+            PetStopAttack()
+            PetFollow()
+          end
+          return true
         else
 -----------------------
 --- Extras Rotation ---
 -----------------------
-            if actionList_Extras() then return end
+        if actionList_Extras() then return end
 --------------------------
 --- Defensive Rotation ---
 --------------------------
-            if actionList_Defensive() then return end
+        if actionList_Defensive() then return end
 -----------------------
 --- Opener Rotation ---
 -----------------------
-            if opener == false and isChecked("Opener") and isBoss("target") then
-                if actionList_Opener() then return end
-            end
+        if opener == false and isChecked("Opener") and isBoss("target") then
+          if actionList_Opener() then return end
+        end
 ---------------------------
 --- Pre-Combat Rotation ---
 ---------------------------
-			     if actionList_PreCombat() then return end
+        if actionList_PreCombat() then return end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
-                and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
-    ------------------------------
-    --- In Combat - Interrupts ---
-    ------------------------------
-                if actionList_Interrupts() then return end
-    ---------------------------
-    --- SimulationCraft APL ---
-    ---------------------------
-                if getOptionValue("APL Mode") == 1 then
-        -- Pet Attack
-                    if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
-                        PetAttack()
-                    end
-                    -- rotation
-                    if actionList_Rotation() then return end
-
-                end -- End SimC APL
-			end --End In Combat
-		end --End Rotation Logic
+        if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
+          and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
+------------------------------
+--- In Combat - Interrupts ---
+------------------------------
+          if actionList_Interrupts() then return end
+---------------------------
+--- SimulationCraft APL ---
+---------------------------
+            if getOptionValue("APL Mode") == 1 then
+    -- Pet Attack
+              if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
+                  PetAttack()
+              end
+              -- rotation
+              if actionList_Rotation() then return end
+            end -- End SimC APL
+          end --End In Combat
+      end --End Rotation Logic
     end -- End Timer
 -- end -- End runRotation
 local id = 267
