@@ -822,7 +822,7 @@ local function runRotation()
             end 
         -- Whirlwind
             -- whirlwind,if=raid_event.adds.up
-            if cast.able.whirlwind(nil,"aoe") and (mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0) then
+            if cast.able.whirlwind(nil,"aoe") and (mode.rotation == 1 and #enemies.yards8 > 4) or (mode.rotation == 2 and #enemies.yards8 > 0) then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         -- Overpower
