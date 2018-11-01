@@ -435,7 +435,7 @@ local function runRotation()
         local havocCheck = false
         local cataCheck = false
         local havocRemain = 0
-        local havocMult = 0
+        local havocMult = 1
         for i = 1, #enemyTable40 do
           local thisUnit = enemyTable40[i].unit
           if havocActive ~= 0 then
@@ -446,7 +446,7 @@ local function runRotation()
           if havocCheckUnits >= 2 and not havocCheck then havocCheck = true end
           if enemyTable40[i].ttd > 3 and not cataCheck then cataCheck = true end
         end
-        if 1 + havocRemain > cast.time.chaosBolt() then havocMult = 1 end
+        if 1 + havocRemain > cast.time.chaosBolt() then havocMult = 2 end
 
         --RoF stuff
         local rofUnits = 0
@@ -1243,15 +1243,15 @@ local function runRotation()
             end
             -- actions+=/chaos_bolt,cycle_targets=1,if=!debuff.havoc.remains&execute_time+travel_time<target.time_to_die&(talent.internal_combustion.enabled|!talent.internal_combustion.enabled&soul_shard>=4|(talent.eradication.enabled&debuff.eradication.remains<=cast_time)|buff.dark_soul_instability.remains>cast_time|pet.infernal.active&talent.grimoire_of_supremacy.enabled)
             if spellUsable(spell.chaosBolt) then
-              if (not havocDebuffExist() or #enemyTable40 == 1 or mode.rotation == 3) and (cast.time.chaosBolt() + (getDistance(thisUnit)/16)) < ttd("target") and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
-              (talent.eradication and debuff.eradication.remain() <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) and ttd("target") > 6 then
+              if (not havocDebuffExist() or #enemyTable40 == 1 or mode.rotation == 3) and (cast.time.chaosBolt() + (getDistance("target")/16)) < ttd("target") and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
+              (talent.eradication and debuff.eradication.remain() <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) then
                 if cast.chaosBolt() then return true end
               end
               if mode.rotation ~= 3 then
                 for i = 1, #enemyTable40 do
                   local thisUnit = enemyTable40[i].unit
-                  if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (cast.time.chaosBolt() + (getDistance(thisUnit)/16)) < enemyTable40[i].ttd and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
-                  (talent.eradication and debuff.eradication.remain(thisUnit) <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) and enemyTable40[i].ttd > 6 then
+                  if enemyTable40[i].facing and enemyTable40[i].havocRemain == 0 and (cast.time.chaosBolt() + (enemyTable40[i].distance/16)) < enemyTable40[i].ttd and (talent.internalCombustion or (not talent.internalCombustion and shards >= 4) or
+                  (talent.eradication and debuff.eradication.remain(thisUnit) <= cast.time.chaosBolt()) or (buff.darkSoul.remain("player") > cast.time.chaosBolt()) or (infernal and talent.grimoireOfService)) then
                     if cast.chaosBolt(thisUnit) then return true end
                   end
                 end
