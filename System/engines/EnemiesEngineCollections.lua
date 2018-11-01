@@ -224,3 +224,7 @@ interruptWhitelist = { -- List provided by Admire
 	225562, -- Blood Metamorphosis
 	211875, -- Bladestorm
 }
+validUnitBypassList = {
+	[133492] = "Corruption Corpuscle",
+	[135016] = "Plague Amalgam"
+}
