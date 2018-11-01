@@ -1385,7 +1385,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause(true) or mode.rotation==4 then
           if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
@@ -1422,15 +1422,15 @@ local function runRotation()
 ---------------------------
 --- SimulationCraft APL ---
 ---------------------------
-            if getOptionValue("APL Mode") == 1 then
+          if getOptionValue("APL Mode") == 1 and not pause() then
     -- Pet Attack
-              if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
-                  PetAttack()
-              end
-              -- rotation
-              if actionList_Rotation() then return end
-            end -- End SimC APL
-          end --End In Combat
+            if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
+                PetAttack()
+            end
+            -- rotation
+            if actionList_Rotation() then return end
+          end -- End SimC APL
+        end --End In Combat
       end --End Rotation Logic
     end -- End Timer
 -- end -- End runRotation
