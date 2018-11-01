@@ -188,7 +188,6 @@ end
 ----------------
 --- ROTATION ---
 ----------------
-local regrowth_target = nil
 local cancel_regrowth = 0
 
 local function runRotation()
@@ -267,6 +266,9 @@ local function runRotation()
 		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
 
+		if not isCastingSpell(spell.regrowth) then
+			regrowth_target = nil
+		end
 		-- Temple of Sethraliss
 		if GetObjectID("target") == 133392 and inCombat then
 			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
@@ -282,8 +284,8 @@ local function runRotation()
 			end
 		end
 		-- Overhealing Cancel
-		if isChecked("Overhealing Cancel") and isCastingSpell(spell.regrowth) then
-			if regrowth_target ~= nil and getHP(regrowth_target) > getValue("Overhealing Cancel") then
+		if isChecked("Overhealing Cancel") and regrowth_target ~= nil then
+			if getHP(regrowth_target) > getValue("Overhealing Cancel") and isCastingSpell(spell.regrowth) then
 				SpellStopCasting()
 				cancel_regrowth = cancel_regrowth + 1
 				Print("StopCasting Regrowth "..cancel_regrowth)
