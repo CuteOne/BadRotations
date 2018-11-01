@@ -470,7 +470,6 @@ local function runRotation()
                                 end
                             end
                         end
-                    end
 
             -- Growl
             if isChecked("Auto Growl") then
@@ -839,9 +838,8 @@ local function runRotation()
                         if cast.barrage() then return end
                     end
                     -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1)
-                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
-                    then
+                    if (mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1)
+                        and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))then
                         if cast.multiShot() then return end
                     end
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
@@ -852,9 +850,8 @@ local function runRotation()
                     end
                 end -- End SimC APL
 			end --End In Combat
-		end --End Rotation Logic
-    -- end -- End Timer
-end -- End runRotation
+        end --End Rotation Logic
+    end
 local id = 253
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
