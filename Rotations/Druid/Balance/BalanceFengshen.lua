@@ -56,6 +56,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Starfall priority",  5,  0,  10,  1,  "","|cffFFFFFFMinimum Starfall priority Targets")
 		-- Starfall
 		br.ui:createSpinner(section, "Starfall",  3,  0,  10,  1,  "","|cffFFFFFFMinimum Starfall Targets")
+		-- Innervate
+		br.ui:createDropdown(section, "Innervate",br.dropOptions.Toggle,1, "","Set hotkey to use Innervate on Mouseover")
 	br.ui:checkSectionState(section)
 	-- Defensive Options
 	section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -75,12 +77,14 @@ local function createOptions()
 	br.ui:checkSectionState(section)
     -- Cooldown Options
     section = br.ui:createSection(br.ui.window.profile, "Cooldown")
-        br.ui:createCheckbox(section,"Racial")
-        br.ui:createCheckbox(section,"Warrior of Elune")
-        br.ui:createCheckbox(section,"Incarnation")
-        br.ui:createCheckbox(section,"Celestial Alignment")
-        br.ui:createCheckbox(section,"Fury of Elune")
-        br.ui:createCheckbox(section,"Force of Nature")
+		br.ui:createDropdown(section,"Trinkets 1", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createDropdown(section,"Trinkets 2", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createCheckbox(section,"Racial")
+		br.ui:createCheckbox(section,"Warrior of Elune")
+		br.ui:createCheckbox(section,"Incarnation")
+		br.ui:createCheckbox(section,"Celestial Alignment")
+		br.ui:createCheckbox(section,"Fury of Elune")
+		br.ui:createCheckbox(section,"Force of Nature")
     br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -145,7 +149,7 @@ local function runRotation()
 		local starfallPlacement                             = "playerGround"
 		local starfallAstralPower                           = 50
 		local starfallRadius                                = 12
-		
+
 		units.get(40)
 		enemies.get(8,"target")
 		enemies.get(12,"target")
@@ -224,6 +228,10 @@ local function actionList_OOC()
 end
 
 local function actionList_main()
+	-- Innervate
+	if isChecked("Innervate") and SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus() then
+		if cast.innervate("mouseover") then return true end
+	end
     -- Make sure we're in moonkin form if we're not in another form
     if not chicken then
         if cast.balanceForm() then return true end
@@ -324,6 +332,21 @@ local function actionList_main()
 
 	-- Cooldowns
 	if useCDs() then
+		-- Trinkets
+		if isChecked("Trinkets 1") and canUse(13) then
+			if getOptionValue("Trinkets 1") == 1 then
+				if useItem(13) then return true end
+			elseif getOptionValue("Trinkets 1") == 2 then
+				if useItemGround("target",13,40,0,nil) then return true end
+			end
+		end
+		if isChecked("Trinkets 2") and canUse(14) then
+			if getOptionValue("Trinkets 2") == 1 then
+				if useItem(14) then return true end
+			elseif getOptionValue("Trinkets 2") == 2 then
+				if useItemGround("target",14,40,0,nil) then return true end
+			end
+		end
 		-- Racial
 		if isChecked("Racial") and cast.able.racial() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists() and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei")) then
 			if cast.racial() then return end
@@ -401,7 +424,7 @@ local function actionList_main()
 		end
 		if cast.able.solarWrath() then
 			if cast.lunarStrike() then return true end
-		end	
+		end
 	elseif not moving then
 		-- ST situation: prioritize solar wrath empower > lunar strike empower > solar wrath
 		if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
@@ -413,7 +436,7 @@ local function actionList_main()
 		if cast.able.solarWrath() then
 			if cast.solarWrath() then return true end
 		end
-	end	
+	end
 	if getFacing("player", "target") then
 		if cast.moonfire() then return true end
 	end
