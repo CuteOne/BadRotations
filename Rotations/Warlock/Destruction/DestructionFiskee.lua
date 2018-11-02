@@ -223,6 +223,7 @@ local function runRotation()
         local travelTime                                    = getDistance("target")/16
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
+        local use                                           = br.player.use
 
         units.get(40)
         enemies.get(8,"target")
@@ -258,6 +259,7 @@ local function runRotation()
           [129448]=true, -- Hammer Shark
           [134503]=true, -- Silithid Warrior
           [137458]=true, -- Rotting Spore
+          [139185]=true, -- Minion of Zul
         }
 
         local function noDotCheck(unit)
