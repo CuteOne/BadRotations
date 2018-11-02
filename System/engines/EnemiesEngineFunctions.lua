@@ -43,6 +43,7 @@ function updateOM()
 	local omCounter = 0
 	local fmod = math.fmod
 	local loopSet = floor(GetFramerate()) or 0
+	local autoLoot = isChecked("Auto Loot")
 	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
 	-- 	if next(br.om) ~= nil then br.om = {} end
 	-- 	return
@@ -61,8 +62,8 @@ function updateOM()
 			if omCounter == 1 then cycleTime = debugprofilestop() end
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
-				if GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
-					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or CanLootUnit(UnitGUID(thisUnit)))
+				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
+					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or (autoLoot and CanLootUnit(UnitGUID(thisUnit)))))
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					local enemyUnit = br.unitSetup:new(thisUnit)

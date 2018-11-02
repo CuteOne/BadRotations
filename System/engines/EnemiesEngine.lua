@@ -9,6 +9,10 @@ if not metaTable2 then
 	br.ttd = {} -- Time to die table
 	br.unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	br.unitSetup.cache = {} -- This is for the cache Table to check against
+	br.unitBlacklist = { -- blacklist for units
+		[129359]=true, -- Sawtooth Shark
+        [129448]=true, -- Hammer Shark
+	}
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
 		name = "Enemies Table",
@@ -26,6 +30,7 @@ if not metaTable2 then
 	function br.unitSetup:new(unit)
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
+		if br.unitBlacklist[GetObjectID(unit)] then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
 		if unit and type(unit) == "string" then
@@ -107,16 +112,11 @@ if not metaTable2 then
       --o.threat = UnitThreatSituation("player", o.unit)
 			if getOptionCheck("Enhanced Time to Die") then
 	      -- Unit HP absolute
-	      o.hpabs = UnitHealth(o.unit)
+				o.hpabs = UnitHealth(o.unit)
 				-- Unit max HP
 				o.hpmax = UnitHealthMax(o.unit)
-	      -- Unit HP and Absorb
-	      o.hp = o.hpabs / o.hpmax * 100
-			end
-			-- Is valid unit
-			if o.validUnitRefresh == nil or o.validUnitRefresh < GetTime() - 0.5 then
-				o.isValidUnit = isValidUnit(o.unit)
-				o.validUnitRefresh = GetTime()
+				-- Unit HP and Absorb
+				o.hp = o.hpabs / o.hpmax * 100
 			end
 			------DEBUG VALUES-----
 			-- o.unitAffectingCombat = UnitAffectingCombat(o.unit)
@@ -125,11 +125,22 @@ if not metaTable2 then
 			-- o.canAttack = UnitCanAttack("player",o.unit)
 			-- o.hasThreat = hasThreat(o.unit)
 			-- o.unitTarget = UnitTarget(GetUnit(o.unit))
+			--o.objectType = ObjectRawType(o.unit)
+			--o.objectGUID = ObjectGUID(o.unit)
 			o.objectID = ObjectID(o.unit)
 			-- EnemyListCheck
 			if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
 				o.enemyListCheck = enemyListCheck(o.unit)
 				o.enemyRefresh = GetTime()
+			end
+			-- Is valid unit - only check if enemyList checks out
+			if o.enemyListCheck == true then
+				if (o.validUnitRefresh == nil or o.validUnitRefresh < GetTime() - 0.5) then
+					o.isValidUnit = isValidUnit(o.unit)
+					o.validUnitRefresh = GetTime()
+				end
+			else
+				o.isValidUnit = false
 			end
 			-- ObjectPosition
 			o.posX, o.posY, o.posZ = GetObjectPosition(o.unit)
@@ -139,7 +150,7 @@ if not metaTable2 then
 					o.ttd = o:unitTtd(10)
 				else
 					o.ttd = o:unitTtd()
-				end				
+				end
 			end
 			-- add unit to setup cache
 			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
@@ -154,10 +165,10 @@ if not metaTable2 then
 		setmetatable(br.om, metaTable2) -- Set the metaTable of Main to Meta
 		function br.om:Update()
 			br.omTableTimer = GetTime()
+			local autoLoot = isChecked("Auto Loot")
 			local i=1
-			if getOptionCheck("Debug TTD") then LibDraw.clearCanvas() end -- clear canvas for ttd
 			while i <= #br.om do
-				if not GetUnitIsVisible(br.om[i].unit) or getDistance(br.om[i].unit) > 50 then
+				if not GetUnitIsVisible(br.om[i].unit) or getDistance(br.om[i].unit) > 50 or (UnitIsDeadOrGhost(br.om[i].unit) and (not autoLoot or (autoLoot and not CanLootUnit(UnitGUID(br.om[i].unit))))) then
 					for j,v in pairs(br.unitSetup.cache) do
 						if br.om[i].unit == j then
 							br.unitSetup.cache[j] = nil
@@ -170,21 +181,6 @@ if not metaTable2 then
 					tremove(br.om, i)
 				else
 					br.om[i]:UpdateUnit()
-					--TTD drawing
-					if getOptionCheck("Debug TTD") and br.om[i].enemyListCheck and br.om[i].isValidUnit then
-						local ox, oy, oz = ObjectPosition(br.om[i].unit)
-						local size = 1.75
-						if UnitCombatReach(br.om[i].unit) > 0 then size = UnitCombatReach(br.om[i].unit) / 0.857 end
-						oz = oz + size + 2
-						local mult = 10^2
-						local ttdText
-						if getOptionCheck("Enhanced Time to Die") then
-							ttdText = "TTD: " .. math.floor(br.om[i].ttd * mult + 0.5) / mult
-						else
-							ttdText = "TTD: " .. math.floor(getTTD(br.om[i].unit) * mult + 0.5) / mult
-						end
-						LibDraw.Text(ttdText, "DiesalFontNormal", ox, oy, oz)
-					end
 					i = i + 1
 				end
 			end
