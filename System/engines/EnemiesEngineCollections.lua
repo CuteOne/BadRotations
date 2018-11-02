@@ -120,6 +120,16 @@ dispellOffensiveBuffs = {
 	[144351] = "Magic"
 }
 interruptWhitelist = { -- List provided by Admire
+	-- Shrine of storm start
+        268030, -- mending-rapids
+	274438, -- tempest
+	267818, -- slicing-blast
+	268309, -- unending-darkness
+	268317, -- rip-mind
+	276767, -- consuming-void
+	268375, -- detect-thoughts
+	267809, -- consume-essence
+	-- Shrine of storm end
 	191823, -- Furious Blast
 	191848, -- Rampage
 	192003, -- Blazing Nova
