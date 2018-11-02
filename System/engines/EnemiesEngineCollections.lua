@@ -236,5 +236,7 @@ interruptWhitelist = { -- List provided by Admire
 }
 validUnitBypassList = {
 	[133492] = "Corruption Corpuscle",
-	[135016] = "Plague Amalgam"
+	[135016] = "Plague Amalgam",
+	[131009] = "Spirit of Gold", --Atal
+	[125828] = "Soulspawn" --Atal
 }
