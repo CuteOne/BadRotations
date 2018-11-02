@@ -87,7 +87,6 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes.")
         br.ui:createCheckbox(section, "Quaking Helper", "Auto cancel channeling and block casts during mythic+ affix quaking")
         br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
-        br.ui:createCheckbox(section, "Debug TTD", "Display time to die on units.")
         br.ui:checkSectionState(section)
     end
 

@@ -376,14 +376,14 @@ function isValidUnit(Unit)
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and (not GetUnitIsFriend(Unit,"player") or (UnitIsCharmed(Unit) and UnitCanAttack("player",Unit)))) or not GetUnitIsFriend(Unit,"player");
 	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then return false end
-	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or validUnitBypassList[GetObjectID(Unit)]) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
+	if not pause(true) and Unit ~= nil and (br.units[Unit] ~= nil or Unit == "target" or validUnitBypassList[GetObjectID(Unit)] ~= nil) and (not UnitIsTapDenied(Unit) or isDummy(Unit))
 		and ((reaction < 5 and not hostileOnly) or (hostileOnly and (reaction < 4 or playerTarget or targeting)) or isDummy(Unit)) and mcCheck and not isCC
 	then
 		local instance = IsInInstance()
 		local distance = getDistance(Unit,"target")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or isBurnTarget(Unit) > 0
-		return hasThreat or (not instance and (playerTarget or distance < 8)) or (instance and playerTarget and ((getDistance(Unit,"player") < 20 or (UnitAffectingCombat(Unit) and getDistance(Unit,"player") < 40)) or #br.friend == 1)) or validUnitBypassList[GetObjectID(Unit)]
+		return hasThreat or (not instance and (playerTarget or distance < 8)) or (instance and playerTarget and ((getDistance(Unit,"player") < 20 or (UnitAffectingCombat(Unit) and getDistance(Unit,"player") < 40)) or #br.friend == 1)) or validUnitBypassList[GetObjectID(Unit)] ~= nil
 	end
 	return false
 end
