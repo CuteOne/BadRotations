@@ -131,6 +131,18 @@ interruptWhitelist = { -- List provided by Admire
 	267809, -- consume-essence
 	267459, -- consume-essence Boss
 	-- Shrine of storm end
+	
+        -- Motherload! start
+	268129, -- kajacola-refresher
+	268709, -- earth-shield
+	268702, -- furious-quake
+	263215, -- tectonic-barrier
+	263066, -- transfiguration-serum
+	262540, -- overcharge
+	269090, -- artillery-barrage
+	263202, -- rock-lance
+	-- Motherload! end
+	
 	191823, -- Furious Blast
 	191848, -- Rampage
 	192003, -- Blazing Nova
