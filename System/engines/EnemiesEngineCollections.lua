@@ -129,6 +129,7 @@ interruptWhitelist = { -- List provided by Admire
 	276767, -- consuming-void
 	268375, -- detect-thoughts
 	267809, -- consume-essence
+	267459, -- consume-essence Boss
 	-- Shrine of storm end
 	191823, -- Furious Blast
 	191848, -- Rampage
