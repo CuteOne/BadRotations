@@ -16,4 +16,11 @@ br.lists.noTouchUnits = {
     { unitID = 116689, buff = 233441 }, -- Don't attack Atrigan while Bonesaw
     { unitID = 116691, buff = 235230 }, -- Don't attack Belac while Fel Squall
     { unitID = 117264, buff = -241008 }, -- Don't attack Maiden of Valor unless Buff is Present *** negative buff value denotes not present ***
+    -- BfA
+    { unitID = 137119, buff = 271965 }, -- Don't attack Taloc while Powered Down
+    { unitID = 131824, buff = -260805 }, -- Manor council immune without iris
+    { unitID = 131823, buff = -260805 }, -- Manor council immune without iris
+    { unitID = 131825, buff = -260805 }, -- Manor council immune without iris
+    { unitID = 131227, buff = 260189 }, -- Motherlode last boss flight
+    { unitID = 136383, buff = 274230 }, -- Mythrax immunity
 }

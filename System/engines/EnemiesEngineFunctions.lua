@@ -513,12 +513,14 @@ function isSafeToAttack(unit)
 			local noTouch = br.lists.noTouchUnits[i]
 			if noTouch.unitID == 1 or noTouch.unitID == unitID then
 				if noTouch.buff > 0 then
+					-- Not Safe with Buff/Debuff
 					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
 						return false
 					end
 				else
+					-- Not Safe without Buff/Debuff
 					local posBuff = -(noTouch.buff)
-					if not UnitBuffID(unit,posBuff) or UnitDebuffID(unit,posBuff) then
+					if not UnitBuffID(unit,posBuff) or not UnitDebuffID(unit,posBuff) then
 						return false
 					end
 				end
