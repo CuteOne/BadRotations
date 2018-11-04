@@ -26,7 +26,6 @@ end
 function UnitBuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and strfind(strupper(filter),"EXACT")
-	local playerSearch = filter ~= nil and strfind(strupper(filter),"PLAYER")
 	if exactSearch then
 		for i=1,40 do
 			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
@@ -44,17 +43,16 @@ end
 function UnitDebuffID(unit,spellID,filter)
 	local spellName = GetSpellInfo(spellID)
 	local exactSearch = filter ~= nil and strfind(strupper(filter),"EXACT")
-	local playerSearch = filter ~= nil and strfind(strupper(filter),"PLAYER")
 	if exactSearch then
 		for i=1,40 do
 			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 			if buffName == nil then return nil end
 			if buffSpellID == spellID then
-				return UnitBuff(unit,i)
+				return UnitDebuff(unit,i)
 			end
 		end
 	else
-		if filter ~= nil and filter == "PLAYER" then return AuraUtil.FindAuraByName(spellName,unit,filter) end
+		if filter ~= nil and strfind(strupper(filter),"PLAYER") then return AuraUtil.FindAuraByName(spellName,unit,"HARMFUL|PLAYER") end
 		return AuraUtil.FindAuraByName(spellName,unit,"HARMFUL")
 	end
 end
