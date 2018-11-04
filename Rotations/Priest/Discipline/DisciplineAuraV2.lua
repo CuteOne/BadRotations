@@ -605,7 +605,7 @@ local function runRotation()
             end
             if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", 2) then
                 for i = 1, #br.friend do
-                    if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) then
+                    if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                         if cast.powerWordFortitude() then return true end
                     end
                 end
