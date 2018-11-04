@@ -49,6 +49,8 @@ local function createOptions()
         -------- UTILITY --------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Utility")
+            -- Pull Spell
+            br.ui:createCheckbox(section,"Pull Spell", "Check this to use SW:P to pull when solo.")
             -- Auto Buff Fortitude
             br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
             -- OOC Healing
@@ -991,6 +993,9 @@ local function runRotation()
                 if actionList_Extras() then return true end
                 if actionList_PreCombat() then return true end
                 if actionList_OOCHealing() then return true end
+                if GetUnitExists("target") and isValidUnit("target") and getDistance("target","player") < 40 and isChecked("Pull Spell") then
+                    if cast.shadowWordPain() then return true end
+                end
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations ---
