@@ -121,7 +121,7 @@ dispellOffensiveBuffs = {
 }
 interruptWhitelist = { -- List provided by Admire
 	-- Shrine of storm start
-        268030, -- mending-rapids
+	268030, -- mending-rapids
 	274438, -- tempest
 	267818, -- slicing-blast
 	268309, -- unending-darkness
@@ -142,6 +142,16 @@ interruptWhitelist = { -- List provided by Admire
 	269090, -- artillery-barrage
 	263202, -- rock-lance
 	-- Motherload! end
+	
+	-- Underrot start
+	265089, -- dark-reconstitution
+	278755, -- harrowing-despair
+	260879, -- blood-bolt
+	278961, -- decaying-mind
+	266201, -- bone-shield
+	272183, -- raise-dead
+	265433, -- withering-curse
+	-- Underrot end
 	
 	191823, -- Furious Blast
 	191848, -- Rampage
