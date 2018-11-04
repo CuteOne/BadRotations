@@ -45,6 +45,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 1 , overlay = "Auto FSK Disabled", tip = "Will NOT cast Flying Serpent Kick.", highlight = 0, icon = br.player.spell.flyingSerpentKickEnd}
     };
     CreateButton("FSK",6,0)
+-- 
+    FOFModes = {
+        [1] = { mode = "On", value = 2 , overlay = "FoF Enabled", tip = "Will cast Fists Of Fury.", highlight = 1, icon = br.player.spell.fistsOfFury},
+        [2] = { mode = "Off", value = 1 , overlay = "FoF Disabled", tip = "Will NOT cast Fists Of Fury.", highlight = 0, icon = br.player.spell.fistsOfFury}
+    };
+    CreateButton("FOF",7,0)
 end
 
 ---------------
@@ -80,6 +86,10 @@ local function createOptions()
             br.ui:createCheckbox(section, "Tiger's Lust")
         -- Whirling Dragon Punch
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
+        -- Whirling Dragon Punch Targets
+            br.ui:createSpinnerWithout(section, "Whirling Dragon Punch Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Whirling Dragon Punch on.")
+        -- FoF Targets
+        br.ui:createSpinnerWithout(section, "Fists of Fury Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
         -- Provoke
             br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
         -- Spread Mark Cap
@@ -190,6 +200,8 @@ local function runRotation()
         UpdateToggle("FSK",0.25)
         br.player.mode.fsk = br.data.settings[br.selectedSpec].toggles["FSK"]
         BurstToggle("burstKey", 0.25)
+        UpdateToggle("FOF", 0.25)
+        br.player.mode.fof = br.data.settings[br.selectedSpec].toggles["FOF"]
 
 --------------
 --- Locals ---
@@ -231,6 +243,7 @@ local function runRotation()
         enemies.get(5)
         enemies.get(8)
         enemies.yards12r = getEnemiesInRect(10,12,false) or 0
+        enemies.yards8c = getEnemiesInCone(45, 8,false, false) or 0
 
         if not inCombat or lastCombo == nil or not buff.hitCombo.exists() then lastCombo = 6603 end
         if leftCombat == nil then leftCombat = GetTime() end
@@ -491,7 +504,7 @@ local function runRotation()
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
-                and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15)
+                and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15) and not talent.serenity
             then
                 if cast.stormEarthAndFire() then return end
             end
@@ -624,7 +637,7 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
+            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick 
@@ -634,12 +647,12 @@ local function runRotation()
             end 
         -- Fists of Fury 
             -- fists_of_fury,if=energy.time_to_max>3
-            if cast.able.fistsOfFury() and ttm > 3 then 
+            if chi >= 3 and cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1 then 
                 if cast.fistsOfFury(nil,"cone",1,45) then return end 
             end 
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-            if cast.able.risingSunKick(lowestMark) then
+            if chi >= 2 and cast.able.risingSunKick(lowestMark) then
                 if cast.risingSunKick(lowestMark) then return end
             end
         -- Rushing Jade Wind
@@ -663,7 +676,7 @@ local function runRotation()
             end
         -- Blackout kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))&buff.swift_roundhouse.stack<2
-            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and (cd.risingSunKick.remain() > 3 or chi >= 3)
+            if chi >= 2 and cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() and (cd.risingSunKick.remain() > 3 or chi >= 3)
                 and (cd.fistsOfFury.remain() > 4 or chi >= 4 or (chi == 2 and cast.last.tigerPalm())) and buff.swiftRoundhouse.stack() < 2
             then
                 if cast.blackoutKick(lowestMark) then return true end
@@ -691,7 +704,7 @@ local function runRotation()
                 if cast.flyingSerpentKick() then return end
             end
         -- Blackout Kick (inefficient but breaks stall)
-            if cast.able.blackoutKick(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not cast.last.blackoutKick() then
+            if chi >= 1 and cast.able.blackoutKick(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not cast.last.blackoutKick() then
                 if cast.blackoutKick(lowestMark) then return end
             end            
         -- Tiger Palm (inefficient but breaks stall)
@@ -703,7 +716,7 @@ local function runRotation()
         function actionList_AoE()
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
+            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Energizing Elixir
@@ -715,7 +728,7 @@ local function runRotation()
             end
         -- Fists of Fury
             -- fists_of_fury,if=energy.time_to_max>3
-            if cast.able.fistsOfFury() and ttm > 3 then
+            if chi >= 3 and  cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1  then
                 if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
         -- Rushing Jade Wind
@@ -725,12 +738,12 @@ local function runRotation()
             end
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
-            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and cd.fistsOfFury.remain() > 3 then
+            if chi >= 2 and  cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and cd.fistsOfFury.remain() > 3 then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(((chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
-            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() 
+            if chi >= 2 and cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() 
                 and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or ttm <= 3) 
             then
                 if cast.spinningCraneKick(nil,"aoe") then return end
@@ -767,7 +780,7 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(buff.bok_proc.up|(talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi<4))
-            if cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() 
+            if chi >= 1 and cast.able.blackoutKick(lowestMark) and not cast.last.blackoutKick() 
                 and (buff.blackoutKick.exists() or (talent.hitCombo and cast.last.tigerPalm() and chi < 4)) 
             then
                 if cast.blackoutKick(lowestMark) then return end
@@ -781,26 +794,26 @@ local function runRotation()
         function actionList_Serenity()
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies<3|prev_gcd.1.spinning_crane_kick
-            if cast.able.risingSunKick(lowestMark) and (#enemies.yards8 < 3 or cast.last.spinningCraneKick()) then
+            if chi >= 2 and  cast.able.risingSunKick(lowestMark) and (#enemies.yards8 < 3 or cast.last.spinningCraneKick()) then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Fists of Fury
             -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick&!azerite.swift_roundhouse.enabled)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
-            if cast.able.fistsOfFury() and ((hasBloodLust() and cast.last.risingSunKick() and not traits.swiftRoundhouse.active()) or buff.serenity.remain() < 1
-                or (#enemies.yards8 > 1 and #enemies.yards8 < 5))
+            if chi >= 3 and  cast.able.fistsOfFury() and ((hasBloodLust() and cast.last.risingSunKick() and not traits.swiftRoundhouse.active()) or buff.serenity.remain() < 1
+                or (#enemies.yards8 > 1 and #enemies.yards8 < 5)) and mode.fof == 1
             then
                 if cast.fistsOfFury(nil,"cone",1,45) then return end
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(active_enemies>=3|(active_enemies=2&prev_gcd.1.blackout_kick))
-            if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and (((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            if chi >= 2 and cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and (((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 or (((mode.rotation == 1 and #enemies.yards8 == 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cast.last.blackoutKick()))
             then
                 if cast.spinningCraneKick(nil,"aoe") then return true end
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains
-            if cast.able.blackoutKick(lowestMark) then
+            if chi >= 1 and cast.able.blackoutKick(lowestMark) then
                 if cast.blackoutKick(lowestMark) then return true end
             end
         end -- End Action List - Serenity
@@ -1012,42 +1025,42 @@ local function runRotation()
                         if cast.stormEarthAndFire() then return true end
                     end
         -- Whirling Dragon Punch
-                    if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() then
+                    if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") then
                      --   Print("Casting Whirling Dragon Punch")
                         if cast.whirlingDragonPunch("player","aoe") then return true end
                     end
         -- Spinning Crane Kick
                     -- if not WasLastCast(SpinningCraneKick) and HasBuff(Serenity) and TargetsInRadius(SpinningCraneKick) >= 3
-                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                    if chi >= 2 and  cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                       --  Print("Casting Spinning Crane Kick")
                         if cast.spinningCraneKick(nil,"aoe") then return true end
                     end
         -- Rising Sun Kick
-                    if cast.able.risingSunKick() then
+                    if chi >= 2 and cast.able.risingSunKick() then
                         if cast.risingSunKick() then return true end
                     end
         -- Fists of Fury
-                    if cast.able.fistsOfFury() then
+                    if chi >= 3 and cast.able.fistsOfFury() and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1  then
                         if cast.fistsOfFury(nil,"cone",1,45) then return true end
                     end
         -- Spinning Crane Kick
                     -- if not WasLastCast(SpinningCraneKick) and TargetsInRadius(SpinningCraneKick) >= 3 and CooldownSecRemain(FistsOfFury) > 3
-                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cd.fistsOfFury.remain() > 3 then
+                    if chi >= 2 and cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cd.fistsOfFury.remain() > 3 then
                       --  Print("Casting Spinning Crane Kick 2")
                         if cast.spinningCraneKick(nil,"aoe") then return true end
                     end
         -- Blackout Kick
                     -- if not WasLastCast(BlackoutKick) and HasBuff(Serenity)
-                    if cast.able.blackoutKick() and not cast.last.blackoutKick() and buff.serenity.exists() then
+                    if chi >= 1 and cast.able.blackoutKick() and not cast.last.blackoutKick() and buff.serenity.exists() then
                         if cast.blackoutKick() then return true end
                     end
                     -- if not WasLastCast(BlackoutKick) and (AlternatePower >= 2 or HasBuff(ComboBreaker))
-                    if cast.able.blackoutKick() and not cast.last.blackoutKick() and (chi >= 2 or buff.blackoutKick.exists()) then
+                    if chi >= 1 and cast.able.blackoutKick() and not cast.last.blackoutKick() and (chi >= 2 or buff.blackoutKick.exists()) then
                         if cast.blackoutKick() then return true end
                     end
         -- Spinning Crane Kick
                     -- if not WasLastCast(SpinningCraneKick) and HasBuff(Serenity)
-                    if cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() then
+                    if chi >= 2 and  cast.able.spinningCraneKick() and not cast.last.spinningCraneKick() and buff.serenity.exists() then
                         if cast.spinningCraneKick(nil,"aoe") then return true end
                     end
         -- Fist of the White Tiger
