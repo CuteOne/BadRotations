@@ -832,11 +832,11 @@ local function runRotation()
 					if cast.consecration() then return true end
 				end
 				-- Holy Prism
-				if isChecked("Holy Prism Damage") and talent.holyPrism and ast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 95 then
+				if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 95 then
 				if cast.holyPrism("player") then return true end
 				end
 				-- Light's Hammer
-				if isChecked("Light's Hammer Damage") and talent.lightsHammer and ast.able.lightsHammer() and not moving then
+				if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
 				if cast.lightsHammer("best",nil,getValue("Light's Hammer Damage"),10) then return true end
 				end
 				-- Judgement
