@@ -1426,7 +1426,7 @@ local function runRotation()
 ---------------------------
           if getOptionValue("APL Mode") == 1 and not pause() then
     -- Pet Attack
-            if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
+            if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") and isValidUnit("target") then
                 PetAttack()
             end
             -- rotation
