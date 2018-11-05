@@ -222,22 +222,39 @@ function findBestUnit(range,facing)
 	local bestUnit = bestUnit or nil
 	local enemyList = getEnemies("player",range)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
-	if bestUnit == nil or GetTime() > lastCheckTime then
+	if bestUnit == nil 
+--		or GetTime() > lastCheckTime 
+		then
 		-- for k, v in pairs(enemyList) do
-		for i = 1, #enemyList do
-			local thisUnit = enemyList[i]
-			-- local thisUnit = v.unit
-			-- local distance = getDistance(thisUnit)
-			-- if distance < range then
-				local coeficient = getUnitCoeficient(thisUnit) or 0
-				local isFacing = getFacing("player",thisUnit)
-				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-				if coeficient >= 0 and coeficient >= bestUnitCoef and not isCC and (not facing or isFacing) then
-					bestUnitCoef = coeficient
-					bestUnit = thisUnit
-				end
-			-- end
-			lastCheckTime = GetTime() + 1
+		if #enemyList > 0 then
+			local currHP = UnitHealth(enemyList[1])
+			for i = 1, #enemyList do
+				local thisUnit = enemyList[i]
+				-- local thisUnit = v.unit
+				-- local distance = getDistance(thisUnit)
+				-- if distance < range then
+					if isChecked("Prioritize Totems") then
+						if UnitCreatureType(thisUnit) == "Totem" then
+							bestUnit = thisUnit
+							return bestUnit
+						end
+					elseif getOptionValue("Wise Target") == 4 then -- abs Lowest
+						if UnitHealth(thisUnit) < currHP then
+							currHP = UnitHealth(thisUnit)
+							bestUnit = thisUnit
+						end
+					else
+						local coeficient = getUnitCoeficient(thisUnit) or 0
+						local isFacing = getFacing("player",thisUnit)
+						local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+						if coeficient >= 0 and coeficient > bestUnitCoef and not isCC and (not facing or isFacing) then
+							bestUnitCoef = coeficient
+							bestUnit = thisUnit
+						end
+					end
+				-- end
+	--			lastCheckTime = GetTime() + 1
+			end
 		end
 	end
 	if isChecked("Debug Timers") then
@@ -411,9 +428,9 @@ function getUnitCoeficient(unit)
 					coef = unitHP
 				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
 					coef = UnitHealth(unit)
-				elseif getOptionValue("Wise Target") == 4 then -- Nearest
+				elseif getOptionValue("Wise Target") == 5 then -- Nearest
 					coef = 100 - distance
-				elseif getOptionValue("Wise Target") == 5 then -- Furthest
+				elseif getOptionValue("Wise Target") == 6 then -- Furthest
 					coef = distance
 				else 										   -- Lowest
 					-- if lowest is selected
