@@ -6,10 +6,7 @@
 local function createToggles()
 	-- Rotation Button
 	RotationModes = {
-	[1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range", highlight = 1, icon = br.player.spell.wildGrowth },
-	[2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used", highlight = 1, icon = br.player.spell.wildGrowth },
-	[3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used", highlight = 1, icon = br.player.spell.regrowth },
-	[4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.rejuvenation}
+	[1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "This is the only mode for this rotation.", highlight = 1, icon = br.player.spell.wildGrowth }
 	};
 	CreateButton("Rotation",1,0)
 	-- Cooldown Button
@@ -108,8 +105,7 @@ local function createOptions()
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Rebirth
-		br.ui:createCheckbox(section,"Rebirth","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFcast Rebirth|cffFFBB00.",1)
-		br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
+		br.ui:createDropdown(section, "Rebirth", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		-- Healthstone
 		br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Barkskin
@@ -428,15 +424,15 @@ local function runRotation()
 				end
 				-- Rebirth
 				if isChecked("Rebirth") and not moving then
-					if getOptionValue("Rebirth - Target") == 1
+					if getOptionValue("Rebirth") == 1
 						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						if cast.rebirth("target","dead") then return true end
 					end
-					if getOptionValue("Rebirth - Target") == 2
+					if getOptionValue("Rebirth") == 2
 						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
 						if cast.rebirth("mouseover","dead") then return true end
 					end
-					if getOptionValue("Rebirth - Target") == 3 then
+					if getOptionValue("Rebirth") == 3 then
 						for i =1, #br.friend do
 							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
 								if cast.rebirth(br.friend[i].unit,"dead") then return true end
