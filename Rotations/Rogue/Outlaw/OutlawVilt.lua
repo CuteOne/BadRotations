@@ -284,11 +284,10 @@ local function runRotation()
         --Hook cast with logic not to cast directly on object
         local function castHook(unit)
           if getSpellCD(195457) == 0 and getDistance("player",unit) < 40 then
+            local wasMouseLooking = false
             if IsMouselooking() then
-                mouselookup = true
+                wasMouseLooking = true
                 MouselookStop()
-            else
-                mouselookup = false
             end
             local combatRange = max(5, UnitCombatReach("player") + UnitCombatReach(unit) + 1.3)
             local X,Y,Z = GetPositionBetweenObjects(unit, "player", combatRange)
@@ -298,7 +297,7 @@ local function runRotation()
               CancelPendingSpell()
               return false
             end
-            if mouselookup then
+            if wasMouseLooking then
                 MouselookStart()
             end
             if not inCombat then
@@ -465,7 +464,7 @@ local function runRotation()
                 if cast.rollTheBones() then return end
             end
         -- SAP
-            if getOptionValue("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and getSapCount() == 0 then
+            if isChecked("Sap (solo)") and not inCombat and solo and getDistance("target") < 15 and isValidUnit("target") and #enemies.yards10nc > 0 and getSapCount() == 0 then
               for i = 1, #enemies.yards10nc do
                   local thisUnit = enemies.yards10nc[i]
                   if not GetUnitIsUnit(thisUnit,"target") and not isBoss(thisUnit) and getFacing("player", thisUnit) and not UnitAffectingCombat(thisUnit) then
