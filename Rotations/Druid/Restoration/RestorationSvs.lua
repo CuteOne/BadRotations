@@ -538,10 +538,10 @@ local function runRotation()
 			-- Nature's Cure
 			if mode.decurse == 1 then
 				for i = 1, #br.friend do
-					if inInstance and getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,6) < 2 then
+					if inInstance and ((getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,6) < 2) or (getDebuffRemain(br.friend[i].unit,252781) > 2 and #getAllies(br.friend[i].unit,9) < 2)) then
 						if cast.naturesCure(br.friend[i].unit) then return true end
 					end
-					if (not inInstance or (inInstance and getDebuffRemain(br.friend[i].unit,275014) == 0)) and not UnitIsCharmed(br.friend[i].unit) then
+					if (not inInstance or (inInstance and getDebuffRemain(br.friend[i].unit,275014) == 0 and getDebuffRemain(br.friend[i].unit,252781))) and not UnitIsCharmed(br.friend[i].unit) then
 						if canDispel(br.friend[i].unit,spell.naturesCure) then
 							if cast.naturesCure(br.friend[i].unit) then return true end
 						end
