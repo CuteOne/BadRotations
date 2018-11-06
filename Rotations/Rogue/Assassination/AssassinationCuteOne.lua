@@ -262,7 +262,7 @@ local function runRotation()
         masterAssassinRemain = masterAssassinTimer - GetTime()
 
         -- Numeric Returns
-        if talent.deeperStrategem then deepStrat = 1 else deepStrat = 0 end
+        if talent.deeperStratagem then deepStrat = 1 else deepStrat = 0 end
         if trait.shroudedSuffocation.active() then suffocated = 1 else suffocated = 0 end
         if stealthedRogue then stealthed = 1 else stealthed = 0 end
         if #enemies.yards10 >= 5 then manyTargets = 1 else manyTargets = 0 end

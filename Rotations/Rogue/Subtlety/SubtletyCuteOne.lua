@@ -259,8 +259,8 @@ local function runRotation()
 
         -- Numeric Returns
         if talent.darkShadow then darkShadow = 1 else darkShadow = 0 end
-        if talent.deeperStrategem then deepStrat = 1 else deepStrat = 0 end
-        if talent.deeperStrategem and buff.vanish.exists() then deepVanish = 1 else deepVanish = 0 end
+        if talent.deeperStratagem then deepStrat = 1 else deepStrat = 0 end
+        if talent.deeperStratagem and buff.vanish.exists() then deepVanish = 1 else deepVanish = 0 end
         if combatTime < 10 then justStarted = 1 else justStarted = 0 end
         if talent.masterOfShadows then masterShadow = 1 else masterShadow = 0 end
         if talent.nightstalker then nightstalker = 1 else nightstalker = 0 end

@@ -879,7 +879,7 @@ function br.loader:new(spec,specName)
     end
 
     function ComboMaxSpend()
-        return br.player.talent.deeperStrategem and 6 or 5
+        return br.player.talent.deeperStratagem and 6 or 5
     end
 
     function ComboSpend()
