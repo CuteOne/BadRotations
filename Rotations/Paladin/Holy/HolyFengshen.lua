@@ -827,6 +827,10 @@ local function runRotation()
 				if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
 					TargetUnit("focustarget")
 				end
+				-- Start Attack
+				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+					StartAttack()
+				end
 				--Consecration
 				if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target",204242) == 0 and not moving and not buff.avengingCrusader.exists() then
 					if cast.consecration() then return true end
