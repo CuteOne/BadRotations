@@ -6,7 +6,8 @@
 local function createToggles() -- Define custom toggles
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "This is the only mode for this rotation.", highlight = 1, icon = br.player.spell.solarWrath }
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.solarWrath },
+        [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 1, icon = br.player.spell.starsurge }
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
@@ -108,6 +109,7 @@ local function runRotation()
 		UpdateToggle("Defensive",0.25)
 		UpdateToggle("Interrupt",0.25)
 		UpdateToggle("StarsurgeAstralPower",0.25)
+		br.player.mode.rotation = br.data.settings[br.selectedSpec].toggles["Rotation"]
 		br.player.mode.starsurgeAstralPower = br.data.settings[br.selectedSpec].toggles["StarsurgeAstralPower"]
 --------------
 --- Locals ---
@@ -373,22 +375,35 @@ local function actionList_main()
         end
 	end
 
-	if isChecked("Starfall priority") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+	if mode.rotation ~= 2 and isChecked("Starfall priority") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", nil, getValue("Starfall priority"), starfallRadius) then return true end
 	end
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
-    for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-		if getFacing("player", thisUnit) then
-			if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
-				if cast.sunfire(thisUnit,"aoe") then return true end
-			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
-				if cast.moonfire(thisUnit,"aoe") then return true end
-			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
-				if cast.stellarFlare(thisUnit,"aoe") then return true end
+	if mode.rotation ~= 2 then
+		for i = 1, #enemies.yards45 do
+			local thisUnit = enemies.yards45[i]
+			if getFacing("player", thisUnit) then
+				if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
+					if cast.sunfire(thisUnit,"aoe") then return true end
+				elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+					if cast.moonfire(thisUnit,"aoe") then return true end
+				elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+					if cast.stellarFlare(thisUnit,"aoe") then return true end
+				end
 			end
 		end
-    end
+	end
+	if mode.rotation == 2 then
+		if getFacing("player", "target") then
+			if astralPowerDeficit >= 7 and debuff.sunfire.remain("target") < 5.4 and ttd("target") > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
+				if cast.sunfire("target") then return true end
+			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain("target") < 6.6 and ttd("target") > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+				if cast.moonfire("target") then return true end
+			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain("target") < 7.2 and ttd("target") > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+				if cast.stellarFlare("target") then return true end
+			end
+		end
+	end
 	-- Rotations
 	if not moving and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
 		if cast.lunarStrike() then return true end
@@ -396,10 +411,10 @@ local function actionList_main()
 	if not moving and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
 		if cast.solarWrath() then return true end
 	end
-	if #enemies.yards45 < 3 and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
+	if (#enemies.yards45 < getValue("Starfall") or mode.rotation == 2) and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
 	end
-	if isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+	if mode.rotation ~= 2 and isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", nil, getValue("Starfall"), starfallRadius) then return true end
 	end
 	if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
