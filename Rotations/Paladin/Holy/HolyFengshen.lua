@@ -828,7 +828,7 @@ local function runRotation()
 					TargetUnit("focustarget")
 				end
 				-- Start Attack
-				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance("target") <= 5 then
+				if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
 					StartAttack()
 				end
 				--Consecration
