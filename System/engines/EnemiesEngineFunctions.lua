@@ -529,6 +529,7 @@ function isSafeToAttack(unit)
 		for i = 1, #br.lists.noTouchUnits do
 			local noTouch = br.lists.noTouchUnits[i]
 			if noTouch.unitID == 1 or noTouch.unitID == unitID then
+				if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
 				if noTouch.buff > 0 then
 					-- Not Safe with Buff/Debuff
 					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
