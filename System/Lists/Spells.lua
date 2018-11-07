@@ -2975,7 +2975,6 @@ br.lists.spells = {
             },
             buffs                           = {
                 backdraft                   = 117828, --196406,
-                conflagrationOfChaos        = 196546,
                 darkSoul                    = 113858,
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
@@ -2983,10 +2982,10 @@ br.lists.spells = {
                 lordOfFlames                = 224103,
             },
             debuffs                         = {
+                conflagrate                 = 265931,
                 eradication                 = 196414,
                 immolate                    = 157736,
                 havoc                       = 80240,
-                roaringBlaze                = 205184,
             },
             glyphs                          = {
 
