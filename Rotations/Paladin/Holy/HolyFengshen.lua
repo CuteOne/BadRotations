@@ -389,7 +389,7 @@ local function runRotation()
 			end
 		end
 		-- Jagged Nettles and Dessication logic
-		if GetObjectID("boss1") == 131823 or GetObjectID("boss1") == 134993 then
+		if inInstance and inCombat then
 			for i= 1, #br.friend do
 				if getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,267626) ~= 0 then
 					if getSpellCD(20473) == 0 then
@@ -1197,7 +1197,7 @@ local function runRotation()
 			end
 		end
 	if (not IsMounted() or buff.divineSteed.exists()) then
-		if pause() or isCastingSpell(spell.redemption) or isCastingSpell(spell.absolution) or drinking then
+		if pause() or drinking then
 			return true
 		else
 			---------------------------------

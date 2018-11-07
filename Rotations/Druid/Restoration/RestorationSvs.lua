@@ -265,20 +265,6 @@ local function runRotation()
 		if not isCastingSpell(spell.regrowth) then
 			regrowth_target = nil
 		end
-		-- Temple of Sethraliss
-		if GetObjectID("target") == 133392 and inCombat then
-			if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-				if talent.germination and not buff.rejuvenationGermination.exists("target") then
-					if CastSpellByName(GetSpellInfo(774),"target") then return true end
-				end
-				if not buff.rejuvenation.exists("target") then
-					if CastSpellByName(GetSpellInfo(774),"target") then return true end
-				end
-				if buff.rejuvenation.exists("target") then
-					if CastSpellByName(GetSpellInfo(8936),"target") then return true end
-				end
-			end
-		end
 		-- Overhealing Cancel
 		if isChecked("Overhealing Cancel") and regrowth_target ~= nil then
 			if getHP(regrowth_target) > getValue("Overhealing Cancel") and isCastingSpell(spell.regrowth) then
@@ -360,6 +346,43 @@ local function runRotation()
 				CastSpellByName(GetSpellInfo(spell.efflorescence),"cursor")
 				LastEfflorescenceTime = GetTime()
 				return true
+			end
+		end
+
+		local function BossEncounterCase()
+			-- Temple of Sethraliss
+			if GetObjectID("target") == 133392 then
+				if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
+					if talent.germination and not buff.rejuvenationGermination.exists("target") then
+						if CastSpellByName(GetSpellInfo(774),"target") then return true end
+					end
+					if not buff.rejuvenation.exists("target") then
+						if CastSpellByName(GetSpellInfo(774),"target") then return true end
+					end
+					if buff.rejuvenation.exists("target") then
+						if CastSpellByName(GetSpellInfo(8936),"target") then return true end
+					end
+				end
+			end
+			if inInstance then
+				for i= 1, #br.friend do
+					-- Jagged Nettles and Dessication logic
+					if getDebuffRemain(br.friend[i].unit,260741) ~= 0 or getDebuffRemain(br.friend[i].unit,267626) ~= 0 then
+						if getSpellCD(18562) == 0 then
+							if cast.swiftmend(br.friend[i].unit) then return true end
+						end
+						if getSpellCD(18562) > gcdMax then
+							if cast.regrowth(br.friend[i].unit) then return true end
+						end
+					end
+					-- Devour
+					if getDebuffRemain(br.friend[i].unit,255421) ~= 0 and br.friend[i].hp <= 90 then
+						if getSpellCD(102342) == 0 then
+							if cast.ironbark(br.friend[i].unit) then return true end
+						end
+						if cast.regrowth(br.friend[i].unit) then return true end
+					end
+				end
 			end
 		end
 
@@ -1088,7 +1111,7 @@ local function runRotation()
 		--- Rotations ---
 		-----------------
 		-- Pause
-		if pause() or mode.rotation == 4 or travel or IsMounted() or flight or stealthed or drinking or buff.shadowmeld.exists() or isCastingSpell(spell.tranquility) then
+		if pause() or mode.rotation == 4 or travel or IsMounted() or flight or stealthed or drinking then
 			return true
 		else
 			---------------------------------
@@ -1100,8 +1123,8 @@ local function runRotation()
 				if actionList_PreCombat() then return end
 				if actionList_Decurse() then return end
 				if isChecked("OOC Healing") then
-					if actionList_SingleTarget() then return end
 					if actionList_AOEHealing() then return end
+					if actionList_SingleTarget() then return end
 					if actionList_RejuvenationMode() then return end
 				end
 			end -- End Out of Combat Rotation
@@ -1110,6 +1133,7 @@ local function runRotation()
 			-----------------------------
 			if inCombat then
 				if key() then return end
+				if BossEncounterCase() then return end
 				if actionList_Defensive() then return end
 				if actionList_Cooldowns() then return end
 				if actionList_Interrupts() then return end
