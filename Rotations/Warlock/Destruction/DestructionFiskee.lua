@@ -647,7 +647,7 @@ local function runRotation()
           if cast.darkSoul("player") then return true end
         end
         if isChecked("Racial") and not moving then
-            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" then
+            if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
                 if race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
                 else
