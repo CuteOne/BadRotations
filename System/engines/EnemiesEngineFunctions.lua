@@ -245,7 +245,7 @@ function findBestUnit(range,facing)
 				-- if distance < range then
 					if isChecked("Prioritize Totems") and isTotem(thisUnit) then
 						return thisUnit
-					elseif getOptionValue("Wise Target") == 4 then -- abs Lowest
+					elseif getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest
 						if currHP == nil or UnitHealth(thisUnit) < currHP then
 							currHP = UnitHealth(thisUnit)
 							bestUnit = thisUnit
