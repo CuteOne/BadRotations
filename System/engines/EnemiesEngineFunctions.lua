@@ -37,6 +37,16 @@ local function IsCritter(checkID)
 	return false
 end
 
+--Check Totem
+local function isTotem(unit)
+	local creatureType = UnitCreatureType(unit)
+	if creatureType ~= nil then
+	  if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+	end
+	return false
+end
+
+--Update OM
 function updateOM()
 	local startTime = debugprofilestop()
 	local inCombat = UnitAffectingCombat("player")
@@ -218,28 +228,25 @@ end
 
 function findBestUnit(range,facing)
 	local startTime = debugprofilestop()
-	local bestUnitCoef = 0
+	local bestUnitCoef
 	local bestUnit = bestUnit or nil
 	local enemyList = getEnemies("player",range)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
-	if bestUnit == nil 
+	if bestUnit == nil
 --		or GetTime() > lastCheckTime 
 		then
 		-- for k, v in pairs(enemyList) do
 		if #enemyList > 0 then
-			local currHP = UnitHealth(enemyList[1])
+			local currHP
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
 				-- local thisUnit = v.unit
 				-- local distance = getDistance(thisUnit)
 				-- if distance < range then
-					if isChecked("Prioritize Totems") then
-						if UnitCreatureType(thisUnit) == "Totem" then
-							bestUnit = thisUnit
-							return bestUnit
-						end
+					if isChecked("Prioritize Totems") and isTotem(thisUnit) then
+						return thisUnit
 					elseif getOptionValue("Wise Target") == 4 then -- abs Lowest
-						if UnitHealth(thisUnit) < currHP then
+						if currHP == nil or UnitHealth(thisUnit) < currHP then
 							currHP = UnitHealth(thisUnit)
 							bestUnit = thisUnit
 						end
@@ -247,7 +254,7 @@ function findBestUnit(range,facing)
 						local coeficient = getUnitCoeficient(thisUnit) or 0
 						local isFacing = getFacing("player",thisUnit)
 						local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-						if coeficient >= 0 and coeficient > bestUnitCoef and not isCC and (not facing or isFacing) then
+						if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) and not isCC and (not facing or isFacing) then
 							bestUnitCoef = coeficient
 							bestUnit = thisUnit
 						end
