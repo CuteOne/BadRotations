@@ -64,8 +64,10 @@ local function createOptions()
 		-- Racial
 		br.ui:createCheckbox(section,"Racial")
 		-- Trinkets
-		br.ui:createSpinner(section, "Trinkets HP",  70,  0,  100,  5,  "Health Percentage to use at")
-		br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
+		br.ui:createSpinner(section, "Trinkets 1",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdownWithout(section,"Trinkets 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
+		br.ui:createSpinner(section, "Trinkets 2",  70,  0,  100,  5,  "Health Percentage to use at")
+		br.ui:createDropdownWithout(section,"Trinkets 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFGround"}, 1, "","|cffFFFFFFSelect Trinkets mode.")
 		-- Seraphim
 		br.ui:createSpinner(section, "Seraphim",  0,  0,  20,  2,  "|cffFFFFFFEnemy TTD")
 		-- Avenging Wrath
@@ -719,12 +721,24 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() or burst then
 				-- Trinkets
-				if isChecked("Trinkets HP") and php <= getOptionValue("Trinkets HP") then
-					if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
-						useItem(13)
+				if isChecked("Trinkets 1") and canUse(13) then
+					if getOptionValue("Trinkets 1 Mode") == 1 then
+						if php <= getOptionValue("Trinkets 1") then
+							useItem(13)
+							return true
+						end
+					elseif getOptionValue("Trinkets 1 Mode") == 2 then
+						if useItemGround("target",13,40,0,nil) then return true end
 					end
-					if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
-						useItem(14)
+				end
+				if isChecked("Trinkets 2") and canUse(14) then
+					if getOptionValue("Trinkets 2 Mode") == 1 then
+						if php <= getOptionValue("Trinkets 2") then
+							useItem(14)
+							return true
+						end
+					elseif getOptionValue("Trinkets 2 Mode") == 2 then
+						if useItemGround("target",14,40,0,nil) then return true end
 					end
 				end
 				-- Racials
@@ -853,7 +867,7 @@ local function runRotation()
 				if getOptionValue("APL Mode") == 1 then
 					-- Shield of the Righteous
 					if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and (not sotrTime or GetTime() - sotrTime > 0.5 ) then
-						if (not talent.seraphim and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) 
+						if (not talent.seraphim and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists())
 						or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
 							if CastSpellByName(GetSpellInfo(53600)) then return end
 							sotrTime = GetTime()

@@ -841,7 +841,7 @@ local function runRotation()
 				end
 				-- Light's Hammer
 				if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
-				if cast.lightsHammer("best",nil,getValue("Light's Hammer Damage"),10) then return true end
+					if cast.lightsHammer("best",false,getOptionValue("Light's Hammer Damage"),10) then return true end
 				end
 				-- Judgement
 				if isChecked("Judgement") and cast.able.judgment() and getFacing("player",units.dyn30) then
