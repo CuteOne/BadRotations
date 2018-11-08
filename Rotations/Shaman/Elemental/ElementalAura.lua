@@ -71,13 +71,13 @@ local function createOptions()
         ---  TARGET OPTIONS   ---  -- Define Target Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Targets")
-            br.ui:createSpinner(section, "Maximum FlameShock Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use FlameShock in AoE. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "Maximum LB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Lava Burst in AoE. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "Maximum EB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Elemental Blast in AoE. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "SK Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Storm Keeper. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "LMT Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Liquid Magma Totem. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "Earthquake Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Earthquake. Min: 1 / Max: 10 / Interval: 1" )
-            br.ui:createSpinner(section, "Lava Beam Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Lava Beam. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Maximum FlameShock Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use FlameShock in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Maximum LB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Lava Burst in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Maximum EB Targets", 2, 1, 10, 1, "|cffFFFFFFSet to maximum number of targets to use Elemental Blast in AoE. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "SK Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Storm Keeper. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "LMT Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Liquid Magma Totem. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Earthquake Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Earthquake. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Lava Beam Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired number of targets needed to use Lava Beam. Min: 1 / Max: 10 / Interval: 1" )
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -191,6 +191,7 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        enemies.get(5)
         enemies.get(10)
         enemies.get(20) --enemies.yards20
         enemies.get(30) --enemies.yards30 = br.player.enemies(30)
