@@ -153,6 +153,33 @@ interruptWhitelist = { -- List provided by Admire
 	265433, -- withering-curse
 	-- Underrot end
 	
+	-- Freehold start
+	257397, -- healing-balm
+	258777, -- sea-spout
+	257732, -- shattering-bellow
+	257736, -- thundering-squall
+	257899, -- painful-motivation
+	256060, -- revitalizing-brew
+	-- Freehold end
+	
+	-- Waycrest manor start
+	265368, -- spirited-defense
+	263891, -- grasping-thorns
+	266035, -- bone-splinter
+	266036, -- drain-essence
+	278551, -- soul-fetish
+	278474, -- effigy-reconstruction
+	264050, -- infected-thorn
+	264520, -- severing-serpent
+	263943, -- etch
+	265407, -- dinner-bell
+	265876, -- ruinous-volley
+	264105, -- runic-mark
+	263959, -- soul-volley
+	268278, -- wracking-chord
+	266225, -- darkened-lightning
+	-- Waycrest manor end
+	
 	191823, -- Furious Blast
 	191848, -- Rampage
 	192003, -- Blazing Nova
