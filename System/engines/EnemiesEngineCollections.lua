@@ -180,6 +180,16 @@ interruptWhitelist = { -- List provided by Admire
 	266225, -- darkened-lightning
 	-- Waycrest manor end
 	
+	-- Temple of sethraliss start
+	265968, -- healing-surge
+	263318, -- jolt
+	261635, -- stoneshield-potion
+	261624, -- greater-healing-potion
+	265912, -- accumulate-charge
+	272820, -- shock
+	268061, -- chain-lightning
+	-- Temple of sethraliss end
+	
 	191823, -- Furious Blast
 	191848, -- Rampage
 	192003, -- Blazing Nova
