@@ -493,6 +493,7 @@ function hasBloodLust()
 		or UnitBuffID("player",32182)       -- Heroism
 		or UnitBuffID("player",90355) 		-- Netherwinds
 		or UnitBuffID("player",80353)       -- Timewarp
+		or UnitBuffID("player",264667)      -- Primal Rage
 	then
 		return true
 	else
