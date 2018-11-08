@@ -14,5 +14,8 @@ br.lists.ccUnits = {
 	[76935] = { name = "Black Iron Drake-Keeper", fleeing = true }, -- Hhould be stunned/cc when running towards whelps
 	-- Proving Ground
 	[71415] = { name = "Banana Tosser(Small)", buff = 142639 },
-	[71414] = { name = "Banana Tosser(Large)", buff = 142639 }
+	[71414] = { name = "Banana Tosser(Large)", buff = 142639 },
+	-- BFA Dungeons
+	[142587] = { name = "Infest)", spell = 278444 }, -- Waycrest Manor 
+	[133593] = { name = "Repair)", spell = 262554 } -- Motherload
 }
