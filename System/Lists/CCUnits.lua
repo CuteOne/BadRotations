@@ -22,5 +22,5 @@ br.lists.ccUnits = {
 	[129640] = { name = "Clamping Jaws)", spell = 256897 }, -- Seige of Boralus
 	[144168] = { name = "Ferocity)", spell = 272888 }, -- Seige of Boralus A
 	[137517] = { name = "Ferocity)", spell = 272888 } -- Seige of Boralus A-H
-}
+
 }
