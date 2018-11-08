@@ -119,8 +119,8 @@ dispellOffensiveBuffs = {
 	[154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
 	[144351] = "Magic"
 }
-interruptWhitelist = { -- List provided by Admire
-	-- Shrine of storm start
+interruptWhitelist = {
+	-- Shrine of Storm start
 	268030, -- mending-rapids
 	274438, -- tempest
 	267818, -- slicing-blast
@@ -129,10 +129,8 @@ interruptWhitelist = { -- List provided by Admire
 	276767, -- consuming-void
 	268375, -- detect-thoughts
 	267809, -- consume-essence
-	267459, -- consume-essence Boss
-	-- Shrine of storm end
-	
-        -- Motherload! start
+	-- Shrine of Storm end
+	-- Motherload! start
 	268129, -- kajacola-refresher
 	268709, -- earth-shield
 	268702, -- furious-quake
@@ -140,9 +138,7 @@ interruptWhitelist = { -- List provided by Admire
 	263066, -- transfiguration-serum
 	262540, -- overcharge
 	269090, -- artillery-barrage
-	263202, -- rock-lance
 	-- Motherload! end
-	
 	-- Underrot start
 	265089, -- dark-reconstitution
 	278755, -- harrowing-despair
@@ -151,8 +147,8 @@ interruptWhitelist = { -- List provided by Admire
 	266201, -- bone-shield
 	272183, -- raise-dead
 	265433, -- withering-curse
+	272180, -- death-bolt
 	-- Underrot end
-	
 	-- Freehold start
 	257397, -- healing-balm
 	258777, -- sea-spout
@@ -161,8 +157,7 @@ interruptWhitelist = { -- List provided by Admire
 	257899, -- painful-motivation
 	256060, -- revitalizing-brew
 	-- Freehold end
-	
-	-- Waycrest manor start
+	-- Waycrest Manor start
 	265368, -- spirited-defense
 	263891, -- grasping-thorns
 	266035, -- bone-splinter
@@ -178,9 +173,8 @@ interruptWhitelist = { -- List provided by Admire
 	263959, -- soul-volley
 	268278, -- wracking-chord
 	266225, -- darkened-lightning
-	-- Waycrest manor end
-	
-	-- Temple of sethraliss start
+	-- Waycrest Manor end
+	-- Temple of Sethraliss start
 	265968, -- healing-surge
 	263318, -- jolt
 	261635, -- stoneshield-potion
@@ -188,8 +182,29 @@ interruptWhitelist = { -- List provided by Admire
 	265912, -- accumulate-charge
 	272820, -- shock
 	268061, -- chain-lightning
-	-- Temple of sethraliss end
-	
+	-- Temple of Sethraliss end
+	-- Kings Rest start
+	270901, -- induce-regeneration
+	267763, -- wretched-discharge
+	270492, -- hex
+	267273, -- poison-nova
+	269972, -- shadow-bolt-volley
+	270923, -- shadow-bolt
+	-- Kings Rest end
+	-- Tol Dagor start
+	258128, -- debilitating-shout
+	258153, -- watery-dome
+	257791, -- howling-fear
+	258313, -- handcuff
+	258634, -- fuselighter
+	258935, -- inner-flames
+	-- Tol Dagor end
+	-- Siege of Boralus start
+	274569, -- revitalizing-mist
+	272571, -- choking-waters
+	256957, -- watertight-shell
+	-- Siege of Boralus end
+	-- Old Content start 
 	191823, -- Furious Blast
 	191848, -- Rampage
 	192003, -- Blazing Nova
@@ -293,6 +308,7 @@ interruptWhitelist = { -- List provided by Admire
 	200631, -- Unnerving Screech
 	225562, -- Blood Metamorphosis
 	211875, -- Bladestorm
+	-- Old Content end
 }
 validUnitBypassList = {
 	[133492] = "Corruption Corpuscle",

@@ -17,5 +17,10 @@ br.lists.ccUnits = {
 	[71414] = { name = "Banana Tosser(Large)", buff = 142639 },
 	-- BFA Dungeons
 	[142587] = { name = "Infest)", spell = 278444 }, -- Waycrest Manor 
-	[133593] = { name = "Repair)", spell = 262554 } -- Motherload
+	[133593] = { name = "Repair)", spell = 262554 }, -- Motherload
+	[134331] = { name = "Channel Lightning)", spell = 270889 }, -- Motherload
+	[129640] = { name = "Clamping Jaws)", spell = 256897 }, -- Seige of Boralus
+	[144168] = { name = "Ferocity)", spell = 272888 }, -- Seige of Boralus A
+	[137517] = { name = "Ferocity)", spell = 272888 } -- Seige of Boralus A-H
+}
 }
