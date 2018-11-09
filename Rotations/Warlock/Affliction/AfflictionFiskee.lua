@@ -45,6 +45,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Phantom Singularity diabled", tip = "Phantom Singularity diabled.", highlight = 0, icon = br.player.spell.phantomSingularity}
     };
     CreateButton("PS",6,0)
+-- Seed of Corruption Button
+    SeedModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Seed of Corruption enabled", tip = "Rotation will use Seed of Corruption.", highlight = 1, icon = br.player.spell.seedOfCorruption},
+        [2] = { mode = "Off", value = 2 , overlay = "Seed of Corruption diabled", tip = "Seed of Corruption diabled.", highlight = 0, icon = br.player.spell.seedOfCorruption}
+    };
+    CreateButton("Seed",7,0)
 end
 
 ---------------
@@ -168,6 +174,7 @@ local function runRotation()
     UpdateToggle("Interrupt",0.25)
     br.player.mode.ua = br.data.settings[br.selectedSpec].toggles["UA"]
     br.player.mode.ps = br.data.settings[br.selectedSpec].toggles["PS"]
+    br.player.mode.seed = br.data.settings[br.selectedSpec].toggles["Seed"]
 
 --------------
 --- Locals ---
@@ -234,6 +241,7 @@ local function runRotation()
     if summonTime == nil then summonTime = 0 end
 
     local function ttd(unit)
+        if UnitIsPlayer(unit) then return 999 end
         local ttdSec = getTTD(unit)
         if getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
@@ -500,7 +508,7 @@ local function runRotation()
             end
         end
         local unitAroundUnit = getEnemies(thisUnit, 10, true)
-        if getFacing("player",thisUnit) and #unitAroundUnit > seedTargetsHit and ttd(thisUnit) > 8 then
+        if mode.seed == 1 and getFacing("player",thisUnit) and #unitAroundUnit > seedTargetsHit and ttd(thisUnit) > 8 then
             seedHit = 0
             seedCorruptionExist = 0
             for q = 1, #unitAroundUnit do
@@ -897,7 +905,7 @@ local function runRotation()
             end
         end
         -- actions+=/corruption,cycle_targets=1,if=active_enemies<3+talent.writhe_in_agony.enabled&refreshable&target.time_to_die>10
-        if seedTargetsHit < 3 + writheInAgonyValue or moving then
+        if seedTargetsHit < 3 + writheInAgonyValue or moving or mode.seed == 2 then
             if (debuff.corruption.refresh("target") or not debuff.corruption.exists("target")) and ttd("target") > 10 then
                 if cast.corruption("target") then return true end
             end
@@ -1105,7 +1113,7 @@ local function runRotation()
     --------------------------
     --- In Combat Rotation ---
     --------------------------
-        if inCombat and profileStop==false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
+        if inCombat and profileStop==false and #enemyTable40 > 0
             and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
     ------------------------------
     --- In Combat - Interrupts ---
