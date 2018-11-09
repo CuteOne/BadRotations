@@ -90,8 +90,10 @@ local function createOptions()
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
         -- Spread agony on single target
             br.ui:createCheckbox(section, "Spread Agony on ST", "|cffFFFFFF Check to spread agony when running in single target")
-        -- Spread agony on single target
+        -- Auto target
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
+        -- Dot everything
+            br.ui:createCheckbox(section, "Dot Everything (WARNING)", "|cffFFFFFF Will dot ALL units around, don't use in raids/dungeons")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -220,7 +222,11 @@ local function runRotation()
 
     units.get(40)
     enemies.get(15,"target")
-    enemies.get(40)
+    if not isChecked("Dot Everything (WARNING)") then
+        enemies.get(40)
+    else
+        enemies.yards40 = enemies.get(40, "player", true)
+    end
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil or not inCombat then profileStop = false end
