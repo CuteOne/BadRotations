@@ -6,5 +6,7 @@ br.lists.shieldUnits = {
 	[71064] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
 	[71079] = { coef = -100, buff = 142174, frontal = true }, -- when shielded and we are in front of unit, dont attack
 	-- Agatha Challenge Skin
-	[115638] = { coef = -200, buff = 243027} -- Shadow Shield
+	[115638] = { coef = -200, buff = 243027}, -- Shadow Shield
+	-- BFA dungeons
+	[134158] = { coef = -100, spell = 269928, frontal = true }
 }
