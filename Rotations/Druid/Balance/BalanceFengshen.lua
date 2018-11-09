@@ -455,7 +455,7 @@ local function actionList_main()
 			if cast.solarWrath() then return true end
 		end
 	end
-	if getFacing("player", "target") then
+	if moving and getFacing("player", "target") then
 		if cast.moonfire() then return true end
 	end
 end
