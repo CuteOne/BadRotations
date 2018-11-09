@@ -63,7 +63,7 @@ local function createOptions()
 			br.ui:createCheckbox(section, "Arcane Torrent Dispel")
 		end
 		-- Redemption
-		br.ui:createDropdown(section, "Redemption", {"|cffFFFFFFTarget","|cffFFFFFFMouseover"}, 1, "","|cffFFFFFFSelect Redemption Mode.")
+		br.ui:createCheckbox(section, "Redemption")
 		-- Critical
 		br.ui:createSpinner (section, "Critical HP", 30, 0, 100, 5, "","|cffFFFFFFHealth Percent to Critical Heals")
 		-- Overhealing Cancel
@@ -244,7 +244,8 @@ local function runRotation()
 		local charges                                       = br.player.charges
 		local debuff                                        = br.player.debuff
 		local drinking                                      = getBuffRemain("player",192002) ~= 0 or getBuffRemain("player",167152) ~= 0 or getBuffRemain("player",192001) ~= 0
-		local inCombat                                      = br.player.inCombat
+		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") and UnitInRange("target")
+		local inCombat                                      = isInCombat("player")
 		local inInstance                                    = br.player.instance=="party"
 		local inRaid                                        = br.player.instance=="raid"
 		local race                                          = br.player.race
@@ -262,7 +263,6 @@ local function runRotation()
 		-------------
 		local enemies                                       = br.player.enemies
 		local lastSpell                                     = lastSpellCast
-		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
 		local mode                                          = br.player.mode
 		local pullTimer                                     = br.DBM:getPulltimer()
 		local units                                         = br.player.units
@@ -513,13 +513,8 @@ local function runRotation()
 		-- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- Cleanse
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		local function CanIRess()
-			if isChecked("Redemption") then
-				if getOptionValue("Redemption")==1 and not moving and resable and UnitInRange("target") then
-					if cast.redemption("target","dead") then return true end
-				end
-				if getOptionValue("Redemption")==2 and not moving and resable and UnitInRange("mouseover") then
-					if cast.redemption("mouseover","dead") then return true end
-				end
+			if isChecked("Redemption") and not moving and resable then
+				if cast.redemption("target","dead") then return true end
 			end
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -813,7 +808,7 @@ local function runRotation()
 			end
 			if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving then
 				if castWiseAoEHeal(br.friend,spell.lightsHammer,10,getValue("Light's Hammer"),getValue("Light's Hammer Targets"),6,false,true) then return true end
-			end	
+			end
 		end
 		----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		-- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------

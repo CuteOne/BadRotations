@@ -53,6 +53,8 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
+		-- Revive
+		br.ui:createCheckbox(section, "Revive")
 		-- Starfall priority
 		br.ui:createSpinner(section, "Starfall priority",  5,  0,  10,  1,  "","|cffFFFFFFMinimum Starfall priority Targets")
 		-- Starfall
@@ -117,6 +119,7 @@ local function runRotation()
 		local buff                                          = br.player.buff
 		local cast                                          = br.player.cast
 		local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
+		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") and UnitInRange("target")
 		local debuff                                        = br.player.debuff
 		local enemies                                       = br.player.enemies
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), isMoving("player") ~= false or br.player.moving
@@ -196,6 +199,10 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+-- Revive
+if isChecked("Revive") and not inCombat and not moving and resable then
+	if cast.revive("target","dead") then return true end
+end
 -- Rebirth
 if isChecked("Rebirth") and not moving and inCombat then
 	if getOptionValue("Rebirth") == 1

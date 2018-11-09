@@ -76,6 +76,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "","|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
+		-- Revive
+		br.ui:createCheckbox(section, "Revive")
 		-- Necrotic Rot
 		br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "","|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
 		br.ui:checkSectionState(section)
@@ -219,6 +221,7 @@ local function runRotation()
 		local combo                                         = br.player.power.comboPoints.amount()
 		local debuff                                        = br.player.debuff
 		local drinking                                      = getBuffRemain("player",192002) ~= 0 or getBuffRemain("player",167152) ~= 0 or getBuffRemain("player",192001) ~= 0
+		local resable                                       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") and UnitInRange("target")
 		local deadtar                                       = UnitIsDeadOrGhost("target") or isDummy()
 		local hastar                                        = hastar or GetObjectExists("target")
 		local enemies                                       = br.player.enemies
@@ -409,6 +412,10 @@ local function runRotation()
 					end
 				end
 			end -- End Shapeshift Form Management
+			-- Revive
+			if isChecked("Revive") and not moving and resable then
+				if cast.revive("target","dead") then return true end
+			end
 		end -- End Action List - Extras
 
 		-- Action List - Pre-Combat
