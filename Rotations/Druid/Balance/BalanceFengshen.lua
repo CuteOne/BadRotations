@@ -196,6 +196,24 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+-- Rebirth
+if isChecked("Rebirth") and not moving and inCombat then
+	if getOptionValue("Rebirth") == 1
+		and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+		if cast.rebirth("target","dead") then return true end
+	end
+	if getOptionValue("Rebirth") == 2
+		and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+		if cast.rebirth("mouseover","dead") then return true end
+	end
+	if getOptionValue("Rebirth") == 3 then
+		for i =1, #br.friend do
+			if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+				if cast.rebirth(br.friend[i].unit,"dead") then return true end
+			end
+		end
+	end
+end
 local function actionList_OOC()
 	-- Pre-Pull Timer
 	if isChecked("Pre-Pull Timer") then
@@ -264,42 +282,24 @@ local function actionList_main()
 		if isChecked("Remove Corruption") and cast.able.removeCorruption() then
 			if getOptionValue("Remove Corruption")==1 then
 				if canDispel("player",spell.removeCorruption) then
-					if cast.removeCorruption("player") then return end
+					if cast.removeCorruption("player") then return true end
 				end
 			elseif getOptionValue("Remove Corruption")==2 then
 					if canDispel("target",spell.removeCorruption) then
-						if cast.removeCorruption("target") then return end
+						if cast.removeCorruption("target") then return true end
 					end
 			elseif getOptionValue("Remove Corruption")==3 then
 					if canDispel("player",spell.removeCorruption) or canDispel("target",spell.removeCorruption) then
-						if cast.removeCorruption("target") then return end
+						if cast.removeCorruption("target") then return true end
 					end
 			elseif getOptionValue("Remove Corruption")==4 then
 				if canDispel("mouseover",spell.removeCorruption) then
-					if cast.removeCorruption("mouseover") then return end
+					if cast.removeCorruption("mouseover") then return true end
 				end
 			elseif getOptionValue("Remove Corruption")==5 then
 				for i = 1, #br.friend do
 					if canDispel(br.friend[i].unit,spell.removeCorruption) then
-						if cast.removeCorruption(br.friend[i].unit) then return end
-					end
-				end
-			end
-		end
-		-- Rebirth
-		if isChecked("Rebirth") and not moving then
-			if getOptionValue("Rebirth") == 1
-				and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-				if cast.rebirth("target","dead") then return true end
-			end
-			if getOptionValue("Rebirth") == 2
-				and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-				if cast.rebirth("mouseover","dead") then return true end
-			end
-			if getOptionValue("Rebirth") == 3 then
-				for i =1, #br.friend do
-					if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-						if cast.rebirth(br.friend[i].unit,"dead") then return true end
+						if cast.removeCorruption(br.friend[i].unit) then return true end
 					end
 				end
 			end
@@ -376,7 +376,10 @@ local function actionList_main()
 	end
 
 	if mode.rotation ~= 2 and isChecked("Starfall priority") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
-		if cast.starfall("best", nil, getValue("Starfall priority"), starfallRadius) then return true end
+		if cast.starfall("best", false, getValue("Starfall priority"), starfallRadius) then return true end
+	end
+	if FutureAstralPower() >= 95 then
+		if cast.starsurge() then return true end
 	end
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
 	if mode.rotation ~= 2 then
@@ -411,11 +414,11 @@ local function actionList_main()
 	if not moving and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
 		if cast.solarWrath() then return true end
 	end
+	if mode.rotation ~= 2 and isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
+		if cast.starfall("best", false, getValue("Starfall"), starfallRadius) then return true end
+	end
 	if (#enemies.yards45 < getValue("Starfall") or mode.rotation == 2) and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
-	end
-	if mode.rotation ~= 2 and isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
-		if cast.starfall("best", nil, getValue("Starfall"), starfallRadius) then return true end
 	end
 	if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
 		if cast.newMoon() then return true end
@@ -460,7 +463,7 @@ end
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 or buff.shadowmeld.exists() or buff.prowl.exists() then
+        if pause() or mode.rotation == 4 or (GetUnitExists("target") and GetUnitIsFriend("target","player")) or buff.shadowmeld.exists() or buff.prowl.exists() then
             return true
         else
 ---------------------------------
