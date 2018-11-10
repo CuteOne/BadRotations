@@ -60,7 +60,7 @@ local function createOptions()
 		-- Auto Beacon
 		br.ui:createCheckbox(section, "Auto Beacon")
 		if br.player.race == "BloodElf" then
-			br.ui:createCheckbox(section, "Arcane Torrent Dispel")
+			br.ui:createSpinner (section, "Arcane Torrent Dispel", 1, 0, 20, 1, "","|cffFFFFFFMinimum Torrent Targets")
 		end
 		-- Redemption
 		br.ui:createCheckbox(section, "Redemption")
@@ -419,14 +419,19 @@ local function runRotation()
 			end
 		end
 		-- Arcane Torrent
-		if isChecked("Arcane Torrent Dispel") then
-			for i=1, #enemies.yards8 do
-			local thisUnit = enemies.yards8[i]
-				if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
-					if CastSpellByName(GetSpellInfo(select(7, GetSpellInfo(GetSpellInfo(69179))))) then return true end
-				end
-			end
-		end
+        if isChecked("Arcane Torrent Dispel") and race == "BloodElf" then
+            local torrentUnit = 0
+            for i=1, #enemies.yards8 do
+                local thisUnit = enemies.yards8[i]
+                if canDispel(thisUnit, select(7, GetSpellInfo(GetSpellInfo(69179)))) then
+                    torrentUnit = torrentUnit + 1
+                    if torrentUnit >= getOptionValue("Arcane Torrent Dispel") then
+                        if castSpell("player",racial,false,false,false) then return true end
+                        break
+                    end
+                end
+            end
+        end
 		bossHelper()
 		-----------------
 		--- Rotations ---
