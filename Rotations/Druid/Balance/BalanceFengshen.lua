@@ -401,33 +401,29 @@ local function actionList_main()
 	if mode.rotation ~= 2 and isChecked("Starfall priority") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", false, getValue("Starfall priority"), starfallRadius) then return true end
 	end
-	if FutureAstralPower() >= 95 then
+	if FutureAstralPower() >= 95 and getFacing("player", "target") then
 		if cast.starsurge() then return true end
 	end
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds
 	if mode.rotation ~= 2 then
 		for i = 1, #enemies.yards45 do
 			local thisUnit = enemies.yards45[i]
-			if getFacing("player", thisUnit) then
-				if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
-					if cast.sunfire(thisUnit,"aoe") then return true end
-				elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
-					if cast.moonfire(thisUnit,"aoe") then return true end
-				elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
-					if cast.stellarFlare(thisUnit,"aoe") then return true end
-				end
+			if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
+				if castSpell(thisUnit,spell.sunfire,true,false,false,true,false,true,true,false) then return true end
+			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+				if castSpell(thisUnit,spell.moonfire,true,false,false,true,false,true,true,false) then return true end
+			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+				if castSpell(thisUnit,spell.stellarFlare,true,false,false,true,false,true,true,false) then return true end
 			end
 		end
 	end
 	if mode.rotation == 2 then
-		if getFacing("player", "target") then
-			if astralPowerDeficit >= 7 and debuff.sunfire.remain("target") < 5.4 and ttd("target") > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
-				if cast.sunfire("target") then return true end
-			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain("target") < 6.6 and ttd("target") > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
-				if cast.moonfire("target") then return true end
-			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain("target") < 7.2 and ttd("target") > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
-				if cast.stellarFlare("target") then return true end
-			end
+		if astralPowerDeficit >= 7 and debuff.sunfire.remain("target") < 5.4 and ttd("target") > 5.4 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.sunfire()) then
+			if cast.sunfire("target") then return true end
+		elseif astralPowerDeficit >= 7 and debuff.moonfire.remain("target") < 6.6 and ttd("target") > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
+			if cast.moonfire("target") then return true end
+		elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain("target") < 7.2 and ttd("target") > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+			if cast.stellarFlare("target") then return true end
 		end
 	end
 	-- Rotations
@@ -442,7 +438,7 @@ local function actionList_main()
 	if mode.rotation ~= 2 and isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", false, getValue("Starfall"), starfallRadius) then return true end
 	end
-	if (#enemies.yards45 < getValue("Starfall") or mode.rotation == 2) and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
+	if getFacing("player", "target") and (#enemies.yards45 < getValue("Starfall") or mode.rotation == 2) and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
 	end
 	if not isChecked("Farm Mode") then
@@ -482,8 +478,8 @@ local function actionList_main()
 			end
 		end
 	end
-	if moving and getFacing("player", "target") then
-		if cast.moonfire() then return true end
+	if moving then
+		if castSpell("target",spell.moonfire,true,false,false,true,false,true,true,false) then return true end
 	end
 end
 -----------------
