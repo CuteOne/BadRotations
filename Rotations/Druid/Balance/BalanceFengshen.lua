@@ -478,7 +478,7 @@ local function actionList_main()
 			end
 		end
 	end
-	if moving then
+	if moving or not getFacing("player", "target") then
 		if castSpell("target",spell.moonfire,true,false,false,true,false,true,true,false) then return true end
 	end
 end
