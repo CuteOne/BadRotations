@@ -55,13 +55,17 @@ if not metaTable1 then
 	end
 	-- We are checking if the user has a Debuff we either can not or don't want to heal them
 	local function CheckBadDebuff(tar)
-		for i=1, #novaEngineTables.BadDebuffList do
-			if UnitDebuffID(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) or UnitBuffID(tar, GetSpellInfo(novaEngineTables.BadDebuffList[i])) then
-				return false
+		for i=1,40 do
+			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitAura(tar,i,"HELPFUL|HARMFUL")
+			if buffName then
+				if novaEngineTables.BadDebuffList[buffSpellID] ~= nil then
+					return false
+				end
 			end
 		end
 		return true
 	end
+	
 	-- This is for NPC units we do not want to heal. Compare to list in collections.
 	local function CheckSkipNPC(tar)
 		local npcId = (getGUID(tar))
@@ -88,7 +92,7 @@ if not metaTable1 then
 			and UnitIsConnected(tar)
 			and UnitInPhase(tar))
 			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
-			--and CheckBadDebuff(tar)
+			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
 			and UnitInPhase(tar)

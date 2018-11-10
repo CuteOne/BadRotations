@@ -63,6 +63,8 @@ local function updateRate()
 	print("Current Dynamic Target Rate: "..getEnemyUpdateRate())
 end
 
+
+
 local function forewardDisengage() -- from Stinky Twitch
 	local s, d, e = GetSpellCooldown(781)
 	if s == 0 then
@@ -89,6 +91,8 @@ function slashHelpList()
 	if select(2, UnitClass("player")) == "HUNTER" then
 		SlashCommandHelp("br disengage", "Assign to macro to Forward Disengage.")
 	end
+	SlashCommandHelp("br healing", "Adds/Removes Target from Healing List")
+	SlashCommandHelp("br baddebuff spellId", "Adds/Removes Debuff from Do Not Heal List")
 end
 
 slashHelpList()
@@ -235,8 +239,49 @@ function handler(message, editbox)
 		-- else
 		-- 	Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
 		-- end
+	-- Update Rate
 	elseif msg == "updaterate" then
 		updateRate()
+	-- Add/Remove Units/Debuffs
+	elseif msg1 == "healing" then
+		local unit
+		if GetUnitExists("mouseover") then
+			unit = "mouseover"
+		elseif GetUnitExists("focus") then
+			unit = "focus"
+		elseif GetUnitExists("target") then 
+			unit = "target"
+		end
+		if unit then
+			local unitName = UnitName(unit)
+			local unitGUID = UnitGUID(unit)
+			if novaEngineTables.SpecialHealUnitList[unitGUID] ~= nil then
+				novaEngineTables.SpecialHealUnitList[unitGUID] = nil
+				Print("|cffFFDD11"..unitName.. "|cffFF0000 Removed from Special Heal List")
+			else
+				Print("|cffFFDD11"..unitName.. "|cffFF0000 Added to Special Heal List")
+				novaEngineTables.SpecialHealUnitList[unitGUID] = unitName
+			end
+		else
+			Print("No Target Found.  Please Select a Target Before Adding")
+		end
+	elseif msg1 == "debuff" then
+		if msg2 == nil then
+			Print("No Spell Provided to Add")
+		else
+			local spellName,_,_,_,_,_,spellId = GetSpellInfo(msg3)
+			if spellName == nil then
+				Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
+			else
+				if novaEngineTables.BadDebuffList[spellId] ~= nil then
+					novaEngineTables.BadDebuffList[spellId] = nil
+					Print("|cffFFDD11"..spellName.. "|cffFF0000 Removed from Debuff List")
+				else
+					Print("|cffFFDD11"..spellName.. "|cffFF0000 Added to Debuff List")
+					novaEngineTables.BadDebuffList[spellId] = spellName
+				end
+			end
+		end
 	elseif msg == "disengage" then
 		forewardDisengage()
 	elseif msg1 == "showui" then 
