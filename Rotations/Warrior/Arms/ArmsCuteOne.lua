@@ -524,7 +524,7 @@ local function runRotation()
             -- bladestorm,if=rage<30&!buff.deadly_calm.up&bladestorm.mode==1
             if mode.bladestorm == 1	
 			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
-                and getDistance(units.dyn8) < 8 and (rage < 30 and not buff.deadlyCalm.exists() and not buff.sweepingStrikes.exsits())
+                and getDistance(units.dyn8) < 8 and (rage < 30 and not buff.deadlyCalm.exists() and not buff.sweepingStrikes.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
