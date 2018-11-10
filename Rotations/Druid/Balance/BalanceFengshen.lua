@@ -207,7 +207,7 @@ local function runRotation()
 					TargetUnit(thisUnit)
 				end
 				if not inCombat then
-					if cast.moonfire(thisUnit) then return true end
+					if castSpell(thisUnit,spell.moonfire,true,false,false,true,false,true,true,false) then return true end
 				end
 			end
 		end
