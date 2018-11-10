@@ -47,6 +47,8 @@ local function createOptions()
 		local section
 	-- General Options
 	section = br.ui:createSection(br.ui.window.profile, "General")
+		-- Farm Mode
+		br.ui:createCheckbox(section, "Farm Mode")
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  2.5,  0,  10,  0.5,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
@@ -159,6 +161,7 @@ local function runRotation()
 		enemies.get(8,"target")
 		enemies.get(12,"target")
 		enemies.get(15,"target")
+		enemies.get(45, "player", true)
 		enemies.get(45)
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -195,6 +198,19 @@ local function runRotation()
 		starsurgeAstralPower = 40
 	elseif mode.starsurgeAstralPower == 2 then
 		starsurgeAstralPower = starfallAstralPower + 40
+	end
+	if isChecked("Farm Mode") and not travel then
+		for i = 1, #enemies.yards45nc do
+		local thisUnit = enemies.yards45nc[i]
+			if not UnitExists("target") or not getFacing("player","target") or UnitIsDeadOrGhost("target") then
+				if getFacing("player",thisUnit) then
+					TargetUnit(thisUnit)
+				end
+				if not inCombat then
+					if cast.moonfire(thisUnit) then return true end
+				end
+			end
+		end
 	end
 --------------------
 --- Action Lists ---
@@ -415,11 +431,13 @@ local function actionList_main()
 		end
 	end
 	-- Rotations
-	if not moving and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
-		if cast.lunarStrike() then return true end
-	end
-	if not moving and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
-		if cast.solarWrath() then return true end
+	if not isChecked("Farm Mode") then
+		if not moving and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
+			if cast.lunarStrike() then return true end
+		end
+		if not moving and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
+			if cast.solarWrath() then return true end
+		end
 	end
 	if mode.rotation ~= 2 and isChecked("Starfall") and not moving and (not buff.starlord.exists() or buff.starlord.remain() >= 4) and FutureAstralPower() >= starfallAstralPower then
 		if cast.starfall("best", false, getValue("Starfall"), starfallRadius) then return true end
@@ -427,39 +445,41 @@ local function actionList_main()
 	if (#enemies.yards45 < getValue("Starfall") or mode.rotation == 2) and (not buff.starlord.exists() or buff.starlord.remain() >= 4 or (gcd * (FutureAstralPower() / starsurgeAstralPower)) > ttd()) and FutureAstralPower() >= starsurgeAstralPower then
 		if cast.starsurge() then return true end
 	end
-	if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
-		if cast.newMoon() then return true end
-	end
-	if not moving and astralPowerDeficit > 20 + (getCastTime(spell.halfMoon) / 1.5) then
-		if cast.halfMoon() then return true end
-	end
-	if not moving and astralPowerDeficit > 40 + (getCastTime(spell.fullMoon) / 1.5) then
-		if cast.fullMoon() then return true end
-	end
-	if not moving and buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
-		if cast.lunarStrike() then return true end
-	end
-	if not moving and #enemies.yards8t >= 2 then
-		-- Cleave situation: prioritize lunar strike empower > solar wrath empower > lunar strike
-		if buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
+	if not isChecked("Farm Mode") then
+		if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
+			if cast.newMoon() then return true end
+		end
+		if not moving and astralPowerDeficit > 20 + (getCastTime(spell.halfMoon) / 1.5) then
+			if cast.halfMoon() then return true end
+		end
+		if not moving and astralPowerDeficit > 40 + (getCastTime(spell.fullMoon) / 1.5) then
+			if cast.fullMoon() then return true end
+		end
+		if not moving and buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
 			if cast.lunarStrike() then return true end
 		end
-		if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
-			if cast.solarWrath() then return true end
-		end
-		if cast.able.solarWrath() then
-			if cast.lunarStrike() then return true end
-		end
-	elseif not moving then
-		-- ST situation: prioritize solar wrath empower > lunar strike empower > solar wrath
-		if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
-			if cast.solarWrath() then return true end
-		end
-		if buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
-			if cast.lunarStrike() then return true end
-		end
-		if cast.able.solarWrath() then
-			if cast.solarWrath() then return true end
+		if not moving and #enemies.yards8t >= 2 then
+			-- Cleave situation: prioritize lunar strike empower > solar wrath empower > lunar strike
+			if buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
+				if cast.lunarStrike() then return true end
+			end
+			if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
+				if cast.solarWrath() then return true end
+			end
+			if cast.able.solarWrath() then
+				if cast.lunarStrike() then return true end
+			end
+		elseif not moving then
+			-- ST situation: prioritize solar wrath empower > lunar strike empower > solar wrath
+			if buff.solarEmpowerment.exists() and not (buff.solarEmpowerment.stack() == 1 and isCastingSpell(spell.solarWrath)) then
+				if cast.solarWrath() then return true end
+			end
+			if buff.lunarEmpowerment.exists() and not (buff.lunarEmpowerment.stack() == 1 and isCastingSpell(spell.lunarStrike)) then
+				if cast.lunarStrike() then return true end
+			end
+			if cast.able.solarWrath() then
+				if cast.solarWrath() then return true end
+			end
 		end
 	end
 	if moving and getFacing("player", "target") then
