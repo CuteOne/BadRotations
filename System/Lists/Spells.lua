@@ -2293,7 +2293,7 @@ br.lists.spells = {
                 venomRush                   = 152152,
             },
             traits                          = {
-                DoubleDose                  = 273007,
+                doubleDose                  = 273007,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
             }
@@ -3359,6 +3359,7 @@ br.lists.spells = {
             },
             items                               = {
                 battlePotionOfIntellect         = 163222,
+                battlePotionOfAgility           = 163223,
                 convergenceOfFates              = 140806,
                 deceiversGrandDesign            = 147007,
                 defiledAugmentRune              = 140587,

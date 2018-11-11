@@ -314,5 +314,6 @@ validUnitBypassList = {
 	[133492] = "Corruption Corpuscle",
 	[135016] = "Plague Amalgam",
 	[131009] = "Spirit of Gold", --Atal
-	[125828] = "Soulspawn" --Atal
+	[125828] = "Soulspawn", --Atal
+	[134691] = "Static Charged Dervish" --Temple
 }
