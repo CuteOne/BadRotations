@@ -246,7 +246,7 @@ local function runRotation()
         -- Blacklist enemies
         local function isTotem(unit)
           local creatureType = UnitCreatureType(unit)
-          if creatureType ~= nil and GetObjectID(unit) ~= 125977 then --reanimate totem
+          if creatureType ~= nil  and GetObjectID(unit) ~= 125977 and GetObjectID(unit) ~= 127315 then --reanimate totem
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
           end
           return false
@@ -615,8 +615,8 @@ local function runRotation()
         if talent.grimoireOfSacrifice then
           for i = 1, #enemyTable40 do
             local thisUnit = enemyTable40[i].unit
-              if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                if cast.spellLockgrimoire(thisUnit) then return end
+            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+              if cast.spellLockgrimoire(thisUnit) then return end
             end
         end
         elseif activePetId ~= nil and (activePetId == 417 or activePetId == 78158) then
