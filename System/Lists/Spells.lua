@@ -1395,6 +1395,7 @@ br.lists.spells = {
         [268] = {
             abilities                       = {
                 blackoxBrew                 = 115399,
+                blackOxStatue               = 115315,
                 blackoutStrike              = 205523,
                 breathOfFire                = 115181,
                 chiBurst                    = 123986,
