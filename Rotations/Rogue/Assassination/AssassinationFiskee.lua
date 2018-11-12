@@ -44,6 +44,7 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
             br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
+            br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -143,6 +144,25 @@ local function runRotation()
     enemies.get(20)
     enemies.get(20,"player",true)
     enemies.get(30)
+
+    local function shallWeDot(unit)
+        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 then
+            local hpLimit = 0
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                local thisHP = UnitHealthMax(thisUnit)
+                local thisRole = UnitGroupRolesAssigned(thisUnit)
+                if not UnitIsDeadOrGhost(thisUnit) and getDistance(unit, thisUnit) < 40 then
+                    if thisRole == "TANK" then hpLimit = hpLimit + (thisHP * 0.1) end
+                    if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.3) end
+                end
+            end
+            print(hpLimit)
+            if UnitHealthMax(unit) > hpLimit then return true end
+            return false
+        end
+        return true
+    end
 
     local function ttd(unit)
         if UnitIsPlayer(unit) then return 999 end
@@ -478,8 +498,8 @@ local function runRotation()
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
                 if debuff.garrote.refresh(thisUnit) and (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
-                (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive)) and
-                ((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
+                (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
+                (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
@@ -516,7 +536,7 @@ local function runRotation()
         if talent.subterfuge then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if debuff.garrote.refresh(thisUnit) and (ttd(thisUnit) - debuff.garrote.remain(thisUnit)) > 2 then
+                if shallWeDot(thisUnit) and debuff.garrote.refresh(thisUnit) and (ttd(thisUnit) - debuff.garrote.remain(thisUnit)) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
@@ -527,7 +547,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if garroteRemain <= 10 and debuff.garrote.applied(thisUnit) <= 1 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and debuff.garrote.applied(thisUnit) <= 1 and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
