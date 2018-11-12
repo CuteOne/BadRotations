@@ -346,7 +346,7 @@ local function runRotation()
 end -- End runRotation
 
                 if isChecked("Boss Helper") then
-                        bossManager()
+                        bossHelper()
                 end
 local id = 270
 if br.rotations[id] == nil then br.rotations[id] = {} end
