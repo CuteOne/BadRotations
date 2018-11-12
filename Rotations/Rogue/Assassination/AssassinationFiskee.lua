@@ -373,10 +373,10 @@ local function runRotation()
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active() or debuff.garrote.applied("target") > 1) and (not talent.nightstalker or not talent.exsanguinate or cd.exsanguinate.remain() < (5-2*dSEnabled)) then
+            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active() or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or cd.exsanguinate.remain() < (5-2*dSEnabled)) then
                 if cast.vendetta("target") then return true end
             end
-            if isChecked("Vanish") and not stealthedRogue then
+            if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and not debuff.garrote.exists("target") and enemies10 == 1 then
@@ -389,12 +389,12 @@ local function runRotation()
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
-                if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and buff.vendetta.exists() then
+                if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta")) then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
-                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and cd.garrote.remain() > 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
+                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and cd.garrote.remain() == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
