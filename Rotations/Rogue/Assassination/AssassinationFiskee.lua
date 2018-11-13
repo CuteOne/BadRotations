@@ -157,7 +157,6 @@ local function runRotation()
                     if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.3) end
                 end
             end
-            print(hpLimit)
             if UnitHealthMax(unit) > hpLimit then return true end
             return false
         end
