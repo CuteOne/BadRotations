@@ -45,6 +45,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
+            br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -146,7 +147,7 @@ local function runRotation()
     enemies.get(30)
 
     local function shallWeDot(unit)
-        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 then
+        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) then
             local hpLimit = 0
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
@@ -595,7 +596,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if inCombat or cast.last.vanish() or (isValidUnit("target") and getDistance("target") < 5) then
+        if inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (isValidUnit("target") and getDistance("target") < 5))) then
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             -- # Restealth if possible (no vulnerable enemies in combat)
