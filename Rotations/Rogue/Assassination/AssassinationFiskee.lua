@@ -474,7 +474,9 @@ local function runRotation()
             end
         end
         -- actions.direct+=/mutilate,if=variable.use_filler
-        if cast.mutilate("target") then return true end
+        if useFiller then
+            if cast.mutilate("target") then return true end
+        end
     end
 
     local function actionList_Dot()
