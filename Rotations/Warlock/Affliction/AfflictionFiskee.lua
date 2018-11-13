@@ -247,6 +247,11 @@ local function runRotation()
         if ttdSec == -1 then return 999 end
         return ttdSec
     end
+    ---
+    local function isCC(unit)
+        if getOptionCheck("Don't break CCs") then return isLongTimeCCed(Unit) end
+        return false
+    end
 
     --Keybindings
     local shadowfuryKey = false
@@ -416,7 +421,7 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (not isChecked("Dot Everything (WARNING)") or (isChecked("Dot Everything (WARNING)") and not isCC(thisUnit))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
