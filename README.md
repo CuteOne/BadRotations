@@ -301,7 +301,7 @@ Aura   |  Full   | 8.0   |   90%  |  :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Fiskee  |  Full   | 8.0 |   99% | :white_check_mark:
+Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
 
 - Demonology
 
@@ -313,7 +313,7 @@ Chem         |  Full   | 8.0   |   99% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.3.5 |   ??% | :interrobang:
+Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
 
 ### Warrior
 
