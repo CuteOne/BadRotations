@@ -275,7 +275,7 @@ local function runRotation()
             if isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    if getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
+                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
                         if cast.battleShout() then return end
                     end
                 end
