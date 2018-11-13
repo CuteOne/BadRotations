@@ -497,7 +497,8 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.refresh(thisUnit) and (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                if debuff.garrote.refresh(thisUnit) and
+                (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                 (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                 (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
                     if cast.garrote(thisUnit) then return true end
@@ -518,7 +519,7 @@ local function runRotation()
                 local thisUnit = enemyTable5[i].unit
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
                 if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
-                (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive)) and (enemyTable5[i].ttd-ruptureRemain)>4) then
+                (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
                     if cast.rupture(thisUnit) then return true end
                 end
             end
