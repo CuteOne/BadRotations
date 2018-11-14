@@ -183,7 +183,7 @@ function getTotemDistance(Unit1)
   if GetUnitIsVisible(Unit1) then
     -- local objectCount = GetObjectCount() or 0
     for i = 1,GetObjectCount() do
-      if GetUnitIsUnit(UnitCreator(ObjectWithIndex(i)), "Player") and (UnitName(ObjectWithIndex(i)) == "Searing Totem" or UnitName(ObjectWithIndex(i)) == "Magma Totem") then
+      if GetUnitIsUnit(UnitCreator(GetObjectWithIndex(i)), "Player") and (UnitName(GetObjectWithIndex(i)) == "Searing Totem" or UnitName(GetObjectWithIndex(i)) == "Magma Totem") then
         X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
       end
     end

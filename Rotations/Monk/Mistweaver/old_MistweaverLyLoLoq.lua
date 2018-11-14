@@ -317,8 +317,8 @@ local function runRotation()
 
     local function findIllidan()
         for i = 1, ObjectCount() do
-            local name = ObjectName(ObjectWithIndex(i))
-            local object = ObjectWithIndex(i)
+            local name = ObjectName(GetObjectWithIndex(i))
+            local object = GetObjectWithIndex(i)
             --local px, py, pz = ObjectPosition("player")
             --local tx, ty, tz = ObjectPosition(object)
             if name == "Lord Illidan Stormrage" and ObjectExists(object) then
