@@ -1,5 +1,5 @@
 local rotationName = "Fiskee - 8.0.1"
-
+local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
 ---------------
 --- Toggles ---
 ---------------
@@ -28,6 +28,11 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.kick }
     };
     CreateButton("Interrupt",4,0)
+    OpenModes = {
+        [1] = { mode = "Std", value = 1 , overlay = "Standard Rotation", tip = "Uses standard opener logic.", highlight = 1, icon = br.player.spell.garrote },
+        [2] = { mode = "Stun", value = 2 , overlay = "Stun Opener", tip = "Will stun target in opener.", highlight = 1, icon = br.player.spell.cheapShot }
+    };
+    CreateButton("Open",5,0)
 end
 
 ---------------
@@ -106,6 +111,7 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
+    br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
 --------------
 --- Locals ---
 --------------
@@ -147,7 +153,7 @@ local function runRotation()
     enemies.get(30)
 
     local function shallWeDot(unit)
-        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) then
+        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
@@ -269,6 +275,11 @@ local function runRotation()
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
     local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 % (2 * (GetHaste()/100)))
 
+    if not inCombat and mode.open ~= 1 then
+        opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
+    end
+    if mode.open == 1 then opener = true end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -347,6 +358,48 @@ local function runRotation()
                     end
                 end
             end
+        end
+    end
+
+    local function actionList_Opener()
+        if opener == false and isValidUnit("target") and IsSpellInRange(GetSpellInfo(spell.cheapShot), "target") == 1 then
+            if opn1 == false then
+                if not isChecked("Disable Auto Combat") and stealthedRogue then
+                    if cast.cheapShot("target") then
+                        opn1 = true
+                        return true
+                    end
+                elseif (inCombat and debuff.cheapShot.exists("target")) or not stealthedRogue then
+                    opn1 = true
+                end
+            end
+            if opn1 == true and opn2 == false then
+                if cast.garrote("target") then
+                    opn2 = true
+                    return true
+                end
+            end
+            if opn2 == true and opn3 == false and combo >= 4 then opn3 = true end
+            if opn2 == true and opn3 == false then
+                if cast.mutilate("target") then return true end
+            end
+            if opn3 == true and opn4 == false then
+                if cast.rupture("target") then
+                    opn4 = true
+                    return true
+                end
+            end
+            if opn4 == true and opn5 == false and combo >= 4 and gcd < 0.5 then opn5 = true end
+            if opn4 == true and opn5 == false then
+                if cast.mutilate("target") then return true end
+            end
+            if opn5 == true and opn6 == false then
+                if cast.kidneyShot("target") then
+                    opener, opn6 = true, true
+                    return true
+                end
+            end
+            return true
         end
     end
 
@@ -593,10 +646,11 @@ local function runRotation()
         if not inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if actionList_PreCombat() then return true end
         end -- End Out of Combat Rotation
+        if actionList_Opener() then return true end
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (isValidUnit("target") and getDistance("target") < 5))) then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (isValidUnit("target") and getDistance("target") < 5)))) and opener == true then
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             -- # Restealth if possible (no vulnerable enemies in combat)

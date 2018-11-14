@@ -2499,8 +2499,9 @@ br.lists.spells = {
                 vanish                      = 11327 or 115193,
             },
             debuffs                         = {
-                sap                         = 6770,
+                cheapShot                   = 1833,
                 markedForDeath              = 137619,
+                sap                         = 6770,
             },
             glyphs                          = {
                 glyphOfBlackout             = 219693,
