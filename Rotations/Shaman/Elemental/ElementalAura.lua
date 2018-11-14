@@ -355,8 +355,8 @@ local function runRotation()
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
             if #enemies.yards40 <= getValue("Maximum FlameShock Targets") then
                 for i=1, #enemies.yards40 do
-                    if debuff.flameShock.remain(enemies.yards40[i].unit) < 5.4 then
-                        if cast.flameShock() then return true end
+                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
                     end
                 end
             end
@@ -392,8 +392,8 @@ local function runRotation()
             --actions.aoe+=/flame_shock,moving=1,target_if=refreshable
             if isMoving then
                 for i=1, #enemies.yards40 do
-                    if debuff.flameShock.remain(enemies.yards40[i].unit) < 5.4 then
-                        if cast.flameShock() then return true end
+                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
                     end
                 end
             end                                
