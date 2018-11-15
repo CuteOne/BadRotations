@@ -215,34 +215,16 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
--- Revive
-if isChecked("Revive") and not inCombat and not moving and resable then
-	if cast.revive("target","dead") then return true end
-end
--- Rebirth
-if isChecked("Rebirth") and not moving and inCombat then
-	if getOptionValue("Rebirth") == 1
-		and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
-		if cast.rebirth("target","dead") then return true end
-	end
-	if getOptionValue("Rebirth") == 2
-		and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
-		if cast.rebirth("mouseover","dead") then return true end
-	end
-	if getOptionValue("Rebirth") == 3 then
-		for i =1, #br.friend do
-			if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
-				if cast.rebirth(br.friend[i].unit,"dead") then return true end
-			end
-		end
-	end
-end
 local function actionList_OOC()
 	-- Pre-Pull Timer
 	if isChecked("Pre-Pull Timer") then
 		if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
 			if cast.solarWrath() then return true end
 		end
+	end
+	-- Revive
+	if isChecked("Revive") and not moving and resable then
+		if cast.revive("target","dead") then return true end
 	end
 	-- Regrowth
 	if isChecked("OOC Regrowth") and not moving and php <= getValue("OOC Regrowth") then
@@ -274,6 +256,24 @@ local function actionList_main()
 	-- Innervate
 	if isChecked("Innervate") and SpecificToggle("Innervate") and not GetCurrentKeyBoardFocus() then
 		if cast.innervate("mouseover") then return true end
+	end
+	-- Rebirth
+	if isChecked("Rebirth") and not moving then
+		if getOptionValue("Rebirth") == 1
+			and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+			if cast.rebirth("target","dead") then return true end
+		end
+		if getOptionValue("Rebirth") == 2
+			and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+			if cast.rebirth("mouseover","dead") then return true end
+		end
+		if getOptionValue("Rebirth") == 3 then
+			for i =1, #br.friend do
+				if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+					if cast.rebirth(br.friend[i].unit,"dead") then return true end
+				end
+			end
+		end
 	end
     -- Make sure we're in moonkin form if we're not in another form
     if not chicken then
@@ -486,7 +486,7 @@ end
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 or (GetUnitExists("target") and GetUnitIsFriend("target","player")) or buff.shadowmeld.exists() or buff.prowl.exists() then
+        if pause() or mode.rotation == 4 or buff.shadowmeld.exists() or buff.prowl.exists() then
             return true
         else
 ---------------------------------
