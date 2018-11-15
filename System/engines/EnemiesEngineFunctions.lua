@@ -285,7 +285,7 @@ function dynamicTarget(range,facing)
 	then
 		bestUnit = "target"
 	end
-	if (UnitIsDeadOrGhost("target")	or (not UnitExists("target") and hasThreat(bestUnit))
+	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
 	then
 		TargetUnit(bestUnit)
