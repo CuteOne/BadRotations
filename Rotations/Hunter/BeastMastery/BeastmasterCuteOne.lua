@@ -14,29 +14,41 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.bestialWrath },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.bestialWrath },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.bestialWrath }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
     };
-   	CreateButton("Cooldown",2,0)
+       CreateButton("Cooldown",2,0)
+-- BW Button
+    BestialWrathModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use bw according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
+        [2] = { mode = "Off", value = 2 , overlay = "Will hold BW", tip = "Will hold BW until toggled again", highlight = 0, icon = br.player.spell.bestialWrath }
+    };
+    CreateButton("BestialWrath",3,0)       
 -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
-    CreateButton("Defensive",3,0)
+    CreateButton("Defensive",4,0)
 -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.counterShot },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupt",5,0)
     -- MD Button
     MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",5,0)
+    CreateButton("Misdirection",6,0)
+    -- Murder of crows
+    MurderofCrowsModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
+        [2] = { mode = "CD", value = 2 , overlay = "Use MoC only on Cooldowns", tip = "Will Use Murder of Crows Only on Cooldowns", highlight = 0, icon = br.player.spell.aMurderOfCrows }
+    };
+    CreateButton("MurderofCrows",7,0)
     --Pet summon
     PetSummonModes = {
         [1] = { mode = "On", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
@@ -46,18 +58,8 @@ local function createToggles()
         [5] = { mode = "On", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
         [6] = { mode = "off", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
     };
-    CreateButton("PetSummon",6,0)
-    -- -- TT Button
-    -- TitanThunderModes = {
-    --     [1] = { mode = "On", value = 1 , overlay = "Auto Titan Thunder", tip = "Will Use Titan Thunder At All Times", highlight = 1, icon = br.player.spell.titansThunder },
-    --     [2] = { mode = "CD", value = 2 , overlay = "CD Only Titan Thunder", tip = "Will Use Titan Thunder Only with BW", highlight = 0, icon = br.player.spell.titansThunder }
-    -- };
-    -- CreateButton("TitanThunder",6,0)
-    -- MurderofCrowsModes = {
-    --     [1] = { mode = "On", value = 1 , overlay = "Always use MoC", tip = "Will Use Murder of Crows At All Times", highlight = 1, icon = br.player.spell.aMurderOfCrows },
-    --     [2] = { mode = "CD", value = 2 , overlay = "Use MoC only on Cooldowns", tip = "Will Use Murder of Crows Only on Cooldowns", highlight = 0, icon = br.player.spell.aMurderOfCrows }
-    -- };
-    -- CreateButton("MurderofCrows",7,0)
+    CreateButton("PetSummon",8,0)
+
 end
 
 ---------------
@@ -180,16 +182,15 @@ local function runRotation()
 ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
+        UpdateToggle("BestialWrath",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
         UpdateToggle("Misdirection", 0.25)
         br.player.mode.PetSummon = br.data.settings[br.selectedSpec].toggles["PetSummon"]
         UpdateToggle("PetSummon", 0.25)
-        -- br.player.mode.titanthunder = br.data.settings[br.selectedSpec].toggles["TitanThunder"]
-        -- UpdateToggle("TitanThunder", 0.25)
-        -- br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
-        -- UpdateToggle("MurderofCrows",0.25)
+        br.player.mode.murderofcrows = br.data.settings[br.selectedSpec].toggles["MurderofCrows"]
+        UpdateToggle("murderofcrows",0.25)
 
         if isChecked("Spirit Mend") then br.friend:Update() end
 
@@ -808,8 +809,12 @@ local function runRotation()
                         if cast.barbedShot() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Bestial Wrath") and not buff.bestialWrath.exists() then
+                    if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and not buff.bestialWrath.exists() then
                         if cast.bestialWrath() then return end
+                    end
+                    -- Murder of crows
+                    if mode.murderofcrows == 1 and isChecked("A Murder Of Crows / Barrage") then
+                        if cast.aMurderOfCrows(bestUnit) then return end
                     end
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
