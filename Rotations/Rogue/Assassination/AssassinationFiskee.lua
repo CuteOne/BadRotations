@@ -228,11 +228,6 @@ local function runRotation()
                     enemyTable30.lowestTTDUnit = enemyUnit.unit
                     enemyTable30.lowestTTD = enemyUnit.ttd
                 end
-                if enemyUnit.distance <= 10 then
-                    tinsert(enemyTable10, enemyUnit)
-                    if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit) then deadlyPoison10 = false end
-                end
-                if enemyUnit.distance <= 5 then tinsert(enemyTable5, enemyUnit) end
             end
         end
         if #enemyTable30 > 1 then
@@ -248,6 +243,14 @@ local function runRotation()
             table.sort(enemyTable30, function(x,y)
                 return x.enemyScore > y.enemyScore
             end)
+        end
+        for i = 1, #enemyTable30 do
+            local thisUnit = enemyTable30[i]
+            if thisUnit.distance <= 10 then
+                tinsert(enemyTable10, thisUnit)
+                if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
+                if thisUnit.distance <= 5 then tinsert(enemyTable5, thisUnit) end
+            end
         end
         if #enemyTable5 > 1 then
             table.sort(enemyTable5, function(x)
