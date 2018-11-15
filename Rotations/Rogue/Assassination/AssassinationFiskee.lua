@@ -194,6 +194,7 @@ local function runRotation()
         [134503]=true, -- Silithid Warrior
         [137458]=true, -- Rotting Spore
         [139185]=true, -- Minion of Zul
+        [120651]=true -- Explosive
     }
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
@@ -227,11 +228,6 @@ local function runRotation()
                     enemyTable30.lowestTTDUnit = enemyUnit.unit
                     enemyTable30.lowestTTD = enemyUnit.ttd
                 end
-                if enemyUnit.distance <= 10 then
-                    tinsert(enemyTable10, enemyUnit)
-                    if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit) then deadlyPoison10 = false end
-                end
-                if enemyUnit.distance <= 5 then tinsert(enemyTable5, enemyUnit) end
             end
         end
         if #enemyTable30 > 1 then
@@ -247,6 +243,14 @@ local function runRotation()
             table.sort(enemyTable30, function(x,y)
                 return x.enemyScore > y.enemyScore
             end)
+        end
+        for i = 1, #enemyTable30 do
+            local thisUnit = enemyTable30[i]
+            if thisUnit.distance <= 10 then
+                tinsert(enemyTable10, thisUnit)
+                if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit) then deadlyPoison10 = false end
+                if thisUnit.distance <= 5 then tinsert(enemyTable5, thisUnit) end
+            end
         end
         if #enemyTable5 > 1 then
             table.sort(enemyTable5, function(x)
@@ -304,6 +308,15 @@ local function runRotation()
                     if cast.stealth() then return end
                 end
             end
+        end
+        --Burn Units
+        local burnUnits = {
+            [120651]=true, -- Explosive
+            [141851]=true -- Infested
+        }
+        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+            if cast.mutilate("target") then return true end
+            if cast.envenom("target") then return true end
         end
     end
     local function actionList_Defensive()
