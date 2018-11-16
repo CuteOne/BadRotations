@@ -320,6 +320,7 @@ local function runRotation()
         [134503]=true, -- Silithid Warrior
         [137458]=true, -- Rotting Spore
         [139185]=true, -- Minion of Zul
+        [120651]=true -- Explosive
     }
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
@@ -571,6 +572,15 @@ local function runRotation()
                 CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor")
                 return
             end
+        end
+        --Burn Units
+        local burnUnits = {
+            [120651]=true, -- Explosive
+            [141851]=true -- Infested
+        }
+        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+            if cast.unstableAffliction("target") then return true end
+            if cast.shadowBolt("target") then return true end
         end
         --Soulstone
         if isChecked("Auto Soulstone Mouseover") and inCombat and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then

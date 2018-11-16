@@ -260,6 +260,7 @@ local function runRotation()
           [134503]=true, -- Silithid Warrior
           [137458]=true, -- Rotting Spore
           [139185]=true, -- Minion of Zul
+          [120651]=true -- Explosive
         }
 
         local function noDotCheck(unit)
@@ -540,6 +541,16 @@ local function runRotation()
           return
         end
       end
+        --Burn Units
+      local burnUnits = {
+        [120651]=true, -- Explosive
+        [141851]=true -- Infested
+      }
+      if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+          if cast.conflagrate("target") then return true end
+          if cast.incinerate("target") then return true end
+      end
+      --Soulstone
       if isChecked("Auto Soulstone Mouseover") and not moving and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
         if cast.soulstone("mouseover","dead") then return true end
       end
