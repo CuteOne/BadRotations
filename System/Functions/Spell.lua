@@ -129,11 +129,8 @@ function canInterrupt(unit,percentint)
 			castPercent = 0
 		end
 		-- Check if on whitelist (if selected)
-		if isChecked("Interrupt Only Whitelist") then
-			for i = 1, #interruptWhitelist do
-				whitelistID = interruptWhitelist[i]
-				if interruptID == whitelistID then onWhitelist = true; break else onWhitelist = false end
-			end
+		if isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] then
+			 onWhitelist = true
 		end
 		-- Return when interrupt time is met
 		if ((isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid"))) or not isChecked("Interrupt Only Whitelist")) then
