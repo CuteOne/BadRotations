@@ -572,7 +572,7 @@ br.lists.spells = {
                 warriorOfElune              = 202425,
                 soulOfTheForest             = 114107,
                 photosynthesis              = 274902,
-                newMoon                     = 202767,
+                newMoon                     = 274281,
             },
             traits                          = {
                 dawningSun                  = 276152,

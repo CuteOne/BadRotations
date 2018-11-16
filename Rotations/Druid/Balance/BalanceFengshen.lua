@@ -412,7 +412,7 @@ local function actionList_main()
 				if castSpell(thisUnit,spell.sunfire,true,false,false,true,false,true,true,false) then return true end
 			elseif astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.moonfire()) then
 				if castSpell(thisUnit,spell.moonfire,true,false,false,true,false,true,true,false) then return true end
-			elseif astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
+			elseif talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and (not buff.celestialAlignment.exists() and not buff.incarnationChoseOfElune.exists() or not cast.last.stellarFlare()) then
 				if castSpell(thisUnit,spell.stellarFlare,true,false,false,true,false,true,true,false) then return true end
 			end
 		end
@@ -427,11 +427,11 @@ local function actionList_main()
 		end
 	end
 	-- Rotations
-	if not isChecked("Farm Mode") then
-		if not moving and astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
+	if not moving and not isChecked(""Farm Mode"") then
+		if astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
 			if cast.lunarStrike() then return true end
 		end
-		if not moving and astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
+		if astralPowerDeficit >= 12 and buff.solarEmpowerment.stack() == 3 then
 			if cast.solarWrath() then return true end
 		end
 	end
@@ -442,16 +442,18 @@ local function actionList_main()
 		if cast.starsurge() then return true end
 	end
 	if not isChecked("Farm Mode") then
-		if not moving and astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
-			if cast.newMoon() then return true end
+		if talent.newMoon and not moving then
+			if astralPowerDeficit > 10 + (getCastTime(spell.newMoon) / 1.5) then
+				if cast.newMoon() then return true end
+			end
+			if astralPowerDeficit > 20 + (getCastTime(spell.halfMoon) / 1.5) then
+				if cast.halfMoon() then return true end
+			end
+			if astralPowerDeficit > 40 + (getCastTime(spell.fullMoon) / 1.5) then
+				if cast.fullMoon() then return true end
+			end
 		end
-		if not moving and astralPowerDeficit > 20 + (getCastTime(spell.halfMoon) / 1.5) then
-			if cast.halfMoon() then return true end
-		end
-		if not moving and astralPowerDeficit > 40 + (getCastTime(spell.fullMoon) / 1.5) then
-			if cast.fullMoon() then return true end
-		end
-		if not moving and buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
+		if buff.warriorOfElune.exists() or buff.owlkinFrenzy.exists() then
 			if cast.lunarStrike() then return true end
 		end
 		if not moving and #enemies.yards8t >= 2 then
