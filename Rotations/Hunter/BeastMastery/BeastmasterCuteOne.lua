@@ -809,7 +809,7 @@ local function runRotation()
                         if cast.barbedShot() then return end
                     end
                     -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
-                    if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and not buff.bestialWrath.exists() then
+                    if isChecked("Bestial Wrath") and mode.BestialWrath == 1 and not buff.bestialWrath.exists() then
                         if cast.bestialWrath() then return end
                     end
                     -- Murder of crows
