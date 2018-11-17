@@ -427,7 +427,7 @@ local function actionList_main()
 		end
 	end
 	-- Rotations
-	if not moving and not isChecked(""Farm Mode"") then
+	if not moving and not isChecked("Farm Mode") then
 		if astralPowerDeficit >= 16 and (buff.lunarEmpowerment.stack() == 3 or (#enemies.yards8t < 3 and astralPower >= 40 and buff.lunarEmpowerment.stack() == 2 and buff.solarEmpowerment.stack() == 2)) then
 			if cast.lunarStrike() then return true end
 		end

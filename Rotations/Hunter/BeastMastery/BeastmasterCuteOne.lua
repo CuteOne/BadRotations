@@ -182,6 +182,7 @@ local function runRotation()
 ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
+	br.player.mode.bestialWrath = br.data.settings[br.selectedSpec].toggles["BestialWrath"]
         UpdateToggle("BestialWrath",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
