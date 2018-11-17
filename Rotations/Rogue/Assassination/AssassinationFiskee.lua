@@ -492,7 +492,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if talent.exsanguinate and debuff.rupture.remain("target") > (4 + 4 * comboMax) and not debuff.garrote.refreshable("target") then
+        if talent.exsanguinate and debuff.rupture.remain("target") > (4 + 4 * comboMax) and not debuff.garrote.refresh("target") then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -559,7 +559,7 @@ local function runRotation()
         local vanishCheck, vendettaCheck = false, false
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             if isChecked("Vanish") and cd.vanish.remain() == 0 then vanishCheck = true end
-            if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
+            if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end 
         end
         if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 then
             for i = 1, #enemyTable5 do
