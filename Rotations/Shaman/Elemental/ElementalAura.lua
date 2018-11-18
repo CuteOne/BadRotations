@@ -176,7 +176,8 @@ local function runRotation()
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
-        local perk                                          = br.player.perk        
+        local perk                                          = br.player.perk
+        local pet                                           = br.player.pet.list     
         local php                                           = br.player.health
         local power                                         = br.player.power.maelstrom.amount()
         local pullTimer                                     = br.DBM:getPulltimer()
@@ -197,7 +198,13 @@ local function runRotation()
         enemies.get(30) --enemies.yards30 = br.player.enemies(30)
         enemies.get(40) --enemies.yards40 
         enemies.get(8,"target") -- enemies.yards8t
+        enemies.get(10,"target") -- enemies.yards10t
 
+        local fireEle = nil;
+        local earthEle = nil;
+        local stormEle = nil;
+
+        
 --------------------
 --- Action Lists ---
 --------------------
@@ -367,22 +374,24 @@ local function runRotation()
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-            if buff.lavaSurge.exists()  and #enemies.yards40 <= getValue("Maximum LB Targets") then
+            if buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") then
                 if cast.lavaBurst() then return true end
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-            if talent.elementalBlast and #enemies.yards40 <= getValue("Maximum EB Targets") then
+            if talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") then
                 if cast.elementalBlast() then return true end
             end
             -- Lava Beam
             --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
-            if buff.ascendance.exists() and #enemies.yards40 >= getValue("Lava Beam Targets") then
+            if buff.ascendance.exists() and #enemies.yards10t >= getValue("Lava Beam Targets") then
                 if cast.lavaBeam() then return true end
             end             
             -- Chain Lightning
             --actions.aoe+=/chain_lightning
-            if cast.chainLightning() then return end
+            if #enemies.yards10t > 1 then
+                if cast.chainLightning() then return true end
+            end
             -- Lava Burst (Moving)
             --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
             if buff.lavaSurge.exists() and isMoving then
@@ -484,8 +493,8 @@ local function runRotation()
             end
             -- Chain Lightning
             --actions.single_target+=/chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-            if #enemies.yards40 > 1 then
-                if cast.chainLightning() then return true end
+            if #enemies.yards10t > 1 then
+                if cast.chainLightning() then return end
             end
             -- Lightning Bolt            
             --actions.single_target+=/lightning_bolt
@@ -579,11 +588,11 @@ local function runRotation()
                 if cast.elementalBlast() then return true end
             end
             -- Lava Beam (3+ Targets)
-            if #enemies.yards40 >= getValue("Lava Beam Targets") and buff.ascendance.exists() then
+            if #enemies.yards10t >= getValue("Lava Beam Targets") and buff.ascendance.exists() then
                 if cast.lavaBeam() then return true end
             end
             -- Chain Lightning (3+ Targets)
-            if #enemies.yards40 >= 3 and not buff.ascendance.exists() then
+            if #enemies.yards10t >= 3 and not buff.ascendance.exists() then
                 if cast.chainLightning() then return true end
             end
             -- Lava Burst
@@ -607,7 +616,7 @@ local function runRotation()
                 if cast.ascendance() then return true end
             end
             -- Chain Lightning
-            if #enemies.yards40 > 1 and not buff.ascendance.exists() then
+            if #enemies.yards10t > 1 and not buff.ascendance.exists() then
                 if cast.chainLightning() then return true end
             end
             -- Lightning Bolt
@@ -615,6 +624,41 @@ local function runRotation()
             -- Frost Shock (Moving)
             if isMoving then
                 if cast.frostShock() then return true end
+            end
+        end
+        local eyeActive = nil;
+        local function actionList_Elementals()
+            if talent.primalElementalist then
+                if pet ~= nil then
+                    for k, v in pairs(pet) do
+                    -- for i = 1, #br.player.pet do
+                        local thisUnit = pet[k].id or 0
+                        if thisUnit == 61029 then
+                            --print("Fire Elemental Detected")
+                            if #enemies.yards8t > 1 then
+                                --if cast.meteor("pettarget") then end
+                                CastSpellByName(GetSpellInfo(spell.meteor))
+                            end        
+                            if not cd.immolate.exists() then
+                                CastSpellByName(GetSpellInfo(spell.immolate)) 
+                            end                
+                        elseif thisUnit == 77942 then
+                            if eyeActive == nil or GetTime() - eyeActive > 8 then
+                            -- print("Storm Elemental Detected")
+                                if #enemies.yards8t > 1 then
+                                    eyeActive = GetTime()
+                                    CastSpellByName(GetSpellInfo(spell.eyeOfTheStorm))
+                                end
+                            end
+                        elseif thisUnit == 61056 then
+                           -- print("Earth Elemental Detected")
+                            if not buff.hardenSkin.exists() then
+                                CastSpellByName(GetSpellInfo(spell.hardenSkin))
+                            end 
+                            CastSpellByName(GetSpellInfo(spell.pulverize))
+                        end                        
+                    end
+                end
             end
         end
 -----------------
@@ -637,6 +681,7 @@ local function runRotation()
             if inCombat then
                 actionList_Interrupt()
                 actionList_Defensive()
+                actionList_Elementals()
                 --Simc
                 if getOptionValue("APL Mode") == 1 then
                             -- Racial Buffs
@@ -673,10 +718,10 @@ local function runRotation()
                     if useCDs and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
                         if cast.earthElemental() then return true end
                     end
-                    if (#enemies.yards40 > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
+                    if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
                         if actionList_AoE() then return true end
                     else
-                        if (#enemies.yards40 <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
+                        if (#enemies.yards10t <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
                             if actionList_ST() then return true end
                         end
                     end
