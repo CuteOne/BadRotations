@@ -140,6 +140,7 @@ local function runRotation()
     local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists()
     local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
+    local thp                                           = getHP("target")
     local tickTime                                      = 2 / (1 + (GetHaste()/100))
     local trait                                         = br.player.traits
     local units                                         = br.player.units
@@ -523,8 +524,8 @@ local function runRotation()
         if not deadlyPoison10 and useFiller and enemies10 >= 3 then
             if cast.fanOfKnives("player") then return true end
         end
-        -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled)
-        if useFiller and (buff.blindside.exists() or not talent.venomRush) then
+        -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
+        if useFiller and thp < 30 and (buff.blindside.exists() or (not talent.venomRush and not trait.doubleDose.active())) then
             if cast.blindside("target") then return true end
         end
         -- # Tab-Mutilate to apply Deadly Poison at 2 targets
