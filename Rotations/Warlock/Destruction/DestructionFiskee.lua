@@ -548,6 +548,7 @@ local function runRotation()
       }
       if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
           if cast.conflagrate("target") then return true end
+          if cast.shadowburn("target") then return true end
           if cast.incinerate("target") then return true end
       end
       --Soulstone
