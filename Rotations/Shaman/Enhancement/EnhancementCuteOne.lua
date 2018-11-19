@@ -58,7 +58,7 @@ local function createOptions()
         -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
         -- Sundering 
-            br.ui.createSpinner(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
         br.ui:checkSectionState(section)
