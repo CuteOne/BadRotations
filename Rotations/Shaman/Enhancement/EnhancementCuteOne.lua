@@ -57,6 +57,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
         -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
+        -- Sundering 
+            br.ui.createSpinner(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
         br.ui:checkSectionState(section)
@@ -506,22 +508,10 @@ local function runRotation()
             end
         -- Sundering
             -- sundering,if=active_enemies>=3
-            if cast.able.sundering() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn8) < 8 then
+            if cast.able.sundering() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+                and getDistance(units.dyn8) < 8 and #enemies.yards8 >= getOptionValue("Units to Sunder")
+            then
                 if cast.sundering() then return true end
-            end
-        -- Stormstrike/Windstrike
-            -- stormstrike,cycle_targets=1,if=azerite.lightning_conduit.enabled&!debuff.lightning_conduit.up&active_enemies>1&(buff.stormbringer.up|(variable.OCPool70&variable.furyCheck35))
-            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit.active() and #enemies.yards10 > 1 and (buff.stormbringer.exists() or (OCPool70 and furyCheck35)) then
-                for i = 1, #enemies.yards10 do
-                    local thisunit = enemies.yards10[i]
-                    if not debuff.lightningConduit.exists(thisUnit) then
-                        if buff.ascendance.exists() then
-                            if cast.windstrike(thisUnit) then return true end
-                        else
-                            if cast.stormstrike(thisUnit) then return true end
-                        end
-                    end
-                end
             end
             -- stormstrike,if=buff.stormbringer.up|(buff.gathering_storms.up&variable.OCPool70&variable.furyCheck35)
             if (cast.able.stormstrike() or cast.able.windstrike()) and (buff.stormbringer.exists() or (buff.gatheringStorms.exists() and ocPool70 and furyCheck35)) then
@@ -552,7 +542,7 @@ local function runRotation()
             end
         -- Sundering
             -- sundering
-            if cast.able.sundering() and #enemies.yards8 > 0 and getDistance(units.dyn8) < 8 then
+            if cast.able.sundering() and #enemies.yards8 >= getOptionValue("Units to Sunder") and getDistance(units.dyn8) < 8 then
                 if cast.sundering() then return true end
             end
         -- Crash Lightning
@@ -562,12 +552,17 @@ local function runRotation()
             end
         -- Flametongue
             -- flametongue,if=talent.searing_assault.enabled
-            if cast.able.flametongue() and talent.searingAssault then
-                if cast.flametongue() then return true end
+            if cast.able.flametongue() and talent.searingAssault and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
+                for i = 1, #enemies.yards20 do
+                    local thisUnit = enemies.yards20[i]
+                    if #enemies.yards20 == 1 or ttd(thisUnit) > 2 then 
+                        if cast.flametongue(thisUnit) then return true end
+                    end 
+                end
             end
         -- Lava Lash
             -- lava_lash,if=talent.hot_hand.enabled&buff.hot_hand.react
-            if cast.able.lavaLash() and talent.hotHand and buff.hotHand.exists() then
+            if cast.able.lavaLash() and talent.hotHand and buff.hotHand.exists() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.lavaLash() then return true end
             end
         -- Crash Lightning
@@ -590,7 +585,7 @@ local function runRotation()
             end
         -- Lava Lash
             -- lava_lash,if=variable.OCPool80&variable.furyCheck45
-            if cast.able.lavaLash() and ocPool80 and furyCheck45 then
+            if cast.able.lavaLash() and ocPool80 and furyCheck45 and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.lavaLash() then return true end
             end
         -- Rockbiter
@@ -600,7 +595,7 @@ local function runRotation()
             end
         -- Flametongue
             -- flametongue
-            if cast.able.flametongue() then
+            if cast.able.flametongue() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.flametongue() then return true end
             end
         end -- End Action List - Filler
