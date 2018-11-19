@@ -98,6 +98,8 @@ local function createOptions()
         -- Chaos Nova
             br.ui:createSpinner(section, "Chaos Nova - HP", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Chaos Nova - AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
+        -- Consume Magic
+            br.ui:createCheckbox(section, "Consume Magic")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -336,6 +338,10 @@ local function runRotation()
                     and #enemies.yards5 >= getValue("Chaos Nova - AoE")
                 then
                     if cast.chaosNova() then return end
+                end
+        -- Consume Magic
+				if isChecked("Consume Magic") and cast.able.consumeMagic("target") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
+					if cast.consumeMagic("target") then return end
                 end
     		end -- End Defensive Toggle
 		end -- End Action List - Defensive
