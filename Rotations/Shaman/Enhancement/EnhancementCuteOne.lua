@@ -447,7 +447,7 @@ local function runRotation()
             end
         -- Rockbiter
             -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
-            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 and cd.winstrike.remain() > gcdMax then
+            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 and cd.windstrike.remain() > gcdMax then
                 if cast.rockbiter() then return true end
             end
         -- Windstrike
