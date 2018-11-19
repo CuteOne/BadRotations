@@ -447,7 +447,7 @@ local function runRotation()
             end
         -- Rockbiter
             -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
-            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 then
+            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 and cd.winstrike.remain() > gcdMax then
                 if cast.rockbiter() then return true end
             end
         -- Windstrike
@@ -575,7 +575,7 @@ local function runRotation()
         local function actionList_Filler()
         -- Rockbiter
             -- rockbiter,if=maelstrom<70&!buff.strength_of_earth.up
-            if cast.able.rockbiter() and power < 70 and not buff.strengthOfTheEarth.exists() then
+            if cast.able.rockbiter() and power < 70 and not buff.strengthOfTheEarth.exists() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.rockbiter() then return true end
             end
         -- Crash Lightning
@@ -590,7 +590,7 @@ local function runRotation()
             end
         -- Rockbiter
             -- rockbiter
-            if cast.able.rockbiter() then
+            if cast.able.rockbiter() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.rockbiter() then return true end
             end
         -- Flametongue
