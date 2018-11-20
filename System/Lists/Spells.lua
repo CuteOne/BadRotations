@@ -3338,6 +3338,7 @@ br.lists.spells = {
             buffs                               = {
                 ancientHysteria                 = 90355,
                 battlePotionOfIntellect         = 279151,
+                battlePotionOfAgility           = 279152,
                 bloodlust                       = 2825,
                 concordanceOfTheLegionfall      = 239042,
                 defiledAugmentation             = 224001, -- Lightforged Augment Rune buff

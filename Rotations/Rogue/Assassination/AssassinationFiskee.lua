@@ -460,7 +460,7 @@ local function runRotation()
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active() or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or cd.exsanguinate.remain() < (5-2*dSEnabled)) then
+            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active() or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
                 if cast.vendetta("target") then return true end
             end
             if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 then
@@ -675,6 +675,10 @@ local function runRotation()
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue
             if stealthedRogue then
                 if actionList_Stealthed() then return true end
+            end
+            --start aa
+            if getDistance("target") < 5 and not IsCurrentSpell(6603) and not stealthedRogue then
+                StartAttack("target")
             end
             -- actions+=/call_action_list,name=cds
             if actionList_Cooldowns() then return true end
