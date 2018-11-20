@@ -278,6 +278,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend == 1
         local spell                                         = br.player.spell
+        local tanks                                         = getTanksTable()
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
         local traits                                        = br.player.traits
