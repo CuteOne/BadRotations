@@ -192,6 +192,9 @@ local function createOptions()
 		-- Prayer of Healing
 		br.ui:createSpinner(section, "Prayer of Healing",  70,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Prayer of Healing Targets",  3,  0,  40,  1,  "Minimum Prayer of Healing Targets")
+		-- Circle of Healing
+		br.ui:createSpinner(section, "Circle of Healing",  75,  0,  100,  5,  "Health Percent to Cast At")
+        	br.ui:createSpinnerWithout(section, "Circle of Healing Targets",  3,  0,  40,  1,  "Minimum Circle of Healing Targets")
 		-- Divine Star
 		br.ui:createSpinner(section, "Divine Star",  80,  0,  100,  5,  colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.."Divine Star usage.", colorWhite.."Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Divine Star Targets",  3,  1,  40,  1,  colorBlue.."Minimum Divine Star Targets "..colorGold.."(This includes you)")
@@ -637,6 +640,18 @@ local function runRotation()
 				CastSpellByName(GetSpellInfo(spell.holyWordSanctify),"cursor")
 				return true
 			end
+			-- Circle of Healing
+			if isChecked("Circle of Healing") and talent.circleOfHealing then
+				if getLowAllies(getValue("Circle of Healing")) >= getValue("Circle of Healing Targets") then
+					if cast.circleOfHealing() then return end
+				end
+			end	
+			--Halo
+			if isChecked("Halo") and talent.halo and not isMoving("player") then
+				if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+					if cast.halo() then return end
+				end
+			end			
 			-- Prayer of Healing
 			if isChecked("Prayer of Healing") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
 				if castWiseAoEHeal(br.friend,spell.prayerOfHealing,40,getValue("Prayer of Healing"),getValue("Prayer of Healing Targets"),5,false,true) then return end
@@ -644,12 +659,6 @@ local function runRotation()
 			-- Divine Star
 			if isChecked("Divine Star") and talent.divineStar and not isMoving("player") then
 				if castWiseAoEHeal(br.friend,spell.divineStar,10,getValue("Divine Star"),getValue("Min Divine Star Targets"),10,false,false) then return end
-			end
-			--Halo
-			if isChecked("Halo") and talent.halo and not isMoving("player") then
-				if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
-					if cast.halo() then return end
-				end
 			end
 			--JR Binding Heal Scan
 			local bindingHealCandidates = {}
