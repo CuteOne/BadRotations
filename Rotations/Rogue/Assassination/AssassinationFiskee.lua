@@ -689,6 +689,15 @@ local function runRotation()
             -- actions+=/arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
             -- actions+=/arcane_pulse
             -- actions+=/lights_judgment
+            if useCDs() and isChecked("Racial") then
+                if race == "BloodElf" and energyDeficit >= (15 + energyRegenCombined) then
+                    if cast.racial("player") then return true end
+                elseif race == "Nightborne" then
+                    if cast.racial("player") then return true end
+                elseif race == "LightforgedDraenei" then
+                    if cast.racial("target","ground") then return true end
+                end
+            end
         end -- End In Combat Rotation
     end -- Pause
 end -- End runRotation 
