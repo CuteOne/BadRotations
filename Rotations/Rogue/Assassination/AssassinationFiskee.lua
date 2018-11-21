@@ -354,7 +354,7 @@ local function runRotation()
     end
 
     local function actionList_Interrupts()
-        if useInterrupts() and not stealth then
+        if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
                 local distance = getDistance(thisUnit)
