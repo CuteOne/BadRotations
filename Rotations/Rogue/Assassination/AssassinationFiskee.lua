@@ -83,6 +83,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Kidney Shot")
             br.ui:createCheckbox(section, "Blind")
             br.ui:createSpinnerWithout(section,  "Interrupt %",  30,  0,  95,  5,  "|cffFFBB00Remaining Cast Percentage to interrupt at.")
+            br.ui:createCheckbox(section, "Stuns", "|cffFFFFFF Auto stun mobs from whitelist")
+            br.ui:createSpinnerWithout(section,  "Max CP For Stun",  3,  1,  6,  1,  "|cffFFBB00 Maximum number of combo points to stun")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -355,6 +357,11 @@ local function runRotation()
     end
 
     local function actionList_Interrupts()
+        local stunList = { -- Stolen from feng pala
+            [274400] = true, [274383] = true, [257756] = true, [276292] = true, [268273] = true, [256897] = true, [272542] = true, [272888] = true, [269266] = true, [258317] = true, [258864] = true,
+            [259711] = true, [258917] = true, [264038] = true, [253239] = true, [269931] = true, [270084] = true, [270482] = true, [270506] = true, [270507] = true, [267433] = true, [267354] = true,
+            [268702] = true, [268846] = true, [268865] = true, [258908] = true, [264574] = true, [272659] = true, [272655] = true, [267237] = true, [265568] = true, [277567] = true, [265540] = true
+        }
         if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
@@ -365,11 +372,24 @@ local function runRotation()
                     end
                     if cd.kick.remain() ~= 0 then
                         if isChecked("Kidney Shot") then
-                            if cast.kidneyShot(thisUnit) then return end
+                            if cast.kidneyShot(thisUnit) then return true end
                         end
                     end
                     if isChecked("Blind") and (cd.kick.remain() ~= 0 or distance >= 5) then
                         if cast.blind(thisUnit) then return end
+                    end
+                end
+                if isChecked("Stuns") and distance < 5 and combo > 0 and combo <= getOptionValue("Max CP For Stun") then
+                    local interruptID, castStartTime
+                    if UnitCastingInfo(thisUnit) then
+                        castStartTime = select(4,UnitCastingInfo(thisUnit))
+                        interruptID = select(9,UnitCastingInfo(thisUnit))
+                    elseif UnitChannelInfo(thisUnit) then
+                        castStartTime = select(4,UnitChannelInfo(thisUnit))
+                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+                    end
+                    if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 then
+                        if cast.kidneyShot(thisUnit) then return true end
                     end
                 end
             end
@@ -419,7 +439,6 @@ local function runRotation()
     end
 
     local function actionList_PreCombat()
-
         -- actions.precombat+=/potion
         -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
     end
@@ -431,7 +450,7 @@ local function runRotation()
             return true
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta"))  then
+        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) then
             if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
