@@ -182,7 +182,7 @@ local function runRotation()
 ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
-	br.player.mode.bestialWrath = br.data.settings[br.selectedSpec].toggles["BestialWrath"]
+        br.player.mode.bestialWrath = br.data.settings[br.selectedSpec].toggles["BestialWrath"]
         UpdateToggle("BestialWrath",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
@@ -794,7 +794,7 @@ local function runRotation()
                     if not UnitIsDeadOrGhost("pet") and not deadPets and isChecked("Pet Attacks") then
                       if getDistance("pettarget","pet") < 5 then
                         --Claw
-                        cast.claw("pettarget")
+                        CastSpellByName(GetSpellInfo(16827),"target")
                         --Bite
                         cast.bite("pettarget")
                         --Smack
@@ -818,7 +818,7 @@ local function runRotation()
                         if cast.aMurderOfCrows(bestUnit) then return end
                     end
                     -- actions+=/multishot,if=spell_targets>2&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
-                    if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2) or mode.rotation == 2)
+                    if mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
                         if cast.multiShot() then return end
