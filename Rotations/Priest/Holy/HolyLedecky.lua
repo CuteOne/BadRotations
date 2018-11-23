@@ -85,8 +85,8 @@ local function createOptions()
 		-- Racial
 		br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
 		br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")
-		--  Mana Potion
-		--  br.ui:createSpinner(section, "Mana Potion",  50,  0,  100,  1,  "Mana Percent to Cast At")
+		--  Mana Potion Channeled
+		br.ui:createSpinner(section, "Mana Potion Channeled",  50,  0,  100,  1,  "Mana Percent to Cast At")
 		-- Angelic Feather
 		br.ui:createSpinner(section, "Angelic Feather",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
 		-- Body and Mind
@@ -418,13 +418,12 @@ local function runRotation()
 						if cast.fade() then return end
 					end
 				end
-				-- Mana Potion
-				--	  if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
-				--		  if hasItem(127835) then
-				--			  useItem(127835)
-				--			  return true
-				--		  end
-				--	  end
+				-- Mana Potion Channeled
+				if isChecked("Mana Potion Channeled") and mana <= getValue("Mana Potion Channeled")then
+					if hasItem(152561) then
+						useItem(152561)
+					end
+				end
 				-- Gift of the Naaru
 				--    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
 				--        if castSpell("player",racial,false,false,false) then return end
