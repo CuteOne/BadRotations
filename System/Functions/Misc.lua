@@ -487,8 +487,9 @@ function pause(skipCastingCheck)
 		or (UnitChannelInfo("player") and not skipCastingCheck)
 		or UnitIsDeadOrGhost("player")
 		-- or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
-		or UnitBuffID("player",80169) -- Eating
-		or UnitBuffID("player",87959) -- Drinking
+		or UnitBuffID("player",257427) -- Eating
+		or UnitBuffID("player",274914) -- Drinking
+		or UnitDebuffID("player",252753) -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
 		-- or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
 		-- or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
 		-- or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
