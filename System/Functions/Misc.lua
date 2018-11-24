@@ -566,7 +566,9 @@ function getValue(Value)
             if selectedProfile[Value.."Status"] ~= nil then
                 return selectedProfile[Value.."Status"]
             elseif selectedProfile[Value.."Drop"] ~= nil then
-                return selectedProfile[Value.."Drop"]
+				return selectedProfile[Value.."Drop"]
+			elseif selectedProfile[Value.."EditBox"] ~= nil then
+                return selectedProfile[Value.."EditBox"]
             else
                 return 0
             end
