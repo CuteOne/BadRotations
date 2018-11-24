@@ -104,7 +104,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Lists")
             br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
             br.ui:createScrollingEditBoxWithout(section,"Stun Units", stunUnitList, "List of units to stun with auto stun function", 240, 50)
-            resetButton = br.ui:createButton(section, "Reset Lists", 5)
+            resetButton = br.ui:createButton(section, "Reset Lists")
             resetButton:SetEventListener("OnClick", function()
                 local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
                 selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist

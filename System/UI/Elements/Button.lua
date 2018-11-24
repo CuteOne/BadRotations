@@ -11,6 +11,7 @@ function br.ui:createButton(parent, buttonName, x, y)
         end
         y = DiesalTools.Round(y)
     end
+    if x == nil then x = 5 end
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 
