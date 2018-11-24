@@ -4,7 +4,7 @@ local DiesalStyle = LibStub("DiesalStyle-1.0")
 local Colors = DiesalStyle.Colors
 
 function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, height, hideCheckbox)
-    if width == nil then width = 200 end
+    if width == nil then width = 240 end
     if height == nil then height = 50 end
     -------------------------------
     ----Need to calculate Y Pos----
@@ -27,28 +27,28 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     end
     local inputStyleSheet = {
         ['frame-background'] = {
-            type			= 'texture',
-            layer			= 'BACKGROUND',
-            color			= '000000',
-        alpha     = .6,
+            type	= 'texture',
+            layer	= 'BACKGROUND',
+            color	= '000000',
+            alpha   = .6,
         },
         ['track-background'] = {
-            type		= 'texture',
-            layer		= 'BACKGROUND',
-            color		= '000000',
-        alpha   = .3,
+            type	= 'texture',
+            layer	= 'BACKGROUND',
+            color	= '000000',
+            alpha   = .3,
         },
         ['grip-background'] = {
-            type			= 'texture',
-            layer			= 'BACKGROUND',
-        color			= Colors.UI_400,
+            type	= 'texture',
+            layer	= 'BACKGROUND',
+            color	= Colors.UI_400,
         },
-      ['grip-inline'] = {
-        type = 'outline',
-        layer = 'BORDER',
-        color = 'FFFFFF',
-        alpha = .02,
-      }
+        ['grip-inline'] = {
+            type    = 'outline',
+            layer   = 'BORDER',
+            color   = 'FFFFFF',
+            alpha   = .02,
+        }
     }
     -------------------------------
 
@@ -59,8 +59,10 @@ function br.ui:createScrollingEditBox(parent, text, content, tooltip, width, hei
     parent:AddChild(input)
 
     input:SetParent(parent.content)
-    input:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, Y)
+    input:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 5, Y-14)
     input:SetStylesheet(inputStyleSheet)
+
+    input.settings.contentPadding        = {1,1,1,1}
 
     --------------
     ---BR Stuff---
