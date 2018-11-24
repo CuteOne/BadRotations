@@ -1,5 +1,8 @@
 local rotationName = "Fiskee - 8.0.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
+local resetButton
+local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
+local stunUnitList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
 ---------------
@@ -51,7 +54,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
-            br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units for dots")
+            br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -94,6 +97,20 @@ local function createOptions()
             br.ui:createDropdown(section,  "Cooldown Mode", br.dropOptions.Toggle,  3)
             br.ui:createDropdown(section,  "Defensive Mode", br.dropOptions.Toggle,  6)
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
+        br.ui:checkSectionState(section)
+        ----------------------
+        -------- LISTS -------
+        ----------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Lists")
+            br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
+            br.ui:createScrollingEditBoxWithout(section,"Stun Units", stunUnitList, "List of units to stun with auto stun function", 240, 50)
+            resetButton = br.ui:createButton(section, "Reset Lists", 5)
+            resetButton:SetEventListener("OnClick", function()
+                local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+                selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist
+                selectedProfile["Stun UnitsEditBox"] = stunUnitList
+                br.rotationChanged = true
+            end)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -190,16 +207,11 @@ local function runRotation()
         return false
     end
 
-    local noDotUnits = {
-        [135824]=true, -- Nerubian Voidweaver
-        [139057]=true, -- Nazmani Bloodhexer
-        [129359]=true, -- Sawtooth Shark
-        [129448]=true, -- Hammer Shark
-        [134503]=true, -- Silithid Warrior
-        [137458]=true, -- Rotting Spore
-        [139185]=true, -- Minion of Zul
-        [120651]=true -- Explosive
-    }
+    local noDotUnits = {}
+    for i in string.gmatch(getOptionValue("Dot Blacklist Units"), "%d+") do
+        noDotUnits[i] = true
+    end
+
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
         if isTotem(unit) then return true end
@@ -357,11 +369,10 @@ local function runRotation()
     end
 
     local function actionList_Interrupts()
-        local stunList = { -- Stolen from feng pala
-            [274400] = true, [274383] = true, [257756] = true, [276292] = true, [268273] = true, [256897] = true, [272542] = true, [272888] = true, [269266] = true, [258317] = true, [258864] = true,
-            [259711] = true, [258917] = true, [264038] = true, [253239] = true, [269931] = true, [270084] = true, [270482] = true, [270506] = true, [270507] = true, [267433] = true, [267354] = true,
-            [268702] = true, [268846] = true, [268865] = true, [258908] = true, [264574] = true, [272659] = true, [272655] = true, [267237] = true, [265568] = true, [277567] = true, [265540] = true
-        }
+        local stunList = {}
+        for i in string.gmatch(getOptionValue("Stun Unit List"), "%d+") do
+            stunList[i] = true
+        end
         if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
