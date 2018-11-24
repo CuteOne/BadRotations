@@ -2,7 +2,7 @@ local rotationName = "Fiskee - 8.0.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
 local resetButton
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
-local stunUnitList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
+local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
 --- Toggles ---
 ---------------
@@ -103,12 +103,12 @@ local function createOptions()
         ----------------------
         section = br.ui:createSection(br.ui.window.profile,  "Lists")
             br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
-            br.ui:createScrollingEditBoxWithout(section,"Stun Units", stunUnitList, "List of units to stun with auto stun function", 240, 50)
+            br.ui:createScrollingEditBoxWithout(section,"Stun Spells", stunSpellList, "List of spells to stun with auto stun function", 240, 50)
             resetButton = br.ui:createButton(section, "Reset Lists")
             resetButton:SetEventListener("OnClick", function()
                 local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
                 selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist
-                selectedProfile["Stun UnitsEditBox"] = stunUnitList
+                selectedProfile["Stun SpellsEditBox"] = stunSpellList
                 br.rotationChanged = true
             end)
         br.ui:checkSectionState(section)
@@ -370,7 +370,7 @@ local function runRotation()
 
     local function actionList_Interrupts()
         local stunList = {}
-        for i in string.gmatch(getOptionValue("Stun Unit List"), "%d+") do
+        for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[i] = true
         end
         if useInterrupts() and not stealthedRogue then
