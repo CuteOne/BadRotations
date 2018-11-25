@@ -6,12 +6,12 @@ ticker = C_Timer.NewTicker(1, function()
 	local start, duration, enabled, modRate = GetSpellCooldown(191837)
 	if upwellingStacks == nil then upwellingStacks = 0 end
 	if br.player.talent.upwelling then
-		if duration == 0 then
-			--print("+1")
+		if duration <= 4 and upwellingStacks <= 18 then
+			print(upwellingStacks)
 			upwellingStacks = upwellingStacks + 1
 		end
 		if duration >= 5 then
-			--print("reset")
+			print("reset")
 			upwellingStacks = 0
 		end
 	end
