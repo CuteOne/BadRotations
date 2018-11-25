@@ -8,7 +8,7 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     -------------------------------
     local Y = -5
     for i=1, #parent.children do
-        if parent.children[i].type == "CheckBox" then
+        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
             Y = Y - parent.children[i].frame:GetHeight()*1.2
         end
     end

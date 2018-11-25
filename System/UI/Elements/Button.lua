@@ -1,6 +1,17 @@
 local DiesalGUI = LibStub("DiesalGUI-1.0")
+local DiesalTools = LibStub("DiesalTools-1.0")
 
 function br.ui:createButton(parent, buttonName, x, y)
+    if y == nil then
+        y = -5
+        for i=1, #parent.children do
+            if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
+                y = y - parent.children[i].frame:GetHeight()*1.2
+            end
+        end
+        y = DiesalTools.Round(y)
+    end
+    if x == nil then x = 5 end
     local newButton = DiesalGUI:Create('Button')
     local parent = parent
 

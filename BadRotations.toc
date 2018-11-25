@@ -102,6 +102,7 @@ System\UI\Elements\Checkbox.lua
 System\UI\Elements\Dropdown.lua
 System\UI\Elements\PageDropdown.lua
 System\UI\Elements\RotationDropdown.lua
+System\UI\Elements\ScrollingEditBox.lua
 System\UI\Elements\Section.lua
 System\UI\Elements\Spinner.lua
 System\UI\Elements\Text.lua
