@@ -9,4 +9,3 @@ elseif EWT then
 	ObjectTypes = ObjectTypes
 	ObjectExists = ObjectExists
 end
-

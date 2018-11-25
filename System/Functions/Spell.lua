@@ -53,14 +53,11 @@ function castInterrupt(SpellID,Percent,Unit)
 end
 -- canInterrupt("target",20)
 function canInterrupt(unit,percentint)
-	local unit = unit or "target"
-	local castDuration = 0
-	local castTimeRemain = 0
-	local castPercent = 0 -- Possible to set hard coded value
+	unit = unit or "target"
+	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
+	local castDuration, castTimeRemain, castPercent = 0, 0, 0
 	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
-	local interruptable = false
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
-	local interruptID = 0
 	local onWhitelist = false
 	if GetUnitExists(unit)
 		and UnitCanAttack("player",unit)
@@ -79,11 +76,6 @@ function canInterrupt(unit,percentint)
 			interruptID = select(7,GetSpellInfo(UnitChannelInfo(unit)))
 			interruptable = true
 			castType = "spellchannel"
-		else
-			castStartTime = 0
-			castEndTime = 0
-			interruptable = false
-			interruptID = 0
 		end
 		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
@@ -123,10 +115,6 @@ function canInterrupt(unit,percentint)
 					end
 				end
 			end
-		else
-			castDuration = 0
-			castTimeRemain = 0
-			castPercent = 0
 		end
 		-- Check if on whitelist (if selected)
 		if isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] then
@@ -176,7 +164,7 @@ function getRecharge(spellID,chargeMax)
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
-			chargeEnd = chargeStart + chargeDuration
+			local chargeEnd = chargeStart + chargeDuration
 			return chargeEnd - GetTime()
 		end
 		return 0
@@ -200,7 +188,7 @@ function getSpellCD(SpellID)
 	if GetSpellCooldown(SpellID) == 0 then
 		return 0
 	else
-		local Start ,CD = GetSpellCooldown(SpellID)
+		local Start, CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
 		MyCD = MyCD - getLatency()
 		if MyCD < 0 then MyCD = 0 end

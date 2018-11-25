@@ -84,103 +84,7 @@ end
 function getNumEnemies(Unit,Radius)
 	return #getEnemies(Unit,Radius)
 end
--- if getTimeToDie("target") >= 6 then
-function getTimeToDie(unit)
-	unit = unit or "target"
-	if thpcurr == nil then
-		thpcurr = 0
-	end
-	if thpstart == nil then
-		thpstart = 0
-	end
-	if timestart == nil then
-		timestart = 0
-	end
-	if GetObjectExists(unit) and GetUnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
-		if currtar ~= UnitGUID(unit) then
-			priortar = currtar
-			currtar = UnitGUID(unit)
-		end
-		if thpstart == 0 and timestart == 0 then
-			thpstart = UnitHealth(unit)
-			timestart = GetTime()
-		else
-			thpcurr = UnitHealth(unit)
-			timecurr = GetTime()
-			if thpcurr >= thpstart then
-				thpstart = thpcurr
-				timeToDie = 999
-			else
-				if ((timecurr - timestart)==0) or ((thpstart - thpcurr)==0) then
-					timeToDie = 999
-				else
-					timeToDie = round2(thpcurr/((thpstart - thpcurr) / (timecurr - timestart)),2)
-				end
-			end
-		end
-	elseif not GetObjectExists(unit) or not GetUnitIsVisible(unit) or currtar ~= UnitGUID(unit) then
-		currtar = 0
-		priortar = 0
-		thpstart = 0
-		timestart = 0
-		timeToDie = 0
-	end
-	if timeToDie==nil then
-		return 999
-	else
-		return timeToDie
-	end
-end
--- if getTimeTo("target",20) < 10 then
-function getTimeTo(unit,percent)
-	unit = unit or "target"
-	perchp = (UnitHealthMax(unit) / 100 * percent)
-	if ttpthpcurr == nil then
-		ttpthpcurr = 0
-	end
-	if ttpthpstart == nil then
-		ttpthpstart = 0
-	end
-	if ttptimestart == nil then
-		ttptimestart = 0
-	end
-	if GetObjectExists(unit) and GetUnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) then
-		if ttpcurrtar ~= UnitGUID(unit) then
-			ttppriortar = currtar
-			ttpcurrtar = UnitGUID(unit)
-		end
-		if ttpthpstart == 0 and ttptimestart == 0 then
-			ttpthpstart = UnitHealth(unit)
-			ttptimestart = GetTime()
-		else
-			ttpthpcurr = UnitHealth(unit)
-			ttptimecurr = GetTime()
-			if ttpthpcurr >= ttpthpstart then
-				ttpthpstart = ttpthpcurr
-				timeToPercent = 999
-			else
-				if ((timecurr - timestart)==0) or ((thpstart - thpcurr)==0) then
-					timeToPercent = 999
-				elseif ttpthpcurr < perchp then
-					timeToPercent = 0
-				else
-					timeToPercent = round2((ttpthpcurr - perchp)/((ttpthpstart - ttpthpcurr) / (ttptimecurr - ttptimestart)),2)
-				end
-			end
-		end
-	elseif not GetObjectExists(unit) or not GetUnitIsVisible(unit) or ttpcurrtar ~= UnitGUID(unit) then
-		ttpcurrtar = 0
-		ttppriortar = 0
-		ttpthpstart = 0
-		ttptimestart = 0
-		ttptimeToPercent = 0
-	end
-	if timeToPercent==nil then
-		return 999
-	else
-		return timeToPercent
-	end
-end
+
 function isIncapacitated(spellID)
 	local eventIndex = C_LossOfControl.GetNumEvents()
 	while (eventIndex > 0) do
@@ -301,6 +205,7 @@ end
 function hasThreat(unit,playerUnit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
+	local targetUnit, targetFriend
 	if GetUnit(unit) == nil or UnitIsDeadOrGhost(unit) or UnitIsTapDenied(unit) then
 		targetUnit = "None"
 	elseif UnitTarget(GetUnit(unit)) ~= nil then
@@ -345,7 +250,7 @@ function isAggroed(unit)
 		local threat = select(5,UnitDetailedThreatSituation(friend,unit))
 		if threat ~= nil then
 			if threat >= 0 then
-	  			return true
+				return true
 			end
 		end
 	end

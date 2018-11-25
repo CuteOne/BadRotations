@@ -1,5 +1,5 @@
 -- Functions from coders for public use
-
+local sqrt, cos, sin = math.sqrt, math.cos, math.sin
 --[[                                                                                                ]]
 --[[ ragnar                                                                                         ]]
 --[[                                                                                                ]]
@@ -44,7 +44,7 @@ function isCCed(Unit)
 end
 
 --cast spell on position x,y,z
-function castAtPosition(X,Y,Z, SpellID)    
+function castAtPosition(X,Y,Z, SpellID)
     local i = -100
     local mouselookActive = false
     if IsMouselooking() then
@@ -161,7 +161,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
             uX, uY = GetFuturePostion(unit, castTime)
         end
         local rUnit = UnitBoundingRadius(unit)
-        return math.sqrt(((uX-cx)^2) + ((uY-cy)^2))
+        return sqrt(((uX-cx)^2) + ((uY-cy)^2))
     end
 
     if minRange == nil then minRange = 0 end
@@ -186,7 +186,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
                     temp.yii = tY;
                     temp.zii = tZ;
                     --distance
-                    temp.q = math.sqrt((temp.xii-temp.xi)^2 + (temp.yii-temp.yi)^2)
+                    temp.q = sqrt((temp.xii-temp.xi)^2 + (temp.yii-temp.yi)^2)
                     --check to calculation. if result < 0 math.sqrt will give error
                     local calc = ((radius^2)-((temp.q/2)^2))
                     if calc <=0 then break end
@@ -195,11 +195,11 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
                     --y3
                     temp.yiii = (temp.yi+temp.yii)/2
                     --first circle
-                    temp.xfc = temp.xiii + math.sqrt(calc)*((temp.yi-temp.yii)/temp.q)
-                    temp.yfc = temp.yiii + math.sqrt(calc)*((temp.xii-temp.xi)/temp.q)
+                    temp.xfc = temp.xiii + sqrt(calc)*((temp.yi-temp.yii)/temp.q)
+                    temp.yfc = temp.yiii + sqrt(calc)*((temp.xii-temp.xi)/temp.q)
                     --second circle
-                    temp.xsc = temp.xiii - math.sqrt(calc)*((temp.yi-temp.yii)/temp.q)
-                    temp.ysc = temp.yiii - math.sqrt(calc)*((temp.xii-temp.xi)/temp.q)
+                    temp.xsc = temp.xiii - sqrt(calc)*((temp.yi-temp.yii)/temp.q)
+                    temp.ysc = temp.yiii - sqrt(calc)*((temp.xii-temp.xi)/temp.q)
                     --
                     temp.z = tZ
                     tinsert(testCircles, temp)
@@ -417,7 +417,7 @@ function RaidBuff(BuffSlot,myBuffSpellID)
         multistrike = {166916,49868,113742,109773,172968,50519,57386,58604,54889,24844},
         versatility = {55610,1126,167187,167188,172967,159735,35290,57386,160045,50518,173035,160007}
     }
-
+    local chosenTable
     if id == 1 then
         chosenTable = bufftable.stats
     elseif id == 2 then
@@ -864,17 +864,17 @@ function GetFuturePostion(unit, castTime)
                 local tDistance = GetUnitSpeed(unitTarget) * castTime
                 local tX,tY,tZ = GetObjectPosition(unitTarget)
                 local tAngle = ObjectFacing(unitTarget)
-                tX = tX + math.cos(tAngle) * tDistance
-                tY = tY + math.sin(tAngle) * tDistance
-                unitTargetDist = math.sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
+                tX = tX + cos(tAngle) * tDistance
+                tY = tY + sin(tAngle) * tDistance
+                unitTargetDist = sqrt(((tX-x)^2) + ((tY-y)^2) + ((tZ-z)^2)) - ((UnitCombatReach(unit) or 0) + (UnitCombatReach(unitTarget) or 0))
                 if unitTargetDist < distance then distance = unitTargetDist end
             else
                 unitTargetDist = getDistance(unitTarget, unit, "dist")
                 if unitTargetDist < distance then distance = unitTargetDist end
             end
         end
-        x = x + math.cos(angle) * distance
-        y = y + math.sin(angle) * distance
+        x = x + cos(angle) * distance
+        y = y + sin(angle) * distance
         return x, y, z
     end
     return GetObjectPosition(unit)

@@ -1,6 +1,6 @@
 function canFly()
-	local hasDraenorFly = select(4,GetAchievementInfo(10018)) 
-	local hasLegionFly = select(4,GetAchievementInfo(11446)) 
+	local hasDraenorFly = select(4,GetAchievementInfo(10018))
+	local hasLegionFly = select(4,GetAchievementInfo(11446))
 	return IsOutdoors() and IsFlyableArea() and ((not isInDraenor() and not isInLegion()) or (hasDraenorFly and isInDraenor()) or (hasLegionFly and isInLegion()))
 end
 

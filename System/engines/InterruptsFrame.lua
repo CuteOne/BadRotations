@@ -53,7 +53,6 @@ end
 -- local that will be used inside function environment
 local canCast = canCast
 local castSpell = castSpell
-local getDistance = getDistance
 local getOptionCheck = getOptionCheck
 local getOptionValue = getOptionValue
 local getDistance = getDistance
