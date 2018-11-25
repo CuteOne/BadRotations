@@ -1,5 +1,22 @@
 local rotationName = "Ledecky" -- Change to name of profile listed in options drop down
 
+
+
+ticker = C_Timer.NewTicker(1, function()
+	local start, duration, enabled, modRate = GetSpellCooldown(191837)
+	if upwellingStacks == nil then upwellingStacks = 0 end
+	if br.player.talent.upwelling then
+		if duration == 0 then
+			print("+1")
+			upwellingStacks = upwellingStacks + 1
+		end
+		if duration >= 5 then
+			print("reset")
+			upwellingStacks = 0
+		end
+	end
+end)
+
 --------------
 --- COLORS ---
 --------------
@@ -222,7 +239,7 @@ local function runRotation()
 		--Print("Running: "..rotationName)
 
 		---------------
-		--- Toggles --- -- List toggles here in order to update when pressed
+		--- Toggles ---  List toggles here in order to update when pressed
 		---------------
 		UpdateToggle("Rotation",0.25)
 		UpdateToggle("Cooldown",0.25)
@@ -263,7 +280,6 @@ local function runRotation()
 		local talent                                        = br.player.talent
 		local ttm                                           = br.player.power.mana.ttm()
 		local units                                         = br.player.units
-
 		local lowest                                        = {}    --Lowest Unit
 		lowest.hp                                           = br.friend[1].hp
 		lowest.role                                         = br.friend[1].role
@@ -309,9 +325,9 @@ local function runRotation()
 		---------------------------------
 		--- Out Of Combat - Rotations ---
 		---------------------------------
-		if not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
+		if isChecked("OOC Healing") and not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
 			--Enveloping Mists OOC
-			if isChecked("Enveloping Mist Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") then
+			if not isCastingSpell(spell.essenceFont) and not buff.lifeCyclesVivify.exists("player") then
 				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit, spell.envelopingMist, "player") < 2 and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
 					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
 						if cast.soothingMist(lowest.unit) then return end
@@ -322,7 +338,7 @@ local function runRotation()
 				end
 			end
 			--Vivify OOC
-			if isChecked("Vivify Lifecycles") and isChecked("Enable Lifecycles Rotation") and not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") then
+			if not isCastingSpell(spell.essenceFont) and buff.lifeCyclesVivify.exists("player") then
 				if lowest.hp <= getValue("OOC Healing") and getBuffRemain(lowest.unit,115175,"EXACT") > 1 then
 					if getBuffRemain(lowest.unit,115175,"EXACT") == 0 then
 						if cast.soothingMist(lowest.unit) then return end
@@ -333,7 +349,7 @@ local function runRotation()
 				end
 			end
 			-- Soothing Mist OOC
-			if isChecked("OOC Healing") and not isCastingSpell(spell.essenceFont) then
+			if not isCastingSpell(spell.essenceFont) then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("OOC Healing") then
 						if cast.soothingMist(br.friend[i].unit) then return end
@@ -450,22 +466,18 @@ local function runRotation()
 			--Dispels--
 			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			if br.player.mode.detox == 1 then
-				--Detox
-				if isChecked("Detox") and not isCastingSpell(spell.essenceFont) then
-					for i = 1, #br.friend do
-						for n = 1,40 do
-							local buff,_,count,bufftype,duration = UnitDebuff(br.friend[i].unit, n)
-							if buff then
-								if bufftype == "Disease" or bufftype == "Magic" or bufftype == "Poison" then
-									if cast.detox(br.friend[i].unit) then
-										detox = 0
-									end
-								end
-							end
+				for i = 1, #br.friend do
+					if inInstance and ((getDebuffRemain(br.friend[i].unit,275014) > 2 and #getAllies(br.friend[i].unit,6) < 2) or (getDebuffRemain(br.friend[i].unit,252781) > 2 and #getAllies(br.friend[i].unit,9) < 2)) then
+						if cast.detox(br.friend[i].unit) then return true end
+					end
+					if (not inInstance or (inInstance and getDebuffRemain(br.friend[i].unit,275014) == 0 and getDebuffRemain(br.friend[i].unit,252781) == 0)) and not UnitIsCharmed(br.friend[i].unit) then
+						if canDispel(br.friend[i].unit,spell.detox) then
+							if cast.detox(br.friend[i].unit) then return true end
 						end
 					end
 				end
-			end
+			end			
+		
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--Emergency Healing--
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -580,8 +592,9 @@ local function runRotation()
 			end
 			--Essence Font with Upwelling
 			if isChecked("Essence Font Upwelling") and talent.upwelling and not isCastingSpell(spell.essenceFont) then 
-				if mana >= getValue("EF Minimum Mana") and getDebuffRemain("player",240447) == 0 then
-					if buff.essenceFont.stack() >= getValue("Essence Font Upwelling") then
+				if mana >= getValue("EF Minimum Mana") then
+					if upwellingStacks >= getValue("Essence Font Upwelling") then
+						--print("3")
 						if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
 							if cast.essenceFont() then return end
 						end

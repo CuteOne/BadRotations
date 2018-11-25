@@ -1533,6 +1533,7 @@ br.lists.spells = {
                 manaTea                     = 197908;
                 risingThunder               = 210804,
                 diffuseMagic                = 122783,
+                upwelling                   = 274963,
             },
         },
         -- Windwalker

@@ -418,9 +418,11 @@ local function runRotation()
 	-- Blackout Combo Rotation
     local function actionList_AutoBlackout()
         if buff.blackoutCombo.exists() then
-            if cast.tigerPalm() then return true end
-        else
             if cast.kegSmash() then return true end
+            if not cast.able.kegSmash() then
+                if cast.tigerPalm() then return true end
+            end
+        else
             if cast.blackoutStrike() then return true end
             if buff.rushingJadeWind.exists() and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) and power > 45 then
                 if cast.tigerPalm() then return true end
