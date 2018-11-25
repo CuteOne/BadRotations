@@ -16,7 +16,7 @@ br.debug.cpu.healingEngine = {
     GetClass = 0,
     UnitIsPlayer = 0,
     GetPosition = 0,
-    absorbANDhp = 0,
+    absorbANDhp = 0
 }
 br.debug.cpu.enemiesEngine = {
     objects = {
@@ -26,7 +26,7 @@ br.debug.cpu.enemiesEngine = {
         averageTime = 0,
         targets = 0,
         addTime = 0,
-        cycleTime = 0,
+        cycleTime = 0
     },
     units = {
         elapsedTime = 0,
@@ -35,7 +35,7 @@ br.debug.cpu.enemiesEngine = {
         averageTime = 0,
         targets = 0,
         addTime = 0,
-        cycleTime = 0,
+        cycleTime = 0
     },
     enemy = {
         elapsedTime = 0,
@@ -43,11 +43,11 @@ br.debug.cpu.enemiesEngine = {
         currentTime = 0,
         averageTime = 0,
         targets = 0,
-        addTime = 0,
+        addTime = 0
     },
     dynamicTarget = 0,
     getEnemies = 0,
-    bestUnitFinder = 0,
+    bestUnitFinder = 0
 }
 br.debug.cpu.rotation = {
     loadTime = 0,
@@ -61,23 +61,23 @@ br.debug.cpu.rotation = {
     minTimeOoC = 999,
     maxTimeInC = 0,
     minTimeInC = 999,
-    profile = {},
+    profile = {}
 }
 br.debug.cpu.pulse = {
     elapsedTime = 0,
     totalIterations = 0,
     currentTime = 0,
-    averageTime = 0,
+    averageTime = 0
 }
 -- just for testing
 function br.debug.cpu:getHealingEngine()
     local usage, calls
 
     usage, calls = GetFunctionCPUUsage(br.friend.Update, true)
-    br.debug.cpu.healingEngine["br.friend_Update"] = {usage = usage, calls = calls }
+    br.debug.cpu.healingEngine["br.friend_Update"] = {usage = usage, calls = calls}
 
     usage, calls = GetFunctionCPUUsage(br.friend.UpdateUnit, true)
-    br.debug.cpu.healingEngine["br.friend_UpdateUnit"] = {usage = usage, calls = calls }
+    br.debug.cpu.healingEngine["br.friend_UpdateUnit"] = {usage = usage, calls = calls}
 
     --local tmpUsage, tmpCalls
     --for i=1, #br.friend do
@@ -99,8 +99,8 @@ function br.debug.getEXspeed(cycles, func)
         func()
     end
 
-    local duration = debugprofilestop()-startTime
-    local average = duration/cycles
+    local duration = debugprofilestop() - startTime
+    local average = duration / cycles
     Print(format("Function %i times executed in %f ms (%f average)", cycles, duration, average))
 end
 
@@ -108,8 +108,10 @@ end
 
 br.timer = {}
 function br.timer:useTimer(timerName, interval)
-    if self[timerName] == nil then self[timerName] = 0 end
-    if GetTime()-self[timerName] >= interval then
+    if self[timerName] == nil then
+        self[timerName] = 0
+    end
+    if GetTime() - self[timerName] >= interval then
         self[timerName] = GetTime()
         return true
     else

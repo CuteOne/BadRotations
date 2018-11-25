@@ -397,7 +397,7 @@ local function runRotation()
                 end
         -- actions+=/fel_eruption
         -- actions+=/sigil_of_flame,if=remains-delay<=0.3*duration
-                if not isMoving("target") and getTimeToDie() > 10 then
+                if not isMoving("target") and getTTD() > 10 then
                     if cast.sigilofFlame("target") then return end
                 end
         -- actions+=/fracture,if=pain>=80&soul_fragments<4&incoming_damage_4s<=health.max*0.20

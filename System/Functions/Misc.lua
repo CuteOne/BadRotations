@@ -58,7 +58,7 @@ function getLineOfSight(Unit1,Unit2)
 	end
 	local skipLoSTable = br.lists.los
 	for i = 1,#skipLoSTable do
-		if GetObjectID(Unit1) == skipLoSTable[i] or GetObjectID(Unit2) == skipLoSTable[i] then
+		if skipLoSTable[GetObjectID(Unit1)] ~= nil or skipLoSTable[GetObjectID(Unit2)] ~= nil then
 			return true
 		end
 	end
@@ -637,7 +637,8 @@ end
 
 function talentAnywhere()
     local removeTalent = RemoveTalent
-    local learnTalent = LearnTalent
+	local learnTalent = LearnTalent
+	local selectedTalent, newTalent, selectedNew, newTalentRow
     -- Load Talent UI if not opened before
     if not IsAddOnLoaded("Blizzard_TalentUI") and not UnitAffectingCombat("player") then
        LoadAddOn("Blizzard_TalentUI")

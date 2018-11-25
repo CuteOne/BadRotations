@@ -97,7 +97,7 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	end
 	local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(UnitID),name = UnitName(UnitID)}
 	-- once we get our unit location we call our getdistance
-	lowHealthCandidates = {}
+	local lowHealthCandidates = {}
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
 		-- if in given radius
@@ -214,10 +214,10 @@ end
 
 
 function isInside(x,y,ax,ay,bx,by,dx,dy)
-	bax = bx - ax
-	bay = by - ay
-	dax = dx - ax
-	day = dy - ay
+	local bax = bx - ax
+	local bay = by - ay
+	local dax = dx - ax
+	local day = dy - ay
 
 	if ((x - ax) * bax + (y - ay) * bay <= 0.0) then return false end
 	if ((x - bx) * bax + (y - by) * bay >= 0.0) then return false end
