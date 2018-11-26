@@ -46,59 +46,7 @@ local function isTotem(unit)
 	return false
 end
 
---Update OM
-function updateOM()
-	local startTime = debugprofilestop()
-	local inCombat = UnitAffectingCombat("player")
-	local omCounter = 0
-	local fmod = math.fmod
-	local loopSet = floor(GetFramerate()) or 0
-	local autoLoot = isChecked("Auto Loot")
-	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
-	-- 	if next(br.om) ~= nil then br.om = {} end
-	-- 	return
-	-- end
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.targets = 0
-	end
-	-- Cycle OM
-	local objectCount = FireHack~=nil and GetObjectCount() or 0
-	if objectCount > 0 then
-		local playerObject = GetObjectWithGUID(UnitGUID("player"))
-		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
-		for i = objectIndex, objectCount do
-			objectIndex = objectIndex + 1
-			omCounter = omCounter + 1
-			if omCounter == 1 then cycleTime = debugprofilestop() end
-			-- define our unit
-			local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
-					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or (autoLoot and CanLootUnit(UnitGUID(thisUnit)))))
-				then
-					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
-					local enemyUnit = br.unitSetup:new(thisUnit)
-					if enemyUnit then tinsert(br.om, enemyUnit) end
-				end
-			if isChecked("Debug Timers") then
-				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
-			end
-			-- objectIndex = objectIndex + 1
-			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
-		end
-	end
-	refreshStored = true
-	-- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
-		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
-	end
-	br.om:Update()
-	PopulateUnitTables()
-end
-
-function PopulateUnitTables()
+local function PopulateUnitTables()
 	local startTime = debugprofilestop()
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.units.targets = 0
@@ -174,6 +122,58 @@ function PopulateUnitTables()
 	end
 end
 
+--Update OM
+function updateOM()
+	local startTime = debugprofilestop()
+	local inCombat = UnitAffectingCombat("player")
+	local omCounter = 0
+	local fmod = math.fmod
+	local loopSet = floor(GetFramerate()) or 0
+	local autoLoot = isChecked("Auto Loot")
+	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
+	-- 	if next(br.om) ~= nil then br.om = {} end
+	-- 	return
+	-- end
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.objects.targets = 0
+	end
+	-- Cycle OM
+	local objectCount = FireHack~=nil and GetObjectCount() or 0
+	if objectCount > 0 then
+		local playerObject = GetObjectWithGUID(UnitGUID("player"))
+		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
+		for i = objectIndex, objectCount do
+			objectIndex = objectIndex + 1
+			omCounter = omCounter + 1
+			if omCounter == 1 then cycleTime = debugprofilestop() end
+			-- define our unit
+			local thisUnit = GetObjectWithIndex(i)
+				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
+					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or (autoLoot and CanLootUnit(UnitGUID(thisUnit)))))
+				then
+					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
+					local enemyUnit = br.unitSetup:new(thisUnit)
+					if enemyUnit then tinsert(br.om, enemyUnit) end
+				end
+			if isChecked("Debug Timers") then
+				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
+			end
+			-- objectIndex = objectIndex + 1
+			if fmod(objectIndex,loopSet) == 0 then objectIndex = objectIndex + 1; break end
+		end
+	end
+	refreshStored = true
+	-- Debugging
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
+		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
+	end
+	br.om:Update()
+	PopulateUnitTables()
+end
+
 -- /dump getEnemies("target",10)
 function getEnemies(thisUnit,radius,checkNoCombat)
     local startTime = debugprofilestop()
@@ -226,7 +226,179 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     return enemiesTable
 end
 
-function findBestUnit(range,facing)
+-- function to see if our unit is a blacklisted unit
+	function isBlackListed(Unit)
+		-- check if unit is valid
+		if GetObjectExists(Unit) then
+			for i = 1, #castersBlackList do
+				-- check if unit is valid
+				if GetObjectExists(castersBlackList[i].unit) then
+					if castersBlackList[i].unit == Unit then
+						return true
+					end
+				end
+			end
+		end
+	end
+	-- returns true if target should be burnt
+	function isBurnTarget(unit)
+		local coef = 0
+		-- check if unit is valid
+		if getOptionCheck("Forced Burn") then
+			local unitID = GetObjectID(unit)
+			local burnUnit = br.lists.burnUnits[unitID]
+			-- if unit have selected debuff
+			if burnUnit then
+				if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
+					coef = burnUnit.coef
+				end
+				if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit) then
+					TargetUnit(unit)
+					coef = burnUnit.coef
+				end
+			end
+		end
+		return coef
+	end
+	-- check for a unit see if its a cc candidate
+	function isCrowdControlCandidates(Unit)
+		-- check if unit is valid
+		if GetObjectExists(Unit) then
+			local unitID = GetObjectID(Unit)
+		end
+		-- cycle list of candidates
+		local crowdControlUnit = br.lists.ccUnits[unitID]
+		if crowdControlUnit then
+			-- check if unit is valid
+			if GetObjectExists(crowdControlUnit.unit) then
+				-- is in the list of candidates
+				if (crowdControlUnit.buff == nil or UnitBuffID(Unit,crowdControlUnit.buff))
+						and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
+				then -- doesnt have more requirements or requirements are met
+					return true
+				end
+			end
+		end
+		return false
+	end
+	
+	-- returns true if we can safely attack this target
+	function isSafeToAttack(unit)
+		if getOptionCheck("Safe Damage Check") == true then
+			-- check if unit is valid
+			local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
+			for i = 1, #br.lists.noTouchUnits do
+				local noTouch = br.lists.noTouchUnits[i]
+				if noTouch.unitID == 1 or noTouch.unitID == unitID then
+					if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
+					if noTouch.buff > 0 then
+						-- Not Safe with Buff/Debuff
+						if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
+							return false
+						end
+					else
+						-- Not Safe without Buff/Debuff
+						local posBuff = -(noTouch.buff)
+						if not UnitBuffID(unit,posBuff) or not UnitDebuffID(unit,posBuff) then
+							return false
+						end
+					end
+				end
+			end
+		end
+		-- if all went fine return true
+		return true
+	end
+	
+	-- returns true if target is shielded or should be avoided
+	local function isShieldedTarget(unit)
+		local coef = 0
+		if getOptionCheck("Avoid Shields") then
+			-- check if unit is valid
+			local unitID = GetObjectID(unit)
+			local shieldedUnit = br.lists.shieldUnits[unitID]
+			-- if unit have selected debuff
+			if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
+				-- if it's a frontal buff, see if we are in front of it
+				if shieldedUnit.frontal ~= true or getFacing(unit,"player") then
+					coef = shieldedUnit.coef
+				end
+			end
+		end
+		return coef
+	end
+
+-- This function will set the prioritisation of the units, ie which target should i attack
+	local function getUnitCoeficient(unit)
+		local coef = 0
+		-- if distance == nil then distance = getDistance("player",unit) end
+		local distance = getDistance("player",unit)
+		-- check if unit is valid
+		if GetObjectExists(unit) then
+			-- if unit is out of range, bad prio(0)
+			if distance < 50 then
+				local unitHP = getHP(unit)
+				-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
+				if getOptionCheck("Wise Target") == true then
+					if getOptionValue("Wise Target") == 1 then 	   -- Highest
+						-- if highest is selected
+						coef = unitHP
+					elseif getOptionValue("Wise Target") == 3 then -- abs Highest
+						coef = UnitHealth(unit)
+					elseif getOptionValue("Wise Target") == 5 then -- Nearest
+						coef = 100 - distance
+					elseif getOptionValue("Wise Target") == 6 then -- Furthest
+						coef = distance
+					else 										   -- Lowest
+						-- if lowest is selected
+						coef = 100 - unitHP
+					end
+				end
+				-- if its our actual target we give it a bonus
+				if GetUnitIsUnit("target",unit) == true and not UnitIsDeadOrGhost(unit) then
+					coef = coef + 50
+				end
+				-- raid target management
+				-- if the unit have the skull and we have param for it add 50
+				if getOptionCheck("Skull First") and GetRaidTargetIndex(unit) == 8 then
+					coef = coef + 50
+				end
+				-- if threat is checked, add 100 points of prio if we lost aggro on that target
+				if getOptionCheck("Tank Threat") then
+					local threat = UnitThreatSituation("player",unit) or -1
+					if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
+						coef = coef + 100 - threat
+					end
+				end
+				if isChecked("Prioritize Totems") and isTotem(unit) then
+					coef = coef + 100
+				end
+				-- if user checked burn target then we add the value otherwise will be 0
+				if getOptionCheck("Forced Burn") then
+					coef = coef + isBurnTarget(unit)
+				end
+				-- if user checked avoid shielded, we add the % this shield remove to coef
+				if getOptionCheck("Avoid Shields") then
+					coef = coef + isShieldedTarget(unit)
+				end
+				local displayCoef = math.floor(coef*10)/10
+				local displayName = UnitName(unit) or "invalid"
+				-- Print("Unit "..displayName.." - "..displayCoef)
+			end
+		end
+		return coef
+	end
+
+local function compare(a,b)
+	if UnitHealth(a) == UnitHealth(b) then
+		return getDistance(a) < getDistance(b)
+	else	
+		return  UnitHealth(a) < UnitHealth(b)
+	end 
+end
+
+local function findBestUnit(range,facing)
+	local tsort = table.sort
 	local startTime = debugprofilestop()
 	local bestUnitCoef
 	local bestUnit = bestUnit or nil
@@ -238,27 +410,27 @@ function findBestUnit(range,facing)
 		-- for k, v in pairs(enemyList) do
 		if #enemyList > 0 then
 			local currHP
+			tsort(enemyList,compare)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
+				local isFacing = getFacing("player",thisUnit)
+				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
 				-- local thisUnit = v.unit
 				-- local distance = getDistance(thisUnit)
 				-- if distance < range then
-					if isChecked("Prioritize Totems") and isTotem(thisUnit) then
-						return thisUnit
-					elseif getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest
+				local coeficient = getUnitCoeficient(thisUnit) or 0
+				if not isCC and (not facing or isFacing) then
+					if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
 						if currHP == nil or UnitHealth(thisUnit) < currHP then
 							currHP = UnitHealth(thisUnit)
-							bestUnit = thisUnit
-						end
-					else
-						local coeficient = getUnitCoeficient(thisUnit) or 0
-						local isFacing = getFacing("player",thisUnit)
-						local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-						if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) and not isCC and (not facing or isFacing) then
-							bestUnitCoef = coeficient
-							bestUnit = thisUnit
+							coeficient = coeficient + 100
 						end
 					end
+					if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
+						bestUnitCoef = coeficient
+						bestUnit = thisUnit
+					end
+				end
 				-- end
 	--			lastCheckTime = GetTime() + 1
 			end
@@ -322,7 +494,7 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     return units
 end
 
-function getRect(width,length,showLines)
+local function getRect(width,length,showLines)
 	local width = width or 10
 	local length = length or 20
 	local px, py, pz = GetObjectPosition("player")
@@ -412,166 +584,6 @@ local function intersects(tX,tY,tR,aX,aY,cX,cY)
 	-- else
 	--     return false
 	-- end
-end
-
--- This function will set the prioritisation of the units, ie which target should i attack
-function getUnitCoeficient(unit)
-	local coef = 0
-	-- if distance == nil then distance = getDistance("player",unit) end
-	local distance = getDistance("player",unit)
-	-- check if unit is valid
-	if GetObjectExists(unit) then
-		-- if unit is out of range, bad prio(0)
-		if distance < 50 then
-			local unitHP = getHP(unit)
-			-- if its our actual target we give it a bonus
-			if GetUnitIsUnit("target",unit) == true then
-				coef = coef + 1
-			end
-			-- if wise target checked, we look for best target by looking to the lowest or highest hp, otherwise we look for target
-			if getOptionCheck("Wise Target") == true then
-				if getOptionValue("Wise Target") == 1 then 	   -- Highest
-					-- if highest is selected
-					coef = unitHP
-				elseif getOptionValue("Wise Target") == 3 then -- abs Highest
-					coef = UnitHealth(unit)
-				elseif getOptionValue("Wise Target") == 5 then -- Nearest
-					coef = 100 - distance
-				elseif getOptionValue("Wise Target") == 6 then -- Furthest
-					coef = distance
-				else 										   -- Lowest
-					-- if lowest is selected
-					coef = 100 - unitHP
-				end
-			end
-			-- raid target management
-			-- if the unit have the skull and we have param for it add 50
-			if getOptionCheck("Skull First") and GetRaidTargetIndex(unit) == 8 then
-				coef = coef + 50
-			end
-			-- if threat is checked, add 100 points of prio if we lost aggro on that target
-			if getOptionCheck("Tank Threat") then
-				local threat = UnitThreatSituation("player",unit) or -1
-				if select(6, GetSpecializationInfo(GetSpecialization())) == "TANK" and threat < 3 and unitHP > 10 then
-					coef = coef + 100 - threat
-				end
-			end
-			-- if user checked burn target then we add the value otherwise will be 0
-			if getOptionCheck("Forced Burn") then
-				coef = coef + isBurnTarget(unit)
-			end
-			-- if user checked avoid shielded, we add the % this shield remove to coef
-			if getOptionCheck("Avoid Shields") then
-				coef = coef + isShieldedTarget(unit)
-			end
-			local displayCoef = math.floor(coef*10)/10
-			local displayName = UnitName(unit) or "invalid"
-			-- Print("Unit "..displayName.." - "..displayCoef)
-		end
-	end
-	return coef
-end
-
--- function to see if our unit is a blacklisted unit
-function isBlackListed(Unit)
-	-- check if unit is valid
-	if GetObjectExists(Unit) then
-		for i = 1, #castersBlackList do
-			-- check if unit is valid
-			if GetObjectExists(castersBlackList[i].unit) then
-				if castersBlackList[i].unit == Unit then
-					return true
-				end
-			end
-		end
-	end
-end
--- returns true if target should be burnt
-function isBurnTarget(unit)
-	local coef = 0
-	-- check if unit is valid
-	if getOptionCheck("Forced Burn") then
-		local unitID = GetObjectID(unit)
-		local burnUnit = br.lists.burnUnits[unitID]
-		-- if unit have selected debuff
-		if burnUnit then
-			if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
-				coef = burnUnit.coef
-			end
-			if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit) then
-				TargetUnit(unit)
-				coef = burnUnit.coef
-			end
-		end
-	end
-	return coef
-end
--- check for a unit see if its a cc candidate
-function isCrowdControlCandidates(Unit)
-	-- check if unit is valid
-	if GetObjectExists(Unit) then
-		local unitID = GetObjectID(Unit)
-	end
-	-- cycle list of candidates
-	local crowdControlUnit = br.lists.ccUnits[unitID]
-	if crowdControlUnit then
-		-- check if unit is valid
-		if GetObjectExists(crowdControlUnit.unit) then
-			-- is in the list of candidates
-			if (crowdControlUnit.buff == nil or UnitBuffID(Unit,crowdControlUnit.buff))
-					and (crowdControlUnit.spell == nil or getCastingInfo(Unit) == GetSpellInfo(crowdControlUnit.spell))
-			then -- doesnt have more requirements or requirements are met
-				return true
-			end
-		end
-	end
-	return false
-end
-
--- returns true if we can safely attack this target
-function isSafeToAttack(unit)
-	if getOptionCheck("Safe Damage Check") == true then
-		-- check if unit is valid
-		local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
-		for i = 1, #br.lists.noTouchUnits do
-			local noTouch = br.lists.noTouchUnits[i]
-			if noTouch.unitID == 1 or noTouch.unitID == unitID then
-				if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
-				if noTouch.buff > 0 then
-					-- Not Safe with Buff/Debuff
-					if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
-						return false
-					end
-				else
-					-- Not Safe without Buff/Debuff
-					local posBuff = -(noTouch.buff)
-					if not UnitBuffID(unit,posBuff) or not UnitDebuffID(unit,posBuff) then
-						return false
-					end
-				end
-			end
-		end
-	end
-	-- if all went fine return true
-	return true
-end
-
--- returns true if target is shielded or should be avoided
-function isShieldedTarget(unit)
-	local coef = 0
-	if getOptionCheck("Avoid Shields") then
-		-- check if unit is valid
-		local unitID = GetObjectID(unit)
-		local shieldedUnit = br.lists.shieldUnits[unitID]
-		-- if unit have selected debuff
-		if shieldedUnit and shieldedUnit.buff and UnitBuffID(unit,shieldedUnit.buff) then
-			-- if it's a frontal buff, see if we are in front of it
-			if shieldedUnit.frontal ~= true or getFacing(unit,"player") then
-				coef = shieldedUnit.coef
-			end
-		end
-	end
-	return coef
 end
 
 -- Percentage of enemies that are not in execute HP range
