@@ -637,7 +637,7 @@ local function runRotation()
 							if cast.ironbark("mouseover") then return true end
 						end
 					elseif getOptionValue("Ironbark Target") == 4 then
-						if br.friend[i].hp <= getValue("Ironbark") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if br.friend[i].hp <= getValue("Ironbark") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 							if cast.ironbark(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Ironbark Target") == 5 then
@@ -645,7 +645,7 @@ local function runRotation()
 							if cast.ironbark(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Ironbark Target") == 6 then
-						if br.friend[i].hp <= getValue("Ironbark") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+						if br.friend[i].hp <= getValue("Ironbark") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
 							if cast.ironbark(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Ironbark Target") == 7 then
@@ -671,7 +671,7 @@ local function runRotation()
 							if cast.swiftmend("mouseover") then return true end
 						end
 					elseif getOptionValue("Swiftmend Target") == 4 then
-						if br.friend[i].hp <= getValue("Swiftmend") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
+						if br.friend[i].hp <= getValue("Swiftmend") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 							if cast.swiftmend(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Swiftmend Target") == 5 then
@@ -679,7 +679,7 @@ local function runRotation()
 							if cast.swiftmend(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Swiftmend Target") == 6 then
-						if br.friend[i].hp <= getValue("Swiftmend") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
+						if br.friend[i].hp <= getValue("Swiftmend") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 							if cast.swiftmend(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Swiftmend Target") == 7 then
@@ -704,7 +704,7 @@ local function runRotation()
 						if cast.regrowth(br.friend[i].unit) then
 						regrowth_target = br.friend[i].unit
 						regrowthTime = GetTime() return true end
-					elseif isChecked("Hot Regrowth Tank") and br.friend[i].hp <= getValue("Hot Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and buff.regrowth.remain(br.friend[i].unit) < gcdMax then
+					elseif isChecked("Hot Regrowth Tank") and br.friend[i].hp <= getValue("Hot Regrowth Tank") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and buff.regrowth.remain(br.friend[i].unit) < gcdMax then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i].unit return true end
 					elseif isChecked("Hot Regrowth") and br.friend[i].hp <= getValue("Hot Regrowth") and buff.regrowth.remain(br.friend[i].unit) < gcdMax then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i].unit return true end
@@ -715,7 +715,7 @@ local function runRotation()
 			if isChecked("Lifebloom") then
 				for i = 1, #br.friend do
 					if getOptionValue("Lifebloom") == 1 then
-						if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if bloomCount < 1 and not buff.lifebloom.exists(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 							if cast.lifebloom(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Lifebloom") == 2 then
@@ -737,7 +737,7 @@ local function runRotation()
 			if isChecked("Cenarion Ward") and inCombat and talent.cenarionWard then
 				for i = 1, #br.friend do
 					if getOptionValue("Cenarion Ward Target") == 1 then
-						if br.friend[i].hp <= getValue("Cenarion Ward") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+						if br.friend[i].hp <= getValue("Cenarion Ward") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 							if cast.cenarionWard(br.friend[i].unit) then return true end
 						end
 					elseif getOptionValue("Cenarion Ward Target") == 2 then
@@ -766,11 +766,11 @@ local function runRotation()
 			-- Rejuvenation
 			if isChecked("Rejuvenation") then
 				for i = 1, #br.friend do
-					if talent.germination and br.friend[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					if talent.germination and br.friend[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return true end
 					elseif talent.germination and br.friend[i].hp <= getValue("Germination") and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
 						if cast.rejuvenation(br.friend[i].unit) then return true end
-					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(br.friend[i].unit) and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+					elseif br.friend[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(br.friend[i].unit) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 						if cast.rejuvenation(br.friend[i].unit) then return true end
 					elseif br.friend[i].hp <= getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) then
 						if cast.rejuvenation(br.friend[i].unit) then return true end
@@ -780,7 +780,7 @@ local function runRotation()
 			-- Regrowth
 			if not moving or buff.incarnationTreeOfLife.exists() then
 				for i = 1, #br.friend do
-					if isChecked("Regrowth Tank") and br.friend[i].hp <= getValue("Regrowth Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
+					if isChecked("Regrowth Tank") and br.friend[i].hp <= getValue("Regrowth Tank") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i].unit return true end
 					elseif isChecked("Regrowth") and br.friend[i].hp <= getValue("Regrowth") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
 						if cast.regrowth(br.friend[i].unit) then regrowth_target = br.friend[i].unit return true end
