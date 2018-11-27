@@ -71,10 +71,8 @@ function getLineOfSight(Unit1, Unit2)
 		end
 	end
 	local skipLoSTable = br.lists.los
-	for i = 1, #skipLoSTable do
-		if skipLoSTable[GetObjectID(Unit1)] ~= nil or skipLoSTable[GetObjectID(Unit2)] ~= nil then
-			return true
-		end
+	if skipLoSTable[GetObjectID(Unit1)] or skipLoSTable[GetObjectID(Unit2)] then
+		return true
 	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
 		local X1, Y1, Z1 = GetObjectPosition(Unit1)
