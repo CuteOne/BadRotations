@@ -295,7 +295,7 @@ local function runRotation()
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
     local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 % (2 * (GetHaste()/100)))
 
-    if not inCombat and mode.open ~= 1 then
+    if not inCombat and mode.open ~= 1 and opener == true and not cast.last.kidneyShot(1) and not cast.last.kidneyShot(2) then
         opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
     end
     if mode.open == 1 then opener = true end
@@ -411,11 +411,18 @@ local function runRotation()
         if opener == false and isValidUnit("target") and IsSpellInRange(GetSpellInfo(spell.cheapShot), "target") == 1 then
             if opn1 == false then
                 if not isChecked("Disable Auto Combat") and stealthedRogue then
+                    if combo >= 5 then
+                        if cast.kidneyShot("target") then
+                            opener, opn1 = true, true
+                            return true
+                        end
+                        return true
+                    end
                     if cast.cheapShot("target") then
                         opn1 = true
                         return true
                     end
-                elseif (inCombat and debuff.cheapShot.exists("target")) or not stealthedRogue then
+                elseif (inCombat and (debuff.cheapShot.exists("target") or debuff.kidneyShot.exists("target"))) or not stealthedRogue then
                     opn1 = true
                 end
             end
@@ -437,6 +444,9 @@ local function runRotation()
             end
             if opn4 == true and opn5 == false and combo >= 4 and gcd < 0.5 then opn5 = true end
             if opn4 == true and opn5 == false then
+                if talent.markedForDeath then
+                    if cast.markedForDeath("target") then return true end
+                end
                 if cast.mutilate("target") then return true end
             end
             if opn5 == true and opn6 == false then
