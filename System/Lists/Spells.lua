@@ -2268,6 +2268,7 @@ br.lists.spells = {
                 deadlyPoison                = 2818,
                 garrote                     = 703,
                 internalBleeding            = 154953,
+                kidneyShot                  = 408,
                 rupture                     = 1943,
                 surgeOfToxins               = 192425,
                 toxicBlade                  = 245389,
