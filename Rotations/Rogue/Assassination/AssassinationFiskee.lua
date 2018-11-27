@@ -466,12 +466,12 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
-        if useCDs() and ttd("target") > 15 and isChecked("Potion") and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() and (hasBloodLust() or debuff.vendetta.exists("target")) then
+        if useCDs() and ttd("target") > 15 and isChecked("Potion") and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() and (hasBloodLust() or debuff.vendetta.exists("target")) and getDistance("target") < 5 then
             use.battlePotionOfAgility()
             return true
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) then
+        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and getDistance("target") < 5 then
             if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
@@ -483,7 +483,7 @@ local function runRotation()
         -- actions.cds+=/berserking,if=debuff.vendetta.up
         -- actions.cds+=/fireblood,if=debuff.vendetta.up
         -- actions.cds+=/ancestral_call,if=debuff.vendetta.up
-        if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5  then
+        if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5 and getDistance("target") < 5  then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
                 if cast.racial("player") then return true end
             end
@@ -730,7 +730,7 @@ local function runRotation()
             -- actions+=/arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
             -- actions+=/arcane_pulse
             -- actions+=/lights_judgment
-            if useCDs() and isChecked("Racial") then
+            if useCDs() and isChecked("Racial") and getDistance("target") < 5 then
                 if race == "BloodElf" and energyDeficit >= (15 + energyRegenCombined) then
                     if cast.racial("player") then return true end
                 elseif race == "Nightborne" then
