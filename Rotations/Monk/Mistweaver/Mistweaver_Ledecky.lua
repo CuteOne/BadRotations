@@ -7,11 +7,11 @@ ticker = C_Timer.NewTicker(1, function()
 	if upwellingStacks == nil then upwellingStacks = 0 end
 	if br.player.talent.upwelling then
 		if duration <= 4 and upwellingStacks <= 18 then
-			print(upwellingStacks)
+			-- print(upwellingStacks)
 			upwellingStacks = upwellingStacks + 1
 		end
 		if duration >= 5 then
-			print("reset")
+			--print("reset")
 			upwellingStacks = 0
 		end
 	end
