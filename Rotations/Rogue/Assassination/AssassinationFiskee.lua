@@ -104,13 +104,13 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Lists")
             br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
             br.ui:createScrollingEditBoxWithout(section,"Stun Spells", stunSpellList, "List of spells to stun with auto stun function", 240, 50)
-            resetButton = br.ui:createButton(section, "Reset Lists")
-            resetButton:SetEventListener("OnClick", function()
-                local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
-                selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist
-                selectedProfile["Stun SpellsEditBox"] = stunSpellList
-                br.rotationChanged = true
-            end)
+            -- resetButton = br.ui:createButton(section, "Reset Lists")
+            -- resetButton:SetEventListener("OnClick", function()
+            --     local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
+            --     selectedProfile["Dot Blacklist UnitsEditBox"] = dotBlacklist
+            --     selectedProfile["Stun SpellsEditBox"] = stunSpellList
+            --     br.rotationChanged = true
+            -- end)
         br.ui:checkSectionState(section)
     end
     optionTable = {{
@@ -165,6 +165,7 @@ local function runRotation()
     local trait                                         = br.player.traits
     local units                                         = br.player.units
     local use                                           = br.player.use
+    local validTarget                                   = isValidUnit("target")
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -408,7 +409,7 @@ local function runRotation()
     end
 
     local function actionList_Opener()
-        if opener == false and isValidUnit("target") and IsSpellInRange(GetSpellInfo(spell.cheapShot), "target") == 1 then
+        if opener == false and validTarget and IsSpellInRange(GetSpellInfo(spell.cheapShot), "target") == 1 then
             if opn1 == false then
                 if not isChecked("Disable Auto Combat") and stealthedRogue then
                     if combo >= 5 then
@@ -471,7 +472,7 @@ local function runRotation()
             return true
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and getDistance("target") < 5 then
+        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and getDistance("target") < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
@@ -705,7 +706,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (isValidUnit("target") and getDistance("target") < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (validTarget and getDistance("target") < 5)))) and opener == true then
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             -- # Restealth if possible (no vulnerable enemies in combat)
@@ -718,11 +719,13 @@ local function runRotation()
                 if actionList_Stealthed() then return true end
             end
             --start aa
-            if getDistance("target") < 5 and not IsCurrentSpell(6603) and not stealthedRogue then
+            if validTarget and not stealthedRogue and getDistance("target") < 5 and not IsCurrentSpell(6603) then
                 StartAttack("target")
             end
             -- actions+=/call_action_list,name=cds
-            if actionList_Cooldowns() then return true end
+            if validTarget then
+                if actionList_Cooldowns() then return true end
+            end
             -- actions+=/call_action_list,name=dot
             if actionList_Dot() then return true end
             -- actions+=/call_action_list,name=direct
