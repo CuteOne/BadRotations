@@ -210,7 +210,7 @@ local function runRotation()
 
     local noDotUnits = {}
     for i in string.gmatch(getOptionValue("Dot Blacklist Units"), "%d+") do
-        noDotUnits[i] = true
+        noDotUnits[tonumber(i)] = true
     end
 
     local function noDotCheck(unit)
@@ -372,7 +372,7 @@ local function runRotation()
     local function actionList_Interrupts()
         local stunList = {}
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
-            stunList[i] = true
+            stunList[tonumber(i)] = true
         end
         if useInterrupts() and not stealthedRogue then
             for i=1, #enemies.yards20 do
@@ -535,7 +535,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if talent.exsanguinate and debuff.rupture.remain("target") > (4 + 4 * comboMax) and not debuff.garrote.refresh("target") then
+        if talent.exsanguinate and debuff.rupture.remain("target") > 18 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -551,7 +551,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1
+        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists()
         -- # Poisoned Knife at 29+ stacks of Sharpened Blades.
         -- actions.direct+=/poisoned_knife,if=variable.use_filler&buff.sharpened_blades.stack>=29
         if useFiller and buff.sharpenedBlades.stack() >= 29 then
@@ -592,7 +592,7 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Rupture setup for Exsg
         -- actions.dot=rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2)))
-        if talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) then
+        if talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
         -- # Garrote upkeep, also tries to use it as a special generator for the last CP before a finisher
@@ -620,7 +620,7 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
         local crimsonTargets
         if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain() < (2+crimsonTargets) and combo >= 4 then
+        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain() < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
