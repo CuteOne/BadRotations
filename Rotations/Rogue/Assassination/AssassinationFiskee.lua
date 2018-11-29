@@ -36,6 +36,11 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Stun", value = 2 , overlay = "Stun Opener", tip = "Will stun target in opener.", highlight = 1, icon = br.player.spell.cheapShot }
     };
     CreateButton("Open",5,0)
+    ExsangModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Exsanguinate On", tip = "Will use Exsanguinate.", highlight = 1, icon = br.player.spell.exsanguinate },
+        [2] = { mode = "Off", value = 2 , overlay = "Exsanguinate Off", tip = "Will not use Exsanguinate.", highlight = 0, icon = br.player.spell.exsanguinate }
+    };
+    CreateButton("Exsang",6,0)
 end
 
 ---------------
@@ -132,6 +137,7 @@ local function runRotation()
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
     br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
+    br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
 --------------
 --- Locals ---
 --------------
@@ -535,7 +541,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if talent.exsanguinate and debuff.rupture.remain("target") > 18 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 18 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -547,7 +553,7 @@ local function runRotation()
     local function actionList_Direct()
         -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
-        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2) then
+        if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or mode.exsang == 2) then
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
@@ -592,7 +598,7 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Rupture setup for Exsg
         -- actions.dot=rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2)))
-        if talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
+        if mode.exsang == 1 and talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
         -- # Garrote upkeep, also tries to use it as a special generator for the last CP before a finisher
@@ -640,7 +646,7 @@ local function runRotation()
     local function actionList_Stealthed()
         -- # Nighstalker, or Subt+Exsg on 1T: Snapshot Rupture
         -- actions.stealthed=rupture,if=combo_points>=4&(talent.nightstalker.enabled|talent.subterfuge.enabled&(talent.exsanguinate.enabled&cooldown.exsanguinate.remains<=2|!ticking)&variable.single_target)&target.time_to_die-remains>6
-        if combo >= 4 and ttd("target") > 6 and (talent.nightstalker or (talent.subterfuge and ((talent.exsanguinate and cd.exsanguinate.remain() <= 2) or not debuff.rupture.exists("target")) and enemies10 == 1)) then
+        if combo >= 4 and ttd("target") > 6 and (talent.nightstalker or (mode.exsang == 1 and talent.subterfuge and ((talent.exsanguinate and cd.exsanguinate.remain() <= 2) or not debuff.rupture.exists("target")) and enemies10 == 1)) then
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge: Apply or Refresh with buffed Garrotes
@@ -683,7 +689,7 @@ local function runRotation()
         -- actions.stealthed+=/pool_resource,for_next=1
         if cast.pool.garrote() then return true end
         -- actions.stealthed+=/garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
-        if talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture() and debuff.rupture.remain("target") > (5+4*comboMax) then
+        if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture() and debuff.rupture.remain("target") > (5+4*comboMax) then
             if cast.garrote("target") then return true end
         end
     end
