@@ -369,7 +369,7 @@ local function runRotation()
 				if cast.breathOfFire() then return true end
 			end
 		-- High Energy TP
-			if (power > 55) and (talent.rushingJadeWind and buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if (power > 55) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return true end
 			end
 		-- Rushing Jade Wind
@@ -410,7 +410,7 @@ local function runRotation()
 				if cast.chiWave() then return true end
 			end
 		-- Tiger Palm
-			if power > 55 and (talent.rushingJadeWind and buff.rushingJadeWind.exists()) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.tigerPalm() then return true end
 			end
 	end
@@ -424,7 +424,7 @@ local function runRotation()
             end
         else
             if cast.blackoutStrike() then return true end
-            if (talent.rushingJadeWind and buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) and power > 45 then
+            if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) and power > 45 then
                 if cast.tigerPalm() then return true end
             end
             if not cast.able.kegSmash() and debuff.kegSmash.exists() then
