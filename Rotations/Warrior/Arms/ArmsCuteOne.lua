@@ -540,7 +540,7 @@ local function runRotation()
             end
         -- Mortal Strike
             -- mortal_strike,if=buff.overpower.stack=2&talent.dreadnaught.enabled|buff.executioners_precision.stack=2
-            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or getDebuffStacks("target",272870,"player") == 2) then
+            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or buff.overpower.stack() == 2 and getDebuffStacks("target",272870,"player") == 2) then
                 if cast.mortalStrike() then return end
             end
         -- Execute
