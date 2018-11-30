@@ -154,7 +154,6 @@ local function runRotation()
     local enemies                                       = br.player.enemies
     local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
     local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
-    local garroteCount                                  = br.player.debuff.garrote.count()
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -166,7 +165,6 @@ local function runRotation()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
-    local ruptureCount                                  = br.player.debuff.rupture.count()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
     local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists()
@@ -181,6 +179,8 @@ local function runRotation()
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
+
+    local garroteCount, ruptureCount = 0, 0
 
     enemies.get(20)
     enemies.get(20,"player",true)
@@ -284,7 +284,11 @@ local function runRotation()
             if thisUnit.distance <= 10 then
                 tinsert(enemyTable10, thisUnit)
                 if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
-                if thisUnit.distance <= 5 then tinsert(enemyTable5, thisUnit) end
+                if debuff.garrote.exists(thisUnit.unit) then garroteCount = garroteCount + 1 end
+                if debuff.rupture.exists(thisUnit.unit) then ruptureCount = ruptureCount + 1 end
+                if thisUnit.distance <= 5 then
+                    tinsert(enemyTable5, thisUnit)
+                end
             end
         end
         if #enemyTable5 > 1 then
