@@ -378,7 +378,7 @@ local function runRotation()
                     if cast.feint() then return true end
                 end
                 --Static Shock (1st boss Temple)
-                if (GetObjectID("boss1") == 133944 or GetObjectID("boss2") == 133944) and (isCastingSpell(263257, "boss1") or isCastingSpell(263257, "boss2")) then
+                if (bossID == 133944 or GetObjectID("boss2") == 133944) and (isCastingSpell(263257, "boss1") or isCastingSpell(263257, "boss2")) then
                     if isChecked("Cloak Unavoidables") then
                         if cast.cloakOfShadows() then return true end
                     end
@@ -387,7 +387,7 @@ local function runRotation()
                     end
                 end
                 --Noxious Breath (2nd boss temple)
-                if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(8,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
+                if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(5,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
                     if cast.feint() then return true end
                 end
             end
