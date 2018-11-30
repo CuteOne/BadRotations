@@ -60,6 +60,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
+            br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote and rupture.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -82,6 +83,9 @@ local function createOptions()
             br.ui:createSpinner(section, "Crimson Vial",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "|cffFFFFFF Will use feint/evasion on certain unavoidable boss abilities")
+            br.ui:createSpinnerWithout(section,  "Evasion Unavoidables HP Limit",  85,  0,  100,  5,  "|cffFFFFFF Player HP to use evasion on unavoidables.")
+            br.ui:createCheckbox(section, "Cloak Unavoidables", "|cffFFFFFF Will cloak on unavoidables")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -150,6 +154,7 @@ local function runRotation()
     local enemies                                       = br.player.enemies
     local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
     local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
+    local garroteCount                                  = br.player.debuff.garrote.count()
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -161,6 +166,7 @@ local function runRotation()
     local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
+    local ruptureCount                                  = br.player.debuff.rupture.count()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
     local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists()
@@ -261,6 +267,12 @@ local function runRotation()
                 if enemyTable30[i].facing then enemyScore = enemyScore + 30 end
                 if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
                 if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
+                local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
+                if raidTarget ~= nil then 
+                    enemyScore = enemyScore + raidTarget * 3
+                    if raidTarget == 8 then enemyScore = enemyScore + 5 end
+                end
+                if UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end
                 enemyTable30[i].enemyScore = enemyScore
             end
             table.sort(enemyTable30, function(x,y)
@@ -344,6 +356,41 @@ local function runRotation()
     end
     local function actionList_Defensive()
         if useDefensive() then
+            if isChecked("Auto Defensive Unavoidables") then
+                --Powder Shot (2nd boss freehold)
+                local bossID = GetObjectID("boss1")
+                if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
+                    if talent.elusiveness then
+                        if cast.feint() then return true end
+                    elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
+                        if cast.evasion() then return true end
+                    end
+                end
+                --Azerite Powder Shot (1st boss freehold)
+                if bossID == 126832 and isCastingSpell(256106, "boss1") and getFacing("boss1", "player") then
+                    if cast.feint() then return true end
+                end
+                --Spit gold (1st boss KR)
+                if bossID == 135322 and isCastingSpell(265773, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
+                    if cast.cloakOfShadows() then return true end
+                end
+                if UnitDebuffID("player",265773) and getDebuffRemain("player",265773) <= 2 then
+                    if cast.feint() then return true end
+                end
+                --Static Shock (1st boss Temple)
+                if (GetObjectID("boss1") == 133944 or GetObjectID("boss2") == 133944) and (isCastingSpell(263257, "boss1") or isCastingSpell(263257, "boss2")) then
+                    if isChecked("Cloak Unavoidables") then
+                        if cast.cloakOfShadows() then return true end
+                    end
+                    if not buff.cloakOfShadows.exists() then
+                        if cast.feint() then return true end
+                    end
+                end
+                --Noxious Breath (2nd boss temple)
+                if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(8,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
+                    if cast.feint() then return true end
+                end
+            end
             if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
                 if hasEquiped(122668) then
                     if GetItemCooldown(122668)==0 then
@@ -361,16 +408,16 @@ local function runRotation()
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
-                if cast.cloakOfShadows() then return end
+                if cast.cloakOfShadows() then return true end
             end
             if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
-                if cast.crimsonVial() then return end
+                if cast.crimsonVial() then return true end
             end
             if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat and not stealth then
-                if cast.evasion() then return end
+                if cast.evasion() then return true end
             end
             if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
-                if cast.feint() then return end
+                if cast.feint() then return true end
             end
         end
     end
@@ -557,7 +604,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists()
+        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists()
         -- # Poisoned Knife at 29+ stacks of Sharpened Blades.
         -- actions.direct+=/poisoned_knife,if=variable.use_filler&buff.sharpened_blades.stack>=29
         if useFiller and buff.sharpenedBlades.stack() >= 29 then
@@ -608,17 +655,28 @@ local function runRotation()
         local vanishCheck, vendettaCheck = false, false
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             if isChecked("Vanish") and cd.vanish.remain() == 0 then vanishCheck = true end
-            if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end 
+            if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
         end
         if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 then
-            for i = 1, #enemyTable5 do
-                local thisUnit = enemyTable5[i].unit
-                local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.refresh(thisUnit) and
-                (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
-                (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
-                (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
-                    if cast.garrote(thisUnit) then return true end
+            if garroteCount < getOptionValue("Multidot Limit") then
+                for i = 1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
+                    local garroteRemain = debuff.garrote.remain(thisUnit)
+                    if not debuff.garrote.exists(thisUnit) and enemyTable5[i].ttd>12 then
+                        if cast.garrote(thisUnit) then return true end
+                    end
+                end
+            end
+            if garroteCount <= getOptionValue("Multidot Limit") then
+                for i = 1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
+                    local garroteRemain = debuff.garrote.remain(thisUnit)
+                    if debuff.garrote.exists(thisUnit) and debuff.garrote.refresh(thisUnit) and
+                    (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                    (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
+                    (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
+                        if cast.garrote(thisUnit) then return true end
+                    end
                 end
             end
         end
@@ -626,18 +684,28 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
         local crimsonTargets
         if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain() < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() then
+        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain() < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         -- actions.dot+=/rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
         if combo >= 4 then
-            for i = 1, #enemyTable5 do
-                local thisUnit = enemyTable5[i].unit
-                local ruptureRemain = debuff.rupture.remain(thisUnit)
-                if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
-                (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
-                    if cast.rupture(thisUnit) then return true end
+            if ruptureCount < getOptionValue("Multidot Limit") then
+                for i = 1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
+                    if not debuff.rupture.exists(thisUnit) and enemyTable5[i].ttd > 4 then
+                        if cast.rupture(thisUnit) then return true end
+                    end
+                end
+            end
+            if garroteCount <= getOptionValue("Multidot Limit") then
+                for i = 1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
+                    local ruptureRemain = debuff.rupture.remain(thisUnit)
+                    if debuff.rupture.exists(thisUnit) and debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                    (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
+                        if cast.rupture(thisUnit) then return true end
+                    end
                 end
             end
         end

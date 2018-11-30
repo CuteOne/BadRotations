@@ -2283,6 +2283,7 @@ br.lists.spells = {
                 blindside                   = 111240,
                 crimsonTempest              = 121411,
                 elaboratePlanning           = 193640,
+                elusiveness                 = 79008,
                 exsanguinate                = 200806,
                 hiddenBlades                = 270061,
                 internalBleeding            = 154904,
