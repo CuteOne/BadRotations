@@ -1439,6 +1439,7 @@ br.lists.spells = {
                 blackoutCombo               = 196736,
                 blackoxBrew                 = 115399,
                 guard                       = 115295,
+                rushingJadeWind             = 116847,
             },
         },
         -- Mistweaver
