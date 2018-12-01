@@ -60,7 +60,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
-            br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote and rupture.")
+            br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -180,7 +180,7 @@ local function runRotation()
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
 
-    local garroteCount, ruptureCount = 0, 0
+    local garroteCount = 0
 
     enemies.get(20)
     enemies.get(20,"player",true)
@@ -285,7 +285,6 @@ local function runRotation()
                 tinsert(enemyTable10, thisUnit)
                 if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
                 if debuff.garrote.exists(thisUnit.unit) then garroteCount = garroteCount + 1 end
-                if debuff.rupture.exists(thisUnit.unit) then ruptureCount = ruptureCount + 1 end
                 if thisUnit.distance <= 5 then
                     tinsert(enemyTable5, thisUnit)
                 end
@@ -592,7 +591,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 18 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and ((debuff.rupture.remain("target") > 16 and combatTime < 20 and enemies10 > 2) or debuff.rupture.remain("target") > (4+4*comboMax)) and not debuff.garrote.refresh("target") and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -649,7 +648,7 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Rupture setup for Exsg
         -- actions.dot=rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2)))
-        if mode.exsang == 1 and talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
+        if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
         -- # Garrote upkeep, also tries to use it as a special generator for the last CP before a finisher
@@ -694,22 +693,12 @@ local function runRotation()
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         -- actions.dot+=/rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
         if combo >= 4 then
-            if ruptureCount < getOptionValue("Multidot Limit") then
-                for i = 1, #enemyTable5 do
-                    local thisUnit = enemyTable5[i].unit
-                    if not debuff.rupture.exists(thisUnit) and enemyTable5[i].ttd > 4 then
-                        if cast.rupture(thisUnit) then return true end
-                    end
-                end
-            end
-            if garroteCount <= getOptionValue("Multidot Limit") then
-                for i = 1, #enemyTable5 do
-                    local thisUnit = enemyTable5[i].unit
-                    local ruptureRemain = debuff.rupture.remain(thisUnit)
-                    if debuff.rupture.exists(thisUnit) and debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
-                    (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
-                        if cast.rupture(thisUnit) then return true end
-                    end
+            for i = 1, #enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
+                local ruptureRemain = debuff.rupture.remain(thisUnit)
+                if debuff.rupture.refresh(thisUnit) and (debuff.rupture.applied(thisUnit) <= 1 or (ruptureRemain <= tickTime and enemies10 >= (3 + sSActive))) and
+                (not debuff.rupture.exsang(thisUnit) or (ruptureRemain < (tickTime *2) and enemies10 >= (3 + sSActive))) and (enemyTable5[i].ttd-ruptureRemain)>4 then
+                    if cast.rupture(thisUnit) then return true end
                 end
             end
         end
@@ -726,7 +715,7 @@ local function runRotation()
         if talent.subterfuge then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if shallWeDot(thisUnit) and debuff.garrote.refresh(thisUnit) and (ttd(thisUnit) - debuff.garrote.remain(thisUnit)) > 2 then
+                if shallWeDot(thisUnit) and debuff.garrote.refresh(thisUnit) and (enemyTable5[i].ttd - debuff.garrote.remain(thisUnit)) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
