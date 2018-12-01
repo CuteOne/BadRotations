@@ -651,9 +651,7 @@ local function runRotation()
         if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
-        -- # Garrote upkeep, also tries to use it as a special generator for the last CP before a finisher
         -- actions.dot+=/pool_resource,for_next=1
-        if cast.pool.garrote() then return true end
         -- actions.dot+=/garrote,cycle_targets=1,if=(!talent.subterfuge.enabled|!(cooldown.vanish.up&cooldown.vendetta.remains<=4))&combo_points.deficit>=1&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(target.time_to_die-remains>4&spell_targets.fan_of_knives<=1|target.time_to_die-remains>12)
         local vanishCheck, vendettaCheck = false, false
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
@@ -666,6 +664,7 @@ local function runRotation()
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
                     if not debuff.garrote.exists(thisUnit) and enemyTable5[i].ttd>12 then
+                        if cast.pool.garrote() then return true end
                         if cast.garrote(thisUnit) then return true end
                     end
                 end
@@ -678,6 +677,7 @@ local function runRotation()
                     (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                     (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                     (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
+                        if cast.pool.garrote() then return true end
                         if cast.garrote(thisUnit) then return true end
                     end
                 end
@@ -746,11 +746,9 @@ local function runRotation()
                 end
             end
         end
-        -- # Subterfuge + Exsg: Even override a snapshot Garrote right after Rupture before Exsanguination
-        -- actions.stealthed+=/pool_resource,for_next=1
-        if cast.pool.garrote() then return true end
         -- actions.stealthed+=/garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
         if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture() and debuff.rupture.remain("target") > (5+4*comboMax) then
+            if cast.pool.garrote() then return true end
             if cast.garrote("target") then return true end
         end
     end
