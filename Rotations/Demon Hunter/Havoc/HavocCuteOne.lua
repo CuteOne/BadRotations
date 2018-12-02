@@ -408,25 +408,14 @@ local function runRotation()
                         if cast.nemesis(lowestUnit) then return end
                     end
         -- Trinkets
-                    -- Draught of Souls
-                    if isChecked("Draught of Souls") then
-                        if hasEquiped(140808) and canUse(140808) then
-                            if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() > 3) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd("target") < cd.nemesis.remain() + 3) then
-                                useItem(140808)
-                            end
-                        end
-                    end
                     -- use_item,slot=trinket2,if=!buff.metamorphosis.up&(!talent.first_blood.enabled|!cooldown.blade_dance.ready)&(!talent.nemesis.enabled|cooldown.nemesis.remains>30|target.time_to_die<cooldown.nemesis.remains+3)
-                 --   if isChecked("Trinkets") then
-                        if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
-                            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
-                                useItem(13)
-                            end
-                            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
-                                useItem(14)
-                            end
-                        end
-                  --  end
+                        -- if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                        useItem(13)
+                    end
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                        useItem(14)
+                    end
         -- Potion
                     -- potion,name=old_war,if=buff.metamorphosis.remains>25|target.time_to_die<30
                     if isChecked("Potion") and canUse(127844) and inRaid then
