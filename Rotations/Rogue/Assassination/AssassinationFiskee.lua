@@ -167,7 +167,7 @@ local function runRotation()
     local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
-    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists()
+    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.3
     local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
     local thp                                           = getHP("target")
@@ -284,7 +284,7 @@ local function runRotation()
             if thisUnit.distance <= 10 then
                 tinsert(enemyTable10, thisUnit)
                 if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
-                if debuff.garrote.exists(thisUnit.unit) then garroteCount = garroteCount + 1 end
+                if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
                     tinsert(enemyTable5, thisUnit)
                 end
@@ -591,7 +591,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and ((debuff.rupture.remain("target") > 16 and combatTime < 20 and enemies10 > 2) or debuff.rupture.remain("target") > (4+4*comboMax)) and not debuff.garrote.refresh("target") and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 16 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -659,21 +659,11 @@ local function runRotation()
             if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
         end
         if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 then
-            if garroteCount < getOptionValue("Multidot Limit") then
-                for i = 1, #enemyTable5 do
-                    local thisUnit = enemyTable5[i].unit
-                    local garroteRemain = debuff.garrote.remain(thisUnit)
-                    if not debuff.garrote.exists(thisUnit) and enemyTable5[i].ttd>12 then
-                        if cast.pool.garrote() then return true end
-                        if cast.garrote(thisUnit) then return true end
-                    end
-                end
-            end
             if garroteCount <= getOptionValue("Multidot Limit") then
                 for i = 1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
-                    if debuff.garrote.exists(thisUnit) and debuff.garrote.refresh(thisUnit) and
+                    if debuff.garrote.refresh(thisUnit) and
                     (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                     (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                     (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
