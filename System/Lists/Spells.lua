@@ -1507,7 +1507,7 @@ br.lists.spells = {
                 innervate                   = 29166;
                 symbolOfHope                = 64901;
                 essenceFont                 = 191837;
-                manaTea                     = 116680,
+                manaTea                     = 197908,
             },
             debuffs                         = {
             },
@@ -1521,7 +1521,7 @@ br.lists.spells = {
                 chiTorpedo                  = 115008;
                 tigersLust                  = 116841;
                 mistWrap                    = 197900;
-                spiritOfTheCrane            = 197900;
+                spiritOfTheCrane            = 210802;
                 ringOfPeace                 = 116844;
                 songOfChiJi                 = 198898;
                 legSweep                    = 119381;
@@ -1535,6 +1535,7 @@ br.lists.spells = {
                 risingThunder               = 210804,
                 diffuseMagic                = 122783,
                 upwelling                   = 274963,
+                lifecycles                  = 197915,
             },
         },
         -- Windwalker
