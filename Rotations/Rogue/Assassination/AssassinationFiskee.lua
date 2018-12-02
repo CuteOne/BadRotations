@@ -68,7 +68,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "|cffFFFFFF Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "|cffFFFFFF Will use Trinkets")
-            br.ui:createCheckbox(section, "Potion", "|cffFFFFFF Will use Potion")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Bursting Blood"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vanish", "|cffFFFFFF Will use Vanish")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
@@ -523,9 +523,14 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
-        if useCDs() and ttd("target") > 15 and isChecked("Potion") and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() and (hasBloodLust() or debuff.vendetta.exists("target")) and getDistance("target") < 5 then
-            use.battlePotionOfAgility()
-            return true
+        if useCDs() and ttd("target") > 15 and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and getDistance("target") < 5 then
+            if getOptionValue("Potion") == 1 and ttd("target") > 15 and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() then
+                use.battlePotionOfAgility()
+                return true
+            elseif getOptionValue("Potion") == 2 and ttd("target") > getOptionValue("CDs TTD Limit") and use.able.potionOfBurstingBlood() and not buff.potionOfBurstingBlood.exists() then
+                use.potionOfBurstingBlood()
+                return true
+            end
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and getDistance("target") < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
