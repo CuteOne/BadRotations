@@ -350,12 +350,12 @@ local function runRotation()
             end
             -- Ascendance
             --actions.aoe+=/ascendance,if=talent.ascendance.enabled&(talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120&cooldown.storm_elemental.remains>15|!talent.storm_elemental.enabled)
-            if isChecked("Ascendance") and talent.ascendance and ((talent.stormElemental and cd.stormElemental.remain()<120 and cd.stormElemental.remain()> 15) or not talent.stormElemental) and useCDs then
+            if isChecked("Ascendance") and talent.ascendance and ((talent.stormElemental and cd.stormElemental.remain()<120 and cd.stormElemental.remain()> 15) or not talent.stormElemental) and useCDs() then
                 if cast.ascendance() then return true end
             end
             -- Liquid Magma Totem
             --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
-            if talent.liquidMagmaTotem and useCDs and #enemies.yards40 >= getValue("LMT Targets") then
+            if talent.liquidMagmaTotem and useCDs() and #enemies.yards40 >= getValue("LMT Targets") then
                 if cast.liquidMagmaTotem("target") then return true end
             end
             -- Flame Shock
@@ -420,7 +420,7 @@ local function runRotation()
             end
             --Ascendance
             --actions.single_target+=/ascendance,if=talent.ascendance.enabled&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!talent.storm_elemental.enabled
-            if isChecked("Ascendance") and talent.ascendance and useCDs and cd.lavaBurst.remain() > 0 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain()<= 120)) then
+            if isChecked("Ascendance") and talent.ascendance and useCDs() and cd.lavaBurst.remain() > 0 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain()<= 120)) then
                 if cast.ascendance() then return true end
             end
             -- Elemental Blast
@@ -432,12 +432,12 @@ local function runRotation()
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
+            if useCDs() and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
                 if cast.stormKeeper() then return true end
             end
             -- Liquid Magma Totem
             --actions.single_target+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem then
+            if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem then
                 if cast.liquidMagmaTotem() then return true end
             end
             
@@ -518,7 +518,7 @@ local function runRotation()
             local stormEleTime = stormEleTime or nil;
             -- Use Potion(To do)
             -- Racial Buffs
-            if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs
+            if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs()
             then
                 if race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
@@ -527,7 +527,7 @@ local function runRotation()
                 end
             end
             --Trinkets
-            if isChecked("Trinkets") and useCDs and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
+            if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
                 if canUse(13) then
                     useItem(13)
                 end
@@ -536,14 +536,14 @@ local function runRotation()
                 end
             end
             -- Storm Elemental
-            if isChecked("Storm Elemental/Fire Elemental") and useCDs and talent.stormElemental then
+            if isChecked("Storm Elemental/Fire Elemental") and useCDs() and talent.stormElemental then
                 if cast.stormElemental() then
                     stormEleTime = GetTime()
                     return true 
                 end
             end
             -- Fire Elemental
-            if isChecked("Storm Elemental/Fire Elemental") and useCDs then
+            if isChecked("Storm Elemental/Fire Elemental") and useCDs() then
                 if cast.fireElemental() then
                     fireEleTime = GetTime()
                     return true 
@@ -551,11 +551,11 @@ local function runRotation()
             end
             --Earth Elemental
             if not talent.primalElementalist then
-                if isChecked("Earth Elemental") and useCDs then
+                if isChecked("Earth Elemental") and useCDs() then
                     if cast.earthElemental() then return true end
                 end
             else
-                if useCDs and isChecked("Earth Elemental") and ((talent.stormElemental and (GetTime - stormEleTime >= 35)) or not talent.stormElemental) and (GetTime - fireEleTime >= 35) and (cd.fireElemental.remain > 60 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain > 60))) then
+                if useCDs() and isChecked("Earth Elemental") and ((talent.stormElemental and (GetTime - stormEleTime >= 35)) or not talent.stormElemental) and (GetTime - fireEleTime >= 35) and (cd.fireElemental.remain > 60 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain > 60))) then
                     if cast.earthElemental() then return true end
                 end
             end
@@ -576,11 +576,11 @@ local function runRotation()
                 if cast.earthShock() then return true end
             end
             -- Liquid Magma Totem
-            if useCDs and #enemies.yards8t >= getValue("LMT Targets") then
+            if useCDs() and #enemies.yards8t >= getValue("LMT Targets") then
                 if cast.liquidMagmaTotem("target") then return true end
             end
             -- Stormkeeper
-            if useCDs and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
+            if useCDs() and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
                 if cast.stormKeeper() then return true end
             end
             -- Elemental Blast
@@ -612,7 +612,7 @@ local function runRotation()
                 if cast.flameShock() then return true end
             end
             -- Ascendance
-            if isChecked("Ascendance") and useCDs and cd.lavaBurst.remain() > 0 then
+            if isChecked("Ascendance") and useCDs() and cd.lavaBurst.remain() > 0 then
                 if cast.ascendance() then return true end
             end
             -- Chain Lightning
@@ -685,7 +685,7 @@ local function runRotation()
                 --Simc
                 if getOptionValue("APL Mode") == 1 then
                             -- Racial Buffs
-                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs
+                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs()
                     then
                         if race == "LightforgedDraenei" then
                             if cast.racial("target","ground") then return true end
@@ -694,7 +694,7 @@ local function runRotation()
                         end
                     end
                     --Trinkets
-                    if isChecked("Trinkets") and useCDs and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
+                    if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
                         if canUse(13) then
                             useItem(13)
                         end
@@ -707,15 +707,15 @@ local function runRotation()
                         if cast.totemMastery() then return true end
                     end
                     --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-                    if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs then
+                    if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs() then
                         if cast.fireElemental() then return true end
                     else    
-                        if isChecked("Storm Elemental/Fire Elemental") and useCDs then
+                        if isChecked("Storm Elemental/Fire Elemental") and useCDs() then
                             if cast.stormElemental() then return true end
                         end
                     end
                     --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                    if useCDs and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
+                    if useCDs() and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
                         if cast.earthElemental() then return true end
                     end
                     if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
