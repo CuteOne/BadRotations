@@ -660,7 +660,7 @@ local function runRotation()
         -- Mongoose Bite
             -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack=10
             if cast.able.mongooseBite(maxLatentPoison) and talent.mongooseBite and debuff.latentPoison.stack(maxLatentPoison) == 10 then
-                cast.able.mongooseBite(maxLatentPoison)
+                if cast.mongooseBite(maxLatentPoison) then return end
             end
         -- Chakrams
             -- chakrams
