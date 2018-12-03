@@ -167,7 +167,7 @@ local function runRotation()
     local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
-    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.3
+    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists()
     local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
     local thp                                           = getHP("target")
@@ -742,7 +742,7 @@ local function runRotation()
             end
         end
         -- actions.stealthed+=/garrote,if=talent.subterfuge.enabled&talent.exsanguinate.enabled&cooldown.exsanguinate.remains<1&prev_gcd.1.rupture&dot.rupture.remains>5+4*cp_max_spend
-        if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture() and debuff.rupture.remain("target") > (5+4*comboMax) then
+        if mode.exsang == 1 and talent.subterfuge and talent.exsanguinate and cd.exsanguinate.remain() < 1 and cast.last.rupture() and debuff.rupture.remain("target") > 17.5 then
             if cast.pool.garrote() then return true end
             if cast.garrote("target") then return true end
         end
