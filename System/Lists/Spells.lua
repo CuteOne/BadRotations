@@ -1286,6 +1286,7 @@ br.lists.spells = {
             },
             traits                          = {
                 preheat                     = 273332,
+                blasterMaster               = 274596,
             }
         },
         -- Frost
