@@ -235,7 +235,7 @@ local function runRotation()
             else
                 return nextBomb == spell.wildfireBomb
             end
-            return currntBomb == nextBom
+            return currentBomb == nextBomb
         end
 
         local function eagleScout()
