@@ -207,12 +207,14 @@ end
 function getCastingRegen(spellID)
 	local regenRate = getRegen("player")
 	local power = 0
-
+	local desc = GetSpellDescription(spellID)
+	local generates = desc:gsub("%D+", "")
+	local tooltip = tonumber(generates:sub(-2))
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = getCastTime(spellID) or 0
 	local gcd = br.player.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
-	power = power + regenRate * castSeconds
+	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
 	if UnitBuffID("player", 193534) ~= nil then
@@ -223,7 +225,7 @@ function getCastingRegen(spellID)
 			seconds = castSeconds
 		end
 		-- Steady Focus increases the focus regeneration rate by 50% for its duration.
-		power = power + regenRate * 1.5 * seconds
+		power = power + regenRate * 1.5 * seconds + tooltip
 	end
 	return power
 end
