@@ -2,21 +2,22 @@ local rotationName = "Ledecky" -- Change to name of profile listed in options dr
 
 
 
-ticker = C_Timer.NewTicker(1, function()
-	local start, duration, enabled, modRate = GetSpellCooldown(191837)
-	if upwellingStacks == nil then upwellingStacks = 0 end
-	if br.player.talent.upwelling then
-		if duration <= 4 and upwellingStacks <= 18 then
-			-- print(upwellingStacks)
-			upwellingStacks = upwellingStacks + 1
+if rotationName == "Ledecky" then
+	local ticker = C_Timer.NewTicker(1, function()
+		local start, duration, enabled, modRate = GetSpellCooldown(191837)
+		if upwellingStacks == nil then upwellingStacks = 0 end
+		if br.player.talent.upwelling then
+			if duration <= 4 and upwellingStacks <= 18 then
+				--print(upwellingStacks)
+				upwellingStacks = upwellingStacks + 1
+			end
+			if duration >= 5 then
+				--print("reset")
+				upwellingStacks = 0
+			end
 		end
-		if duration >= 5 then
-			--print("reset")
-			upwellingStacks = 0
-		end
-	end
-end)
-
+	end)
+end
 --------------
 --- COLORS ---
 --------------
@@ -462,6 +463,9 @@ local function runRotation()
 					end
 				end
 			end
+			if cast.able.chiWave() then
+				if cast.chiWave(lowest.unit) then return true end
+			end
 			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--Dispels--
 			-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -647,6 +651,10 @@ local function runRotation()
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 			--Life Cycles Rotation--
 			----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+				--if c(7,47,false) >= 1 and talent.chiBurst then
+               --  	if cast.chiBurst("player") then return true end
+           	--	end
+
 			--Renewing Mist
 			if isChecked("Renewing Mist") and not isCastingSpell(spell.essenceFont) then
 				if lowest.hp <= getValue("Renewing Mist")
