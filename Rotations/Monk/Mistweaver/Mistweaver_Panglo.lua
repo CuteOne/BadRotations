@@ -663,7 +663,7 @@ local function runRotation()
 					end
 					if cast.tigerPalm() then return end
 					if #enemies.yards10 == 0 and not isCastingSpell(spell.crackingJadeLightning) and isChecked("Crackling Jade Lightning") then
-						if cast.crackingJadeLightning() then return end
+						if cast.cracklingJadeLightning() then return end
 					end
 				end
 			end
