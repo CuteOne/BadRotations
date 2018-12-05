@@ -662,7 +662,7 @@ local function runRotation()
 						if cast.risingSunKick() then return end
 					end
 					if cast.tigerPalm() then return end
-					if #enemies.yards10 == 0 and not isCastingSpell(spell.crackingJadeLightning) and isChecked("Crackling Jade Lightning") then
+					if #enemies.yards10 == 0 and not isCastingSpell(spell.cracklingJadeLightning) and isChecked("Crackling Jade Lightning") then
 						if cast.cracklingJadeLightning() then return end
 					end
 				end
