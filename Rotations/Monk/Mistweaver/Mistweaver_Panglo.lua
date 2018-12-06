@@ -432,7 +432,7 @@ local function runRotation()
 					--Renewing Mists
 					if getOptionValue("Thunder Focus Tea Options") == 2 and br.friend[1].hp <= getValue("TFT RM") then
 						if buff.thunderFocusTea.remain("player") >= 1 then
-							if cast.renewingMists(br.friend[1].unit) then return end
+							if cast.renewingMist(br.friend[1].unit) then return end
 						end
 					end
 					--Vivify
@@ -715,14 +715,13 @@ local function runRotation()
 					if Interrupts() then return end
 				end 
 
-				if Extras() then return end
-
 				if lowest.hp <= getValue("OOC Healing") then
 					if OoC_Healing() then return end
 				end
 			end
 			
 			if inCombat and not isCastingSpell(spell.essenceFont) then 
+				if Extras() then return end
 				if useDefensive() then
 					if Defensive() then return end
 				end
