@@ -162,10 +162,7 @@ local f = CreateFrame("Frame")
             -- f:SetScript("OnEvent", function(self, event, ...)
             --     f[event](self, ...)
             -- end)
-            f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-            f:RegisterEvent("PLAYER_REGEN_ENABLED")
-            f:RegisterEvent("ENCOUNTER_START")
-            f:RegisterEvent("DBM_TimerStart")
+            -- f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
             f:RegisterEvent("UNIT_SPELLCAST_SENT")
             --f:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
             f:RegisterEvent("UNIT_AURA")
@@ -178,9 +175,7 @@ local f = CreateFrame("Frame")
                 -- if event == NAME_PLATE_UNIT_REMOVED(unit) then
                 --     check[guid(unit)] = nil
                 -- end
-                if event == "DBM_TimerStart" then
-                    print(...)
-                end
+                
                 if event == "UNIT_SPELLCAST_SENT" then
                     local source    = select(1,...)
                     local spell     = select(4,...)
