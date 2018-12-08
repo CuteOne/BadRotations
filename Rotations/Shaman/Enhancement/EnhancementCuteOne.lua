@@ -513,6 +513,22 @@ local function runRotation()
             then
                 if cast.sundering() then return true end
             end
+        -- Stormstrike / Windstrike
+            -- stormstrike,cycle_targets=1,if=azerite.lightning_conduit.enabled&!debuff.lightning_conduit.up&active_enemies>1&(buff.stormbringer.up|(variable.OCPool70&variable.furyCheck35))
+            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit.active() then 
+                for i = 1, #enemies.yards10 do
+                    local thisUnit = enemies.yards10[i]
+                    if not debuff.lightningConduit.exists(thisUnit) and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+                        and (buff.stormbringer.exists() or (OCPool70 and furyCheck35))
+                    then 
+                        if buff.ascendance.exists() then
+                            if cast.windstrike() then return true end
+                        else
+                            if cast.stormstrike() then return true end
+                        end
+                    end 
+                end
+            end
             -- stormstrike,if=buff.stormbringer.up|(buff.gathering_storms.up&variable.OCPool70&variable.furyCheck35)
             if (cast.able.stormstrike() or cast.able.windstrike()) and (buff.stormbringer.exists() or (buff.gatheringStorms.exists() and ocPool70 and furyCheck35)) then
                 if buff.ascendance.exists() then

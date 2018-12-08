@@ -2664,6 +2664,7 @@ br.lists.spells = {
             debuffs                         = {
                 earthenSpike                = 188089,
                 frostbrand                  = 147732,
+                lightningConduit            = 275391,
                 searingAssault              = 268429,
                 stormTempests               = 214265,
             },
