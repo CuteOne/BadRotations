@@ -221,7 +221,7 @@ local function actionList_main()
     end
 
     -- If you used Arcane Power at low mana and run out of mana for arcane blast before arcane power fades use Arcane Missiles if possible.
-    if cast.able.arcaneMissiles() and buff.clearcastingMage.exists() or buff.ruleOfThrees.exists() and buff.arcanePower.exists() then
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() or buff.ruleOfThrees.exists() and buff.arcanePower.exists() then
         if cast.arcaneMissiles() then return end
     end
 
