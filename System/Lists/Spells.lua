@@ -1194,6 +1194,9 @@ br.lists.spells = {
               arcaneMissles                 = 79683,
               presenceOfMind                = 205025,
               rhoninsAssaultingArmwraps     = 208081,
+              ruleOfThrees                  = 264774,
+              brainStormBuff                = 273330,
+              clearcastingMage              = 263725,
             },
             debuffs                         = {
               arcaneCharge                  = 36032,
