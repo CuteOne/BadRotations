@@ -345,34 +345,36 @@ local function runRotation()
 		end--end extras
 	
 		local function OoC_Healing()
-			if isChecked("OOC Healing") and not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
-				--EM OoC
-				if not buff.lifeCyclesVivify.exists("player") then
-					if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit, spell.envelopingMist, "player") < 2 and getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-						if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
-							if cast.soothingMist(br.friend[1].unit) then return end
-						end
-						if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-							if cast.envelopingMist(br.friend[1].unit) then return end
-						end
-					end
-				end
-				-- Vivify OoC
-				if buff.lifeCyclesVivify.exists("player") then
-					if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-						if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
-							if cast.soothingMist(br.friend[1].unit) then return end
-						end
-						if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-							if cast.vivify(br.friend[1].unit) then return end
+			for i = 1, #br.friend do
+				if isChecked("OOC Healing") and not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
+					--EM OoC
+					if not buff.lifeCyclesVivify.exists("player") then
+						if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit, spell.envelopingMist, "player") < 2 and getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
+							if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
+								if cast.soothingMist(br.friend[1].unit) then return end
+							end
+							if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
+								if cast.envelopingMist(br.friend[1].unit) then return end
+							end
 						end
 					end
-				end
-				--Soothing Mist OoC
-				if br.friend[1].hp <= getValue("OOC Healing") and not isCastingSpell(spell.soothingMist) then
-					if cast.soothingMist(br.friend[1].unit) then return end
-				end
-			end-- end combat check for OOC healing 
+					-- Vivify OoC
+					if buff.lifeCyclesVivify.exists("player") then
+						if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
+							if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
+								if cast.soothingMist(br.friend[1].unit) then return end
+							end
+							if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
+								if cast.vivify(br.friend[1].unit) then return end
+							end
+						end
+					end
+					--Soothing Mist OoC
+					if br.friend[1].hp <= getValue("OOC Healing") and not isCastingSpell(spell.soothingMist) then
+						if cast.soothingMist(br.friend[1].unit) then return end
+					end
+				end-- end combat check for OOC healing 
+			end
 		end -- end OoC_Healing
 
 		local function Cooldowns()
@@ -562,6 +564,15 @@ local function runRotation()
 		end--end AOE Action List
 
 		local function lifecycles()
+			-- Renewing Mists
+			for i = 1, #br.friend do
+				if isChecked("Renewing Mist") then
+					if br.friend[1].hp <= getValue("Renewing Mist")
+						and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
+						if cast.renewingMist(br.friend[1].unit) then return end
+					end
+				end
+			end			
 			-- Enveloping Mist Life Cycles
 			for i = 1, #br.friend do
 				if br.friend[1].hp <= getValue("Enveloping Mist Lifecycles") and buff.lifeCyclesEnvelopingMist.exists() then
