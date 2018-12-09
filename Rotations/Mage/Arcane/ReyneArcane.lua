@@ -151,12 +151,12 @@ local function actionList_main()
     end
 
     -- Use Arcane Missiles with clearcasting if Arcane Power is down. (Req. NOT Amplification)
-    if cast.able.arcaneMissiles() and buff.clearcastingMage.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not talent.amplification then
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not talent.amplification then
         if cast.arcaneMissiles() then return end
     end
 
     -- Use Arcane Missiles with Clearcasting & Amplification talented
-    if cast.able.arcaneMissiles() and buff.clearcastingMage.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and talent.amplification then
+    if cast.able.arcaneMissiles() and buff.clearcasting.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and talent.amplification then
         if cast.arcaneMissiles() then return end
     end    
 
