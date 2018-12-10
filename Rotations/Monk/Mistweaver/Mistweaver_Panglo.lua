@@ -475,9 +475,9 @@ local function runRotation()
 			-- Renewing Mists
 			for i = 1, #br.friend do
 				if isChecked("Renewing Mist") then
-					if br.friend[1].hp <= getValue("Renewing Mist")
-						and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
-						if cast.renewingMist(br.friend[1].unit) then return end
+					if br.friend[i].hp <= getValue("Renewing Mist")
+						and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+						if cast.renewingMist(br.friend[i].unit) then return end
 					end
 				end
 			end
@@ -567,12 +567,12 @@ local function runRotation()
 			-- Renewing Mists
 			for i = 1, #br.friend do
 				if isChecked("Renewing Mist") then
-					if br.friend[1].hp <= getValue("Renewing Mist")
-						and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
-						if cast.renewingMist(br.friend[1].unit) then return end
+					if br.friend[i].hp <= getValue("Renewing Mist")
+						and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+						if cast.renewingMist(br.friend[i].unit) then return end
 					end
 				end
-			end			
+			end
 			-- Enveloping Mist Life Cycles
 			for i = 1, #br.friend do
 				if br.friend[1].hp <= getValue("Enveloping Mist Lifecycles") and buff.lifeCyclesEnvelopingMist.exists() then
@@ -613,13 +613,13 @@ local function runRotation()
 				-- Renewing Mists
 				for i = 1, #br.friend do
 					if isChecked("Renewing Mist") then
-						if br.friend[1].hp <= (getValue("Renewing Mist") * 1.1)
-							and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
-							if cast.renewingMist(br.friend[1].unit) then return end
+						if br.friend[i].hp <= getValue("Renewing Mist")
+							and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+							if cast.renewingMist(br.friend[i].unit) then return end
 						end
 					end
 				end
-				-- Enveloping Mist
+					-- Enveloping Mist
 				for i = 1, #br.friend do
 					if br.friend[1].hp <= (getValue("Enveloping Mist") *1.1) and not talent.lifecycles then
 						if isChecked("EM Tanks Only") and #tanks > 0 and tanks[1].hp <= getValue("Enveloping Mist") then
