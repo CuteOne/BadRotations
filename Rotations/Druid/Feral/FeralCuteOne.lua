@@ -306,13 +306,13 @@ local function runRotation()
         end
 
         -- Variables
-        -- variable,name=use_thrash,value=2
-        -- variable,name=use_thrash,value=1,if=azerite.power_of_the_moon.enabled
-        -- if trait.powerOfTheMoon.active() then
-        --     useThrash = 1
-        -- else
+        -- variable,name=use_thrash,value=0
+        -- variable,name=use_thrash,value=2,if=azerite.wild_fleshrending.enabled
+        if trait.wildFleshrending.active() then
             useThrash = 2
-        -- end
+        else
+            useThrash = 0
+        end
         
         -- Multi-Dot HP Limit Set
         local function canDoT(unit)
@@ -1001,6 +1001,17 @@ local function runRotation()
                     if cast.savageRoar("player") then return true end
                 end
             end
+        -- Primal Wrath
+            -- pool_resource,for_next=1
+            -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
+            if (cast.pool.primalWrath() or cast.able.primalWrath()) and (debuff.rip.remain(units.dyn8) < 4
+                and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
+            then 
+                if cast.pool.primalWrath() then ChatOverlay("Pooling For Primal Wrath") return true end
+                if cast.able.primalWrath() then
+                    if cast.primalWrath() then return true end
+                end
+            end
         -- Rip
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(target.health.pct>25&!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
@@ -1177,7 +1188,7 @@ local function runRotation()
             end
         -- Thrash
             -- pool_resource,for_next=1
-            -- thrash_cat,if=refreshable&(spell_targets.thrash_cat>2)
+            -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
             if (cast.pool.thrash() or cast.able.thrash()) then --and multidot then
                 if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) 
                     and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
@@ -1186,6 +1197,25 @@ local function runRotation()
                     if cast.able.thrash() then
                         if cast.thrash("player","aoe") then return true end
                     end
+                end
+            end
+            -- pool_resource,for_next=1
+            -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3 
+            if (cast.pool.thrash() or cast.able.thrash()) and (talent.scentOfBlood and not buff.scentOfBlood.exists() 
+                and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
+            then
+                if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
+                if cast.able.thrash() then
+                    if cast.thrash("player","aoe") then return true end
+                end
+            end
+        -- Swipe
+            -- pool_resource,for_next=1
+            -- swipe_cat,if=buff.scent_of_blood.up
+            if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
+                if cast.pool.swipe() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
+                if cast.able.swipe() then
+                    if cast.swipe("player","aoe") then return true end
                 end
             end
         -- Rake
@@ -1272,16 +1302,6 @@ local function runRotation()
                     if cast.swipe("player","aoe") then return true end
                 end
             end
-        -- Shred
-            -- shred,if=buff.clearcasting.react
-            if cast.able.shred() and (buff.clearcasting.exists() or ttd(units.dyn5) <= 4 or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5)) then
-                if cast.shred() then return end
-            end
-        -- Moonfire
-            -- moonfire_cat,if=azerite.power_of_the_moon.enabled&!buff.incarnation.up
-            -- if cast.able.moonfire() and talent.lunarInspiration and trait.powerOfTheMoon.active() and not buff.incarnationKingOfTheJungle.exists() then
-            --     if cast.moonfire() then return end
-            -- end
         -- Shred
             -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
             if cast.able.shred() and debuff.rake.exists(units.dyn5) and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen) or buff.clearcasting.exists() or level < 12) then
