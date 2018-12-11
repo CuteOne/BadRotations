@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.0.1"
+local rotationName = "Fiskee - 8.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
 local resetButton
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
@@ -613,10 +613,10 @@ local function runRotation()
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
         local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists()
-        -- # Poisoned Knife at 29+ stacks of Sharpened Blades.
-        -- actions.direct+=/poisoned_knife,if=variable.use_filler&buff.sharpened_blades.stack>=29
-        if useFiller and buff.sharpenedBlades.stack() >= 29 then
-            if cast.poisonedKnife("target") then return true end
+        -- # With Echoing Blades, Fan of Knives at 2+ targets.
+        -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
+        if useFiller and enemies10 >= 2 and trait.echoingBlades.active() then
+            if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=4+(azerite.double_dose.rank>2)+stealthed.rogue)
         if useFiller and (buff.hiddenBlades.stack() >= 19 or enemies10 >= (4 + dDRank + sRogue)) then
