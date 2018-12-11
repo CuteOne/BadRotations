@@ -1865,6 +1865,7 @@ br.lists.spells = {
                 divinePurpose               = 223819,
                 divineRight                 = 278523,
                 divineSteed                 = 221886,
+                empyreanPower               = 286393,
                 greaterBlessingOfKings      = 203538,
                 greaterBlessingOfWisdom     = 203539,
                 inquisition                 = 84963,
