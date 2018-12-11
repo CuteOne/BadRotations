@@ -595,8 +595,8 @@ local function runRotation()
                 if cast.steelTrap("best",nil,1,5) then return end
             end
         -- Harpoon 
-            -- harpoon,if=talent.terms_of_engagement.enabled|azerite.up_close_and_personal.enabled
-            if cast.able.harpoon() and mode.harpoon == 1 and (talent.termsOfEngagement or traits.upCloseAndPersonal.active()) then
+            -- harpoon,if=talent.terms_of_engagement.enabled
+            if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement then
                 if cast.harpoon() then return end
             end
         -- Coordinated Assault
@@ -778,8 +778,8 @@ local function runRotation()
                 if cast.serpentSting() then return end
             end
         -- Harpoon
-            -- harpoon,if=talent.terms_of_engagement.enabled|azerite.up_close_and_personal.enabled
-            if cast.able.harpoon() and mode.harpoon == 1 and (talent.termsOfEngagement or traits.upCloseAndPersonal.active()) then
+            -- harpoon,if=talent.terms_of_engagement.enabled
+            if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement then
                 if cast.harpoon() then return end
             end
         -- Mongoose Bite
@@ -864,10 +864,9 @@ local function runRotation()
                 if cast.wildfireBomb() then return end
             end
         -- Serpent Sting
-            -- serpent_sting,if=buff.vipers_venom.up|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
-            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40)
-                and (not talent.mongooseBite or not talent.vipersVenom or nextBomb(spell.volatileBomb)
-                and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active()))
+            -- serpent_sting,if=refreshable&(next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
+                and (nextBomb(spell.volatileBomb) and (not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active()))
             then
                 if cast.serpentSting() then return end
             end

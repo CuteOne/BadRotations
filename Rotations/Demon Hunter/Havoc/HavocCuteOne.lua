@@ -513,16 +513,6 @@ local function runRotation()
                     if cast.felRush() then return end
                 end
             end
-            -- fel_rush,if=!talent.demon_blades.enabled&!cooldown.eye_beam.ready&azerite.unbound_chaos.rank>0
-            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and not talent.demonBlades and cd.eyeBeam.remain() > 0 and traits.unboundChaos.rank() > 0
-            then
-                if mode.mover == 1 and getDistance("target") < 8 then
-                    cancelRushAnimation()
-                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
-                    if cast.felRush() then return end
-                end
-            end
         -- Demon's Bite
             -- demons_bite
             if cast.able.demonsBite() and not talent.demonBlades then
@@ -605,17 +595,6 @@ local function runRotation()
             -- blade_dance,if=variable.blade_dance
             if cast.able.bladeDance() and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance("player","aoe",1,8) then return end
-            end
-        -- Fel Rush
-            -- /fel_rush,if=!talent.momentum.enabled&!talent.demon_blades.enabled&azerite.unbound_chaos.enabled
-            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and not talent.momentum and not talent.demonBlades and traits.unboundChaos.active()
-            then
-                if mode.mover == 1 and getDistance("target") < 8 then
-                    cancelRushAnimation()
-                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
-                    if cast.felRush() then return end
-                end
             end
         -- Felblade
             -- felblade,if=fury.deficit>=40
