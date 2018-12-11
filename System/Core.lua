@@ -21,9 +21,6 @@ end
 --[[This function is refired everytime wow ticks. This frame is located at the top of Core.lua]]
 function getUpdateRate()
 	local updateRate = updateRate or 0.1
-	if updateRate < 0.1 then
-		updateRate = 0.1
-	end
 
 	local FrameRate = GetFramerate() or 0
 	if isChecked("Auto Delay") then
