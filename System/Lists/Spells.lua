@@ -2304,6 +2304,7 @@ br.lists.spells = {
             },
             traits                          = {
                 doubleDose                  = 273007,
+                echoingBlades               = 287649,
                 sharpenedBlades             = 272911,
                 shroudedSuffocation         = 278666,
             }
