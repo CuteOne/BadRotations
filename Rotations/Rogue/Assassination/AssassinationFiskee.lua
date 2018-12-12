@@ -615,9 +615,9 @@ local function runRotation()
         local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists()
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
-        if useFiller and enemies10 >= 2 and trait.echoingBlades.active() then
-            if cast.fanOfKnives("player") then return true end
-        end
+        -- if useFiller and enemies10 >= 2 and trait.echoingBlades.active() then
+        --     if cast.fanOfKnives("player") then return true end
+        -- end
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=4+(azerite.double_dose.rank>2)+stealthed.rogue)
         if useFiller and (buff.hiddenBlades.stack() >= 19 or enemies10 >= (4 + dDRank + sRogue)) then
             if cast.fanOfKnives("player") then return true end
