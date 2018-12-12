@@ -585,7 +585,7 @@ local function runRotation()
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40) 
                 and (traits.latentPoison.rank() > 2 or (traits.latentPoison.active() and traits.venomousFangs.active()) 
                 or ((traits.latentPoison.active() or traits.venomousFangs.active()) and (not traits.blurOfTalons.active() 
-                or not talent.birdsOfPrey.active() or not buff.coordinatedAssault.exists())))
+                or not talent.birdsOfPrey or not buff.coordinatedAssault.exists())))
             then 
                 if cast.serpentSting() then return end
             end
