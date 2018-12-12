@@ -174,12 +174,12 @@ local function actionList_main()
             if cast.celestialAlignment() then return end
         end
 
-    -- trait.brainStorm.active()
+    -- trait.brainStorm.active
 
 
 
     -- Cast Starfall with Lunar Shrapnel
-    if cast.able.starfall("best", nil, 2, 15) and talent.soulOfTheForest and talent.stellarDrift and trait.lunarShrapnel.active() then
+    if cast.able.starfall("best", nil, 2, 15) and talent.soulOfTheForest and talent.stellarDrift and trait.lunarShrapnel.active then
         if cast.starfall() then return end
     end
 

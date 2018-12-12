@@ -126,7 +126,7 @@ local function actionList_main()
     end
 
     -- Use Evocation to get a full stack of Brain Storm before using Arcane Power.
-    if cast.able.evocation() and cd.arcanePower.remain() < getCastTime(spell.evocation) and arcaneCharges == 4 and trait.brainStorm.active() then
+    if cast.able.evocation() and cd.arcanePower.remain() < getCastTime(spell.evocation) and arcaneCharges == 4 and trait.brainStorm.active then
         if cast.evocation() then return end
     end
 
@@ -146,7 +146,7 @@ local function actionList_main()
     end
 
     -- Use Arcane Missiles when you have RoT up and Arcane Power is down. Not with Galvanizing Spark
-    if cast.able.arcaneMissiles() and buff.ruleOfThrees.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not trait.galvanizingSpark.active() then
+    if cast.able.arcaneMissiles() and buff.ruleOfThrees.exists() and not buff.arcanePower.exists() and not cast.able.arcaneExplosion("player","aoe", 3, 10) and not trait.galvanizingSpark.active then
         if cast.arcaneMissiles() then return end
     end
 
@@ -176,17 +176,17 @@ local function actionList_main()
     end
 
     -- Use Arcane Explosion on 3+ targets. Also other stuff
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) and not trait.brainStorm.active() then
+    if cast.able.arcaneExplosion("player","aoe", 3, 10) and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) and not trait.brainStorm.active then
         if cast.arcaneExplosion("player","aoe", 3, 10) then return end
     end
     
     -- Use Arcane Explosion of 3+ targets. Burn mana with Rune of Power up
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and buff.runeOfPower.exists() and not trait.brainStorm.active() then
+    if cast.able.arcaneExplosion("player","aoe", 3, 10) and buff.runeOfPower.exists() and not trait.brainStorm.active then
         if cast.arcaneExplosion("player","aoe", 3, 10) then return end
     end
 
     -- Use Arcane Explosion if 3+ targets with Brain Storm
-    if cast.able.arcaneExplosion("player","aoe", 3, 10) and trait.brainStorm.active() then
+    if cast.able.arcaneExplosion("player","aoe", 3, 10) and trait.brainStorm.active then
         if cast.arcaneExplosion("player","aoe", 3, 10) then return end
     end
 
@@ -196,12 +196,12 @@ local function actionList_main()
     end
 
     -- If you have Rules of Threes up, use Arcane Blast
-    if cast.able.arcaneBlast() and not trait.brainStorm.active() and trait.galvanizingSpark.active() and not cast.able.arcaneExplosion("player","aoe", 3, 10) then
+    if cast.able.arcaneBlast() and not trait.brainStorm.active and trait.galvanizingSpark.active and not cast.able.arcaneExplosion("player","aoe", 3, 10) then
         if cast.arcaneBlast() then return end
     end
 
     -- Spend mana at will with Arcane Power, or when Evocation is ready to use. Dump mana above 85%
-    if cast.able.arcaneBlast() and not trait.brainStorm.active() and #enemies.yards10 < 3 and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) then
+    if cast.able.arcaneBlast() and not trait.brainStorm.active and #enemies.yards10 < 3 and (buff.arcanePower.exists() or cast.able.evocation() or (powerPercent > 85)) then
         if cast.arcaneBlast() then return end
     end
 
@@ -211,12 +211,12 @@ local function actionList_main()
     end
 
     -- Arcane Blast with Brain Storm
-    if cast.able.arcaneBlast() and #enemies.yards10 < 3 and trait.brainStorm.active() then
+    if cast.able.arcaneBlast() and #enemies.yards10 < 3 and trait.brainStorm.active then
         if cast.arcaneBlast() then return end
     end
 
     -- Evocate when you don't have enough mana to cast Arcane Blast. Cancel at 85%
-    if cast.able.evocation() and not trait.brainStorm.active() then
+    if cast.able.evocation() and not trait.brainStorm.active then
         if cast.evocation() then return end -- Somehow cancel at 85% max mana
     end
 

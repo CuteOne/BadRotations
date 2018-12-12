@@ -223,7 +223,7 @@ local function runRotation()
 						if cast.arcaneShot() then return end
 					end
 					--Rapid fire actions.st+=/rapid_fire,if=(!talent.lethal_shots.enabled|buff.lethal_shots.up)&azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1
-					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active() or trait.inTheRhytm.rank() > 1) then
+					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active or trait.inTheRhytm.rank > 1) then
 						if cast.rapidFire() then return end
 					end
 					--Aimed shot actions.st+=/aimed_shot,if=buff.precise_shots.down&(buff.double_tap.down&full_recharge_time<cast_time+gcd|buff.lethal_shots.up)

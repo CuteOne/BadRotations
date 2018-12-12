@@ -517,7 +517,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,actions.standard_rotation+=/scorch,if=(target.health.pct<=30&talent.searing_touch.enabled)|(azerite.preheat.enabled&debuff.preheat.down)
-            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active() and not buff.preheat.exists("player")) then
+            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active and not buff.preheat.exists("player")) then
                 if cast.scorch() then return end
             end
         -- Fireball

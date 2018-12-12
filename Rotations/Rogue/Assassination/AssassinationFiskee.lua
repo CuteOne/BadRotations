@@ -309,8 +309,8 @@ local function runRotation()
     --Variables
     local dSEnabled, sSActive, dDRank, sRogue
     if talent.deeperStratagem then dSEnabled = 1 else dSEnabled = 0 end
-    if trait.shroudedSuffocation.active() then sSActive = 1 else sSActive = 0 end
-    if trait.doubleDose.rank() > 2 then dDRank = 1 else dDRank = 0 end
+    if trait.shroudedSuffocation.active then sSActive = 1 else sSActive = 0 end
+    if trait.doubleDose.rank > 2 then dDRank = 1 else dDRank = 0 end
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     local enemies10 = #enemyTable10
 
@@ -563,7 +563,7 @@ local function runRotation()
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active() or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
+            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
                 if cast.vendetta("target") then return true end
             end
             if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 then
@@ -574,7 +574,7 @@ local function runRotation()
                 end
                 -- # Vanish with Exsg + (Nightstalker, or Subterfuge only on 1T): Maximum CP and Exsg ready for next GCD
                 -- actions.cds+=/vanish,if=talent.exsanguinate.enabled&(talent.nightstalker.enabled|talent.subterfuge.enabled&variable.single_target)&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier<=1)
-                if talent.exsanguinate and (talent.nightstalker or (talent.subterfuge and enemies10 == 1)) and combo >= comboMax and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active() or debuff.garrote.applied("target") <= 1) then
+                if talent.exsanguinate and (talent.nightstalker or (talent.subterfuge and enemies10 == 1)) and combo >= comboMax and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active or debuff.garrote.applied("target") <= 1) then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
@@ -615,7 +615,7 @@ local function runRotation()
         local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists()
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
-        if useFiller and enemies10 >= 2 and trait.echoingBlades.active() then
+        if useFiller and enemies10 >= 2 and trait.echoingBlades.active then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=4+(azerite.double_dose.rank>2)+stealthed.rogue)
@@ -628,7 +628,7 @@ local function runRotation()
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
-        if useFiller and thp < 30 and (buff.blindside.exists() or (not talent.venomRush and not trait.doubleDose.active())) then
+        if useFiller and thp < 30 and (buff.blindside.exists() or (not talent.venomRush and not trait.doubleDose.active)) then
             if cast.blindside("target") then return true end
         end
         -- # Tab-Mutilate to apply Deadly Poison at 2 targets
@@ -728,12 +728,12 @@ local function runRotation()
         end
         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
         -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking
-        if talent.subterfuge and trait.shroudedSuffocation.active() and not debuff.rupture.exists("target") then
+        if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") then
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge w/ Shrouded Suffocation: Reapply for bonus CP and extended snapshot duration
         -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&combo_points.deficit>1
-        if talent.subterfuge and trait.shroudedSuffocation.active() then
+        if talent.subterfuge and trait.shroudedSuffocation.active then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 if enemyTable5[i].ttd > debuff.garrote.remain(thisUnit) and comboDeficit > 1 then

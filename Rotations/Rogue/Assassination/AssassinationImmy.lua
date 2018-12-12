@@ -517,7 +517,7 @@ local function runRotation()
             end
         end
         local function EmpoweredDotRefresh()
-            return #enemies.get(9) >= 3 + (trait.shroudedSuffocation.active() and 1 or 0)
+            return #enemies.get(9) >= 3 + (trait.shroudedSuffocation.active and 1 or 0)
         end
                   
             SLASH_SPECIAL1 = "/bursterino"
@@ -773,7 +773,7 @@ local function runRotation()
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                    if debuff.garrote.remain(thisUnit) <= 17 and trait.shroudedSuffocation.rank() > 0
+                                    if debuff.garrote.remain(thisUnit) <= 17 and trait.shroudedSuffocation.rank > 0
                                     and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 2 or true)
                                     and donotdot(thisUnit)
                                     --and getFacing("player", thisUnit)
@@ -797,7 +797,7 @@ local function runRotation()
                         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
                         -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking
                         if #enemies.yards5 <= 2 then
-                            if cast.able.rupture("target") and talent.subterfuge and viabletargetcount() == 1 and trait.shroudedSuffocation.rank() > 0 and not debuff.rupture.exists() --and getFacing("player", "target") 
+                            if cast.able.rupture("target") and talent.subterfuge and viabletargetcount() == 1 and trait.shroudedSuffocation.rank > 0 and not debuff.rupture.exists() --and getFacing("player", "target") 
                                 then
                                 if cast.rupture("target") then 
                                     if isChecked("Debug") then print("early rupt") end
@@ -1054,7 +1054,7 @@ local function runRotation()
         local function actionList_Open()
             --if (opener == false and time < 1) and (isDummy("target") or isBoss("target")) and (cd.vanish > 0 or not buff.shadowBlades.exists()) then Print("Opener failed due do cds"); opener = true end
         if talent.subterfuge then
-            if trait.shroudedSuffocation.rank() > 0 then
+            if trait.shroudedSuffocation.rank > 0 then
                 if talent.exsanguinate then
                         if not RUP1 and cast.able.rupture("target") then
                             if cast.rupture("target") then RUP1 = true; end
@@ -1119,7 +1119,7 @@ local function runRotation()
                 end                
             end
 
-            if trait.shroudedSuffocation.rank() <= 0 then
+            if trait.shroudedSuffocation.rank <= 0 then
                 if talent.exsanguinate then
                         if not RUP1 and cast.able.mutilate() then
                             if cast.mutilate() then RUP1 = true; end
@@ -1701,7 +1701,7 @@ local function runRotation()
             -- print("RUP1 is "..tostring(RUP1))
             -- print("GAR1 is "..tostring(GAR1))
             -- print("VEN1 is "..tostring(VEN1))
-            --print(trait.shroudedSuffocation.rank())
+            --print(trait.shroudedSuffocation.rank)
             --print(debuff.garrote.applied(units.dyn5))
             --print(waitshit())
             -- if ssbuggy ~= nil then

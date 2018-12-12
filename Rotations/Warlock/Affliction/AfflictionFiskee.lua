@@ -459,7 +459,7 @@ local function runRotation()
 
     --azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
     local cascadingValue = 0
-    if traits.cascadingCalamity.active() and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
+    if traits.cascadingCalamity.active and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
 
     -- Opener Variables
     if not inCombat and not GetObjectExists("target") then
@@ -978,7 +978,7 @@ local function runRotation()
             if cast.seedOfCorruption(seedTarget) then return true end
         end
         -- actions.spenders+=/unstable_affliction,if=!variable.use_seed&!prev_gcd.1.summon_darkglare&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+execute_time&active_enemies=1|target.time_to_die<=8+execute_time*soul_shard)
-        if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction() and not traits.cascadingCalamity.active()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and enemyTable40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
+        if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction() and not traits.cascadingCalamity.active) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and enemyTable40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
             if cast.unstableAffliction() then return true end
         end
         -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
@@ -986,7 +986,7 @@ local function runRotation()
             if cast.unstableAffliction() then return true end
         end
         --actions.spenders+=/unstable_affliction,cycle_targets=1,if=!variable.use_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding&(!azerite.cascading_calamity.enabled|buff.cascading_calamity.remains>time_to_shard)
-        if not spammableSeed and not moving and (((not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (not traits.cascadingCalamity.active() or (buff.cascadingCalamity.remain() > timeToShard))) or not inBossFight)  then
+        if not spammableSeed and not moving and (((not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (not traits.cascadingCalamity.active or (buff.cascadingCalamity.remain() > timeToShard))) or not inBossFight)  then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.unstableAffliction.remain(thisUnit) <= (cast.time.unstableAffliction() + cascadingValue) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
