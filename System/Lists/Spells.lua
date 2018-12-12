@@ -3250,8 +3250,10 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                avatar                      = 107574,
                 defensiveStance             = 71,
                 ignorePain                  = 190456,
+                lastStand                   = 12975,
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
@@ -3269,6 +3271,7 @@ br.lists.spells = {
             },
             talents                         = {
                 bestServedCold              = 202560,
+                bolster                     = 280001,
                 boomingVoice                = 202743,
                 cracklingThunder            = 203201,
                 heavyRepercussions          = 203177,
@@ -3279,8 +3282,9 @@ br.lists.spells = {
                 ravager                     = 228920,
                 renewedFury                 = 202288,
                 safeguard                   = 223657,
-                shockwave                           = 46968,
+                shockwave                   = 46968,
                 ultimatum                   = 122509,
+                unstoppableForce            = 275336,
                 vengeance                   = 202572,
                 warbringer                  = 103828,
                 warlordsChallenge           = 223662,
