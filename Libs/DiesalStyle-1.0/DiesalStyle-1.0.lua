@@ -847,6 +847,12 @@ function DiesalStyle:StyleFont(fontInstance,name,style)
   local filename, fontSize, flags = fontInstance:GetFont()
   local red,green,blue,alpha = fontInstance:GetTextColor()
   local lineSpacing = fontInstance:GetSpacing()
+   -- Fallback to DiesalFontNormal for Patch 8.1
+   if not filename then 
+    filename, fontSize, flags = DiesalFontNormal:GetFont()
+    red,green,blue,alpha = DiesalFontNormal:GetTextColor()
+    lineSpacing = DiesalFontNormal:GetSpacing()
+  end
   style.red, style.green, style.blue = DiesalTools.GetColor(style.color)
   -- ~~ Set Settings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   style.filename = style.filename or filename

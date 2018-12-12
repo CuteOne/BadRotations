@@ -290,7 +290,7 @@ function br.read.commonReaders()
 			return
 		end
 		-- Update Player Info
-		if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" then
 			br.updatePlayerInfo = true
 		end
 		-------------------------------------------------
