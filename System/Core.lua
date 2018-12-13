@@ -40,7 +40,7 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-	if FireHack ~= nil then
+	if not EWT then
 		-- Pulse Object Manager for Caching
 		if omPulse == nil then
 			omPulse = GetTime()
@@ -76,7 +76,7 @@ keyBoardFrame:SetScript("OnKeyDown", testKeys)
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
-	if FireHack == nil then
+	if not EWT then
 		br.ui:closeWindow("all")
 		if getOptionCheck("Start/Stop BadRotations") then
 			ChatOverlay("Unable To Load")
@@ -85,114 +85,109 @@ function BadRotationsUpdate(self)
 			end
 		end
 		return false
-	else
-		if br.loadMsg == nil then
-			br.loadMsg = false
-		end
-		if not br.loadMsg then
-			ChatOverlay("Loaded")
-			br.loadMsg = true
-		end
-		if br.data.settings ~= nil then
-			if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
-				br.ui:closeWindow("all")
-				return false
-			elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
-				br.fallDist = getFallDistance() or 0
-				if isChecked("Talent Anywhere") then
-					talentAnywhere()
-				end
-
-				--Quaking helper
-				if getOptionCheck("Quaking Helper") then
-					if UnitChannelInfo("player") and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
-						SpellStopCasting()
-					end
-				end
-				-- Pause if key press that is not ignored
-				if not GetCurrentKeyBoardFocus() then
-					if rotationPause and GetTime() - rotationPause < pauseInterval then
-						return
-					end
-				end
-				-- Blizz CastSpellByName bug bypass
-				if castID then
-					-- Print("Casting by ID")
-					CastSpellByID(botSpell, botUnit)
-					castID = false
-				end
-				-- Load Spec Profiles
-				br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
-				local playerSpec = GetSpecializationInfo(GetSpecialization())
-				-- Initialize Player
-				if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
-					brLoaded = false
-					br.player = br.loader:new(playerSpec, br.selectedSpec)
-					setmetatable(br.player, {__index = br.loader})
-					br.player:createOptions()
-					br.player:createToggles()
-					br.player:update()
-					Print("Loaded Profile: " .. br.player.rotation.name)
-					br.rotationChanged = false
-				end
-				-- Queue Casting
-				if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
-					if castQueue() then
-						return
-					end
-				end
-				-- Update Player
-				if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
-					br.player:update()
-				end
-				-- Healing Engine
-				if isChecked("HE Active") then
-					br.friend:Update()
-				end
-				-- Auto Loot
-				autoLoot()
-				-- Close windows and swap br.selectedSpec on Spec Change
-				if select(2, GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
-					-- Closing the windows will save the position
+	else 
+		if EWT and GetObjectCount() ~= nil then
+			if br.data.settings ~= nil then
+				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					br.ui:closeWindow("all")
-					-- Update Selected Spec/Profile
-					br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
-					br.activeSpecGroup = GetActiveSpecGroup()
-					br:loadSettings()
-					br.rotationChanged = true
-					-- Recreate Config Window and commandHelp with new Spec
-					br.ui.window.config = {}
-					br.ui:createConfigWindow()
-					br.ui:toggleWindow("config")
-					commandHelp = nil
-					commandHelp = ""
-					slashHelpList()
-				end
+					return false
+				elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
+					br.fallDist = getFallDistance() or 0
+					if isChecked("Talent Anywhere") then
+						talentAnywhere()
+					end
 
-				-- Display Distance on Main Icon
-				targetDistance = getDistance("target") or 0
-				displayDistance = math.ceil(targetDistance)
-				mainText:SetText(displayDistance)
+					--Quaking helper
+					if getOptionCheck("Quaking Helper") then
+						if UnitChannelInfo("player") and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
+							SpellStopCasting()
+						end
+					end
+					-- Pause if key press that is not ignored
+					if not GetCurrentKeyBoardFocus() then
+						if rotationPause and GetTime() - rotationPause < pauseInterval then
+							return
+						end
+					end
+					-- Blizz CastSpellByName bug bypass
+					if castID then
+						-- Print("Casting by ID")
+						CastSpellByID(botSpell, botUnit)
+						castID = false
+					end
+					-- Load Spec Profiles
+					br.selectedProfile = br.data.settings[br.selectedSpec]["Rotation" .. "Drop"] or 1
+					local playerSpec = GetSpecializationInfo(GetSpecialization())
+					-- Initialize Player
+					if br.player == nil or br.player.profile ~= br.selectedSpec or br.rotationChanged then
+						brLoaded = false
+						br.player = br.loader:new(playerSpec, br.selectedSpec)
+						setmetatable(br.player, {__index = br.loader})
+						br.player:createOptions()
+						br.player:createToggles()
+						br.player:update()
+						Print("Loaded Profile: " .. br.player.rotation.name)
+						br.rotationChanged = false
+					end
+					-- Queue Casting
+					if (isChecked("Queue Casting") or (br.player ~= nil and br.player.queue ~= 0)) and not UnitChannelInfo("player") then
+						if castQueue() then
+							return
+						end
+					end
+					-- Update Player
+					if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
+						br.player:update()
+					end
+					-- Healing Engine
+					if isChecked("HE Active") then
+						br.friend:Update()
+					end
+					-- Auto Loot
+					autoLoot()
+					-- Close windows and swap br.selectedSpec on Spec Change
+					if select(2, GetSpecializationInfo(GetSpecialization())) ~= br.selectedSpec then
+						-- Closing the windows will save the position
+						br.ui:closeWindow("all")
+						-- Update Selected Spec/Profile
+						br.selectedSpec = select(2, GetSpecializationInfo(GetSpecialization()))
+						br.activeSpecGroup = GetActiveSpecGroup()
+						br:loadSettings()
+						br.rotationChanged = true
+						-- Recreate Config Window and commandHelp with new Spec
+						br.ui.window.config = {}
+						br.ui:createConfigWindow()
+						br.ui:toggleWindow("config")
+						commandHelp = nil
+						commandHelp = ""
+						slashHelpList()
+					end
 
-				-- LoS Line Draw
-				if isChecked("Healer Line of Sight Indicator") then
-					inLoSHealer()
-				end
+					-- Display Distance on Main Icon
+					targetDistance = getDistance("target") or 0
+					displayDistance = math.ceil(targetDistance)
+					mainText:SetText(displayDistance)
 
-				-- get DBM Timer/Bars
-				-- global -> br.DBM.Timer
-				br.DBM:getBars()
+					-- LoS Line Draw
+					if isChecked("Healer Line of Sight Indicator") then
+						inLoSHealer()
+					end
 
-				-- Accept dungeon queues
-				br:AcceptQueues()
+					-- get DBM Timer/Bars
+					-- global -> br.DBM.Timer
+					br.DBM:getBars()
 
-				-- Profession Helper
-				ProfessionHelper()
+					-- Accept dungeon queues
+					br:AcceptQueues()
 
-				-- Rotation Log
-				br.ui:toggleDebugWindow()
-			end --End Update Check
-		end -- End Update In Progress Check
+					-- Profession Helper
+					ProfessionHelper()
+
+					-- Rotation Log
+					br.ui:toggleDebugWindow()
+				end --End Update Check
+			end -- End Update In Progress Check
+		end
 	end -- End Main Button Active Check
 	if isChecked("Debug Timers") then
 		br.debug.cpu.pulse.totalIterations = br.debug.cpu.pulse.totalIterations + 1

@@ -138,7 +138,7 @@ function updateOM()
 		br.debug.cpu.enemiesEngine.objects.targets = 0
 	end
 	-- Cycle OM
-	local objectCount = FireHack~=nil and GetObjectCount() or 0
+	local objectCount = EWT ~= nil and GetObjectCount() or 0
 	if objectCount > 0 then
 		local playerObject = GetObjectWithGUID(UnitGUID("player"))
 		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
@@ -187,11 +187,27 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
     	refreshStored = false
     end
-    if checkNoCombat == false and br.storedTables[checkNoCombat] ~= nil then
-		if br.storedTables[checkNoCombat][radius] ~= nil then
-			if br.storedTables[checkNoCombat][radius][thisUnit] ~= nil then
+	if br.storedTables[checkNoCombat] ~= nil then
+		if checkNoCombat == false then
+			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
+				if br.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
 				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
-				return br.storedTables[checkNoCombat][radius][thisUnit]
+					return br.storedTables[checkNoCombat][thisUnit][radius]
+				end
+			end		
+		end
+		if br.storedTables[checkNoCombat][thisUnit] ~= nil then
+			local lowestTable
+			for k,v in pairs(br.storedTables[checkNoCombat][thisUnit]) do
+				if k > radius then
+					if (lowestTable ~= nil and lowestTable < k) or lowestTable == nil then
+						lowestTable = k
+					end
+				end
+			end
+			if lowestTable ~= nil then
+				print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
+				enemyTable = br.storedTables[checkNoCombat][thisUnit][lowestTable]
 			end
 		end
 	end
@@ -217,10 +233,10 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
-    if #enemiesTable > 0 and thisUnit ~= nil then
-		br.storedTables[checkNoCombat] = {}
-		br.storedTables[checkNoCombat][radius] = {}
-		br.storedTables[checkNoCombat][radius][thisUnit] = enemiesTable
+	if #enemiesTable > 0 and thisUnit ~= nil then
+		if br.storedTables[checkNoCombat] == nil then br.storedTables[checkNoCombat] = {} end
+		if br.storedTables[checkNoCombat][thisUnit] == nil then br.storedTables[checkNoCombat][thisUnit] = {} end
+		br.storedTables[checkNoCombat][thisUnit][radius] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
     return enemiesTable

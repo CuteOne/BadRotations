@@ -4,11 +4,7 @@ function GetObjectExists(Unit)
 end
 function GetUnit(Unit)
 	if Unit ~= nil and GetObjectExists(Unit) then
-		if (EWT or Toolkit_GetVersion ~= nil) then
-			return Unit
-		elseif FireHack and not (EWT or Toolkit_GetVersion ~= nil) then
-			return ObjectIdentifier(Unit)
-		end
+		return Unit
 	end
 	return nil
 end
@@ -36,14 +32,14 @@ function GetUnitIsVisible(Unit)
 	return UnitIsVisible(Unit)
 end
 function GetObjectFacing(Unit)
-    if FireHack and GetObjectExists(Unit) then
+    if EWT and GetObjectExists(Unit) then
         return ObjectFacing(Unit)
     else
         return false
     end
 end
 function GetObjectPosition(Unit)
-    if FireHack then
+    if EWT then
 		if Unit == nil then return ObjectPosition("player") end
 		if GetObjectExists(Unit) then return ObjectPosition(Unit) end
     else
@@ -51,28 +47,28 @@ function GetObjectPosition(Unit)
     end
 end
 function GetObjectType(Unit)
-    if FireHack and GetObjectExists(Unit) then
+    if EWT and GetObjectExists(Unit) then
         return ObjectTypes(Unit)
     else
         return 65561
     end
 end
 function GetObjectIndex(Index)
-    if FireHack and GetObjectExists(GetObjectWithIndex(Index)) then
+    if EWT and GetObjectExists(GetObjectWithIndex(Index)) then
         return GetObjectWithIndex(Index)
     else
         return 0
     end
 end
 -- function GetObjectCountBR()
--- 	if FireHack then
+-- 	if EWT then
 --     	return GetObjectCount()
 --     else
 --     	return 0
 --     end
 -- end
 function GetObjectID(Unit)
-	if FireHack and GetObjectExists(Unit) then
+	if EWT and GetObjectExists(Unit) then
 		return ObjectID(Unit)
 	else
 		return 0

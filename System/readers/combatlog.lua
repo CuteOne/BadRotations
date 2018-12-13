@@ -372,7 +372,7 @@ function br.read.combatLog()
             if source == UnitGUID("player") then
                 if destination ~= nil and destination ~= "" then
                     local thisUnit = thisUnit
-                    if FireHack then
+                    if EWT then
                         local destination = GetObjectWithGUID(destination)
                         if GetObjectExists(destination) then
                             thisUnit = destination
@@ -539,7 +539,7 @@ function cl:Rogue(...)
         if source == UnitGUID("player") then
             if destination ~= nil and destination ~= "" then
                 local thisUnit = thisUnit
-                if FireHack then
+                if EWT then
                     local destination = GetObjectWithGUID(destination)
                     if GetObjectExists(destination) then
                         thisUnit = destination

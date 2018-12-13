@@ -193,7 +193,7 @@ function im:manageCast(...)
 	-- Prepare GUID to be reused via UnitID
 	local br = im
 	local function GetObjectExists(Unit)
-	    if FireHack and GetObjectExists(Unit) == true then
+	    if EWT and GetObjectExists(Unit) == true then
 	        return true
 	    else
 	        return false
