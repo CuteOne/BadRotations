@@ -663,8 +663,8 @@ local function runRotation()
                 if cast.rushingJadeWind() then return end
             end
         -- Fist of the White Tiger
-            -- fist_of_the_white_tiger,if=chi<=2&(buff.rushing_jade_wind.down|energy>46)
-            if cast.able.fistOfTheWhiteTiger() and chi <= 2 and (not buff.rushingJadeWind.exists() or energy > 46) then
+            -- fist_of_the_white_tiger,if=chi<=2
+            if cast.able.fistOfTheWhiteTiger() and chi <= 2 then
                 if cast.fistOfTheWhiteTiger() then return end
             end
         -- Energizing Elixir
@@ -756,8 +756,8 @@ local function runRotation()
                 if cast.chiBurst(nil,"rect",1,12) then return true end
             end
         -- Fist of the White Tiger
-            -- fist_of_the_white_tiger,if=chi.max-chi>=3&(energy>46|buff.rushing_jade_wind.down)
-            if cast.able.fistOfTheWhiteTiger() and chiMax - chi >= 3 and (energy > 46 or not buff.rushingJadeWind.exists()) then
+            -- fist_of_the_white_tiger,if=chi.max-chi>=3
+            if cast.able.fistOfTheWhiteTiger() and chiMax - chi >= 3 then
                 if cast.fistOfTheWhiteTiger() then return end
             end
         -- Tiger Palm
@@ -900,11 +900,6 @@ local function runRotation()
     --- APL Mode: SimulationCraft ---
     ---------------------------------
                 if getOptionValue("APL Mode") == 1 then -- --[[and cd.global.remain() <= getLatency()]] and GetTime() >= SEFTimer + getOptionValue("SEF Timer") then
-        -- Rushing Jade Wind
-                    -- rushing_jade_wind,if=talent.serenity.enabled&cooldown.serenity.remains<3&energy.time_to_max>1&buff.rushing_jade_wind.down
-                    if cast.able.rushingJadeWind() and talent.serenity and cd.serenity.remain() < 3 and ttm > 1 and not buff.rushingJadeWind.exists() then
-                        if cast.rushingJadeWind() then return end
-                    end
         -- Touch of Karma
                     -- touch_of_karma,interval=90,pct_health=0.5
                     if isChecked("Touch of Karma") and useCDs() and cast.able.touchOfKarma() and php >= 50 then

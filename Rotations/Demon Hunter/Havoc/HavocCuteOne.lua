@@ -383,8 +383,10 @@ local function runRotation()
                             -- if cast.metamorphosis("best",false,1,8) then return end
                             if cast.metamorphosis("player") then return end
                         end
-                        -- metamorphosis,if=talent.demonic.enabled&buff.metamorphosis.up
-                        if cast.able.metamorphosis() and talent.demonic and buff.metamorphosis.exists() then
+                        -- metamorphosis,if=talent.demonic.enabled&buff.metamorphosis.up&(!azerite.chaotic_transformation.enabled|!variable.blade_dance|!cooldown.blade_dance.ready)
+                        if cast.able.metamorphosis() and talent.demonic and buff.metamorphosis.exists() 
+                            and (not traits.chaoticTransformation.active or not bladeDanceVar or cd.bladeDance.remain() > 0) 
+                        then
                             if cast.metamorphosis("player") then return end
                         end
                     end

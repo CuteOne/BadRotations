@@ -394,6 +394,7 @@ br.lists.spells = {
                 unleashedPower              = 206477,
             },
             traits                          = {
+                chaoticTransformation       = 288754,
                 revolvingBlades             = 279581,
                 unboundChaos                = 275144,
             },
