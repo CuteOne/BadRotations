@@ -126,7 +126,7 @@ function br.loader:new(spec,specName)
     --Update Azerite Traits
     local function getAzeriteTraitInfo()
         local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-        if (not azeriteItemLocation) then
+        if not azeriteItemLocation or self.spell.traits == nil then
             return
         end
         for k, v in pairs(self.spell.traits) do
