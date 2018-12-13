@@ -583,7 +583,7 @@ local function runRotation()
             -- serpent_sting,if=refreshable&(azerite.latent_poison.rank>2|azerite.latent_poison.enabled&azerite.venomous_fangs.enabled|(azerite.latent_poison.enabled
                 --|azerite.venomous_fangs.enabled)&(!azerite.blur_of_talons.enabled|!talent.birds_of_prey.enabled|!buff.coordinated_assault.up))
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
-                and (traits.latentPoison.rank() > 2 or (traits.latentPoison.active and traits.venomousFangs.active)
+                and (traits.latentPoison.rank > 2 or (traits.latentPoison.active and traits.venomousFangs.active)
                 or ((traits.latentPoison.active or traits.venomousFangs.active) and (not traits.blurOfTalons.active
                 or not talent.birdsOfPrey or not buff.coordinatedAssault.exists())))
             then 
