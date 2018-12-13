@@ -308,7 +308,7 @@ local function runRotation()
         -- Variables
         -- variable,name=use_thrash,value=0
         -- variable,name=use_thrash,value=2,if=azerite.wild_fleshrending.enabled
-        if trait.wildFleshrending.active() then
+        if trait.wildFleshrending.active then
             useThrash = 2
         else
             useThrash = 0
@@ -1281,9 +1281,9 @@ local function runRotation()
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
             if (cast.pool.thrash() or cast.able.thrash()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) and mode.rotation < 3 then
-                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
+                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
                     or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
-                    or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active())) 
+                    or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
                 then
                     if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then

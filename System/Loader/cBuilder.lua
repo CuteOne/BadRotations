@@ -123,6 +123,45 @@ function br.loader:new(spec,specName)
             end
         end
     end
+    --Update Azerite Traits
+    local function getAzeriteTraitInfo()
+        local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
+        if (not azeriteItemLocation) then
+            return
+        end
+        for k, v in pairs(self.spell.traits) do
+            self.traits[k] = {}
+            self.traits[k].active = false
+            self.traits[k].rank = 0
+        end
+        local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
+        for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
+            local item = Item:CreateFromEquipmentSlot(slot)
+            if (not item:IsItemEmpty()) then
+                local itemLocation = item:GetItemLocation()
+                if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
+                    local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                    for tier, info in next, tierInfo do
+                        if (info.unlockLevel <= azeritePowerLevel) then
+                            for _, powerID in next, info.azeritePowerIDs do
+                                local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
+                                local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                                if powerInfo and isSelected then
+                                    local azeriteSpellID = powerInfo["spellID"]
+                                    for k, v in pairs(self.spell.traits) do
+                                        if v == azeriteSpellID then
+                                            self.traits[k].active = true
+                                            self.traits[k].rank = self.traits[k].rank + 1
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 
     local function getFunctions()
         -- if not UnitAffectingCombat("player") then
@@ -136,51 +175,6 @@ function br.loader:new(spec,specName)
             end
             artifact.rank = function()
                 return getPerkRank(v)
-            end
-        end
-
-        local function getAzeriteTraitInfo(traitID)
-            local rank = 0
-            local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-            if (not azeriteItemLocation) then return end
-            local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
-            for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
-                local item = Item:CreateFromEquipmentSlot(slot)
-                if (not item:IsItemEmpty()) then
-                    local itemLocation = item:GetItemLocation()
-                    if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
-                        local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-                        for tier, info in next, tierInfo do
-                            if (info.unlockLevel <= azeritePowerLevel) then
-                                for _, powerID in next, info.azeritePowerIDs do
-                                    local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation,powerID)
-                                    local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-                                    if (powerInfo) then
-                                        local azeriteSpellID = powerInfo["spellID"]
-                                        if isSelected and azeriteSpellID == traitID then rank = rank + 1 end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            return rank > 0 and true or false, rank
-            -- if rank > 0 then return true, rank else return false, rank end
-        end
-
-        -- Build Azerite Trait Info
-        if self.spell.traits ~= nil then
-            for k,v in pairs(self.spell.traits) do
-                if not self.traits[k] then self.traits[k] = {} end
-                local traits = self.traits[k]
-                local specID = GetSpecializationInfo(GetSpecialization())
-                self.traits[k].active = function()
-                    return select(1, getAzeriteTraitInfo(v)) or false
-                end
-                self.traits[k].rank = function()
-                    return select(2, getAzeriteTraitInfo(v)) or 0
-                end
             end
         end
 
@@ -658,7 +652,7 @@ function br.loader:new(spec,specName)
         end
     end
 
-    if self.talent == nil or self.cast == nil then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
+    if self.talent == nil or self.cast == nil then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -678,7 +672,7 @@ function br.loader:new(spec,specName)
         self.baseUpdate()
         self.getBleeds()
         -- Update Player Info on Init, Talent, and Level Change
-        if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getFunctions(); br.updatePlayerInfo = false end
+        if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
         self.getToggleModes()
         -- Start selected rotation
         self.startRotation()

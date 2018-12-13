@@ -731,7 +731,7 @@ local function runRotation()
             if isChecked("Opener") and isBoss("target") and opener == false and GetUnitReaction("target","player") < 4 then
                 if getDistance("target") <= getValue("Opener") then  -- isValidUnit("target") --[[and 
             -- Begin
-                if not trait.primalInstincts.active() then
+                if not trait.primalInstincts.active then
                     -- opener without Trait
                     if not OPN1 then
                         Print("Opener ready (I not detected the Trait). If you enabled Pre-Pull-Timer, it will now wait for it")

@@ -267,15 +267,15 @@ local function runRotation()
 
         local function rtbReroll()
             if mode.rollforone == 1 then if buff.rollTheBones.count > 0 then return false end
-            elseif traits.snakeeyes.rank() > 0 then
-                    if traits.snakeeyes.rank() >= 2 and (buff.snakeeeyes.stack() >= 2 - (buff.broadside.exists() and 1 or 0)) then
+            elseif traits.snakeeyes.rank > 0 then
+                    if traits.snakeeyes.rank >= 2 and (buff.snakeeeyes.stack() >= 2 - (buff.broadside.exists() and 1 or 0)) then
                         return false
-                    elseif buff.rollTheBones.count < 2 or (traits.snakeeyes.rank() >= 3 and buff.rollTheBones.count < 5) then
+                    elseif buff.rollTheBones.count < 2 or (traits.snakeeyes.rank >= 3 and buff.rollTheBones.count < 5) then
                         return true
                     
                     end
              
-            elseif traits.deadshot.rank() > 0 or traits.aceupyoursleeve.rank() > 0 then 
+            elseif traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0 then 
                 return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (buff.ruthlessPrecision.remain() <= br.player.cd.betweenTheEyes.remain()))) and true or false
             --rtb_reroll,value=rtb_buffs<2&(buff.loaded_dice.up|!buff.grand_melee.up&!buff.ruthless_precision.up)
             else return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists()))) and true or false
@@ -477,7 +477,7 @@ local function runRotation()
             local startTime = debugprofilestop()                          
 
             --actions.finish=between_the_eyes,if=buff.ruthless_precision.up|(azerite.deadshot.rank>=2&buff.roll_the_bones.up)
-            if buff.ruthlessPrecision.exists() or ((traits.deadshot.rank() > 0 or traits.aceupyoursleeve.rank() > 0) and buff.rollTheBones.count > 0) then
+            if buff.ruthlessPrecision.exists() or ((traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) and buff.rollTheBones.count > 0) then
                 cast5yards("betweenTheEyes",true)
             end
 
@@ -494,7 +494,7 @@ local function runRotation()
                 end
             end
 
-            if traits.deadshot.rank() > 0 or traits.aceupyoursleeve.rank() > 0 then
+            if traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0 then
                  cast5yards("betweenTheEyes",true)
             end
 
@@ -727,7 +727,7 @@ local function runRotation()
                                 if CastSpellByID(137619,thisUnit) then return true end
                         end
                 end
-            if shouldFinish() or (traits.snakeeyes.rank() > 0 and not buff.snakeeeyes.exists() and rtbReroll()) then
+            if shouldFinish() or (traits.snakeeyes.rank > 0 and not buff.snakeeeyes.exists() and rtbReroll()) then
                 if actionList_Finishers() then return end
             end
             if actionList_Build() then return end

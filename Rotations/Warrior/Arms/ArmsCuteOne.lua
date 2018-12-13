@@ -612,7 +612,7 @@ local function runRotation()
             if mode.bladestorm == 1	
 			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
                 and (not buff.sweepingStrikes.exists() and not talent.deadlyCalm or not buff.deadlyCalm.exists())
-                and ((debuff.colossusSmash.exists(units.dyn5) and not traits.testOfMight.active()) or buff.testOfMight.exists())
+                and ((debuff.colossusSmash.exists(units.dyn5) and not traits.testOfMight.active) or buff.testOfMight.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
@@ -623,7 +623,7 @@ local function runRotation()
             end
         -- Overpower
             -- overpower,if=azerite.seismic_wave.rank=3
-            if cast.able.overpower() and traits.seismicWave.rank() == 3 then
+            if cast.able.overpower() and traits.seismicWave.rank == 3 then
                 if cast.overpower() then return end
             end
         -- Mortal Strike
@@ -644,13 +644,13 @@ local function runRotation()
         -- Whirlwind
             -- whirlwind,if=talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up)
             if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle 
-                and (not traits.testOfMight.active() or debuff.colossusSmash.exists(units.dyn5))) 
+                and (not traits.testOfMight.active or debuff.colossusSmash.exists(units.dyn5))) 
             then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         -- Slam
             -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up|buff.deadly_calm.up|rage>=60)
-            if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active() 
+            if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active 
                 or debuff.colossusSmash.exists() or buff.deadlyCalm.exists() or rage >= 60)) 
             then
                 if cast.slam() then return end
@@ -694,7 +694,7 @@ local function runRotation()
             if mode.bladestorm == 1            
 			    and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and #enemies.yards8 >= getOptionValue("Bladestorm")) and not talent.ravager 
                 and (not buff.sweepingStrikes.exists() and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) 
-                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) or buff.testOfMight.exists()))                
+                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) or buff.testOfMight.exists()))                
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
@@ -792,13 +792,13 @@ local function runRotation()
             -- bladestorm,if=(debuff.colossus_smash.up&raid_event.adds.in>target.time_to_die)|raid_event.adds.up&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if mode.bladestorm == 1
 			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm")  
-			    and not talent.ravager and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active()) and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
+			    and not talent.ravager and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
         -- Overpower 
             -- overpower,if=!raid_event.adds.up|(raid_event.adds.up&azerite.seismic_wave.enabled)
-            if cast.able.overpower() and (#enemies.yards8 == 1 or (#enemies.yards8 > 1 and traits.seismicWave.active())) then 
+            if cast.able.overpower() and (#enemies.yards8 == 1 or (#enemies.yards8 > 1 and traits.seismicWave.active)) then 
                 if cast.overpower() then return end 
             end 
         -- Cleave 
@@ -898,7 +898,7 @@ local function runRotation()
             -- Sweeping Strikes
                 -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
                 if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
-                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active() or cd.warbreaker.remain() > 8
+                    and (cd.bladestorm.remain() > 10 or cd.colossusSmash.remain() > 8 or traits.testOfMight.active or cd.warbreaker.remain() > 8
 					or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
                 then
                     if cast.sweepingStrikes() then return end

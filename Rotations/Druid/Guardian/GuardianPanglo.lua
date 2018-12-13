@@ -488,7 +488,7 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     if br.player.mode.ironfur == 1 then
-                        if (traits.layeredMane.active() and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
+                        if (traits.layeredMane.active and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
                             if cast.ironfur() then return end
                         end
                     end    

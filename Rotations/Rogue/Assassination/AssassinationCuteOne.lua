@@ -263,7 +263,7 @@ local function runRotation()
 
         -- Numeric Returns
         if talent.deeperStratagem then deepStrat = 1 else deepStrat = 0 end
-        if trait.shroudedSuffocation.active() then suffocated = 1 else suffocated = 0 end
+        if trait.shroudedSuffocation.active then suffocated = 1 else suffocated = 0 end
         if stealthedRogue then stealthed = 1 else stealthed = 0 end
         if #enemies.yards10 >= 5 then manyTargets = 1 else manyTargets = 0 end
 
@@ -457,7 +457,7 @@ local function runRotation()
                 -- vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)
                 if getOptionValue("Vendetta") == 1 or (getOptionValue("Vendetta") == 2 and useCDs()) then
                     if cast.able.vendetta() and (not stealthedRogue and debuff.rupture.exists(units.dyn5)
-                        and (not talent.subterfuge or not trait.shroudedSuffocation.active() or debuff.garrote.applied(units.dyn5) > 1))
+                        and (not talent.subterfuge or not trait.shroudedSuffocation.active or debuff.garrote.applied(units.dyn5) > 1))
                     then
                         if cast.vendetta() then return end
                     end
@@ -470,7 +470,7 @@ local function runRotation()
                     end
                     -- vanish,if=talent.exsanguinate.enabled&(talent.nightstalker.enabled|talent.subterfuge.enabled&variable.single_target)&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier<=1)
                     if cast.able.vanish() and (talent.exsanguinate and (talent.nightstalker or talent.subterfuge and singleTarget) and comboPoints >= comboMax
-                        and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active() or debuff.garrote.applied(units.dyn5) <= 1))
+                        and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active or debuff.garrote.applied(units.dyn5) <= 1))
                     then
                         if cast.vanish() then StopAttack(); return end
                     end
@@ -539,7 +539,7 @@ local function runRotation()
             end
         -- Rupture
             -- rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking
-            if cast.able.rupture() and (talent.subterfuge and trait.shroudedSuffocation.active() and not debuff.rupture.exists(units.dyn5)) then
+            if cast.able.rupture() and (talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists(units.dyn5)) then
                 if cast.rupture() then return end
             end
         -- Garrote
@@ -547,7 +547,7 @@ local function runRotation()
             if cast.able.garrote() then
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
-                    if (talent.subterfuge and trait.shroudedSuffocation.active() and ttd(thisUnit) > debuff.garrote.remain(thisUnit)) then
+                    if (talent.subterfuge and trait.shroudedSuffocation.active and ttd(thisUnit) > debuff.garrote.remain(thisUnit)) then
                         if cast.garrote(thisUnit) then return end
                     end
                 end

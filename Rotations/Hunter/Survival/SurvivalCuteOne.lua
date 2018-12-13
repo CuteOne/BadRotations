@@ -582,9 +582,9 @@ local function runRotation()
             end
             -- serpent_sting,if=refreshable&(azerite.latent_poison.rank>2|azerite.latent_poison.enabled&azerite.venomous_fangs.enabled|(azerite.latent_poison.enabled
                 --|azerite.venomous_fangs.enabled)&(!azerite.blur_of_talons.enabled|!talent.birds_of_prey.enabled|!buff.coordinated_assault.up))
-            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40) 
-                and (traits.latentPoison.rank() > 2 or (traits.latentPoison.active() and traits.venomousFangs.active()) 
-                or ((traits.latentPoison.active() or traits.venomousFangs.active()) and (not traits.blurOfTalons.active() 
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
+                and (traits.latentPoison.rank() > 2 or (traits.latentPoison.active and traits.venomousFangs.active)
+                or ((traits.latentPoison.active or traits.venomousFangs.active) and (not traits.blurOfTalons.active
                 or not talent.birdsOfPrey or not buff.coordinatedAssault.exists())))
             then 
                 if cast.serpentSting() then return end
@@ -773,7 +773,7 @@ local function runRotation()
         -- Serpent Sting
             -- serpent_sting,if=buff.vipers_venom.up|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled|buff.mongoose_fury.stack=5)
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) and (not talent.mongooseBite or not talent.vipersVenom
-                or nextBomb(spell.volatileBomb) and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active() or buff.mongooseFury.stack() == 5))
+                or nextBomb(spell.volatileBomb) and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active or buff.mongooseFury.stack() == 5))
             then
                 if cast.serpentSting() then return end
             end
@@ -866,7 +866,7 @@ local function runRotation()
         -- Serpent Sting
             -- serpent_sting,if=refreshable&(next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
-                and (nextBomb(spell.volatileBomb) and (not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active() or traits.venomousFangs.active()))
+                and (nextBomb(spell.volatileBomb) and (not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active))
             then
                 if cast.serpentSting() then return end
             end

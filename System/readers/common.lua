@@ -268,6 +268,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
 	superReaderFrame:RegisterEvent("ENCOUNTER_END")
+	superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
@@ -290,7 +291,7 @@ function br.read.commonReaders()
 			return
 		end
 		-- Update Player Info
-		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" then
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" then
 			br.updatePlayerInfo = true
 		end
 		-------------------------------------------------
