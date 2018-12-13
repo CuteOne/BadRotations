@@ -641,7 +641,7 @@ local function runRotation()
                     if cast.stampede() then return end
                 end
 				--Aspect of the wild
-        		if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active() or (trait.primalInstincts.active() and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
+        		if isChecked("Aspect of the Wild") and useCDs() and (not trait.primalInstincts.active or (trait.primalInstincts.active and charges.barbedShot.frac() < 0.9)) and ((buff.bestialWrath.exists() and buff.bestialWrath.remain() >= 13) or cd.bestialWrath.remain() <= gcd) then
         			if cast.aspectOfTheWild() then return end
         		end
 
@@ -787,7 +787,7 @@ local function runRotation()
                     --Hold rotation for perfect Frenzy placement
 					if (charges.barbedShot.recharge() <= 1.5 or charges.barbedShot.frac() >= 1) and buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= 1.5 and buff.frenzy.remain("pet") > 0.5 then return end
                     --actions+=/barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active() and cd.aspectOfTheWild.remain() <= gcdMax and charges.barbedShot.frac() >= 1) or charges.barbedShot.frac() >= 2 then
+                    if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) or (useCDs() and trait.primalInstincts.active and cd.aspectOfTheWild.remain() <= gcdMax and charges.barbedShot.frac() >= 1) or charges.barbedShot.frac() >= 2 then
                         if cast.barbedShot() then return end
                     end
                     --Pet Attacks
