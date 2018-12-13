@@ -126,14 +126,13 @@ function br.loader:new(spec,specName)
     --Update Azerite Traits
     local function getAzeriteTraitInfo()
         local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-        if not azeriteItemLocation or self.spell.traits == nil then
-            return
-        end
+        if self.spell.traits == nil then return end
         for k, v in pairs(self.spell.traits) do
             self.traits[k] = {}
             self.traits[k].active = false
             self.traits[k].rank = 0
         end
+        if not azeriteItemLocation then return end
         local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
         for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
             local item = Item:CreateFromEquipmentSlot(slot)
