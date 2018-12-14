@@ -52,7 +52,6 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Only Known Units", "Check this to interrupt only on known units using whitelist.")
         br.ui:createCheckbox(section, "Crowd Control", "Check to use crowd controls on select units/buffs.")
         br.ui:createCheckbox(section, "Enrages Handler", "Check this to allow Enrages Handler.")
-        br.ui:createCheckbox(section, "Auto Facing", "Auto face when casting instant spells")
         br.ui:checkSectionState(section)
     end
 
