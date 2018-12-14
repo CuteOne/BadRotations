@@ -1622,7 +1622,7 @@ local function runRotation()
                         end
         -- Ferocious Bite
                         -- if DotRemainingSec(Rip) < 3 and HasDot(Rip) --requires talents Sabertooth--
-                        if cast.able.ferociousBite() and talent.sabertooth and debuff.rip.exits(units.dyn5) and debuff.rip.remain(units.dyn5) < 3 then
+                        if cast.able.ferociousBite() and talent.sabertooth and debuff.rip.exists(units.dyn5) and debuff.rip.remain(units.dyn5) < 3 then
                             if cast.ferociousBite() then return true end
                         end
         -- Call Action List - Generator
