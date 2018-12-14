@@ -40,7 +40,7 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-	if not EWT then
+	if EWT then
 		-- Pulse Object Manager for Caching
 		if omPulse == nil then
 			omPulse = GetTime()
