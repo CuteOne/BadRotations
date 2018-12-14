@@ -206,7 +206,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 				end
 			end
 			if lowestTable ~= nil then
-				print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
+				--print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
 				enemyTable = br.storedTables[checkNoCombat][thisUnit][lowestTable]
 			end
 		end
