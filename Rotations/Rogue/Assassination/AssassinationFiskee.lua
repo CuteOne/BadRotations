@@ -659,7 +659,7 @@ local function runRotation()
         end
         -- Sinister Strike
         if level < 40 then
-            if cast.sinisterStrike() then return true end
+            if cast.sinisterStrike("target") then return true end
         end
     end
 
