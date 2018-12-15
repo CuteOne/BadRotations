@@ -196,20 +196,20 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 				end
 			end		
 		end
-		if br.storedTables[checkNoCombat][thisUnit] ~= nil then
-			local lowestTable
-			for k,v in pairs(br.storedTables[checkNoCombat][thisUnit]) do
-				if k > radius then
-					if (lowestTable ~= nil and lowestTable < k) or lowestTable == nil then
-						lowestTable = k
-					end
-				end
-			end
-			if lowestTable ~= nil then
-				--print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
-				enemyTable = br.storedTables[checkNoCombat][thisUnit][lowestTable]
-			end
-		end
+		-- if br.storedTables[checkNoCombat][thisUnit] ~= nil then
+		-- 	local lowestTable
+		-- 	for k,v in pairs(br.storedTables[checkNoCombat][thisUnit]) do
+		-- 		if k > radius then
+		-- 			if (lowestTable ~= nil and k < lowestTable) or lowestTable == nil then
+		-- 				lowestTable = k
+		-- 			end
+		-- 		end
+		-- 	end
+		-- 	if lowestTable ~= nil then
+		-- 		--print("Table found at "..lowestTable.." radius.  Using as enemyTable for "..radius.." radius.")
+		-- 		enemyTable = br.storedTables[checkNoCombat][thisUnit][lowestTable]
+		-- 	end
+		-- end
 	end
 
 	for k, v in pairs(enemyTable) do
