@@ -238,7 +238,7 @@ local function runRotation()
 	--actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=2	
 	local dsCastable = (mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2
 	--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
-	local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (talent.crusade and not buff.crusade.exists())))
+	local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (not isChecked("Crusade") or (talent.crusade and not buff.crusade.exists()))))
 
 	local lowestUnit
 	local lowestTank
@@ -687,11 +687,13 @@ local function runRotation()
 			-- Avenging Wrath
 			-- avenging_wrath
 			if isChecked("Avenging Wrath") and not talent.crusade then
+				print("1")
 				if cast.avengingWrath() then return end
 			end
 			-- Crusade
 			-- crusade,if=holy_power>=3|((equipped.137048|race.blood_elf)&holy_power>=2)
-			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) then
+			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) and cd.crusade.remain() <= gcd then
+				print("2")
 				if cast.avengingWrath() then return end
 			end
 		end -- End Cooldown Usage Check
@@ -748,6 +750,8 @@ local function runRotation()
 						if castOpener("inquisition","OPN5",4) then return end
 					elseif talent.divinePurpose then
 						if castOpener("avengingWrath","OPN5",4) then return end
+					else
+						OPN5 = true
 					end
 				elseif OPN5 and not OPN6 then
 					if talent.inquisition then
@@ -789,7 +793,7 @@ local function runRotation()
 			if cast.inquisition() then return end
 		end
 		-- actions.finishers+=/execution_sentence,if=spell_targets.divine_storm<=3&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-		if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2))) then
+		if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2))) then
 			if cast.executionSentence() then return end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
@@ -805,7 +809,7 @@ local function runRotation()
 			if cast.templarsVerdict() then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
-		if (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
+		if (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
 			if cast.templarsVerdict() then return end
 		end
 
