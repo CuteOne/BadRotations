@@ -158,6 +158,7 @@ local function runRotation()
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
     local inCombat                                      = br.player.inCombat
+    local level                                         = br.player.level
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
@@ -801,6 +802,10 @@ local function runRotation()
                 elseif race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
                 end
+            end
+            --lowlevel?
+            if level < 20 then
+                if cast.sinisterStrike() then return true end
             end
         end -- End In Combat Rotation
     end -- Pause
