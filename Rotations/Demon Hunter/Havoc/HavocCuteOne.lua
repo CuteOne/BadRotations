@@ -56,6 +56,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- Auto Engage
+            br.ui:createCheckbox(section, "Auto Engage")
         -- Eye Beam Targets
             br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFF00AoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
             br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use AoE spells on.")
@@ -711,11 +713,11 @@ local function runRotation()
                 if isValidUnit("target") then
                     if GetUnitReaction("target","player") < 4 then
             -- Throw Glaive
-                        if isChecked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
+                        if isChecked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 and solo and isChecked("Auto Engage") then
                             if cast.throwGlaive("target","aoe") then return end
                         end
             -- Torment
-                        if cast.able.torment("target") and solo then
+                        if cast.able.torment("target") and solo and isChecked("Auto Engage") then
                             if cast.torment("target") then return end
                         end
                     end
