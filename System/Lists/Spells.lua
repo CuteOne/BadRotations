@@ -3153,6 +3153,7 @@ br.lists.spells = {
                 glyphOfThunderStrike        = 68164,
             },
             talents                         = {
+                avatar                      = 107574,
                 cleave                      = 845,
                 collateralDamage            = 268243,
                 deadlyCalm                  = 262228,
@@ -3208,6 +3209,7 @@ br.lists.spells = {
 
             },
             talents                         = {
+                avatar                      = 107574,
                 bladestorm                  = 46924,
                 bloodbath                   = 12292,
                 carnage                     = 202922,
@@ -3330,7 +3332,6 @@ br.lists.spells = {
                 weightOfTheEarth            = 137077,
             },
             talents                         = {
-                avatar                      = 107574,
                 angerManagement             = 152278,
                 boundingStride              = 202163,
                 impendingVictory            = 202168,
