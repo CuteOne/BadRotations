@@ -654,8 +654,12 @@ local function runRotation()
             if cast.mutilate("target") then return true end
         end
         --evis low level
-        if level < 36 and combo > 4 then
+        if level < 36 and combo >= 4 then
             if cast.eviscerate("target") then return true end
+        end
+        -- Sinister Strike
+        if level < 40 then
+            if cast.sinisterStrike() then return true end
         end
     end
 
@@ -811,10 +815,6 @@ local function runRotation()
                 elseif race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
                 end
-            end
-            --lowlevel?
-            if level < 40 then
-                if cast.sinisterStrike() then return true end
             end
         end -- End In Combat Rotation
     end -- Pause
