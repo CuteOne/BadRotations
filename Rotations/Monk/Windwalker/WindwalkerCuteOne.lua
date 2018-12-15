@@ -380,8 +380,8 @@ local function runRotation()
                 end
             end
         -- Fixate - Storm, Earth, and Fire
-            if getOptionValue("SEF Behavior") == 1 and not talent.serenity and not cast.current.fistsOfFury() then
-                if cast.stormEarthAndFireFixate() then return true end
+            if cast.able.stormEarthAndFireFixate("target") and getOptionValue("SEF Behavior") == 1 and not talent.serenity and not cast.current.fistsOfFury() then
+                if cast.stormEarthAndFireFixate("target") then return true end
             end
         end -- End Action List - Extras
     -- Action List - Defensive
@@ -727,7 +727,7 @@ local function runRotation()
         -- Energizing Elixir
             -- energizing_elixir,if=!prev_gcd.1.tiger_palm&chi<=1&energy<50
             if cast.able.energizingElixir() and (getOptionValue("Energizing Elixir") == 1 or (getOptionValue("Energizing Elixir") == 2 and useCDs()))
-                and not cast.last.tigerPalm() and chi <= 1 and energy < 50 and getDistance("target") < 5
+                and not cast.last.tigerPalm() and chi <= 1 and energy < 50 and getDistance("target") < 8
             then
                 if cast.energizingElixir() then return true end
             end
