@@ -54,6 +54,7 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+            br.ui:createDropdownWithout(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
             br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
@@ -168,7 +169,7 @@ local function runRotation()
     local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
-    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2
+    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1)
     local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
     local thp                                           = getHP("target")
@@ -284,7 +285,7 @@ local function runRotation()
             local thisUnit = enemyTable30[i]
             if thisUnit.distance <= 10 then
                 tinsert(enemyTable10, thisUnit)
-                if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
+                if deadlyPoison10 and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
                     tinsert(enemyTable5, thisUnit)
@@ -332,10 +333,13 @@ local function runRotation()
         end
         if not inCombat then
             -- actions.precombat+=/apply_poison
-            if not moving and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison() then
+            if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
                 if cast.deadlyPoison("player") then return true end
             end
-            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison() then
+            if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
+                if cast.woundPoison("player") then return true end
+            end
+            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
                 if cast.cripplingPoison("player") then return true end
             end
             -- actions.precombat+=/stealth
@@ -567,7 +571,7 @@ local function runRotation()
             if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
                 if cast.vendetta("target") then return true end
             end
-            if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 and gcd == 0 then
+            if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 and gcd < 0.2 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and not debuff.garrote.exists("target") and enemies10 == 1 then
@@ -613,7 +617,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not buff.stealth.exists() and not buff.vanish.exists()
+        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not stealthedRogue
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active then
@@ -635,12 +639,12 @@ local function runRotation()
         -- # Tab-Mutilate to apply Deadly Poison at 2 targets
         -- actions.direct+=/mutilate,target_if=!dot.deadly_poison_dot.ticking,if=variable.use_filler&spell_targets.fan_of_knives=2
         if useFiller and enemies10 == 2 then
-            if not debuff.deadlyPoison.exists("target") then
+            if (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists("target")) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists("target")) then
                 if cast.mutilate("target") then return true end
             end
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if not debuff.deadlyPoison.exists(thisUnit) then
+                if (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit)) then
                     if cast.mutilate(thisUnit) then return true end
                 end
             end
@@ -648,6 +652,10 @@ local function runRotation()
         -- actions.direct+=/mutilate,if=variable.use_filler
         if useFiller then
             if cast.mutilate("target") then return true end
+        end
+        --evis low level
+        if level < 36 and combo > 4 then
+            if cast.eviscerate("target") then return true end
         end
     end
 
@@ -767,7 +775,8 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish() or (validTarget and getDistance("target") < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and getDistance("target") < 5)))) and opener == true then
+            if cast.last.vanish(1) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             -- # Restealth if possible (no vulnerable enemies in combat)
@@ -804,7 +813,7 @@ local function runRotation()
                 end
             end
             --lowlevel?
-            if level < 20 then
+            if level < 40 then
                 if cast.sinisterStrike() then return true end
             end
         end -- End In Combat Rotation
