@@ -852,7 +852,7 @@ local function runRotation()
                             if comboPoints == 5 and talent.bloodtalons 
                                 and (talent.sabertooth and (not buff.bloodtalons.exists() or buff.predatorySwiftness.exists())) 
                             then 
-                                if castOpener("Regrowth","REG1",openerCount) then openerCount = openerCount + 1; return true end 
+                                if castOpener("regrowth","REG1",openerCount) then openerCount = openerCount + 1; return true end 
                             else 
                                 Print(openerCount..": Regrowth (Uncastable)")
                                 openerCount = openerCount + 1;
@@ -918,7 +918,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(target.health.pct>25&!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
             if (cast.pool.rip() or cast.able.rip()) and (not talent.primalWrath or #enemies.yards8 == 1 
-                or mode.rotation == 3 or not cast.pool.primalWrath(units.dyn8AOE,"aoe") or not usePrimalWrath()) 
+                or mode.rotation == 3 or not cast.pool.primalWrath("player","aoe") or not usePrimalWrath()) 
                 and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 
             then
                 for i = 1, #enemies.yards5 do
