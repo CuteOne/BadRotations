@@ -368,7 +368,7 @@ local function runRotation()
 
         local function parseTime()
             if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
-                print("norm avatar")
+                ---print("norm avatar")
                 if cast.avatar() then return end
             end
             -- shield slam always
