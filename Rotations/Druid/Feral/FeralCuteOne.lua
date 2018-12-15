@@ -352,7 +352,7 @@ local function runRotation()
             return false
         end
 
-        function ferociousBiteFinish()
+        local function ferociousBiteFinish()
             local desc = GetSpellDescription(spell.ferociousBite)
             for i = 1, 5 do
                 local comboStart = desc:find(" "..i.." ",1,true)+2
@@ -366,6 +366,17 @@ local function runRotation()
             end
             return false
         end
+
+        local function usePrimalWrath()
+            local ripCount = 0
+            for i = 1, #enemies.yards8 do
+                local thisUnit = enemies.yards8[i]
+                if debuff.rip.remain(thisUnit) >= 4 then ripCount = ripCount + 1 end
+            end
+            if ripCount - 2 < 0 then ripCount = 0 end
+            return ripCount < #enemies.yards8 
+        end
+            
 
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
@@ -791,52 +802,62 @@ local function runRotation()
                     elseif TF1 and not RK1 then 
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
-                        if not debuff.rake.exists() or buff.prowl.exists() then
-       					    if castOpener("rake","RK1",openerCount) then openerCount = openerCount + 1; return true end
-                        else
-                            Print(openerCount..": Rake (Uncastable)")
-                            openerCount = openerCount + 1
-                            RK1 = true
+                        if cast.able.rake() then
+                            if not debuff.rake.exists() or buff.prowl.exists() then
+                                if castOpener("rake","RK1",openerCount) then openerCount = openerCount + 1; return true end
+                            else
+                                Print(openerCount..": Rake (Uncastable)")
+                                openerCount = openerCount + 1
+                                RK1 = true
+                            end
                         end
                     elseif RK1 and not MF1 then
             -- Moonfire
                         -- moonfire_cat,if=!ticking|buff.bloodtalons.stack=1&combo_points<5
-                        if talent.lunarInspiration and (not debuff.moonfireFeral.exists("target") or buff.bloodtalons.stack() == 1) and comboPoints < 5 then
-                            if castOpener("moonfireFeral","MF1",openerCount) then openerCount = openerCount + 1; return true end
-                        else
-                            Print(openerCount..": Moonfire (Uncastable)")
-                            openerCount = openerCount + 1
-                            MF1 = true
+                        if cast.able.moonfireFeral() then
+                            if talent.lunarInspiration and (not debuff.moonfireFeral.exists("target") or buff.bloodtalons.stack() == 1) and comboPoints < 5 then
+                                if castOpener("moonfireFeral","MF1",openerCount) then openerCount = openerCount + 1; return true end
+                            else
+                                Print(openerCount..": Moonfire (Uncastable)")
+                                openerCount = openerCount + 1
+                                MF1 = true
+                            end
                         end
                     elseif MF1 and not THR1 then 
             -- Thrash
                         -- thrash_cat,if=!ticking&combo_points<5
-                        if not debuff.thrash.exists("target") and comboPoints < 5 then
-                            if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
-                        else
-                            Print(openerCount..": Thrash (Uncastable)")
-                            openerCount = openerCount + 1;
-                            THR1 = true
+                        if cast.able.thrash() then 
+                            if not debuff.thrash.exists("target") and comboPoints < 5 then
+                                if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
+                            else
+                                Print(openerCount..": Thrash (Uncastable)")
+                                openerCount = openerCount + 1;
+                                THR1 = true
+                            end
                         end
-                    elseif THR1 and (not SHR1 or comboPoints < 5) then 
+                    elseif THR1 and (not SHR1 or comboPoints < 5) and not debuff.rip.exists("target") then 
             -- Shred 
                         -- shred,if=combo_points<5 
-                        if comboPoints < 5 then 
+                        if cast.able.shred() and comboPoints < 5 then 
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return true end
-                        else 
-                            Print(openerCount..": Shred (Uncastable)")
-                            openerCount = openerCount + 1;
-                            SHR1 = true
+                        -- else 
+                        --     Print(openerCount..": Shred (Uncastable)")
+                        --     openerCount = openerCount + 1;
+                        --     SHR1 = true
                         end
                     elseif SHR1 and not REG1 then 
             -- Regrowth 
                         -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&(talent.sabertooth.enabled&buff.bloodtalons.down|buff.predatory_swiftness.up)
-                        if comboPoints == 5 and talent.bloodtalons and (talent.sabertooth and (not buff.bloodtalons.exists() or buff.predatorySwiftness.exists())) then 
-                            if castOpener("Regrowth","REG1",openerCount) then openerCount = openerCount + 1; return true end 
-                        else 
-                            Print(openerCount..": Regrowth (Uncastable)")
-                            openerCount = openerCount + 1;
-                            REG1 = true
+                        if cast.able.regrowth() then 
+                            if comboPoints == 5 and talent.bloodtalons 
+                                and (talent.sabertooth and (not buff.bloodtalons.exists() or buff.predatorySwiftness.exists())) 
+                            then 
+                                if castOpener("Regrowth","REG1",openerCount) then openerCount = openerCount + 1; return true end 
+                            else 
+                                Print(openerCount..": Regrowth (Uncastable)")
+                                openerCount = openerCount + 1;
+                                REG1 = true
+                            end
                         end
                     elseif REG1 and not TF2 then
             -- Tiger's Fury 
@@ -845,15 +866,11 @@ local function runRotation()
 					elseif TF2 and not RIP1 then
        		-- Rip
                         -- rip,if=combo_points=5
-                        if comboPoints == 5 then
+                        if cast.able.rip() and comboPoints == 5 then
 					        if castOpener("rip","RIP1",openerCount) then openerCount = openerCount + 1; return true end
-                        else
-                            Print(openerCount..": Rip (Uncastable)")
-                            openerCount = openerCount + 1;
-                            RIP1 = true
                         end
             -- Finish (rip exists)
-                    elseif RIP1 then
+                    elseif RIP1 or debuff.rip.exists("target") then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
@@ -889,18 +906,19 @@ local function runRotation()
         -- Primal Wrath
             -- pool_resource,for_next=1
             -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
-            if (cast.pool.primalWrath() or cast.able.primalWrath(units.dyn8AOE,"aoe")) and (debuff.rip.remain(units.dyn8) < 4
+            if (cast.pool.primalWrath() or cast.able.primalWrath("player","aoe")) and (usePrimalWrath()
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
             then 
                 if cast.pool.primalWrath() then ChatOverlay("Pooling For Primal Wrath") return true end
-                if cast.able.primalWrath(units.dyn8AOE,"aoe") then
-                    if cast.primalWrath(units.dyn8AOE,"aoe") then return true end
+                if cast.able.primalWrath("player","aoe") then
+                    if cast.primalWrath("player","aoe") then return true end
                 end
             end
         -- Rip
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(target.health.pct>25&!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
-            if (cast.pool.rip() or cast.able.rip()) and (not talent.primalWrath or #enemies.yards8 == 1 or mode.rotation == 3 or not cast.pool.primalWrath(units.dyn8AOE,"aoe")) 
+            if (cast.pool.rip() or cast.able.rip()) and (not talent.primalWrath or #enemies.yards8 == 1 
+                or mode.rotation == 3 or not cast.pool.primalWrath(units.dyn8AOE,"aoe") or not usePrimalWrath()) 
                 and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 
             then
                 for i = 1, #enemies.yards5 do
