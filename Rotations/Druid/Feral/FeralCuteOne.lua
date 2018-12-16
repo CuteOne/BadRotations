@@ -108,6 +108,8 @@ local function createOptions()
         -- Remove Corruption
             br.ui:createCheckbox(section,"Remove Corruption")
             br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+        -- Soothe
+            br.ui:createCheckbox(section,"Soothe")
         -- Renewal
             br.ui:createSpinner(section, "Renewal",  75,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healthstone
@@ -120,8 +122,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createDropdownWithout(section, "Regrowth - OoC", {"|cff00FF00Break Form","|cffFF0000Keep Form"}, 1, "|cffFFFFFFSelect if Regrowth is allowed to break shapeshift to heal out of combat.")
             br.ui:createDropdownWithout(section, "Regrowth - InC", {"|cff00FF00Immediately","|cffFF0000Save For BT"}, 1, "|cffFFFFFFSelect if Predatory Swiftness is used when available or saved for Bloodtalons.")
-        -- Dream of Cenarius Auto-Heal
-            br.ui:createDropdown(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
+        -- Auto-Heal
+            br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -132,7 +134,7 @@ local function createOptions()
         -- Maim
             br.ui:createCheckbox(section,"Maim")
         -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At (0 is random)")
+            br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At (0 is random)")
         br.ui:checkSectionState(section)
     -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -373,8 +375,7 @@ local function runRotation()
                 local thisUnit = enemies.yards8[i]
                 if debuff.rip.remain(thisUnit) >= 4 then ripCount = ripCount + 1 end
             end
-            if ripCount - 2 < 0 then ripCount = 0 end
-            return ripCount < #enemies.yards8 
+            return (#enemies.yards8 - ripCount) > 1
         end
             
 
@@ -531,7 +532,16 @@ local function runRotation()
 					if getOptionValue("Remove Corruption - Target")==3 and GetUnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) then
 						if cast.removeCorruption("mouseover") then return true end
 					end
-				end
+                end
+        -- Soothe 
+                if isChecked("Soothe") and cast.able.soothe() then
+                    for i=1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if canDispel(thisUnit, spell.soothe) then
+                            if cast.soothe(thisUnit) then return true end
+                        end
+                    end
+                end
         -- Renewal
                 if isChecked("Renewal") and inCombat and cast.able.renewal() and php <= getOptionValue("Renewal") then
                     if cast.renewal() then return true end
