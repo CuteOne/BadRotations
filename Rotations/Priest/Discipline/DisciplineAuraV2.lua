@@ -75,6 +75,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
             br.ui:createCheckbox(section, "Gift of Forgiveness", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGift of Forgiveness azerite trait logic.|cffFFBB00.")
             br.ui:createCheckbox(section, "Raid Penance", "|cffFFFFFFCheck this to only use Penance when moving.")
+            br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -609,6 +610,15 @@ local function runRotation()
                     if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                         if cast.powerWordFortitude() then return true end
                     end
+                end
+            end
+            -- Temple of Seth
+            if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Seth") then
+                if getHP("target") < 100 and getBuffRemain("target",274148) == 0 and getValue("Temple of Seth") > avgHealth() then
+                    if cd.penance.remain() <= gcd then
+                        if cast.penance("target") then return true end
+                    end
+                    if cast.shadowMend("target") then return true end
                 end
             end
         end
