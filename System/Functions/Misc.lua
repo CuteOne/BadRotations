@@ -393,6 +393,7 @@ function enemyListCheck(Unit)
 		UnitCreator(Unit) ~= ObjectPointer("player") and
 		GetObjectID(Unit) ~= 11492 and
 		getLineOfSight("player", Unit)
+		and ((Unit ~= 131824 and Unit ~=  131823 and Unit ~= 131825) or ((UnitBuffID(Unit,260805) or GetUnitIsUnit(Unit,"target")) and (Unit == 131824 or Unit ==  131823 or Unit == 131825)))  
 end
 
 function isValidUnit(Unit)
