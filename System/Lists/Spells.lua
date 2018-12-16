@@ -940,7 +940,6 @@ br.lists.spells = {
                 barrage                     = 120360,
                 chimaeraShot                = 53209,
                 direBeast                   = 120679,
-                direFrenzy                  = 217200,
                 intimidation                = 19577,
                 spittingCobra               = 194407,
                 volley                      = 194386,
