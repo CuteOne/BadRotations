@@ -56,6 +56,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Purge")
             -- Water Walking
             br.ui:createCheckbox(section, "Water Walking")
+            -- Frost Shock
+            br.ui:createCheckbox(section, "Frost Shock")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -408,7 +410,9 @@ local function runRotation()
             end                                
             -- Frost Shock (Moving)
             --actions.aoe+=/frost_shock,moving=1
-            if cast.frostShock() then return true end
+            if isChecked("Frost Shock") then
+                if cast.frostShock() then return true end
+            end
         end
 
         -- Action List Simc ST
@@ -478,7 +482,7 @@ local function runRotation()
             end
             -- Frost Shock
             --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up
-            if talent.iceFury and buff.iceFury.exists() then
+            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
             -- Ice Fury
@@ -507,7 +511,7 @@ local function runRotation()
             -- Frost Shock
             --# Frost Shock is our movement filler.
             --actions.single_target+=/frost_shock,moving=1
-            if isMoving then
+            if isMoving and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
         end
@@ -604,7 +608,7 @@ local function runRotation()
                 if cast.iceFury() then return true end
             end
             -- Frost Shock
-            if buff.iceFury.exists() then
+            if buff.iceFury.exists() and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
             -- Flame Shock (Dot Refresh)
@@ -622,7 +626,7 @@ local function runRotation()
             -- Lightning Bolt
             if cast.lightningBolt() then return true end
             -- Frost Shock (Moving)
-            if isMoving then
+            if isMoving and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
         end
