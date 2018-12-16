@@ -396,12 +396,12 @@ local function runRotation()
             end
             -- Lava Burst (Moving)
             --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
-            if buff.lavaSurge.exists() and isMoving then
+            if buff.lavaSurge.exists() and isMoving("player") then
                 if cast.lavaBurst() then return true end
             end
             -- Flame Shock (Moving)
             --actions.aoe+=/flame_shock,moving=1,target_if=refreshable
-            if isMoving then
+            if isMoving("player") then
                 for i=1, #enemies.yards40 do
                     if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
                         if cast.flameShock(enemies.yards40[i]) then return true end
@@ -410,7 +410,7 @@ local function runRotation()
             end                                
             -- Frost Shock (Moving)
             --actions.aoe+=/frost_shock,moving=1
-            if isChecked("Frost Shock") then
+            if isMoving("player") and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
         end
@@ -505,13 +505,13 @@ local function runRotation()
             if cast.lightningBolt() then return true end
             -- Moving Flame Shock
             --actions.single_target+=/flame_shock,moving=1,target_if=refreshable
-            if isMoving and debuff.flameShock.remain("target") < 5.4 then
+            if isMoving("player") and debuff.flameShock.remain("target") < 5.4 then
                 if cast.flameShock() then return true end
             end
             -- Frost Shock
             --# Frost Shock is our movement filler.
             --actions.single_target+=/frost_shock,moving=1
-            if isMoving and isChecked("Frost Shock") then
+            if isMoving("player") and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
         end
@@ -626,7 +626,7 @@ local function runRotation()
             -- Lightning Bolt
             if cast.lightningBolt() then return true end
             -- Frost Shock (Moving)
-            if isMoving and isChecked("Frost Shock") then
+            if isMoving("player") and isChecked("Frost Shock") then
                 if cast.frostShock() then return true end
             end
         end
