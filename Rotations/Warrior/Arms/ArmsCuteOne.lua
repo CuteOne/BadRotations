@@ -388,7 +388,7 @@ local function runRotation()
                 -- actions+=/fireblood,if=debuff.colossus_smash.up
                 -- actions+=/ancestral_call,if=debuff.colossus_smash.up
                 if isChecked("Racial") and cast.able.racial()
-                    and ((debuff.colossusSmash.exists(units.dyn5) and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
+                    and (((debuff.colossusSmash.exists(units.dyn5) or level < 50) and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
                     or (not debuff.colossusSmash.exists(units.dyn5) and ((race == "BloodElf" and cd.mortalStrike.remain() > 1.5 and power < 50) or race == "LightforgedDraenei")))
                 then
                     if race == "LightforgedDraenei" then
