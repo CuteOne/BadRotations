@@ -67,6 +67,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Water Walking")
         -- Earth Shield
             br.ui:createCheckbox(section,"Earth Shield")
+        -- Temple of Seth
+            br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -244,6 +246,17 @@ local function runRotation()
         friends.yards25 = getAllies("player",25)
         friends.yards40 = getAllies("player",40)
 
+        local totalHealth = 0
+        local avg
+        local function avgHealth()
+            avg = 0
+            for i=1, #br.friend do
+                totalHealth = totalHealth + br.friend[i].hp
+            end
+            avg = totalHealth/#br.friend
+            return avg
+        end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -276,6 +289,19 @@ local function runRotation()
             end
             if isChecked("Water Walking") and not inCombat and IsSwimming() then
                 if cast.waterWalking() then return end
+            end
+            -- Temple of Seth
+            if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Seth") then
+                if getHP("target") < 100 and getBuffRemain("target",274148) == 0 and getValue("Temple of Seth") > avgHealth() then
+                    if not buff.riptide.exists("target") then
+                        if cast.riptide("target") then return true end
+                    end
+                    if getHP("target") < 50 then
+                        if cast.healingSurge("target") then return true end
+                    else
+                        if cast.healingWave("target") then return true end
+                    end
+                end
             end
         end -- End Action List - Extras	
     -- Action List - Defensive
