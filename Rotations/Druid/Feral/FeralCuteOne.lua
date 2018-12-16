@@ -336,7 +336,9 @@ local function runRotation()
         
         -- TF Predator Snipe
         local function snipeTF()
-            if getOptionValue("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists() --[[and buff.tigersFury.remain() < gcd and #enemies.yards40 > 1--]] then
+            if getOptionValue("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists() 
+                and (#enemies.yards40 == 1 and ttd(units.dyn40) > ttm) or #enemies.yards40 > 1 
+            then
                 lowestUnit = units.dyn5
                 lowestHP = 100
                 for i = 1, #enemies.yards40 do
@@ -378,7 +380,6 @@ local function runRotation()
             return (#enemies.yards8 - ripCount) > 1
         end
             
-
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
         -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
 --------------------
@@ -850,10 +851,6 @@ local function runRotation()
                         -- shred,if=combo_points<5 
                         if cast.able.shred() and comboPoints < 5 then 
                             if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return true end
-                        -- else 
-                        --     Print(openerCount..": Shred (Uncastable)")
-                        --     openerCount = openerCount + 1;
-                        --     SHR1 = true
                         end
                     elseif SHR1 and not REG1 then 
             -- Regrowth 
@@ -916,12 +913,12 @@ local function runRotation()
         -- Primal Wrath
             -- pool_resource,for_next=1
             -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
-            if (cast.pool.primalWrath() or cast.able.primalWrath("player","aoe")) and (usePrimalWrath()
+            if (cast.pool.primalWrath() or cast.able.primalWrath()) and (usePrimalWrath()
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
             then 
                 if cast.pool.primalWrath() then ChatOverlay("Pooling For Primal Wrath") return true end
-                if cast.able.primalWrath("player","aoe") then
-                    if cast.primalWrath("player","aoe") then return true end
+                if cast.able.primalWrath() then
+                    if cast.primalWrath("player","aoe",1,8) then return true end
                 end
             end
         -- Rip
@@ -1127,7 +1124,7 @@ local function runRotation()
             if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3
                 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
             then
-                if cast.brutalSlash("player","aoe",getOptionValue("Brutal Slash Targets")) then return true end
+                if cast.brutalSlash("player","aoe",getOptionValue("Brutal Slash Targets"),8) then return true end
             end
         -- Thrash
             -- pool_resource,for_next=1
@@ -1138,7 +1135,7 @@ local function runRotation()
                 then
                     if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrash() then
-                        if cast.thrash("player","aoe") then return true end
+                        if cast.thrash("player","aoe",1,8) then return true end
                     end
                 end
             end
@@ -1149,7 +1146,7 @@ local function runRotation()
             then
                 if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
                 if cast.able.thrash() then
-                    if cast.thrash("player","aoe") then return true end
+                    if cast.thrash("player","aoe",1,8) then return true end
                 end
             end
         -- Swipe
@@ -1158,7 +1155,7 @@ local function runRotation()
             if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
                 if cast.pool.swipe() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
                 if cast.able.swipe() then
-                    if cast.swipe("player","aoe") then return true end
+                    if cast.swipe("player","aoe",1,8) then return true end
                 end
             end
         -- Rake
@@ -1205,7 +1202,7 @@ local function runRotation()
                         cast.regrowth("player")
                     end
                 end
-                if cast.brutalSlash("player","aoe") then return true end
+                if cast.brutalSlash("player","aoe",1,8) then return true end
             end
         -- Moonfire
             -- moonfire_cat,target_if=refreshable
@@ -1230,7 +1227,7 @@ local function runRotation()
                 then
                     if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrash() or buff.clearcasting.exists() then
-                        if cast.thrash("player","aoe") then return true end
+                        if cast.thrash("player","aoe",1,8) then return true end
                     end
                 end
             end
@@ -1242,7 +1239,7 @@ local function runRotation()
             then
                 if cast.pool.swipe() then ChatOverlay("Pooling For Swipe") return true end
                 if cast.able.swipe() then
-                    if cast.swipe("player","aoe") then return true end
+                    if cast.swipe("player","aoe",1,8) then return true end
                 end
             end
         -- Shred
