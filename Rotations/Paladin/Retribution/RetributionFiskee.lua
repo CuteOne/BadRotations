@@ -687,13 +687,11 @@ local function runRotation()
 			-- Avenging Wrath
 			-- avenging_wrath
 			if isChecked("Avenging Wrath") and not talent.crusade then
-				print("1")
 				if cast.avengingWrath() then return end
 			end
 			-- Crusade
 			-- crusade,if=holy_power>=3|((equipped.137048|race.blood_elf)&holy_power>=2)
 			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) and cd.crusade.remain() <= gcd then
-				print("2")
 				if cast.avengingWrath() then return end
 			end
 		end -- End Cooldown Usage Check
