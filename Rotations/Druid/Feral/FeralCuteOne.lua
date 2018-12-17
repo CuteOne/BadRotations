@@ -842,15 +842,21 @@ local function runRotation()
                                 if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
                             else
                                 Print(openerCount..": Thrash (Uncastable)")
-                                openerCount = openerCount + 1;
+                                openerCount = openerCount + 1
                                 THR1 = true
                             end
                         end
-                    elseif THR1 and (not SHR1 or comboPoints < 5) and not debuff.rip.exists("target") then 
+                    elseif THR1 and (not SHR1 or comboPoints < 5) then 
             -- Shred 
                         -- shred,if=combo_points<5 
-                        if cast.able.shred() and comboPoints < 5 then 
-                            if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return true end
+                        if cast.able.shred() then 
+                            if comboPoints < 5 then 
+                                if castOpener("shred","SHR1",openerCount) then openerCount = openerCount + 1; return true end
+                            else 
+                                Print(openerCount..": Shred (Uncastable)")
+                                openerCount = openerCount + 1
+                                SHR1 = true
+                            end
                         end
                     elseif SHR1 and not REG1 then 
             -- Regrowth 
@@ -862,7 +868,7 @@ local function runRotation()
                                 if castOpener("regrowth","REG1",openerCount) then openerCount = openerCount + 1; return true end 
                             else 
                                 Print(openerCount..": Regrowth (Uncastable)")
-                                openerCount = openerCount + 1;
+                                openerCount = openerCount + 1
                                 REG1 = true
                             end
                         end
