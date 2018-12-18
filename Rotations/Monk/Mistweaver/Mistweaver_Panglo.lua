@@ -741,7 +741,7 @@ local function runRotation()
 					if talent.lifecycles then
 						if lifecycles() then return end
 					end
-					if not (buff.manaTea.exists() or buff.thunderFocusTea.exists()) then
+					if not buff.manaTea.exists() then
 						if AoE_Healing() then return end
 						if Single_Target() then return end
 					end
