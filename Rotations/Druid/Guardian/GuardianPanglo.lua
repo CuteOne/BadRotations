@@ -202,6 +202,10 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.rage.ttm
         local units                                         = br.player.units
+        local hasAggro                                      = UnitThreatSituation("player")
+        if hasAggro == nil then
+            hasAggro = 0
+        end
 
         units.get(5)
 	    units.get(8)
@@ -494,7 +498,7 @@ local function runRotation()
                     end    
         -- Bristling Fur
                     -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
-                    if br.player.mode.bristlingFur == 1 and power < 40 then
+                    if br.player.mode.bristlingFur == 1 and power < 40 and (hasAggro >= 2) then
                         if cast.bristlingFur() then return end
                     end
         -- Lunar Beam

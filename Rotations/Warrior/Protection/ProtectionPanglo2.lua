@@ -293,16 +293,11 @@ local function runRotation()
                     --print("cd avatar")
                     if cast.avatar() then return end
                 end
+                if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+                    if cast.demoralizingShout() then return end
+                end
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
-                end
-                if isChecked("Trinkets") then
-                    if canTrinket(13) then
-                        useItem(13)
-                    end
-                    if canTrinket(14) then
-                        useItem(14)
-                    end
                 end
             end
         end
@@ -371,7 +366,18 @@ local function runRotation()
                 ---print("norm avatar")
                 if cast.avatar() then return end
             end
+            if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+                if cast.demoralizingShout() then return end
+            end
             -- shield slam always
+                if isChecked("Trinkets") then
+                    if canTrinket(13) then
+                        useItem(13)
+                    end
+                    if canTrinket(14) then
+                        useItem(14)
+                    end
+                end
             if cast.shieldSlam() then return end
             -- Clap the booty
             if not cast.able.shieldSlam() then
@@ -380,9 +386,6 @@ local function runRotation()
                 else
                     if cast.thunderClap("player",nil,1,8) then return end
                 end
-            end
-            if isChecked("Demoralizing Shout - CD") and rage <= 65 then
-                if cast.demoralizingShout() then return end
             end
             -- Revenge of the stiff
             if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
