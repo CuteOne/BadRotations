@@ -571,7 +571,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return true		
 	end
     -- Base Spell Availablility Check
-    if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") and hasTalent(spellID) then --and not isIncapacitated(spellID) then
+    if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and hasTalent(spellID) then --and not isIncapacitated(spellID) then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
