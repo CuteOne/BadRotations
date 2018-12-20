@@ -466,8 +466,8 @@ local function runRotation()
             --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
             --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
             --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
-            if not buff.surgeOfPower.exists() and ((talent.masterOfTheElements and buff.masterOfTheElements.exists()) or buff.stormKeeper.exists()) or not talent.masterOfTheElements and
-            (buff.stormKeeper.exists() or (talent.stormElemental and (cd.stormElemental.exists() and cd.stormElemental.remain() > 120))) then
+            if not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or ((not talent.masterOfTheElements and
+            buff.stormKeeper.exists()) or power >= 90) or (talent.stormElemental and (cd.stormElemental.exists() and cd.stormElemental.remain() > 120)) then
                 if cast.earthShock() then return true end
             end
             -- Earth Shock
@@ -506,7 +506,7 @@ local function runRotation()
             end
             -- Totem Mastery            
             --actions.single_target+=/totem_mastery,if=talent.totem_mastery.enabled&(buff.resonance_totem.remains<6|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15))
-            if talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) then
+            if not cast.last.totemMastery(1) and talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) then
                 if cast.totemMastery() then return true end
             end
             -- Frost Shock
@@ -743,7 +743,7 @@ local function runRotation()
                         end
                     end
                     --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                    if useCDs() and isChecked("Earth Elemental") and (cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental) then
+                    if useCDs() and isChecked("Earth Elemental") and ((cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental)) then
                         if cast.earthElemental() then return true end
                     end
                     if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
