@@ -237,6 +237,10 @@ local function runRotation()
             if isChecked("Water Walking") and cast.able.waterWalking() and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
                 if cast.waterWalking() then return true end
             end
+            -- Healing Surge (OOC)
+            if isChecked("Healing Surge") and not isMoving("player") and php <= getOptionValue("Healing Surge") then    
+                if cast.healingSurge() then return true end
+            end
         end -- End Action List - Extras
         --Action List PreCombat
         local function actionList_PreCombat()
@@ -305,8 +309,8 @@ local function runRotation()
                     if cast.earthShield() then return true end
                 end
         -- Healing Surge
-                if isChecked("Healing Surge") and not isMoving("player") and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and mana > 20)
-                        or (mana >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge")))
+                if isChecked("Healing Surge") and not isMoving("player") and ((php <= getOptionValue("Healing Surge") / 2 and mana > 20)
+                        or (mana >= 90 and php <= getOptionValue("Healing Surge")))
                 then
                     if cast.healingSurge() then return true end
                 end
@@ -673,7 +677,7 @@ local function runRotation()
                                 end
                             end
                         elseif thisUnit == 61056 then
-                           -- print("Earth Elemental Detected")
+                            --print("Earth Elemental Detected")
                             if not buff.hardenSkin.exists() then
                                 CastSpellByName(GetSpellInfo(spell.hardenSkin))
                             end 
