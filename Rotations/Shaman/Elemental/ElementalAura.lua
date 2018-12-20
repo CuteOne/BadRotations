@@ -177,6 +177,7 @@ local function runRotation()
         local inRaid                                        = br.player.instance=="raid"
         local level                                         = br.player.level
         local lowestHP                                      = br.friend[1].unit
+        local mana                                          = br.player.power.mana.amount()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk
         local pet                                           = br.player.pet.list     
@@ -304,9 +305,8 @@ local function runRotation()
                     if cast.earthShield() then return true end
                 end
         -- Healing Surge
-                if isChecked("Healing Surge") and cast.able.healingSurge()
-                    and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20)
-                        or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving))
+                if isChecked("Healing Surge") and not isMoving("player") and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and mana > 20)
+                        or (mana >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge")))
                 then
                     if cast.healingSurge() then return true end
                 end
@@ -363,25 +363,27 @@ local function runRotation()
             -- Flame Shock
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
             if debuff.flameShock.count() <= getValue("Maximum FlameShock Targets") then
-                for i=1, #enemies.yards40 do
-                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
-                        if cast.flameShock(enemies.yards40[i]) then return true end
+                if not talent.stormElemental or (cd.stormElemental.exists() and cd.stormElemental.remain() <= 120) or (#enemies.yards40 == 3 and buff.windGust.stack() < 14) then
+                    for i=1, #enemies.yards40 do
+                        if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
+                            if cast.flameShock(enemies.yards40[i]) then return true end
+                        end
                     end
                 end
             end
             -- Earthquake
             --actions.aoe+=/earthquake
-            if #enemies.yards8t >= getValue("Earthquake Targets") then
+            if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >=(100-(4*#enemies.yards10t)) or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) then
                 if cast.earthquake("target","ground") then return true end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-            if buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") then
+            if buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or (cd.stormElemental.exists() and cd.stormElemental.remain() <= 120)) then
                 if cast.lavaBurst() then return true end
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-            if talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") then
+            if talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") and (not talent.stormElemental or (cd.stormElemental.exists() and cd.stormElemental.remain() <= 120)) then
                 if cast.elementalBlast() then return true end
             end
             -- Lava Beam
@@ -391,7 +393,7 @@ local function runRotation()
             end             
             -- Chain Lightning
             --actions.aoe+=/chain_lightning
-            if #enemies.yards10t > 1 then
+            if #enemies.yards10t > 2 then
                 if cast.chainLightning() then return true end
             end
             -- Lava Burst (Moving)
@@ -419,24 +421,25 @@ local function runRotation()
         local function actionList_ST()
             --Flame Shock
             --actions.single_target=flame_shock,if=!ticking|dot.flame_shock.remains<=gcd|talent.ascendance.enabled&dot.flame_shock.remains<(cooldown.ascendance.remains+buff.ascendance.duration)&cooldown.ascendance.remains<4&(!talent.storm_elemental.enabled|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120)
-            if not debuff.flameShock.exists("target")  then
-                    if cast.flameShock() then return true end
+            if not debuff.flameShock.exists("target") and (not talent.stormElemental or (cd.stormElemental.exists() and cd.stormElemental.remain() <= 120)) and buff.windGust.stack() < 14 then
+                if cast.flameShock() then return true end
             end
             --Ascendance
             --actions.single_target+=/ascendance,if=talent.ascendance.enabled&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!talent.storm_elemental.enabled
-            if isChecked("Ascendance") and talent.ascendance and useCDs() and cd.lavaBurst.remain() > 0 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain()<= 120)) then
+            if isChecked("Ascendance") and talent.ascendance and useCDs() and cd.lavaBurst.remain() > 0 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain()<= 120)) and not buff.iceFury.exists() then
                 if cast.ascendance() then return true end
             end
             -- Elemental Blast
             --# Don't use Elemental Blast if you could cast a Master of the Elements empowered Earth Shock instead.
             --actions.single_target+=/elemental_blast,if=talent.elemental_blast.enabled&(talent.master_of_the_elements.enabled&buff.master_of_the_elements.up&maelstrom<60|!talent.master_of_the_elements.enabled)
-            if talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements) then
+            --&(!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)|azerite.natural_harmony.rank=3&buff.wind_gust.stack<14)
+            if talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements) and ((not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain()<= 120) or (traits.naturalHarmony.rank == 3 and buff.windGust.stack() < 14)))  then
                 if cast.elementalBlast() then return true end
             end
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs() and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper then
+            if useCDs() and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) then
                 if cast.stormKeeper() then return true end
             end
             -- Liquid Magma Totem
@@ -444,35 +447,57 @@ local function runRotation()
             if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem then
                 if cast.liquidMagmaTotem() then return true end
             end
-            
-            -- Earthquake
-            --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
-            if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets")  then
-                if cast.earthquake("target","ground") then return true end
-            end
-            
-            -- Lightning Bolt (Exposed Elements)
-            --# Use the debuff before casting Earth Shock again.
-            --actions.single_target+=/lightning_bolt,if=talent.exposed_elements.enabled&debuff.exposed_elements.up&maelstrom>=60&!buff.ascendance.up
-            if talent.exposedElements and debuff.exposedElements.exists("target") and power >= 60 and not buff.ascendance.exists() then
+            -- Lightning Bolt
+            --actions.single_target+=/lightning_bolt,if=buff.stormkeeper.up&spell_targets.chain_lightning<2&(buff.master_of_the_elements.up&!talent.surge_of_power.enabled|buff.surge_of_power.up)
+            if buff.stormKeeper.exists() and #enemies.yards10t <= 2 and ((buff.masterOfTheElements.exists() and not talent.surgeOfPower) or buff.surgeOfPower.exists()) then
                 if cast.lightningBolt() then return true end
             end
-            
+            -- Earthquake
+            --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
+            --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
+            if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or buff.flameShock.remain < 5.4) or (talent.stormElemental and cd.stormElemental.remain() > 120 and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= 92))) then
+                if cast.earthquake("target","ground") then return true end
+            end
             -- Earth Shock
-            --# If possible, use Earth Shock with Master of the Elements.
-            --actions.single_target+=/earth_shock,if=talent.master_of_the_elements.enabled&(buff.master_of_the_elements.up|maelstrom>=92)|!talent.master_of_the_elements.enabled
-            if (talent.masterOfTheElements and (cast.last.lavaBurst() and power >= 92)) or not talent.masterOfTheElements then
+            --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
+            --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
+            --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
+            if not buff.surgeOfPower.exists() and ((talent.masterOfTheElements and buff.masterOfTheElements.exists()) or buff.stormKeeper.exists()) or not talent.masterOfTheElements and
+            (buff.stormKeeper.exists() or (talent.stormElemental and (cd.stormElemental.exists() and cd.stormElemental.remain() > 120))) then
                 if cast.earthShock() then return true end
             end
-            
+            -- Earth Shock
+            --actions.single_target+=/earth_shock,if=talent.surge_of_power.enabled&!buff.surge_of_power.up&cooldown.lava_burst.remains<=gcd&(!talent.storm_elemental.enabled&!(cooldown.fire_elemental.remains>120)|talent.storm_elemental.enabled&!(cooldown.storm_elemental.remains>120))
+            if talent.surgeOfPower and not buff.surgeOfPower.exists() and cd.lavaBurst.remain() <= gcdMax and ((not talent.stormElemental and cd.fireElemental.exists() and cd.fireElemental.remain() <= 120) or (talent.stormElemental and cd.stormElemental.exists() and cd.stormElemental.remain() <= 120)) then
+                if cast.earthShock() then return end
+            end
+            -- Lightning Bolt         
+            --actions.single_target+=/lightning_bolt,if=cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled       
+            if talent.stormElemental and cd.stormElemental.exists() and cd.stormElemental.remain > 120 then
+                if cast.lightningBolt() then return end
+            end
+            -- Frost Shock
+            --actions.single_target+=/frost_shock,if=talent.icefury.enabled&talent.master_of_the_elements.enabled&buff.icefury.up&buff.master_of_the_elements.up
+            if talent.iceFury and talent.masterOfTheElements and buff.iceFury.exists() and buff.masterOfTheElements.exists() then
+                if cast.frostShock() then return end
+            end
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
             if cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists() then
                 if cast.lavaBurst() then return true end
             end
+            -- Flame Shock (Surge of Power)
+            --actions.single_target+=/flame_shock,target_if=refreshable&active_enemies>1&buff.surge_of_power.up
+            if talent.surgeOfPower and debuff.flameShock.remain("target") < 5.4 and #enemies.yards40 > 1 and buff.surgeOfPower.exists() then
+                if cast.flameShock() then return true end
+            end
+            -- Lightning Bolt (Surge of Power)
+            if talent.surgeOfPower then
+                if cast.lightningBolt() then return true end
+            end
             --Flame Shock (Refresh)
             --actions.single_target+=/flame_shock,target_if=refreshable
-            if debuff.flameShock.remain("target") < 5.4 then
+            if debuff.flameShock.remain("target") < 5.4 and ((talent.surgeOfPower and not buff.surgeOfPower.exists()) or not talent.surgeOfPower) then
                 if cast.flameShock() then return true end
             end
             -- Totem Mastery            
@@ -481,24 +506,14 @@ local function runRotation()
                 if cast.totemMastery() then return true end
             end
             -- Frost Shock
-            --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up
-            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") then
+            --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up&(buff.icefury.remains<gcd*4*buff.icefury.stack|buff.stormkeeper.up|!talent.master_of_the_elements.enabled)
+            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") and (buff.iceFury.remain() < gcd *4*buff.iceFury.stack() or buff.stormKeeper.exists() or not talent.masterOfTheElements) then
                 if cast.frostShock() then return true end
             end
             -- Ice Fury
             --actions.single_target+=/icefury,if=talent.icefury.enabled
             if talent.iceFury then
                 if cast.iceFury() then return true end
-            end
-            -- Lava Beam
-            --actions.single_target+=/lava_beam,if=talent.ascendance.enabled&active_enemies>1&spell_targets.lava_beam>1
-            if talent.ascendance and buff.ascendance.exists() and #enemies.yards40 >= getValue("Lava Beam Targets") then
-                if cast.lavaBeam() then return true end
-            end
-            -- Chain Lightning
-            --actions.single_target+=/chain_lightning,if=active_enemies>1&spell_targets.chain_lightning>1
-            if #enemies.yards10t > 1 then
-                if cast.chainLightning() then return end
             end
             -- Lightning Bolt            
             --actions.single_target+=/lightning_bolt
@@ -559,7 +574,7 @@ local function runRotation()
                     if cast.earthElemental() then return true end
                 end
             else
-                if useCDs() and isChecked("Earth Elemental") and ((talent.stormElemental and (GetTime - stormEleTime >= 35)) or not talent.stormElemental) and (GetTime - fireEleTime >= 35) and (cd.fireElemental.remain > 60 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain > 60))) then
+                if useCDs() and isChecked("Earth Elemental") and ((talent.stormElemental and (stormEleTime ~= nil or (GetTime() - stormEleTime >= 35 )) or not talent.stormElemental) and (fireEleTime ~= nil or (GetTime() - fireEleTime >= 35)) and (cd.fireElemental.remain() > 60 and (not talent.stormElemental or (talent.stormElemental and cd.stormElemental.remain() > 60)))) then
                     if cast.earthElemental() then return true end
                 end
             end
@@ -594,6 +609,9 @@ local function runRotation()
             -- Lava Beam (3+ Targets)
             if #enemies.yards10t >= getValue("Lava Beam Targets") and buff.ascendance.exists() then
                 if cast.lavaBeam() then return true end
+            end
+            if buff.surgeOfPower.exists() then
+                if cast.lightningBolt() then return true end
             end
             -- Chain Lightning (3+ Targets)
             if #enemies.yards10t >= 3 and not buff.ascendance.exists() then
