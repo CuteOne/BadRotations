@@ -2625,6 +2625,9 @@ br.lists.spells = {
                 surgeOfPower                = 262303,
                 totemMastery                = 210643,
             },
+            traits                          = {
+                naturalHarmony              = 278697,
+            },
         },
         -- Enhancement
         [263] = {
