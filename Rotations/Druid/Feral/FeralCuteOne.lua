@@ -381,7 +381,13 @@ local function runRotation()
         end
             
         -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
-        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target","player","dist2"),2)..", "..round2(getDistance("target","player","dist3"),2)..", "..round2(getDistance("target","player","dist4"),2)..", "..round2(getDistance("target"),2))
+        -- ubr = 0
+        -- ucr = 0
+        -- if UnitExists("target") then 
+            -- ubr = UnitBoundingRadius("target")
+            -- ucr = UnitCombatReach("target")
+        -- end 
+        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target"),2)..", UCR: "..ucr..", UBR: "..ubr)
 --------------------
 --- Action Lists ---
 --------------------
@@ -846,7 +852,7 @@ local function runRotation()
                                 THR1 = true
                             end
                         end
-                    elseif THR1 and (not SHR1 or comboPoints < 5) then 
+                    elseif THR1 and (not SHR1 or (comboPoints < 5 and not debuff.rip.exists("target"))) then 
             -- Shred 
                         -- shred,if=combo_points<5 
                         if cast.able.shred() then 
@@ -909,7 +915,7 @@ local function runRotation()
             local startTime = debugprofilestop()
         -- Savage Roar
             -- pool_resource,for_next=1
-            -- savage_roar,if=!buff.savage_roar.up
+            -- savage_roar,if=buff.savage_roar.down
             if (cast.pool.savageRoar() or cast.able.savageRoar()) and not buff.savageRoar.exists() then
                 if cast.pool.savageRoar() then ChatOverlay("Pooling For Savage Roar") return true end
                 if cast.able.savageRoar() then
@@ -1113,7 +1119,7 @@ local function runRotation()
         local function actionList_SimC_Generator()
             local startTime = debugprofilestop()
     -- Regrowth
-            -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.predatory_swiftness.up&combo_points=4&dot.rake.remains<4
+            -- regrowth,if=talent.bloodtalons.enabled&buff.predatory_swiftness.up&buff.bloodtalons.down&combo_points=4&dot.rake.remains<4
             -- regrowth,if=talent.bloodtalons.enabled&buff.bloodtalons.down&buff.predatory_swiftness.up&talent.lunar_inspiration.enabled&dot.rake.remains<1
             if cast.able.regrowth() and talent.bloodtalons and not buff.bloodtalons.exists() and buff.predatorySwiftness.exists() then
                 if (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 4) or (talent.lunarInspiration and debuff.rake.remain(units.dyn5) < 1) then
