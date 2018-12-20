@@ -188,6 +188,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local traits                                        = br.player.traits
         local ttd                                           = getTTD
         local ttm                                           = br.player.timeToMax
         local units                                         = br.player.units
