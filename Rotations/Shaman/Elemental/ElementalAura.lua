@@ -477,7 +477,7 @@ local function runRotation()
             end
             -- Lightning Bolt         
             --actions.single_target+=/lightning_bolt,if=cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled       
-            if talent.stormElemental and cd.stormElemental.exists() and cd.stormElemental.remain > 120 then
+            if talent.stormElemental and cd.stormElemental.exists() and cd.stormElemental.remain() > 120 then
                 if cast.lightningBolt() then return end
             end
             -- Frost Shock
@@ -669,11 +669,13 @@ local function runRotation()
                                 CastSpellByName(GetSpellInfo(spell.immolate)) 
                             end                
                         elseif thisUnit == 77942 then
-                            if eyeActive == nil or GetTime() - eyeActive > 8 then
-                            -- print("Storm Elemental Detected")
-                                if #enemies.yards8t > 1 then
-                                    eyeActive = GetTime()
-                                    CastSpellByName(GetSpellInfo(spell.eyeOfTheStorm))
+                            if select(2,GetSpellCooldown(157348)) ~= 0 then
+                                if eyeActive == nil or GetTime() - eyeActive > 8 then
+                                -- print("Storm Elemental Detected")
+                                    if #enemies.yards8t > 1 then
+                                        eyeActive = GetTime()
+                                        CastSpellByName(GetSpellInfo(spell.eyeOfTheStorm))
+                                    end
                                 end
                             end
                         elseif thisUnit == 61056 then
