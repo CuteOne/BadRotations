@@ -32,9 +32,9 @@ function br.loader.loadProfiles()
     for _, file in pairs(profiles(folderClass, folderSpec)) do
         local profile = ReadFile(rotationsDirectory()..folderClass.."\\"..folderSpec.."\\"..file)
         local start = string.find(profile,"local id = ",1,true) or 0
-        profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
+        local profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
         if profileID == specID then
-            local loadProfile, error = loadstring(profile,file)
+            local loadProfile = loadstring(profile,file)
             if loadProfile == nil then
                 Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
             else
@@ -48,6 +48,7 @@ function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
     local player = "player" -- if someone forgets ""
+    local brLoaded = brLoaded
 
     if not brLoaded then
         br.loader.loadProfiles()
@@ -61,6 +62,7 @@ function br.loader:new(spec,specName)
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
+        local wipeOldSpells = true
         local playerClass = select(2,UnitClass('player'))
         local specSpells = br.lists.spells[playerClass][spec]
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
@@ -69,7 +71,12 @@ function br.loader:new(spec,specName)
             -- Look through spell type subtables
             for spellType, spellTypeTable in pairs(spellTable) do
                 -- Create spell type subtable in br.player.spell if not already there.
-                if self.spell[spellType] == nil then self.spell[spellType] = {} end
+                if self.spell[spellType] == nil then
+                    self.spell[spellType] = {}
+                elseif wipeOldSpells then
+                    wipe(self.spell[spellType])
+                    wipeOldSpells = false
+                end
                 -- Look through spells for spell type
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- Assign spell to br.player.spell for the spell type
@@ -102,15 +109,16 @@ function br.loader:new(spec,specName)
     end
     -- Update Talent Info
     local function getTalentInfo()
+        local talentFound
         br.activeSpecGroup = GetActiveSpecGroup()
         if self.talent == nil then self.talent = {} end
-        for r = 1, 7 do --search each talent row
-            for c = 1, 3 do -- search each talent column
-            -- Cache Talent IDs for talent checks
-                local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
-                -- Compare Row/Column Spell Id to Talent Id List for matches
-                for k,v in pairs(self.spell.talents) do
+        for k,v in pairs(self.spell.talents) do
+            talentFound = false
+            for r = 1, 7 do --search each talent row
+                for c = 1, 3 do -- search each talent column
+                    local _,_,_,selected,_,talentID = GetTalentInfo(r,c,br.activeSpecGroup)
                     if v == talentID then
+                        talentFound = true
                         -- Add All Matches to Talent List for Boolean Checks
                         self.talent[k] = selected
                         -- Add All Active Ability Matches to Ability/Spell List for Use Checks
@@ -118,11 +126,19 @@ function br.loader:new(spec,specName)
                             self.spell['abilities'][k] = v
                             self.spell[k] = v
                         end
+                        break;
                     end
                 end
+                -- If we found the talent, then stop looking for it.
+                if talentFound then break end
+            end
+            -- No matching talent for listed talent id, report to
+            if not talentFound then
+                Print("|cffff0000No talent found for: |r"..k.." ("..v..") |cffff0000in the talent spell list, please notify profile developer.")
             end
         end
     end
+
     --Update Azerite Traits
     local function getAzeriteTraitInfo()
         local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()

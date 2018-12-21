@@ -558,7 +558,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	if debug == nil then debug = "norm" end
     local function castDebug()
         if isChecked("Cast Debug") and debug ~= "debug" then
-            local unitName = UnitName(thisUnit) or thisUnit
             Print("Casting |cffFFFF00"..spellName.." ("..spellID..") |r on |cffFFFF00"..tostring(UnitName(thisUnit)).."\n |r Spell Type: |cffFFFF00"..spellType..
 				" |r, Cast Type: |cffFFFF00"..tostring(debug).."\n |r Ranges - Min: |cffFFFF00"..minRange.." |r, Max: |cffFFFF00"..maxRange..
 				" |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
@@ -566,12 +565,14 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	end
 	local function hasTalent()
 		for k,v in pairs(br.player.spell.talents) do
-			if spellID == v then return br.player.talent[k] end			
+			if spellID == v then return br.player.talent[k] end
 		end
-		return true		
+		return true
 	end
     -- Base Spell Availablility Check
-    if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0 and (isKnown(spellID) or debug == "known") then --and hasTalent(spellID) then --and not isIncapacitated(spellID) then
+	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
+		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) --and not isIncapacitated(spellID)
+	then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
