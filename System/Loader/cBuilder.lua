@@ -58,25 +58,21 @@ function br.loader:new(spec,specName)
     self.profile = specName
 
     -- Mandatory !
-    self.rotation = br.rotations[spec][br.selectedProfile]
+    self.rotation = br.rotations[spec][br.selectedProfile]    
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
-        local wipeOldSpells = true
         local playerClass = select(2,UnitClass('player'))
         local specSpells = br.lists.spells[playerClass][spec]
         local sharedClassSpells = br.lists.spells[playerClass]["Shared"]
         local sharedGlobalSpells = br.lists.spells["Shared"]["Shared"]
+
+        -- Get the new spells
         local function getSpells(spellTable)
             -- Look through spell type subtables
             for spellType, spellTypeTable in pairs(spellTable) do
                 -- Create spell type subtable in br.player.spell if not already there.
-                if self.spell[spellType] == nil then
-                    self.spell[spellType] = {}
-                elseif wipeOldSpells then
-                    wipe(self.spell[spellType])
-                    wipeOldSpells = false
-                end
+                if self.spell[spellType] == nil then self.spell[spellType] = {} end
                 -- Look through spells for spell type
                 for spellRef, spellID in pairs(spellTypeTable) do
                     -- Assign spell to br.player.spell for the spell type
@@ -107,6 +103,7 @@ function br.loader:new(spec,specName)
             self.spell["racial"] = racialID
         end
     end
+    
     -- Update Talent Info
     local function getTalentInfo()
         local talentFound
@@ -667,7 +664,9 @@ function br.loader:new(spec,specName)
         end
     end
 
-    if self.talent == nil or self.cast == nil then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
+    if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
+        getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false 
+    end
 ------------------
 --- OOC UPDATE ---
 ------------------
@@ -682,15 +681,17 @@ function br.loader:new(spec,specName)
 --------------
 
     function self.update()
-        -- Call baseUpdate()
-        if not UnitAffectingCombat("player") then self.updateOOC() end
-        self.baseUpdate()
-        self.getBleeds()
-        -- Update Player Info on Init, Talent, and Level Change
-        if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
-        self.getToggleModes()
-        -- Start selected rotation
-        self.startRotation()
+        if spec == GetSpecializationInfo(GetSpecialization()) then 
+            -- Call baseUpdate()
+            if not UnitAffectingCombat("player") then self.updateOOC() end
+            self.baseUpdate()
+            self.getBleeds()
+            -- Update Player Info on Init, Talent, and Level Change
+            if br.updatePlayerInfo then getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false end
+            self.getToggleModes()
+            -- Start selected rotation
+            self.startRotation()
+        end
     end
 
 ---------------
