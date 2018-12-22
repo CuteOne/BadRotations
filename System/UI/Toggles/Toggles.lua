@@ -46,7 +46,8 @@ function TogglesFrame()
 			mainButton:SetNormalTexture(backIconOff)
 			-- on/off switch
 			if br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] ~= 0 then
-				br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 0
+                br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 0
+                ChatOverlay("|cFFFF0000-= BadRotations Off =-")
 			end
 			GameTooltip:SetText("|cff00FF00Enable |cffFF0000BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButtonFrame.texture:SetTexture(genericIconOff)
@@ -54,7 +55,8 @@ function TogglesFrame()
 			br.data.settings[br.selectedSpec].toggles['Power'] = 1
 			-- on/off switch
 			if br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] ~= 1 then
-				br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 1
+                br.data.settings[br.selectedSpec]["Start/Stop BadRotationsCheck"] = 1
+                ChatOverlay("|cFF00FF00-= BadRotations On =-")
 			end
 			GameTooltip:SetText("|cffFF0000Disable BadRotations \n|cffFFDD11Hold Left Alt and scroll mouse to adjust size.", 225/255, 225/255, 225/255)
 			mainButton:SetNormalTexture(backIconOn)
