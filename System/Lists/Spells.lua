@@ -940,9 +940,7 @@ br.lists.spells = {
                 barrage                     = 120360,
                 chimaeraShot                = 53209,
                 direBeast                   = 120679,
-                intimidation                = 19577,
                 spittingCobra               = 194407,
-                volley                      = 194386,
             },
             traits                          = {
                 primalInstincts             = 279806,

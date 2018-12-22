@@ -193,7 +193,7 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if (equiped.soulOfTheSlayer or talent.firstBlood) then flood = 1 else flood = 0 end
+        if (equiped.soulOfTheSlayer() or talent.firstBlood) then flood = 1 else flood = 0 end
         if isCastingSpell(spell.eyeBeam,"player") and buff.metamorphosis.exists() then metaExtended = true elseif not buff.metamorphosis.exists() then metaExtended = false end
 
     -- Wait for Nemesis
@@ -210,7 +210,7 @@ local function runRotation()
         end
     -- Blade Dance Variable
         -- variable,name=blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
-        if (equiped.soulOfTheSlayer or talent.firstBlood) or equiped.t20 >= 4 or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+        if (equiped.soulOfTheSlayer() or talent.firstBlood) --[[or equiped.t20 >= 4]] or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
