@@ -8,7 +8,7 @@ local function createToggles()
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.demonwrath},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.demonwrath},
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shadowbolt},
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shadowBolt},
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.drainLife}
     };
     CreateButton("Rotation",1,0)
@@ -516,7 +516,7 @@ local function runRotation()
                         end
         -- Shadowbolt
                         -- shadow_bolt
-                        if cast.shadowbolt("target") then return end
+                        if cast.shadowBolt("target") then return end
                     end
                 end
             end -- End No Combat
@@ -538,7 +538,7 @@ local function runRotation()
                             if talent.demonbolt then
                                 castOpener("demonbolt","DSB1",2)
                             else
-                                castOpener("shadowbolt","DSB1",2)
+                                castOpener("shadowBolt","DSB1",2)
                             end
                         else
                             DSB1 = true
@@ -575,7 +575,7 @@ local function runRotation()
                             if talent.demonbolt then
                                 castOpener("demonbolt","DSB2",7)
                             else
-                                castOpener("shadowbolt","DSB2",7)
+                                castOpener("shadowBolt","DSB2",7)
                             end
                         else
                             DSB2 = true
@@ -602,7 +602,7 @@ local function runRotation()
                             if talent.demonbolt then
                                 castOpener("demonbolt","DSB3",10)
                             else
-                                castOpener("shadowbolt","DSB3",10)
+                                castOpener("shadowBolt","DSB3",10)
                             end
                         else
                             DSB3 = true
@@ -613,7 +613,7 @@ local function runRotation()
                             if talent.demonbolt then
                                 castOpener("demonbolt","DSB4",11)
                             else
-                                castOpener("shadowbolt","DSB4",11)
+                                castOpener("shadowBolt","DSB4",11)
                             end
                         else
                             DSB4 = true
@@ -624,7 +624,7 @@ local function runRotation()
                             if talent.demonbolt then
                                 castOpener("demonbolt","DSB5",12)
                             else
-                                castOpener("shadowbolt","DSB5",12)
+                                castOpener("shadowBolt","DSB5",12)
                             end
                         else
                             DSB5 = true
@@ -696,8 +696,8 @@ local function runRotation()
           if cast.able.soulStrike() then
               if cast.soulStrike() then return end
           end
-          if cast.able.shadowbolt() and shards < 5 then
-              if cast.shadowbolt() then return end
+          if cast.able.shadowBolt() and shards < 5 then
+              if cast.shadowBolt() then return end
           else
             return
           end
@@ -713,10 +713,10 @@ local function runRotation()
           if cast.able.callDreadstalkers() and ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.remain()) or cd.summonDemonicTyrant.remain() > 14) then
               if cast.callDreadstalkers() then return end
           end
-          if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowbolt() or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < cast.time.shadowbolt())) then
+          if shards == 1 and (cd.callDreadstalkers.remain() < cast.time.shadowBolt() or (talent.bilescourgeBombers and cd.bilescourgeBombers.remain() < cast.time.shadowBolt())) then
               if actionListBuildAShard() then return end
           end
-          if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() >cast.time.demonbolt()) and (cd.callDreadstalkers.remain() > cast.time.shadowbolt())) and cd.netherPortal.remain() > (160 + cast.time.handOfGuldan())) then
+          if cast.able.handOfGuldan() and (((cd.callDreadstalkers.remain() >cast.time.demonbolt()) and (cd.callDreadstalkers.remain() > cast.time.shadowBolt())) and cd.netherPortal.remain() > (160 + cast.time.handOfGuldan())) then
               if cast.handOfGuldan() then return end
           end
           if cast.able.summonDemonicTyrant() and (buff.netherPortal.remain() < 10 and shards == 0) then
