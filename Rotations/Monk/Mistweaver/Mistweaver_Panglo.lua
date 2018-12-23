@@ -456,15 +456,15 @@ local function runRotation()
 					if isChecked("Use Inoculating Extract") and hasEquiped(160649) then
 						if getOptionValue("Target for Inoculating Extract") == 1 then
 							if br.friend[1].hp <= getValue("Use Inoculating Extract") then
-								UseItemByName(select(1,GetInventoryItemID("player",13)),br.friend[1].unit)
+								UseItemByName(160649,br.friend[1].unit)
 							end
 							if getOptionValue("Target for Inoculating Extract") == 2 and #tanks > 0 and tanks[1].hp <= getValue("Use Inoculating Extract") then
-								UseItemByName(select(1,GetInventoryItemID("player",13)),tanks[1].unit)
+								UseItemByName(160649,tanks[1].unit)
 							end
 						end
 					end
 					if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 and tanks[1].hp <= getValue("Revitalizing Voodoo Totem") then 
-						if hasEquiped(158320) and canUse(158320) and getBuffRemain(br.friend[1].unit,266018) == 0 then
+						if hasEquiped(158320) and canUse(158320) then
 							UseItemByName(158320,tanks[1].unit)
 						end
 					end

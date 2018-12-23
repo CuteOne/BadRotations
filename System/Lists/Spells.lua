@@ -809,7 +809,6 @@ br.lists.spells = {
                 guardianAffinity            = 197491,
                 incarnationTreeOfLife       = 33891,
                 innerPeace                  = 197073,
-                momentOfClarity             = 155577,
                 renewal                     = 108238,
                 soulOfTheForest             = 158478,
                 springBlossoms              = 207385,
