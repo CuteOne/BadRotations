@@ -51,7 +51,8 @@ local function createOptions()
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             --Ghost Wolf
-            br.ui:createCheckbox(section,"Ghost Wolf")
+            br.ui:createDropdown(section,  "Ghost Wolf Mode", {"|cffFFFFFFMoving", "|cffFFFFFFToggle", "|cffFFFFFFHold"},  1, "|cffFFFFFFPick Ghost Wolf Mode")
+            br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6)
             -- Purge
             br.ui:createCheckbox(section,"Purge")
             -- Water Walking
@@ -225,12 +226,6 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-            -- Ghost Wolf
-            if isChecked("Ghost Wolf") and cast.able.ghostWolf() and not (IsMounted() or IsFlying()) then
-                if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
-                    if cast.ghostWolf() then return true end
-                end
-            end
         -- Water Walking
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
@@ -243,6 +238,44 @@ local function runRotation()
                 if cast.healingSurge() then return true end
             end
         end -- End Action List - Extras
+        local function ghostWolf()
+             -- Ghost Wolf
+             if isChecked("Ghost Wolf Mode") and not (IsMounted() or IsFlying()) then
+                if getOptionValue("Ghost Wolf Mode") == 1 then
+                    if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
+                        if cast.ghostWolf() then end
+                    elseif not isMoving("player") and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
+                        RunMacroText("/cancelAura Ghost Wolf")
+                    end
+                elseif getOptionValue("Ghost Wolf Mode") == 2 then
+                    if SpecificToggle("Ghost Wolf Key") and not GetCurrentKeyBoardFocus() and br.timer:useTimer("Delay",0.25) then
+                        if cast.ghostWolf() then end
+                    end
+                elseif getOptionValue("Ghost Wolf Mode") == 3 then
+                    if not buff.ghostWolf.exists() then 
+                        if SpecificToggle("Ghost Wolf Key")  and not GetCurrentKeyBoardFocus() then
+                            if cast.ghostWolf() then end
+                        end
+                    elseif buff.ghostWolf.exists() then
+                        if getOptionValue("Ghost Wolf Key") == 1 and IsLeftControlKeyDown() then
+                            return
+                        elseif getOptionValue("Ghost Wolf Key") == 2 and IsLeftShiftKeyDown() then
+                            return
+                        elseif getOptionValue("Ghost Wolf Key") == 3 and IsRightControlKeyDown() then
+                            return
+                        elseif getOptionValue("Ghost Wolf Key") == 4 and IsRightShiftKeyDown() then
+                            return
+                        elseif getOptionValue("Ghost Wolf Key") == 5 and IsRightAltKeyDown() then
+                            return
+                        else
+                            if br.timer:useTimer("Delay",0.25) then
+                                RunMacroText("/cancelAura Ghost Wolf")
+                            end
+                        end
+                    end
+                end        
+            end
+        end
         --Action List PreCombat
         local function actionList_PreCombat()
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
@@ -379,7 +412,8 @@ local function runRotation()
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >=(100-(4*#enemies.yards10t)) or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) then
-                if cast.earthquake("target","ground") then return true end
+                if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
+                --if cast.earthquake("target","ground") then return true end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
@@ -461,7 +495,8 @@ local function runRotation()
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
             if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or buff.flameShock.remain < 5.4) or (talent.stormElemental and cd.stormElemental.remain() > 120 and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= 92))) then
-                if cast.earthquake("target","ground") then return true end
+                if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
+                --if cast.earthquake("target","ground") then return true end
             end
             -- Earth Shock
             --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
@@ -593,7 +628,8 @@ local function runRotation()
             end
             -- Earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") then
-                if cast.earthquake("target","ground") then return true end
+                if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
+                --if cast.earthquake("target","ground") then return true end
             end
             -- Earth Shock
             if (not talent.masterOfTheElements or buff.masterOfTheElements.exists()) then
@@ -701,65 +737,69 @@ local function runRotation()
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat then
-                actionList_PreCombat()
-                actionList_Extra()
+                ghostWolf()
+                if (buff.ghostWolf.exists() and getOptionValue("Ghost Wolf Mode") ~= 1) then return end
+                    actionList_PreCombat()
+                    actionList_Extra()
             end -- End Out of Combat Rotation
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                actionList_Interrupt()
-                actionList_Defensive()
-                actionList_Elementals()
-                --Simc
-                if getOptionValue("APL Mode") == 1 then
-                            -- Racial Buffs
-                    if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs()
-                    then
-                        if race == "LightforgedDraenei" then
-                            if cast.racial("target","ground") then return true end
+                ghostWolf()
+                if (buff.ghostWolf.exists() and getOptionValue("Ghost Wolf Mode") ~= 1) then return end
+                    actionList_Interrupt()
+                    actionList_Defensive()
+                    actionList_Elementals()
+                    --Simc
+                    if getOptionValue("APL Mode") == 1 then
+                                -- Racial Buffs
+                        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs()
+                        then
+                            if race == "LightforgedDraenei" then
+                                if cast.racial("target","ground") then return true end
+                            else
+                                if cast.racial("player") then return true end
+                            end
+                        end
+                        --Trinkets
+                        if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
+                            if canUse(13) then
+                                useItem(13)
+                            end
+                            if canUse(14) then
+                                useItem(14)
+                            end
+                        end
+                        --actions+=/totem_mastery,if=talent.totem_mastery.enabled&buff.resonance_totem.remains<2
+                        if talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain()< 2) then
+                            if cast.totemMastery() then return true end
+                        end
+                        --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
+                        if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs() then
+                            if cast.fireElemental() then return true end
+                        else    
+                            if isChecked("Storm Elemental/Fire Elemental") and useCDs() then
+                                if cast.stormElemental() then return true end
+                            end
+                        end
+                        --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
+                        if useCDs() and isChecked("Earth Elemental") and ((cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental)) then
+                            if cast.earthElemental() then return true end
+                        end
+                        if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
+                            if actionList_AoE() then return true end
                         else
-                            if cast.racial("player") then return true end
+                            if (#enemies.yards10t <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
+                                if actionList_ST() then return true end
+                            end
+                        end
+                    --AMR
+                    else 
+                        if getOptionValue("APL Mode") == 2 then
+                            if actionList_AMR() then return true end
                         end
                     end
-                    --Trinkets
-                    if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards40 >= 3 or cast.last.fireElemental() or cast.last.stormElemental() ) then
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
-                    end
-                    --actions+=/totem_mastery,if=talent.totem_mastery.enabled&buff.resonance_totem.remains<2
-                    if talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain()< 2) then
-                        if cast.totemMastery() then return true end
-                    end
-                    --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-                    if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs() then
-                        if cast.fireElemental() then return true end
-                    else    
-                        if isChecked("Storm Elemental/Fire Elemental") and useCDs() then
-                            if cast.stormElemental() then return true end
-                        end
-                    end
-                    --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                    if useCDs() and isChecked("Earth Elemental") and ((cd.fireElemental.remain() < 120 and not talent.stormElemental) or (cd.stormElemental.remain() < 120 and talent.stormElemental)) then
-                        if cast.earthElemental() then return true end
-                    end
-                    if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
-                        if actionList_AoE() then return true end
-                    else
-                        if (#enemies.yards10t <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
-                            if actionList_ST() then return true end
-                        end
-                    end
-                --AMR
-                else 
-                    if getOptionValue("APL Mode") == 2 then
-                        if actionList_AMR() then return true end
-                    end
-                end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
