@@ -472,7 +472,7 @@ local function runRotation()
 	                        swipeSoon = GetTime();
 	                    end
 	                    if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-	                    	if cast.swipe(nil,"aoe") then swipeSoon = nil; return true end
+	                    	if cast.swipeCat(nil,"aoe") then swipeSoon = nil; return true end
 	                    end
 	                end
 	            end -- End 20yrd Enemy Scan
@@ -1147,7 +1147,7 @@ local function runRotation()
                 then
                     if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
                     if cast.able.thrashCat() then
-                        if cast.thrash("player","aoe",1,8) then return true end
+                        if cast.thrashCat("player","aoe",1,8) then return true end
                     end
                 end
             end
@@ -1158,7 +1158,7 @@ local function runRotation()
             then
                 if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
                 if cast.able.thrashCat() then
-                    if cast.thrash("player","aoe",1,8) then return true end
+                    if cast.thrashCat("player","aoe",1,8) then return true end
                 end
             end
         -- Swipe
@@ -1239,7 +1239,7 @@ local function runRotation()
                 then
                     if cast.pool.thrashCat() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrashCat() or buff.clearcasting.exists() then
-                        if cast.thrash("player","aoe",1,8) then return true end
+                        if cast.thrashCat("player","aoe",1,8) then return true end
                     end
                 end
             end
@@ -1251,7 +1251,7 @@ local function runRotation()
             then
                 if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
                 if cast.able.swipeCat() then
-                    if cast.swipe("player","aoe",1,8) then return true end
+                    if cast.swipeCat("player","aoe",1,8) then return true end
                 end
             end
         -- Shred
@@ -1329,7 +1329,7 @@ local function runRotation()
             if cast.able.thrashCat() and debuff.thrashCat.refresh(units.dyn8AOE) 
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
             then
-                if cast.thrash("player","aoe") then return true end
+                if cast.thrashCat("player","aoe") then return true end
             end
         -- Moonfire
             -- if CanRefreshDot(MoonfireDoT)
@@ -1349,12 +1349,12 @@ local function runRotation()
             if cast.able.swipeCat() and not talent.brutalSlash
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
-                if cast.swipe("player","aoe") then return true end
+                if cast.swipeCat("player","aoe") then return true end
             end
         -- Thrash
             -- if CanRefreshDot(ThrashBleedFeral) and (AzeriteTraitRank(AzeriteWildFleshrending) > 0 or AzeriteTraitRank(AzeriteTwistedClaws) > 0)
             if cast.able.thrashCat() and debuff.thrashCat.refresh(units.dyn8) and (trait.wildFleshrending.active or trait.twistedClaws.active) then
-                if cast.thrash("player","aoe") then return true end
+                if cast.thrashCat("player","aoe") then return true end
             end
         -- Shred
             if cast.able.shred() then
