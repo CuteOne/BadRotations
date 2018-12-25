@@ -925,13 +925,10 @@ local function runRotation()
         -- Primal Wrath
             -- pool_resource,for_next=1
             -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
-            if (cast.pool.primalWrath() or cast.able.primalWrath()) and (usePrimalWrath()
+            if cast.able.primalWrath() and (usePrimalWrath()
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
             then 
-                if cast.pool.primalWrath() then ChatOverlay("Pooling For Primal Wrath") return true end
-                if cast.able.primalWrath() then
-                    if cast.primalWrath("player","aoe",1,8) then return true end
-                end
+                if cast.primalWrath("player","aoe",1,8) then return true end
             end
         -- Rip
             -- pool_resource,for_next=1
