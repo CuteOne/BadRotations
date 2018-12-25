@@ -1166,7 +1166,7 @@ local function runRotation()
             -- swipe_cat,if=buff.scent_of_blood.up
             if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
                 if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
-                if cast.able.swipeCat()) then
+                if cast.able.swipeCat() then
                     if cast.swipeCat("player","aoe",1,8) then return true end
                 end
             end
