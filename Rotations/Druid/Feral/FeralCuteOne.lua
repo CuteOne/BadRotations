@@ -467,7 +467,7 @@ local function runRotation()
 	                	if cast.shred() then swipeSoon = nil; return true end
 	                end
 	            -- Swipe - AoE
-	                if cast.able.swipe() and #enemies.yards8 > 1 then
+	                if cast.able.swipeCat() and #enemies.yards8 > 1 then
 	                    if swipeSoon == nil then
 	                        swipeSoon = GetTime();
 	                    end
@@ -820,7 +820,7 @@ local function runRotation()
             -- Rake
                         -- rake,if=!ticking|buff.prowl.up
                         if cast.able.rake() then
-                            if not debuff.rake.exists() or buff.prowl.exists() then
+                            if not debuff.rake.exists("target") or buff.prowl.exists() then
                                 if castOpener("rake","RK1",openerCount) then openerCount = openerCount + 1; return true end
                             else
                                 Print(openerCount..": Rake (Uncastable)")
@@ -828,7 +828,7 @@ local function runRotation()
                                 RK1 = true
                             end
                         end
-                    elseif RK1 and not MF1 then
+                    elseif (RK1 or debuff.rake.exists("target")) and not MF1 then
             -- Moonfire
                         -- moonfire_cat,if=!ticking|buff.bloodtalons.stack=1&combo_points<5
                         if cast.able.moonfireFeral() then
@@ -840,10 +840,10 @@ local function runRotation()
                                 MF1 = true
                             end
                         end
-                    elseif MF1 and not THR1 then 
+                    elseif (MF1 or not talent.lunarInspiration or (debuff.moonfireFeral.exists("target") and buff.bloodtalons.stack() ~= 1) or comboPoints == 5) and not THR1 then 
             -- Thrash
                         -- thrash_cat,if=!ticking&combo_points<5
-                        if cast.able.thrash() then 
+                        if cast.able.thrashCat() then 
                             if not debuff.thrash.exists("target") and comboPoints < 5 then
                                 if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
                             else
@@ -852,7 +852,7 @@ local function runRotation()
                                 THR1 = true
                             end
                         end
-                    elseif THR1 and (not SHR1 or (comboPoints < 5 and not debuff.rip.exists("target"))) then 
+                    elseif (THR1 or comboPoints == 5 or debuff.thrash.exists("target")) and (not SHR1 or (comboPoints < 5 and not debuff.rip.exists("target"))) then 
             -- Shred 
                         -- shred,if=combo_points<5 
                         if cast.able.shred() then 
@@ -864,7 +864,7 @@ local function runRotation()
                                 SHR1 = true
                             end
                         end
-                    elseif SHR1 and not REG1 then 
+                    elseif (SHR1 or comboPoints == 5) and not REG1 then 
             -- Regrowth 
                         -- regrowth,if=combo_points=5&talent.bloodtalons.enabled&(talent.sabertooth.enabled&buff.bloodtalons.down|buff.predatory_swiftness.up)
                         if cast.able.regrowth() then 
@@ -1141,33 +1141,33 @@ local function runRotation()
         -- Thrash
             -- pool_resource,for_next=1
             -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
-            if (cast.pool.thrash() or cast.able.thrash()) then --and multidot then
+            if (cast.pool.thrashCat() or cast.able.thrashCat()) then --and multidot then
                 if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) 
                     and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                 then
-                    if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
-                    if cast.able.thrash() then
+                    if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
+                    if cast.able.thrashCat() then
                         if cast.thrash("player","aoe",1,8) then return true end
                     end
                 end
             end
             -- pool_resource,for_next=1
             -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3 
-            if (cast.pool.thrash() or cast.able.thrash()) and (talent.scentOfBlood and not buff.scentOfBlood.exists() 
+            if (cast.pool.thrashCat() or cast.able.thrashCat()) and (talent.scentOfBlood and not buff.scentOfBlood.exists() 
                 and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
             then
-                if cast.pool.thrash() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
-                if cast.able.thrash() then
+                if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
+                if cast.able.thrashCat() then
                     if cast.thrash("player","aoe",1,8) then return true end
                 end
             end
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=buff.scent_of_blood.up
-            if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
-                if cast.pool.swipe() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
-                if cast.able.swipe() then
-                    if cast.swipe("player","aoe",1,8) then return true end
+            if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
+                if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
+                if cast.able.swipeCat()) then
+                    if cast.swipeCat("player","aoe",1,8) then return true end
                 end
             end
         -- Rake
@@ -1232,13 +1232,13 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-            if (cast.pool.thrash() or cast.able.thrash()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) and mode.rotation < 3 then
+            if (cast.pool.thrashCat() or cast.able.thrashCat()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) and mode.rotation < 3 then
                 if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
                     or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                     or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
                 then
-                    if cast.pool.thrash() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
-                    if cast.able.thrash() or buff.clearcasting.exists() then
+                    if cast.pool.thrashCat() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
+                    if cast.able.thrashCat() or buff.clearcasting.exists() then
                         if cast.thrash("player","aoe",1,8) then return true end
                     end
                 end
@@ -1246,11 +1246,11 @@ local function runRotation()
         -- Swipe
             -- pool_resource,for_next=1
             -- swipe_cat,if=spell_targets.swipe_cat>1
-            if (cast.pool.swipe() or cast.able.swipe()) and not talent.brutalSlash --and multidot
+            if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash --and multidot
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
-                if cast.pool.swipe() then ChatOverlay("Pooling For Swipe") return true end
-                if cast.able.swipe() then
+                if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
+                if cast.able.swipeCat() then
                     if cast.swipe("player","aoe",1,8) then return true end
                 end
             end
@@ -1326,7 +1326,7 @@ local function runRotation()
             end 
         -- Thrash 
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
-            if cast.able.thrash() and debuff.thrash.refresh(units.dyn8AOE) 
+            if cast.able.thrashCat() and debuff.thrash.refresh(units.dyn8AOE) 
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
             then
                 if cast.thrash("player","aoe") then return true end
@@ -1346,14 +1346,14 @@ local function runRotation()
             end
         -- Swipe
             -- if TargetsInRadius(Swipe) >= 3
-            if cast.able.swipe() and not talent.brutalSlash
+            if cast.able.swipeCat() and not talent.brutalSlash
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.swipe("player","aoe") then return true end
             end
         -- Thrash
             -- if CanRefreshDot(ThrashBleedFeral) and (AzeriteTraitRank(AzeriteWildFleshrending) > 0 or AzeriteTraitRank(AzeriteTwistedClaws) > 0)
-            if cast.able.thrash() and debuff.thrash.refresh(units.dyn8) and (trait.wildFleshrending.active or trait.twistedClaws.active) then
+            if cast.able.thrashCat() and debuff.thrash.refresh(units.dyn8) and (trait.wildFleshrending.active or trait.twistedClaws.active) then
                 if cast.thrash("player","aoe") then return true end
             end
         -- Shred

@@ -114,7 +114,7 @@ local function runRotation()
         local astralPowerDeficit                            = br.player.power.astralPower.deficit()
         local travel                                        = br.player.buff.travelForm.exists()
         local flight                                        = br.player.buff.flightForm.exists()
-        local chicken                                       = br.player.buff.balanceForm.exists()
+        local chicken                                       = br.player.buff.moonkinForm.exists()
         local cat                                           = br.player.buff.catForm.exists()
         local bear                                          = br.player.buff.bearForm.exists()
         local noform                                        = GetShapeshiftForm()==0
@@ -138,7 +138,7 @@ local function actionList_main()
 
     -- Make sure we're in moonkin form if we're not in another form
     if noform then
-        if cast.balanceForm() then return end
+        if cast.moonkinForm() then return end
     end
 
     -- Apply Moonfire and Sunfire to all targets that will live longer than six seconds

@@ -147,7 +147,7 @@ local function runRotation()
 		local astralPowerDeficit                            = br.player.power.astralPower.deficit()
 		local travel                                        = br.player.buff.travelForm.exists()
 		local flight                                        = br.player.buff.flightForm.exists()
-		local chicken                                       = br.player.buff.balanceForm.exists()
+		local chicken                                       = br.player.buff.moonkinForm.exists()
 		local cat                                           = br.player.buff.catForm.exists()
 		local bear                                          = br.player.buff.bearForm.exists()
 		local noform                                        = GetShapeshiftForm()==0
@@ -277,7 +277,7 @@ local function actionList_main()
 	end
     -- Make sure we're in moonkin form if we're not in another form
     if not chicken then
-        if cast.balanceForm() then return true end
+        if cast.moonkinForm() then return true end
     end
 	-- Defensive
 	if useDefensive() then
