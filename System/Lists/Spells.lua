@@ -3190,14 +3190,11 @@ br.lists.spells = {
 
             },
             talents                         = {
-                avatar                      = 107574,
                 bladestorm                  = 46924,
-                bloodbath                   = 12292,
                 carnage                     = 202922,
                 doubleTime                  = 103827,
                 dragonRoar                  = 118000,
                 endlessRage                 = 202296,
-                frenzy                      = 206313,
                 freshMeat                   = 215568,
                 frothingBerserker           = 215571,
                 furiousCharge               = 202224,
