@@ -6,8 +6,8 @@ local rotationName = "CuteOne"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipe },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipe },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipeCat },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipeCat },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.shred },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
@@ -349,7 +349,7 @@ local function runRotation()
                         lowestUnit = thisUnit
                     end
                 end
-                longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit), debuff.thrash.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
+                longestBleed = math.max(debuff.rake.remain(lowestUnit), debuff.rip.remain(lowestUnit), debuff.thrashCat.remain(lowestUnit), debuff.feralFrenzy.remain(lowestUnit))
                 if ttd(lowestUnit) > 0 then timeTillDeath = ttd(lowestUnit) else timeTillDeath = 99 end
                 if lowestUnit ~= nil and timeTillDeath < longestBleed then return true end
             end
@@ -844,7 +844,7 @@ local function runRotation()
             -- Thrash
                         -- thrash_cat,if=!ticking&combo_points<5
                         if cast.able.thrashCat() then 
-                            if not debuff.thrash.exists("target") and comboPoints < 5 then
+                            if not debuff.thrashCat.exists("target") and comboPoints < 5 then
                                 if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
                             else
                                 Print(openerCount..": Thrash (Uncastable)")
@@ -852,7 +852,7 @@ local function runRotation()
                                 THR1 = true
                             end
                         end
-                    elseif (THR1 or comboPoints == 5 or debuff.thrash.exists("target")) and (not SHR1 or (comboPoints < 5 and not debuff.rip.exists("target"))) then 
+                    elseif (THR1 or comboPoints == 5 or debuff.thrashCat.exists("target")) and (not SHR1 or (comboPoints < 5 and not debuff.rip.exists("target"))) then 
             -- Shred 
                         -- shred,if=combo_points<5 
                         if cast.able.shred() then 
@@ -1142,7 +1142,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
             if (cast.pool.thrashCat() or cast.able.thrashCat()) then --and multidot then
-                if (not debuff.thrash.exists(units.dyn8AOE) or debuff.thrash.refresh(units.dyn8AOE)) 
+                if (not debuff.thrashCat.exists(units.dyn8AOE) or debuff.thrashCat.refresh(units.dyn8AOE)) 
                     and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                 then
                     if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: "..#enemies.yards8.." targets") return true end
@@ -1232,7 +1232,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-            if (cast.pool.thrashCat() or cast.able.thrashCat()) --[[and multidot]] and debuff.thrash.refresh(units.dyn8AOE) and mode.rotation < 3 then
+            if (cast.pool.thrashCat() or cast.able.thrashCat()) --[[and multidot]] and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3 then
                 if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
                     or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
                     or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
@@ -1326,7 +1326,7 @@ local function runRotation()
             end 
         -- Thrash 
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
-            if cast.able.thrashCat() and debuff.thrash.refresh(units.dyn8AOE) 
+            if cast.able.thrashCat() and debuff.thrashCat.refresh(units.dyn8AOE) 
                 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
             then
                 if cast.thrash("player","aoe") then return true end
@@ -1353,7 +1353,7 @@ local function runRotation()
             end
         -- Thrash
             -- if CanRefreshDot(ThrashBleedFeral) and (AzeriteTraitRank(AzeriteWildFleshrending) > 0 or AzeriteTraitRank(AzeriteTwistedClaws) > 0)
-            if cast.able.thrashCat() and debuff.thrash.refresh(units.dyn8) and (trait.wildFleshrending.active or trait.twistedClaws.active) then
+            if cast.able.thrashCat() and debuff.thrashCat.refresh(units.dyn8) and (trait.wildFleshrending.active or trait.twistedClaws.active) then
                 if cast.thrash("player","aoe") then return true end
             end
         -- Shred
