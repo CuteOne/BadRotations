@@ -63,6 +63,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Perma Fire Cat","|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFautomatic use of Fandrel's Seed Pouch or Burning Seeds.")
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        -- Execute Notice
+            br.ui:createCheckbox(section, "Execute Notice","Enable to show chat message when it uses Ferocious Bite to kill a mob.")
         -- Opener
             br.ui:createCheckbox(section, "Opener")
             br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
@@ -356,20 +358,24 @@ local function runRotation()
             return false
         end
 
-        local function ferociousBiteFinish()
+        local function ferociousBiteFinish(thisUnit)
             local desc = GetSpellDescription(spell.ferociousBite)
-            for i = 1, 5 do
-                local comboStart = desc:find(" "..i.." ",1,true)+2
+            local damage = 0
+            local finishHim = false
+            if comboPoints > 0 then
+                local comboStart = desc:find(" "..comboPoints.." ",1,true)+2
                 local damageList = desc:sub(comboStart,desc:len())
                 comboStart = damageList:find(": ",1,true)+2
                 damageList = damageList:sub(comboStart,desc:len())
                 local comboEnd = damageList:find(" ",1,true)-1
                 damageList = damageList:sub(1,comboEnd)
-                local damage = damageList:gsub(",","")
-                if comboPoints == i and tonumber(damage) >= UnitHealth(units.dyn5) then return true end
+                damage = damageList:gsub(",","")
+                finishHim = tonumber(damage) >= UnitHealth(thisUnit)
             end
-            return false
+            --ChatOverlay("Finish: "..tostring(finishHim)..", Combo: "..comboPoints..", FB Dmg: "..damage..", THP: "..UnitHealth(thisUnit))
+            return finishHim
         end
+        --if UnitExists("target") then ferociousBiteFinish("target") end 
 
         local function usePrimalWrath()
             local ripCount = 0
@@ -845,7 +851,7 @@ local function runRotation()
                         -- thrash_cat,if=!ticking&combo_points<5
                         if cast.able.thrashCat() then 
                             if not debuff.thrashCat.exists("target") and comboPoints < 5 then
-                                if castOpener("thrash","THR1",openerCount) then openerCount = openerCount + 1; return true end
+                                if castOpener("thrashCat","THR1",openerCount) then openerCount = openerCount + 1; return true end
                             else
                                 Print(openerCount..": Thrash (Uncastable)")
                                 openerCount = openerCount + 1
@@ -934,7 +940,7 @@ local function runRotation()
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(target.health.pct>25&!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
             if (cast.pool.rip() or cast.able.rip()) and (not talent.primalWrath or #enemies.yards8 == 1 
-                or mode.rotation == 3 or not cast.pool.primalWrath("player","aoe") or not usePrimalWrath()) 
+                or mode.rotation == 3 or not usePrimalWrath()) 
                 and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 
             then
                 for i = 1, #enemies.yards5 do
@@ -976,7 +982,7 @@ local function runRotation()
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
             if cast.able.ferociousBite() and fbMaxEnergy and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
-                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish() or level < 20 
+                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish("target") or level < 20 
                     or ttd(units.dyn5) <= 8 or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5)) 
             then
                 if cast.ferociousBite() then return true end
@@ -1532,8 +1538,9 @@ local function runRotation()
                             for i = 1, #enemies.yards5 do
                                 local thisUnit = enemies.yards5[i]
                                 if (debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3
-                                    and ttd(thisUnit) > 10 and (thp(thisUnit) < 25 or talent.sabertooth))
+                                    and ttd(thisUnit) > 10 and (thp(thisUnit) < 25 or talent.sabertooth)) or ferociousBiteFinish(thisUnit)
                                 then
+                                    if isChecked("Execute Notice") and ferociousBiteFinish(thisUnit) then Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(thp(thisUnit),0).."% health remaining.") end
                                     if cast.ferociousBite(thisUnit) then return true end
                                 end
                             end
