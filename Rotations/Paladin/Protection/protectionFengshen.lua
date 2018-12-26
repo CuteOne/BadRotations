@@ -119,6 +119,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+		-- Unstable Temporal Time Shifter
+		br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -718,6 +720,24 @@ local function runRotation()
 					end
 					if getOptionValue("Redemption")==2 and not isMoving("player") and resable then
 						if cast.redemption("mouseover","dead") then return end
+					end
+				end
+				-- Unstable Temporal Time Shifter
+				if isChecked("Unstable Temporal Time Shifter") and not isMoving("player") and inCombat then
+					if getOptionValue("Unstable Temporal Time Shifter") == 1
+						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+						UseItemByName(158379,"target")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 2
+						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+						UseItemByName(158379,"mouseover")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 3 then
+						for i =1, #br.friend do
+							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+								UseItemByName(158379,br.friend[i].unit)
+							end
+						end
 					end
 				end
 			end

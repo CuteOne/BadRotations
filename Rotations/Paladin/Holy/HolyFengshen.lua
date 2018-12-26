@@ -85,6 +85,8 @@ local function createOptions()
 		br.ui:createDropdown(section,"Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFDivine Shield + Aura of Sacrifice usage.")
 		-- Divine Shield + Hand Of Reckoning
 		br.ui:createDropdown(section,"Divine Shield + Hand Of Reckoning Key", br.dropOptions.Toggle, 6, "","|cffFFFFFFDivine Shield + Hand Of Reckoning usage.")
+		-- Unstable Temporal Time Shifter
+		br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -511,6 +513,24 @@ local function runRotation()
 				-- Blessing of Freedom
 				if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
 					if cast.blessingOfFreedom("player") then return true end
+				end
+				-- Unstable Temporal Time Shifter
+				if isChecked("Unstable Temporal Time Shifter") and not moving then
+					if getOptionValue("Unstable Temporal Time Shifter") == 1
+						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+						UseItemByName(158379,"target")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 2
+						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+						UseItemByName(158379,"mouseover")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 3 then
+						for i =1, #br.friend do
+							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+								UseItemByName(158379,br.friend[i].unit)
+							end
+						end
+					end
 				end
 			end
 		end
