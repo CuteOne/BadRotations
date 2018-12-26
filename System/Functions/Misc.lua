@@ -401,6 +401,7 @@ function isValidUnit(Unit)
 	local playerTarget = GetUnitIsUnit(Unit, "target")
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
+	local dummy = isDummy(Unit)
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
 	if playerTarget and br.units[UnitTarget("player")] == nil and not enemyListCheck("target") then
@@ -408,9 +409,9 @@ function isValidUnit(Unit)
 	end
 	if not pause(true) and Unit ~= nil and
 		(br.units[Unit] ~= nil or Unit == "target" or validUnitBypassList[GetObjectID(Unit)] ~= nil) and
-		(not UnitIsTapDenied(Unit) or isDummy(Unit)) and
+		(not UnitIsTapDenied(Unit) or dummy) and
 		isSafeToAttack(Unit) and
-		((reaction < 5 and not hostileOnly) or (hostileOnly and (reaction < 4 or playerTarget or targeting)) or isDummy(Unit)) and
+		((reaction < 5 and not hostileOnly) or (hostileOnly and (reaction < 4 or playerTarget or targeting)) or dummy) and
 		mcCheck and
 		not isCC
 	 then
