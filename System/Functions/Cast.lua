@@ -546,8 +546,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		end
 	end
 	--If we want to predict movement, include casttime, else 0 it
-	if predict ~= nil then castTime = castTime / 1000
-	else castTime = 0 end
+	if predict ~= nil then castTime = castTime / 1000 else castTime = 0 end
     -- local minRange = tonumber(select(5,GetSpellInfo(spellName)))
     -- local maxRange = tonumber(select(6,GetSpellInfo(GetSpellInfo(spellID))))
     -- Nil Catches
@@ -580,10 +579,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			else
 				thisUnit = getSpellUnit(spellCast,true)
 			end
-        end
+		end
         -- Return specified/best cast method
         if debug == "debug" then
-            castDebug()
+			castDebug()
             return true --castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
         elseif thisUnit == "best" then
             castDebug()
@@ -597,7 +596,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		elseif thisUnit == "pettarget" and (getDistance("pettarget","pet") < maxRange or IsSpellInRange(spellName,"pettarget") == 1) then
 			castDebug()
 			return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
-        elseif thisUnit ~= nil then
+		elseif thisUnit ~= nil then
             local distance = getDistance(thisUnit)
             if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
 				local hasEnemies = #getEnemies("player",maxRange) >= minUnits or spellType == "Helpful" or spellType == "Unknown"
@@ -627,7 +626,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
                     castDebug()
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif debug == "norm" and hasEnemies then
-	                castDebug()
+					castDebug()
 	                return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 	            end
 	        else

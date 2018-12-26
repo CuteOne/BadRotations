@@ -1012,7 +1012,7 @@ local function runRotation()
 					    if cast.mangle(units.dyn5) then return true end
 					end
 					if GetUnitExists(units.dyn8) then
-						if cast.thrash(units.dyn8) then return true end
+						if cast.thrashBear(units.dyn8) then return true end
 					end
 				end
 				-- Sunfire
@@ -1044,7 +1044,7 @@ local function runRotation()
 				end
 				-- Swipe
 				if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
-					if cast.swipe() then return true end
+					if cast.swipeCat() then return true end
 				end
 				-- Rip
 				if combo == 5 and #enemies.yards8 < 4 then

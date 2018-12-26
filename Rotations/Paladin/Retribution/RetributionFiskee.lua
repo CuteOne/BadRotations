@@ -674,11 +674,11 @@ local function runRotation()
 				then
 				if cast.racial() then return end
 			end
-			-- Holy Wrath
-			-- holy_wrath
-			if isChecked("Holy Wrath") then
-				if cast.holyWrath() then return end
-			end
+			-- -- Holy Wrath
+			-- -- holy_wrath
+			-- if isChecked("Holy Wrath") then
+			-- 	if cast.holyWrath() then return end
+			-- end
 			-- Shield of Vengenace
 			-- shield_of_vengeance
 			if isChecked("Shield of Vengeance - CD") then

@@ -208,7 +208,7 @@ local function runRotation()
     local friends               = friends or {}
     local travel                = br.player.buff.travelForm.exists()
     local flight                = br.player.buff.flightForm.exists()
-    local chicken               = br.player.buff.balanceForm.exists()
+    local chicken               = br.player.buff.moonkinForm.exists()
     local cat                   = br.player.buff.catForm.exists()
     local noform                = GetShapeshiftForm()==0
     local hastar                = GetObjectExists("target")
@@ -790,22 +790,22 @@ local function runRotation()
                 if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
                 if cast.travelForm("player") then return true end
             end
-            -- balanceForm
+            -- moonkinForm
             if not chicken and not IsMounted() and (not buff.dash.exists() or IsStandingTime(2,"player")) and not flying and not flight then
-                -- balanceForm when not swimming or flying or stag and not in combat
+                -- moonkinForm when not swimming or flying or stag and not in combat
                 if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
-                    if cast.balanceForm("player") then return true end
+                    if cast.moonkinForm("player") then return true end
                 end
-                -- balanceForm when not in combat and target selected and within 40yrds
+                -- moonkinForm when not in combat and target selected and within 40yrds
                 if not inCombat and isValidUnit("target") and getDistance("target") < 40 then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
-                    if cast.balanceForm("player") then return true end
+                    if cast.moonkinForm("player") then return true end
                 end
-                --balanceForm when in combat and not flying
+                --moonkinForm when in combat and not flying
                 if inCombat then
                     if GetShapeshiftForm() ~= 0 then RunMacroText("/CancelForm") end
-                    if cast.balanceForm("player") then return true end
+                    if cast.moonkinForm("player") then return true end
                 end
             end
         end

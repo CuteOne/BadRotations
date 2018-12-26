@@ -6,7 +6,7 @@ local rotationName = "Panglo"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.swipe },
+        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.swipeBear },
         [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
     CreateButton("Rotation",1,0)
@@ -37,8 +37,8 @@ local function createToggles()
     CreateButton("BristlingFur",5,0)
 -- Interrupt Button
     IronfurModes = {
-    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironfur },
-    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironfur }
+    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironFur },
+    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironFur }
     };  
     CreateButton("Ironfur",6,0)
 end
@@ -492,8 +492,8 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     if br.player.mode.ironfur == 1 then
-                        if (traits.layeredMane.active and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
-                            if cast.ironfur() then return end
+                        if (traits.layeredMane.active and power >=50) or not buff.ironFur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironFur.remain() < 2 then
+                            if cast.ironFur() then return end
                         end
                     end    
         -- Bristling Fur
@@ -511,8 +511,8 @@ local function runRotation()
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if debuff.thrash.stack(thisUnit) >= 3 then
-                                if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrash())) then
+                            if debuff.thrashBear.stack(thisUnit) >= 3 then
+                                if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrashBear())) then
 									if cast.pulverize(thisUnit) then return end
 								end
 							end
@@ -538,7 +538,7 @@ local function runRotation()
         -- Thrash
                     -- thrash_bear
                     if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
-                        if cast.thrash() then return end
+                        if cast.thrashBear() then return end
                     end
         -- Moonfire
                     if #enemies.yards40 < 6 then
@@ -563,8 +563,8 @@ local function runRotation()
                     end
         -- Swipe
                     -- swipe_bear
-                    if getDistance("target") < 8 and not buff.galacticGuardian.exists() and not (cast.able.thrash() or cast.able.mangle()) then
-                        if cast.swipe() then return end
+                    if getDistance("target") < 8 and not buff.galacticGuardian.exists() and not (cast.able.thrashBear() or cast.able.mangle()) then
+                        if cast.swipeBear() then return end
                     end
                 end--End In Combat
 			end --End Rotation Logic
