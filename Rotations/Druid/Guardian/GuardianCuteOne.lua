@@ -605,12 +605,12 @@ local function runRotation()
                 if getOptionValue("APL Mode") == 1 then
         -- Ironfur
                     -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (not buff.ironFur.exists() or buff.goryFur.exists() or power >= 80) then
-                        if cast.ironFur() then return end
+                    if isChecked("Ironfur") and (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 80) then
+                        if cast.ironfur() then return end
                     end
         -- Bristling Fur
                     -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
-                    if buff.ironFur.stack() == 1 or not buff.ironFur.exists() then
+                    if buff.ironfur.stack() == 1 or not buff.ironfur.exists() then
                         if cast.bristlingFur() then return end
                     end
         -- Lunar Beam
