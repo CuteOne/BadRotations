@@ -80,7 +80,9 @@ function br.read.combatLog()
         local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
         br.guid = UnitGUID("player")
         -- Last Cast Success for Spec Abilities Only
-        if param == "SPELL_CAST_SUCCESS" then
+        local castTime = select(4, GetSpellInfo(spell))
+        if castTime == nil then castTime = 0 end
+        if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
             if sourceName ~= nil then
                 if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
