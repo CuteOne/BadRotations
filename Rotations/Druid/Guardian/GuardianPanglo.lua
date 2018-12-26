@@ -37,8 +37,8 @@ local function createToggles()
     CreateButton("BristlingFur",5,0)
 -- Interrupt Button
     IronfurModes = {
-    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironfur },
-    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironfur }
+    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironFur },
+    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironFur }
     };  
     CreateButton("Ironfur",6,0)
 end
@@ -492,8 +492,8 @@ local function runRotation()
     ---------------------------
         -- Ironfur
                     if br.player.mode.ironfur == 1 then
-                        if (traits.layeredMane.active and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
-                            if cast.ironfur() then return end
+                        if (traits.layeredMane.active and power >=50) or not buff.ironFur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironFur.remain() < 2 then
+                            if cast.ironFur() then return end
                         end
                     end    
         -- Bristling Fur
