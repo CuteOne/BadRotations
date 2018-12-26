@@ -54,7 +54,7 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- APL Mode
-            br.ui:createDropdownWithout(section,"APL Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose which APL SimC or JRs test.")
+            br.ui:createDropdownWithout(section,"APL Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose SimC or JRs Experimental APL mode.")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
@@ -177,6 +177,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Silence
             br.ui:createCheckbox(section, "Silence")
+            -- Psychic Horror
+            br.ui:createCheckbox(section, "Psychic Horror")
             -- Psychic Scream
             br.ui:createCheckbox(section, "Psychic Scream")
             -- Mind Bomb
@@ -393,12 +395,16 @@ local function runRotation()
     -- Action List - Defensive
     function actionList_Defensive()
         if mode.defensive == 1 and getHP("player")>0 then
-            --Healthstone
-            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and hasItem(5512) then
-                if canUse(5512) then
-                    useItem(5512)
+            -- Pot/Stoned
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
+                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(healPot) then
+                        useItem(healPot)
+                    end
                 end
-            end
             -- Gift of the Naaru
             if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                 if castSpell("player",racial,false,false,false) then return end
@@ -434,6 +440,11 @@ local function runRotation()
                     if cast.mindBomb(units.dyn30) then return end
                 end
             end
+            -- Psychic Horror
+            --if isChecked("Psychic Horror") and inCombat and php <= getOptionValue("Psychic Horror") then
+            --    if talent.psychichHorror and #enemies.yards8 > 0 then
+            --        if cast.psychicHorror(units.dyn30) then return end
+            --    end
             -- Power Word: Shield
             if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
                 if cast.powerWordShield("player") then return end
@@ -450,11 +461,9 @@ local function runRotation()
         if isChecked("Silence") and mode.interruptToggle == 1 then
             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.silence("focus") then return end
-            end
-            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.silence("target") then return end
-            end
-            if getOptionValue("Interrupt Target") == 3 then
+            elseif getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -463,15 +472,28 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
+    -- Psychic Horror
+        if talent.psychicHorror and isChecked("Psychic Horror") and mode.interruptToggle == 1 then
+            if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
+                if cast.psychicHorror("focus") then Print("pH on focus") return end
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
+                if cast.psychicHorror("target") then Print("pH on target") return end
+            elseif getOptionValue("Interrupt Target") == 3 and (cd.silence.exists() or not isChecked("Silence")) then
+                for i=1, #enemies.yards30 do
+                    thisUnit = enemies.yards30[i]
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                        if cast.psychicHorror(thisUnit) then Print("pH on any") return end
+                    end
+                end
+            end
+        end
     -- Psychic Scream
+        if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("focus") then return end
-            end
-            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("target") then return end
-            end
-            if getOptionValue("Interrupt Target") == 3 then
+            elseif getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards8 do
                     thisUnit = enemies.yards8[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -666,7 +688,7 @@ local function runRotation()
         --     end
         -- end
     -- Power Word: Shield Body and Soul
-        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not buff.classHallSpeed.exists() then
+        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
             if cast.powerWordShield("player") then return end
         end
     end  -- End Action List - Pre-Combat
