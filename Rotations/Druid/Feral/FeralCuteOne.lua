@@ -944,7 +944,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) 
-                        and not UnitIsCharmed(thisUnit) and canDoT(thisUnit)
+                        and not UnitIsCharmed(thisUnit) and canDoT(thisUnit) and getFacing("player",thisUnit)
                     then
                         if (not debuff.rip.exists(thisUnit) or (debuff.rip.refresh(thisUnit) and (thp(thisUnit) > 25 and not talent.sabertooth))
                             or (debuff.rip.remain(thisUnit) <= ripDuration * 0.8 and debuff.rip.calc() > debuff.rip.applied(thisUnit))) and (ttd(thisUnit) > 8 or isDummy(thisUnit))
@@ -1180,7 +1180,7 @@ local function runRotation()
                 for i = 1, #enemies.yards5 do
                     local thisUnit = enemies.yards5[i]
                     if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) 
-                        and not UnitIsCharmed(thisUnit) and canDoT(thisUnit)
+                        and not UnitIsCharmed(thisUnit) and canDoT(thisUnit) and getFacing("player",thisUnit)
                     then
                         if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
                             or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7 and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
@@ -1536,8 +1536,8 @@ local function runRotation()
                         if cast.able.ferociousBite() then
                             for i = 1, #enemies.yards5 do
                                 local thisUnit = enemies.yards5[i]
-                                if (debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3
-                                    and ttd(thisUnit) > 10 and (thp(thisUnit) < 25 or talent.sabertooth)) or ferociousBiteFinish(thisUnit)
+                                if ((debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3
+                                    and ttd(thisUnit) > 10 and (thp(thisUnit) < 25 or talent.sabertooth)) or ferociousBiteFinish(thisUnit)) and getFacing("player",thisUnit)
                                 then
                                     if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then 
                                         Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(thp(thisUnit),0).."% health remaining.") 
