@@ -515,7 +515,7 @@ local function runRotation()
 					if cast.blessingOfFreedom("player") then return true end
 				end
 				-- Unstable Temporal Time Shifter
-				if isChecked("Unstable Temporal Time Shifter") and not moving then
+				if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not moving then
 					if getOptionValue("Unstable Temporal Time Shifter") == 1
 						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						UseItemByName(158379,"target")

@@ -723,7 +723,7 @@ local function runRotation()
 					end
 				end
 				-- Unstable Temporal Time Shifter
-				if isChecked("Unstable Temporal Time Shifter") and not isMoving("player") and inCombat then
+				if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not isMoving("player") and inCombat then
 					if getOptionValue("Unstable Temporal Time Shifter") == 1
 						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						UseItemByName(158379,"target")
