@@ -327,7 +327,7 @@ local function runRotation()
 			if buff.blessingOfProtection.exists() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.blessingOfProtection.exists() and getDebuffRemain("target",62124) < 0.2 then
+			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
 				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
