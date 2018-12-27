@@ -375,7 +375,7 @@ br.lists.spells = {
                 felEruption                 = 211881,
                 felMastery                  = 192939,
                 firstBlood                  = 206416,
-                imolationAura               = 258920,
+                immolationAura               = 258920,
                 insatiableHunger            = 258876,
                 masterOfTheGlaive           = 203556,
                 momentum                    = 206476,
@@ -1432,6 +1432,7 @@ br.lists.spells = {
                 soothingMist                = 115175,
                 chiWave                     = 115098,
                 fortifyingBrew              = 243435,
+                surgingMist                 = 227344,
             },
             artifacts                       = {
             },
@@ -1456,6 +1457,7 @@ br.lists.spells = {
                 symbolOfHope                = 64901,
                 essenceFont                 = 191837,
                 manaTea                     = 197908,
+                wayOfTheCrane               = 216113,
             },
             debuffs                         = {
             },
