@@ -669,7 +669,7 @@ local function runRotation()
 			-- berserking
 			-- arcane_torrent,if=(buff.crusade.up|buff.avenging_wrath.up)&holy_power=2&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)
 			if isChecked("Racial") and (race == "Orc" or race == "Troll"
-				or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd))
+				or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd --[[or cd.divineHammer.remain() > gcd]]))
 				or (race == "LightforgedDraenei"))
 				then
 				if cast.racial() then return end
@@ -707,16 +707,16 @@ local function runRotation()
 				if use.flaskoftheUndertow() then return end
 			end
 			if isValidUnit("target") and (not isBoss("target") or (not isChecked("Opener") or talent.divinePurpose)) then
-				-- Divine Hammer
-				if talent.divineHammer and #enemies.yards8 >= 3 then
-					if cast.divineHammer() then return end
-				end
+				-- -- Divine Hammer
+				-- if talent.divineHammer and #enemies.yards8 >= 3 then
+				-- 	if cast.divineHammer() then return end
+				-- end
 				-- Judgment
 				if cast.judgment("target") then return end
 
-				if not talent.divineHammer then
+				-- if not talent.divineHammer then
 					if cast.bladeOfJustice("target") then return end
-				end
+				-- end
 
 				if cast.crusaderStrike("target") then return end
 
