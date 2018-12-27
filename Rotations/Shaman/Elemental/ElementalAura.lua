@@ -43,6 +43,12 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 1, overlay = "Storm Keeper Disabled", tip = "Will not use Storm Keeper", highlight = 0, icon = br.player.spell.stormKeeper},
     };
     CreateButton("StormKeeper",6,0)
+    -- Earth Shock Override Button
+    EarthShockModes = {
+        [1] = { mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
+        [2] = { mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake},
+    };
+    CreateButton("EarthShock",7,0)
 end
 
 ---------------
@@ -94,6 +100,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "LMT Targets", 3, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Liquid Magma Totem. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Earthquake Targets", 3, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Earthquake. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Lava Beam Targets", 3, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Lava Beam. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Earth Shock Maelstrom Dump", 90, 1, 100, 5, "|cff0070deSet to desired value to use Earth Shock as maelstrom dump. Min: 1 / Max: 100 / Interval: 5")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -172,7 +179,11 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         br.player.mode.ghostWolf = br.data.settings[br.selectedSpec].toggles["GhostWolf"]
+        UpdateToggle("GhostWolf",0.25)
         br.player.mode.stormKeeper = br.data.settings[br.selectedSpec].toggles["StormKeeper"]
+        UpdateToggle("StormKeeper",0.25)
+        br.player.mode.earthShock = br.data.settings[br.selectedSpec].toggles["EarthShock"]
+        UpdateToggle("EarthShock",0.25)
 --------------
 --- Locals ---
 --------------
@@ -411,6 +422,10 @@ local function runRotation()
             if talent.liquidMagmaTotem and useCDs() and #enemies.yards40 >= getValue("LMT Targets") and holdBreak then
                 if cast.liquidMagmaTotem("target") then return true end
             end
+            -- Moving Chain Lightning
+            if buff.stormKeeper.exists() and isMoving("player") then
+                if cast.chainLightning() then return true end
+            end
             -- Flame Shock
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
             if debuff.flameShock.count() <= getValue("Maximum FlameShock Targets") then
@@ -425,14 +440,21 @@ local function runRotation()
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >=(100-(4*#enemies.yards10t)) or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
-                if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                --if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
-                --if cast.earthquake("target","ground") then return true end
+                if mode.earthShock == 2 then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
+                elseif mode.earthShock == 1 then
+                    if cast.earthShock() then return true end
+                end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
             if buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or (cd.stormElemental.exists() and cd.stormElemental.remain() <= 120)) then
-                if cast.lavaBurst() then return true end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.flameShock.exists(thisUnit) then
+                        if cast.lavaBurst() then return true end
+                    end
+                end
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
@@ -452,7 +474,12 @@ local function runRotation()
             -- Lava Burst (Moving)
             --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
             if buff.lavaSurge.exists() and isMoving("player") then
-                if cast.lavaBurst() then return true end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.flameShock.exists(thisUnit) then
+                        if cast.lavaBurst() then return true end
+                    end
+                end
             end
             -- Flame Shock (Moving)
             --actions.aoe+=/flame_shock,moving=1,target_if=refreshable
@@ -502,23 +529,25 @@ local function runRotation()
             end
             -- Lightning Bolt
             --actions.single_target+=/lightning_bolt,if=buff.stormkeeper.up&spell_targets.chain_lightning<2&(buff.master_of_the_elements.up&!talent.surge_of_power.enabled|buff.surge_of_power.up)
-            if buff.stormKeeper.exists() and #enemies.yards10t <= 2 and ((buff.masterOfTheElements.exists() and not talent.surgeOfPower) or buff.surgeOfPower.exists()) and holdBreak then
+            if buff.stormKeeper.exists() and (isMoving("player") or (#enemies.yards10t <= 2 and ((buff.masterOfTheElements.exists() and not talent.surgeOfPower) or buff.surgeOfPower.exists()))) and holdBreak then
                 if cast.lightningBolt() then return true end
             end
             -- Earthquake
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
             if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or buff.flameShock.remain < 5.4) or (talent.stormElemental and cd.stormElemental.remain() > 120 and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= 92))) and holdBreak then
-                if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                --if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
-                --if cast.earthquake("target","ground") then return true end
+                if mode.earthShock == 2 then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
+                elseif mode.earthShock == 1 then
+                    if cast.earthShock() then return true end
+                end
             end
             -- Earth Shock
             --actions.single_target+=/earth_shock,if=!buff.surge_of_power.up&talent.master_of_the_elements.enabled
             --&(buff.master_of_the_elements.up|maelstrom>=92+30*talent.call_the_thunder.enabled|buff.stormkeeper.up&active_enemies<2)|!talent.master_of_the_elements.enabled
             --&(buff.stormkeeper.up|maelstrom>=90+30*talent.call_the_thunder.enabled|!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)
             if not buff.surgeOfPower.exists() and (talent.masterOfTheElements and buff.masterOfTheElements.exists() or buff.stormKeeper.exists()) or ((not talent.masterOfTheElements and
-            buff.stormKeeper.exists()) or power >= 90) or (talent.stormElemental and (cd.stormElemental.exists() and cd.stormElemental.remain() > 120)) and holdBreak then
+            buff.stormKeeper.exists()) or power >= getOptionValue("Earth Shock Maelstrom Dump")) or (talent.stormElemental and (cd.stormElemental.exists() and cd.stormElemental.remain() > 120)) and holdBreak then
                 if cast.earthShock() then return true end
             end
             -- Earth Shock
@@ -539,7 +568,12 @@ local function runRotation()
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
             if cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists() and holdBreak then
-                if cast.lavaBurst() then return true end
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    if debuff.flameShock.exists(thisUnit) then
+                        if cast.lavaBurst() then return true end
+                    end
+                end
             end
             -- Flame Shock (Surge of Power)
             --actions.single_target+=/flame_shock,target_if=refreshable&active_enemies>1&buff.surge_of_power.up
@@ -643,9 +677,11 @@ local function runRotation()
             end
             -- Earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and holdBreak then
-                if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                --if createCastFunction("target","ground",1,8,spell.earthquake,nil,true) then return true end
-                --if cast.earthquake("target","ground") then return true end
+                if mode.earthShock == 2 then
+                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
+                elseif mode.earthShock == 1 then
+                    if cast.earthShock() then return true end
+                end
             end
             -- Earth Shock
             if (not talent.masterOfTheElements or buff.masterOfTheElements.exists()) and holdBreak then
