@@ -117,6 +117,26 @@ local function createToggles()
         }
     }
     CreateButton("Interrupt", 4, 0)
+    -- Interrupt Button
+    BSBModes = {
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Bilescourge Bombers Enabled",
+            tip = "Bilescourge Bombers Enabled.",
+            highlight = 1,
+            icon = br.player.spell.bilescourgeBombers
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Bilescourge Bombers Disabled",
+            tip = "Bilescourge Bombers Disabled.",
+            highlight = 0,
+            icon = br.player.spell.bilescourgeBombers
+        }
+    }
+    CreateButton("BSB", 5, 0)
 end
 
 ---------------
@@ -286,6 +306,7 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
+    br.player.mode.bsb = br.data.settings[br.selectedSpec].toggles["BSB"]
     --------------
     --- Locals ---
     --------------
@@ -1112,7 +1133,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
-        if cd.summonDemonicTyrant.remain() > 9 then
+        if mode.bsb == 1 and cd.summonDemonicTyrant.remain() > 9 then
             if cast.bilescourgeBombers("target") then
                 return true
             end
@@ -1263,8 +1284,10 @@ local function runRotation()
             end
         end
         -- actions+=/bilescourge_bombers
-        if cast.bilescourgeBombers("target") then
-            return true
+        if mode.bsb == 1 then
+            if cast.bilescourgeBombers("target") then
+                return true
+            end
         end
         -- doom spread
         if talent.doom and debuff.doom.count() < getOptionValue("Multi-Dot Limit") then
