@@ -221,11 +221,49 @@ local function createOptions()
             "Auto Target",
             "|cffFFFFFF Will auto change to a new target, if current target is dead"
         )
+        -- Implosion Unit
+        br.ui:createSpinnerWithout(
+            section,
+            "Implosion Units",
+            2,
+            1,
+            10,
+            1,
+            "|cffFFFFFFMinimum units to cast Implosion"
+        )
         -- Multi-Dot Limit
-        br.ui:createSpinnerWithout(section, "Multi-Dot Limit", 7, 1, 10, 1, "|cffFFFFFFUnit Count Limit that DoTs will be cast on.")
+        br.ui:createSpinnerWithout(
+            section,
+            "Multi-Dot Limit",
+            7,
+            1,
+            10,
+            1,
+            "|cffFFFFFFUnit Count Limit that DoTs will be cast on."
+        )
+        -- Bilescourge Bombers Target
+        br.ui:createDropdownWithout(
+            section,
+            "Bilescourge Bombers Target",
+            {"Target", "Best"},
+            2,
+            "|cffFFFFFFBilescourge Bombers target"
+        )
+        -- Bilescourge Bombers Unit
+        br.ui:createSpinnerWithout(
+            section,
+            "Bilescourge Bombers Units",
+            3,
+            1,
+            10,
+            1,
+            "|cffFFFFFFMinimum units to cast Bilescourge Bombers"
+        )
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Bilescourge Bombers with CDs
+        br.ui:createCheckbox(section, "Ignore Bilescourge Bombers units when using CDs")
         -- Racial
         br.ui:createCheckbox(section, "Racial")
         -- Trinkets
@@ -1134,8 +1172,25 @@ local function runRotation()
         end
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
         if mode.bsb == 1 and cd.summonDemonicTyrant.remain() > 9 then
-            if cast.bilescourgeBombers("target") then
-                return true
+            if getOptionValue("Bilescourge Bombers Target") == 1 then
+                if
+                    (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or
+                        (isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs()))
+                 then
+                    if cast.bilescourgeBombers("target", "ground") then
+                        return true
+                    end
+                end
+            else
+                if isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs() then
+                    if cast.bilescourgeBombers("best", false, 1, 8) then
+                        return true
+                    end
+                else
+                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then
+                        return true
+                    end
+                end
             end
         end
         -- actions.implosion+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
@@ -1195,7 +1250,7 @@ local function runRotation()
             end
         end
         -- actions+=/call_action_list,name=implosion,if=spell_targets.implosion>1
-        if #enemies.yards8t > 1 then
+        if mode.rotation ~= 3 and #enemies.yards8t >= getOptionValue("Implosion Units") then
             if actionList_Implosion() then
                 return true
             end
@@ -1243,7 +1298,7 @@ local function runRotation()
             end
         end
         -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
-        if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and #enemies.yards8t < 2 then
+        if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
             if cast.powerSiphon("target") then
                 return true
             end
@@ -1284,13 +1339,30 @@ local function runRotation()
             end
         end
         -- actions+=/bilescourge_bombers
-        if mode.bsb == 1 then
-            if cast.bilescourgeBombers("target") then
-                return true
+        if mode.bsb == 1 and mode.rotation ~= 3 then
+            if getOptionValue("Bilescourge Bombers Target") == 1 then
+                if
+                    (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or
+                        (isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs()))
+                 then
+                    if cast.bilescourgeBombers("target", "ground") then
+                        return true
+                    end
+                end
+            else
+                if isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs() then
+                    if cast.bilescourgeBombers("best", false, 1, 8) then
+                        return true
+                    end
+                else
+                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then
+                        return true
+                    end
+                end
             end
         end
         -- doom spread
-        if talent.doom and debuff.doom.count() < getOptionValue("Multi-Dot Limit") then
+        if talent.doom and mode.rotation ~= 3 and debuff.doom.count() < getOptionValue("Multi-Dot Limit") then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.doom.refresh(thisUnit) then
@@ -1311,7 +1383,7 @@ local function runRotation()
     end
 
     local function actionList_CancelCast()
-        local spellID = select(9,UnitCastingInfo("player"))
+        local spellID = select(9, UnitCastingInfo("player"))
         if spellID == nil then
             spellID = 0
         end
