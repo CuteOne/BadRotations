@@ -222,15 +222,7 @@ local function createOptions()
             "|cffFFFFFF Will auto change to a new target, if current target is dead"
         )
         -- Implosion Unit
-        br.ui:createSpinnerWithout(
-            section,
-            "Implosion Units",
-            2,
-            1,
-            10,
-            1,
-            "|cffFFFFFFMinimum units to cast Implosion"
-        )
+        br.ui:createSpinnerWithout(section, "Implosion Units", 2, 1, 10, 1, "|cffFFFFFFMinimum units to cast Implosion")
         -- Multi-Dot Limit
         br.ui:createSpinnerWithout(
             section,
@@ -1120,9 +1112,9 @@ local function runRotation()
         -- actions.implosion+=/call_dreadstalkers,if=(cooldown.summon_demonic_tyrant.remains<9&buff.demonic_calling.remains)|(cooldown.summon_demonic_tyrant.remains<11&!buff.demonic_calling.remains)|cooldown.summon_demonic_tyrant.remains>14
         if
             not moving and
-                ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.remain()) or
+                ((cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or
                     (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or
-                    cd.summonDemonicTyrant.remain() > 14)
+                    cd.summonDemonicTyrant.remain() > 14 or not useCDs())
          then
             if cast.callDreadstalkers("target") then
                 return true
@@ -1145,7 +1137,8 @@ local function runRotation()
             shards >= 3 and not moving and
                 (((cast.last.handOfGuldan(2) or wildImps >= 3) and wildImps < 9) or
                     cd.summonDemonicTyrant.remain() <= gcdMax * 2 or
-                    buff.demonicPower.remain() > gcdMax * 2)
+                    buff.demonicPower.remain() > gcdMax * 2 or
+                    not useCDs())
          then
             if cast.handOfGuldan("target") then
                 return true
@@ -1163,7 +1156,7 @@ local function runRotation()
         -- actions.implosion+=/summon_vilefiend,if=(cooldown.summon_demonic_tyrant.remains>40&spell_targets.implosion<=2)|cooldown.summon_demonic_tyrant.remains<12
         if
             not moving and useCDs() and
-                ((cd.summonDemonicTyrant.remain() > 40 and #enemies.yards8t <= 2) or
+                ((cd.summonDemonicTyrant.remain() > 40 and (#enemies.yards8t <= 2 or mode.rotation == 3)) or
                     cd.summonDemonicTyrant.remain() < 12)
          then
             if cast.summonVilefiend("target") then
@@ -1232,19 +1225,19 @@ local function runRotation()
             end
         end
         -- actions+=/doom,if=!ticking&time_to_die>30&spell_targets.implosion<2
-        if not debuff.doom.exists("target") and ttd("target") > 30 and #enemies.yards8t < 2 then
+        if not debuff.doom.exists("target") and ttd("target") > 30 and (#enemies.yards8t < 2 or mode.rotation == 3) then
             if cast.doom("target") then
                 return true
             end
         end
         -- actions+=/demonic_strength,if=(buff.wild_imps.stack<6|buff.demonic_power.up)|spell_targets.implosion<2
-        if felguardActive and useCDs() and (wildImps < 6 or buff.demonicPower.exists() or #enemies.yards8t < 2) then
+        if felguardActive and useCDs() and (wildImps < 6 or buff.demonicPower.exists() or (#enemies.yards8t < 2 or mode.rotation == 3)) then
             if cast.demonicStrength("target") then
                 return true
             end
         end
         -- actions+=/call_action_list,name=nether_portal,if=talent.nether_portal.enabled&spell_targets.implosion<=2
-        if talent.netherPortal and useCDs() and #enemies.yards8t <= 2 then
+        if talent.netherPortal and useCDs() and (#enemies.yards8t <= 2 or mode.rotation == 3) then
             if actionList_NetherPortal() then
                 return true
             end
@@ -1298,7 +1291,10 @@ local function runRotation()
             end
         end
         -- actions+=/power_siphon,if=buff.wild_imps.stack>=2&buff.demonic_core.stack<=2&buff.demonic_power.down&spell_targets.implosion<2
-        if wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and (#enemies.yards8t < 2 or mode.rotation == 2) then
+        if
+            wildImps <= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and
+                (#enemies.yards8t < 2 or mode.rotation == 2)
+         then
             if cast.powerSiphon("target") then
                 return true
             end
