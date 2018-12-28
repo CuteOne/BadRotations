@@ -504,7 +504,10 @@ local function runRotation()
                     return true
                 end
             end
-            if opn4 == true and opn5 == false and combo >= 4 and gcd < 0.5 then opn5 = true end
+            if opn4 == true then
+                if cd.kidneyShot.remain() > 1 then opn5, opn6, opener = true, true, true end
+                if opn5 == false and combo >= 4 and gcd < 0.5 then opn5 = true end
+            end
             if opn4 == true and opn5 == false then
                 if talent.markedForDeath then
                     if cast.markedForDeath("target") then return true end
@@ -617,7 +620,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1 and not stealthedRogue
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and not stealthedRogue
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active then
