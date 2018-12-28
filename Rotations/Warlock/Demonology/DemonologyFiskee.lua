@@ -1006,6 +1006,29 @@ local function runRotation()
     end
 
     local function actionList_NetherPortalActive()
+        --bilescourge_bombers
+        if mode.bsb == 1 and mode.rotation ~= 3 then
+            if getOptionValue("Bilescourge Bombers Target") == 1 then
+                if
+                    (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or
+                        (isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs()))
+                 then
+                    if cast.bilescourgeBombers("target", "ground") then
+                        return true
+                    end
+                end
+            else
+                if isChecked("Ignore Bilescourge Bombers units when using CDs") and useCDs() then
+                    if cast.bilescourgeBombers("best", false, 1, 8) then
+                        return true
+                    end
+                else
+                    if cast.bilescourgeBombers("best", false, getOptionValue("Bilescourge Bombers Units"), 8) then
+                        return true
+                    end
+                end
+            end
+        end
         -- actions.nether_portal_active=grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
         if cast.grimoireFelguard("target") then
             return true
@@ -1164,7 +1187,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
-        if mode.bsb == 1 and cd.summonDemonicTyrant.remain() > 9 then
+        if mode.bsb == 1 and (cd.summonDemonicTyrant.remain() > 9 or not useCDs()) then
             if getOptionValue("Bilescourge Bombers Target") == 1 then
                 if
                     (#enemies.yards8t >= getOptionValue("Bilescourge Bombers Units") or
