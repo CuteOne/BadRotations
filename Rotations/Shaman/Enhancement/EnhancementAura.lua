@@ -546,7 +546,7 @@ local function runRotation()
                 end
             end
             -- Feral Spirit
-            if (getOptionValue("Feral Spirit") == 1 or (getOptionValue("Feral Spirit") == 2 and useCDs())) then
+            if (getOptionValue("Feral Spirit") == 1 or (getOptionValue("Feral Spirit") == 2)) then
                 if cast.feralSpirit() then return true end
             end
             -- Ascendance
@@ -558,7 +558,7 @@ local function runRotation()
                 if cast.earthElemental() then return true end
             end
             -- Trinkets
-            if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards8t >= 3 ) then
+            if isChecked("Trinkets") and (buff.ascendance.exists("player") or #enemies.yards8t >= 3 ) then
                 if canUse(13) then
                     useItem(13)
                 end
@@ -609,12 +609,8 @@ local function runRotation()
             if ocPool70 and furyCheck35 then
                 if cast.stormstrike() then return true end
             end
-            -- Sundering (1+ Targets)
-            if talent.sundering and getEnemiesInRect(5,10) >= 1 then
-                if cast.sundering() then return true end
-            end
             -- Crash Lightning (Forceful Winds)
-            if talent.forcefulWinds and #enemies.yards10 > 1 and furyCheck25 then
+            if talent.forcefulWinds and #enemies.yards10 >= getOptionValue("Crash Lightning Targets") and furyCheck25 then
                 if cast.crashLightning() then return true end
             end
             -- Flametongue (Searing Assault)
@@ -632,7 +628,7 @@ local function runRotation()
                 if cast.rockbiter() then return true end
             end
             -- Crash Lightning
-            if talent.crashStorm and ocPool60 and getOptionValue("Crash Lightning Targets") then
+            if talent.crashStorm and ocPool60 and #enemies.yards10 >= getOptionValue("Crash Lightning Targets") then
                 if cast.crashLightning() then return true end
             end
             -- Lava Lash
@@ -807,7 +803,7 @@ local function runRotation()
                         if #enemies.yards10 < 3 then
                             actionList_Maintenance()
                         end
-                        if useCDs then
+                        if useCDs() then
                             actionList_CD()
                         end
                         actionList_Core()
