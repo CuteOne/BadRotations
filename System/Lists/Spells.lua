@@ -2891,11 +2891,9 @@ br.lists.spells = {
 
             },
             talents                         = {
-                backdraft                   = 196406,
                 cataclysm                   = 152108,
                 channelDemonfire            = 196447,
                 darkSoul                    = 113858,
-                empoweredLifeTap            = 235157,
                 eradication                 = 196412,
                 flashover                   = 267115,
                 fireAndBrimstone            = 196408,
@@ -2906,9 +2904,7 @@ br.lists.spells = {
                 reverseEntropy              = 205148,
                 roaringBlaze                = 205184,
                 shadowburn                  = 17877,
-                shadowfury                  = 30283,
                 soulFire                    = 6353,
-                wreakHavoc                  = 196410,
             },
         },
         -- All
