@@ -64,6 +64,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cff0070deSimC","|cff0070deAMR"}, 1, "|cff0070deSet APL Mode to use.")
+            -- Auto Engage
+            br.ui:createCheckbox(section, "Auto Engage On Target", "|cff0070deCheck this to start combat upon clicking a target.",1)
         -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cff0070deSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
@@ -193,11 +195,14 @@ local function runRotation()
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
+        local deadMouse, hasMouse, playerMouse              = UnitIsDeadOrGhost("mouseover"), GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
+        local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
+        local hastar                                        = GetObjectExists("target")
         local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
@@ -286,12 +291,21 @@ local function runRotation()
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
             end
-            if isChecked("Water Walking") and cast.able.waterWalking() and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
+            if isChecked("Water Walking") and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
                 if cast.waterWalking() then return true end
             end
             -- Healing Surge (OOC)
             if isChecked("Healing Surge") and not isMoving("player") and php <= getOptionValue("Healing Surge") then    
                 if cast.healingSurge() then return true end
+            end
+            -- Ancestral Spirit
+            if isChecked("Ancestral Spirit") then
+                if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
+                    if cast.ancestralSpirit("target","dead") then return true end
+                end
+                if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
+                    if cast.ancestralSpirit("mouseover","dead") then return true end
+                end
             end
         end -- End Action List - Extras
         local function ghostWolf()
@@ -327,11 +341,14 @@ local function runRotation()
             if prepullOpener then
                 if cast.totemMastery() then return true end
             end
+            if isChecked("Auto Engage On Target") then
+                if cast.flameShock() then return true end
+            end
         end
         -- Action List - Defensive
         local function actionList_Defensive()
             -- Purge
-            if isChecked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
                 if cast.purge() then return true end
             end
             if useDefensive() then
@@ -354,36 +371,27 @@ local function runRotation()
                     end
                 end
         -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
                     if cast.giftOfTheNaaru() then return true end
                 end
-        -- Ancestral Spirit
-                if isChecked("Ancestral Spirit") then
-                    if getOptionValue("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
-                        if cast.ancestralSpirit("target","dead") then return true end
-                    end
-                    if getOptionValue("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
-                        if cast.ancestralSpirit("mouseover","dead") then return true end
-                    end
-                end
         -- Astral Shift
-                if isChecked("Astral Shift") and cast.able.astralShift() and php <= getOptionValue("Astral Shift") and inCombat then
+                if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
                     if cast.astralShift() then return true end
                 end
         -- Cleanse Spirit
                 if isChecked("Cleanse Spirit") then
-                    if getOptionValue("Cleanse Spirit")==1 and cast.able.cleanseSpirit("player") and canDispel("player",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("player") then return; end
                     end
-                    if getOptionValue("Cleanse Spirit")==2 and cast.able.cleanseSpirit("target") and canDispel("target",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("target") then return true end
                     end
-                    if getOptionValue("Cleanse Spirit")==3 and cast.able.cleanseSpirit("mouseover") and canDispel("mouseover",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("mouseover") then return true end
                     end
                 end
         -- Earthen Shield
-                if isChecked("Earth Shield") and cast.able.earthShield() and not buff.earthShield.exists() then
+                if isChecked("Earth Shield") and not buff.earthShield.exists() then
                     if cast.earthShield() then return true end
                 end
         -- Healing Surge
@@ -393,10 +401,10 @@ local function runRotation()
                     if cast.healingSurge() then return true end
                 end
         -- Capacitor Totem
-                if isChecked("Capacitor Totem - HP") and cast.able.capacitorTotem() and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
+                if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
                     if cast.capacitorTotem("player","ground") then return true end
                 end
-                if isChecked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat then
+                if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat then
                     if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
                     --if cast.capacitorTotem("best",nil,getOptionValue("Capacitor Totem - AoE"),8) then return true end
                 end
@@ -409,15 +417,15 @@ local function runRotation()
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Wind Shear
-                        if isChecked("Wind Shear") and cast.able.windShear(thisUnit) then
+                        if isChecked("Wind Shear") then
                             if cast.windShear(thisUnit) then return true end
                         end
         -- Hex
-                        if isChecked("Hex") and cast.able.hex(thisUnit) then
+                        if isChecked("Hex") then
                             if cast.hex(thisUnit) then return true end
                         end
         -- Capacitor Totem
-                        if isChecked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcd then
+                        if isChecked("Capacitor Totem") and cd.windShear.remain() > gcd then
                             if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                                 if cast.capacitorTotem(thisUnit,"ground") then return true end
                             end
@@ -841,7 +849,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat then
+            if inCombat and hastar and not deadtar then
                 --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
                     actionList_Interrupt()
                     actionList_Defensive()
