@@ -112,6 +112,8 @@ local function createOptions()
             end
         -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Cleanse Spirit
+            br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         -- Purge
             br.ui:createCheckbox(section,"Purge")
         -- Capacitor Totem
@@ -280,10 +282,6 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-        -- Purge
-            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                if cast.purge() then return end
-            end
         -- Water Walking
             if falling > 1.5 and buff.waterWalking.exists() then
                 CancelUnitBuffID("player", spell.waterWalking)
@@ -331,6 +329,26 @@ local function runRotation()
             -- Astral Shift
                 if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
                     if cast.astralShift() then return end
+                end
+                -- Cleanse Spirit
+                if isChecked("Cleanse Spirit") then
+                    if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
+                        if cast.cleanseSpirit("player") then return; end
+                    end
+                    if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
+                        if cast.cleanseSpirit("target") then return true end
+                    end
+                    if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
+                        if cast.cleanseSpirit("mouseover") then return true end
+                    end
+                end
+                -- Earthen Wall Totem
+                if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
+                    if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
+                end
+                -- Purge
+                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+                    if cast.purge() then return end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
