@@ -183,7 +183,7 @@ function br.read.combatLog()
         if getOptionCheck("Queue Casting") then
             -----------------
             --[[ Cast Failed --> Queue]]
-            if param == "SPELL_CAST_FAILED" then
+            if (param == "SPELL_MISSED" or param == "SPELL_CAST_FAILED") then
                 if sourceName ~= nil then
                     if isInCombat("player") and GetUnitIsUnit(sourceName, "player") and spell ~= botSpell and not botCast and spell ~= 48018 and spell ~= 48020 then
                         -- set destination
@@ -218,7 +218,7 @@ function br.read.combatLog()
             end
             ------------------
             --[[Queue Casted]]
-            if param == "SPELL_CAST_SUCCESS" then
+            if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
                 if botCast == true then
                     botCast = false
                 end
