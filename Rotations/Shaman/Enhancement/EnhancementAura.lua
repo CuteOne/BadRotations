@@ -282,6 +282,15 @@ local function runRotation()
             if isChecked("Healing Surge") and not isMoving("player") and php <= getOptionValue("Healing Surge") then    
                 if cast.healingSurge() then return true end
             end
+            -- Ancestral Spirit
+            if isChecked("Ancestral Spirit") then
+                if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
+                    if cast.ancestralSpirit("target","dead") then return true end
+                end
+                if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
+                    if cast.ancestralSpirit("mouseover","dead") then return true end
+                end
+            end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
@@ -308,28 +317,19 @@ local function runRotation()
                 if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
                     if cast.giftOfTheNaaru() then return true end
                 end
-        -- Ancestral Spirit
-                if isChecked("Ancestral Spirit") then
-                    if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
-                        if cast.ancestralSpirit("target","dead") then return true end
-                    end
-                    if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
-                        if cast.ancestralSpirit("mouseover","dead") then return true end
-                    end
-                end
         -- Astral Shift
-                if isChecked("Astral Shift") and cast.able.astralShift() and php <= getOptionValue("Astral Shift") and inCombat then
+                if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
                     if cast.astralShift() then return true end
                 end
         -- Cleanse Spirit
                 if isChecked("Cleanse Spirit") then
-                    if getOptionValue("Cleanse Spirit")==1 and cast.able.cleanseSpirit("player") and canDispel("player",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("player") then return; end
                     end
-                    if getOptionValue("Cleanse Spirit")==2 and cast.able.cleanseSpirit("target") and canDispel("target",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("target") then return true end
                     end
-                    if getOptionValue("Cleanse Spirit")==3 and cast.able.cleanseSpirit("mouseover") and canDispel("mouseover",spell.cleanseSpirit) then
+                    if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
                         if cast.cleanseSpirit("mouseover") then return true end
                     end
                 end
@@ -360,15 +360,15 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
         -- Wind Shear
                         -- wind_shear
-                        if isChecked("Wind Shear") and cast.able.windShear(thisUnit) then
+                        if isChecked("Wind Shear") then
                             if cast.windShear(thisUnit) then return true end
                         end
         -- Hex
-                        if isChecked("Hex") and cast.able.hex(thisUnit) then
+                        if isChecked("Hex") then
                             if cast.hex(thisUnit) then return true end
                         end
         -- Capacitor Totem
-                        if isChecked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcd then
+                        if isChecked("Capacitor Totem") and cd.windShear.remain() > gcd then
                             if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                                 if cast.capacitorTotem(thisUnit,"ground") then return true end
                             end
@@ -383,6 +383,8 @@ local function runRotation()
                 if mode.ghostWolf == 1 then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
                        if cast.ghostWolf() then end
+                    elseif isMoving("player") and buff.ghostWolf.exists() then
+                        return true
                     elseif not isMoving("player") and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
                        RunMacroText("/cancelAura Ghost Wolf")
                     end
@@ -393,7 +395,7 @@ local function runRotation()
                         end
                     elseif buff.ghostWolf.exists() then
                         if SpecificToggle("Ghost Wolf Key") then
-                           return
+                           return true
                         else
                             if br.timer:useTimer("Delay",0.25) then
                                RunMacroText("/cancelAura Ghost Wolf")
@@ -408,7 +410,7 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
             -- Lightning Shield
                 -- /lightning_shield
-                if cast.able.lightningShield() and not buff.lightningShield.exists() then
+                if not buff.lightningShield.exists() then
                     if cast.lightningShield() then return true end
                 end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
@@ -439,12 +441,12 @@ local function runRotation()
                 end -- End Pre-Pull
                 if isValidUnit("target") then
             -- Feral Lunge
-                    if isChecked("Feral Lunge") then
+                    if isChecked("Feral Lunge") and getDistance("target") >= 8 and getDistance("target") <= 25 then
                         if cast.feralLunge("target") then return true end
                     end
             -- Lightning Bolt
                     if getDistance("target") >= 10 and isChecked("Lightning Bolt Out of Combat") and not talent.overcharge
-                        and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge.remain() > gcd or not cast.able.feralLunge())
+                        and (not isChecked("Feral Lunge") or not talent.feralLunge or cd.feralLunge.remain() > gcd)
                     then
                         if cast.lightningBolt("target") then return true end
                     end
@@ -525,7 +527,7 @@ local function runRotation()
             end 
         end
         local function actionList_CD()
-            if isChecked("Racial") and cast.able.racial() and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
+            if isChecked("Racial") and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
             or (talent.elementalSpirits and feralSpiritRemain > 5) or (not talent.ascendance and not talent.elementalSpirits))
             then
                 if cast.racial() then return true end
@@ -533,7 +535,7 @@ local function runRotation()
             -- blood_fury,if=(talent.ascendance.enabled&(buff.ascendance.up|cooldown.ascendance.remains>50))|(!talent.ascendance.enabled&(feral_spirit.remains>5|cooldown.feral_spirit.remains>50))
             -- fireblood,if=(talent.ascendance.enabled&(buff.ascendance.up|cooldown.ascendance.remains>50))|(!talent.ascendance.enabled&(feral_spirit.remains>5|cooldown.feral_spirit.remains>50))
             -- ancestral_call,if=(talent.ascendance.enabled&(buff.ascendance.up|cooldown.ascendance.remains>50))|(!talent.ascendance.enabled&(feral_spirit.remains>5|cooldown.feral_spirit.remains>50))
-            if isChecked("Racial") and cast.able.racial() and (race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
+            if isChecked("Racial") and (race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
             and ((talent.ascendance and (buff.ascendance.exists() or cd.ascendance.remain() > 50))
             or (not talent.ascendance and (feralSpiritRemain > 5 or cd.feralSpirit.remain() > 50)))
             then
@@ -763,7 +765,9 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        ghostWolf()
+        if ghostWolf() then
+            return true
+        end
         if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return true
         else    
@@ -777,6 +781,9 @@ local function runRotation()
                 actionList_Extras()
                 if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                     actionList_PreCombat()
+                    if getDistance("target") <= 8 then
+                        StartAttack()
+                    end
                 end
             end -- End Out of Combat Rotation
 -----------------------------
@@ -791,8 +798,6 @@ local function runRotation()
                             if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
                         end
                     end
-                    -- Start Attack
-                    StartAttack()
                     if getOptionValue("APL Mode") == 1 or getOptionValue("APL Mode") == nil then
                         actionList_Opener()
                         if buff.ascendance.exists() then
