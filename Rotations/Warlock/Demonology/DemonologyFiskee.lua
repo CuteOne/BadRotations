@@ -1119,7 +1119,7 @@ local function runRotation()
                 not cast.last.handOfGuldan(1) and
                 not cast.last.handOfGuldan(2) and
                 not buff.demonicPower.exists()) or
-                (ttd("target") < 3 and wildImps > 0) or
+                (ttd("target") < 3 and wildImps > 0 and useCDs()) or
                 (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling)
          then
             if cast.implosion("target") then
