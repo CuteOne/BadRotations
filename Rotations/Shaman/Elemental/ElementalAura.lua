@@ -298,17 +298,17 @@ local function runRotation()
              -- Ghost Wolf
              if not (IsMounted() or IsFlying()) then
                 if mode.ghostWolf == 1 then
-                    if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
-                        if cast.ghostWolf() then end
-                    elseif not isMoving("player") and buff.ghostWolf.exists() and br.timer:useTimer("Delay",0.5) then
+                    if isMoving("player") and not buff.ghostWolf.exists("player") then                        
+                        if cast.ghostWolf("player") then end
+                    elseif not isMoving("player") and buff.ghostWolf.exists("player") and br.timer:useTimer("Delay",0.5) then
                         RunMacroText("/cancelAura Ghost Wolf")
                     end
                 elseif mode.ghostWolf == 2 then
-                    if not buff.ghostWolf.exists() then 
+                    if not buff.ghostWolf.exists("player") then 
                         if SpecificToggle("Ghost Wolf Key")  and not GetCurrentKeyBoardFocus() then
-                            if cast.ghostWolf() then end
+                            if cast.ghostWolf("player") then end
                         end
-                    elseif buff.ghostWolf.exists() then
+                    elseif buff.ghostWolf.exists("player") then
                         if SpecificToggle("Ghost Wolf Key") then
                             return
                         else
@@ -820,22 +820,20 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
-            return true
-        elseif SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() then
-            if buff.ghostWolf.exists() then
+        ghostWolf()
+        if SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() then
+            if buff.ghostWolf.exists("player") then
                 return
             else
-                if cast.ghostWolf() then return true end
+                if cast.ghostWolf("player") then return true end
             end
-        elseif forceGW and not buff.ghostWolf.exists() then
-            forceGW = false
-        elseif not forceGW then
+        elseif pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+            return true
+        else
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat then
-                ghostWolf()
                 --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
                     actionList_PreCombat()
                     actionList_Extra()
@@ -844,7 +842,6 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                ghostWolf()
                 --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
                     actionList_Interrupt()
                     actionList_Defensive()

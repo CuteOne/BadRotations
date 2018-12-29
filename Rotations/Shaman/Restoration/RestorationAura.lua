@@ -717,14 +717,14 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() then
+        ghostWolf()
+        if pause() or mode.rotation == 4 then
             return true
-        else
+        else 
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
             if not inCombat and not IsMounted() and not drinking then
-                ghostWolf()
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Extras()
                     if isChecked("OOC Healing") then
@@ -736,7 +736,6 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat and not IsMounted() and not drinking then
-                ghostWolf()
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Defensive()
                     actionList_Interrupts()

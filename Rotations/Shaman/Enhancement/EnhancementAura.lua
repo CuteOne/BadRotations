@@ -762,10 +762,10 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
+        ghostWolf()
         if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
             return true
-        else
-            
+        else    
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
@@ -773,7 +773,6 @@ local function runRotation()
                 if buff.furyOfAir.exists() and not cast.last.furyOfAir(1) then
                     if cast.furyOfAir() then return true end
                 end
-                ghostWolf()
                 actionList_Extras()
                 if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                     actionList_PreCombat()
@@ -783,7 +782,6 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                ghostWolf()
                 if hastar and getDistance("target") <= 8 then
                     actionList_Interrupts()
                     actionList_Defensive()
