@@ -364,7 +364,7 @@ local function runRotation()
 								if cast.soothingMist(br.friend[1].unit) then return end
 							end
 							if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-								if cast.vivify(br.friend[1].unit) then print("Vivify OoC") return true end
+								if cast.vivify(br.friend[1].unit) then return end
 							end
 						end
 					--Soothing Mist OoC
@@ -444,7 +444,7 @@ local function runRotation()
 					end
 					--Vivify
 					if getOptionValue("Thunder Focus Tea Options") == 3 and br.friend[1].hp <= getValue("TFT Vivify") and buff.thunderFocusTea.remain("player") >= 1 then
-							if cast.vivify(br.friend[1].unit) then print("vivify TFT") return true end
+							if cast.vivify(br.friend[1].unit) then  return true end
 					end
 				end--end TFT cast
 			end
@@ -533,7 +533,7 @@ local function runRotation()
 			-- Vivify 
 			for i = 1, #br.friend do
 				if br.friend[1].hp <= getValue("Vivify") and not talent.lifecycles then
-					if cast.vivify(br.friend[1].unit) then print("single vivify") return true end
+					if cast.vivify(br.friend[1].unit) then return end
 				end
 			end
 			--chi wave
@@ -617,7 +617,7 @@ local function runRotation()
 			-- Vivify Lifecycles
 			for i = 1, #br.friend do
 				if br.friend[1].hp <= getValue("Vivify Lifecycles") and (isCastingSpell(spell.soothingMist) or not cast.last.vivify()) then
-					if cast.vivify(br.friend[1].unit) then print("lifecycles vivify") return true end
+					if cast.vivify(br.friend[1].unit) then return end
 				end
 			end
 		end -- end lifecycles rotation
@@ -672,7 +672,7 @@ local function runRotation()
 				for i = 1, #br.friend do
 					if br.friend[1].hp <= (getValue("Vivify") *1.1) and not talent.lifecycles then
 						if br.friend[1].hp <= getValue("Vivify") then
-								if cast.vivify(br.friend[1].unit) then print("mana tea vivify") return true end
+								if cast.vivify(br.friend[1].unit) then return end
 						end
 					end
 				end 
