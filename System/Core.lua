@@ -55,8 +55,11 @@ end
 
 -- Key Pause from Beniamin
 local rotationPause
+local buttonName
+local spellId
 
 local ignoreKeys = {"W", "A", "S", "D", "Q", "E", "SPACE", "ENTER", "UP", "DOWN", "LEFT", "RIGHT", "LALT", "RALT", "LCTRL", "RCTRL", "LSHIFT", "RSHIFT", "TAB"}
+local actionBarKeys = {"1","2","3","4","5","6","7","8","9","0","-","="}
 
 local keyBoardFrame = CreateFrame("Frame")
 keyBoardFrame:SetPropagateKeyboardInput(true)
@@ -66,6 +69,22 @@ local function testKeys(self, key)
 	for i = 1, #ignorePause do
 		if string.find(key, ignorePause[i]) then
 			return
+		end
+	end
+	for i = 1, #actionBarKeys do
+		if string.find(key,actionBarKeys[i]) then
+			buttonName = "ActionButton"..i
+			local button = _G[buttonName]
+			local slot = ActionButton_CalculateAction(button) or button:GetAttribute("action") or 0
+			if HasAction(slot) then
+				local actionType, id, _, actionName = GetActionInfo(slot)
+				if actionType == "spell" then
+					spellId = id
+					if not isChecked("Queue Casting") then
+						ChatOverlay("Spell "..GetSpellInfo(spellId).." queued.")
+					end
+				end
+			end
 		end
 	end
 	rotationPause = GetTime()
@@ -104,7 +123,7 @@ function BadRotationsUpdate(self)
 						end
 					end
 					-- Pause if key press that is not ignored
-					if not GetCurrentKeyBoardFocus() then
+					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") then
 						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil) then
 							if UnitChannelInfo("player") ~= nil or UnitCastingInfo("player") ~= nil then
 								SpellStopCasting()
@@ -112,15 +131,29 @@ function BadRotationsUpdate(self)
 							keyPause = true
 							return
 						elseif keyPause and getSpellCD(61304) == 0 and not UnitCastingInfo("player") and not UnitChannelInfo("player") then
-							ChatOverlay("GCD is clear, beginning key pause")
 							keyPause = false
-							--rotationPause = GetTime()
+							rotationPause = GetTime()
 							return
 						elseif rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and getSpellCD(61304) == 0 then
-							ChatOverlay("Pause detected.  Pausing for "..getOptionValue("Pause Interval").." seconds")
+							local lastSpell
+							if spellId ~= nil and (spellId ~= lastSpell or lastSpell == nil) then
+								local target
+								if IsHarmfulSpell(GetSpellInfo(spellId)) then
+									target = "target"
+								elseif IsHelpfulSpell(GetSpellInfo(spellId)) then
+									if UnitExists("target") and not UnitCanAttack("target","player") then
+										target = "target"
+									else
+										target = "player"
+									end
+								end
+								CastSpellByID(spellId,target)
+								lastSpell = spellId
+								ChatOverlay("Spell "..GetSpellInfo(spellId).." cast.")
+								spellId = nil
+							end
 							return
 						elseif keyPause then
-							ChatOverlay("Pause detected while casting! Key pause will begin when GCD is clear")
 							return
 						end
 					end
