@@ -572,7 +572,7 @@ local function runRotation()
 				end
 			end
 			-- Chi Burst
-			if getUnitsInRect(7,47,false,getOptionValue("Chi Burst HP")) >= getOptionValue("Chi Burst Units") then
+			if isChecked("Chi Burst Units") and getUnitsInRect(7,47,false,getOptionValue("Chi Burst HP")) >= getOptionValue("Chi Burst Units") then
 				if cast.chiBurst("player") then return end
 			end
 		end--end AOE Action List
