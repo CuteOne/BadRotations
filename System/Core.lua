@@ -1,5 +1,6 @@
 local brMainThread = nil
 deadPet = false
+local keyPause
 
 function br:Engine()
 	-- Hidden Frame
@@ -54,7 +55,6 @@ end
 
 -- Key Pause from Beniamin
 local rotationPause
-local pauseInterval = 0.25
 
 local ignoreKeys = {"W", "A", "S", "D", "Q", "E", "SPACE", "ENTER", "UP", "DOWN", "LEFT", "RIGHT", "LALT", "RALT", "LCTRL", "RCTRL", "LSHIFT", "RSHIFT", "TAB"}
 
@@ -105,7 +105,22 @@ function BadRotationsUpdate(self)
 					end
 					-- Pause if key press that is not ignored
 					if not GetCurrentKeyBoardFocus() then
-						if rotationPause and GetTime() - rotationPause < pauseInterval then
+						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil) then
+							if UnitChannelInfo("player") ~= nil or UnitCastingInfo("player") ~= nil then
+								SpellStopCasting()
+							end
+							keyPause = true
+							return
+						elseif keyPause and getSpellCD(61304) == 0 and not UnitCastingInfo("player") and not UnitChannelInfo("player") then
+							ChatOverlay("GCD is clear, beginning key pause")
+							keyPause = false
+							--rotationPause = GetTime()
+							return
+						elseif rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and getSpellCD(61304) == 0 then
+							ChatOverlay("Pause detected.  Pausing for "..getOptionValue("Pause Interval").." seconds")
+							return
+						elseif keyPause then
+							ChatOverlay("Pause detected while casting! Key pause will begin when GCD is clear")
 							return
 						end
 					end
