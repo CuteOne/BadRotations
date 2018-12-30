@@ -75,6 +75,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Earth Shield")
         -- Temple of Seth
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
+        -- DPS Threshold
+            br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Average Health to stop DPS. Default: 50" )
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -122,6 +124,8 @@ local function createOptions()
         -- Earthen Wall Totem
             br.ui:createSpinner(section, "Earthen Wall Totem",  95,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Earthen Wall Totem Targets",  1,  0,  40,  1,  "Minimum Earthen Wall Totem Targets")
+            -- Ancestral Spirit
+            br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -248,6 +252,7 @@ local function runRotation()
         enemies.get(8)
         enemies.get(8,"target")
         enemies.get(10)
+        enemies.get(10,"target")
         enemies.get(20)
         enemies.get(30)
         enemies.get(40)
@@ -260,12 +265,13 @@ local function runRotation()
         local function avgHealth()
             avg = 0
             for i=1, #br.friend do
-                totalHealth = totalHealth + br.friend[i].hp
+                if getHP(br.friend[i].unit) < 250 then
+                    totalHealth = totalHealth + br.friend[i].hp
+                end
             end
             avg = totalHealth/#br.friend
             return avg
         end
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -289,17 +295,13 @@ local function runRotation()
             if isChecked("Water Walking") and not inCombat and IsSwimming() then
                 if cast.waterWalking() then return end
             end
-            -- Temple of Seth
-            if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Seth") then
-                if getHP("target") < 100 and getBuffRemain("target",274148) == 0 and getValue("Temple of Seth") > avgHealth() then
-                    if not buff.riptide.exists("target") then
-                        if cast.riptide("target") then return true end
-                    end
-                    if getHP("target") < 50 then
-                        if cast.healingSurge("target") then return true end
-                    else
-                        if cast.healingWave("target") then return true end
-                    end
+            -- Ancestral Spirit
+            if isChecked("Ancestral Spirit") then
+                if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
+                    if cast.ancestralSpirit("target","dead") then return true end
+                end
+                if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
+                    if cast.ancestralSpirit("mouseover","dead") then return true end
                 end
             end
         end -- End Action List - Extras	
@@ -347,7 +349,7 @@ local function runRotation()
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") and avgHealth() > getOptionValue("DPS Threshold") then
                     if cast.purge() then return end
                 end
             end -- End Defensive Toggle
@@ -482,13 +484,35 @@ local function runRotation()
                 if cast.lavaBurst() then return end
             end
 		-- Chain Lightning
-			if #enemies.yards40 > 2 then 		
+			if #enemies.yards10t >= 2 then 		
             if cast.chainLightning() then return end		
 			end			
         -- Lightning Bolt
             if cast.lightningBolt() then return end
         end -- End Action List - DPS
         local function actionList_AMR()
+            -- Temple of Seth
+            if inCombat and isChecked("Temple of Seth") then
+                for i = 1, GetObjectCount() do
+                    local thisUnit = GetObjectWithIndex(i)
+                    if GetObjectID(thisUnit) == 133392 then
+                        sethObject = thisUnit
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and avgHealth() >= getValue("Temple of Seth") then
+                            if not buff.riptide.exists(sethObject) then
+                                CastSpellByName(GetSpellInfo(61295),sethObject)
+                        --cast.riptide("target") then return true end
+                            end
+                            if getHP(sethObject) < 50 then
+                                CastSpellByName(GetSpellInfo(8004),sethObject)
+                        --if cast.healingSurge("target") then return true end
+                            else
+                                CastSpellByName(GetSpellInfo(77472),sethObject)
+                        --if cast.healingWave("target") then return true end
+                            end
+                        end
+                    end
+                end
+            end
         -- Ancestral Protection Totem
                 if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then return end
         -- Earthen Wall Totem
@@ -758,7 +782,7 @@ local function runRotation()
                     actionList_Defensive()
                     actionList_Interrupts()
                     actionList_AMR()
-                    if br.player.mode.dps == 1 then
+                    if br.player.mode.dps == 1 and avgHealth() > getOptionValue("DPS Threshold") then
                         actionList_DPS()
                     end
                 end
