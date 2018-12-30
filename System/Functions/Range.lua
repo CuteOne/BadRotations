@@ -6,7 +6,8 @@ local testSpell = {
     ["DK"] = 49998,
     ["MONK"] = 100780,
     ["SHAMAN"] = 17364,
-    ["DRUIDBC"] = 106832,
+    ["DRUIDC"] = 5221,
+    ["DRUIDB"] = 33917,
     ["DHH"] = 162794,
     ["DHV"] = 214743,
     ["SHUNTER"] = 185855
@@ -17,8 +18,10 @@ function getDistance(Unit1,Unit2,option)
     local meleeSpell = nil
     if testSpell[select(2,UnitClass("player"))] ~= nil then
         meleeSpell = testSpell[select(2,UnitClass("player"))]
-    elseif select(2,UnitClass("player")) == "DRUID" and (GetShapeshiftForm()==1 or GetShapeshiftForm()==3)  then
-        meleeSpell = testSpell["DRUIDBC"]
+    elseif select(2,UnitClass("player")) == "DRUID" and UnitBuffID("player",768) then
+        meleeSpell = testSpell["DRUIDC"]
+    elseif select(2,UnitClass("player")) == "DRUID" and UnitBuffID("player",5487) then
+        meleeSpell = testSpell["DRUIDB"]
     elseif select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
         meleeSpell = testSpell["SHUNTER"]
     elseif select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
