@@ -263,10 +263,6 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-        -- Purge
-            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                if cast.purge() then return true end
-            end
         -- Spirit Walk
             if isChecked("Spirit Walk") and hasNoControl(spell.spiritWalk) then
                 if cast.spiritWalk() then return true end
@@ -349,6 +345,10 @@ local function runRotation()
                 end
                 if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat then
                     if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
+                end
+                -- Purge
+                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+                    if cast.purge() then return true end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
