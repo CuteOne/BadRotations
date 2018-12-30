@@ -89,8 +89,7 @@ if not metaTable1 then
 			and not UnitIsCharmed(tar)
 			and GetUnitReaction("player",tar) > 4
 			and not UnitIsDeadOrGhost(tar)
-			and UnitIsConnected(tar)
-			and UnitInPhase(tar))
+			and UnitIsConnected(tar))
 			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
