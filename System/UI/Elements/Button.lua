@@ -44,19 +44,35 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
     saveButton:SetHeight(20)
     saveButton:SetEventListener("OnClick", function()
         if getOptionValue("Load Prior Saved Settings") == 1 then
-            br.dungeon = deepcopy(br.data)
+            if br.dungeon == nil then
+                br.dungeon = deepcopy(br.data)
+            else
+                br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
+            end
             print("Dungeon Data Saved")
         elseif getOptionValue("Load Prior Saved Settings") == 2 then
+            if br.mdungeon == nil then
+                br.mdungeon = deepcopy(br.data)
+            else
+                br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
+            end
             --raiddata = brdata
-            br.mdungeon = deepcopy(br.data)
             print("Mythic Dungeon Data Saved")
          elseif getOptionValue("Load Prior Saved Settings") == 3 then
+            if br.raid == nil then
+                br.raid = deepcopy(br.data)
+            else
+                br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
+            end
             --raiddata = brdata
-            br.raid = deepcopy(br.data)
             print("Raid Data Saved")
          elseif getOptionValue("Load Prior Saved Settings") == 4 then
+            if br.mraid == nil then
+                br.mraid = deepcopy(br.data)
+            else
+                br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
+            end
             --raiddata = brdata
-            br.mraid = deepcopy(br.data)
             print("Mythic Raid Data Saved")
         else
             print("Save Error")
@@ -83,8 +99,8 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
     loadButton:SetEventListener("OnClick", function()
         if getOptionValue("Load Prior Saved Settings") == 1 then
             if br.dungeon ~= nil then
-                br.data = {}
-                br.data = deepcopy(br.dungeon)
+                br.data.settings[br.selectedSpec] = {}
+                br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
                 print("Dungeon Data Loaded")
                 br.rotationChanged = true  
             else
@@ -92,8 +108,8 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
             end
         elseif getOptionValue("Load Prior Saved Settings") == 2 then
             if br.mdungeon ~= nil then
-                br.data = {}
-                br.data = deepcopy(br.mdungeon)
+                br.data.settings[br.selectedSpec] = {}
+                br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
                 print("Mythic Dungeon Data Loaded")
                 br.rotationChanged = true
             else
@@ -101,8 +117,8 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
             end
         elseif getOptionValue("Load Prior Saved Settings") == 3 then
             if br.raid ~= nil then
-                br.data = {}
-                br.data = deepcopy(br.raid)
+                br.data.settings[br.selectedSpec] = {}
+                br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
                 print("Raid Data Loaded")
                 br.rotationChanged = true
             else
@@ -110,8 +126,8 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
             end
         elseif getOptionValue("Load Prior Saved Settings") == 4 then
             if br.mraid ~= nil then
-                br.data = {}
-                br.data = deepcopy(br.mraid)
+                br.data.settings[br.selectedSpec] = {}
+                br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
                 print("Mythic Raid Data Loaded")
                 br.rotationChanged = true
             else
