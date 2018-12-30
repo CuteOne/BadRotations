@@ -40,5 +40,6 @@ br.lists.los = {
 	[138017] = true, -- Cudgel of Gore (Uldir - Taloc's fight)
 	[130217] = true, -- Nazmani Weevil (Uldir - Taloc's fight)
 	[140286] = true, -- Uldir Defensive Beam *Uldir)
-	[138530] = true -- Volatile Droplet (Uldir - Taloc's fight)
+	[138530] = true, -- Volatile Droplet (Uldir - Taloc's fight)
+	[133392] = true, -- Sethraliss
 }
