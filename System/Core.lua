@@ -171,6 +171,7 @@ function BadRotationsUpdate(self)
 						brLoaded = false
 						br.player = br.loader:new(playerSpec, br.selectedSpec)
 						setmetatable(br.player, {__index = br.loader})
+						br.ui:closeWindow("profile")
 						br.player:createOptions()
 						br.player:createToggles()
 						br.player:update()
@@ -209,6 +210,11 @@ function BadRotationsUpdate(self)
 						commandHelp = nil
 						commandHelp = ""
 						slashHelpList()
+					end
+
+					if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 or br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
+						br.data.settings[br.selectedSpec].toggles["Main"] = 1
+						mainButton:Show()
 					end
 
 					-- Display Distance on Main Icon
