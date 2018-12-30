@@ -332,7 +332,9 @@ local function runRotation()
         local function avgHealth()
             avg = 0
             for i=1, #br.friend do
-                totalHealth = totalHealth + br.friend[i].hp
+                if getHP(br.friend[i].unit) < 250 then
+                    totalHealth = totalHealth + br.friend[i].hp
+                end
             end
             avg = totalHealth/#br.friend
             return avg
@@ -612,6 +614,8 @@ local function runRotation()
                     end
                 end
             end
+        end
+        local function actionList_AMR()
             -- Temple of Seth
             if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Seth") then
                 if getHP("target") < 100 and getBuffRemain("target",274148) == 0 and getValue("Temple of Seth") > avgHealth() then
@@ -621,8 +625,21 @@ local function runRotation()
                     if cast.shadowMend("target") then return true end
                 end
             end
-        end
-        local function actionList_AMR()
+            -- Temple of Seth
+            if inCombat and isChecked("Temple of Seth") then
+                for i = 1, GetObjectCount() do
+                    local thisUnit = GetObjectWithIndex(i)
+                    if GetObjectID(thisUnit) == 133392 then
+                        sethObject = thisUnit
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and avgHealth() >= getValue("Temple of Seth") then
+                            if cd.penance.remain() <= gcd then
+                                CastSpellByName(GetSpellInfo(spell.penance),sethObject)
+                            end
+                            CastSpellByName(GetSpellInfo(spell.shadowMend),sethObject)
+                        end
+                    end
+                end
+            end
             -- Atonement Key
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
