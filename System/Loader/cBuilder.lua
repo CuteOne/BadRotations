@@ -293,6 +293,11 @@ function br.loader:new(spec,specName)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
                     return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
+                    end
+                buff.remains = function(thisUnit,sourceUnit)
+                    if thisUnit == nil then thisUnit = 'player' end
+                    if sourceUnit == nil then sourceUnit = 'player' end
+                    return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
                 end
                 buff.stack = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
@@ -365,6 +370,11 @@ function br.loader:new(spec,specName)
                 return getDebuffDuration(thisUnit,v,sourceUnit) or 0
             end
             debuff.remain = function(thisUnit,sourceUnit)
+                if thisUnit == nil then thisUnit = 'target' end
+                if sourceUnit == nil then sourceUnit = 'player' end
+                return math.abs(getDebuffRemain(thisUnit,v,sourceUnit))
+            end
+            debuff.remains = function(thisUnit,sourceUnit)
                 if thisUnit == nil then thisUnit = 'target' end
                 if sourceUnit == nil then sourceUnit = 'player' end
                 return math.abs(getDebuffRemain(thisUnit,v,sourceUnit))
