@@ -66,13 +66,8 @@ keyBoardFrame:SetPropagateKeyboardInput(true)
 local function testKeys(self, key)
 	local ignorePause = ignoreKeys
 	-- iterate over a list to ignore pause
-	for i = 1, #ignorePause do
-		if string.find(key, ignorePause[i]) then
-			return
-		end
-	end
 	for i = 1, #actionBarKeys do
-		if string.find(key,actionBarKeys[i]) then
+		if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() then
 			buttonName = "ActionButton"..i
 			local button = _G[buttonName]
 			local slot = ActionButton_CalculateAction(button) or button:GetAttribute("action") or 0
@@ -85,6 +80,11 @@ local function testKeys(self, key)
 					end
 				end
 			end
+		end
+	end
+	for i = 1, #ignorePause do
+		if string.find(key, ignorePause[i]) then
+			return
 		end
 	end
 	rotationPause = GetTime()
@@ -123,9 +123,9 @@ function BadRotationsUpdate(self)
 						end
 					end
 					-- Pause if key press that is not ignored
-					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") then
+					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") and UnitAffectingCombat("player") then
 						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil) then
-							if UnitChannelInfo("player") ~= nil or UnitCastingInfo("player") ~= nil then
+							if UnitChannelInfo("player") ~= nil then
 								SpellStopCasting()
 							end
 							keyPause = true
@@ -212,9 +212,11 @@ function BadRotationsUpdate(self)
 						slashHelpList()
 					end
 
-					if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 or br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
-						br.data.settings[br.selectedSpec].toggles["Main"] = 1
-						mainButton:Show()
+					if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
+						if not UnitAffectingCombat("player") then
+							br.data.settings[br.selectedSpec].toggles["Main"] = 1
+							mainButton:Show()
+						end
 					end
 
 					-- Display Distance on Main Icon
