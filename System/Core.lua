@@ -108,6 +108,10 @@ function BadRotationsUpdate(self)
 		if EWT and GetObjectCount() ~= nil then
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+					if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then 
+						wipe(br.player.queue)
+						if not isChecked("Mute Queue") then Print("BR Disabled! - Queue Cleared.") end
+					end
 					br.ui:closeWindow("all")
 					return false
 				elseif br.timer:useTimer("playerUpdate", getUpdateRate()) then
@@ -184,6 +188,14 @@ function BadRotationsUpdate(self)
 							return
 						end
 					end
+					if (not isChecked("Queue Casting") or UnitIsDeadOrGhost("player") or not UnitAffectingCombat("player")) and br.player ~= nil and #br.player.queue ~= 0 then
+						wipe(br.player.queue) 
+						if not isChecked("Mute Queue") then
+							if not isChecked("Queue Casting") then Print("Queue System Disabled! - Queue Cleared.") end
+							if UnitIsDeadOrGhost("player") then Print("Player Death Detected! - Queue Cleared.") end 
+							if not UnitAffectingCombat("player") then Print("No Combat Detected! - Queue Cleared.") end
+						end
+					end 
 					-- Update Player
 					if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 						br.player:update()

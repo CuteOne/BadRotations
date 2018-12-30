@@ -652,9 +652,12 @@ function castQueue()
 	if br.player ~= nil then
 		if br.player.queue ~= nil and #br.player.queue > 0 and not IsAoEPending() then
 			for i=1, #br.player.queue do
-				local spellID = br.player.queue[i].id
 				local thisUnit = br.player.queue[i].target
-				if createCastFunction(thisUnit,nil,nil,nil,spellID) then return end
+				local debug = br.player.queue[i].debug
+				local minUnits = br.player.queue[i].minUnits 
+				local effectRng = br.player.queue[i].effectRng				
+				local spellID = br.player.queue[i].id
+				if createCastFunction(thisUnit,debug,minUnits,effectRng,spellID) then return end
 			end
 		end
 	end

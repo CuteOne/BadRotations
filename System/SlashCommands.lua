@@ -118,14 +118,17 @@ function handler(message, editbox)
 	local msg2 = getStringIndex(message, 2)
 	local msg3 = getStringIndex(message, 3)
 	local msg4 = getStringIndex(message, 4)
+	local msg5 = getStringIndex(message, 5)
+	local msg6 = getStringIndex(message, 6)
+	local msg7 = getStringIndex(message, 7)
 	if msg == "" or msg == nil then
-		-- Help
+-- Main On/Off		
 		toggleUI()
 	elseif msg == "help" then
-		-- Blacklist
+-- Help		
 		SlashCommandHelp("Print Help")
 	elseif msg1 == "blacklist" then
-		-- Pause
+-- Blacklist		
 		if msg2 == "dump" then
 			Print("|cffFF0000Blacklist:")
 			if #br.data.blackList == (0 or nil) then
@@ -163,7 +166,7 @@ function handler(message, editbox)
 			Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br help |r for available options.")
 		end
 	elseif msg1 == "pause" then
-		-- Toggles
+-- Pause
 		--[[if msg2 == "hold" then
 			ChatOverlay("Profile Paused")
 			return true
@@ -181,7 +184,7 @@ function handler(message, editbox)
 			Print("Invalid Option for: |cFFFF0000" ..	msg1 ..	"|r try " --[["|cffFFDD11 /br pause hold |r - Pauses while held (via macro) or ]] .. "|cffFFDD11 /br pause toggle |r - Switches Pause On/Off")
 		end
 	elseif msg1 == "toggle" then
-		-- Queue
+-- Toggles
 		if msg2 ~= nil then
 			if toggle(msg2, msg3, true) then
 				toggle(msg2, msg3)
@@ -192,11 +195,7 @@ function handler(message, editbox)
 			Print("No Toggle Specified: Try |cffFFDD11 /br help |r for list of toggles.")
 		end
 	elseif msg1 == "queue" then
-		-- else
-		-- 	Print("Queue Casting Disabled: |cffFFDD11 Check Bot Options to enable.")
-		-- end
-		-- Update Rate
-		-- if isChecked("Queue Casting") then
+-- Queue
 		if msg2 == "clear" then
 			if br.player.queue == nil then
 				Print("Queue Already Cleared")
@@ -211,18 +210,27 @@ function handler(message, editbox)
 		elseif msg2 == "add" then
 			if msg3 == nil then
 				Print("No Spell Provided to add to Queue.")
+			elseif msg3 == "help" then
+				Print("Queue Add Conditions\n"..
+					"Example: /br queue add 123456 player aoe 3 8\n\n"..
+					"123456 = Spell ID, this is required for queue.\n"..
+					"player = Target (optional), where to cast spell using standard macro targets or (nil, best, playerGround, targetGround, pettarget)\n"..
+					"aoe    = Cast Type (optional), if the spell you are queuing has special cast type, (nil, aoe, cone, rect, ground, dead)\n"..
+					"3 	   = Minimal Units to cast on (optional), specify the minimal number of units required to cast the spell or nil for none.\n"..
+					"8      = Spells effect range (optional), specify the damage effect range of the spell or nil for none.\n\n"..					
+					"This will cast spell 123456 on \"player\" as an AOE once there are at least 3 units within 8 yards of the player.\n"
+				)
 			else
 				local spellName, _, _, _, _, _, spellId = GetSpellInfo(msg3)
-				if msg4 == nil then
-					targetUnit = getSpellUnit(spellId)
-				else
-					targetUnit = tostring(msg4)
-				end
+				if msg4 ~= nil then targetUnit = tostring(msg4)	end
+				if msg5 ~= nil then specialCast = tostring(msg5) end 
+				if msg6 ~= nil then minCount = tonumber(msg6) end 
+				if msg7 ~= nil then range = tonumber(msg7) end 
 				if spellName == nil then
 					Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
 				else
 					if #br.player.queue == 0 then
-						tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit}) --queueDest})
+						tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit, castType = specialCast, minUnits = mincount, effectRng = range})
 						Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
 					elseif #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
@@ -230,7 +238,7 @@ function handler(message, editbox)
 								Print("|cFFFF0000" .. spellName .. "|r is already queued.")
 								break
 							else
-								tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit}) --queueDest})
+								tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit, castType = specialCast, minUnits = mincount, effectRng = range})
 								Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
 								break
 							end
@@ -266,9 +274,10 @@ function handler(message, editbox)
 			Print("Invalid Option for: |cFFFF0000" .. msg1 .. "|r try |cffFFDD11 /br queue clear |r - Clears the Queue list or |cffFFDD11 /br queue add (spell)|r - Adds specified spell to Queue list or |cffFFDD11 /br queue remove (spell) |r - Removes specifid from Queue list.")
 		end
 	elseif msg == "updaterate" then
-		-- Add/Remove Units/Debuffs
+-- Show Update Rate
 		updateRate()
 	elseif msg1 == "healing" then
+-- Special Heal List
 		local unit
 		if GetUnitExists("mouseover") then
 			unit = "mouseover"
@@ -291,6 +300,7 @@ function handler(message, editbox)
 			Print("No Target Found.  Please Select a Target Before Adding")
 		end
 	elseif msg1 == "debuff" then
+-- Debuff List
 		if msg2 == nil then
 			Print("No Spell Provided to Add")
 		else
@@ -308,8 +318,10 @@ function handler(message, editbox)
 			end
 		end
 	elseif msg == "disengage" then
+-- Forward Disengage
 		forewardDisengage()
 	elseif msg1 == "showui" then
+-- Other
 		if msg2 == "main" then
 			-- Show/Hide Bot Options
 			if br.ui.window.config.parent == nil then

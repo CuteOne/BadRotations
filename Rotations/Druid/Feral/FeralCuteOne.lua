@@ -1138,7 +1138,7 @@ local function runRotation()
             if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3
                 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
             then
-                if cast.brutalSlash("player","aoe",getOptionValue("Brutal Slash Targets"),8) then return true end
+                if cast.brutalSlash("player","aoe",1,8) then return true end
             end
         -- Thrash
             -- pool_resource,for_next=1
@@ -1308,7 +1308,7 @@ local function runRotation()
         -- Brutal Slash
             -- TargetsInRadius(BrutalSlash) >= 3 --requires talents Brutal Slash
             if cast.able.brutalSlash() and talent.brutalSlash and #enemies.yards8 >= 3 then
-                if cast.brutalSlash(units.dyn8AOE,"aoe") then return true end
+                if cast.brutalSlash("player","aoe",1,8) then return true end
             end
         -- Shred 
             -- if HasBuff(Clearcasting) and ChargesRemaining(BrutalSlash) < SpellCharges(BrutalSlash) and TargetsInRadius(BrutalSlash) < 2 --requires talents Brutal Slash
@@ -1318,13 +1318,13 @@ local function runRotation()
         -- Brutal Slash 
             -- if not CanAoe(2,8) or TargetsInRadius(BrutalSlash) > 1 or ChargesRemaining(BrutalSlash) = SpellCharges(BrutalSlash) --requires talents Brutal Slash / not Wild Fleshrending Azerite
             if cast.able.brutalSlash() and talent.brutalSlash and not trait.wildFleshrending.active and (#enemies.yards8 > 1 or charges.brutalSlash.count() == 3) then 
-                if cast.brutalSlash() then return end 
+                if cast.brutalSlash("player","aoe",1,8) then return end 
             end 
             -- if TargetsInRadius(BrutalSlash) > 1 or (AzeriteTraitRank(AzeriteWildFleshrending) < 2 and (not CanAoe(2,8) or ChargesRemaining(BrutalSlash) = SpellCharges(BrutalSlash))) --requires talents Brutal Slash / Wild Fleshrending Azerite
             if cast.able.brutalSlash() and talent.brutalSlash and trait.wildFleshrending.active 
                 and (#enemies.yards8 > 1 or (trait.wildFleshrending.rank < 2 and (#enemies.yards8 > 1 or charges.brutalSlash.count() == 3))) 
             then
-                if cast.brutalSlash() then return end 
+                if cast.brutalSlash("player","aoe",1,8) then return end 
             end 
         -- Thrash 
             -- if TargetsInRadius(Thrash) >= 3 and CanRefreshDot(ThrashBleedFeral)
