@@ -240,6 +240,7 @@ local function runRotation()
     local friendly                                      = friendly or GetUnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
     local gcdMax                                        = max(0.75, 1.5 / (1 + UnitSpellHaste("player") / 100))
+    local healPot                                       = getHealthPot()
     local hasMouse                                      = GetObjectExists("mouseover")
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
