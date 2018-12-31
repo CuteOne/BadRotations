@@ -268,6 +268,9 @@ local function runRotation()
                         if isChecked("Pummel") and unitDist < 6 then
                             if cast.pummel(thisUnit) then return end
                         end
+                        if isChecked("Intimidating Shout - Int") and unitDist <= 8 then
+                            if cast.intimidatingShout() then return end
+                        end
                         if isChecked("Shockwave - Int") and unitDist < 10 then
                             if cast.shockwave() then return end
                         end
