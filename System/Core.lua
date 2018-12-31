@@ -56,7 +56,7 @@ end
 -- Key Pause from Beniamin
 local rotationPause
 local buttonName
-local spellId
+local pauseSpellId
 
 local ignoreKeys = {"W", "A", "S", "D", "Q", "E", "SPACE", "ENTER", "UP", "DOWN", "LEFT", "RIGHT", "LALT", "RALT", "LCTRL", "RCTRL", "LSHIFT", "RSHIFT", "TAB"}
 local actionBarKeys = {"1","2","3","4","5","6","7","8","9","0","-","="}
@@ -67,16 +67,16 @@ local function testKeys(self, key)
 	local ignorePause = ignoreKeys
 	-- iterate over a list to ignore pause
 	for i = 1, #actionBarKeys do
-		if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() then
+		if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and UnitAffectingCombat("player") and not isChecked("Queue Casting") then
 			buttonName = "ActionButton"..i
 			local button = _G[buttonName]
 			local slot = ActionButton_CalculateAction(button) or button:GetAttribute("action") or 0
 			if HasAction(slot) then
 				local actionType, id, _, actionName = GetActionInfo(slot)
 				if actionType == "spell" then
-					spellId = id
-					if not isChecked("Queue Casting") then
-						ChatOverlay("Spell "..GetSpellInfo(spellId).." queued.")
+					pauseSpellId = id
+					if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
+						ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
 					end
 				end
 			end
@@ -108,6 +108,9 @@ function BadRotationsUpdate(self)
 		if EWT and GetObjectCount() ~= nil then
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
+					if pauseSpellId ~= nil then
+						pauseSpellId = nil
+					end
 					if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then 
 						wipe(br.player.queue)
 						if not isChecked("Mute Queue") then Print("BR Disabled! - Queue Cleared.") end
@@ -140,26 +143,28 @@ function BadRotationsUpdate(self)
 							return
 						elseif rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and getSpellCD(61304) == 0 then
 							local lastSpell
-							if spellId ~= nil and (spellId ~= lastSpell or lastSpell == nil) then
+							if pauseSpellId ~= nil and (pauseSpellId ~= lastSpell or lastSpell == nil) then
 								local target
-								if IsHarmfulSpell(GetSpellInfo(spellId)) then
+								if IsHarmfulSpell(GetSpellInfo(pauseSpellId)) then
 									target = "target"
-								elseif IsHelpfulSpell(GetSpellInfo(spellId)) then
+								elseif IsHelpfulSpell(GetSpellInfo(pauseSpellId)) then
 									if UnitExists("target") and not UnitCanAttack("target","player") then
 										target = "target"
 									else
 										target = "player"
 									end
 								end
-								CastSpellByID(spellId,target)
-								lastSpell = spellId
-								ChatOverlay("Spell "..GetSpellInfo(spellId).." cast.")
-								spellId = nil
+								CastSpellByID(pauseSpellId,target)
+								lastSpell = pauseSpellId
+								ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." cast.")
+								pauseSpellId = nil
 							end
 							return
 						elseif keyPause then
 							return
 						end
+					elseif pauseSpellId ~= nil and (not UnitAffectingCombat("player") or isChecked("Queue Casting")) then
+						pauseSpellId = nil
 					end
 					-- Blizz CastSpellByName bug bypass
 					if castID then
