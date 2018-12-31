@@ -240,7 +240,7 @@ local function runRotation()
             WOA1 = false
         end
 
-        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2
+        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled
         local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0)
         -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
         local howVar = (not talent.hammerOfWrath or thp(units.dyn5) >= 20) and (not buff.avengingWrath.exists() or not buff.crusade.exists())
@@ -748,8 +748,8 @@ local function runRotation()
                     if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
                 end
                 -- divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
-                if (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs() 
-                    or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists())) 
+                if ((not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs())
+                    or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
                 then
                     if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
                 end
@@ -775,13 +775,13 @@ local function runRotation()
             if holyPower >= 5 then
                 if actionList_Finisher() then return end
             end
-        -- Wake of Ashes 
+        -- Wake of Ashes
             -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15|spell_targets.wake_of_ashes>=2)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-            if cast.able.wakeOfAshes() and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
-                and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) 
+            if cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
+                and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd))
             then
                 if cast.wakeOfAshes(units.dyn12,"cone",1,12) then return end
-            end     
+            end
         -- Blade of Justice
             -- blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
             if cast.able.bladeOfJustice() and (holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd * 2 or howVar))) then
