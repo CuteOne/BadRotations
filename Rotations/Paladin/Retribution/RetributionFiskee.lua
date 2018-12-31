@@ -236,7 +236,7 @@ local function runRotation()
 	end
 
 	--actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled
-	local dsCastable = (mode.rotation == 1 and ((not talent.righteousVerdict and #enemies.yards8 >= 2) or (talent.righteousVerdict and #enemies.yards8 >= 3))) or mode.rotation == 2
+    local dsCastable = (mode.rotation == 1 and ((not talent.righteousVerdict and #enemies.yards8 >= 2) or (talent.righteousVerdict and #enemies.yards8 >= 3))) or mode.rotation == 2
 	--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
 	local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (not isChecked("Crusade") or (talent.crusade and not buff.crusade.exists()))))
 
@@ -796,19 +796,19 @@ local function runRotation()
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
 		if dsCastable and buff.divinePurpose.exists() then
-			if cast.divineStorm("player", "aoe", 1, 8) then return end
+			if cast.divineStorm("player") then return end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
-		if dsCastable and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) or (buff.empyreanPower.exists() and debuff.judgment.exists("target") and not buff.divinePurpose.exists()) then
-			if cast.divineStorm("player", "aoe", 1, 8) then return end
+		if (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2 or not useCDs() or not isChecked("Crusade"))) or (buff.empyreanPower.exists() and not debuff.judgment.exists("target") and not buff.divinePurpose.exists()) then
+            if cast.divineStorm("player") then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-		if buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+		if not dsCastable and buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
 			if cast.templarsVerdict() then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
-		if (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
-			if cast.templarsVerdict() then return end
+		if not dsCastable and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
+            if cast.templarsVerdict() then return end
 		end
 
 	end
@@ -821,7 +821,7 @@ local function runRotation()
 		end
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
 		if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) and getFacing("player","target") then
-			if cast.wakeOfAshes("player", "aoe", 1, 15) then return end
+			if cast.wakeOfAshes("player") then return end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
