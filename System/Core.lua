@@ -66,21 +66,25 @@ keyBoardFrame:SetPropagateKeyboardInput(true)
 local function testKeys(self, key)
 	local ignorePause = ignoreKeys
 	-- iterate over a list to ignore pause
-	for i = 1, #actionBarKeys do
-		if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and UnitAffectingCombat("player") and not isChecked("Queue Casting") then
-			buttonName = "ActionButton"..i
-			local button = _G[buttonName]
-			local slot = ActionButton_CalculateAction(button) or button:GetAttribute("action") or 0
-			if HasAction(slot) then
-				local actionType, id, _, actionName = GetActionInfo(slot)
-				if actionType == "spell" then
-					pauseSpellId = id
-					if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
-						ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
+	if not isChecked("Disable Key Pause Queue") then
+		for i = 1, #actionBarKeys do
+			if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
+				buttonName = "ActionButton"..i
+				local button = _G[buttonName]
+				local slot = i
+				if HasAction(slot) then
+					local actionType, id = GetActionInfo(slot)
+					if actionType == "spell" then
+						pauseSpellId = id
+						if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
+							ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
+						end
 					end
 				end
 			end
 		end
+	elseif isChecked("Disable Key Pause Queue") then
+		pauseSpellId = nil
 	end
 	for i = 1, #ignorePause do
 		if string.find(key, ignorePause[i]) then
@@ -130,7 +134,7 @@ function BadRotationsUpdate(self)
 						end
 					end
 					-- Pause if key press that is not ignored
-					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") and UnitAffectingCombat("player") then
+					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) then
 						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil) then
 							if UnitChannelInfo("player") ~= nil then
 								SpellStopCasting()
@@ -163,7 +167,7 @@ function BadRotationsUpdate(self)
 						elseif keyPause then
 							return
 						end
-					elseif pauseSpellId ~= nil and (not UnitAffectingCombat("player") or isChecked("Queue Casting")) then
+					elseif pauseSpellId ~= nil and (not (UnitAffectingCombat("player") or isChecked("Ignore Combat")) or isChecked("Queue Casting")) then
 						pauseSpellId = nil
 					end
 					-- Blizz CastSpellByName bug bypass
