@@ -196,7 +196,7 @@ local function runRotation()
         local solo          = GetNumGroupMembers() == 0
         local spell         = br.player.spell
         local talent        = br.player.talent
-        local thp           = getHP("target")
+        local thp           = getHP
         local ttd           = getTTD
         local units         = br.player.units
         local use           = br.player.use
