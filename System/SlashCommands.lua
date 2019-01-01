@@ -94,7 +94,7 @@ function slashHelpList()
 	SLASH_BR1, SLASH_BR2 = "/br", "/badrotations"
 	SlashCommandHelp("br", "Toggles BadRotations On/Off")
 	SlashCommandHelp("br help", "Displays this list of help commands. ***Obviously***")
-	SlashCommandHelp("br blacklist", "Adds/Removes mouseover unit to healing blacklist.")
+	SlashCommandHelp("br blacklist mouseover", "Adds/Removes mouseover unit to healing blacklist.")
 	SlashCommandHelp("br blacklist dump", "Prints all units currently on blacklist.")
 	SlashCommandHelp("br blacklist clear", "Clears the blacklist.")
 	-- SlashCommandHelp("br pause hold","Pauses while held (via macro).")
