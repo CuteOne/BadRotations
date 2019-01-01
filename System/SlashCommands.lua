@@ -143,6 +143,9 @@ function handler(message, editbox)
 			br.data.blackList = {}
 			Print("|cffFF0000Blacklist Cleared")
 		elseif msg2 == "mouseover" then
+			if not br.data.blackList then
+				br.data.blackList = {}
+			end
 			if GetUnitExists("mouseover") then
 				local mouseoverName = UnitName("mouseover")
 				local mouseoverGUID = UnitGUID("mouseover")
