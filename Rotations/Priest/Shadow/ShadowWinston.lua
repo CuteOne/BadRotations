@@ -665,10 +665,10 @@ local function runRotation()
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
           -- Endless Fathoms Flask
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskofEndlessFathoms.exists() and canUse(item.flaskofEndlessFathoms) then
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUse(item.flaskOfEndlessFathoms) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.flaskofEndlessFathoms() then return end
+            if use.flaskOfEndlessFathoms() then return end
         end
         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end

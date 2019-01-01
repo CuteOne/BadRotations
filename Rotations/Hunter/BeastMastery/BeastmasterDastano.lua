@@ -1052,11 +1052,11 @@ local function runRotation()
             rotationDebug = "Pre-Combat"
             if not inCombat and not buff.feignDeath.exists() then
             -- Flask / Crystal
-                -- flask,type=flaskoftheCurrents
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskoftheCurrents.exists() and canUse(item.flaskoftheCurrents) then
+                -- flask,type=flaskOfTheCurrents
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCurrents.exists() and canUse(item.flaskOfTheCurrents) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
-                    if use.flaskoftheCurrents() then return end
+                    if use.flaskOfTheCurrents() then return end
                 end
             -- Summon Pet
                 -- summon_pet

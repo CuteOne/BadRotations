@@ -701,10 +701,10 @@ local function runRotation()
 		if not inCombat and not (IsFlying() or IsMounted()) then
 			-- Flask
 			-- flask,type=flask_of_the_countless_armies
-			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskoftheUndertow.exists() and canUse(item.flaskoftheUndertow) then
+			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheUndertow.exists() and canUse(item.flaskOfTheUndertow) then
 				if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
 				if buff.felFocus.exists() then buff.felFocus.cancel() end
-				if use.flaskoftheUndertow() then return end
+				if use.flaskOfTheUndertow() then return end
 			end
 			if isValidUnit("target") and (not isBoss("target") or (not isChecked("Opener") or talent.divinePurpose)) then
 				-- -- Divine Hammer
