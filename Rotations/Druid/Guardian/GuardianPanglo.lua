@@ -59,7 +59,7 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-            br.ui:createCheckbox(section,"Open World")
+            br.ui:createCheckbox(section,"Open World","Use Cat Weaving Regardless of Threat Situation")
         -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")
         -- Displacer Beast / Wild Charge
@@ -325,20 +325,12 @@ local function runRotation()
                         if cast.frenziedRegeneration() then return end
                     end
                 end
-        -- Soothe?
---        for i=1 , #enemies.yards40 do
---            local enrageID = enraged[i]
---            thisUnit = enemies.yards40[i]
---            if isChecked("Soothe") and getBuffRemain(thisUnit, enrageID) > 1 and cast.able.soothe() then
---                if cast.soothe() then return end
---            end
---        end
-            for i=1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
-                if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) then
-                    if cast.soothe(thisUnit) then return end
+                for i=1, #enemies.yards40 do
+                    thisUnit = enemies.yards40[i]
+                    if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) then
+                        if cast.soothe(thisUnit) then return end
+                    end
                 end
-            end
         -- Regrowth
                 if isChecked("Regrowth") then
                     if php <= getOptionValue("Regrowth") and not inCombat then

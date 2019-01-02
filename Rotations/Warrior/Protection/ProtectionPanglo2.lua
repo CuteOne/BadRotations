@@ -56,7 +56,8 @@ local function createOptions()
             -- High Rage Dump
             br.ui:createSpinner(section, "High Rage Dump", 85, 1, 100, 1, "|cffFFFFFF Set to number of units to use Ignore Pain or Revenge at")
 			-- Taunt
-			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+            br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+            br.ui:createCheckbox(section,"Use Heroic Throw","Check to enable Heroic Throw usage in Combat")
 		br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -369,6 +370,9 @@ local function runRotation()
             if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                 ---print("norm avatar")
                 if cast.avatar() then return true end
+            end
+            if #enemies.yards10 == 0 and isChecked("Use Heroic Throw") then
+                if cast.heroicThrow() then return true end
             end
             if isChecked("Demoralizing Shout - CD") and rage <= 65 then
                 if cast.demoralizingShout() then return true end
