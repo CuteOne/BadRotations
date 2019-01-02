@@ -327,6 +327,7 @@ local function runRotation()
                         local thisUnit = enemies.yards40[i]
                         if isValidUnit(thisUnit) or isDummy() then
                             PetAttack(thisUnit)
+                            break
                         end
                     end
                 elseif (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
@@ -344,7 +345,7 @@ local function runRotation()
             end
             -- Cat-like Refelexes
             if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
-                if cast.able.catlikeReflexes() then return end
+                if cast.catlikeReflexes() then return end
             end
             -- Claw
             if isChecked("Claw") and cast.able.claw("pettarget") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
