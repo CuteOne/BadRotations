@@ -416,14 +416,17 @@ function isValidUnit(Unit)
 		not isCC
 	 then
 		local instance = IsInInstance()
-		local distance = getDistance(Unit, "target")
+		local distanceToTarget = getDistance(Unit, "target")
+		local distanceToPlayer = getDistance(Unit, "player")
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
 		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or isBurnTarget(Unit) > 0
-		return hasThreat or (not instance and (playerTarget or distance < 8)) or
-			(instance and playerTarget and
-				((getDistance(Unit, "player") < 20 or (UnitAffectingCombat(Unit) and getDistance(Unit, "player") < 40)) or
-					#br.friend == 1)) or
-			validUnitBypassList[GetObjectID(Unit)] ~= nil
+		return hasThreat 
+			-- Not In Instance
+			or (not instance and (playerTarget or distanceToTarget < 8))
+			-- In Instance 
+			or (instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))
+			-- Pre-validated 
+			or validUnitBypassList[GetObjectID(Unit)] ~= nil
 	end
 	return false
 end

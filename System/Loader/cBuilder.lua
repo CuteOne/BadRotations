@@ -467,10 +467,6 @@ function br.loader:new(spec,specName)
                 if self.pet[k] == nil then self.pet[k] = {} end
 
                 local pet = self.pet[k]
-                pet.exists = function()
-                    return GetObjectExists(v)
-                end
-
                 pet.count = function()
                     local count = 0
                     for l,w in pairs(self.pet.list) do
@@ -478,6 +474,10 @@ function br.loader:new(spec,specName)
                         if v == listID then count = count + 1 end
                     end
                     return count
+                end
+                
+                pet.exists = function()
+                    return self.pet[k].count() > 0
                 end
             end
         end

@@ -338,6 +338,26 @@ function isCritter(Unit) -- From LibBabble
 	end
 	return false
 end
+function isUndead(Unit)
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	local types = {
+		"Undead",
+		"Untoter",
+		"Mort-vivant",
+		"언데드",
+		"No-muerto",
+		"Morto-vivo",
+		"Non Morto",
+		"Нежить",
+		"亡灵",
+		"不死族",
+	}
+	for i = 1, #types do
+		if unitType == types[i] then return true end
+	end
+	return false
+end
 -- Dummy Check
 function isDummy(Unit)
 	if Unit == nil then

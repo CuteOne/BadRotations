@@ -327,14 +327,14 @@ local function runRotation()
                     end
                 end
         --Asphyxiate
-        if isChecked("Asphyxiate") and cast.able.asphyxiate() then
-            for i=1, #enemies.yards20 do
-                thisUnit = enemies.yards20[i]
-                if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-                    if cast.asphyxiate(thisUnit) then return true end
+                if isChecked("Asphyxiate") and cast.able.asphyxiate() then
+                    for i=1, #enemies.yards20 do
+                        thisUnit = enemies.yards20[i]
+                        if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                            if cast.asphyxiate(thisUnit) then return true end
+                        end
+                    end
                 end
-            end
-        end
             end -- End Use Interrupts Check
         end -- End Action List - Interrupts
     -- Action List - Cold Heart
