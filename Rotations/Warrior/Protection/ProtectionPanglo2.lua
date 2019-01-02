@@ -48,6 +48,7 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
+            br.ui:createCheckbox(section,"Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
             -- Berserker Rage
             br.ui:createCheckbox(section,"Berserker Rage", "Check to use Berserker Rage")
             -- lol charge
@@ -200,7 +201,7 @@ local function runRotation()
 
         --- Quick maths ---
         local function mainTank()
-            if #enemies.yards30 >= 1 and (hasAggro >= 2) then 
+            if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
                 return true 
             else
                 return false
@@ -228,11 +229,11 @@ local function runRotation()
         local function rageCap()
             if cast.able.ignorePain() and rage >= getValue("High Rage Dump") and mainTank() and ipCapCheck() then
                 --print("dumping IP")
-                if cast.ignorePain() then return end
+                if cast.ignorePain() then return true end
             end
             if cast.able.revenge() and rage >= getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
                 --print("dumping R")
-                if cast.revenge() then return end
+                if cast.revenge() then return true end
             end
         end
 
@@ -242,17 +243,17 @@ local function runRotation()
         local function upsizeWithFries()
             if isChecked("Charge OoC") then
                 if cast.able.intercept("target") and getDistance("player","target") <= 25 then
-                    if cast.intercept("target") then return end
+                    if cast.intercept("target") then return true end
                 end
             end
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
-                if cast.berserkerRage() then return end
+                if cast.berserkerRage() then return true end
             end
             if isChecked("Taunt") and inInstance then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-                        if cast.taunt(thisUnit) then return end
+                        if cast.taunt(thisUnit) then return true end
                     end
                 end
             end
@@ -266,16 +267,16 @@ local function runRotation()
                     targetMe = UnitIsUnit("player",thisUnit) or false
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if isChecked("Pummel") and unitDist < 6 then
-                            if cast.pummel(thisUnit) then return end
+                            if cast.pummel(thisUnit) then return true end
                         end
                         if isChecked("Intimidating Shout - Int") and unitDist <= 8 then
-                            if cast.intimidatingShout() then return end
+                            if cast.intimidatingShout() then return true end
                         end
                         if isChecked("Shockwave - Int") and unitDist < 10 then
-                            if cast.shockwave() then return end
+                            if cast.shockwave() then return true end
                         end
                         if isChecked("Storm Bolt - Int") and unitDist < 20 then
-                            if cast.stormBolt() then return end
+                            if cast.stormBolt() then return true end
                         end
                     end
                 end
@@ -285,7 +286,7 @@ local function runRotation()
         local function moveMeDaddy()
             if br.player.mode.mover == 1 then 
                 if cast.able.intercept("target") and (getDistance("player","target") >= 8 and getDistance("player","target") <= 25) then
-                    if cast.intercept("target") then return end
+                    if cast.intercept("target") then return true end
                 end
             end
         end
@@ -294,13 +295,13 @@ local function runRotation()
             if useCDs() and #enemies.yards5 >= 1 then
                 if isChecked("Avatar") then
                     --print("cd avatar")
-                    if cast.avatar() then return end
+                    if cast.avatar() then return true end
                 end
                 if isChecked("Demoralizing Shout - CD") and rage <= 65 then
-                    if cast.demoralizingShout() then return end
+                    if cast.demoralizingShout() then return true end
                 end
                 if talent.ravager then
-                    if cast.ravager("best",false,1,8) then return end
+                    if cast.ravager("best",false,1,8) then return true end
                 end
             end
         end
@@ -311,26 +312,26 @@ local function runRotation()
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
                         if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-                            if cast.taunt(thisUnit) then return end
+                            if cast.taunt(thisUnit) then return true end
                         end
                     end
                 end    
                 if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
-                    if cast.shieldBlock() then return end
+                    if cast.shieldBlock() then return true end
                 end
                 if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
-                    if cast.lastStand() then return end
+                    if cast.lastStand() then return true end
                 end
                 if php <= 65 and cast.able.victoryRush() then
-                    if cast.victoryRush() then return end
+                    if cast.victoryRush() then return true end
                 end
                 --ignore the painful ways
                 if cast.able.ignorePain() and mainTank() and ipCapCheck() then
                     if buff.vengeanceIgnorePain.exists() and rage >= 42 then
-                        if cast.ignorePain() then return end
+                        if cast.ignorePain() then return true end
                     end
                     if rage >= 55 and not buff.vengeanceRevenge.exists() then
-                        if cast.ignorePain() then return end
+                        if cast.ignorePain() then return true end
                     end
                 end  
                 if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and (hasHealthPot() or hasItem(5512)) then
@@ -341,25 +342,25 @@ local function runRotation()
                     end
                 end
                 if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") then
-                    if cast.demoralizingShout() then return end
+                    if cast.demoralizingShout() then return true end
                 end
                 if  isChecked("Last Stand") and php <= getOptionValue("Last Stand") then
-                    if cast.lastStand() then return end
+                    if cast.lastStand() then return true end
                 end
 				if  isChecked("Rallying Cry") and php <= getOptionValue("Rallying Cry") then
-					if cast.rallyingCry() then return end
+					if cast.rallyingCry() then return true end
 				end
                  if  isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand.remain() > 0 and not buff.lastStand.exists() then
-                    if cast.shieldWall() then return end
+                    if cast.shieldWall() then return true end
                 end
                  if  ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units"))) then
-                    if cast.shockwave() then return end
+                    if cast.shockwave() then return true end
                 end
                if  isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
-                    if cast.spellReflection() then return end
+                    if cast.spellReflection() then return true end
                 end
                 if  isChecked("Storm Bolt") and php <= getOptionValue("Storm Bolt") then
-                    if cast.stormBolt() then return end
+                    if cast.stormBolt() then return true end
                 end
             end
         end
@@ -367,64 +368,62 @@ local function runRotation()
         local function parseTime()
             if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                 ---print("norm avatar")
-                if cast.avatar() then return end
+                if cast.avatar() then return true end
             end
             if isChecked("Demoralizing Shout - CD") and rage <= 65 then
-                if cast.demoralizingShout() then return end
+                if cast.demoralizingShout() then return true end
             end
-            -- shield slam always
-                if isChecked("Trinkets") then
-                    if canTrinket(13) then
-                        useItem(13)
-                    end
-                    if canTrinket(14) then
-                        useItem(14)
-                    end
+        -- shield slam always
+            if isChecked("Trinkets") then
+                if canTrinket(13) then
+                    useItem(13)
                 end
-            if cast.shieldSlam() then return end
+                if canTrinket(14) then
+                    useItem(14)
+                end
+            end
+            if talent.cracklingThunder then
+                if cast.thunderClap("player",nil,1,12) then return true end
+            else
+                if cast.thunderClap("player",nil,1,8) then return true end
+            end
+            if cast.shieldSlam() then return true end
             -- Clap the booty
-            if not cast.able.shieldSlam() then
-                if talent.cracklingThunder then
-                    if cast.thunderClap("player",nil,1,12) then return end
-                else
-                    if cast.thunderClap("player",nil,1,8) then return end
-                end
-            end
             -- Revenge of the stiff
             if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
-                if cast.revenge() then return end
+                if cast.revenge() then return true end
             end
             --Less Victorious
             if php <= 80 and not (cast.able.shieldSlam() or cast.able.thunderClap()) then
-                if cast.victoryRush() then return end
+                if cast.victoryRush() then return true end
             end
             --devastating blows
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) then
-                if cast.devastate() then return end
+                if cast.devastate() then return true end
             end
         end
 
         local function technoViking()
             --stomp your feet
             if talent.cracklingThunder then
-                if cast.thunderClap("player",nil,1,12) then return end
+                if cast.thunderClap("player",nil,1,12) then return true end
             else
-                if cast.thunderClap("player",nil,1,8) then return end
+                if cast.thunderClap("player",nil,1,8) then return true end
             end
             -- Rest
             if not cast.able.thunderClap() then
-                if cast.shieldSlam() then return end
+                if cast.shieldSlam() then return true end
             end
             -- Recover
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) and buff.revenge.exists() then
-                if cast.revenge() then return end
+                if cast.revenge() then return true end
             end
             -- Drink
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) and ipCapCheck() and rage >= 55 then
-                if cast.ignorePain() then return end
+                if cast.ignorePain() then return true end
             end
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) then
-                if cast.devastate() then return end
+                if cast.devastate() then return true end
             end
         end
 

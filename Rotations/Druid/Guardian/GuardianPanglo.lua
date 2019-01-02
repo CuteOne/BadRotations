@@ -59,6 +59,7 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section,"Open World")
         -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")
         -- Displacer Beast / Wild Charge
@@ -490,6 +491,11 @@ local function runRotation()
     -- Mangle
                 -- mangle
                 if cast.mangle() then return end
+    -- Thrash
+                -- thrash_bear
+                if getDistance("target") < 8 and not cast.able.mangle() and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
+                    if cast.thrashBear() then return end
+                end
     -- Pulverize
                 if talent.pulverize then
                     for i = 1, #enemies.yards5 do
@@ -515,11 +521,6 @@ local function runRotation()
                             end
                         end
                     end
-                end
-    -- Thrash
-                -- thrash_bear
-                if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
-                    if cast.thrashBear() then return end
                 end
     -- Moonfire
                 if #enemies.yards40 < 6 then
@@ -602,7 +603,7 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==2 then
             return true
         else
-            if talent.feralAffinity and br.player.mode.kitty == 1 and hasAggro <= 1 and cattime then
+            if talent.feralAffinity and br.player.mode.kitty == 1 and (hasAggro <= 1 or isChecked("Open World")) and cattime then
                 if kittyCat() then return end
             else
                 if actionList_Extras() then return end
