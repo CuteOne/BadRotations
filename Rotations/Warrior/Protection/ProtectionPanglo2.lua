@@ -192,6 +192,7 @@ local function runRotation()
 
         enemies.get(5)
         enemies.get(8)
+        enemies.get(10)
         enemies.get(20)
         enemies.get(30)
         enemies.get(40)
@@ -437,28 +438,28 @@ local function runRotation()
         return true
         else
             if not inCombat and not IsMounted() and isValidUnit("target") then
-                if upsizeWithFries() then return end
+                if upsizeWithFries() then return true end
             end
             if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
                 
-                if dontTazeMeBro() then return end
+                if dontTazeMeBro() then return true end
 
-                if moveMeDaddy() then return end
+                if moveMeDaddy() then return true end
 
-                if bigDickDPS() then return end
+                if bigDickDPS() then return true end
 
-                if silenceThemHoes() then return end
+                if silenceThemHoes() then return true end
 
                 if (talent.unstoppableForce and buff.avatar.exists()) then
-                    if technoViking() then return end
+                    if technoViking() then return true end
                 end
 
                 if not (talent.unstoppableForce and buff.avatar.exists()) then
-                    if rageCap() then return end
-                    if parseTime() then return end
+                    if rageCap() then return true end
+                    if parseTime() then return true end
                 end
             end-- combat check
         end--pause
