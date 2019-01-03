@@ -86,6 +86,22 @@ function br.read.combatLog()
             if sourceName ~= nil then
                 if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
+                    -- Last Combo
+                        local comboSpells = {
+                            br.player.spell.blackoutKick,
+                            br.player.spell.chiBurst,
+                            br.player.spell.chiWave,
+                            br.player.spell.fistOfTheWhiteTiger,
+                            br.player.spell.flyingSerpentKick,
+                            br.player.spell.risingSunKick,
+                            br.player.spell.tigerPalm,
+                            br.player.spell.whirlingDragonPunch,
+                        }
+                        for i = 1, #comboSpells do
+                            local thisCombo = comboSpells[i]
+                            if spell == thisCombo then lastCombo = spell break end
+                        end
+                    -- Last Cast
                         for k, v in pairs(br.player.spell.abilities) do
                             if v == spell then
                                 lastCast5 = lastCast4
