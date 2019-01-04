@@ -87,19 +87,27 @@ function br.read.combatLog()
                 if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
                     -- Last Combo
-                        local comboSpells = {
-                            br.player.spell.blackoutKick,
-                            br.player.spell.chiBurst,
-                            br.player.spell.chiWave,
-                            br.player.spell.fistOfTheWhiteTiger,
-                            br.player.spell.flyingSerpentKick,
-                            br.player.spell.risingSunKick,
-                            br.player.spell.tigerPalm,
-                            br.player.spell.whirlingDragonPunch,
-                        }
-                        for i = 1, #comboSpells do
-                            local thisCombo = comboSpells[i]
-                            if spell == thisCombo then lastCombo = spell break end
+                        if param == "SPELL_CAST_SUCCESS" then
+                            local comboSpells = {
+                                br.player.spell.blackoutKick,
+                                br.player.spell.chiBurst,
+                                br.player.spell.chiWave,
+                                br.player.spell.cracklingJadeLightning,
+                                br.player.spell.fistsOfFury,
+                                br.player.spell.fistOfTheWhiteTiger,
+                                br.player.spell.flyingSerpentKick,
+                                br.player.spell.risingSunKick,
+                                br.player.spell.rushingJadeWind,
+                                br.player.spell.spinningCraneKick,
+                                br.player.spell.strikeOfTheWindlord,
+                                br.player.spell.tigerPalm,
+                                br.player.spell.touchOfDeath,
+                                br.player.spell.whirlingDragonPunch,
+                            }
+                            for i = 1, #comboSpells do
+                                local thisCombo = comboSpells[i]
+                                if spell == thisCombo then lastCombo = spell break end
+                            end
                         end
                     -- Last Cast
                         for k, v in pairs(br.player.spell.abilities) do

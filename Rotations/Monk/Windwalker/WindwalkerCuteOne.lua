@@ -311,7 +311,6 @@ local function runRotation()
             if buff.rushingJadeWind.cancel() then return true end
         end
 
-        -- ChatOverlay("SCK: "..round2(spinningCraneKickDmg(),0)..", FoF: "..round2(fistsOfFuryDmg(),0)..", > FoF: "..tostring(BetterThanFoF))
 --------------------
 --- Action Lists ---
 --------------------
@@ -636,12 +635,6 @@ local function runRotation()
         end -- End Action List - Opener
     -- Action List - Single Target
         function actionList_SingleTarget()
-        -- -- Cancel Rushing Jade Wind
-        --     -- cancel_buff,name=rushing_jade_wind,if=active_enemies=1&(!talent.serenity.enabled|cooldown.serenity.remains>3)
-        --     if buff.rushingJadeWind.exists() and ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3)) and (not talent.serenity or cd.serenity.remain() > 3) then
-        --         --if buff.rushingJadeWind.cancel() then return true end
-        --         CastSpellByID(spell.rushingJadeWind)
-        --     end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
             if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") then
@@ -709,14 +702,6 @@ local function runRotation()
             -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&chi>3&buff.swift_roundhouse.stack<2,interrupt=1
             if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 and buff.swiftRoundhouse.stack() < 2 then
                 if cast.flyingSerpentKick() then return end
-            end
-        -- Blackout Kick (inefficient but breaks stall)
-            if chi >= 1 and cast.able.blackoutKick(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not wasLastCombo(spell.blackoutKick) then
-                if cast.blackoutKick(lowestMark) then return end
-            end            
-        -- Tiger Palm (inefficient but breaks stall)
-            if cast.able.tigerPalm(lowestMark) and ((energy >= 56 and chiMax - chi < 2) or ttm <= 3) and not wasLastCombo(spell.tigerPalm) then
-                if cast.tigerPalm(lowestMark) then return end
             end
         end -- End Action List - Single Target
     -- Action List - AoE
@@ -789,10 +774,6 @@ local function runRotation()
             then
                 if cast.blackoutKick(lowestMark) then return end
             end
-        -- -- Spinning Crane Kick
-        --     if cast.able.spinningCraneKick() and (chiMax - chi < 2 or ttm < 1) and cast.last.blackoutKick() then
-        --         if cast.spinningCraneKick(nil,"aoe") then return end
-        --     end
         end -- End Action List - AoE
     -- Action List - Serenity
         function actionList_Serenity()
