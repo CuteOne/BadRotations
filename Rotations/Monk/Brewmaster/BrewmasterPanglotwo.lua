@@ -149,6 +149,8 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Brews",0.25)
+        UpdateToggle("Taunt",0.25)
+        UpdateToggle("Detox",0.25)
         br.player.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
         br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
         br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
