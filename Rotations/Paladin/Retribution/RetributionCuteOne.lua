@@ -740,19 +740,15 @@ local function runRotation()
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
-            if cast.able.divineStorm()
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Divine Storm Units")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+            -- divine_storm,if=variable.ds_castable&buff.divine_purpose.react
+            if cast.able.divineStorm() and dsCastable and buff.divinePurpose.exists() then
+                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+            end
+            -- divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
+            if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
+                or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
             then
-                -- divine_storm,if=variable.ds_castable&buff.divine_purpose.react
-                if dsCastable and buff.divinePurpose.exists() then
-                    if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
-                end
-                -- divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
-                if (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
-                    or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists())
-                then
-                    if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
-                end
+                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
             end
         -- Templar's Verdict
             if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0)) then
