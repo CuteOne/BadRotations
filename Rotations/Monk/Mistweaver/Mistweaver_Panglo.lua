@@ -507,7 +507,7 @@ local function runRotation()
 									lowestTank = tanks[i]
 								end
 							end
-							if cast.renewingMist(lowestTank.unit) then return end
+							if getBuffRemain(lowestTank.unit, spell.renewingMist, "player") > 0 and cast.renewingMist(lowestTank.unit) then return end
 						elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
 							if cast.renewingMist(br.friend[i].unit) then return end
 						end
