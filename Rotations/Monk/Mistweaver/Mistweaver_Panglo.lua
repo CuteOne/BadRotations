@@ -17,43 +17,52 @@ if rotationName == "Panglo" then
 	end)
 end
 
+local function contains(array, val)
+	for i = 1, #array do
+		if array[i] == val then
+			return true
+		end
+	end
+	return false
+end
+
 local function createToggles() -- Define custom toggles
--- Rotation Button
-RotationModes = {
-	[1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "/reload to avoid upwelling timer issues", highlight = 1, icon = br.player.spell.spinningCraneKick },
-	[2] = { mode = "Off", value = 2 , overlay = "Automatic Rotation Off", tip = "Rotation will not run", highlight = 0, icon = br.player.spell.effuse}
-};
-CreateButton("Rotation",1,0)
--- Cooldown Button
-CooldownModes = {
-	[1] = {  mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns will be used.", highlight = 1, icon = br.player.spell.revival },
-	[2] = {  mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival }	
-};
-CreateButton("Cooldown",2,0)
--- Defensive Button
-DefensiveModes = {
-	[1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dampenHarm },
-	[2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dampenHarm }
-};
-CreateButton("Defensive",3,0)
--- Interrupt Button
-InterruptModes = {
-	[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.legSweep },
-	[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.legSweep }
-};
-CreateButton("Interrupt",4,0)
---Detox Button
-DetoxModes = {
-	[1] = { mode = "On", value = 1 , overlay = "Detox Enabled", tip = "Detox Enabled", highlight = 1, icon = br.player.spell.detox },
-	[2] = { mode = "Off", value = 2 , overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spell.detox }
-};
-CreateButton("Detox",5,0)
--- DPS Button
-DPSModes = {
-	[1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.blackoutKick },
-	[2] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.soothingMist }
-};
-CreateButton("DPS",6,0)
+	-- Rotation Button
+	RotationModes = {
+		[1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "/reload to avoid upwelling timer issues", highlight = 1, icon = br.player.spell.spinningCraneKick },
+		[2] = { mode = "Off", value = 2 , overlay = "Automatic Rotation Off", tip = "Rotation will not run", highlight = 0, icon = br.player.spell.effuse}
+	};
+	CreateButton("Rotation",1,0)
+	-- Cooldown Button
+	CooldownModes = {
+		[1] = {  mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns will be used.", highlight = 1, icon = br.player.spell.revival },
+		[2] = {  mode = "Off", value = 2 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival }
+	};
+	CreateButton("Cooldown",2,0)
+	-- Defensive Button
+	DefensiveModes = {
+		[1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dampenHarm },
+		[2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dampenHarm }
+	};
+	CreateButton("Defensive",3,0)
+	-- Interrupt Button
+	InterruptModes = {
+		[1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.legSweep },
+		[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.legSweep }
+	};
+	CreateButton("Interrupt",4,0)
+	--Detox Button
+	DetoxModes = {
+		[1] = { mode = "On", value = 1 , overlay = "Detox Enabled", tip = "Detox Enabled", highlight = 1, icon = br.player.spell.detox },
+		[2] = { mode = "Off", value = 2 , overlay = "Detox Disabled", tip = "Detox Disabled", highlight = 0, icon = br.player.spell.detox }
+	};
+	CreateButton("Detox",5,0)
+	-- DPS Button
+	DPSModes = {
+		[1] = { mode = "On", value = 1 , overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.blackoutKick },
+		[2] = { mode = "Off", value = 2 , overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.soothingMist }
+	};
+	CreateButton("DPS",6,0)
 end
 
 local function createOptions()
@@ -79,7 +88,7 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
 		-- Surging Mists
 		br.ui:createSpinnerWithout(section, "Surging Mist", 30, 0 , 100, 5)
-        --Mana Tea
+		--Mana Tea
 		br.ui:createSpinner(section, "Mana Tea",  70,  0,  100,  5, "Mana Percent to Cast At")
 		--Thunder Focus Tea
 		br.ui:createSpinner(section, "Thunder Focus Tea",  75,  0,  100,  5,  "Use Thunder Focus Tea when someone is below this health percent")
@@ -96,9 +105,9 @@ local function createOptions()
 		--Trinket
 		br.ui:createCheckbox(section, "Use Trinkets With Values below")
 		br.ui:createSpinnerWithout(section,"Use Trinket 1", 50, 0, 100, 5, "Trinket in slot 1 when lowest unit below value")
-        br.ui:createSpinnerWithout(section,"Use Trinket 2", 50, 0, 100, 5, "Trinket in slot 1 when lowest unit below value")
-        --Special Trinket Cases
-        br.ui:createSpinner(section,"Revitalizing Voodoo Totem", 80, 0, 100, 1, "Uses this Trinket when Tank's HP Falls below this set.")
+		br.ui:createSpinnerWithout(section,"Use Trinket 2", 50, 0, 100, 5, "Trinket in slot 1 when lowest unit below value")
+		--Special Trinket Cases
+		br.ui:createSpinner(section,"Revitalizing Voodoo Totem", 80, 0, 100, 1, "Uses this Trinket when Tank's HP Falls below this set.")
 		br.ui:createSpinner(section,"Use Inoculating Extract", 50, 0, 100, 5, "Place Trinket in slot 1 to use")
 		br.ui:createDropdownWithout(section, "Target for Inoculating Extract", {"Any", "Tank"}, 1)
 		br.ui:checkSectionState(section)
@@ -137,6 +146,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Soothing Mist",  85,  0,  100,  5,  "Health Percent to Cast At")
 		--Renewing Mist
 		br.ui:createSpinner(section, "Renewing Mist",  99,  0,  100,  1,  "Health Percent to Cast At")
+		--Renewing Mist Tanks
+		br.ui:createCheckbox(section, "RM Tank Priority", "Recasts renewing mist on the lowest tank if another target can receive the existing partial hot.")
 		--Enveloping Mist
 		br.ui:createSpinner(section, "Enveloping Mist",  70,  0,  100,  5,  "Health Percent to Cast At")
 		--Enveloping Mist Tanks
@@ -190,7 +201,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-	if br.timer:useTimer("debugMistweaver", 0.1) then 
+	if br.timer:useTimer("debugMistweaver", 0.1) then
 		---------------
 		--- Toggles ---
 		---------------
@@ -251,7 +262,7 @@ local function runRotation()
 		local units                                         = br.player.units
 		local tanks                                         = getTanksTable()
 		if leftCombat == nil then leftCombat = GetTime() end
-		if profileStop == nil then profileStop = false end		
+		if profileStop == nil then profileStop = false end
 		units.dyn5 = units.get(5)
 		units.dyn8 = units.get(8)
 		units.dyn15 = units.get(15)
@@ -276,35 +287,35 @@ local function runRotation()
 					thisUnit = enemies.yards20[i]
 					distance = getDistance(thisUnit)
 					if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
-							-- Quaking Palm
-							if isChecked("Quaking Palm") and not isCastingSpell(spell.essenceFont) then
-								if cast.quakingPalm(thisUnit) then return end
-							end
-							-- Leg Sweep
-							if isChecked("Leg Sweep") and not isCastingSpell(spell.essenceFont) then
-								if cast.legSweep(thisUnit) then return end
-							end
-						
+						-- Quaking Palm
+						if isChecked("Quaking Palm") and not isCastingSpell(spell.essenceFont) then
+							if cast.quakingPalm(thisUnit) then return end
+						end
+						-- Leg Sweep
+						if isChecked("Leg Sweep") and not isCastingSpell(spell.essenceFont) then
+							if cast.legSweep(thisUnit) then return end
+						end
+
 						-- Paralysis
 						if isChecked("Paralysis") and not isCastingSpell(spell.essenceFont) then
 							if cast.paralysis(thisUnit) then return end
 						end
 					end
 				end
-			end -- End Interrupt Check	
+			end -- End Interrupt Check
 		end--end interrupts
-		
+
 		local function Extras()
-			if GetMinimapZoneText() == "The Festering Core" then 
+			if GetMinimapZoneText() == "The Festering Core" then
 				for i = 1, #enemies.yards40 do
 					local thisUnit = enemies.yards40[i]
-					local endtime,_,_,_,spellID = select(5,UnitCastingInfo(thisUnit))	
-						if spellID == 263307 then
-							if ((endtime/1000) - GetTime()) < 0.5 then
-								SpellStopCasting() return true
-							end
+					local endtime,_,_,_,spellID = select(5,UnitCastingInfo(thisUnit))
+					if spellID == 263307 then
+						if ((endtime/1000) - GetTime()) < 0.5 then
+							SpellStopCasting() return true
 						end
-					
+					end
+
 				end
 			end
 			-- Temple of Sethraliss
@@ -318,7 +329,7 @@ local function runRotation()
 						CastSpellByName(GetSpellInfo(116670),"target") return true
 					end
 				end
-			end	
+			end
 			--Jade Statue
 			if isChecked("Summon Jade Serpent") and br.friend[1].hp >= 55 and talent.summonJadeSerpentStatue then
 				--player
@@ -341,9 +352,9 @@ local function runRotation()
 					tsPX, tsPY, tsPZ = GetObjectPosition(param)
 					if cast.summonJadeSerpentStatue(param) then return end
 				end
-			end		
+			end
 		end--end extras
-	
+
 		local function OoC_Healing()
 			for i = 1, #br.friend do
 				if isChecked("OOC Healing") and not inCombat and not UnitIsDeadOrGhost("player") and not IsMounted() then
@@ -359,19 +370,19 @@ local function runRotation()
 						end
 					end
 					-- Vivify OoC
-						if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit, spell.envelopingMist, "player") > 2 then
-							if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
-								if cast.soothingMist(br.friend[1].unit) then return end
-							end
-							if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
-								if cast.vivify(br.friend[1].unit) then return end
-							end
+					if br.friend[1].hp <= getValue("OOC Healing") and getBuffRemain(br.friend[1].unit, spell.envelopingMist, "player") > 2 then
+						if getBuffRemain(br.friend[1].unit,115175,"EXACT") == 0 then
+							if cast.soothingMist(br.friend[1].unit) then return end
 						end
+						if getBuffRemain(br.friend[1].unit,115175,"EXACT") > 1 then
+							if cast.vivify(br.friend[1].unit) then return end
+						end
+					end
 					--Soothing Mist OoC
 					if br.friend[1].hp <= getValue("OOC Healing") then
 						if cast.soothingMist(br.friend[1].unit) then return end
 					end
-				end-- end combat check for OOC healing 
+				end-- end combat check for OOC healing
 			end
 		end -- end OoC_Healing
 
@@ -444,7 +455,7 @@ local function runRotation()
 					end
 					--Vivify
 					if getOptionValue("Thunder Focus Tea Options") == 3 and br.friend[1].hp <= getValue("TFT Vivify") and buff.thunderFocusTea.remain("player") >= 1 then
-							if cast.vivify(br.friend[1].unit) then  return true end
+						if cast.vivify(br.friend[1].unit) then  return true end
 					end
 				end--end TFT cast
 			end
@@ -476,7 +487,7 @@ local function runRotation()
 						end
 					end
 				end
-				if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 and tanks[1].hp <= getValue("Revitalizing Voodoo Totem") then 
+				if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 and tanks[1].hp <= getValue("Revitalizing Voodoo Totem") then
 					if hasEquiped(158320) and canUse(158320) then
 						UseItemByName(158320,tanks[1].unit)
 					end
@@ -485,9 +496,21 @@ local function runRotation()
 			-- Renewing Mists
 			for i = 1, #br.friend do
 				if isChecked("Renewing Mist") then
-					if br.friend[i].hp <= getValue("Renewing Mist")
-						and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
-						if cast.renewingMist(br.friend[i].unit) then return end
+					if br.friend[i].hp <= getValue("Renewing Mist") then
+						if isChecked("RM Tank Priority") and not contains(tanks, br.friend[i]) then
+							local lowestTank
+							for i = 1, #tanks do
+								if lowestTank and tanks[i].hp < lowestTank.hp then
+									lowestTank = tanks[i]
+								end
+								if not lowestTank then
+									lowestTank = tanks[i]
+								end
+							end
+							if cast.renewingMist(lowestTank.unit) then return end
+						elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+							if cast.renewingMist(br.friend[i].unit) then return end
+						end
 					end
 				end
 			end
@@ -532,7 +555,7 @@ local function runRotation()
 					if cast.surgingMist(br.friend[1].unit) then return end
 				end
 			end
-			-- Vivify 
+			-- Vivify
 			for i = 1, #br.friend do
 				if br.friend[1].hp <= getValue("Vivify") and not talent.lifecycles then
 					if cast.vivify(br.friend[1].unit) then return end
@@ -545,7 +568,7 @@ local function runRotation()
 				end
 			end
 		end -- end Single Target Healing
-		
+
 		local function AoE_Healing()
 			--Refreshing Jade Wind
 			for i = 1, #br.friend do
@@ -556,7 +579,7 @@ local function runRotation()
 				end
 			end
 			--Essence Font with Upwelling
-			if isChecked("Essence Font Upwelling") and talent.upwelling then 
+			if isChecked("Essence Font Upwelling") and talent.upwelling then
 				if mana >= getValue("EF Minimum Mana") then
 					if upwellingStacksPanglo >= getValue("Essence Font Upwelling") then
 						if getLowAllies(getValue("Essence Font")) >= getValue("EF Targets") then
@@ -584,7 +607,7 @@ local function runRotation()
 			for i = 1, #br.friend do
 				if isChecked("Renewing Mist") then
 					if br.friend[i].hp <= getValue("Renewing Mist")
-						and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+							and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
 						if cast.renewingMist(br.friend[i].unit) then return end
 					end
 				end
@@ -638,12 +661,12 @@ local function runRotation()
 				for i = 1, #br.friend do
 					if isChecked("Renewing Mist") then
 						if br.friend[1].hp <= getValue("Renewing Mist")
-							and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
+								and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
 							if cast.renewingMist(br.friend[1].unit) then return end
 						end
 					end
 				end
-					-- Enveloping Mist
+				-- Enveloping Mist
 				for i = 1, #br.friend do
 					if br.friend[1].hp <= (getValue("Enveloping Mist") *1.1) and not talent.lifecycles then
 						if isChecked("EM Tanks Only") and #tanks > 0 and tanks[1].hp <= getValue("Enveloping Mist") then
@@ -670,14 +693,14 @@ local function runRotation()
 						end
 					end
 				end
-				-- Vivify 
+				-- Vivify
 				for i = 1, #br.friend do
 					if br.friend[1].hp <= (getValue("Vivify") *1.1) and not talent.lifecycles then
 						if br.friend[1].hp <= getValue("Vivify") then
-								if cast.vivify(br.friend[1].unit) then return end
+							if cast.vivify(br.friend[1].unit) then return end
 						end
 					end
-				end 
+				end
 			end
 		end--end mana tea rotation
 
@@ -693,7 +716,7 @@ local function runRotation()
 					if isChecked("Spinning Crane Kick") and #enemies.yards8 >= 3 and not isCastingSpell(spell.spinningCraneKick) then
 						if cast.spinningCraneKick("player") then return end
 					end
-					if isChecked("Rising Sun Kick") then 
+					if isChecked("Rising Sun Kick") then
 						if cast.risingSunKick() then return end
 					end
 					if cast.tigerPalm() then return end
@@ -718,7 +741,7 @@ local function runRotation()
 							end
 						end
 					end
-				end		
+				end
 				--Healing Elixir
 				if isChecked("Healing Elixir") and talent.healingElixir then
 					if php <= getValue("Healing Elixir") then
@@ -745,18 +768,18 @@ local function runRotation()
 			end--End defensive check
 		end-- end defensives
 
-		if not pause(true) then 
+		if not pause(true) then
 			if not inCombat and not isCastingSpell(spell.essenceFont) then
 				if isChecked("OOC Healing") then
 					if OoC_Healing() then return end
 				end
-			elseif inCombat and profileStop==false and not isCastingSpell(spell.essenceFont) then 
+			elseif inCombat and profileStop==false and not isCastingSpell(spell.essenceFont) then
 				if br.player.mode.dps == 1 and lowest.hp > getOptionValue("DPS Mode") then
 					if dps_actionlist() then return end
 				else
 					if buff.wayOfTheCrane.exists() then
 						if shhhhh() then return end
-					else 
+					else
 						if Extras() then return end
 						if Defensive() then return end
 						if actionlist_Interrupts() then return end
