@@ -311,6 +311,30 @@ local function runRotation()
 
         --end interrupts
 
+        -- find best renewing mist target and cast!
+        local function tryCastRmOnBestTarget()
+            for i = 1, #br.friend do
+                if isChecked("Renewing Mist") then
+                    if br.friend[i].hp <= getValue("Renewing Mist") then
+                        -- We cannot use the tank refresh logic on a tank player.
+                        if isChecked("RM Tank Priority") and not contains(tanks, br.friend[i]) then
+                            for i = 1, #tanks do
+                                -- if the tank currently has rewnewing mist
+                                if getBuffRemain(tank[i].unit, spell.renewingMist, "player") > 0 then
+                                    -- refresh the renewing mist, causing the existing hot to slide to another player
+                                    -- proccing gust of mist on the tank, rather than the player.
+                                    if cast.renewingMist(tank[i].unit) then return end
+                                end
+                            end
+                            -- default logic
+                        elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
+                            if cast.renewingMist(br.friend[i].unit) then return end
+                        end
+                    end
+                end
+            end
+        end
+
         local function Extras()
             if GetMinimapZoneText() == "The Festering Core" then
                 for i = 1, #enemies.yards40 do
@@ -505,26 +529,7 @@ local function runRotation()
                 end
             end
             -- Renewing Mists
-            for i = 1, #br.friend do
-                if isChecked("Renewing Mist") then
-                    if br.friend[i].hp <= getValue("Renewing Mist") then
-                        -- We cannot use the tank refresh logic on a tank player.
-                        if isChecked("RM Tank Priority") and not contains(tanks, br.friend[i]) then
-                            for i = 1, #tanks do
-                                -- if the tank currently has rewnewing mist
-                                if getBuffRemain(tank[i].unit, spell.renewingMist, "player") > 0 then
-                                    -- refresh the renewing mist, causing the existing hot to slide to another player
-                                    -- proccing gust of mist on the tank, rather than the player.
-                                    if cast.renewingMist(tank[i].unit) then return end
-                                end
-                            end
-                            -- default logic
-                        elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
-                            if cast.renewingMist(br.friend[i].unit) then return end
-                        end
-                    end
-                end
-            end
+            tryCastRmOnBestTarget()
             -- Enveloping Mist
             for i = 1, #br.friend do
                 if br.friend[1].hp <= getValue("Enveloping Mist") and not talent.lifecycles then
@@ -619,14 +624,7 @@ local function runRotation()
 
         local function lifecycles()
             -- Renewing Mists
-            for i = 1, #br.friend do
-                if isChecked("Renewing Mist") then
-                    if br.friend[i].hp <= getValue("Renewing Mist")
-                            and getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
-                        if cast.renewingMist(br.friend[i].unit) then return end
-                    end
-                end
-            end
+            tryCastRmOnBestTarget()
             -- Enveloping Mist Life Cycles
             for i = 1, #br.friend do
                 if br.friend[1].hp <= getValue("Enveloping Mist Lifecycles") and buff.lifeCyclesEnvelopingMist.exists() then
@@ -675,14 +673,7 @@ local function runRotation()
                     end
                 end
                 -- Renewing Mists
-                for i = 1, #br.friend do
-                    if isChecked("Renewing Mist") then
-                        if br.friend[1].hp <= getValue("Renewing Mist")
-                                and getBuffRemain(br.friend[1].unit, spell.renewingMist, "player") < 1 then
-                            if cast.renewingMist(br.friend[1].unit) then return end
-                        end
-                    end
-                end
+                tryCastRmOnBestTarget()
                 -- Enveloping Mist
                 for i = 1, #br.friend do
                     if br.friend[1].hp <= (getValue("Enveloping Mist") * 1.1) and not talent.lifecycles then
