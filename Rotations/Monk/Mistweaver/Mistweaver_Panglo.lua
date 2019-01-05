@@ -497,21 +497,17 @@ local function runRotation()
 			for i = 1, #br.friend do
 				if isChecked("Renewing Mist") then
 					if br.friend[i].hp <= getValue("Renewing Mist") then
+						-- We cannot use the tank refresh logic on a tank player.
 						if isChecked("RM Tank Priority") and not contains(tanks, br.friend[i]) then
-							local lowestTank
 							for i = 1, #tanks do
-								if lowestTank and tanks[i].hp < lowestTank.hp then
-									lowestTank = tanks[i]
-								end
-								if not lowestTank then
-									lowestTank = tanks[i]
+								-- if the tank currently has rewnewing mist
+								if getBuffRemain(tank[i].unit, spell.renewingMist, "player") > 0 then
+									-- refresh the renewing mist, causing the existing hot to slide to another player
+								    -- proccing gust of mist on the tank, rather than the player.
+									if cast.renewingMist(tank[i].unit) then return end
 								end
 							end
-							if getBuffRemain(lowestTank.unit, spell.renewingMist, "player") > 0 and cast.renewingMist(lowestTank.unit) then
-								return
-							elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 and cast.renewingMist(lowestTank.unit) then
-								return
-							end
+						-- default logic
 						elseif getBuffRemain(br.friend[i].unit, spell.renewingMist, "player") < 1 then
 							if cast.renewingMist(br.friend[i].unit) then return end
 						end
