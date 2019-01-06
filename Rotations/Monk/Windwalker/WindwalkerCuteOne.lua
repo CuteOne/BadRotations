@@ -701,8 +701,16 @@ local function runRotation()
         -- Flying Serpent Kick
             -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&chi>3&buff.swift_roundhouse.stack<2,interrupt=1
             if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 and buff.swiftRoundhouse.stack() < 2 then
-                if cast.flyingSerpentKick() then return end
+                if cast.flyingSerpentKick() then return true end
             end
+        -- Blackout Kick - Stall Prevention 
+            if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) and wasLastCombo(spell.tigerPalm) then 
+                if cast.blackoutKick(lowestMark) then return true end 
+            end 
+        -- Tiger Palm - Stall Prevention 
+            if cast.able.tigerPalm(lowestMark) and not wasLastCombo(spell.tigerPalm) and energy > 50 then 
+                if cast.tigerPalm(lowestMark) then return true end 
+            end 
         end -- End Action List - Single Target
     -- Action List - AoE
         function actionList_AoE()
@@ -774,6 +782,10 @@ local function runRotation()
             then
                 if cast.blackoutKick(lowestMark) then return end
             end
+        -- Tiger Palm - Stall Prevention 
+            if cast.able.tigerPalm(lowestMark) and not wasLastCombo(spell.tigerPalm) and energy > 50 then 
+                if cast.tigerPalm(lowestMark) then return true end 
+            end 
         end -- End Action List - AoE
     -- Action List - Serenity
         function actionList_Serenity()
