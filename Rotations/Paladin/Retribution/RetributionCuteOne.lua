@@ -50,10 +50,10 @@ local function createOptions()
             br.ui:createCheckbox(section, "Opener")
             -- Greater Blessing of Might
             -- br.ui:createCheckbox(section, "Greater Blessing of Might
-			-- Greater Blessing of Kings
-			br.ui:createCheckbox(section, "Greater Blessing of Kings")
-			-- Greater Blessing of Wisdom
-			br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
+            -- Greater Blessing of Kings
+            br.ui:createCheckbox(section, "Greater Blessing of Kings")
+            -- Greater Blessing of Wisdom
+            br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
             -- Blessing of Freedom
             br.ui:createCheckbox(section, "Blessing of Freedom")
             -- Hand of Hinderance
@@ -105,13 +105,13 @@ local function createOptions()
             br.ui:createSpinner(section, "Divine Shield",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Eye for an Eye
             br.ui:createSpinner(section, "Eye for an Eye", 50, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
-			-- Shield of Vengeance
+            -- Shield of Vengeance
             br.ui:createSpinner(section,"Shield of Vengeance", 90, 0 , 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Flash of Light
             br.ui:createSpinner(section, "Flash of Light",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Hammer of Justice
             br.ui:createSpinner(section, "Hammer of Justice - HP",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-			br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
+            br.ui:createCheckbox(section, "Hammer of Justice - Legendary")
             -- Justicar's Vengeance
             br.ui:createSpinner(section, "Justicar's Vengeance",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at over Templar's Verdict.")
             -- Lay On Hands
@@ -297,18 +297,18 @@ local function runRotation()
             --         end
             --     end
             -- end
-		-- Greater Blessing of Kings
+        -- Greater Blessing of Kings
             if isChecked("Greater Blessing of Kings") and cast.able.greaterBlessingOfKings(kingsUnit) 
                 and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not IsMounted() 
             then
-				if cast.greaterBlessingOfKings(kingsUnit) then return end
-			end
-		-- Greater Blessing of Wisdom
+                if cast.greaterBlessingOfKings(kingsUnit) then return end
+            end
+        -- Greater Blessing of Wisdom
             if isChecked("Greater Blessing of Wisdom") and cast.able.greaterBlessingOfWisdom(wisdomUnit) 
                 and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not IsMounted() 
             then
-				if cast.greaterBlessingOfWisdom(wisdomUnit) then return end
-			end
+                if cast.greaterBlessingOfWisdom(wisdomUnit) then return end
+            end
         end -- End Action List - Extras
     -- Action List - Defensives
         local function actionList_Defensive()
@@ -734,7 +734,7 @@ local function runRotation()
             end
         -- Execution Sentence
             -- execution_sentence,if=spell_targets.divine_storm<=2&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if cast.able.executionSentence() and ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards8 > 0)) 
+            if cast.able.executionSentence() and ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards8 > 0) or level < 40)
                 and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) 
             then
                 if cast.executionSentence() then return end
@@ -751,7 +751,7 @@ local function runRotation()
                 if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
             end
         -- Templar's Verdict
-            if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0)) then
+            if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40) then
                 -- templars_verdict,if=buff.divine_purpose.react
                 if buff.divinePurpose.exists() then
                     if cast.templarsVerdict() then return end
