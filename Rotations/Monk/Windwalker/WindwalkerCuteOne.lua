@@ -75,25 +75,23 @@ local function createOptions()
         -- CJL OOR
             br.ui:createSpinner(section,"CJL OOR", 100,  5,  160,  5, "Cast CJL when 0 enemies in 8 yds when at X Energy")
         -- Cancel CJL OOR
-            br.ui:createSpinner(section,"CJL OOR Cancel", 30,  5,  160,  5, "Cancel CJL OOR when under X Energy")
+            br.ui:createSpinnerWithout(section,"CJL OOR Cancel", 30,  5,  160,  5, "Cancel CJL OOR when under X Energy")
         -- Chi Burst 
             br.ui:createSpinnerWithout(section,"Chi Burst Min Units",1,1,10,1,"|cffFFFFFFSet to the minumum number of units to cast Chi Burst on.")
+        -- FoF Targets
+            br.ui:createSpinnerWithout(section, "Fists of Fury Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
+        -- Provoke
+            br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
         -- Roll
             br.ui:createCheckbox(section, "Roll")
-        -- Resuscitate
-            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+        -- Spread Mark Cap
+            br.ui:createSpinnerWithout(section, "Spread Mark Cap", 5, 0, 10, 1, "|cffFFFFFFSet to limit Mark of the Crane Buffs, 0 for unlimited. Min: 0 / Max: 10 / Interval: 1")
         -- Tiger's Lust
             br.ui:createCheckbox(section, "Tiger's Lust")
         -- Whirling Dragon Punch
             br.ui:createCheckbox(section, "Whirling Dragon Punch")
         -- Whirling Dragon Punch Targets
             br.ui:createSpinnerWithout(section, "Whirling Dragon Punch Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Whirling Dragon Punch on.")
-        -- FoF Targets
-        br.ui:createSpinnerWithout(section, "Fists of Fury Targets", 1, 1, 10, 1, "|cffFFFFFFSet to the minumum number of units to cast Fists of Fury on.")
-        -- Provoke
-            br.ui:createCheckbox(section, "Provoke", "Will aid in grabbing mobs when solo.")
-        -- Spread Mark Cap
-            br.ui:createSpinnerWithout(section, "Spread Mark Cap", 5, 0, 10, 1, "|cffFFFFFFSet to limit Mark of the Crane Buffs, 0 for unlimited. Min: 0 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -129,17 +127,19 @@ local function createOptions()
             br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
-        -- Effuse
-            br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
             br.ui:createCheckbox(section,"Detox")
         -- Diffuse Magic/Dampen Harm
             br.ui:createSpinner(section, "Diffuse/Dampen",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+        -- Effuse
+            br.ui:createSpinner(section, "Vivify",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Leg Sweep
             br.ui:createSpinner(section, "Leg Sweep - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Leg Sweep - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
+        -- Resuscitate
+            br.ui:createDropdown(section, "Resuscitate", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         -- Touch of Karma
-            br.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Touch of Karma",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")        
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -222,6 +222,7 @@ local function runRotation()
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
+        local level             = br.player.level
         local mode              = br.player.mode
         local moving            = GetUnitSpeed("player")>0
         local php               = br.player.health
@@ -255,15 +256,12 @@ local function runRotation()
         if fixateTarget == nil then fixateTarget = "player" end
 
         if isCastingSpell(spell.cracklingJadeLightning)
-            and (getDistance(units.dyn5) <= 5 or (#enemies.yards8 == 0 and power <= getOptionValue("CJL OOR Cancel") and isChecked("CJL OOR Cancel")))
-            and ((hasEquiped(144239) and buff.theEmperorsCapacitor.stack() < 19 and ttm > 3)
-                or (hasEquiped(144239) and buff.theEmperorsCapacitor.stack() < 14 and cd.serenity.remain() < 13 and talent.serenity and ttm > 3)
-                or not hasEquiped(144239))
+            and (getDistance(units.dyn5) <= 5 or (#enemies.yards8 == 0 and power <= getOptionValue("CJL OOR Cancel") and isChecked("CJL OOR")))
         then
             SpellStopCasting()
         end
 
-        local lowestMark = debuff.markOfTheCrane.lowest(5,"remain")
+        local lowestMark = debuff.markOfTheCrane.lowest(5,"remain") or units.dyn5
         if not inCombat or lastCombo == nil then lastCombo = 6603 end
         if lastCast == nil then lastCast = 6603 end
         local function wasLastCombo(spellID)
@@ -372,7 +370,7 @@ local function runRotation()
                 end
             end
         -- Crackling Jade Lightning
-            if isChecked("CJL OOR") and (lastCombo ~= spell.cracklingJadeLightning or buff.hitCombo.stack() <= 1) and #enemies.yards8 == 0 and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not isMoving("player") and power >= getOptionValue("CJL OOR") then
+            if isChecked("CJL OOR") and (lastCombo ~= spell.cracklingJadeLightning or buff.hitCombo.stack() <= 1) and #enemies.yards8 == 0 and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not moving and power >= getOptionValue("CJL OOR") then
                 if cast.cracklingJadeLightning() then return true end
              end
         -- Touch of the Void
@@ -637,7 +635,9 @@ local function runRotation()
         function actionList_SingleTarget()
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") then
+            if isChecked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch 
+                and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getValue("Whirling Dragon Punch Targets") 
+            then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
             end
         -- Rising Sun Kick 
@@ -647,12 +647,14 @@ local function runRotation()
             end 
         -- Fists of Fury 
             -- fists_of_fury,if=energy.time_to_max>3
-            if chi >= 3 and cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1 then 
+            if cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") 
+                and mode.fof == 1 and (ttd > 3 or enemies.yards8c > 1) 
+            then 
                 if cast.fistsOfFury(nil,"cone",1,45) then return end 
             end 
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-            if chi >= 2 and cast.able.risingSunKick(lowestMark) then
+            if cast.able.risingSunKick(lowestMark) and (cd.fistsOfFury.remain() > gcd or (ttd <= 3 and enemies.yards8c == 1) or ttm <= 3) then
                 if cast.risingSunKick(lowestMark) then return end
             end
         -- Rushing Jade Wind
@@ -676,7 +678,7 @@ local function runRotation()
             end
         -- Blackout kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))&buff.swift_roundhouse.stack<2
-            if chi >= 2 and cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) and (cd.risingSunKick.remain() > 3 or chi >= 3)
+            if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) and (cd.risingSunKick.remain() > 3 or chi >= 3)
                 and (cd.fistsOfFury.remain() > 4 or chi >= 4 or (chi == 2 and wasLastCombo(spell.tigerPalm))) and buff.swiftRoundhouse.stack() < 2
             then
                 if cast.blackoutKick(lowestMark) then return true end
@@ -704,11 +706,11 @@ local function runRotation()
                 if cast.flyingSerpentKick() then return true end
             end
         -- Blackout Kick - Stall Prevention 
-            if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) and wasLastCombo(spell.tigerPalm) then 
+            if cast.able.blackoutKick(lowestMark) and wasLastCombo(spell.tigerPalm) then 
                 if cast.blackoutKick(lowestMark) then return true end 
             end 
         -- Tiger Palm - Stall Prevention 
-            if cast.able.tigerPalm(lowestMark) and not wasLastCombo(spell.tigerPalm) and energy > 50 then 
+            if cast.able.tigerPalm(lowestMark) and not wasLastCombo(spell.tigerPalm) and ttm <= 3 then 
                 if cast.tigerPalm(lowestMark) then return true end 
             end 
         end -- End Action List - Single Target
@@ -834,23 +836,33 @@ local function runRotation()
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.oraliusWhisperingCrystal() then return true end
                 end
-                if isValidUnit("target") and getDistance("target") < 5 and opener then
-        -- Chi Burst
-                -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
-                    if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger) 
-                        and ((mode.rotaion == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards12r > 0)) 
-                    then
-                        if cast.chiBurst(nil,"rect",1,12) then return true end
+                if isValidUnit("target") and opener then
+                    if getDistance("target") < 5 then
+            -- Chi Burst
+                    -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
+                        if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger) 
+                            and ((mode.rotaion == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards12r > 0)) 
+                        then
+                            if cast.chiBurst(nil,"rect",1,12) then return true end
+                        end
+            -- Chi Wave
+                    -- chi_wave
+                        if cast.chiWave(nil,"aoe") then return true end
+            -- Start Attack
+                    -- auto_attack
+                        if power > 50 then
+                            if cast.tigerPalm("target") then StartAttack(); return true end
+                        else
+                            StartAttack()
+                        end
                     end
-        -- Chi Wave
-                -- chi_wave
-                    if cast.chiWave(nil,"aoe") then return true end
-        -- Start Attack
-                -- auto_attack
-                    if power > 50 then
-                        if cast.tigerPalm("target") then StartAttack(); return true end
-                    else
-                        StartAttack()
+            -- Crackling Jade Lightning 
+                    if isChecked("CJL OOR") and getDistance("target") < 40 and not moving and power >= getOptionValue("CJL OOR") then 
+                        if cast.cracklingJadeLightning("target") then StartAttack(); return end                         
+                    end
+            -- Provoke 
+                    if isChecked("Provoke") and not isBoss("target") and getDistance("target") < 30 and (moving or power < getOptionValue("CJL OOR")) then 
+                        if cast.provoke("target") then StartAttack(); return end 
                     end
                 end
             end -- End No Combat Check
@@ -937,12 +949,12 @@ local function runRotation()
                     if actionList_Cooldowns() then return end
         -- Call Action List - Single Target
                     -- call_action_list,name=st,if=active_enemies<3
-                    if ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
+                    if level < 40 or ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
                         if actionList_SingleTarget() then return end
                     end
         -- Call Action List - AoE
                     -- call_action_list,name=aoe,if=active_enemies>=3
-                    if ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                    if level >= 40 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                         if actionList_AoE() then return end
                     end
                 end -- End Simulation Craft APL
