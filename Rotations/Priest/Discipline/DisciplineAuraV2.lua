@@ -323,6 +323,7 @@ local function runRotation()
         local freeCast                                      = freeMana or mana > 90
         local epTrinket                                     = hasEquiped(140805) and getBuffRemain("player", 225766) > 1
         local norganBuff                                    = not isMoving("player") or UnitBuffID("player", 236373) -- Norgannon's Foresight buff
+        local penanceTarget
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -615,16 +616,8 @@ local function runRotation()
                 end
             end
         end
+        
         local function actionList_AMR()
-            -- Temple of Seth
-            if GetObjectID("target") == 133392 and inCombat and isChecked("Temple of Seth") then
-                if getHP("target") < 100 and getBuffRemain("target",274148) == 0 and getValue("Temple of Seth") > avgHealth() then
-                    if cd.penance.remain() <= gcd then
-                        if cast.penance("target") then return true end
-                    end
-                    if cast.shadowMend("target") then return true end
-                end
-            end
             -- Temple of Seth
             if inCombat and isChecked("Temple of Seth") then
                 for i = 1, GetObjectCount() do
@@ -851,7 +844,9 @@ local function runRotation()
             end
             -- Penance (2+ Atonement)
             if isChecked("Penance") and penanceCheck and atonementCount >= 2 then
-                penanceTarget = units.dyn40
+                if GetUnitExists("target") then
+                    penanceTarget = "target"
+                end
                 if penanceTarget ~= nil then
                     if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
                         penanceTarget = schismBuff
@@ -863,6 +858,10 @@ local function runRotation()
                         if cast.penance(penanceTarget) then
                             healCount = 0
                         end
+                    end
+                else
+                    if lowest.unit <= getOptionValue("Penance Heal") then
+                        if cast.penance(lowest.unit) then return true end
                     end
                 end
             end
@@ -935,7 +934,9 @@ local function runRotation()
             end
             -- Penance
             if isChecked("Penance") and penanceCheck then
-                penanceTarget = units.dyn40
+                if GetUnitExists("target") then
+                    penanceTarget = "target"
+                end
                 if penanceTarget ~= nil then
                     if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
                         penanceTarget = schismBuff
@@ -948,6 +949,10 @@ local function runRotation()
                             healCount = 0
                             return true
                         end
+                    end
+                else
+                    if lowest.unit <= getOptionValue("Penance Heal") then
+                        if cast.penance(lowest.unit) then return true end
                     end
                 end
             end
