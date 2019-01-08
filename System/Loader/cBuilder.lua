@@ -608,6 +608,9 @@ function br.loader:new(spec,specName)
             cd.remain = function()
                 return getSpellCD(v)
             end
+            cd.remains = function()
+                return getSpellCD(v)
+            end
 
             -- Build Cast Funcitons
             self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
