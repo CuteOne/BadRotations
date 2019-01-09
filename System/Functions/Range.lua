@@ -240,3 +240,13 @@ function inRange(spellID,unit)
         return false
     end
 end
+
+function getBaseDistance(unit1, unit2)
+    if unit2 == nil then
+        unit2 = "player"
+    end
+    local x1, y1, z1 = ObjectPosition(unit1)
+    local x2, y2, z2 = ObjectPosition(unit2)
+    return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+        ((UnitCombatReach(unit1) or 0) + (UnitCombatReach(unit2) or 0)), z2 - z1
+end

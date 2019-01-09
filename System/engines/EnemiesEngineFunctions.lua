@@ -148,7 +148,7 @@ function updateOM()
 			if omCounter == 1 then cycleTime = debugprofilestop() end
 			-- define our unit
 			local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getDistance(thisUnit) < 50
+				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getBaseDistance(thisUnit) < 50
 					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or (autoLoot and CanLootUnit(UnitGUID(thisUnit)))))
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
