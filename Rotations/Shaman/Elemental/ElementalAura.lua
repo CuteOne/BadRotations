@@ -607,7 +607,7 @@ local function runRotation()
             end
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
-            if buff.ascendance.exists() and not stormEle and holdBreak then
+            if (cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists()) and not stormEle and holdBreak then
                 if debuff.flameShock.exists("target") then
                     if cast.lavaBurst() then return true end
                 else
