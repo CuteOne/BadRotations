@@ -82,33 +82,11 @@ function br.read.combatLog()
         -- Last Cast Success for Spec Abilities Only
         local castTime = select(4, GetSpellInfo(spell))
         if castTime == nil then castTime = 0 end
+        if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
         if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
             if sourceName ~= nil then
                 if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
-                    -- Last Combo
-                        if param == "SPELL_CAST_SUCCESS" then
-                            local comboSpells = {
-                                br.player.spell.blackoutKick,
-                                br.player.spell.chiBurst,
-                                br.player.spell.chiWave,
-                                br.player.spell.cracklingJadeLightning,
-                                br.player.spell.fistsOfFury,
-                                br.player.spell.fistOfTheWhiteTiger,
-                                br.player.spell.flyingSerpentKick,
-                                br.player.spell.risingSunKick,
-                                br.player.spell.rushingJadeWind,
-                                br.player.spell.spinningCraneKick,
-                                br.player.spell.strikeOfTheWindlord,
-                                br.player.spell.tigerPalm,
-                                br.player.spell.touchOfDeath,
-                                br.player.spell.whirlingDragonPunch,
-                            }
-                            for i = 1, #comboSpells do
-                                local thisCombo = comboSpells[i]
-                                if spell == thisCombo then lastCombo = spell break end
-                            end
-                        end
                     -- Last Cast
                         for k, v in pairs(br.player.spell.abilities) do
                             if v == spell then
@@ -529,6 +507,54 @@ function cl:Mage(...)
 end
 function cl:Monk(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    local comboSpells = {}
+    local failType = {}
+    failType["ABSORB"] = true 
+    failType["BLOCK"] = true  
+    failType["DEFLECT"] = true  
+    failType["DODGE"] = true  
+    failType["EVADE"] = true  
+    failType["IMMUNE"] = true  
+    failType["MISS"] = true  
+    failType["PARRY"] = true  
+    failType["REFLECT"] = true  
+    failType["RESIST"] = true 
+    local castTime = select(4, GetSpellInfo(spell))
+    if castTime == nil then castTime = 0 end
+    if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
+    if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
+    if br.player ~= nil then        
+        comboSpells[br.player.spell.blackoutKick] = true
+        comboSpells[br.player.spell.chiBurst] = true
+        comboSpells[br.player.spell.chiWave] = true
+        comboSpells[br.player.spell.cracklingJadeLightning] = true
+        comboSpells[br.player.spell.fistsOfFury] = true
+        comboSpells[br.player.spell.fistOfTheWhiteTiger] = true
+        comboSpells[br.player.spell.flyingSerpentKick] = true
+        comboSpells[br.player.spell.risingSunKick] = true
+        comboSpells[br.player.spell.rushingJadeWind] = true
+        comboSpells[br.player.spell.spinningCraneKick] = true
+        comboSpells[br.player.spell.tigerPalm] = true
+        comboSpells[br.player.spell.touchOfDeath] = true
+        comboSpells[br.player.spell.whirlingDragonPunch] = true
+        if sourceName ~= nil then
+            if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+            -- Last Combo
+                if param == "SPELL_CAST_SUCCESS" and comboSpells[spell] and spell ~= lastCombo then
+                    prevCombo = lastCombo
+                    lastCombo = spell
+                    -- Print(GetSpellInfo(lastCombo).." Success! - Prev Last Combo was: "..GetSpellInfo(prevCombo)) 
+                end
+                if comboSpells[spell] and (castTime == 0 or (castTime > 0 and getCastTimeRemain("player") < castTime)) and not (getSpellCD(spell) > br.player.gcdMax) 
+                    and (param == "SPELL_CAST_FAILED" or (param == "SPELL_MISSED" and failType[spellType])) 
+                then
+                    -- Print(GetSpellInfo(lastCombo).." "..spellType.."! - Setting Last Combo to: "..GetSpellInfo(prevCombo)) 
+                    lastCombo = prevCombo
+                    prevCombo = 6603
+                end
+            end 
+        end 
+    end
 end
 function cl:Priest(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
