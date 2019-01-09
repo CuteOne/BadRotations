@@ -82,7 +82,6 @@ function br.read.combatLog()
         -- Last Cast Success for Spec Abilities Only
         local castTime = select(4, GetSpellInfo(spell))
         if castTime == nil then castTime = 0 end
-        if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
         if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
             if sourceName ~= nil then
                 if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
