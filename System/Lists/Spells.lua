@@ -340,6 +340,7 @@ br.lists.spells = {
                 demonsBite                  = 162243,
                 eyeBeam                     = 198013,
                 felRush                     = 195072,
+                immolationAura              = 258920,
                 metamorphosis               = 191427,
                 netherwalk                  = 196555,
                 torment                     = 281854,
