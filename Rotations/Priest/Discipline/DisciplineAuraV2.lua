@@ -860,7 +860,7 @@ local function runRotation()
                         end
                     end
                 else
-                    if lowest.unit <= getOptionValue("Penance Heal") then
+                    if lowest.hp <= getOptionValue("Penance Heal") then
                         if cast.penance(lowest.unit) then return true end
                     end
                 end

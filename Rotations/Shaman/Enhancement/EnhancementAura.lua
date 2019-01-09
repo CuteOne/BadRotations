@@ -380,7 +380,7 @@ local function runRotation()
         end -- End Action List - Interrupts
         local function ghostWolf()
             -- Ghost Wolf
-            if not (IsMounted() or IsFlying()) and is Checked("Auto Ghost Wolf") then
+            if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
                 if mode.ghostWolf == 1 then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
                        if cast.ghostWolf() then end
