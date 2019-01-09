@@ -217,6 +217,8 @@ local function runRotation()
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local charges                                       = br.player.charges
+        local deadMouse, hasMouse, playerMouse              = UnitIsDeadOrGhost("mouseover"), GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
+        local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local debuff                                        = br.player.debuff
