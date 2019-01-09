@@ -6,29 +6,27 @@ local rotationName = "Aura" -- Change to name of profile listed in options drop 
 local function createToggles() -- Define custom toggles
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.lunarStrike },
+        [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.lunarStrike}
     };
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.celestialAlignment },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 1, icon = br.player.spell.celestialAlignment },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.celestialAlignment }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
-        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
+        [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin },
+        [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin }
     };
     CreateButton("Defensive",3,0)
 -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel },
-        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
+        [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.solarBeam },
+        [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     };
     CreateButton("Interrupt",4,0)
 end
@@ -138,6 +136,7 @@ local function runRotation()
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
+        local chicken                                       = br.player.buff.moonkinForm.exists()
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
@@ -287,7 +286,7 @@ local function runRotation()
                 if cast.regrowth("player") then return true end
             end
             -- Rebirth
-            if isChecked("Rebirth") and cd.rebirth.remains <= gcd then
+            if isChecked("Rebirth") and cd.rebirth.remains() <= gcd then
                 if getOptionValue("Rebirth") == 1 then
                     local tanks = getTanksTable()
                     for i = 1, #tanks do
@@ -413,27 +412,27 @@ local function runRotation()
                 if cast.warriorOfElune() then return true end
             end
             -- Stellar Flare
-            if talent.stellarFlare and debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") then
+            if talent.stellarFlare and debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") then
                 for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i].unit
+                    local thisUnit = enemies.yards45[i]
                     if not debuff.stellarFlare.exists(thisUnit) or debuff.stellarFlare.remains(thisUnit) < 3 then
                         if cast.stellarFlare(thisUnit) then return true end
                     end
                 end
             end
             -- Moonfire
-            if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+            if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
                 for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i].unit
+                    local thisUnit = enemies.yards45[i]
                     if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.remains(thisUnit) < 3 then
                         if cast.moonfire(thisUnit) then return true end
                     end
                 end
             end
             -- Sunfire
-            if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+            if debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
                 for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i].unit
+                    local thisUnit = enemies.yards45[i]
                     if not debuff.sunfire.exists(thisUnit) or debuff.sunfire.remains(thisUnit) < 3 then
                         if cast.sunfire(thisUnit) then return true end
                     end
@@ -476,26 +475,32 @@ local function runRotation()
                 end
             end
             -- Refresh Sunfire
-            for i = 1, #enemies.yards45 do
-                local thisUnit = enemies.yards45[i].unit
-                if debuff.sunfire.exists(thisUnit) and debuff.sunfire.remains(thisUnit) < 7.2 then
-                    if cast.sunfire(thisUnit) then return true end
+            if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+                for i = 1, #enemies.yards45 do
+                    local thisUnit = enemies.yards45[i]
+                    if debuff.sunfire.exists(thisUnit) and debuff.sunfire.remains(thisUnit) < 7.2 then
+                        if cast.sunfire(thisUnit) then return true end
+                    end
                 end
             end
             -- Refresh Stellar Flare
-            for i = 1, #enemies.yards45 do
-                local thisUnit = enemies.yards45[i].unit
-                if debuff.stellarFlare.exists(thisUnit) and debuff.stellarFlare.remains(thisUnit) < 7.2 then
-                    if cast.stellarFlare(thisUnit) then return true end
-                end
-            end   
+            if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") then
+                for i = 1, #enemies.yards45 do
+                    local thisUnit = enemies.yards45[i]
+                    if debuff.stellarFlare.exists(thisUnit) and debuff.stellarFlare.remains(thisUnit) < 7.2 then
+                        if cast.stellarFlare(thisUnit) then return true end
+                    end
+                end   
+            end
             -- Refresh Moonfire
-            for i = 1, #enemies.yards45 do
-                local thisUnit = enemies.yards45[i].unit
-                if debuff.moonfire.exists(thisUnit) and debuff.moonfire.remains(thisUnit) < 7.2 then
-                    if cast.moonfire(thisUnit) then return true end
-                end
-            end                    
+            if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+                for i = 1, #enemies.yards45 do
+                    local thisUnit = enemies.yards45[i]
+                    if debuff.moonfire.exists(thisUnit) and debuff.moonfire.remains(thisUnit) < 7.2 then
+                        if cast.moonfire(thisUnit) then return true end
+                    end
+                end                    
+            end
             -- New Moon
             if talent.newMoon and charges.newMoon.count() >= 1 then
                 if moon == nil then moon = 10 end
@@ -524,7 +529,7 @@ local function runRotation()
             -- Moonfire
             if isMoving() then
                 for i = 1, #enemies.yards45 do
-                    local thisUnit = enemies.yards45[i].unit
+                    local thisUnit = enemies.yards45[i]
                     local lowestDebuff, lowestTarget
                     if debuff.moonfire.exists(thisUnit) and (debuff.moonfire.remains(thisUnit) < lowestDebuff or lowestDebuff == nil) then
                         lowestDebuff = debuff.moonfire.remains(thisUnit)
@@ -558,6 +563,9 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
+                if not chicken and not cast.last.moonkinForm(1) then
+                    if cast.moonkinForm() then return true end
+                end
                 actionList_Interrupts()
                 if useDefensive() then
                     actionList_Defensive()
