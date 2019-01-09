@@ -592,7 +592,7 @@ local function runRotation()
                 then
                     local thisHP = php
                     local thisUnit = "player"
-                    local lowestUnit = br.friend[1].unit
+                    local lowestUnit = getLowestUnit(40)
                     local fhp = getHP(lowestUnit)
                     if getOptionValue("Auto Heal") == 1 then thisHP = fhp; thisUnit = lowestUnit end
                     if not inCombat then

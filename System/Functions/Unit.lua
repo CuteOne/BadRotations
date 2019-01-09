@@ -253,7 +253,21 @@ function getHPLossPercent(unit,sec)
 		return snapHP - currentHP
 	end
 end
-
+function getLowestUnit(range)
+	local lowestUnit = "player"
+	local lowestHP = getHP("player")
+	if range == nil then range = 40 end
+	if br ~= nil and br.friend ~= nil then
+		for i = 1, #br.friend do
+			local thisUnit = br.friend[i].unit
+			local thisDist = getDistance(thisUnit)
+			if thisDist < range and getHP(thisUnit) < lowestUnit then
+				lowestUnit = thisUnit
+			end
+		end
+	end
+	return lowestUnit
+end
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
 	return GetObjectID(BossUnitID)
