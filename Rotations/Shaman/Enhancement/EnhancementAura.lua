@@ -55,6 +55,7 @@ local function createOptions()
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Ghost Wolf
+            br.ui:createCheckbox(section, "Auto Ghost Wolf", "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
             br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf")
             -- Feral Lunge
             br.ui:createCheckbox(section,"Feral Lunge")
@@ -379,7 +380,7 @@ local function runRotation()
         end -- End Action List - Interrupts
         local function ghostWolf()
             -- Ghost Wolf
-            if not (IsMounted() or IsFlying()) then
+            if not (IsMounted() or IsFlying()) and is Checked("Auto Ghost Wolf") then
                 if mode.ghostWolf == 1 then
                     if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
                        if cast.ghostWolf() then end
