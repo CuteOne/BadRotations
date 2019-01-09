@@ -70,6 +70,7 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cff0070deSet to desired time for test in minutes. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cff0070deSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createCheckbox(section, "Auto Ghost Wolf", "|cff0070deCheck this to automatically control GW transformation based on toggle bar setting.")
             br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf(Will break form for instant cast lava burst and flame shock.)")
             br.ui:createDropdownWithout(section, "Force GW Key",br.dropOptions.Toggle,6, "|cff0070deSet key to hold down for Ghost Wolf(Will not break form until key is released.)")
             -- Purge
@@ -310,7 +311,7 @@ local function runRotation()
         end -- End Action List - Extras
         local function ghostWolf()
              -- Ghost Wolf
-             if not (IsMounted() or IsFlying()) then
+             if not (IsMounted() or IsFlying()) and isChecked("Auto Ghost Wolf") then
                 if mode.ghostWolf == 1 then
                     if isMoving("player") and not buff.ghostWolf.exists("player") then                        
                         if cast.ghostWolf("player") then end
@@ -325,7 +326,7 @@ local function runRotation()
                     elseif buff.ghostWolf.exists("player") then
                         if SpecificToggle("Ghost Wolf Key") then
                             return
-                        else
+                        elseif not SpecificToggle("Force GW Key") then
                             if br.timer:useTimer("Delay",0.25) then
                                 RunMacroText("/cancelAura Ghost Wolf")
                             end
@@ -453,7 +454,7 @@ local function runRotation()
                 if cast.liquidMagmaTotem("target") then return true end
             end
             -- Moving Chain Lightning
-            if buff.stormKeeper.exists() and isMoving("player") then
+            if buff.stormKeeper.exists() and isMoving("player") and holdBreak then
                 if cast.chainLightning() then return true end
             end
             -- Flame Shock
@@ -469,7 +470,7 @@ local function runRotation()
             end
             -- Earthquake
             --actions.aoe+=/earthquake
-            if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >=(100-(4*#enemies.yards10t)) or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
+            if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
                 if mode.earthShock == 2 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
                 elseif mode.earthShock == 1 then
@@ -539,8 +540,8 @@ local function runRotation()
         -- Action List Simc ST
         local function actionList_ST()
             --Flame Shock
-            --actions.single_target=flame_shock,if=!ticking|dot.flame_shock.remains<=gcd|talent.ascendance.enabled&dot.flame_shock.remains<(cooldown.ascendance.remains+buff.ascendance.duration)&cooldown.ascendance.remains<4&(!talent.storm_elemental.enabled|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120)
-            if not debuff.flameShock.exists("target") and ((not talent.stormElemental or not stormEle) or (stormEle and buff.windGust.stack() < 14)) then
+            --actions.single_target=(|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<2*gcd|dot.flame_shock.remains<=gcd|talent.ascendance.enabled&dot.flame_shock.remains<(cooldown.ascendance.remains+buff.ascendance.duration)&cooldown.ascendance.remains<4&(!talent.storm_elemental.enabled|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120))&buff.wind_gust.stack<14&!buff.surge_of_power.up
+            if (not debuff.flameShock.exists("target") or (talent.stormElemental and cd.stormElemental.remains() < 2 * gcd) or (debuff.flameShock.remains("target") <= gcd) or (talent.ascendance and debuff.flameShock.remains("target") < (cd.ascendance.remains() + buff.ascendance.duration()) and cd.ascendance.remains() < 4 and (not talent.stormElemental or not stormEle))) and buff.windGust.stack() < 14 and not buff.surgeOfPower.exists() then
                 if cast.flameShock() then return true end
             end
             --Ascendance
@@ -574,7 +575,7 @@ local function runRotation()
             -- Earthquake
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
-            if not talent.exposedElements and #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or buff.flameShock.remain < 5.4) or (talent.stormElemental and stormEle and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= 92))) and holdBreak then
+            if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or buff.flameShock.remain < 5.4) or (talent.stormElemental and stormEle and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump")))) and holdBreak then
                 if mode.earthShock == 2 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
                 elseif mode.earthShock == 1 then
@@ -606,7 +607,7 @@ local function runRotation()
             end
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
-            if (cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists()) and not stormEle and holdBreak then
+            if buff.ascendance.exists() and not stormEle and holdBreak then
                 if debuff.flameShock.exists("target") then
                     if cast.lavaBurst() then return true end
                 else
@@ -624,7 +625,7 @@ local function runRotation()
                 if cast.flameShock() then return true end
             end
             -- Lightning Bolt (Surge of Power)
-            if talent.surgeOfPower and holdBreak then
+            if talent.surgeOfPower and buff.surgeOfPower.exists() and holdBreak then
                 if cast.lightningBolt() then return true end
             end
             --Flame Shock (Refresh)
@@ -639,7 +640,7 @@ local function runRotation()
             end
             -- Frost Shock
             --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up&(buff.icefury.remains<gcd*4*buff.icefury.stack|buff.stormkeeper.up|!talent.master_of_the_elements.enabled)
-            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") and (buff.iceFury.remain() < gcd *4*buff.iceFury.stack() or buff.stormKeeper.exists() or not talent.masterOfTheElements) and holdBreak then
+            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") and holdBreak then
                 if cast.frostShock() then return true end
             end
             -- Ice Fury
@@ -829,7 +830,7 @@ local function runRotation()
 -----------------
         -- Pause
         ghostWolf()
-        if SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() then
+        if SpecificToggle("Force GW Key") and not GetCurrentKeyBoardFocus() and isChecked("Auto Ghost Wolf") then
             if buff.ghostWolf.exists("player") then
                 return
             else
