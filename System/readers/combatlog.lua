@@ -522,7 +522,7 @@ function cl:Monk(...)
     if castTime == nil then castTime = 0 end
     if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
     if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
-    if br.player ~= nil then        
+    if br.player ~= nil and GetSpecialization == 3 then        
         comboSpells[br.player.spell.blackoutKick] = true
         comboSpells[br.player.spell.chiBurst] = true
         comboSpells[br.player.spell.chiWave] = true
