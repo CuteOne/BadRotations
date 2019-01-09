@@ -62,6 +62,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
+            br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for FoK and CT usage")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -315,6 +316,10 @@ local function runRotation()
     if trait.doubleDose.rank > 2 then dDRank = 1 else dDRank = 0 end
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     local enemies10 = #enemyTable10
+
+    if isChecked("Ignore Blacklist for FoK and CT") then
+        enemies10 = #enemies.get(10)
+    end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
     local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 % (2 * (GetHaste()/100)))
