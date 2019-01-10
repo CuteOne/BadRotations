@@ -2348,7 +2348,9 @@ br.lists.spells = {
             traits                          = {
                 bladeInTheShadows           = 275896,
                 nightsVengeance             = 273418,
+                replicatingShadows          = 286121,
                 sharpenedBlades             = 272911,
+                theFirstDance               = 278681
             }
         },
         -- All
