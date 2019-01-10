@@ -184,6 +184,7 @@ local function runRotation()
         local use                                           = br.player.use
 
         units.get(5)
+        units.get(8)
         units.get(30)
         enemies.get(5)
         enemies.get(8)
@@ -275,7 +276,6 @@ local function runRotation()
         end
 
         -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
-
 --------------------
 --- Action Lists ---
 --------------------
