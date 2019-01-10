@@ -213,13 +213,19 @@ local function runRotation()
     local function shallWeDot(unit)
         if isChecked("Auto Nightblade HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
+            if #br.friend == 1 then
+                if UnitHealth(unit) > UnitHealthMax("player") * 0.40 then
+                    return true
+                end
+                return false
+            end
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
                 local thisHP = UnitHealthMax(thisUnit)
                 local thisRole = UnitGroupRolesAssigned(thisUnit)
                 if not UnitIsDeadOrGhost(thisUnit) and getDistance(unit, thisUnit) < 40 then
                     if thisRole == "TANK" then hpLimit = hpLimit + (thisHP * 0.15) end
-                    if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.45) end
+                    if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.3) end
                 end
             end
             if UnitHealth(unit) > hpLimit then return true end
@@ -550,7 +556,7 @@ local function runRotation()
         end
         -- # Use Symbols on cooldown (after first Nightblade) unless we are going to pop Tornado and do not have Shadow Focus.
         -- actions.cds+=/symbols_of_death,if=dot.nightblade.ticking&(!talent.shuriken_tornado.enabled|talent.shadow_focus.enabled|spell_targets.shuriken_storm<3|!cooldown.shuriken_tornado.up)
-        if mode.sod == 1 and debuff.nightblade.exists("target") and (not talent.shurikenTornado or talent.shadowFocus or enemies10 < 3 or not cd.shurikenTornado.exists()) and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if mode.sod == 1 and (debuff.nightblade.exists("target") or not shallWeDot("target")) and (not talent.shurikenTornado or talent.shadowFocus or enemies10 < 3 or not cd.shurikenTornado.exists()) and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.symbolsOfDeath("player") then return true end
         end
         -- # If adds are up, snipe the one with lowest TTD. Use when dying faster than CP deficit or not stealthed without any CP.
@@ -575,12 +581,12 @@ local function runRotation()
         end
         -- # At 3+ without Shadow Focus use Tornado with SoD and Dance ready. We will pop those before the first storm comes in.
         -- actions.cds+=/shuriken_tornado,if=spell_targets>=3&!talent.shadow_focus.enabled&dot.nightblade.ticking&!stealthed.all&cooldown.symbols_of_death.up&cooldown.shadow_dance.charges>=1
-        if enemies10 >= 3 and not talent.shadowFocus and debuff.nightblade.exists("target") and not stealthedAll and cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if enemies10 >= 3 and not talent.shadowFocus and (debuff.nightblade.exists("target") or not shallWeDot("target")) and not stealthedAll and cd.symbolsOfDeath.exists() and charges.shadowDance.frac() >= 1 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.shurikenTornado("player") then return true end
         end
         -- # At 3+ with Shadow Focus use Tornado with SoD already up.
         -- actions.cds+=/shuriken_tornado,if=spell_targets>=3&talent.shadow_focus.enabled&dot.nightblade.ticking&buff.symbols_of_death.up
-        if enemies10 >= 3 and talent.shadowFocus and debuff.nightblade.exists("target") and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if enemies10 >= 3 and talent.shadowFocus and (debuff.nightblade.exists("target") or not shallWeDot("target")) and buff.symbolsOfDeath.exists() and ttd("target") > getOptionValue("CDs TTD Limit") then
             if cast.shurikenTornado("player") then return true end
         end
         -- actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&target.time_to_die<=5+talent.subterfuge.enabled&!raid_event.adds.up
