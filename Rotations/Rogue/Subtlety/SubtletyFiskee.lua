@@ -563,17 +563,26 @@ local function runRotation()
         -- actions.cds+=/marked_for_death,target_if=min:target.time_to_die,if=raid_event.adds.up&(target.time_to_die<combo_points.deficit|!stealthed.all&combo_points.deficit>=cp_max_spend)
         if getOptionValue("MfD Target") == 1 then
             if #enemyTable30 > 1 and (enemyTable30.lowestTTD < comboDeficit or (not stealthedAll and comboDeficit >= comboMax)) then
-                if cast.markedForDeath(enemyTable30.lowestTTDUnit) then return true end
+                if cast.markedForDeath(enemyTable30.lowestTTDUnit) then
+                    combo = comboMax
+                    comboDeficit = 0
+                end
             end
         else
             if #enemyTable30 > 1 and (ttd("target") < comboDeficit or (not stealthedAll and comboDeficit >= comboMax)) then
-                if cast.markedForDeath("target") then return true end
+                if cast.markedForDeath("target") then
+                    combo = comboMax
+                    comboDeficit = 0
+                end
             end
         end
         -- # If no adds will die within the next 30s, use MfD on boss without any CP and no stealth.
         -- actions.cds+=/marked_for_death,if=raid_event.adds.in>30-raid_event.adds.duration&!stealthed.all&combo_points.deficit>=cp_max_spend
         if #enemyTable30 == 1 and comboDeficit >= comboMax and not stealthedAll then
-            if cast.markedForDeath("target") then return true end
+            if cast.markedForDeath("target") then
+                combo = comboMax
+                comboDeficit = 0
+            end
         end
         -- actions.cds+=/shadow_blades,if=combo_points.deficit>=2+stealthed.all
         if cdUsage and comboDeficit >= (2 + sRogue) and isChecked("Shadow Blades") and ttd("target") > getOptionValue("CDs TTD Limit") then
