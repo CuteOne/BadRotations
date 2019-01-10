@@ -260,9 +260,11 @@ function getLowestUnit(range)
 	if br ~= nil and br.friend ~= nil then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
-			local thisDist = getDistance(thisUnit)
-			if thisDist < range and getHP(thisUnit) < lowestUnit then
-				lowestUnit = thisUnit
+            local thisDist = getDistance(thisUnit)
+            local thisHp = getHP(thisUnit)
+			if thisDist < range and thisHp < lowestHP then
+                lowestUnit = thisUnit
+                lowestHP = thisHp
 			end
 		end
 	end
