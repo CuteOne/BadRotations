@@ -515,7 +515,7 @@ local function runRotation()
                 end
         -- Touch of Death
                 -- touch_of_death,if=target.time_to_die>9
-                if isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 9 and cd.fistsOfFury.remain() < gcd then
+                if isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 9 then --and cd.fistsOfFury.remain() < gcd then
                     if cast.touchOfDeath() then return true end
                 end
             end
