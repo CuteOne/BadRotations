@@ -712,7 +712,7 @@ local function runRotation()
                             end
                         end
                     else
-                        if castWiseAoEHeal(br.friend,spell.healingRain,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then return end
+                        if castWiseAoEHeal(br.friend,spell.downpour,10,getValue("Downpour"),getValue("Downpour Targets"),6,true, true) then return end
                     end
                 end 
             end
