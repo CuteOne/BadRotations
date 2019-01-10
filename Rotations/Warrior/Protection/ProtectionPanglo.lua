@@ -74,6 +74,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Avatar
             br.ui:createCheckbox(section,"Avatar")
+            -- Avatar Spinner
+            br.ui:createSpinnerWithout(section, "Avatar Mob Count",  5,  0,  10,  1,  "|cffFFFFFFEnemies to cast Avatar on.")
             -- Demoralizing Shout
             br.ui:createCheckbox(section,"Demoralizing Shout - CD")
             -- Ravager
@@ -161,7 +163,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
+        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
@@ -283,7 +285,7 @@ local function runRotation()
                 for i=1, #enemies.yards40 do
                     thisUnit = enemies.yards40[i]
                     unitDist = getDistance(thisUnit)
-                    targetMe = UnitIsUnit("player",thisUnit) or false
+                    targetMe = GetUnitIsUnit("player",thisUnit) or false
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                     -- Pummel
                         if isChecked("Pummel") and unitDist < 5 then
@@ -315,7 +317,7 @@ local function runRotation()
                 end
         -- Avatar
                 -- avatar,if=buff.battle_cry.up|(target.time_to_die<(cooldown.battle_cry.remain()s+10))
-                if isChecked("Avatar") then
+                if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                         if cast.avatar() then return end
                 end
                 if isChecked("Racial") then
@@ -357,7 +359,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or level < 26 then
-                    if isValidUnit("target") or (UnitIsFriend("target") and level >= 28) then
+                    if isValidUnit("target") or (GetUnitIsFriend("target") and level >= 28) then
                         if level < 28 then
                             if cast.charge("target") then return end
                         else
@@ -424,7 +426,11 @@ local function runRotation()
                 if cast.shieldSlam() then return end
         -- Thunder Clap
             -- thunder_clap
-            if cast.thunderClap() then return end
+            if talent.cracklingThunder then
+                if cast.thunderClap("player",nil,1,12) then return end
+            else
+                if cast.thunderClap("player",nil,1,8) then return end
+            end
         -- Revenge
             -- revenge,if=(talent.vengeance.enabled&buff.revenge.react&!buff.vengeance_ignore_pain.up)|(buff.vengeance_revenge.up&rage>=59)|(talent.vengeance.enabled&!buff.vengeance_ignore_pain.up&!buff.vengeance_revenge.up&rage>=69)|(!talent.vengeance.enabled&buff.revenge.react)
             if (talent.vengeance and buff.revenge.exists() and not buff.vengeanceIgnorePain.exists())
@@ -466,7 +472,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-            if inCombat and not IsMounted() and isValidUnit(units.dyn5) then
+            if inCombat and not IsMounted() and isValidUnit("target") then
             -- Auto Attack
                 --auto_attack
                 if getDistance(units.dyn5) < 5 then
@@ -487,7 +493,7 @@ local function runRotation()
         end -- Pause
     end -- End Timer
 end -- End runRotation
-local id = 73
+local id = 0--73
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

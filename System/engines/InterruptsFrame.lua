@@ -53,7 +53,6 @@ end
 -- local that will be used inside function environment
 local canCast = canCast
 local castSpell = castSpell
-local getDistance = getDistance
 local getOptionCheck = getOptionCheck
 local getOptionValue = getOptionValue
 local getDistance = getDistance
@@ -194,7 +193,7 @@ function im:manageCast(...)
 	-- Prepare GUID to be reused via UnitID
 	local br = im
 	local function GetObjectExists(Unit)
-	    if FireHack and GetObjectExists(Unit) == true then
+	    if EWT and GetObjectExists(Unit) == true then
 	        return true
 	    else
 	        return false

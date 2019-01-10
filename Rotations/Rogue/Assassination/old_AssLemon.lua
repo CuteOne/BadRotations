@@ -562,7 +562,7 @@ local function runRotation()
     local function actionList_Cooldowns()
         --actions.cds=potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
         if isChecked("Potion") and canUse(142117) then
-            if hasBloodLust() or getTimeToDie("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish.remain() < 5 then
+            if hasBloodLust() or getTTD("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish.remain() < 5 then
                 useItem(142117)
             end
         end
@@ -578,7 +578,7 @@ local function runRotation()
         end
         --actions.cds+=/use_item,name=specter_of_betrayal,if=buff.bloodlust.react|target.time_to_die<=20|debuff.vendetta.up
         if hasEquiped(151190) and canUse(151190) then
-            if hasBloodLust() or getTimeToDie("target") <= 20 or debuff.vendetta.exists("target") then
+            if hasBloodLust() or getTTD("target") <= 20 or debuff.vendetta.exists("target") then
                 useItem(151190)
             end
         end
@@ -594,7 +594,7 @@ local function runRotation()
         --actions.cds+=/marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit*1.5|(raid_event.adds.in>40&combo_points.deficit>=cp_max_spend)
         if isChecked("Marked For Death") then
             if getOptionValue("Marked For Death") == 1 then
-                if getTimeToDie(units.dyn5) < comboDeficit * 1.5 or comboDeficit >= comboMax then
+                if getTTD(units.dyn5) < comboDeficit * 1.5 or comboDeficit >= comboMax then
                     if cast.markedForDeath() then return end
                 end
             end
@@ -602,7 +602,7 @@ local function runRotation()
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                        if getTimeToDie(thisUnit) < comboDeficit * 1.5 or comboDeficit >= comboMax then
+                        if getTTD(thisUnit) < comboDeficit * 1.5 or comboDeficit >= comboMax then
                             if cast.markedForDeath(thisUnit) then return end
                         end
                     end
@@ -627,7 +627,7 @@ local function runRotation()
                 if cast.vanish() then return end
             end
             -- vanish,if=talent.subterfuge.enabled&equipped.mantle_of_the_master_assassin&(debuff.vendetta.up|target.time_to_die<10)&mantle_duration=0
-            if talent.subterfuge and hasEquiped(144236) and (debuff.vendetta.exists(units.dyn5) or getTimeToDie(units.dyn5) < 10) and buff.masterAssassinsInitiative.remain() == 0 then
+            if talent.subterfuge and hasEquiped(144236) and (debuff.vendetta.exists(units.dyn5) or getTTD(units.dyn5) < 10) and buff.masterAssassinsInitiative.remain() == 0 then
                 if cast.vanish() then return end
             end
             -- vanish,if=talent.subterfuge.enabled&!equipped.mantle_of_the_master_assassin&!stealthed.rogue&dot.garrote.refreshable&((spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives)|(spell_targets.fan_of_knives>=4&combo_points.deficit>=4))
@@ -654,7 +654,7 @@ local function runRotation()
     
     local function actionList_Maintain()
         --actions.maintain=rupture,if=talent.nightstalker.enabled&stealthed.rogue&(!equipped.mantle_of_the_master_assassin|!set_bonus.tier19_4pc)&(talent.exsanguinate.enabled|target.time_to_die-remains>4)
-        if talent.nightstalker and buff.stealth.exists() and (not hasEquiped(137049) or not t19_4pc) and (talent.exsanguinate or getTimeToDie("target") > 4) then
+        if talent.nightstalker and buff.stealth.exists() and (not hasEquiped(137049) or not t19_4pc) and (talent.exsanguinate or getTTD("target") > 4) then
             if cast.rupture() then return end
         end
         --actions.maintain+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&stealthed.rogue&combo_points.deficit>=1&set_bonus.tier20_4pc&((dot.garrote.remains<=13&!debuff.toxic_blade.up)|pmultiplier<=1)&!exsanguinated
@@ -674,7 +674,7 @@ local function runRotation()
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.garrote.refresh(thisUnit) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 1.5) and getTimeToDie(thisUnit) - debuff.garrote.remain(thisUnit) > 2 then
+                    if debuff.garrote.refresh(thisUnit) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 1.5) and getTTD(thisUnit) - debuff.garrote.remain(thisUnit) > 2 then
                         if cast.garrote(thisUnit) then return end
                     end
                 end
@@ -686,7 +686,7 @@ local function runRotation()
             for i=1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.garrote.remain(thisUnit) <= 10 and not exsanguinated and getTimeToDie(thisUnit) - debuff.garrote.remain(thisUnit) > 2 then
+                    if debuff.garrote.remain(thisUnit) <= 10 and not exsanguinated and getTTD(thisUnit) - debuff.garrote.remain(thisUnit) > 2 then
                         if cast.garrote(thisUnit) then return end
                     end
                 end
@@ -694,7 +694,7 @@ local function runRotation()
         end       
         
         --actions.maintain+=/rupture,if=!talent.exsanguinate.enabled&combo_points>=3&!ticking&mantle_duration<=gcd.remains+0.2&target.time_to_die>6
-        if not talent.exsanguinate and comboPoints >= 3 and not debuff.rupture.exists(units.dyn5) and buff.masterAssassinsInitiative.remain() <= cd.global.remain() + 0.2 and getTimeToDie(units.dyn5) > 6 then
+        if not talent.exsanguinate and comboPoints >= 3 and not debuff.rupture.exists(units.dyn5) and buff.masterAssassinsInitiative.remain() <= cd.global.remain() + 0.2 and getTTD(units.dyn5) > 6 then
             if cast.rupture() then return end
         end
         --actions.maintain+=/rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2+artifact.urge_to_kill.enabled().enabled)))
@@ -707,7 +707,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and getTimeToDie(thisUnit) - debuff.rupture.remain(thisUnit) > 6 then
+                    if debuff.rupture.refresh(thisUnit) and (not exsanguinated or debuff.rupture.remain(thisUnit) <= 1.5) and getTTD(thisUnit) - debuff.rupture.remain(thisUnit) > 6 then
                         if cast.rupture(thisUnit) then return end
                     end
                 end
@@ -725,7 +725,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 if (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
-                    if debuff.garrote.refresh(thisUnit) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 1.5) and getTimeToDie(thisUnit) - debuff.rupture.remain(thisUnit) > 4 then
+                    if debuff.garrote.refresh(thisUnit) and (not exsanguinated or debuff.garrote.remain(thisUnit) <= 1.5) and getTTD(thisUnit) - debuff.rupture.remain(thisUnit) > 4 then
                         if power < 45 then 
                             return true
                         else

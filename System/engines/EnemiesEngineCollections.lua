@@ -119,108 +119,201 @@ dispellOffensiveBuffs = {
 	[154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
 	[144351] = "Magic"
 }
-interruptWhitelist = { -- List provided by Admire
-	191823, -- Furious Blast
-	191848, -- Rampage
-	192003, -- Blazing Nova
-	192005, -- Arcane Blast
-	192135, -- Bellowing Roar
-	192288, -- Searing Light
-	192563, -- Cleansing Flames
-	193069, -- Nightmares
-	193585, -- Bound
-	194266, -- Void Snap
-	194657, -- Soul Siphon
-	195046, -- Rejuvenating Waters
-	195129, -- Thundering Stomp
-	195293, -- Debilitating Shout
-	196027, -- Aqua Spout
-	196175, -- Armorshell
-	196392, -- Overcharge Mana
-	196870, -- Storm
-	196883, -- Spirit Blast
-	197105, -- Polymorph: Fish
-	197502, -- Restoration
-	198405, -- Bone Chilling Scream
-	198495, -- Torrent
-	198750, -- Surge
-	198931, -- Healing Light
-	198934, -- Rune of Healing
-	198962, -- Shattered Rune
-	199514, -- Torrent of Souls
-	199589, -- Whirlpool of Souls
-	199726, -- Unruly Yell
-	200248, -- Arcane Blitz
-	200642, -- Despair
-	200658, -- Star Shower
-	200905, -- Sap Soul
-	201400, -- Dread Inferno
-	201488, -- Frightening Shout
-	202181, -- Stone Gaze
-	202658, -- Drain
-	203176, -- Accelerating Blast
-	203957, -- Time Lock
-	204140, -- Shield of Eyes
-	204243, -- Tormenting Eye
-	204963, -- Shadow Bolt Volley
-	205070, -- Spread Infestation
-	205088, -- Blazing Hellfire
-	205112, -- Drain Essence
-	205121, -- Chaos Bolt
-	205298, -- Essence of Corruption
-	205300, -- Corruption
-	207980, -- Disintegration Beam
-	208165, -- Withering Soul
-	208697, -- Mind Flay
-	209404, -- Seal Magic
-	209410, -- Nightfall Orb
-	209413, -- Suppress
-	209485, -- Drain Magic
-	210261, -- Sound Alarm
-	210684, -- Siphon Essence
-	211007, -- Eye of the Vortex
-	211115, -- Phase Breach
-	211299, -- Searing Glare
-	211368, -- Twisted Touch of Life
-	211401, -- Drifting Embers
-	211464, -- Fel Detonation
-	211470, -- Bewitch
-	211632, -- Brand of the Legion
-	211757, -- Portal: Argus
-	215204, -- Hinder
-	216197, -- Surging Waters
-	218532, -- Arc Lightning
-	221059, -- Wave of Decay
-	222939, -- Shadow Volley
-	223038, -- Erupting Terror
-	223392, -- Dread Wrath Volley
-	223423, -- Nightmare Spores
-	223565, -- Screech
-	223590, -- Darkfall
-	224460, -- Venom Nova
-	225042, -- Corrupt
-	225073, -- Despoiling Roots
-	225079, -- Raining Filth
-	225100, -- Charging Station
-	225573, -- Dark Mending
-	226206, -- Arcane Reconstitution
-	226269, -- Torment
-	226285, -- Demonic Ascension
-	227592, -- Frostbite
-	227800, -- Holy Shock
-	227823, -- Holy Wrath
-	230084, -- Stabilize Rift
-	207228, -- Warp Nightwell
-	213281, -- Pyroblast
-	209017, -- Felblast
-	209971, -- Albative Pulse
-	209568, -- Exothermic Release
-	209617, -- Expedite
-	208672, -- Carrion wave
-	239401, -- Pangs of Guild (Belac)
-	233371, -- Watery Splash (Harjatan fight)
-	241509, -- Water Blast (Mistress fight)
-	200631, -- Unnerving Screech
-	225562, -- Blood Metamorphosis
-	211875, -- Bladestorm
+interruptWhitelist = {
+	-- Shrine of Storm start
+	[268030] = true, -- mending-rapids
+	[274438] = true, -- tempest
+	[267818] = true, -- slicing-blast
+	[268309] = true, -- unending-darkness
+	[268317] = true, -- rip-mind
+	[276767] = true, -- consuming-void
+	[268375] = true, -- detect-thoughts
+	[267809] = true, -- consume-essence
+	-- Shrine of Storm end
+	-- Motherload! start
+	[268129] = true, -- kajacola-refresher
+	[268709] = true, -- earth-shield
+	[268702] = true, -- furious-quake
+	[263215] = true, -- tectonic-barrier
+	[263066] = true, -- transfiguration-serum
+	[262540] = true, -- overcharge
+	[269090] = true, -- artillery-barrage
+	-- Motherload! end
+	-- Underrot start
+	[265089] = true, -- dark-reconstitution
+	[278755] = true, -- harrowing-despair
+	[260879] = true, -- blood-bolt
+	[278961] = true, -- decaying-mind
+	[266201] = true, -- bone-shield
+	[272183] = true, -- raise-dead
+	[265433] = true, -- withering-curse
+	[272180] = true, -- death-bolt
+	-- Underrot end
+	-- Freehold start
+	[257397] = true, -- healing-balm
+	[258777] = true, -- sea-spout
+	[257732] = true, -- shattering-bellow
+	[257736] = true, -- thundering-squall
+	[257899] = true, -- painful-motivation
+	[256060] = true, -- revitalizing-brew
+	-- Freehold end
+	-- Waycrest Manor start
+	[265368] = true, -- spirited-defense
+	[263891] = true, -- grasping-thorns
+	[266035] = true, -- bone-splinter
+	[266036] = true, -- drain-essence
+	[278551] = true, -- soul-fetish
+	[278474] = true, -- effigy-reconstruction
+	[264050] = true, -- infected-thorn
+	[264520] = true, -- severing-serpent
+	[263943] = true, -- etch
+	[265407] = true, -- dinner-bell
+	[265876] = true, -- ruinous-volley
+	[264105] = true, -- runic-mark
+	[263959] = true, -- soul-volley
+	[268278] = true, -- wracking-chord
+	[266225] = true, -- darkened-lightning
+	-- Waycrest Manor end
+	-- Temple of Sethraliss start
+	[265968] = true, -- healing-surge
+	[263318] = true, -- jolt
+	[261635] = true, -- stoneshield-potion
+	[261624] = true, -- greater-healing-potion
+	[265912] = true, -- accumulate-charge
+	[272820] = true, -- shock
+	[268061] = true, -- chain-lightning
+	-- Temple of Sethraliss end
+	-- Kings Rest start
+	[270901] = true, -- induce-regeneration
+	[267763] = true, -- wretched-discharge
+	[270492] = true, -- hex
+	[267273] = true, -- poison-nova
+	[269972] = true, -- shadow-bolt-volley
+	[270923] = true, -- shadow-bolt
+	-- Kings Rest end
+	-- Tol Dagor start
+	[258128] = true, -- debilitating-shout
+	[258153] = true, -- watery-dome
+	[257791] = true, -- howling-fear
+	[258313] = true, -- handcuff
+	[258634] = true, -- fuselighter
+	[258935] = true, -- inner-flames
+	-- Tol Dagor end
+	-- Siege of Boralus start
+	[274569] = true, -- revitalizing-mist
+	[272571] = true, -- choking-waters
+	[256957] = true, -- watertight-shell
+	-- Siege of Boralus end
+	-- Old Content start 
+	[191823] = true, -- Furious Blast
+	[191848] = true, -- Rampage
+	[192003] = true, -- Blazing Nova
+	[192005] = true, -- Arcane Blast
+	[192135] = true, -- Bellowing Roar
+	[192288] = true, -- Searing Light
+	[192563] = true, -- Cleansing Flames
+	[193069] = true, -- Nightmares
+	[193585] = true, -- Bound
+	[194266] = true, -- Void Snap
+	[194657] = true, -- Soul Siphon
+	[195046] = true, -- Rejuvenating Waters
+	[195129] = true, -- Thundering Stomp
+	[195293] = true, -- Debilitating Shout
+	[196027] = true, -- Aqua Spout
+	[196175] = true, -- Armorshell
+	[196392] = true, -- Overcharge Mana
+	[196870] = true, -- Storm
+	[196883] = true, -- Spirit Blast
+	[197105] = true, -- Polymorph: Fish
+	[197502] = true, -- Restoration
+	[198405] = true, -- Bone Chilling Scream
+	[198495] = true, -- Torrent
+	[198750] = true, -- Surge
+	[198931] = true, -- Healing Light
+	[198934] = true, -- Rune of Healing
+	[198962] = true, -- Shattered Rune
+	[199514] = true, -- Torrent of Souls
+	[199589] = true, -- Whirlpool of Souls
+	[199726] = true, -- Unruly Yell
+	[200248] = true, -- Arcane Blitz
+	[200642] = true, -- Despair
+	[200658] = true, -- Star Shower
+	[200905] = true, -- Sap Soul
+	[201400] = true, -- Dread Inferno
+	[201488] = true, -- Frightening Shout
+	[202181] = true, -- Stone Gaze
+	[202658] = true, -- Drain
+	[203176] = true, -- Accelerating Blast
+	[203957] = true, -- Time Lock
+	[204140] = true, -- Shield of Eyes
+	[204243] = true, -- Tormenting Eye
+	[204963] = true, -- Shadow Bolt Volley
+	[205070] = true, -- Spread Infestation
+	[205088] = true, -- Blazing Hellfire
+	[205112] = true, -- Drain Essence
+	[205121] = true, -- Chaos Bolt
+	[205298] = true, -- Essence of Corruption
+	[205300] = true, -- Corruption
+	[207980] = true, -- Disintegration Beam
+	[208165] = true, -- Withering Soul
+	[208697] = true, -- Mind Flay
+	[209404] = true, -- Seal Magic
+	[209410] = true, -- Nightfall Orb
+	[209413] = true, -- Suppress
+	[209485] = true, -- Drain Magic
+	[210261] = true, -- Sound Alarm
+	[210684] = true, -- Siphon Essence
+	[211007] = true, -- Eye of the Vortex
+	[211115] = true, -- Phase Breach
+	[211299] = true, -- Searing Glare
+	[211368] = true, -- Twisted Touch of Life
+	[211401] = true, -- Drifting Embers
+	[211464] = true, -- Fel Detonation
+	[211470] = true, -- Bewitch
+	[211632] = true, -- Brand of the Legion
+	[211757] = true, -- Portal: Argus
+	[215204] = true, -- Hinder
+	[216197] = true, -- Surging Waters
+	[218532] = true, -- Arc Lightning
+	[221059] = true, -- Wave of Decay
+	[222939] = true, -- Shadow Volley
+	[223038] = true, -- Erupting Terror
+	[223392] = true, -- Dread Wrath Volley
+	[223423] = true, -- Nightmare Spores
+	[223565] = true, -- Screech
+	[223590] = true, -- Darkfall
+	[224460] = true, -- Venom Nova
+	[225042] = true, -- Corrupt
+	[225073] = true, -- Despoiling Roots
+	[225079] = true, -- Raining Filth
+	[225100] = true, -- Charging Station
+	[225573] = true, -- Dark Mending
+	[226206] = true, -- Arcane Reconstitution
+	[226269] = true, -- Torment
+	[226285] = true, -- Demonic Ascension
+	[227592] = true, -- Frostbite
+	[227800] = true, -- Holy Shock
+	[227823] = true, -- Holy Wrath
+	[230084] = true, -- Stabilize Rift
+	[207228] = true, -- Warp Nightwell
+	[213281] = true, -- Pyroblast
+	[209017] = true, -- Felblast
+	[209971] = true, -- Albative Pulse
+	[209568] = true, -- Exothermic Release
+	[209617] = true, -- Expedite
+	[208672] = true, -- Carrion wave
+	[239401] = true, -- Pangs of Guild (Belac)
+	[233371] = true, -- Watery Splash (Harjatan fight)
+	[241509] = true, -- Water Blast (Mistress fight)
+	[200631] = true, -- Unnerving Screech
+	[225562] = true, -- Blood Metamorphosis
+	[211875] = true, -- Bladestorm
+	-- Old Content end
+}
+validUnitBypassList = {
+	[133492] = "Corruption Corpuscle",
+	[135016] = "Plague Amalgam",
+	[131009] = "Spirit of Gold", --Atal
+	[125828] = "Soulspawn", --Atal
+	[134691] = "Static Charged Dervish" --Temple
 }

@@ -34,6 +34,19 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Brews Disabled", tip = "No Brews will be used.", highlight = 0, icon = br.player.spell.legSweep }
     };
     CreateButton("Brews",5,0)
+    TauntModes = {
+        [1] = { mode = "Dungeon", value = 1 , overlay = "Taunt only in Dungeon", tip = "Taunt will be used in dungeons.", highlight = 0, icon = br.player.spell.provoke },
+        [2] = { mode = "All", value = 2 , overlay = "Auto Taunt Enabled", tip = "Taunt will be used everywhere.", highlight = 1, icon = br.player.spell.provoke },
+        [3] = { mode = "Dave", value = 3 , overlay = "Taunt the Statue", tip = "Taunt only be used on Dave", highlight = 1, icon = br.player.spell.blackOxStatue },
+        [4] = { mode = "Off", value = 4 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.legSweep }
+    };
+    CreateButton("Taunt",6,0)
+    DetoxModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Detox Enabled", tip = "Detox will be used.", highlight = 1, icon = br.player.spell.detox },
+        [2] = { mode = "Off", value = 2 , overlay = "Detox Disabled", tip = "Detox will not be used.", highlight = 0, icon = br.player.spell.ringOfPeace }
+    };
+    CreateButton("Detox",7,0)
+    
 end
 
 local function createOptions()
@@ -52,16 +65,18 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
 		-- Let Rotation Deal with Purifying (SIMC)
-			br.ui:createCheckbox(section,"Purify at High Stagger")
+			br.ui:createCheckbox(section,"High Stagger Debuff")
         -- Stagger dmg % to purify
-            br.ui:createSpinner(section, "Stagger dmg % to purify",  150,  0,  300,  10,  "Stagger dmg % to purify")
+            br.ui:createSpinner(section, "Stagger dmg % to purify",  100,  0,  300,  5,  "Stagger dmg % to purify")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinket 1")
             br.ui:createCheckbox(section,"Trinket 2")
         -- Racial
             br.ui:createCheckbox(section,"Racial")
-		-- Taunt
-			br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
+        -- BoB usage
+            br.ui:createCheckbox(section, "Black Ox Brew")
+        -- Small Dave  
+            br.ui:createCheckbox(section, "Summon Dave - The Statue")
 		br.ui:checkSectionState(section)
         -------------------------
 		---  COOLDOWN OPTIONS ---
@@ -134,7 +149,11 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Brews",0.25)
+        UpdateToggle("Taunt",0.25)
+        UpdateToggle("Detox",0.25)
         br.player.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
+        br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+        br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
 
 --------------
 --- Locals ---
@@ -155,6 +174,7 @@ local function runRotation()
         local enemies           = br.player.enemies
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
+        local hasPet            = IsPetActive()
         local glyph             = br.player.glyph
         local healthPot         = getHealthPot() or 0
         local inCombat          = br.player.inCombat
@@ -163,6 +183,7 @@ local function runRotation()
         local lastSpell         = lastSpellCast
         local level             = br.player.level
         local mode              = br.player.mode
+        local pet               = br.player.pet.list
         local php               = br.player.health
         local power             = br.player.power.energy.amount()
         local powgen            = br.player.power.energy.regen()
@@ -181,6 +202,7 @@ local function runRotation()
         local ttd               = getTTD
         local ttm               = br.player.power.energy.ttm()
         local units             = br.player.units
+        local staggerPct        = (UnitStagger("player") / UnitHealthMax("player")*100)
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -189,6 +211,7 @@ local function runRotation()
         enemies.get(5)
         enemies.get(8) 
         enemies.get(8,"target")
+        enemies.get(20)
         enemies.get(30)
 
 --------------------
@@ -197,32 +220,51 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Taunt
-		if isChecked("Taunt") and inInstance then
+        if br.player.mode.taunt == 1 and inInstance and not isChecked("Summon Dave - The Statue") then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-					if cast.provoke(thisUnit) then return end
+					if cast.provoke(thisUnit) then return true end
 				end
 			end
-		end -- End Taunt
-					-- Trinkets    
-				if isChecked("Trinket 1") then
-                        useItem(13)
-                end
-                if isChecked("Trinket 2") then
-                        useItem(14)
-                end
+        end -- End Taunt
+        if br.player.mode.taunt == 2 and not isChecked("Summon Dave - The Statue") then
+			for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+					if cast.provoke(thisUnit) then return true end
+				end
+			end
+        end -- End Taunt
+        if isChecked("Summon Dave - The Statue") then
+            if pet ~= nil then
+                if cast.blackOxStatue("target") then return true end
+                    if br.player.mode.taunt == 3 then 
+                        for k, v in pairs(pet) do
+                            local thisUnit = pet[k] or 0
+                            if thisUnit.id == 61146 then
+                                --print("found it")
+                                if cast.provoke(thisUnit.unit) then return true end
+                            end
+                        end
+                    end
+            end
+        end 
 	end -- End Action List - Extras
 	-- Action List - Defensive
     local function actionList_Defensive()
         if useDefensive() then
-		-- Vivify
-                  if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
-                    if cast.vivify() then return end
+        -- Vivify
+                if isChecked("Vivify") and (not inCombat and php <= getOptionValue("Vivify")) then
+                    if cast.vivify() then return true end
+                end
+        -- Guard
+                if talent.guard and isChecked("Use Guard") and debuff.heavyStagger.exists("player") then
+                    if cast.guard() then return true end
                 end
         --Expel Harm
                 if isChecked("Expel Harm") and php <= getValue("Expel Harm") and inCombat and GetSpellCount(115072) >= getOptionValue("Expel Harm Orbs") then
-                    if cast.expelHarm() then return end
+                    if cast.expelHarm() then return true end
                 end
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
@@ -234,29 +276,29 @@ local function runRotation()
                 end
         -- Dampen Harm
                 if isChecked("Dampen Harm") and php <= getValue("Dampen Harm") and inCombat then
-                    if cast.dampenHarm() then return end
+                    if cast.dampenHarm() then return true end
                 end
         -- Detox
-                if isChecked("Detox Me") then
+                if isChecked("Detox Me") and br.player.mode.detox == 1 then
                     if canDispel("player",spell.detox) then
-                       if cast.detox("player") then return end
+                       if cast.detox("player") then return true end
                     end
                 end
         -- Detox Mouseover
-                if isChecked("Detox Mouseover") then
+                if isChecked("Detox Mouseover") and br.player.mode.detox == 1 then
                     if UnitIsPlayer("mouseover") and not UnitIsDeadOrGhost("mouseover") then
                          if canDispel("mouseover",spell.detox) then
-                            if cast.detox("mouseover") then return end
+                            if cast.detox("mouseover") then return true end
                         end
                     end
                 end
         -- Healing Elixir
                 if isChecked("Healing Elixir") and php <= getValue("Healing Elixir") and charges.healingElixir.count() > 1 then
-                    if cast.healingElixir() then return end
+                    if cast.healingElixir() then return true end
                 end
         -- Fortifying Brew
                 if isChecked("Fortifying Brew") and php <= getValue("Fortifying Brew") and inCombat then
-                    if cast.fortifyingBrew() then return end
+                    if cast.fortifyingBrew() then return true end
                 end
             end
 		end
@@ -264,36 +306,46 @@ local function runRotation()
         local function actionList_Cooldowns()
             if useCDs() then
     			if isChecked("Invoke Niuzao") then
-	    			if cast.invokeNiuzao() then return end
+	    			if cast.invokeNiuzao() then return true end
                 end
             end
+            -- Trinkets    
+			if isChecked("Trinket 1") then
+                    useItem(13)
+            end
+            if isChecked("Trinket 2") then
+                    useItem(14)
+            end
+
         end    
 	-- Action List - Interrupts
         local function actionList_Interrupts()
-                for i=1, #getEnemies("player",20) do
-                    thisUnit = getEnemies("player",20)[i]
+            if useInterrupts() then
+                for i=1, #enemies.yards20 do
+                    thisUnit = enemies.yards20[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         if distance <= 5 then
         -- Quaking Palm
                             if isChecked("Quaking Palm") then
-                                if cast.quakingPalm(thisUnit) then return end
+                                if cast.quakingPalm(thisUnit) then return true end
                             end
         -- Spear Hand Strike
                             if isChecked("Spear Hand Strike") then
-                                if cast.spearHandStrike(thisUnit) then return end
+                                if cast.spearHandStrike(thisUnit) then return true end
                             end
         -- Leg Sweep
                             if isChecked("Leg Sweep") then
-                                if cast.legSweep(thisUnit) then return end
+                                if cast.legSweep(thisUnit) then return true end
                             end
                         end
         -- Paralysis
                         if isChecked("Paralysis") then
-                            if cast.paralysis(thisUnit) then return end
+                            if cast.paralysis(thisUnit) then return true end
                         end
                     end
                 end
+            end
         end -- End Action List - Interrupts
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
@@ -310,124 +362,135 @@ local function runRotation()
 	-- Single Target Rotation
     local function actionList_Single()
        -- Print("Single")
-		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Black Out Strike
-			if cast.blackoutStrike() then return end
+			if cast.blackoutStrike() then return true end
 		-- Keg Smash
-			if cast.kegSmash() then return end
+			if cast.kegSmash() then return true end
 		-- Breath of Fire
 			if debuff.kegSmash.exists() then
-				if cast.breathOfFire() then return end
+				if cast.breathOfFire() then return true end
 			end
 		-- High Energy TP
-			if (power > 55) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.tigerPalm() then return end
+			if (power > 55) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) then
+				if cast.tigerPalm() then return true end
 			end
 		-- Rushing Jade Wind
 			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
-				if cast.rushingJadeWind() then return end
+				if cast.rushingJadeWind() then return true end
 			end
 		-- Chi Wave 
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiWave() then return end
+				if cast.chiWave() then return true end
 			end
 		-- Chi Burst 
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiBurst() then return end
+				if cast.chiBurst() then return true end
 			end
 	end -- End Single Target
 	
 	-- Multi Target Rotation
     local function actionList_Multi()
        -- Print("Multi")
-		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Keg Smash
-			if cast.kegSmash() then return end
+			if cast.kegSmash() then return true end
 		-- Breath of Fire
 			if debuff.kegSmash.exists() then
-				if cast.breathOfFire() then return end
+				if cast.breathOfFire() then return true end
 			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
-				if cast.rushingJadeWind() then return end
+			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire())) then
+				if cast.rushingJadeWind() then return true end
 			end
 		-- Chi Burst 
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiBurst() then return end
+				if cast.chiBurst() then return true end
 			end
 		-- Black Out Strike
-			if cast.blackoutStrike() then return end
+			if cast.blackoutStrike() then return true end
 		-- Chi Wave
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiWave() then return end
+				if cast.chiWave() then return true end
 			end
 		-- Tiger Palm
-			if power > 55 and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.tigerPalm() then return end
+			if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+				if cast.tigerPalm() then return true end
 			end
 	end
 	
 	-- Blackout Combo Rotation
     local function actionList_AutoBlackout()
+        if buff.blackoutCombo.exists() then
+            if cast.kegSmash() then return true end
+            if not cast.able.kegSmash() then
+                if cast.tigerPalm() then return true end
+            end
+        else
+            if cast.blackoutStrike() then return true end
+            if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) and power > 45 then
+                if cast.tigerPalm() then return true end
+            end
+            if not cast.able.kegSmash() and debuff.kegSmash.exists() then
+                if cast.breathOfFire() then return true end
+            end
+            if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+				if cast.rushingJadeWind() then return true end
+            end
+        end
+ 
+
         --Print("BoC")
-		--Black Ox Brew
-			if (charges.purifyingBrew.frac() < 0.3) and talent.blackoxBrew then
-				if cast.blackoxBrew() then return end
-			end
 		-- Keg Smash
-			if not buff.blackoutCombo.exists() then
-				if cast.kegSmash() then return end
-			end
+--			if buff.blackoutCombo.exists() then
+--				if cast.kegSmash() then return true end
+--			end
 		-- Black out Strike
-			if cast.blackoutStrike() then return end
+--			if cast.blackoutStrike() then return true end
 		-- Tiger Palm
-			if (buff.blackoutCombo.exists() and #enemies.yards8 < 3) or
-			(power > 55 and not cast.able.breathOfFire()) then
-				if cast.tigerPalm() then return end
-			end
+--			if not cast.able.kegSmash() and (power > 55) then
+--				if cast.tigerPalm() then return true end
+--			end
 		-- Breath of Fire
-			if (buff.blackoutCombo.exists() and #enemies.yards8 >= 3) or
-			(#enemies.yards8 < 3 and not buff.blackoutCombo.exists() and debuff.kegSmash.exists()) then 
-				if cast.breathOfFire() then return end
-			end
+--			if not cast.able.kegSmash() and debuff.kegSmash.exists() then 
+--				if cast.breathOfFire() then return true end
+--			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
-				if cast.rushingJadeWind() then return end
-			end
+--			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+--				if cast.rushingJadeWind() then return true end
+--			end
 		-- Chi Wave 
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiWave() then return end
-			end
+--			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--				if cast.chiWave() then return true end
+--			end
 		-- Chi Burst 
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
-				if cast.chiBurst() then return end
-			end
+--			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--				if cast.chiBurst() then return true end
+--			end
 	end
 	
 	-- Brews Rotations
 	local function actionList_Brews()
-		-- Auto Purify
-			if isChecked("Auto Purify") then
-				if debuff.heavyStagger.exists("player") or (((UnitStagger("player") / UnitHealthMax("player")*100) < 66) and (charges.purifyingBrew.frac() > (charges.purifyingBrew.max() - 0.5)) and
-				(buff.ironskinBrew.remain() > (buff.ironskinBrew.duration() * 2.5))) then
-					if cast.purifyingBrew() then return end
+		--Black Ox Brew
+            if isChecked("Black Ox Brew") then
+                if ((charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew) or 
+                    (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
+                    if cast.blackoxBrew() then return true end
+                end
+            end
+        -- Auto Purify
+			if isChecked("High Stagger Debuff") then
+                if debuff.heavyStagger.exists("player") then
+                    if cast.purifyingBrew() then return true end
 				end
             end
 		-- Percentage Purify
 			if isChecked("Stagger dmg % to purify") then
-                if ((UnitStagger("player") / UnitHealthMax("player")*100) >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.frac() > 0.5)) then
-                    if cast.purifyingBrew() then return end
+                if (staggerPct >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.frac() > 0.5)) then
+                    if cast.purifyingBrew() then return true end
                 end
             end	
 		-- Iron Skin Brew
-            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 5 and buff.ironskinBrew.remain() <=14)) then
-                if cast.ironskinBrew() then return end
+            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 2 and buff.ironskinBrew.remain() <=14)) then
+                if cast.ironskinBrew() then return true end
             end
 	end
 	
@@ -438,44 +501,44 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
+    elseif (inCombat and profileStop==true) or pause() or buff.zenMeditation.exists() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) and getBuffRemain("player", 192002 ) < 10 or mode.rotation==2 then
         return true
     else
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
 			-- Extras
-			if actionList_Extras() then return end
+			if actionList_Extras() then return true end
 			-- Defensives
-			if actionList_Defensive() then return end
+			if actionList_Defensive() then return true end
 			-- Precombat
-			if actionList_PreCombat() then return end
+			if actionList_PreCombat() then return true end
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-  if inCombat and profileStop==false and not (IsMounted() or IsFlying()) then
+  if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
     if getDistance(units.dyn5) < 5 then
         StartAttack()
     end        
             -- Brews
 			if br.player.mode.brews == 1 then
-				if actionList_Brews() then return end
+				if actionList_Brews() then return true end
 			end
 			-- Cooldowns
-			if actionList_Cooldowns() then return end
+			if actionList_Cooldowns() then return true end
 			-- Interrupts
-			if actionList_Interrupts() then return end
+			if actionList_Interrupts() then return true end
 			-- Blackout Combo
 			if talent.blackoutCombo then
-				if actionList_AutoBlackout() then return end
+				if actionList_AutoBlackout() then return true end
 			end
 			-- Multi Target Rotations
 			if #enemies.yards8 >= 3 and not talent.blackoutCombo then
-				if actionList_Multi() then return end
+				if actionList_Multi() then return true end
 			end
 			-- Single target Rotations
             if #enemies.yards8 <3 and not talent.blackoutCombo then
-                if actionList_Single() then return end
+                if actionList_Single() then return true end
             end
 		end -- end combat check
 	  end -- Pause

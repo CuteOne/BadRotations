@@ -69,6 +69,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             -- Piercing Howl
             br.ui:createCheckbox(section,"Piercing Howl", "Check to use Piercing Howl")
+			-- Rampage Fast
+			br.ui:createCheckbox(section,"Faster Rampage", "Uses Rampage faster")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -84,6 +86,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Bladestorm
             br.ui:createCheckbox(section,"Bladestorm")
+			-- Heroic Throw
+            br.ui:createCheckbox(section,"Heroic Throw")
             -- Dragon Roar
             br.ui:createCheckbox(section,"Dragon Roar")
             -- Recklessness
@@ -223,7 +227,7 @@ local function runRotation()
             if isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    if getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
+                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
                         if cast.battleShout() then return end
                     end
                 end
@@ -345,30 +349,40 @@ local function runRotation()
                 end
         -- Heroic Throw
                 -- heroic_throw
-                if cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
-                    if cast.heroicThrow("target") then return end
+				if isChecked("Heroic Throw")
+					and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0 or not isChecked("Charge")) then
+						if cast.heroicThrow("target") then return end
                 end
             end
         end
     -- Action List - Single
         function actionList_Single()
         --Seigebreaker
-            -- siegebreaker,if=buff.recklessness.up|cooldown.recklessness.remains>20
-            if cast.able.siegebreaker() and (buff.recklessness.exists() or cd.recklessness.remain() > 20 or getOptionValue("Recklessness") == 3 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+            -- siegebreaker
+            if cast.able.siegebreaker() then
                 if cast.siegebreaker() then return end
             end
-        -- Rampage
-            -- rampage,if=buff.recklessness.up|(talent.frothing_berserker.enabled|talent.carnage.enabled&(buff.enrage.remains<gcd|rage>90)|talent.massacre.enabled&(buff.enrage.remains<gcd|rage>90))
-            if cast.able.rampage() and (buff.recklessness.exists() or (talent.frothingBerserker or talent.carnage
-                and (buff.enrage.remain() < gcd or rage > 90) or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
-            then
-                if cast.rampage() then return end
-            end
-        -- Execute
+	    -- Rampage
+	    if isChecked("Faster Rampage") then
+               if cast.able.rampage() and buff.recklessness.exists()
+		    or (talent.carnage and (buff.enrage.exists() or rage > 75))
+		    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
+		    or (talent.massacre and (buff.enrage.exists() or rage > 85)) 
+	        then
+		     if cast.rampage() then return end
+	        end
+            else
+	        if cast.able.rampage() and (buff.recklessness.exists()
+	           or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
+		   or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+                then
+                    if cast.rampage() then return end
+                end
+	    end	
             -- execute,if=buff.enrage.up
             if cast.able.execute() and (buff.enrage.exists()) then
                 if cast.execute() then return end
-            end
+	      end
         -- Bloodthirst
             -- bloodthirst,if=buff.enrage.down
             if cast.able.bloodthirst() and (not buff.enrage.exists()) then
@@ -386,17 +400,16 @@ local function runRotation()
             end
         -- Bladestorm
             -- bladestorm,if=prev_gcd.1.rampage&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
+            if isChecked("Bladestorm") 
+				and	cast.able.bladestorm() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
+					and (cast.last.rampage() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
             then
                 if cast.bladestorm() then return end
             end
         -- Dragon Roar
-            -- dragon_roar,if=buff.enrage.up&(debuff.siegebreaker.up|!talent.siegebreaker.enabled)
-            if cast.able.dragonRoar() and ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("AoE Threshold") or talent.siegebreaker)) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and (buff.enrage.exists() and (debuff.siegebreaker.exists(units.dyn8) or not talent.siegebreaker))
-            then
-                if cast.dragonRoar() then return end
+            -- dragon_roar,if=buff.enrage.up
+            if isChecked("Dragon Roar") and cast.able.dragonRoar(nil,"aoe") and buff.enrage.exists() then
+                if cast.dragonRoar(nil,"aoe") then return end
             end
         -- Raging Blow
             -- raging_blow,if=talent.carnage.enabled|(talent.massacre.enabled&rage<80)|(talent.frothing_berserker.enabled&rage<90)
@@ -410,8 +423,8 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind
-            if cast.able.whirlwind() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("AoE Threshold")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if cast.whirlwind() then return end
+            if cast.able.whirlwind(nil,"aoe") and #enemies.yards8 > 0 then
+                if cast.whirlwind(nil,"aoe") then return end
             end
         end -- End Action List - Single
     -- Action List - Pre-Combat
@@ -429,10 +442,10 @@ local function runRotation()
             end
             -- food,type=pickled_eel
             -- snapshot_stats
-            -- potion,name=old_war
+            -- potion,name=Potion Of Bursting blood
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(127844) then
-                    useItem(127844)
+                if canUse(152560) then
+                    useItem(152560)
                 end
             end
         end  -- End Action List - Pre-Combat
@@ -486,8 +499,8 @@ local function runRotation()
             -- Potions
                 -- potion
                 if useCDs() and getDistance("target") < 5 and inRaid and isChecked("Potion") then
-                    if canUse(127844) then
-                        useItem(127844)
+                    if canUse(152560) then
+                        useItem(152560)
                     end
                 end
             -- Furious Slash
@@ -496,11 +509,6 @@ local function runRotation()
                     or buff.furiousSlash.remain() < 3 or (cd.recklessness.remain() < 3 and buff.furiousSlash.remain() < 9)))
                 then
                     if cast.furiousSlash() then return end
-                end
-            -- Bloodthirst
-                -- bloodthirst,if=equipped.kazzalax_fujiedas_fury&(buff.fujiedas_fury.down|remains<2)
-                if cast.able.bloodthirst() and (equiped.kazzalaxFujiedasFury and (not buff.fujiedasFury.exists() or buff.fujiedasFury.remain(units.dyn5) < 2)) then
-                    if cast.bloodthirst() then return end
                 end
             -- Rampage
                 -- rampage,if=cooldown.recklessness.remains<3
@@ -520,13 +528,12 @@ local function runRotation()
             -- Racial
                 -- blood_fury,if=buff.recklessness.up
                 -- berserking,if=buff.recklessness.up
-                -- arcane_torrent,if=rage<40&!buff.recklessness.up
-                -- lights_judgment,if=cooldown.recklessness.remains<3
+                -- lights_judgment,if=buff.recklessness.down
                 -- fireblood,if=buff.recklessness.up
                 -- ancestral_call,if=buff.recklessness.up
                 if cast.able.racial() and useCDs()
                     and ((buff.recklessness.exists() and (race == "Orc" or race == "Troll" or race == "DarkIronDwarf" or race == "MagharOrc"))
-                        or (not buff.recklessness.exists() and ((rage < 40 and race == "BloodElf") or race == "LightforgedDraenei")))
+                        or (not buff.recklessness.exists() and race == "LightforgedDraenei"))
                 then
                     if race == "LightforgedDraenei" then
                         if cast.racial("target","ground") then return true end

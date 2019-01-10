@@ -146,7 +146,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
+        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
@@ -517,7 +517,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,actions.standard_rotation+=/scorch,if=(target.health.pct<=30&talent.searing_touch.enabled)|(azerite.preheat.enabled&debuff.preheat.down)
-            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active() and not buff.preheat.exists("player")) then
+            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active and not buff.preheat.exists("player")) then
                 if cast.scorch() then return end
             end
         -- Fireball

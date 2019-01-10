@@ -6,7 +6,7 @@ local rotationName = "Panglo"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.swipe },
+        [1] = { mode = "On", value = 1 , overlay = "Automatic Rotation", tip = "Enables DPS Rotation", highlight = 1, icon = br.player.spell.swipeBear },
         [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
     CreateButton("Rotation",1,0)
@@ -29,6 +29,24 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.skullBash }
     };
     CreateButton("Interrupt",4,0)
+-- Interrupt Button
+    BristlingFurModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Bristling Fur Enabled", tip = "Will use BF", highlight = 1, icon = br.player.spell.bristlingFur },
+        [2] = { mode = "Off", value = 2 , overlay = "Bristling Fur Disabled", tip = "Will not use BF", highlight = 0, icon = br.player.spell.bristlingFur }
+    };  
+    CreateButton("BristlingFur",5,0)
+-- Interrupt Button
+    IronfurModes = {
+    [1] = { mode = "On", value = 1 , overlay = "Ironfur Enabled", tip = "Will use Ironfur", highlight = 1, icon = br.player.spell.ironfur },
+    [2] = { mode = "Off", value = 2 , overlay = "Ironfur Disabled", tip = "Will not use Ironfur", highlight = 0, icon = br.player.spell.ironfur }
+    };  
+    CreateButton("Ironfur",6,0)
+-- Interrupt Button
+    KittyModes = {
+    [1] = { mode = "On", value = 1 , overlay = "Kitty Deeps", tip = "Will use catform", highlight = 1, icon = br.player.spell.catForm },
+    [2] = { mode = "Off", value = 2 , overlay = "Not Kitty Deeps", tip = "Will not use catform", highlight = 0, icon = br.player.spell.catForm }
+    };  
+    CreateButton("Kitty",7,0)
 end
 
 ---------------
@@ -41,10 +59,11 @@ local function createOptions()
         local section
     -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            br.ui:createCheckbox(section,"Open World","Use Cat Weaving Regardless of Threat Situation")
         -- Travel Shapeshifts
-            br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Auto Shapeshifts","|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS...")
         -- Displacer Beast / Wild Charge
-            br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
 		-- Auto Maul
 			br.ui:createCheckbox(section,"Auto Maul (SIMC)")
 		-- Maul At
@@ -76,11 +95,14 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "FR - HP Loss Percent", 50, 0, 100, 5, "|cffFFBB00Health Loss Percentage to use at.")
             br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "|cffFFBB00Health Interval to use at with 2 charges.")
             br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "|cffFFBB00Health Interval to use at with 1 charge.")
-        -- Ironfur
-            br.ui:createCheckbox(section, "Ironfur")
+        -- Soothe
+            br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
             br.ui:createCheckbox(section,"Rebirth")
             br.ui:createDropdownWithout(section, "Rebirth - Target", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
+        -- Remove Corruption
+            br.ui:createCheckbox(section,"Remove Corruption")
+            br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"|cff00FF00Player","|cffFFFF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         -- Regrowth
             br.ui:createSpinner(section, "Regrowth",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Revive
@@ -135,11 +157,12 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Cleave",0.25)
-        br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
-        UpdateToggle("Prowl",0.25)
-        br.player.mode.prowl = br.data.settings[br.selectedSpec].toggles["Prowl"]
-
+        UpdateToggle("Ironfur",0.25)
+        UpdateToggle("BristlingFur",0.25)
+        UpdateToggle("Kitty",0.25)
+        br.player.mode.bristlingFur = br.data.settings[br.selectedSpec].toggles["BristlingFur"]
+        br.player.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
+        br.player.mode.kitty = br.data.settings[br.selectedSpec].toggles["Kitty"]
 --------------
 --- Locals ---
 --------------
@@ -156,10 +179,11 @@ local function runRotation()
         local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
+        local energy, energyRegen, energyDeficit            = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = UnitIsFriend("target", "player")
+        local friendly                                      = GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
@@ -189,6 +213,10 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.rage.ttm
         local units                                         = br.player.units
+        local hasAggro                                      = UnitThreatSituation("player")
+        if hasAggro == nil then
+            hasAggro = 0
+        end
 
         units.get(5)
 	    units.get(8)
@@ -206,34 +234,50 @@ local function runRotation()
 		if lastSpellCast == nil then lastSpellCast = spell.bearForm end
         if lastForm == nil then lastForm = 0 end
         if lossPercent > snapLossHP or php > snapLossHP then snapLossHP = lossPercent end
+        
+
+            if energy >=85 then
+                cattime = true
+            end
+            if energy <= 15 then
+                cattime = false
+            end
 
 --------------------
 --- Action Lists ---
 --------------------
 	-- Action List - Extras
-		local function actionList_Extras()
-		-- Shapeshift Form Management
-			if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
-			-- Flight Form
-				if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-	                if cast.travelForm() then return end
-		        end
-			-- Aquatic Form
-			    if swimming and not travel and not hastar and not deadtar then
-				  	if cast.travelForm() then return end
-				end
-            -- Bear Form
-                if not bear then
-                    -- Cat Form when not in combat and target selected and within 20yrds
-                    if not inCombat and isValidTarget("target") and (UnitIsEnemy("target","player") or isDummy("target")) then
-                        if cast.bearForm() then return end
-                    end
-                    --Cat Form when in combat and not flying
-                    if inCombat and not flying then
-                        if cast.bearForm() then return end
-                    end
+	local function actionList_Extras()
+        if isChecked("Auto Shapeshifts") and not UnitBuffID("player",202477) then
+            -- Flight Form
+                if IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
+                    if cast.travelForm("player") then return end
                 end
-            end -- End Shapeshift Form Management
+            -- Aquatic Form
+                if swimming and not travel and not hastar and not deadtar then
+                    if cast.travelForm("player") then return end
+                end
+            -- Bear/Travel Form
+                if not inCombat and not buff.dash.exists() and not br.player.buff.prowl.exists() then
+                    if isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
+                if not bear then
+                    if cast.bearForm("player") then return end
+                end
+                elseif not travel and not IsIndoors() and moving and GetTime()-isMovingStartTime > 2 then
+                    if cast.travelForm("player") then return end
+                elseif not cat and IsIndoors() and moving and GetTime()-isMovingStartTime > 2 then
+                    if cast.catForm("player") then return end
+                end
+            end 
+              -- prowl after cat?
+                if cat and not inCombat and not buff.prowl.exists() then
+                    if cast.prowl() then return end
+                end
+            --Bear Form when in combat and not flying
+                if inCombat and not flying and not buff.dash.exists() and not bear and not (travel and moving) then
+                if cast.bearForm("player") then return end
+            end
+        end -- End Shapeshift Form Management
 		-- Taunt
 		if isChecked("Taunt") and inInstance then
 			for i = 1, #enemies.yards30 do
@@ -242,8 +286,14 @@ local function runRotation()
 					if cast.growl(thisUnit) then return end
 				end
 			end
-		end
-		end -- End Action List - Extras
+        end
+        --Wild Charge
+        if isChecked("Wild Charge") then
+            if getDistance("target") > 9 and cast.able.wildCharge() and inCombat then
+                if cast.wildCharge("target") then return end
+            end
+        end
+	end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
             if useDefensive() and not buff.prowl.exists() and not flight then
@@ -275,33 +325,51 @@ local function runRotation()
                         if cast.frenziedRegeneration() then return end
                     end
                 end
+                for i=1, #enemies.yards40 do
+                    thisUnit = enemies.yards40[i]
+                    if isChecked("Soothe") and canDispel(thisUnit, spell.soothe) then
+                        if cast.soothe(thisUnit) then return end
+                    end
+                end
         -- Regrowth
                 if isChecked("Regrowth") then
                     if php <= getOptionValue("Regrowth") and not inCombat then
                         if cast.regrowth("player") then return end
                     end
                 end
+        -- Remove Corruption
+                if isChecked("Remove Corruption") then
+                    if getOptionValue("Remove Corruption - Target")==1 and canDispel("player",spell.removeCorruption) then
+                        if cast.removeCorruption("player") then return end
+                    end
+                    if getOptionValue("Remove Corruption - Target")==2 and canDispel("target",spell.removeCorruption) then
+                        if cast.removeCorruption("target") then return end
+                    end
+                    if getOptionValue("Remove Corruption - Target")==3 and canDispel("mouseover",spell.removeCorruption) then
+                        if cast.removeCorruption("mouseover") then return end
+                    end
+                end
         --Revive/Rebirth
                 if isChecked("Rebirth") then
                     if getOptionValue("Rebirth - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.rebirth("target","dead") then return end
                     end
                     if getOptionValue("Rebirth - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.rebirth("mouseover","dead") then return end
                     end
                 end
                 if isChecked("Revive") then
                     if getOptionValue("Revive - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.revive("target","dead") then return end
                     end
                     if getOptionValue("Revive - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.revive("mouseover","dead") then return end
                     end
@@ -396,6 +464,128 @@ local function runRotation()
                 end
             end -- End No Combat
         end -- End Action List - PreCombat
+
+        local function combatTime()
+            -- Ironfur
+                if br.player.mode.ironfur == 1 and (hasAggro >= 2) then
+                    if (traits.layeredMane.active and power >=50) or not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() < 2 then
+                        if cast.ironfur() then return end
+                    end
+                end    
+    -- Bristling Fur
+                -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
+                if br.player.mode.bristlingFur == 1 and power < 40 and (hasAggro >= 2) then
+                    if cast.bristlingFur() then return end
+                end
+    -- Lunar Beam
+                -- lunar_beam
+                if cast.lunarBeam() then return end
+    -- Mangle
+                -- mangle
+                if cast.mangle() then return end
+    -- Thrash
+                -- thrash_bear
+                if getDistance("target") < 8 and not cast.able.mangle() and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
+                    if cast.thrashBear() then return end
+                end
+    -- Pulverize
+                if talent.pulverize then
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if debuff.thrashBear.stack(thisUnit) >= 3 then
+                            if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrashBear())) then
+                                if cast.pulverize(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+    -- Moonfire
+                -- moonfire,if=buff.incarnation.up=1&dot.moonfire.remains<=4.8
+                if #enemies.yards40 < 6 then
+                    for i = 1, #enemies.yards40 do
+                       local thisUnit = enemies.yards40[i] 
+                       if isValidUnit(thisUnit) and UnitAffectingCombat(thisUnit) then 
+                            if buff.galacticGuardian.exists() and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) then
+                                if cast.moonfire(thisUnit) then return end
+                            end
+                            if buff.galacticGuardian.exists() then
+                                if cast.moonfire(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+    -- Moonfire
+                if #enemies.yards40 < 6 then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if isValidUnit(thisUnit) and UnitAffectingCombat(thisUnit) then 
+                            -- moonfire,if=dot.moonfire.remains<=4.8
+                            if debuff.moonfire.refresh(thisUnit) then
+                                if cast.moonfire(thisUnit) then return end
+                            end
+                        end
+                    end
+                end
+    -- Auto Maul
+                if isChecked("Auto Maul (SIMC)") and powerDeficit < 10 and #enemies.yards8 < 4 then
+                    if cast.maul() then return end
+                end
+
+    -- Maul
+                if power >= getOptionValue("Maul At") then
+                    if cast.maul() then return end
+                end
+    -- Swipe
+                -- swipe_bear
+                if getDistance("target") < 8 and not buff.galacticGuardian.exists() and not (cast.able.thrashBear() or cast.able.mangle()) then
+                    if cast.swipeBear() then return end
+                end
+            end
+
+            local function kittyCat()
+                if not cat then 
+                    if cast.catForm() then return end
+                end
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if combo >= 4 and not debuff.rip.exists(thisUnit) and (ttd(thisUnit) > 8 or isDummy(thisUnit)) then
+                        if cast.rip(thisUnit) then return end
+                    end
+                end
+
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if combo >= 4 and debuff.rip.exists(thisUnit) or (combo >= 4 and ttd(thisUnit) < 8) then
+                        if cast.ferociousBite(thisUnit) then return end
+                    end
+                end
+
+                if #enemies.yards5 >= 3 or traits.twistedClaws.active then 
+                    for i = 1, #enemies.yards5 do
+                        local thisUnit = enemies.yards5[i]
+                        if (not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.remain(thisUnit) <= 2) or 
+                        (not debuff.thrashCat.exists(thisUnit) or debuff.thrashCat.remain(thisUnit) <= 2) then
+                            if cast.thrashCat(thisUnit) then return end
+                        end
+                    end
+                end
+                if #enemies.yards5 >= 3 then
+                    if cast.swipeCat() then return end
+                end
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) <= 2 then
+                        if cast.rake(thisUnit) then return end
+                    end
+                end
+
+                for i = 1, #enemies.yards5 do
+                    local thisUnit = enemies.yards5[i]
+                    if debuff.rake.exists(thisUnit) then
+                        if cast.shred() then return end
+                    end
+                end
+            end
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -405,110 +595,18 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==2 then
             return true
         else
------------------------
---- Extras Rotation ---
------------------------
-            if actionList_Extras() then return end
---------------------------
---- Defensive Rotation ---
---------------------------
-            if actionList_Defensive() then return end
-------------------------------
---- Out of Combat Rotation ---
-------------------------------
-            if actionList_PreCombat() then return end
---------------------------
---- In Combat Rotation ---
---------------------------
-		if inCombat and bear and profileStop==false and isValidUnit("target") then
-
-    ------------------------------
-    --- In Combat - Interrupts ---
-    ------------------------------
-                if actionList_Interrupts() then return end
-    -----------------------------
-    --- In Combat - Cooldowns ---
-    -----------------------------
-                if actionList_Cooldowns() then return end
-    ---------------------------
-    --- SimulationCraft APL ---
-    ---------------------------
-        -- Ironfur
-                    -- ironfur,if=(buff.ironfur.up=0)|(buff.gory_fur.up=1)|(rage>=80)
-                    if isChecked("Ironfur") and (traits.layeredMane.active() and power >=50) or (not buff.ironfur.exists() or buff.goryFur.exists() or power >= 65 or buff.ironfur.remain() <1.5) then
-                        if cast.ironfur() then return end
-                    end
-        -- Bristling Fur
-                    -- bristling_fur,if=buff.ironfur.stack=1|buff.ironfur.down
-                    if bear and power < 40 then
-                        if cast.bristlingFur() then return end
-                    end
-        -- Lunar Beam
-                    -- lunar_beam
-                    if cast.lunarBeam() then return end
-        -- Mangle
-                    -- mangle
-                    if cast.mangle() then return end
-        -- Pulverize
-                    if talent.pulverize then
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
-                            if debuff.thrash.stack(thisUnit) >= 3 then
-                                if not buff.pulverize.exists() or (buff.pulverize.exists() and not (cast.able.mangle() or cast.able.thrash())) then
-									if cast.pulverize(thisUnit) then return end
-								end
-							end
-                        end
-                    end
-        -- Moonfire
-                    -- moonfire,if=buff.incarnation.up=1&dot.moonfire.remains<=4.8
-                    if #enemies.yards40 < 6 then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) then
-                                -- moonfire,if=buff.galactic_guardian.up=1&(!ticking|dot.moonfire.remains<=4.8)
-                                if buff.galacticGuardian.exists() and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) then
-                                    if cast.moonfire(thisUnit) then return end
-                                end
-                                -- moonfire,if=buff.galactic_guardian.up=1
-                                if buff.galacticGuardian.exists() then
-                                    if cast.moonfire(thisUnit) then return end
-                                end
-                            end
-                        end
-                    end
-        -- Thrash
-                    -- thrash_bear
-                    if getDistance("target") < 8 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
-                        if cast.thrash() then return end
-                    end
-        -- Moonfire
-                    if #enemies.yards40 < 6 then
-                        for i = 1, #enemies.yards40 do
-                            local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) then
-                                -- moonfire,if=dot.moonfire.remains<=4.8
-                                if debuff.moonfire.refresh(thisUnit) then
-                                    if cast.moonfire(thisUnit) then return end
-                                end
-                            end
-                        end
-                    end
-		-- Auto Maul
-					if isChecked("Auto Maul (SIMC)") and powerDeficit < 10 and #enemies.yards8 < 4 then
-						if cast.maul() then return end
-					end
-
-		-- Maul
-                    if power >= getOptionValue("Maul At") then
-                        if cast.maul() then return end
-                    end
-        -- Swipe
-                    -- swipe_bear
-                    if getDistance("target") < 8 and not (cast.able.thrash() or cast.able.mangle()) then
-                        if cast.swipe() then return end
-                    end
-                end--End In Combat
+            if talent.feralAffinity and br.player.mode.kitty == 1 and (hasAggro <= 1 or isChecked("Open World")) and cattime then
+                if kittyCat() then return end
+            else
+                if actionList_Extras() then return end
+                if actionList_Defensive() then return end
+                if actionList_PreCombat() then return end
+                    if inCombat and bear and profileStop==false then
+                    if actionList_Interrupts() then return end
+                    if actionList_Cooldowns() then return end
+                    if combatTime() then return end
+                    end--End In Combat
+                end
 			end --End Rotation Logic
 		end -- End Timer
 	end

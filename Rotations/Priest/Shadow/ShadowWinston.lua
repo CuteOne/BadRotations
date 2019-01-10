@@ -1,4 +1,4 @@
-local rotationName = "JR"
+local rotationName = "Winston"
 -- TODO
     -- add twins painful touch logic
 
@@ -20,7 +20,7 @@ local function createToggles()
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.mindBlast },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.mindBlast }
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
     -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
@@ -53,14 +53,14 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "General")
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-            -- Rotation Mode
-            br.ui:createDropdownWithout(section,"Rotation Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose rotation mode.")
+            -- APL Mode
+            br.ui:createDropdownWithout(section,"APL Mode", {"SIMC mode","JR Mode (expiremental)"}, 1, "Choose SimC or JRs Experimental APL mode.")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
-            -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of the Whispered Pact","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
+             -- Elixir
+            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Endless Fathoms","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
             -- Strict simc mode
@@ -107,31 +107,31 @@ local function createOptions()
             end
             if hasEquiped(137541) then
                 br.ui:createCheckbox(section,"Moonlit Prism")
-            	br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Prism Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147019) then
                 br.ui:createCheckbox(section,"Tome of Unravelling Sanity")
-            	br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Tome Stacks", 31, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(147002) then
                 br.ui:createCheckbox(section,"Charm of the Rising Tide")
-            	br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Charm Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137433) then
                 br.ui:createCheckbox(section,"Obelisk of the Void")
-            	br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Obelisk Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(133642) then
                 br.ui:createCheckbox(section,"Horn of Valor")
-            	br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Horn Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(150522) then
                 br.ui:createCheckbox(section,"Skull of Guldan")
-            	br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Skull Stacks", 35, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             if hasEquiped(137329) then
                 br.ui:createCheckbox(section,"Figurehead of the Naglfar")
-            	br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
+                br.ui:createSpinnerWithout(section, "  Figurehead Stacks", 40, 0, 100, 1, "Set to desired Void Form stacks to use at.")
             end
             -- Dark Ascension
             br.ui:createCheckbox(section,"Dark Ascension")
@@ -177,6 +177,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Silence
             br.ui:createCheckbox(section, "Silence")
+            -- Psychic Horror
+            br.ui:createCheckbox(section, "Psychic Horror")
             -- Psychic Scream
             br.ui:createCheckbox(section, "Psychic Scream")
             -- Mind Bomb
@@ -235,9 +237,10 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-    local friendly                                      = friendly or UnitIsFriend("target", "player")
+    local friendly                                      = friendly or GetUnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
     local gcdMax                                        = max(0.75, 1.5 / (1 + UnitSpellHaste("player") / 100))
+    local healPot                                       = getHealthPot()
     local hasMouse                                      = GetObjectExists("mouseover")
     local inCombat                                      = br.player.inCombat
     local inInstance                                    = br.player.instance=="party"
@@ -317,7 +320,7 @@ local function runRotation()
         VTmaxTargets = 1
     end
 
-	--print(tostring(cast.able.voidBolt()))
+    --print(tostring(cast.able.voidBolt()))
 
     -- Keep track of Drain Stacks
     -- Drain stacks will be equal to Voidform stacks, minus any time spent in diepersion and minus any time spent channeling void torrent
@@ -393,6 +396,16 @@ local function runRotation()
     -- Action List - Defensive
     function actionList_Defensive()
         if mode.defensive == 1 and getHP("player")>0 then
+            -- Pot/Stoned
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
+                    and inCombat and (hasHealthPot() or hasItem(5512)) 
+                then
+                    if canUse(5512) then
+                        useItem(5512)
+                    elseif canUse(healPot) then
+                        useItem(healPot)
+                    end
+                end
             -- Gift of the Naaru
             if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race=="Draenei" then
                 if castSpell("player",racial,false,false,false) then return end
@@ -428,6 +441,11 @@ local function runRotation()
                     if cast.mindBomb(units.dyn30) then return end
                 end
             end
+            -- Psychic Horror
+            --if isChecked("Psychic Horror") and inCombat and php <= getOptionValue("Psychic Horror") then
+            --    if talent.psychichHorror and #enemies.yards8 > 0 then
+            --        if cast.psychicHorror(units.dyn30) then return end
+            --    end
             -- Power Word: Shield
             if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
                 if cast.powerWordShield("player") then return end
@@ -444,11 +462,9 @@ local function runRotation()
         if isChecked("Silence") and mode.interruptToggle == 1 then
             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.silence("focus") then return end
-            end
-            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.silence("target") then return end
-            end
-            if getOptionValue("Interrupt Target") == 3 then
+            elseif getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -457,15 +473,28 @@ local function runRotation()
                 end
             end
         end
-        if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
+    -- Psychic Horror
+        if talent.psychicHorror and isChecked("Psychic Horror") and mode.interruptToggle == 1 then
+            if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
+                if cast.psychicHorror("focus") then Print("pH on focus") return end
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
+                if cast.psychicHorror("target") then Print("pH on target") return end
+            elseif getOptionValue("Interrupt Target") == 3 and (cd.silence.exists() or not isChecked("Silence")) then
+                for i=1, #enemies.yards30 do
+                    thisUnit = enemies.yards30[i]
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                        if cast.psychicHorror(thisUnit) then Print("pH on any") return end
+                    end
+                end
+            end
+        end
     -- Psychic Scream
+        if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("focus") then return end
-            end
-            if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
+            elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
                 if cast.psychicScream("target") then return end
-            end
-            if getOptionValue("Interrupt Target") == 3 then
+            elseif getOptionValue("Interrupt Target") == 3 then
                 for i=1, #enemies.yards8 do
                     thisUnit = enemies.yards8[i]
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
@@ -628,16 +657,18 @@ local function runRotation()
         if not buff.shadowform.exists() then
             cast.shadowform()
         end
+    -- comment out Fort so you are not over casting other priests in raids. if you uncomment it will keep applying so its your fort up. easier to just manual cast i think.
     -- Power Word: Fortitude
-        if not buff.powerWordFortitude.exists() then
-            cast.powerWordFortitude()
-        end
+  --      if not buff.powerWordFortitude.exists() then
+     --       cast.powerWordFortitude()
+    --    end
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
+          -- Endless Fathoms Flask
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUse(item.flaskOfEndlessFathoms) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
-            if use.flaskOfTheWhisperedPact() then return end
+            if use.flaskOfEndlessFathoms() then return end
         end
         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
@@ -658,7 +689,7 @@ local function runRotation()
         --     end
         -- end
     -- Power Word: Shield Body and Soul
-        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not buff.classHallSpeed.exists() then
+        if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
             if cast.powerWordShield("player") then return end
         end
     end  -- End Action List - Pre-Combat
@@ -736,7 +767,7 @@ local function runRotation()
             if not mode.rotation == 3 and debuff.shadowWordPain.remainCount(gcdMax) < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax and not recentlyCast(thisUnit, spell.shadowWordPain, 1.1*gcdMax)
+                    if not GetUnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax and not recentlyCast(thisUnit, spell.shadowWordPain, 1.1*gcdMax)
                     then
                         if cast.shadowWordPain(thisUnit,"aoe") then
                             -- Print("cast SWP on extra with misery")
@@ -1285,7 +1316,7 @@ local function runRotation()
             end
         end
 -- Higher Priority for DOTS in Void Form (Experimental)
-        if getOptionValue("Rotation Mode") == 2 then
+        if getOptionValue("APL Mode") == 2 then
         -- Vampiric Touch
             if not moving and not debuff.vampiricTouch.exists(units.dyn40) and ((1 + 0.02 * buff.voidForm.stack()) * dot_vt_dpgcd * ttd(units.dyn40) / (gcdMax * (156 + sear_dpgcd * (#searEnemies - 1)))) > 1 then
                 if cast.vampiricTouch(units.dyn40) then return end
@@ -1473,7 +1504,7 @@ local function runRotation()
             if debuff.shadowWordPain.remainCount(gcdMax) < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not UnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax then
+                    if not GetUnitIsUnit(thisUnit, units.dyn40) and debuff.shadowWordPain.remain(thisUnit) < gcdMax then
                         if cast.shadowWordPain(thisUnit,"aoe") then return end
                     end
                 end

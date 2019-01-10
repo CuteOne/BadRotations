@@ -6,8 +6,8 @@ local rotationName = "CuteOne"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipe },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipe },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipeBear },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipeBear },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mangle },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
@@ -33,8 +33,8 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
 -- Cleave Button
 	CleaveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
-        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrash }
+        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrashBear },
+        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrashBear }
     };
     CreateButton("Cleave",5,0)
 -- Prowl Button
@@ -193,7 +193,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = UnitIsFriend("target", "player")
+        local friendly                                      = GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
@@ -375,24 +375,24 @@ local function runRotation()
         --Revive/Rebirth
                 if isChecked("Rebirth") then
                     if getOptionValue("Rebirth - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.rebirth("target","dead") then return end
                     end
                     if getOptionValue("Rebirth - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.rebirth("mouseover","dead") then return end
                     end
                 end
                 if isChecked("Revive") then
                     if getOptionValue("Revive - Target")==1
-                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.revive("target","dead") then return end
                     end
                     if getOptionValue("Revive - Target")==2
-                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and UnitIsFriend("mouseover","player")
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.revive("mouseover","dead") then return end
                     end
@@ -552,7 +552,7 @@ local function runRotation()
             if inCombat and cat and talent.feralAffinity and isValidUnit("target") and profileStop==false then
 				-- Swipe
 				if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
-					if cast.swipe() then return end
+					if cast.swipeCat() then return end
 				end
 				-- Rip
 				if combo == 5 and #enemies.yards8 < 4 then
@@ -620,7 +620,7 @@ local function runRotation()
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if debuff.thrash.stack(thisUnit) >= 3 then
+                            if debuff.thrashBear.stack(thisUnit) >= 3 then
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
@@ -630,7 +630,7 @@ local function runRotation()
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if isValidUnit(thisUnit) and (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                 -- moonfire,if=buff.galactic_guardian.up=1&(!ticking|dot.moonfire.remains<=4.8)
                                 if buff.galacticGuardian.exists() and (not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit)) then
                                     if cast.moonfire(thisUnit) then return end
@@ -645,7 +645,7 @@ local function runRotation()
         -- Thrash
                     -- thrash_bear
                     if getDistance("target") < 8 then
-                        if cast.thrash() then return end
+                        if cast.thrashBear() then return end
                     end
         -- Mangle
                     -- mangle
@@ -654,7 +654,7 @@ local function runRotation()
                     if #enemies.yards40 < 4 then
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isValidUnit(thisUnit) and (multidot or (UnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
+                            if isValidUnit(thisUnit) and (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
                                 -- moonfire,if=dot.moonfire.remains<=4.8
                                 if debuff.moonfire.refresh(thisUnit) then
                                     if cast.moonfire(thisUnit) then return end
@@ -669,7 +669,7 @@ local function runRotation()
         -- Swipe
                     -- swipe_bear
                     if getDistance("target") < 8 then
-                        if cast.swipe() then return end
+                        if cast.swipeBear() then return end
                     end
                 end -- End SimC APL
     ------------------------

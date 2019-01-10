@@ -56,6 +56,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- Auto Engage
+            br.ui:createCheckbox(section, "Auto Engage")
         -- Eye Beam Targets
             br.ui:createDropdownWithout(section,"Eye Beam Usage",{"|cff00FF00Per APL","|cffFFFF00AoE Only","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Eye Beam.")
             br.ui:createSpinnerWithout(section, "Units To AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use AoE spells on.")
@@ -65,6 +67,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Fel Rush Only In Melee")
         -- Fel Rush After Vengeful Retreat
             br.ui:createCheckbox(section, "Auto Fel Rush After Retreat")
+        -- Throw Glaive 
+            br.ui:createCheckbox(section, "Throw Glaive")
         -- Vengeful Retreat
             br.ui:createCheckbox(section, "Vengeful Retreat")
         -- Glide Fall Time
@@ -96,6 +100,8 @@ local function createOptions()
         -- Chaos Nova
             br.ui:createSpinner(section, "Chaos Nova - HP", 30, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Chaos Nova - AoE", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use at.")
+        -- Consume Magic
+            br.ui:createCheckbox(section, "Consume Magic")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -169,6 +175,7 @@ local function runRotation()
         local php                                           = br.player.health
         local power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local solo                                          = #br.friend == 1
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local ttd                                           = getTTD
@@ -177,6 +184,7 @@ local function runRotation()
         local use                                           = br.player.use
 
         units.get(5)
+        units.get(8)
         units.get(30)
         enemies.get(5)
         enemies.get(8)
@@ -186,7 +194,7 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        if (equiped.soulOfTheSlayer or talent.firstBlood) then flood = 1 else flood = 0 end
+        if (equiped.soulOfTheSlayer() or talent.firstBlood) then flood = 1 else flood = 0 end
         if isCastingSpell(spell.eyeBeam,"player") and buff.metamorphosis.exists() then metaExtended = true elseif not buff.metamorphosis.exists() then metaExtended = false end
 
     -- Wait for Nemesis
@@ -203,7 +211,7 @@ local function runRotation()
         end
     -- Blade Dance Variable
         -- variable,name=blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
-        if (equiped.soulOfTheSlayer or talent.firstBlood) or equiped.t20 >= 4 or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+        if (equiped.soulOfTheSlayer() or talent.firstBlood) --[[or equiped.t20 >= 4]] or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
             bladeDanceVar = true
         else
             bladeDanceVar = false
@@ -257,14 +265,17 @@ local function runRotation()
         -- if IsHackEnabled("NoKnockback") then
         --     SetHackEnabled("NoKnockback", false)
         -- end
-        if isChecked("Auto Fel Rush After Retreat") and mode.mover == 2 and getDistance("target") > 8
-            and cast.able.felRush() and cast.last.vengefulRetreat() and charges.felRush.count() >= 1
+        if inCombat and isChecked("Auto Fel Rush After Retreat") and cast.able.felRush()
+            and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         then
-            if cast.felRush() then return end
+            if mode.mover == 1 and getDistance("target") < 8 then
+                cancelRushAnimation()
+            elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
+                if cast.felRush() then return end
+            end
         end
 
         -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
-
 --------------------
 --- Action Lists ---
 --------------------
@@ -330,6 +341,10 @@ local function runRotation()
                 then
                     if cast.chaosNova() then return end
                 end
+        -- Consume Magic
+				if isChecked("Consume Magic") and cast.able.consumeMagic("target") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
+					if cast.consumeMagic("target") then return end
+                end
     		end -- End Defensive Toggle
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
@@ -370,8 +385,10 @@ local function runRotation()
                             -- if cast.metamorphosis("best",false,1,8) then return end
                             if cast.metamorphosis("player") then return end
                         end
-                        -- metamorphosis,if=talent.demonic.enabled&buff.metamorphosis.up
-                        if cast.able.metamorphosis() and talent.demonic and buff.metamorphosis.exists() then
+                        -- metamorphosis,if=talent.demonic.enabled&buff.metamorphosis.up&(!azerite.chaotic_transformation.enabled|!variable.blade_dance|!cooldown.blade_dance.ready)
+                        if cast.able.metamorphosis() and talent.demonic and buff.metamorphosis.exists() 
+                            and (not traits.chaoticTransformation.active or not bladeDanceVar or cd.bladeDance.remain() > 0) 
+                        then
                             if cast.metamorphosis("player") then return end
                         end
                     end
@@ -395,25 +412,14 @@ local function runRotation()
                         if cast.nemesis(lowestUnit) then return end
                     end
         -- Trinkets
-                    -- Draught of Souls
-                    if isChecked("Draught of Souls") then
-                        if hasEquiped(140808) and canUse(140808) then
-                            if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() > 3) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd("target") < cd.nemesis.remain() + 3) then
-                                useItem(140808)
-                            end
-                        end
-                    end
                     -- use_item,slot=trinket2,if=!buff.metamorphosis.up&(!talent.first_blood.enabled|!cooldown.blade_dance.ready)&(!talent.nemesis.enabled|cooldown.nemesis.remains>30|target.time_to_die<cooldown.nemesis.remains+3)
-                 --   if isChecked("Trinkets") then
-                        if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
-                            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
-                                useItem(13)
-                            end
-                            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
-                                useItem(14)
-                            end
-                        end
-                  --  end
+                        -- if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                        useItem(13)
+                    end
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                        useItem(14)
+                    end
         -- Potion
                     -- potion,name=old_war,if=buff.metamorphosis.remains>25|target.time_to_die<30
                     if isChecked("Potion") and canUse(127844) and inRaid then
@@ -455,7 +461,7 @@ local function runRotation()
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
-            if cast.able.deathSweep() and buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.deathSweep("player","aoe",1,8) then return end
             end
         -- Eye Beam
@@ -463,15 +469,15 @@ local function runRotation()
             if cast.able.eyeBeam() and not moving and not metaExtended and enemies.yards8r > 0
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-                    or (mode.rotation == 2 and enemies.yards8r > 0)) --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+                    or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
             then
                 -- if cast.eyeBeam(units.dyn5) then return end
                 if cast.eyeBeam(nil,"rect",1,8) then return end
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-            if cast.able.bladeDance() and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
-                and (cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank() * 3))
+            if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
+                and (cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank * 3))
                 --     or ((mode.rotation == 1 and (getOptionValue("Eye Beam Usage") == 3
                 --         or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE"))
                 --         or (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r == 0)))
@@ -483,7 +489,7 @@ local function runRotation()
         -- Immolation Aura
             -- immolation_aura
             if cast.able.immolationAura() and #enemies.yards8 > 0 then
-                if cast.immolationAura() then return end
+                if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Felblade
             -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
@@ -511,16 +517,6 @@ local function runRotation()
                     if cast.felRush() then return end
                 end
             end
-            -- fel_rush,if=!talent.demon_blades.enabled&!cooldown.eye_beam.ready&azerite.unbound_chaos.rank>0
-            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and not talent.demonBlades and cd.eyeBeam.remain() > 0 and traits.unboundChaos.rank() > 0
-            then
-                if mode.mover == 1 and getDistance("target") < 8 then
-                    cancelRushAnimation()
-                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
-                    if cast.felRush() then return end
-                end
-            end
         -- Demon's Bite
             -- demons_bite
             if cast.able.demonsBite() and not talent.demonBlades then
@@ -528,7 +524,7 @@ local function runRotation()
             end
         -- Throw Glaive
             -- throw_glaive,if=buff.out_of_range.up
-            if cast.able.throwGlaive() and getDistance(units.dyn30) > 8 then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and getDistance(units.dyn30) > 8 then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         -- Fel Rush
@@ -545,7 +541,7 @@ local function runRotation()
         --     end
         -- Throw Glaive
             -- throw_glaive,if=talent.demon_blades.enabled
-            if cast.able.throwGlaive() and talent.demonBlades then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         end -- End Action List - Demonic
@@ -565,7 +561,7 @@ local function runRotation()
         -- Fel Rush
             -- fel_rush,if=(variable.waiting_for_momentum|talent.fel_mastery.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
             if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and (waitForMomentum or talent.felMastery) and charges.felRush.count() == 2
+                and (waitForMomentum or talent.felMastery)
             then
                 if mode.mover == 1 and getDistance("target") < 8 then
                     cancelRushAnimation()
@@ -580,17 +576,18 @@ local function runRotation()
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
-            if cast.able.deathSweep() and buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.deathSweep("player","aoe",1,8) then return end
             end
         -- Immolation Aura
             -- immolation_aura
             if cast.able.immolationAura() and #enemies.yards8 > 0 then
-                if cast.immolationAura() then return end
+                if cast.immolationAura("player","aoe",1,8) then return end
             end
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum and (not talent.momentum or buff.momentum.exists())
+                and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
                 --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                 --     or (mode.rotation == 2 and enemies.yards8r > 0))
@@ -600,19 +597,8 @@ local function runRotation()
             end
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance
-            if cast.able.bladeDance() and not buff.metamorphosis.exists() and bladeDanceVar then
+            if cast.able.bladeDance() and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
                 if cast.bladeDance("player","aoe",1,8) then return end
-            end
-        -- Fel Rush
-            -- /fel_rush,if=!talent.momentum.enabled&!talent.demon_blades.enabled&azerite.unbound_chaos.enabled
-            if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-                and not talent.momentum and not talent.demonBlades and traits.unboundChaos.active()
-            then
-                if mode.mover == 1 and getDistance("target") < 8 then
-                    cancelRushAnimation()
-                elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
-                    if cast.felRush() then return end
-                end
             end
         -- Felblade
             -- felblade,if=fury.deficit>=40
@@ -621,7 +607,8 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists())
+                and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                 --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                 --     or (mode.rotation == 2 and enemies.yards8r > 0))
@@ -645,7 +632,8 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury --and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury and (not talent.momentum or buff.momentum.exists())
+                and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                 --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                 --     or (mode.rotation == 2 and enemies.yards8r > 0))
@@ -686,7 +674,7 @@ local function runRotation()
         --     end
         -- Throw Glaive
             -- throw_glaive,if=talent.demon_blades.enabled
-            if cast.able.throwGlaive() and talent.demonBlades then
+            if isChecked("Throw Glaive") and cast.able.throwGlaive() and talent.demonBlades then
                 if cast.throwGlaive(nil,"aoe",1,10) then return end
             end
         end -- End Action List - Normal
@@ -723,13 +711,13 @@ local function runRotation()
 
                 end -- End Pre-Pull
                 if isValidUnit("target") then
-                    if UnitReaction("target","player") < 4 then
+                    if GetUnitReaction("target","player") < 4 then
             -- Throw Glaive
-                        if cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 then
+                        if isChecked("Throw Glaive") and cast.able.throwGlaive("target") and #enemies.get(10,"target",true) == 1 and solo and isChecked("Auto Engage") then
                             if cast.throwGlaive("target","aoe") then return end
                         end
             -- Torment
-                        if cast.able.torment("target") then
+                        if cast.able.torment("target") and solo and isChecked("Auto Engage") then
                             if cast.torment("target") then return end
                         end
                     end

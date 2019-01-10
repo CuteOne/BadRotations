@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.16.0
+## Version: 1.24.0
 ## SavedVariablesPerCharacter: brdata, dungeondata, mdungeondata, raiddata, mraiddata
 
 BadRotations.lua
@@ -102,6 +102,7 @@ System\UI\Elements\Checkbox.lua
 System\UI\Elements\Dropdown.lua
 System\UI\Elements\PageDropdown.lua
 System\UI\Elements\RotationDropdown.lua
+System\UI\Elements\ScrollingEditBox.lua
 System\UI\Elements\Section.lua
 System\UI\Elements\Spinner.lua
 System\UI\Elements\Text.lua

@@ -32,32 +32,34 @@ novaEngineTables.DoNotDispellList = {
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
-	104451, -- Ice Tomb
-	76577,-- Smoke Bomb
-	121949, -- Parasistic Growth
-	122784, -- Reshape Life
-	122370, -- Reshape Life 2
-	123184, -- Dissonance Field
-	123255, -- Dissonance Field 2
-	123596, -- Dissonance Field 3
-	128353, -- Dissonance Field 4
-	145832, -- Empowered Touch of Y'Shaarj (mind control garrosh)
-	145171, -- Empowered Touch of Y'Shaarj (mind control garrosh)
-	145065, -- Empowered Touch of Y'Shaarj (mind control garrosh)
-	145071, -- Empowered Touch of Y'Shaarj (mind control garrosh)
+	[104451] = "Ice Tomb",
+	[76577] = "Smoke Bomb",
+	[121949] = "Parasistic Growth",
+	[122784] = "Reshape Life",
+	[122370] = "Reshape Life 2",
+	[123184] = "Dissonance Field",
+	[123255] = "Dissonance Field 2",
+	[123596] = "Dissonance Field 3",
+	[128353] = "Dissonance Field 4",
+	[145832] = "Empowered Touch of Y'Shaarj", --(mind control garrosh)
+	[145171] = "Empowered Touch of Y'Shaarj", --(mind control garrosh)
+	[145065] = "Empowered Touch of Y'Shaarj", --(mind control garrosh)
+	[145071] = "Empowered Touch of Y'Shaarj", --(mind control garrosh)
 	--Brackenspore
-	159220, -- http://www.wowhead.com/spell=159220  A debuff that removes 99% of healing so no point healing them
-	184587, -- Touch of Mortality  Prevents all healing for 9 seconds
-	236550, -- Discorporate Decreases all Healing by 75%
-	243961, -- Varimathas Misery, Immune to all healing effects.
+	[159220] = "Necrotic Breath",  --A debuff that removes 99% of healing so no point healing them
+	[184587] = "Touch of Mortality", --  Prevents all healing for 9 seconds
+	[236550] = "Discorporate", --Decreases all Healing by 75%
+	[243961] = "Misery", --Immune to all healing effects.
+	[274148] = "Taint", --Avatar of Sethraliss Debuff
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
-	[71604] = "Immersus Oozes" ,
+	[71604] = "Contaminated Puddle",
 	[6459] = "Boss#3 SoO",
 	[6460] = "Boss#3 SoO",
 	[6464] = "Boss#3 SoO",
-	[90388] = "Tortured Essence",
+	[90388] ="Tortured Essence",
+	[133392] = "Avatar of Sethraliss"
 };
 -- set dot that need to be healed to max(needs to be topped) to very low values so that engine will prioritize them
 -- the value used here will be substract from current health, we could use negative values to add back health instead

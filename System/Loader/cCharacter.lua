@@ -1,89 +1,87 @@
 --- Character Class
 -- All classes inherit from the base class /cCharacter.lua
 cCharacter = {}
-
-
 -- Creates new character with given class
 function cCharacter:new(class)
 	local self = {}
-	self.augmentRune 	= {        -- Contains the different buff IDs for Augment Runes
-		Agility   = 175456,
-		Strength  = 175439,
-		Intellect = 175457,
-		Legion	  = 224001,
-    }
-    self.artifact       = {} 		-- Artifact Perk IDs
+  self.augmentRune    = {         -- Contains the different buff IDs for Augment Runes
+		Agility   					= 270058,
+		Strength  					= 270058,
+		Intellect 					= 270058,
+		Legion	  					= 224001,
+  }
+  self.artifact       = {} 	-- Artifact Perk IDs
 	self.buff           = {}        -- Buffs
-    self.debuff         = {}        -- Debuffs on target
+  self.debuff         = {}        -- Debuffs on target
 	self.class          = select(2, UnitClass("player")) -- Class
 	self.cd             = {}        -- Cooldowns
 	self.charges        = {}        -- Number of charges
-    self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
-    self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
-	self.enemies  		= {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
-	self.equiped 		= {} 		-- Item Equips
+	self.currentPet     = "None" 	-- Current Pet
+  self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
+  self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
+	self.enemies  	    = {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
+	self.equiped 	    	= {} 	-- Item Equips
 	self.gcd            = 1.5       -- Global Cooldown
-	self.gcdMax 		= 1.5 		-- GLobal Max Cooldown
+	self.gcdMax 	    	= 1.5 	-- GLobal Max Cooldown
 	self.glyph          = {}        -- Glyphs
-	self.faction  		= select(1,UnitFactionGroup("player")) -- Faction non-localised name
-    self.flask 			= {}
-    self.flask.wod 		= {
-        -- Agility
-        agilityLow 		= 127848, 	-- Flask of the Seventh Demon (Legion)
-        agilityBig 		= 127848, 	-- Flask of the Seventh Demon (Legion)
-        -- Intellect
-        intellectLow 	= 109147,
-        intellectBig 	= 109155,
-        -- Stamina
-        staminaLow 		= 109152,
-        staminaBig		= 109160,
-        -- Strength
-        strengthLow 	= 109148,
-        strengthBig 	= 109156,
-    }
-    self.flask.wod.buff = {
-        -- Agility
-        agilityLow 		= 188033, 	-- Flask of the Seventh Demon (Legion)
-        agilityBig 		= 188033, 	-- Flask of the Seventh Demon (Legion)
-        -- Intellect
-        intellectLow 	= 156070,
-        intellectBig 	= 156079,
-        -- Stamina
-        staminaLow 		= 156077,
-        staminaBig 		= 156084,
-        -- Strength
-        strengthLow 	= 156071,
-        strengthBig 	= 156080,
-    }
-    --self.functions 		= {} 		-- Functions
+	self.faction  	    = select(1,UnitFactionGroup("player")) -- Faction non-localised name
+  self.flask 	    		= {}
+  self.flask.wod 	    = {
+	  -- Agility
+	  agilityLow 					= 152638, 	 -- flask-of-the-currents
+	  agilityBig 					= 152638, 	 -- flask-of-the-currents
+	  -- Intellect
+	  intellectLow 	      = 152639,        -- flask-of-endless-fathoms
+	  intellectBig 	      = 152639,        -- flask-of-endless-fathoms
+	  -- Stamina
+	  staminaLow 					= 152640,        -- flask-of-the-vast-horizon
+	  staminaBig					= 152640,        -- flask-of-the-vast-horizon
+	  -- Strength
+	  strengthLow 	      = 152641,        -- flask-of-the-undertow
+	  strengthBig         = 152641,        -- flask-of-the-undertow
+  }
+  self.flask.wod.buff = {
+	  -- Agility
+	  agilityLow 					= 251836,
+	  agilityBig 					= 251836,
+	  -- Intellect
+	  intellectLow       	= 251837,
+	  intellectBig     		= 251837,
+	  -- Stamina
+	  staminaLow 					= 251838,
+	  staminaBig 					= 251838,
+	  -- Strength
+	  strengthLow       	= 251839,
+	  strengthBig 	      = 251839,
+  }
+    --self.functions 	    = {} 	-- Functions
 	self.health         = 100       -- Health Points in %
 	self.ignoreCombat   = false     -- Ignores combat status if set to true
 	self.inCombat       = false     -- if is in combat
-	self.instance 		= select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
-	self.level			= 0 		-- Player Level
+	self.instance 	    = select(2,IsInInstance()) 	-- Get type of group we are in (none, party, instance, raid, etc)
+	self.level	    		= 0 	-- Player Level
 	self.mode           = {}        -- Toggles
-	self.options 		= {}        -- Contains options
-	self.perk 			= {}		-- Perk Table
-	self.currentPet 	= "None" 	-- Current Pet
-	self.petId 			= 0 		-- Current Pet Id
-	self.pet 			= {} 		-- Pet Information Table
-	self.pet.list 		= {}
-	self.potion 		= {}		-- Potion Table
-	self.primaryStat 	= nil       -- Contains the primary Stat: Strength, Agility or Intellect
+	self.moving         = false        -- Moving event
+	self.options 	    	= {}        -- Contains options
+	self.perk 	    		= {}	-- Perk Table
+	self.petId 	    		= 0 	-- Current Pet Id
+	self.pet 	    			= {} 	-- Pet Information Table
+	self.pet.list 	    = {}
+	self.potion 	    	= {}	-- Potion Table
+	self.primaryStat    = nil       -- Contains the primary Stat: Strength, Agility or Intellect
 	self.profile        = "None"    -- Spec
-	self.queue 			= {} 		-- Table for Queued Spells
-	self.race     		= select(2,UnitRace("player")) -- Race as non-localised name (undead = Scourge) !
-	self.racial   		= getRacialID()       -- Contains racial spell id
+	self.queue 	    		= {} 	-- Table for Queued Spells
+	self.race     	    = select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
+	self.racial   	    = getRacialID()     -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
-	self.rechargeFull 	= {}
-	self.selectedRotation = 1         -- Default: First avaiable rotation
-    self.rotation 		= {} 		-- List of Rotations
-	self.spell			= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
+	self.rechargeFull   = {}
+	self.selectedRotation = 1       -- Default: First avaiable rotation
+  self.rotation       = {} 	-- List of Rotations
+	self.spell	    		= {}        -- Spells all classes may have (e.g. Racials, Mass Ressurection)
 	self.talent         = {}        -- Talents
-	self.timeToMax		= 0			-- Time To Max Power
-	self.traits 		= {}		-- Azerite Traits
+	self.timeToMax	    = 0		-- Time To Max Power
+	self.traits         = {}	-- Azerite Traits
 	self.units          = {}        -- Dynamic Units (used for dynamic targeting, if false then target)
-
 
 -- Things which get updated for every class in combat
 -- All classes call the baseUpdate()
@@ -91,52 +89,41 @@ function cCharacter:new(class)
 		local startTime = debugprofilestop()
 		-- Pause
 		-- TODO
-
 		-- Get base options
 		self.baseGetOptions()
-
 		-- Get Character Info
 		self.getCharacterInfo()
-
 		-- Get Consumables
 		if bagsUpdated then
 			self.potion.action 		= {}
 			self.potion.agility		= {}	-- Agility Potions
 			self.potion.armor 		= {}	-- Armor Potions
-			self.potion.breathing  	= {}
+			self.potion.breathing = {}
 			self.potion.health		= {}	-- Health Potions
-			self.potion.intellect 	= {}	-- Intellect Potions
+			self.potion.intellect = {}	-- Intellect Potions
 			self.potion.invis 		= {}
-			self.potion.mana 		= {}	-- Mana Potions
-			self.potion.rage 		= {}
+			self.potion.mana 			= {}	-- Mana Potions
+			self.potion.rage 			= {}
 			self.potion.rejuve 		= {}
-			self.potion.speed		= {}
+			self.potion.speed			= {}
 			self.potion.strength 	= {}	-- Strength Potions
 			self.potion.versatility = {} 	-- Versatility Potions
-			self.potion.waterwalk 	= {}
-			self.getConsumables()			-- Find All The Tasty Things!
+			self.potion.waterwalk = {}
+			self.getConsumables()		-- Find All The Tasty Things!
 			bagsUpdated = false
 		end
-
-
 		-- Crystal
 		self.useCrystal()
-
 		-- Fel Focuser
 		self.useFelFocuser()
-
 		-- Empowered Augment Rune
 		self.useEmpoweredRune()
-
-        -- Get selected rotation
-        self.getRotation()
-
+    -- Get selected rotation
+    self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
-
 		-- Combat state update
 		self.getInCombat()
-
 		-- Food/Invis Check
 		if canRun() ~= true then
 			return false
@@ -148,18 +135,19 @@ function cCharacter:new(class)
 
 -- Update Character Stats
 	function self.getCharacterInfo()
-		self.gcd 				= self.getGlobalCooldown()
-		self.gcdMax 			= max(1, 1.5 / (1 + UnitSpellHaste("player") / 100))
-		self.health 			= getHP("player")
+		self.gcd 						= self.getGlobalCooldown()
+		self.gcdMax 				= self.getGlobalCooldown(true)
+		self.health 				= getHP("player")
 		self.instance 			= select(2,IsInInstance())
-		self.level 				= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
-		self.spec 				= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
+		self.level 					= UnitLevel("player") -- TODO: EVENT - UNIT_LEVEL
+		self.spec 					= select(2, GetSpecializationInfo(GetSpecialization())) or "None"
 		self.currentPet			= UnitCreatureFamily("pet") or "None"
-		if self.currentPet ~= "None" then
-			self.petId 			= tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
+		if self.currentPet  ~= "None" then
+		  self.petId 		    = tonumber(UnitGUID("pet"):match("-(%d+)-%x+$"), 10)
 		else
-			self.petId 			= 0
+		    self.petId 			= 0
 		end
+		self.posX, self.posY, self.posZ = GetObjectPosition("player")
 	end
 
 -- Updates things Out of Combat like Talents, Gear, etc.
@@ -185,15 +173,16 @@ function cCharacter:new(class)
 	end
 
 -- Returns the Global Cooldown time
-	function self.getGlobalCooldown()
-    	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
-        local gcd = getSpellCD(61304)
-        local gcdMIN = 0.75
-        if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
-        	return 1
-        else
-        	return gcd > gcdMIN and gcd or gcdMIN
-        end
+	function self.getGlobalCooldown(max)
+		local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+		if max == true then
+			if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
+				return 1
+			else
+				return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
+			end
+		end
+		return getSpellCD(61304)
     end
 
 -- Starts auto attack when in melee range and facing enemy
@@ -328,8 +317,8 @@ function cCharacter:new(class)
 		-- 	end
 		-- elseif version == "BFA" then
 		-- 	if self.race == "BloodElf" then
-	    --     BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
-	    -- 	end
+	        --     BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
+	        -- 	end
 		--     if self.race == "Draenei" then
 		--         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
 		--     end
@@ -362,17 +351,17 @@ function cCharacter:new(class)
 		--         MagharOrc 		= 274738, -- Ancestral Call
 		-- 	}
 		-- 	if br.player ~= nil then
-				return br.player.spell.racial
+				return self.racial
 		-- 	else
 		-- 		return racialSpells[self.race]
 		-- 	end
 		-- end
 
 	end
-	--self.racial = self.getRacial()
-	-- if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
+    --self.racial = self.getRacial()
+    -- if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
 
--- Casts the racial
+    -- Casts the racial
 	function self.castRacial()
 		if getSpellCD(self.racial) == 0 and getOptionValue("Racial") then
 			if self.race == "Pandaren" or self.race == "Goblin" then
@@ -414,26 +403,26 @@ function cCharacter:new(class)
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
 	function self.useCrystal()
 		if self.options.useCrystal and getBuffRemain("player",176151) < 600 and not hasBuff(242551) and not canUse(147707) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-            -- Check if other flask is present, if so abort here
-            for _,flaskID in pairs(self.flask.wod.buff) do
-                if hasBuff(flaskID) then return end
-            end
-            useItem(118922)
+     	-- Check if other flask is present, if so abort here
+      for _,flaskID in pairs(self.flask.wod.buff) do
+      	if hasBuff(flaskID) then return end
+      end
+      useItem(118922)
 		end
-    end
+  end
 
 -- Use Fel Focuser +500 to all Stat - ID: 147707, Buff: 242551 (Fel Focus)
 	function self.useFelFocuser()
 		if canUse(147707) and not IsMounted() then cancelBuff(176151) end
 
 		if self.options.useFelFocuser and getBuffRemain("player",242551) < 600 and not hasBuff(176151) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-            -- Check if other flask is present, if so abort here
-            for _,flaskID in pairs(self.flask.wod.buff) do
-                if hasBuff(flaskID) then return end
-            end
-            useItem(147707)
+      -- Check if other flask is present, if so abort here
+      for _,flaskID in pairs(self.flask.wod.buff) do
+        if hasBuff(flaskID) then return end
+      end
+      useItem(147707)
 		end
-    end
+  end
 
 -- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
 	function self.useEmpoweredRune()

@@ -57,6 +57,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
         -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
+        -- Sundering 
+            br.ui:createSpinner(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
         -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
         br.ui:checkSectionState(section)
@@ -176,6 +178,7 @@ local function runRotation()
         local php                                           = br.player.health
         local power                                         = br.player.power.maelstrom.amount()
         local pullTimer                                     = br.DBM:getPulltimer()
+        local race                                          = br.player.race
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local trait                                         = br.player.traits
@@ -204,13 +207,16 @@ local function runRotation()
         local furyCheck25 = (not talent.furyOfAir or (talent.furyOfAir and power > 25))
         -- variable,name=OCPool80,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>80)))
         local ocPool80 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
-            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 80)))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 == 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) 
+            and (cd.lightningBolt.remain() >= 2 * gcdMax or power > 80)))
         -- variable,name=OCPool70,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>70)))
         local ocPool70 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
-            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 70)))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 == 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) 
+            and (cd.lightningBolt.remain() >= 2 * gcdMax or power > 70)))
         -- variable,name=OCPool60,value=(!talent.overcharge.enabled|active_enemies>1|(talent.overcharge.enabled&active_enemies=1&(cooldown.lightning_bolt.remains>=2*gcd|maelstrom>60)))
         local ocPool60 = (not talent.overcharge or ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
-            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) and (cd.lightningBolt.remain() > 2 * gcdMax or power > 60)))
+            or (talent.overcharge and ((mode.rotation == 1 and #enemies.yards10 == 1) or (mode.rotation == 2 and #enemies.yards10 > 0)) 
+            and (cd.lightningBolt.remain() >= 2 * gcdMax or power > 60)))
 
         if profileStop == nil then profileStop = false end
 
@@ -297,16 +303,16 @@ local function runRotation()
                     end
                 end
         -- Gift of the Naaru
-                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
                     if cast.giftOfTheNaaru() then return true end
                 end
         -- Ancestral Spirit
                 if isChecked("Ancestral Spirit") then
                     if getOptionValue("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
-                        if cast.ancestralSpirit("target") then return true end
+                        if cast.ancestralSpirit("target","dead") then return true end
                     end
                     if getOptionValue("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
-                        if cast.ancestralSpirit("mouseover") then return true end
+                        if cast.ancestralSpirit("mouseover","dead") then return true end
                     end
                 end
         -- Astral Shift
@@ -441,7 +447,7 @@ local function runRotation()
             end
         -- Rockbiter
             -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
-            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 then
+            if cast.able.rockbiter() and talent.landslide and not buff.landslide.exists() and charges.rockbiter.frac() > 1.7 and cd.windstrike.remain() > gcdMax then
                 if cast.rockbiter() then return true end
             end
         -- Windstrike
@@ -502,21 +508,25 @@ local function runRotation()
             end
         -- Sundering
             -- sundering,if=active_enemies>=3
-            if cast.able.sundering() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) and getDistance(units.dyn8) < 8 then
+            if cast.able.sundering() and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+                and getDistance(units.dyn8) < 8 and #enemies.yards8 >= getOptionValue("Units to Sunder")
+            then
                 if cast.sundering() then return true end
             end
-        -- Stormstrike/Windstrike
+        -- Stormstrike / Windstrike
             -- stormstrike,cycle_targets=1,if=azerite.lightning_conduit.enabled&!debuff.lightning_conduit.up&active_enemies>1&(buff.stormbringer.up|(variable.OCPool70&variable.furyCheck35))
-            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit.active() and #enemies.yards10 > 1 and (buff.stormbringer.exists() or (OCPool70 and furyCheck35)) then
+            if (cast.able.stormstrike() or cast.able.windstrike()) and trait.lightningConduit.active then 
                 for i = 1, #enemies.yards10 do
-                    local thisunit = enemies.yards10[i]
-                    if not debuff.lightningConduit.exists(thisUnit) then
+                    local thisUnit = enemies.yards10[i]
+                    if not debuff.lightningConduit.exists(thisUnit) and ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+                        and (buff.stormbringer.exists() or (OCPool70 and furyCheck35))
+                    then 
                         if buff.ascendance.exists() then
-                            if cast.windstrike(thisUnit) then return true end
+                            if cast.windstrike() then return true end
                         else
-                            if cast.stormstrike(thisUnit) then return true end
+                            if cast.stormstrike() then return true end
                         end
-                    end
+                    end 
                 end
             end
             -- stormstrike,if=buff.stormbringer.up|(buff.gathering_storms.up&variable.OCPool70&variable.furyCheck35)
@@ -548,7 +558,7 @@ local function runRotation()
             end
         -- Sundering
             -- sundering
-            if cast.able.sundering() and #enemies.yards8 > 0 and getDistance(units.dyn8) < 8 then
+            if cast.able.sundering() and #enemies.yards8 >= getOptionValue("Units to Sunder") and getDistance(units.dyn8) < 8 then
                 if cast.sundering() then return true end
             end
         -- Crash Lightning
@@ -558,12 +568,17 @@ local function runRotation()
             end
         -- Flametongue
             -- flametongue,if=talent.searing_assault.enabled
-            if cast.able.flametongue() and talent.searingAssault then
-                if cast.flametongue() then return true end
+            if cast.able.flametongue() and talent.searingAssault and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
+                for i = 1, #enemies.yards20 do
+                    local thisUnit = enemies.yards20[i]
+                    if #enemies.yards20 == 1 or ttd(thisUnit) > 2 then 
+                        if cast.flametongue(thisUnit) then return true end
+                    end 
+                end
             end
         -- Lava Lash
             -- lava_lash,if=talent.hot_hand.enabled&buff.hot_hand.react
-            if cast.able.lavaLash() and talent.hotHand and buff.hotHand.exists() then
+            if cast.able.lavaLash() and talent.hotHand and buff.hotHand.exists() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.lavaLash() then return true end
             end
         -- Crash Lightning
@@ -575,8 +590,8 @@ local function runRotation()
     -- Action List - Filler
         local function actionList_Filler()
         -- Rockbiter
-            -- rockbiter,if=maelstrom<70
-            if cast.able.rockbiter() and power < 70 then
+            -- rockbiter,if=maelstrom<70&!buff.strength_of_earth.up
+            if cast.able.rockbiter() and power < 70 and not buff.strengthOfTheEarth.exists() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.rockbiter() then return true end
             end
         -- Crash Lightning
@@ -586,17 +601,17 @@ local function runRotation()
             end
         -- Lava Lash
             -- lava_lash,if=variable.OCPool80&variable.furyCheck45
-            if cast.able.lavaLash() and ocPool80 and furyCheck45 then
+            if cast.able.lavaLash() and ocPool80 and furyCheck45 and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.lavaLash() then return true end
             end
         -- Rockbiter
             -- rockbiter
-            if cast.able.rockbiter() then
+            if cast.able.rockbiter() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.rockbiter() then return true end
             end
         -- Flametongue
             -- flametongue
-            if cast.able.flametongue() then
+            if cast.able.flametongue() and (not buff.ascendance.exists() or cd.windstrike.remain() > gcdMax) then
                 if cast.flametongue() then return true end
             end
         end -- End Action List - Filler
@@ -716,7 +731,9 @@ local function runRotation()
                     end
             -- Call Action List - Buffs
                     -- call_action_list,name=buffs
-                    if actionList_Buffs() then return true end
+                    if not buff.stormbringer.exists() and not buff.ascendance.exists() then 
+                        if actionList_Buffs() then return true end
+                    end
             -- Call Action List - Cooldowns
                     -- call_action_list,name=CDs
                     if actionList_Cooldowns() then return true end

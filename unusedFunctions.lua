@@ -169,7 +169,7 @@ tauntsTable = {
 --[[Taunt function!! load once]]
 function ShouldTaunt()
     --[[Normal boss1 taunt method]]
-    if not UnitIsUnit("player","boss1target") then
+    if not GetUnitIsUnit("player","boss1target") then
         for i = 1,#tauntsTable do
             if not UnitDebuffID("player",tauntsTable[i].spell) and UnitDebuffID("boss1target",tauntsTable[i].spell) and getDebuffStacks("boss1target",tauntsTable[i].spell) >= tauntsTable[i].stacks then
                 TargetUnit("boss1")

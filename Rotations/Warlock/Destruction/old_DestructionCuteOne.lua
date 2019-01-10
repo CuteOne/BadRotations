@@ -166,7 +166,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
+        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local grimoirePet                                   = getOptionValue("Grimoire of Service - Pet")
         local hasMouse                                      = GetObjectExists("mouseover")
@@ -531,7 +531,7 @@ local function runRotation()
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
         -- Pet Attack
-                    if isChecked("Pet Management") and not UnitIsUnit("pettarget","target") then
+                    if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") then
                         PetAttack()
                     end
         -- Immolate
@@ -554,7 +554,7 @@ local function runRotation()
                         if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and (#enemies.yards40 < 4 or (talent.wreakHavoc and #enemies.yards40 < 6)) then
                             for i = 1, #enemies.yards40 do
                                 local thisUnit = enemies.yards40[i]
-                                if not UnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not GetUnitExists("focus") or (UnitExists("focus") and UnitIsUnit(thisUnit,"focus"))) then
+                                if not GetUnitIsUnit(thisUnit,"target") and isValidUnit(thisUnit) and (not GetUnitExists("focus") or (UnitExists("focus") and GetUnitIsUnit(thisUnit,"focus"))) then
                                     if not debuff.havoc.exists(thisUnit) then
                                         if cast.havoc(thisUnit,"aoe") then return end
                                     end

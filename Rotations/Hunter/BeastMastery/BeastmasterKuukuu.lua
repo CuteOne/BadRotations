@@ -229,7 +229,7 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-        
+
 
         if opener == nil then opener = false end
 
@@ -401,17 +401,17 @@ local function runRotation()
                     if cast.bestialWrath() then
                         BW = true
                         print("Bestial Wrath Cast")
-                         MOC = false 
+                         MOC = false
                     end
                 end
-                if BW == true then                  
+                if BW == true then
                     if talent.direFrenzy then
                         if cast.direFrenzy(units.dyn40) then
-                            DIRE = true 
+                            DIRE = true
                             print("Dire Frenzy Cast")
                             BW = false
                         end
-                    elseif cast.direBeast(units.dyn40) then 
+                    elseif cast.direBeast(units.dyn40) then
                         DIRE = true
                         print("Dire Beast Cast")
                         BW = false
@@ -424,18 +424,18 @@ local function runRotation()
                             print("Kill Command Cast")
                             DIRE = false
                         end
-                    elseif cast.multiShot(units.dyn40) then 
+                    elseif cast.multiShot(units.dyn40) then
                         KCMS = true
                         print("Multi Shot Cast")
                         DIRE = false
                     end
                 end
-                if KCMS == true then                    
+                if KCMS == true then
                     if talent.direFrenzy then
-                        if cast.titansThunder(units.dyn40) then 
+                        if cast.titansThunder(units.dyn40) then
                             TT = true
                             print("Titan's Thunder Cast")
-                            KCMS = false 
+                            KCMS = false
                         end
                     else
                          TT = true
@@ -445,24 +445,24 @@ local function runRotation()
                 if TT == true then
                     if talent.direFrenzy then
                         if cast.direFrenzy(units.dyn40) then
-                            DIRE2 = true 
+                            DIRE2 = true
                             print("Dire Frenzy 2 Cast")
                             TT = false
                         end
-                    elseif cast.direBeast(units.dyn40) then 
+                    elseif cast.direBeast(units.dyn40) then
                         DIRE2 = true
                         print("Dire Beast 2 Cast")
                         TT = false
                     end
                 end
                 if DIRE2 == true then
-                    if cast.aspectOfTheWild() then 
+                    if cast.aspectOfTheWild() then
                         DIRE2 = false
                         print("Aspect of the Wild Cast")
                         print("Opener Complete")
                         opener = true
                         openerStarted = false
-                        return 
+                        return
                     end
                 end
             end
@@ -623,7 +623,8 @@ local function runRotation()
         end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
-local id = 253
+--local id = 253
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

@@ -53,14 +53,11 @@ function castInterrupt(SpellID,Percent,Unit)
 end
 -- canInterrupt("target",20)
 function canInterrupt(unit,percentint)
-	local unit = unit or "target"
-	local castDuration = 0
-	local castTimeRemain = 0
-	local castPercent = 0 -- Possible to set hard coded value
-	local channelDelay = 0.4 -- Delay to mimick human reaction time for channeled spells
-	local interruptable = false
+	unit = unit or "target"
+	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
+	local castDuration, castTimeRemain, castPercent = 0, 0, 0
+	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
-	local interruptID = 0
 	local onWhitelist = false
 	if GetUnitExists(unit)
 		and UnitCanAttack("player",unit)
@@ -79,11 +76,6 @@ function canInterrupt(unit,percentint)
 			interruptID = select(7,GetSpellInfo(UnitChannelInfo(unit)))
 			interruptable = true
 			castType = "spellchannel"
-		else
-			castStartTime = 0
-			castEndTime = 0
-			interruptable = false
-			interruptID = 0
 		end
 		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
@@ -123,17 +115,10 @@ function canInterrupt(unit,percentint)
 					end
 				end
 			end
-		else
-			castDuration = 0
-			castTimeRemain = 0
-			castPercent = 0
 		end
 		-- Check if on whitelist (if selected)
-		if isChecked("Interrupt Only Whitelist") then
-			for i = 1, #interruptWhitelist do
-				whitelistID = interruptWhitelist[i]
-				if interruptID == whitelistID then onWhitelist = true; break else onWhitelist = false end
-			end
+		if isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] then
+			 onWhitelist = true
 		end
 		-- Return when interrupt time is met
 		if ((isChecked("Interrupt Only Whitelist") and (onWhitelist or not (br.player.instance=="party" or br.player.instance=="raid"))) or not isChecked("Interrupt Only Whitelist")) then
@@ -144,7 +129,7 @@ function canInterrupt(unit,percentint)
 			end
 			if castType == "spellchannel" then
 				--if (GetTime() - castStartTime/1000) > channelDelay and interruptable == true then
-				if (GetTime() - castStartTime/1000) > channelDelay and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTTD(unit)>castTimeRemain or castPercent == 100) then
+				if (GetTime() - castStartTime/1000) > (channelDelay-0.2 + math.random() * 0.4) and (math.ceil((castTimeRemain/castDuration)*100) <= castPercent or castPercent == 100) and interruptable == true and (getTTD(unit)>castTimeRemain or castPercent == 100) then
 					return true
 				end
 			end
@@ -179,7 +164,7 @@ function getRecharge(spellID,chargeMax)
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
-			chargeEnd = chargeStart + chargeDuration
+			local chargeEnd = chargeStart + chargeDuration
 			return chargeEnd - GetTime()
 		end
 		return 0
@@ -203,7 +188,7 @@ function getSpellCD(SpellID)
 	if GetSpellCooldown(SpellID) == 0 then
 		return 0
 	else
-		local Start ,CD = GetSpellCooldown(SpellID)
+		local Start, CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
 		MyCD = MyCD - getLatency()
 		if MyCD < 0 then MyCD = 0 end
@@ -222,12 +207,14 @@ end
 function getCastingRegen(spellID)
 	local regenRate = getRegen("player")
 	local power = 0
-
+	local desc = GetSpellDescription(spellID)
+	local generates = desc:gsub("%D+", "")
+	local tooltip = tonumber(generates:sub(-2))
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = getCastTime(spellID) or 0
 	local gcd = br.player.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
-	power = power + regenRate * castSeconds
+	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
 	if UnitBuffID("player", 193534) ~= nil then
@@ -238,7 +225,7 @@ function getCastingRegen(spellID)
 			seconds = castSeconds
 		end
 		-- Steady Focus increases the focus regeneration rate by 50% for its duration.
-		power = power + regenRate * 1.5 * seconds
+		power = power + regenRate * 1.5 * seconds + tooltip
 	end
 	return power
 end

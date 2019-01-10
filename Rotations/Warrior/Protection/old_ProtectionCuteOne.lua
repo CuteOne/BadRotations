@@ -189,7 +189,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies 
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local friendly                                      = friendly or UnitIsFriend("target", "player")
+        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
@@ -395,7 +395,7 @@ local function runRotation()
         -- Charge
                 -- charge
                 if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) or level < 26 then
-                    if isValidUnit("target") or (UnitIsFriend("target") and level >= 28) then
+                    if isValidUnit("target") or (GetUnitIsFriend("target") and level >= 28) then
                         if level < 28 then
                             if cast.charge("target") then return end
                         else
@@ -550,7 +550,7 @@ local function runRotation()
         end -- Pause
     end -- End Timer
 end -- End runRotation
-local id = 73
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
