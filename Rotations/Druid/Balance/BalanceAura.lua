@@ -383,7 +383,7 @@ local function runRotation()
         local function actionList_AMR()
             -- Innverate
             if useCDs() and isChecked("Lively Spirit Innervate") and traits.livelySpirit.active then
-                if cast.innvervate() then return true end
+                if cast.innervate() then return true end
             end
             --Potion (To Do)
             if isChecked("Int Pot") and canUse(163222) and not solo and useCDs() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
