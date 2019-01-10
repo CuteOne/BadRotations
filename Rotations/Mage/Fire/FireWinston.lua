@@ -32,11 +32,11 @@ local function createToggles()
     };
     CreateButton("Interrupt",4,0)
 -- Legendary Dragonbreath Button
-    DragonsBreathModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Legendary Dragonbreath Enabled", tip = "Always use Legendary Dragonbreath.", highlight = 1, icon = br.player.spell.dragonsBreath},
-        [2] = { mode = "Off", value = 2 , overlay = "Legendary Dragonbreath Disabled", tip = "Let BR decide when to use Legedary Dragonbreath.", highlight = 0, icon = br.player.spell.dragonsBreath}
-    };
-    CreateButton("DragonsBreath",5,0)
+    --DragonsBreathModes = {
+    --    [1] = { mode = "On", value = 1 , overlay = "Legendary Dragonbreath Enabled", tip = "Always use Legendary Dragonbreath.", highlight = 1, icon = br.player.spell.dragonsBreath},
+    --    [2] = { mode = "Off", value = 2 , overlay = "Legendary Dragonbreath Disabled", tip = "Let BR decide when to use Legedary Dragonbreath.", highlight = 0, icon = br.player.spell.dragonsBreath}
+    --};
+    --CreateButton("DragonsBreath",5,0)
 end
 
 ---------------
@@ -55,6 +55,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+        -- Auto Buff Arcane Intellect
+            br.ui:createCheckbox(section,"Arcane Intellect", "Check to auto buff Arcane Intellect on party.")
         -- FlameStrike Targets
             br.ui:createSpinnerWithout(section, "Flamestrike Targets",  3,  1,  10,  1, "Unit Count Limit before casting Flamestrike.")
         -- Artifact 
@@ -65,7 +67,9 @@ local function createOptions()
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createCheckbox(section,"Trinket 1", "Use Trinket 1 on Cooldown.")
+            br.ui:createCheckbox(section,"Trinket 2", "Use Trinket 2 on Cooldown.")
+            --br.ui:createCheckbox(section,"Trinkets")
         -- Mirror Image
             br.ui:createCheckbox(section,"Mirror Image")
         br.ui:checkSectionState(section)
@@ -126,8 +130,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("DragonsBreath",0.25)
-        br.player.mode.dragonsBreath = br.data.settings[br.selectedSpec].toggles["DragonsBreath"]
+        --UpdateToggle("DragonsBreath",0.25)
+        --br.player.mode.dragonsBreath = br.data.settings[br.selectedSpec].toggles["DragonsBreath"]
 --------------
 --- Locals ---
 --------------
@@ -148,6 +152,7 @@ local function runRotation()
         local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local hasteAmount                                   = GetHaste()/100
         local healPot                                       = getHealthPot()
@@ -175,15 +180,28 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
 
+        units.get(6)
+        units.get(8)
+        units.get(10)
         units.get(12)
         units.get(25)
+        units.get(30)
         units.get(40)
+        enemies.get(6)
+        enemies.get(8)
+        enemies.get(10)
+        enemies.get(10, "player", true)
+        enemies.get(12)
+        enemies.get(25)
+        enemies.get(30)
+        enemies.get(40)
         enemies.get(6,"target")
         enemies.get(8,"target")
         enemies.get(10,"target")
         enemies.get(12,"target")
         enemies.get(25,"target")
-        enemies.get(30)
+        enemies.get(30,"target")
+        enemies.get(40,"target")
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -193,6 +211,7 @@ local function runRotation()
         
         --local activeEnemies = #enemies.yards40
         local fSEnemies = getEnemies(units.dyn40, 8, true)
+        local dBEnemies = getEnemies(units.dyn12, 6, true)
 
 
 --------------------
@@ -211,7 +230,14 @@ local function runRotation()
                     end
                 end
             end -- End Dummy Test
-
+            -- Arcane Intellect
+                    if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", 1) then
+                        for i = 1, #br.friend do
+                            if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                                if cast.arcaneIntellect() then return true end
+                            end
+                        end
+                    end
         end -- End Action List - Extras
     -- Action List - Defensive
         local function actionList_Defensive()
@@ -239,8 +265,8 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
         -- Frost Nova
-                if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards12 > 0 then
-                    if cast.frostNova() then return end
+                if isChecked("Frost Nova") and php <= getOptionValue("Frost Nova") and #enemies.yards10 > 0 then
+                    if cast.frostNova("player","aoe",1,10) then return end --Print("fs") return end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -266,15 +292,23 @@ local function runRotation()
                 -- TODO
         -- Trinkets
                 -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
-                if isChecked("Trinkets") then
-                    -- if buff.chaosBlades or not talent.chaosBlades then 
-                        if canUse(13) then
-                            useItem(13)
-                        end
-                        if canUse(14) then
-                            useItem(14)
-                        end
-                    -- end
+                --if isChecked("Trinkets") then
+                --    -- if buff.chaosBlades or not talent.chaosBlades then 
+                --        if canUse(13) then
+                --            useItem(13)
+                --        end
+                --        if canUse(14) then
+                --            useItem(14)
+                --        end
+                --    -- end
+                --end
+                if isChecked("Trinket 1") and canUse(13) then
+                        useItem(13)
+                        return true
+                end
+                if isChecked("Trinket 2") and canUse(14) then
+                        useItem(14)
+                        return true
                 end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
                 -- blood_fury | berserking | arcane_torrent
@@ -290,10 +324,9 @@ local function runRotation()
 
                 end -- End Pre-Pull
                 if isValidUnit("target") and getDistance("target") < 40 then
-            -- Arcane Intellect
-                    if not buff.arcaneIntellect.exists() then
-                        cast.arcaneIntellect()
-                    end                    
+                    --if not buff.arcaneIntellect.exists() then
+                    --    cast.arcaneIntellect()
+                    --end                    
             -- Mirror Image
                     if useCDs() and isChecked("Mirror Image") then
                         if cast.mirrorImage() then return end
@@ -331,11 +364,11 @@ local function runRotation()
             -- dragons_breath,if=equipped.132863
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
             --(getFacing("player",units.dyn37,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn37) < 37)
-            if (getFacing("player",units.dyn25,10) and talent.alexstraszasFury and hasEquiped(132863) and getDistance(units.dyn25) < 25) and getEnemiesInCone(25,10) > 2 then
-                if cast.dragonsBreath(units.dyn25) then return end
-            elseif (getFacing("player",units.dyn12,10) and talent.alexstraszasFury and getDistance(units.dyn12) < 12) 
-                or (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) then
-                if cast.dragonsBreath(units.dyn12) then return end
+            --if (getFacing("player",units.dyn25,10) and talent.alexstraszasFury and hasEquiped(132863) and getDistance(units.dyn25) < 25) and getEnemiesInCone(25,10) > 2 then
+            --    if cast.dragonsBreath(units.dyn25) then return end
+            if (getFacing("player",units.dyn10,10) and talent.alexstraszasFury and getDistance(units.dyn10) < 10) then
+                --or (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) then
+                if cast.dragonsBreath("player","cone",1,10) then return end --Print("db1") return end
             end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down
@@ -364,7 +397,7 @@ local function runRotation()
         -- Pyroblast
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react&buff.combustion.remains>execute_time 
             -- pyroblast,if=buff.hot_streak.up
-            if (buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists() and buff.combustion.remain() > getCastTime(spell.pyroblast)) or buff.hotStreak.exists() then
+            if (buff.pyroclasm.exists() and buff.combustion.remain() > getCastTime(spell.pyroblast)) or buff.hotStreak.exists() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -388,16 +421,16 @@ local function runRotation()
             -- dragons_breath,if=buff.hot_streak.down&action.fire_blast.charges<1&action.phoenixs_flames.charges<1
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
             --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
-            if (getFacing("player",units.dyn12,10) and not buff.hotStreak.exists() and charges.fireBlast.count() < 1 and charges.phoenixsFlames.count() < 1 and getDistance(units.dyn12) < 12) then
-                -- if cast.dragonsBreath(units.dyn12) then return end
-                if cast.dragonsBreath("player") then return end
-            elseif not buff.hotStreak.exists() then
-                if (getDistance(units.dyn12) < 12) and talent.alexstraszasFury then
-                    -- if cast.dragonsBreath(units.dyn12) then return end
-                    if cast.dragonsBreath("player") then return end
-                elseif ((getDistance(units.dyn25) < 25) and hasEquiped(132863)) then
+            --if (getFacing("player",units.dyn10,10) and not buff.hotStreak.exists() and charges.fireBlast.count() < 1 and charges.phoenixsFlames.count() < 1 and getDistance(units.dyn10) < 10) then
+            if (getFacing("player",units.dyn10,30) and (buff.combustion.remain() < gcdMax) and buff.combustion.exists() and getDistance(units.dyn10) < 10) then
+                if cast.dragonsBreath("player","cone",1,10) then return end --Print("db2") return end
+              elseif not buff.hotStreak.exists() then
+                if (getDistance(units.dyn10) < 10) and talent.alexstraszasFury then
+                    if cast.dragonsBreath("player","cone",1,10) then return end --Print("db3") return end
+                    --if cast.dragonsBreath("player") then return end
+                --elseif ((getDistance(units.dyn25) < 25) and hasEquiped(132863)) then
                     -- if cast.dragonsBreath(units.dyn25) then return end
-                    if cast.dragonsBreath("player") then return end
+                --    if cast.dragonsBreath("player") then return end
                 end
             end
         -- Scorch
@@ -422,8 +455,8 @@ local function runRotation()
             -- call_action_list,name=active_talents
             if actionList_ActiveTalents() then return end
         -- Pyroblast
-            -- pyroblast,if=buff.kaelthas_ultimate_ability.react
-            if buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists() then
+            -- pyroblast,if=buff.pyroclasm.react&execute_time<buff.pyroclasm.remains&buff.rune_of_power.remains>cast_time
+            if buff.pyroclasm.exists() and cast.time.pyroclasm() < buff.pyroclasm.remain() and buff.runeOfPower.remain() > cast.time.runeOfPower() then
                 if cast.pyroblast() then return end
             end
         -- Fire Blast
@@ -475,15 +508,15 @@ local function runRotation()
         -- Dragon's Breath
             --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
             --(getFacing("player",units.dyn25,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn25) < 25)
-            if ((getFacing("player",units.dyn12,10) and mode.rotation == 1) or mode.rotation == 2) and getDistance(units.dyn12) < 12 then
-                if cast.dragonsBreath(units.dyn12) then return end
-            elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) then
-                if hasEquiped(132863) and ((getDistance(units.dyn25) < 24) and mode.rotation == 1) then
+            if ((getFacing("player",units.dyn10,30) and mode.rotation == 1) or mode.rotation == 2) and getDistance(units.dyn10) < 10 then
+                if cast.dragonsBreath("player","cone",1,10) then return end --Print("db4") return end
+            --elseif ((talent.alexstraszasFury and hasEquiped(132863)) or talent.alexstraszasFury or hasEquiped(132863)) then
+            elseif talent.alexstraszasFury then
+                --if hasEquiped(132863) and ((getDistance(units.dyn25) < 24) and mode.rotation == 1) then
                     -- if cast.dragonsBreath(units.dyn25) then return end
-                    if cast.dragonsBreath("player") then return end
-                elseif ((getDistance(units.dyn12) < 12) and mode.rotation == 1) then
-                    -- if cast.dragonsBreath(units.dyn12) then return end
-                    if cast.dragonsBreath("player") then return end
+                --    if cast.dragonsBreath("player") then return end
+                if ((getDistance(units.dyn10) < 10) and mode.rotation == 1) then
+                    if cast.dragonsBreath("player","cone",1,10) then return end --Print("db5") return end
                 end
             end
         -- Pyroblast
@@ -491,8 +524,8 @@ local function runRotation()
             -- pyroblast,if=buff.hot_streak.react&target.health.pct<=25&equipped.132454
             -- pyroblast,if=buff.kaelthas_ultimate_ability.react
             if (buff.hotStreak.exists() and lastSpell ~= spell.pyroblast)
-                or (buff.hotStreak.exists() and getHP("target") <= 25 and hasEquiped(132454))
-                or buff.kaelthasUltimateAbility.exists() or buff.pyroclasm.exists()
+                or (buff.hotStreak.exists() and getHP("target") <= 25 and talent.searingTouch)
+                or buff.pyroclasm.exists()
             then
                 if cast.pyroblast() then return end
             end
@@ -517,7 +550,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,actions.standard_rotation+=/scorch,if=(target.health.pct<=30&talent.searing_touch.enabled)|(azerite.preheat.enabled&debuff.preheat.down)
-            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active and not buff.preheat.exists("player")) then
+            if getHP("target") <= 30 and talent.searingTouch then --or (traits.preheat.active() and not buff.preheat.exists("player")) then
                 if cast.scorch() then return end
             end
         -- Fireball
@@ -565,9 +598,10 @@ local function runRotation()
                         if cast.blazingBarrier() then return end
                     end
         -- Dragon's Breath
-                    if (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) and mode.dragonsBreath == 1 then
-                        if cast.dragonsBreath(units.dyn25) then return end
-                    end
+                    --if (getFacing("player",units.dyn10,30) and hasEquiped(132863) and getDistance(units.dyn25) < 25) and mode.dragonsBreath == 1 then
+                    --if (getFacing("player",units.dyn10,30) and getDistance(units.dyn10) < 10) then
+                    --    if cast.dragonsBreath("player","cone",1,10) then Print("db6") return end
+                    --end
         -- Flamestrike
                     -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react
                     if ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
