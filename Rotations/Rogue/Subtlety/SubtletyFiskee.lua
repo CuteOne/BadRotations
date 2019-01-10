@@ -219,10 +219,10 @@ local function runRotation()
                 local thisRole = UnitGroupRolesAssigned(thisUnit)
                 if not UnitIsDeadOrGhost(thisUnit) and getDistance(unit, thisUnit) < 40 then
                     if thisRole == "TANK" then hpLimit = hpLimit + (thisHP * 0.15) end
-                    if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.4) end
+                    if (thisRole == "DAMAGER" or thisRole == "NONE") then hpLimit = hpLimit + (thisHP * 0.45) end
                 end
             end
-            if UnitHealthMax(unit) > hpLimit then return true end
+            if UnitHealth(unit) > hpLimit then return true end
             return false
         end
         return true
