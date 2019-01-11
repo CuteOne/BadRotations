@@ -1349,7 +1349,7 @@ local function runRotation()
                 end
             end
             -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-            if talent.grimoireOfSacrifice and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+            if talent.grimoireOfSacrifice and isChecked("Pet Management") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
                 if cast.grimoireOfSacrifice() then return end
             end
             if not inCombat and not (IsFlying() or IsMounted()) then
