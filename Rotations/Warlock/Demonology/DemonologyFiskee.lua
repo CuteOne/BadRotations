@@ -117,7 +117,7 @@ local function createToggles()
         }
     }
     CreateButton("Interrupt", 4, 0)
-    -- Interrupt Button
+    -- BSB Button
     BSBModes = {
         [1] = {
             mode = "On",
@@ -137,6 +137,26 @@ local function createToggles()
         }
     }
     CreateButton("BSB", 5, 0)
+    -- GF Button
+    GFModes = {
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Grimoire Felguard Enabled",
+            tip = "Grimoire Felguard Enabled.",
+            highlight = 1,
+            icon = br.player.spell.grimoireFelguard
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Grimoire Felguard Disabled",
+            tip = "Grimoire Felguard Disabled.",
+            highlight = 0,
+            icon = br.player.spell.grimoireFelguard
+        }
+    }
+    CreateButton("GF", 6, 0)
 end
 
 ---------------
@@ -337,6 +357,7 @@ local function runRotation()
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
     br.player.mode.bsb = br.data.settings[br.selectedSpec].toggles["BSB"]
+    br.player.mode.gf = br.data.settings[br.selectedSpec].toggles["GF"]
     --------------
     --- Locals ---
     --------------
@@ -1030,8 +1051,10 @@ local function runRotation()
             end
         end
         -- actions.nether_portal_active=grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
-        if cast.grimoireFelguard("target") then
-            return true
+        if mode.gf == 1 then
+            if cast.grimoireFelguard("target") then
+                return true
+            end
         end
         -- actions.nether_portal_active+=/summon_vilefiend,if=cooldown.summon_demonic_tyrant.remains>40|cooldown.summon_demonic_tyrant.remains<12
         if not moving and (cd.summonDemonicTyrant.remain() > 40 or cd.summonDemonicTyrant.remain() < 12) then
@@ -1127,7 +1150,7 @@ local function runRotation()
             end
         end
         -- actions.implosion+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
-        if not moving and useCDs() then
+        if not moving and mode.gf == 1 and useCDs() then
             if cast.grimoireFelguard("target") then
                 return true
             end
@@ -1272,7 +1295,7 @@ local function runRotation()
             end
         end
         -- actions+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
-        if useCDs() then
+        if mode.gf == 1 and useCDs() then
             if cast.grimoireFelguard("target") then
                 return true
             end
