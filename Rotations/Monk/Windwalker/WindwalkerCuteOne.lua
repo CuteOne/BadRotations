@@ -630,7 +630,7 @@ local function runRotation()
                     --end
             -- Storm, Earth, and Fire
                     elseif TOD and not SEF then
-                        if level < 70 or not charges.stormEarthAndFire.exist() then 
+                        if level < 70 or not charges.stormEarthAndFire.exists() then 
                             if castOpenerFail("stormEarthAndFire","SEF",openerCount) then openerCount = openerCount + 1; end
                         end
                         if cast.able.stormEarthAndFire() then
@@ -880,7 +880,7 @@ local function runRotation()
         function actionList_AoE()
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
-            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and safeToCastFoF() then
+            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and safeToCastFoF(2) then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Whirling Dragon Punch
