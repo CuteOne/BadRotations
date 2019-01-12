@@ -134,6 +134,55 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	lowHealthCandidates[0] = { unit = UnitID, coef = getLowHealthCoeficient(lowHealthCandidates) }
 	return lowHealthCandidates
 end
+
+totalUnits = {}
+local startUnit
+local currentJump 
+local jumpFound = true
+local function chainJumps(unit,hp,range)
+	for i = 1, #br.friend do
+		local newUnit = br.friend[i]
+		local unitFound = false
+		if newUnit.hp <= hp and newUnit.guid ~= unit.guid and getNovaDistance(unit,newUnit) <= range then
+			for j = 1, #totalUnits do
+				if totalUnits[j].guid == newUnit.guid then
+					unitFound = true
+				end
+			end
+			if unitFound == false then
+				currentJump = newUnit
+				tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
+				return 
+			end
+		end
+	end
+	jumpFound = false
+end
+
+
+function chainHealUnits(spell,range,hp,count)
+	jumpFound = true
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i]
+		if thisUnit.hp <= hp then
+			startUnit = thisUnit.unit
+			currentJump = thisUnit
+			tinsert(totalUnits, #totalUnits+1, {guid = thisUnit.guid})
+			while #totalUnits < count and jumpFound do
+				chainJumps(currentJump,hp,range)
+			end
+			if #totalUnits < count then
+				totalUnits = {}
+			elseif #totalUnits >= count then
+				totalUnits= {}
+				if castSpell(startUnit,spell,false,true) then
+					return true 
+				end
+			end
+		end
+	end
+end
+
 -- returns coefficient of low health units around another unit
 function getLowHealthCoeficient(lowHealthCandidates)
 	local tableCoef = 0

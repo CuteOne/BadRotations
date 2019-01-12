@@ -115,8 +115,6 @@ local function createOptions()
             end
         -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Cleanse Spirit
-            br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
         -- Purge
             br.ui:createCheckbox(section,"Purge")
         -- Capacitor Totem
@@ -167,6 +165,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Healing Surge",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Chain Heal
             br.ui:createSpinner(section, "Chain Heal",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createDropdownWithout(section, "Chain Heal Logic", {"|cffFFFF00New(Possible FPS Drops!)","|cffFF0000Old"}, 1, "|ccfFFFFFFLogic to use for CH")
             br.ui:createSpinnerWithout(section, "Chain Heal Targets",  3,  0,  40,  1,  "Minimum Chain Heal Targets")  
         -- Wellspring
             br.ui:createSpinner(section, "Wellspring",  80,  0,  100,  5,  "Health Percent to Cast At") 
@@ -335,18 +334,6 @@ local function runRotation()
                 if isChecked("Astral Shift") and php <= getOptionValue("Astral Shift") and inCombat then
                     if cast.astralShift() then return end
                 end
-                -- Cleanse Spirit
-                if isChecked("Cleanse Spirit") then
-                    if getOptionValue("Cleanse Spirit")==1 and canDispel("player",spell.cleanseSpirit) then
-                        if cast.cleanseSpirit("player") then return; end
-                    end
-                    if getOptionValue("Cleanse Spirit")==2 and canDispel("target",spell.cleanseSpirit) then
-                        if cast.cleanseSpirit("target") then return true end
-                    end
-                    if getOptionValue("Cleanse Spirit")==3 and canDispel("mouseover",spell.cleanseSpirit) then
-                        if cast.cleanseSpirit("mouseover") then return true end
-                    end
-                end
                 -- Earthen Wall Totem
                 if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
@@ -437,7 +424,11 @@ local function runRotation()
             end
         -- Chain Heal
             if isChecked("Chain Heal") then
-                if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                if getOptionValue("Chain Heal Logic") == 1 then
+                    if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then return true end
+                elseif getOptionValue("Chain Heal Logic") == 2 then
+                    if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                end
             end
         -- Healing Rain
             if not moving then
@@ -517,7 +508,9 @@ local function runRotation()
                 end
             end
         -- Ancestral Protection Totem
+            if isChecked("Ancestral Protection Totem") then
                 if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then return end
+            end
         -- Earthen Wall Totem
             if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
@@ -669,12 +662,24 @@ local function runRotation()
                 if talent.unleashLife and talent.highTide then
                     if cast.unleashLife(lowest) then return end
                     if buff.unleashLife.remain() > 2 then
-                        if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                        if getOptionValue("Chain Heal Logic") == 1 then
+                            if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then return true end
+                        elseif getOptionValue("Chain Heal Logic") == 2 then
+                            if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1,5,false,true) then return end
+                        end
                     end
                 elseif talent.highTide then
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),(getValue("Chain Heal Targets") + 1),5,false,true) then return end
+                    if getOptionValue("Chain Heal Logic") == 1 then
+                        if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then return true end
+                    elseif getOptionValue("Chain Heal Logic") == 2 then
+                        if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1,5,false,true) then return end
+                    end
                 else
-                    if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                    if getOptionValue("Chain Heal Logic") == 1 then
+                        if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then return true end
+                    elseif getOptionValue("Chain Heal Logic") == 2 then
+                        if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then return end
+                    end
                 end
             end
         -- Downpour
