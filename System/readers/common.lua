@@ -301,7 +301,7 @@ function br.read.commonReaders()
 			local SpellName = select(2, ...)
 			spellCastTarget = select(4, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
-			local MyClass = UnitClass("player")
+			local MyClass = select(2, UnitClass("player"))
 			if SourceUnit == "player" then
 				-- Blizz CastSpellByName bug bypass
 				if spell == "Metamorphosis" then
@@ -314,8 +314,33 @@ function br.read.commonReaders()
 			local SourceUnit = select(1, ...)
 			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-				local MyClass = UnitClass("player")
-				if MyClass == "Mage" then -- Mage
+				local MyClass = select(2, UnitClass("player"))
+				if MyClass == "MAGE" then -- Mage
+				end
+				if MyClass == "MONK" then -- Monk
+					if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
+						local comboSpells = {
+							[br.player.spell.blackoutKick]              = true,
+							[br.player.spell.chiBurst]                  = true,
+							[br.player.spell.chiWave]                   = true,
+							[br.player.spell.cracklingJadeLightning]    = true,
+							[br.player.spell.fistsOfFury]               = true,
+							[br.player.spell.fistOfTheWhiteTiger]       = true,
+							[br.player.spell.flyingSerpentKick]         = true,
+							[br.player.spell.risingSunKick]             = true,
+							[br.player.spell.rushingJadeWind]           = true,
+							[br.player.spell.spinningCraneKick]         = true,
+							[br.player.spell.tigerPalm]                 = true,
+							[br.player.spell.touchOfDeath]              = true,
+							[br.player.spell.whirlingDragonPunch]       = true,
+						}
+						if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
+						if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
+						if comboSpells[spell] and not (getSpellCD(spell) > br.player.gcdMax) and isInCombat("player") then
+							lastCombo = prevCombo
+							prevCombo = 6603
+						end
+					end
 				end
 			end
 		end
