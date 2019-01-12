@@ -64,7 +64,7 @@ end
 function getLowAllies(Value)
 	local lowAllies = 0
 	for i = 1,#br.friend do
-		if br.friend[i].hp < Value then
+		if br.friend[i].hp <= Value then
 			lowAllies = lowAllies + 1
 		end
 	end
@@ -74,7 +74,7 @@ end
 function getLowAlliesInTable(Value, unitTable)
 	local lowAllies = 0
 	for i = 1,#unitTable do
-		if unitTable[i].hp < Value then
+		if unitTable[i].hp <= Value then
 			lowAllies = lowAllies + 1
 		end
 	end
