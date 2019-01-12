@@ -44,6 +44,7 @@ function br.read.combatLog()
         -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
         -- pulse common stuff for all classes
         cl:common(...)
+        
         -- best way is to split per class so lets make a selector for it
         local class = br.class
         if class == 1 then -- Warrior
@@ -506,36 +507,39 @@ function cl:Mage(...)
 end
 function cl:Monk(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    local comboSpells = {}
-    local failType = {}
-    failType["ABSORB"] = true 
-    failType["BLOCK"] = true  
-    failType["DEFLECT"] = true  
-    failType["DODGE"] = true  
-    failType["EVADE"] = true  
-    failType["IMMUNE"] = true  
-    failType["MISS"] = true  
-    failType["PARRY"] = true  
-    failType["REFLECT"] = true  
-    failType["RESIST"] = true 
+    -- Cast Fail Types
+    local failType = {
+        ["ABSORB"] = true,
+        ["BLOCK"] = true,
+        ["DEFLECT"] = true,
+        ["DODGE"] = true,
+        ["EVADE"] = true,
+        ["IMMUNE"] = true,
+        ["MISS"] = true,
+        ["PARRY"] = true,
+        ["REFLECT"] = true,
+        ["RESIST"] = true
+    }
     local castTime = select(4, GetSpellInfo(spell))
     if castTime == nil then castTime = 0 end
     if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
     if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
-    if br.player ~= nil and GetSpecialization() == 3 then        
-        comboSpells[br.player.spell.blackoutKick] = true
-        comboSpells[br.player.spell.chiBurst] = true
-        comboSpells[br.player.spell.chiWave] = true
-        comboSpells[br.player.spell.cracklingJadeLightning] = true
-        comboSpells[br.player.spell.fistsOfFury] = true
-        comboSpells[br.player.spell.fistOfTheWhiteTiger] = true
-        comboSpells[br.player.spell.flyingSerpentKick] = true
-        comboSpells[br.player.spell.risingSunKick] = true
-        comboSpells[br.player.spell.rushingJadeWind] = true
-        comboSpells[br.player.spell.spinningCraneKick] = true
-        comboSpells[br.player.spell.tigerPalm] = true
-        comboSpells[br.player.spell.touchOfDeath] = true
-        comboSpells[br.player.spell.whirlingDragonPunch] = true
+    if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
+        local comboSpells = {
+            [br.player.spell.blackoutKick]              = true,
+            [br.player.spell.chiBurst]                  = true,
+            [br.player.spell.chiWave]                   = true,
+            [br.player.spell.cracklingJadeLightning]    = true,
+            [br.player.spell.fistsOfFury]               = true,
+            [br.player.spell.fistOfTheWhiteTiger]       = true,
+            [br.player.spell.flyingSerpentKick]         = true,
+            [br.player.spell.risingSunKick]             = true,
+            [br.player.spell.rushingJadeWind]           = true,
+            [br.player.spell.spinningCraneKick]         = true,
+            [br.player.spell.tigerPalm]                 = true,
+            [br.player.spell.touchOfDeath]              = true,
+            [br.player.spell.whirlingDragonPunch]       = true,
+        }
         if sourceName ~= nil then
             if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
             -- Last Combo

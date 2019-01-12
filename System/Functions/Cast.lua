@@ -385,6 +385,14 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	    end
 	end
 end
+function castOpenerFail(spellIndex,flag,index)
+	local spellCast = br.player.spell[spellIndex]
+	local castSpell = br.player.cast[spellIndex]
+	local spellName = select(1,GetSpellInfo(spellCast))
+	Print(index..": "..spellName.." (Uncastable)");
+	_G[flag] = true;
+	return true
+end
 function canCast(spellID,unit)
 	if unit == nil then unit = "target" end
 	return castSpell(unit,spellID,false,false,false,false,false,false,false,true)

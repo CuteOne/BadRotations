@@ -270,24 +270,28 @@ local function runRotation()
 
         -- Opener Reset
         if not inCombat and not GetObjectExists("target") then
-            iRchiWave = false
-            CWIR = false
-            EE = false
-            ToD = false
-            TP1 = false
-            SER = false
-            TP2 = false
-            TP3 = false
-            TP4 = false
-            RSK1 = false
-            RSK2 = false
-            FoWT = false
-            FoF1 = false
-            SCK = false
-            BOK = false
-            SEF = false
-            WDP = false
+            openerCount = 0
+            OPN1 = false
             XUEN = false
+            TRNK1 = false
+            TRNK2 = false
+            FotWT = false
+            TP1 = false
+            TOD = false
+            SEF = false
+            SEFF = false
+            RSK1 = false
+            FOF = false
+            WDP = false
+            TP2 = false
+            BOK1 = false
+            TP3 = false
+            RSK2 = false
+            BOK2 = false
+            TP4 = false
+            BOK3 = false
+            CBW = false
+            BOK4 = false
             opener = false
         end
 
@@ -315,12 +319,15 @@ local function runRotation()
 	        return (50 - UnitPower("player")) * (1.0 / regen)
         end
 
-        local function safeToCastFoF()
-            return (cd.fistsOfFury.remain() > gcd and cd.fistsOfFury.remain() + (gcd * 2) >= timeTill50())
+        local function safeToCastFoF(chiSpend)
+            local fofCD = cd.fistsOfFury.remain()
+            chiCost = chiMax - chiSpend
+            return (fofCD > gcd and fofCD + (gcd * 2) >= timeTill50()) or (chi >= chiCost and fofCD > gcd) or (ttd <= 3 and enemies.yards8c == 1)
         end
 
         local function safeToCastRSK()
-            return (cd.risingSunKick.remain() > gcd and cd.risingSunKick.remain() + (gcd * 2) >= timeTill50())
+            local rskCD = cd.risingSunKick.remain()
+            return (rskCD > gcd and rskCD + (gcd * 2) >= timeTill50()) or (chi >= 3 and rskCD > gcd)
         end
 
 --------------------
@@ -515,14 +522,15 @@ local function runRotation()
                 end
         -- Touch of Death
                 -- touch_of_death,if=target.time_to_die>9
-                if isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 9 then --and cd.fistsOfFury.remain() < gcd then
-                    if cast.touchOfDeath() then return true end
+                if isChecked("Touch of Death") and cast.able.touchOfDeath() and ttd > 9 and cast.last.tigerPalm() then --and cd.fistsOfFury.remain() < gcd then
+                    if cast.touchOfDeath("target") then return true end
                 end
             end
         -- Storm, Earth, and Fire
             -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
             if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
                 and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15) and not talent.serenity
+                and (cast.last.touchOfDeath() or not useCDs() or not isChecked("Touch of Death") or cd.touchOfDeath.remain() > gcd)
             then
                 if cast.stormEarthAndFire() then fixateTarget = "player"; return end
             end
@@ -536,113 +544,235 @@ local function runRotation()
         end -- End Cooldown - Action List
     -- Action List - Opener
         function actionList_Opener()
-            if isChecked("Opener") and isBoss("target") and isValidUnit("target") and not opener then
-        -- Potion
-                -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
-                -- Agility Proc
-                if inRaid and isChecked("Potion") and useCDs() then
-                    if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                        if canUse(127844) and talent.serenity then
-                            useItem(127844)
-                        end
-                        if canUse(142117) and talent.whirlingDragonPunch then
-                            useItem(142117)
-                        end
-                    end
-                end
-
-                if talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger and hasBloodLust() then
-                    if getDistance("target") <= 5 then
-        -- Xuen
-                        if not XUEN then
-                            castOpener("invokeXuenTheWhiteTiger","XUEN",1)
-        -- Fist of the White Tiger
-                        elseif XUEN and not FoWT then
-                            castOpener("fistOfTheWhiteTiger","FoWT",2)
-        -- Tiger Palm 1
-                        elseif FoWT and not TP1 then
-                            castOpener("tigerPalm","TP1",3)
-        -- Touch of Death
-                        elseif TP1 and not ToD then
-                            castOpener("touchOfDeath","ToD",4);
-        -- Storm, Earth, and Fire
-                        elseif ToD and not SEF then
-                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
-                                castOpener("stormEarthAndFire","SEF",5)
-                            else
-                                Print("5: Storm, Earth, and Fire (Uncastable)");
-                                SEF = true
+        -- Start Attack
+            -- auto_attack
+            if isChecked("Opener") and isBoss("target") and not opener then
+                if isValidUnit("target") and getDistance("target") < 5 and cd.global.remain() == 0 then
+            -- Potion
+                    -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
+                    -- Agility Proc
+                    if inRaid and isChecked("Potion") and useCDs() then
+                        if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                            if canUse(127844) and talent.serenity then
+                                useItem(127844)
                             end
-        -- Rising Sun Kick 1
-                        elseif SEF and not RSK1 then
-                            castOpener("risingSunKick","RSK1",6)
-        -- Tiger Palm 2
-                        elseif RSK1 and not TP2 then
-                            castOpener("tigerPalm","TP2",7)
-        -- Fists of Fury 1
-                        elseif TP2 and not FoF1 then
-                            castOpener("fistsOfFury","FoF1",8)
-        -- Whirling Dragon Punch
-                        elseif FoF1 and not WDP then
-                            castOpener("whirlingDragonPunch","WDP",9)
-        -- Tiger Palm 3
-                        elseif WDP and not TP3 then
-                            castOpener("tigerPalm","TP3",10)
-        -- Rising Sun Kick 2
-                        elseif TP3 and not RSK2 then
-                            castOpener("risingSunKick","RSK2",11)
-                        elseif RSK2 then
-                            Print("Opener Complete")
-                            opener = true
-                        end
-                    end
-                end -- End WDP + FoTW + Bloodlust
-                if talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger and not hasBloodLust() then
-                    if getDistance("target") <= 5 then
-        -- Xuen
-                        if not XUEN then
-                            castOpener("invokeXuenTheWhiteTiger","XUEN",1)
-        -- Fist of the White Tiget
-                        elseif XUEN and not FoWT then
-                            castOpener("fistOfTheWhiteTiger","FoWT",2)
-        -- Tiger Palm 1
-                        elseif FoWT and not TP1 then
-                            castOpener("tigerPalm","TP1",3)
-        -- Touch of Death
-                        elseif TP1 and not ToD then
-                            castOpener("touchOfDeath","ToD",4);
-        -- Storm, Earth, and Fire
-                        elseif ToD and not SEF then
-                            if GetTime() >= SerenityTest + (1 - 0.2 - getOptionValue("SEF Timer")) and mode.sef ~= 3 then
-                                castOpener("stormEarthAndFire","SEF",5)
-                            else
-                                Print("5: Storm, Earth, and Fire (Uncastable)");
-                                SEF = true
+                            if canUse(142117) and talent.whirlingDragonPunch then
+                                useItem(142117)
                             end
-        -- Rising Sun Kick 1
-                        elseif SEF and not RSK1 then
-                            castOpener("risingSunKick","RSK1",6)
-        -- Fists of Fury 1
-                        elseif RSK1 and not FoF1 then
-                            castOpener("fistsOfFury","FoF1",7)
-        -- Whirling Dragon Punch
-                        elseif FoF1 and not WDP then
-                            castOpener("whirlingDragonPunch","WDP",8)
-        -- Tiger Palm 2
-                        elseif WDP and not TP2 then
-                            castOpener("tigerPalm","TP2",9)
-                        elseif TP2 then
-                            Print("Opener Complete")
-                            opener = true
                         end
                     end
-                end -- End WDP + FoTW +  no Bloodlust
-                if not (talent.whirlingDragonPunch and talent.fistOfTheWhiteTiger) then
-                    opener = true;
-                    return
+            -- Begin
+                    if not OPN1 then
+                        Print("Starting Opener")
+                        openerCount = openerCount + 1
+                        OPN1 = true
+                    --end
+            -- Xuen
+                    elseif OPN1 and not XUEN then
+                        if not talent.invokeXuenTheWhiteTiger or cd.invokeXuenTheWhiteTiger.remain() > gcd then
+                            if castOpenerFail("invokeXuenTheWhiteTiger","XUEN",openerCount) then openerCount = openerCount + 1; end
+                        end 
+                        if cast.able.invokeXuenTheWhiteTiger() then
+                            if castOpener("invokeXuenTheWhiteTiger","XUEN",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Trinkets 
+                    elseif XUEN and not TRNK1 then 
+                        if not canUse(13) then 
+                            Print(openerCount..": Trinket 1 (Uncastable)")
+                            openerCount = openerCount + 1
+                            TRNK1 = true 
+                        end
+                        if isChecked("Trinkets") and canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
+                            useItem(13)
+                            Print(openerCount..": Trinket 1")
+                            openerCount = openerCount + 1;                            
+                            TRNK1 = true
+                        end 
+                    elseif TRNK1 and not TRNK2 then 
+                        if not canUse(14) then 
+                            Print(openerCount..": Trinket 2 (Uncastable)")
+                            openerCount = openerCount + 1
+                            TRNK2 = true 
+                        end
+                        if isChecked("Trinkets") and canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
+                            useItem(14)
+                            Print(openerCount..": Trinket 2")
+                            openerCount = openerCount + 1;
+                            TRNK2 = true
+                        end
+            -- Fist of the White Tiger
+                    elseif TRNK2 and not FotWT then 
+                        if not talent.fistOfTheWhiteTiger or cd.fistOfTheWhiteTiger.remain() > gcd then
+                            if castOpenerFail("fistOfTheWhiteTiger","FotWT",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.fistOfTheWhiteTiger() then
+                            if castOpener("fistOfTheWhiteTiger","FotWT",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Tiger Palm 1
+                    elseif FotWT and not TP1 then
+                        if wasLastCombo(spell.tigerPalm) then 
+                            if castOpenerFail("tigerPalm","TP1",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.tigerPalm() then
+                            if castOpener("tigerPalm","TP1",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Touch of Death
+                    elseif TP1 and not TOD then
+                        if level < 32 or cd.touchOfDeath.remain() > 0 then 
+                            if castOpenerFail("touchOfDeath","TOD",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.touchOfDeath() then
+                            if castOpener("touchOfDeath","TOD",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Storm, Earth, and Fire
+                    elseif TOD and not SEF then
+                        if level < 70 or not charges.stormEarthAndFire.exist() then 
+                            if castOpenerFail("stormEarthAndFire","SEF",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.stormEarthAndFire() then
+                            if castOpener("stormEarthAndFire","SEF",openerCount) then fixateTarget = "player"; openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Storm, Earth, and Fire: Fixate 
+                    elseif SEF and not SEFF then 
+                        if level < 70 or not cast.last.stormEarthAndFire() then 
+                            if castOpenerFail("stormEarthAndFireFixate","SEFF",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.stormEarthAndFireFixate() then 
+                            if castOpener("stormEarthAndFireFixate","SEFF",openerCount) then fixateTarget = ObjectPointer("target"); openerCount = openerCount + 1; end
+                            if cast.stormEarthAndFireFixate("target") then 
+                                -- Print(openerCount..": Storm, Earth, and Fire: Fixate")
+                                -- fixateTarget = ObjectPointer("target") 
+                                -- openerCount = openerCount + 1
+                                -- SEFF = true
+                            end
+                        end
+            -- Rising Sun Kick 1
+                    elseif SEFF and not RSK1 then 
+                        if level < 10 or chi < 2 or cd.risingSunKick.remain() > gcd then 
+                            if castOpenerFail("risingSunKick","RSK1",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.risingSunKick() then
+                            if castOpener("risingSunKick","RSK1",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end 
+            -- Fists of Fury 
+                    elseif RSK1 and not FOF then 
+                        if level < 20 or chi < 3 or cd.fistsOfFury.remain() > gcd then 
+                            if castOpenerFail("fistsOfFury","FOF",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.fistsOfFury() then
+                            if castOpener("fistsOfFury","FOF",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end 
+            -- Whirling Dragon Punch 
+                    elseif FOF and not WDP then 
+                        if not talent.whirlingDragonPunch or cd.whirlingDragonPunch.remain() > gcd or (cd.fistsOfFury.remain() < gcd and cd.risingSunKick.remain() < gcd) then 
+                            if castOpenerFail("whirlingDragonPunch","WDP",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.whirlingDragonPunch() then
+                            if castOpener("whirlingDragonPunch","WDP",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end 
+            -- Tiger Palm 2 
+                    elseif WDP and not TP2 then
+                        if wasLastCombo(spell.tigerPalm) then 
+                            if castOpenerFail("tigerPalm","TP2",openerCount) then openerCount = openerCount + 1; end
+                        end 
+                        if cast.able.tigerPalm() then
+                            if castOpener("tigerPalm","TP2",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end 
+            -- Blackout Kick 1
+                    elseif TP2 and not BOK1 then
+                        if chi < 1 or (chi == 0 and not buff.blackoutKick.exists()) or wasLastCombo(spell.blackoutKick) then 
+                            if castOpenerFail("blackoutKick","BOK1",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.blackoutKick() then
+                            if castOpener("blackoutKick","BOK1",openerCount) then openerCount = openerCount + 1; end 
+                        end
+                    --end
+            -- Tiger Palm 3
+                    elseif BOK1 and not TP3 then 
+                        if wasLastCombo(spell.tigerPalm) then 
+                            if castOpenerFail("tigerPalm","TP3",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.tigerPalm() then
+                            if castOpener("tigerPalm","TP3",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Rising Sun Kick 2
+                    elseif TP3 and not RSK2 then
+                        if level < 10 or chi < 2 or cd.risingSunKick.remain() > gcd then 
+                            if castOpenerFail("risingSunKick","RSK2",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.risingSunKick() then 
+                            if castOpener("risingSunKick","RSK2",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Blackout Kick 2
+                    elseif RSK2 and not BOK2 then
+                        if chi < 1 or (chi == 0 and not buff.blackoutKick.exists()) or wasLastCombo(spell.blackoutKick) then 
+                            if castOpenerFail("blackoutKick","BOK2",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.blackoutKick() then
+                            if castOpener("blackoutKick","BOK2",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Tiger Palm 4
+                    elseif BOK2 and not TP4 then 
+                        if wasLastCombo(spell.tigerPalm) then 
+                            if castOpenerFail("tigerPalm","TP4",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.tigerPalm() then
+                            if castOpener("tigerPalm","TP4",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end 
+            -- Blackout Kick 3
+                    elseif TP4 and not BOK3 then
+                        if chi < 1 or (chi == 0 and not buff.blackoutKick.exists()) or wasLastCombo(spell.blackoutKick) then 
+                            if castOpenerFail("blackoutKick","BOK3",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.blackoutKick() then
+                            if castOpener("blackoutKick","BOK3",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Chi Burst/Wave
+                    elseif BOK3 and not CBW then 
+                        if talent.chiBurst then 
+                            if cast.able.chiBurst() then
+                                if castOpener("chiBurst","CBW",openerCount) then openerCount = openerCount + 1; end
+                            end
+                        elseif talent.chiWave then 
+                            if cast.able.chiWave() then
+                                if castOpener("chiWave","CBW",openerCount) then openerCount = openerCount + 1; end
+                            end
+                        else 
+                            CBW = true 
+                        end
+                    --end
+            -- Blackout Kick 4
+                    elseif CBW and not BOK4 then
+                        if chi < 1 or (chi == 0 and not buff.blackoutKick.exists()) or wasLastCombo(spell.blackoutKick) then 
+                            if castOpenerFail("blackoutKick","BOK4",openerCount) then openerCount = openerCount + 1; end
+                        end
+                        if cast.able.blackoutKick() then
+                            if castOpener("blackoutKick","BOK4",openerCount) then openerCount = openerCount + 1; end
+                        end
+                    --end
+            -- Finish (rip exists)
+                    elseif BOK4 then
+                        Print("Opener Complete")
+                        openerCount = 0
+                        opener = true
+                    end
                 end
             elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-				opener = true
+                opener = true
             end -- End Boss and Opener Check
         end -- End Action List - Opener
     -- Action List - Single Target
@@ -661,14 +791,14 @@ local function runRotation()
             end 
         -- Fists of Fury 
             -- fists_of_fury,if=energy.time_to_max>3
-            if cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") 
+            if cast.able.fistsOfFury() and (ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets")) 
                 and mode.fof == 1 and (ttd > 3 or enemies.yards8c > 1) 
             then 
                 if cast.fistsOfFury(nil,"cone",1,45) then return end 
             end 
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
-            if cast.able.risingSunKick() and (safeToCastFoF() or (ttd <= 3 and enemies.yards8c == 1)) then
+            if cast.able.risingSunKick() and not (cd.fistsOfFury.remain() < gcd) then --and safeToCastFoF(2) then
                 if cast.risingSunKick() then return end
             end
         -- Rushing Jade Wind
@@ -692,14 +822,25 @@ local function runRotation()
             end
         -- Blackout kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))&buff.swift_roundhouse.stack<2
-            if cast.able.blackoutKick() and not wasLastCombo(spell.blackoutKick) 
-                and (((safeToCastRSK() or chi >= 3) and (safeToCastFoF() or chi >= 4)) or (chi == 2 and wasLastCombo(spell.tigerPalm))) and buff.swiftRoundhouse.stack() < 2
+            if cast.able.blackoutKick() and not wasLastCombo(spell.blackoutKick) and buff.swiftRoundhouse.stack() < 2
+                --and ((safeToCastRSK() and safeToCastFoF(1)) or (chi > 0 and chi <= 2 and wasLastCombo(spell.tigerPalm)))
+                --and ((chi == 1 and cd.risingSunKick.remain() < gcd) or (chi == 2 and cd.fistsOfFury.remain() < gcd) or ttm < 3 or chi > 3)
+                and ((((cd.risingSunKick.remain() < gcd and chi < 2) or (cd.fistsOfFury.remain() < gcd and chi < 3) or ttm < 3 or ttd < 3) and wasLastCombo(spell.tigerPalm))
+                    or ((chi > 3 or (chi > 2 and cd.risingSunKick.remain() >= gcd)) and cd.fistsOfFury.remain() >= gcd) 
+                    or (cd.risingSunKick.remain() >= gcd and cd.fistsOfFury.remain() >= gcd))
+
+                -- and ((not (chi >= 2 and cd.risingSunKick.remain() < gcd)
+                -- and not (chi >= 3 and cd.fistsOfFury.remain() < gcd)
+                -- and not (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() < gcd)) or  ttm < 3 or chi > 3)
             then
                 if cast.blackoutKick() then return true end
             end
         -- Chi Wave
             -- chi_wave
-            if cast.able.chiWave() then
+            if cast.able.chiWave() and timeTill50() >= gcd and not (chi >= 2 and cd.risingSunKick.remain() > gcd) 
+                and not (chi >= 3 and cd.fistsOfFury.remain() > gcd) 
+                and not (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() < gcd)                
+            then
                 if cast.chiWave(nil,"aoe") then return true end
             end
         -- Chi Burst
@@ -711,7 +852,14 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
-            if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2 then
+            if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm)
+                and ((chi < 2 and cd.risingSunKick.remain() < gcd) or (chi < 3 and cd.fistsOfFury.remain() < gcd) 
+                    or (cd.risingSunKick.remain() >= gcd and cd.fistsOfFury.remain() >= gcd) or ttm < 3 or ttd < 3)
+            
+                -- and ((not (chi >= 2 and cd.risingSunKick.remain() < gcd)
+                -- and not (chi >= 3 and cd.fistsOfFury.remain() < gcd)
+                -- and not (talent.fistOfTheWhiteTiger and cd.fistOfTheWhiteTiger.remain() < gcd)) or ttm < 3)
+            then
                 if cast.tigerPalm() then return true end
             end
         -- Flying Serpent Kick
@@ -732,7 +880,7 @@ local function runRotation()
         function actionList_AoE()
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
-            if chi >= 2 and  cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and safeToCastFoF() then
+            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and safeToCastFoF() then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Whirling Dragon Punch
@@ -751,7 +899,7 @@ local function runRotation()
             end
         -- Fists of Fury
             -- fists_of_fury,if=energy.time_to_max>3
-            if chi >= 3 and  cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1  then
+            if cast.able.fistsOfFury() and ttm > 3 and enemies.yards8c >= getValue("Fists of Fury Targets") and mode.fof == 1  then
                 if cast.fistsOfFury(nil,"cone",1,45) then return true end
             end
         -- Rushing Jade Wind
@@ -761,7 +909,7 @@ local function runRotation()
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(((chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
-            if chi >= 2 and cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) 
+            if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
                 and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or ttm <= 3 or ttd <= 3) 
             then
                 if cast.spinningCraneKick(nil,"aoe") then return end
@@ -795,7 +943,7 @@ local function runRotation()
             end
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(buff.bok_proc.up|(talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi<4))
-            if chi >= 1 and cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) 
+            if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick) 
                 and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4)) 
             then
                 if cast.blackoutKick(lowestMark) then return end
@@ -854,23 +1002,23 @@ local function runRotation()
                 end
                 if isValidUnit("target") and opener then
                     if getDistance("target") < 5 then
-            -- Chi Burst
-                    -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
-                        if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger) 
-                            and ((mode.rotaion == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards12r > 0)) 
-                        then
-                            if cast.chiBurst(nil,"rect",1,12) then return true end
-                        end
-            -- Chi Wave
-                    -- chi_wave
-                        if cast.chiWave(nil,"aoe") then return true end
+            -- -- Chi Burst
+            --         -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
+            --             if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger) 
+            --                 and ((mode.rotaion == 1 and enemies.yards12r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards12r > 0)) 
+            --             then
+            --                 if cast.chiBurst(nil,"rect",1,12) then return true end
+            --             end
+            -- -- Chi Wave
+            --         -- chi_wave
+            --             if cast.able.chiWave() and (not talent.invokeXuenTheWhiteTiger or cd.invokeXuenTheWhiteTiger.remain() > gcd or not useCDs() or not isChecked("Xuen"))
+            --                 and (not talent.fistOfTheWhiteTiger or cd.fistOfTheWhiteTiger.remain() > gcd or chi > 2) 
+            --             then 
+            --                 if cast.chiWave(nil,"aoe") then return true end
+            --             end
             -- Start Attack
                     -- auto_attack
-                        if power > 50 then
-                            if cast.tigerPalm("target") then StartAttack(); return true end
-                        else
-                            StartAttack()
-                        end
+                        StartAttack()
                     end
             -- Crackling Jade Lightning 
                     if isChecked("CJL OOR") and getDistance("target") < 40 and not moving and power >= getOptionValue("CJL OOR") then 
@@ -950,6 +1098,10 @@ local function runRotation()
                     if buff.serenity.exists() then
                         if actionList_Serenity() then return end
                     end
+        -- Xuen 
+                    if cast.able.invokeXuenTheWhiteTiger() and useCDs() and isChecked("Xuen") then 
+                        if cast.invokeXuenTheWhiteTiger() then return end 
+                    end
         -- Fist of the White Tiger
                     -- fist_of_the_white_tiger,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2))&chi.max-chi>=3
                     if cast.able.fistOfTheWhiteTiger() and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2)) and chiMax - chi >= 3 then
@@ -957,7 +1109,9 @@ local function runRotation()
                     end
         -- Tiger Palm
                     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2))&chi.max-chi>=2&!prev_gcd.1.tiger_palm
-                    if cast.able.tigerPalm(lowestMark) and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2)) and chiMax - chi >= 2 and not wasLastCombo(spell.tigerPalm) then
+                    if cast.able.tigerPalm(lowestMark) and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2)) 
+                        and chiMax - chi >= 2 and not wasLastCombo(spell.tigerPalm)
+                    then
                         if cast.tigerPalm(lowestMark) then return end
                     end
         -- Call Action List - Cooldowns
