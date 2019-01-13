@@ -723,7 +723,7 @@ local function runRotation()
     local function actionList_Stealthed()
         -- # Nighstalker, or Subt+Exsg on 1T: Snapshot Rupture
         -- actions.stealthed=rupture,if=combo_points>=4&(talent.nightstalker.enabled|talent.subterfuge.enabled&(talent.exsanguinate.enabled&cooldown.exsanguinate.remains<=2|!ticking)&variable.single_target)&target.time_to_die-remains>6
-        if combo >= 4 and ttd("target") > 6 and (talent.nightstalker or (mode.exsang == 1 and talent.subterfuge and ((talent.exsanguinate and cd.exsanguinate.remain() <= 2) or not debuff.rupture.exists("target")) and enemies10 == 1)) then
+        if combo >= 4 and ttd("target") > 6 and (talent.nightstalker or (mode.exsang == 1 and talent.subterfuge and ((talent.exsanguinate and cd.exsanguinate.remain() <= 2) or not debuff.rupture.exists("target")) and #enemies.yards30 == 1)) then
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge: Apply or Refresh with buffed Garrotes
