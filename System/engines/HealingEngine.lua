@@ -460,7 +460,7 @@ if not metaTable1 then
 					-- We are updating all of the User Info (Health/Range/Name)
 					br.friend[i]:UpdateUnit()
 					-- special handling for Spear of Anguish debuff (Engine of Souls)
-					if select(9,GetInstanceInfo()) == 1676 then -- Are we really in ToS?
+					if select(8,GetInstanceInfo()) == 1676 then -- Are we really in ToS?
 						if (UnitDebuffID(br.friend[i].unit,235933) or UnitDebuffID(br.friend[i].unit,238442) or UnitDebuffID(br.friend[i].unit,242796)) -- if unit is afflicted by spear of anguish
 							and UnitAuraID(br.friend[i].unit,235621) and UnitAuraID("player",235621) -- and both the Unit and "player" are in the spirit realm
 						then
