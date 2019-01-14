@@ -29,6 +29,12 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     };
     CreateButton("Interrupt",4,0)
+    -- FoN Button
+    ForceofNatureModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Force of Nature Enabled", tip = "Will Use Force of Nature", highlight = 1, icon = br.player.spell.forceOfNature },
+        [2] = { mode = "Off", value = 2 , overlay = "Force of Nature Disabled", tip = "Will Not Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature }
+    };
+    CreateButton("ForceofNature",5,0)
 end
 
 ---------------
@@ -130,6 +136,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        UpdateToggle("ForceofNature",0.25)
+        br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
 --------------
 --- Locals ---
 --------------
@@ -439,7 +447,7 @@ local function runRotation()
                 end
             end
             -- Force Of Nature
-            if talent.forceOfNature and br.player.power.astralPower.deficit() > 20 then
+            if talent.forceOfNature and br.player.power.astralPower.deficit() > 20 and mode.forceOfNature == 1 then
                 if cast.forceOfNature() then return true end
             end
             -- Fury of Elune
@@ -455,7 +463,7 @@ local function runRotation()
                 if cast.celestialAlignment("player") then return true end
             end
             --Starfall
-            if #enemies.yards15t > starfallTargets and power >= getOptionValue("Starsurge/Starfall Dump") then
+            if #enemies.yards15t >= starfallTargets and power >= getOptionValue("Starsurge/Starfall Dump") then
                 if createCastFunction("best",false,1,15,spell.starfall,nil,true) then return true end
             end
             -- Solar Wrath
