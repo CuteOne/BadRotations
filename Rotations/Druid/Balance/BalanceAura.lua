@@ -407,7 +407,7 @@ local function runRotation()
                 end
             end
             -- Trinkets
-            if useCDs() and isChecked("Trinkets") and (buff.celestialAlignment.exists() or buff.incarnationChoseOfEluneexists()) then
+            if useCDs() and isChecked("Trinkets") and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
                 if canUse(13) then
                     useItem(13)
                 end
