@@ -421,6 +421,9 @@ local function runRotation()
             end
             -- Stellar Flare
             if talent.stellarFlare and debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") then
+                if GetUnitExists("target") and not debuff.stellarFlare.exists("target") or debuff.stellarFlare.remains("target") < 3 then
+                    if cast.stellarFlare("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if not debuff.stellarFlare.exists(thisUnit) or debuff.stellarFlare.remains(thisUnit) < 3 then
@@ -430,6 +433,9 @@ local function runRotation()
             end
             -- Moonfire
             if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+                if GetUnitExists("target") and not debuff.moonfire.exists("target") or debuff.moonfire.remains("target") < 3 then
+                    if cast.moonfire("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.remains(thisUnit) < 3 then
@@ -439,6 +445,9 @@ local function runRotation()
             end
             -- Sunfire
             if debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+                if GetUnitExists("target") and not debuff.sunfire.exists("target") or debuff.sunfire.remains("target") < 3 then
+                    if cast.sunfire("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if not debuff.sunfire.exists(thisUnit) or debuff.sunfire.remains(thisUnit) < 3 then
@@ -484,6 +493,9 @@ local function runRotation()
             end
             -- Refresh Sunfire
             if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+                if GetUnitExists("target") and not debuff.sunfire.exists("target") or debuff.sunfire.remains("target") < 7.2 then
+                    if cast.sunfire("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if debuff.sunfire.exists(thisUnit) and debuff.sunfire.remains(thisUnit) < 7.2 then
@@ -493,6 +505,9 @@ local function runRotation()
             end
             -- Refresh Stellar Flare
             if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") then
+                if GetUnitExists("target") and not debuff.stellarFlare.exists("target") or debuff.stellarFlare.remains("target") < 7.2 then
+                    if cast.stellarFlare("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if debuff.stellarFlare.exists(thisUnit) and debuff.stellarFlare.remains(thisUnit) < 7.2 then
@@ -502,6 +517,9 @@ local function runRotation()
             end
             -- Refresh Moonfire
             if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+                if GetUnitExists("target") and not debuff.moonfire.exists("target") or debuff.moonfire.remains("target") < 7.2 then
+                    if cast.moonfire("target") then return true end
+                end
                 for i = 1, #enemies.yards45 do
                     local thisUnit = enemies.yards45[i]
                     if debuff.moonfire.exists(thisUnit) and debuff.moonfire.remains(thisUnit) < 7.2 then
