@@ -80,6 +80,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Lunar Strike Filler Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Lunar Strike as filler spell. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Starfall Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Starfall. Min: 1 / Max: 10 / Interval: 1" )
+        --    br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1" )
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -294,38 +295,38 @@ local function runRotation()
                 if cast.regrowth("player") then return true end
             end
             -- Rebirth
-            if isChecked("Rebirth") and cd.rebirth.remains() <= gcd then
+            if isChecked("Rebirth") and cd.rebirth.remains() <= gcd and not isMoving("player") then
                 if getOptionValue("Rebirth") == 1 then
                     local tanks = getTanksTable()
                     for i = 1, #tanks do
                         local thisUnit = tanks[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
-                            if cast.rebirth(thisUnit) then return true end
+                            if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 elseif getOptionValue("Rebirth") == 2 then
                     for i = 1, #br.friend do
                         local thisUnit = br.friend[i]
                         if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
-                            if cast.rebirth(thisUnit) then return true end
+                            if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 elseif getOptionValue("Rebirth") == 3 then
                     for i = 1, #br.friend do
                         local thisUnit = br.friend[i]
                         if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
-                            if cast.rebirth(thisUnit) then return true end
+                            if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 elseif getOptionValue("Rebirth") == 4 then
-                    if GetUnitExists("mouseover") then
-                        if cast.rebirth("mouseover") then return true end
+                    if GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+                        if cast.rebirth("mouseover","dead") then return true end
                     end
                 elseif getOptionValue("Rebirth") == 5 then
                     for i = 1, #br.friend do
                         local thisUnit = br.friend[i]
                         if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
-                            if cast.rebirth(thisUnit) then return true end
+                            if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 end
@@ -472,7 +473,7 @@ local function runRotation()
                 if cast.celestialAlignment("player") then return true end
             end
             --Starfall
-            if #enemies.yards15t >= starfallTargets and power >= getOptionValue("Starsurge/Starfall Dump") then
+            if #enemies.yards15t >= starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or isMoving("player")) then
                 if createCastFunction("best",false,1,15,spell.starfall,nil,true) then return true end
             end
             -- Solar Wrath
@@ -482,7 +483,7 @@ local function runRotation()
                 end
             end
             -- Starsurge
-            if buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3 and #enemies.yards15t < starfallTargets and power >= getOptionValue("Starsurge/Starfall Dump") then
+            if buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3 and #enemies.yards15t < starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or isMoving("player")) then
                 if talent.starLord then
                     if not buff.starLord.exists() or buff.starLord.remains > 3 then
                         if cast.starsurge() then return true end
