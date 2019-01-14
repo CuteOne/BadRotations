@@ -61,7 +61,7 @@ local function createOptions()
             -- Mass Dispel
             br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
             --Body and Soul
-            br.ui:createSpinner(section, "Body and Mind",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Mind usage|cffFFBB00.")
+            br.ui:createSpinner(section, "Body and Soul",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBody and Soul usage|cffFFBB00.")
             --Angelic Feather
             br.ui:createSpinner(section, "Angelic Feather",  2,  0,  100,  1,  "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAngelic Feather usage|cffFFBB00.")
             --Fade
@@ -601,7 +601,7 @@ local function runRotation()
                 end
             end
                 -- Power Word: Shield Body and Soul
-            if IsMovingTime(getOptionValue("Body and Mind")) then
+            if IsMovingTime(getOptionValue("Body and Soul")) then
                 if bnSTimer == nil then bnSTimer = GetTime() - 6 end
                 if isChecked("Body and Soul") and talent.bodyAndSoul and not buff.bodyAndSoul.exists("player") and GetTime() >= bnSTimer + 6 then
                     if cast.powerWordShield("player") then
