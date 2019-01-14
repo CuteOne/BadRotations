@@ -730,9 +730,9 @@ local function runRotation()
                     end
                 else
                     if talent.luminousBarrier then
-                        if castWiseAoEHeal(br.friend,spell.luminousBarrier,10,getValue("PW:B/LB Targets"),getValue("PW:B/LB Targets"),6,true, true) then return true end
+                        if castWiseAoEHeal(br.friend,spell.luminousBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
                     else
-                        if castWiseAoEHeal(br.friend,spell.powerWordBarrier,10,getValue("PW:B/LB Targets"),getValue("PW:B/LB Targets"),6,true, true) then return true end
+                        if castWiseAoEHeal(br.friend,spell.powerWordBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
                     end
                 end
             end
