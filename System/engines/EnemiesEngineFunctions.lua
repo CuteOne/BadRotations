@@ -370,6 +370,8 @@ end
 						coef = 100 - unitHP
 					end
 				end
+				-- Distance Coef add for multiple burn units (Will prioritize closest first)
+				coef = coef + ((50 - distance)/100)
 				-- if its our actual target we give it a bonus
 				if GetUnitIsUnit("target",unit) == true and not UnitIsDeadOrGhost(unit) then
 					coef = coef + 50
@@ -391,7 +393,7 @@ end
 				end
 				-- if user checked burn target then we add the value otherwise will be 0
 				if getOptionCheck("Forced Burn") then
-					coef = coef + isBurnTarget(unit)
+					coef = coef + isBurnTarget(unit) + ((50 - distance)/100)
 				end
 				-- if user checked avoid shielded, we add the % this shield remove to coef
 				if getOptionCheck("Avoid Shields") then
