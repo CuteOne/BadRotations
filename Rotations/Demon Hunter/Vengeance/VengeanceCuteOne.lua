@@ -350,7 +350,7 @@ local function runRotation()
                 if cast.sigilOfFlame("best",false,1,8) then return end
 			end
 			-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-			if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
+			if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
                 if cast.infernalStrike("player","ground",1,6) then return end
             end
 			-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
@@ -367,7 +367,7 @@ local function runRotation()
 					if cast.felDevastation() then return end
 				end
 				-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+				if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
 					if cast.infernalStrike("player","ground",1,6) then return end
 				end
 				-- actions.brand+=/sigil_of_flame,if=dot.fiery_brand.ticking
@@ -425,7 +425,7 @@ local function runRotation()
 	                if actionList_FieryBrand() then return end
                 end
 				-- actions.normal=infernal_strike
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+				if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
                     if cast.infernalStrike("player","ground",1,6) then return end
                 end
 				-- actions.normal+=/spirit_bomb,if=soul_fragments>=4
