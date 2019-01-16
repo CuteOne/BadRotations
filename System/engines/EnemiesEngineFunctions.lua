@@ -268,7 +268,7 @@ end
 				if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
 					coef = burnUnit.coef
 				end
-				if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit) then
+				if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit or burnUnit.id == unitID) then
 					TargetUnit(unit)
 					coef = burnUnit.coef
 				end
