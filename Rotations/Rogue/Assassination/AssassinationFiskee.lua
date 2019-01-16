@@ -317,7 +317,7 @@ local function runRotation()
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     local enemies10 = #enemyTable10
 
-    if isChecked("Ignore Blacklist for FoK and CT") then
+    if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 3 then
         enemies10 = #enemies.get(10)
     end
 
