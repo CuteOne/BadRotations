@@ -436,8 +436,8 @@ local function findBestUnit(range,facing)
 				-- local thisUnit = v.unit
 				-- local distance = getDistance(thisUnit)
 				-- if distance < range then
-				local coeficient = getUnitCoeficient(thisUnit) or 0
-				if not isCC and (not facing or isFacing) then
+				if not isCC and (not facing or isFacing) then					
+					local coeficient = getUnitCoeficient(thisUnit) or 0
 					if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
 						if currHP == nil or UnitHealth(thisUnit) < currHP then
 							currHP = UnitHealth(thisUnit)
