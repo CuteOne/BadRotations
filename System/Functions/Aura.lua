@@ -511,9 +511,11 @@ function hasBloodLust()
 		UnitBuffID("player", 146555) or -- Drums of Rage
 		UnitBuffID("player", 32182) or -- Heroism
 		UnitBuffID("player", 90355) or -- Netherwinds
-		UnitBuffID("player", 80353) or -- Timewarp
-		UnitBuffID("player", 264667)
-	 then -- Primal Rage
+        UnitBuffID("player", 80353) or -- Timewarp
+        UnitBuffID("player", 230935) or -- Drums of the Mountain
+        UnitBuffID("player", 256740) or -- Drums of the Maelstrom
+		UnitBuffID("player", 264667) -- Primal Rage
+	 then
 		return true
 	else
 		return false
