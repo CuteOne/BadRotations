@@ -270,7 +270,7 @@ end
 					coef = burnUnit.coef
 				end
 				if not burnUnit.buff and (UnitName(unit) == burnUnit.name or burnUnit or burnUnit.id == unitID) then
-					TargetUnit(unit)
+					--if not UnitIsUnit("target",unit) then TargetUnit(unit) end
 					coef = burnUnit.coef
 				end
 			end
@@ -421,7 +421,7 @@ local function findBestUnit(range,facing)
 	local startTime = debugprofilestop()
 	local bestUnitCoef
 	local bestUnit = bestUnit or nil
-	local enemyList = getEnemies("player",range)
+	local enemyList = getEnemies("player",range,false,facing)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
 --		or GetTime() > lastCheckTime 
@@ -432,12 +432,11 @@ local function findBestUnit(range,facing)
 			tsort(enemyList,compare)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
-				local isFacing = getFacing("player",thisUnit)
 				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
 				-- local thisUnit = v.unit
 				-- local distance = getDistance(thisUnit)
 				-- if distance < range then
-				if not isCC and (not facing or isFacing) then					
+				if not isCC then					
 					local coeficient = getUnitCoeficient(thisUnit) or 0
 					if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
 						if currHP == nil or UnitHealth(thisUnit) < currHP then
@@ -478,6 +477,7 @@ function dynamicTarget(range,facing)
 	end
 	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
+		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0)
 	then
 		TargetUnit(bestUnit)
 	end
