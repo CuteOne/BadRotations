@@ -35,6 +35,12 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Force of Nature Disabled", tip = "Will Not Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature }
     };
     CreateButton("ForceofNature",5,0)
+    -- Starfall Button
+    ForceofNatureModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Starfall Enabled", tip = "Will Use Starfall in AoE", highlight = 1, icon = br.player.spell.starfall },
+        [2] = { mode = "Off", value = 2 , overlay = "Starfall Disabled", tip = "Will Not Use Starfall", highlight = 0, icon = br.player.spell.starfall }
+    };
+    CreateButton("Starfall",6,0)
 end
 
 ---------------
@@ -138,7 +144,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("ForceofNature",0.25)
+        UpdateToggle("Starfall",0.25)
         br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
+        br.player.mode.starfall = br.data.settings[br.selectedSpec].toggles["Starfall"]
 --------------
 --- Locals ---
 --------------
@@ -474,7 +482,11 @@ local function runRotation()
             end
             --Starfall
             if #enemies.yards15t >= starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or isMoving("player")) then
-                if createCastFunction("best",false,1,15,spell.starfall,nil,true) then return true end
+                if mode.starfall == 1 then
+                    if createCastFunction("best",false,1,15,spell.starfall,nil,true) then return true end
+                elseif mode.starfall == 0 then
+                    if cast.starsurge() then return true end
+                end
             end
             -- Solar Wrath
             if traits.streakingStars.active then
