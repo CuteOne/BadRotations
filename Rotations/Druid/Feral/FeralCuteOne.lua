@@ -231,18 +231,18 @@ local function runRotation()
         -- Get Best Unit for Range
         -- units.get(range, aoe)
         units.get(40)
-        units.get(20)
+        --units.get(20)
         units.get(8,true)
-        units.get(8)
+        --units.get(8)
         units.get(5)
 
         -- Get List of Enemies for Range
         -- enemies.get(range, from unit, no combat, variable)
         enemies.get(40) -- makes enemies.yards40
         enemies.get(20,"player",true) -- makes enemies.yards20nc
-        enemies.get(13)
-        enemies.get(8)
-        enemies.get(5)
+        enemies.get(13,"player",false,true) -- makes enemies.yards13f
+        enemies.get(8) -- makes enemies.yards8
+        enemies.get(5,"player",false,true) -- makes enemies.yards5f
 
         if leftCombat == nil then leftCombat = GetTime() end
 		if profileStop == nil then profileStop = false end
@@ -319,8 +319,8 @@ local function runRotation()
             local unitHealthMax = UnitHealthMax(unit)
             if not isBoss() then return ((unitHealthMax > UnitHealthMax("player") * 3) or (UnitHealth(unit) < unitHealthMax and getTTD(unit) > 10)) end            
             local maxHealth = 0
-            for i = 1, #enemies.yards5 do
-                local thisMaxHealth = UnitHealthMax(enemies.yards5[i])
+            for i = 1, #enemies.yards5f do
+                local thisMaxHealth = UnitHealthMax(enemies.yards5f[i])
                 if thisMaxHealth > maxHealth then 
                     maxHealth = thisMaxHealth 
                 end 
@@ -427,7 +427,7 @@ local function runRotation()
 		        	-- 	if cast.catForm("player") then return true end
 		        	-- end
                     -- Cat Form - Less Fall Damage
-                    if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
+                    if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and (not swimming or (not moving and swimming and #enemies.yards5f > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then return true end
                     end
 		        end
@@ -459,7 +459,7 @@ local function runRotation()
 	                	if cast.savageRoar() then return true end
 	                end
 	            -- Shred - Single
-	                if cast.able.shred() and #enemies.yards5 == 1 then
+	                if cast.able.shred() and #enemies.yards5f == 1 then
 	                	if cast.shred() then swipeSoon = nil; return true end
 	                end
 	            -- Swipe - AoE
@@ -653,8 +653,8 @@ local function runRotation()
 			if useInterrupts() then
 		-- Skull Bash
 				if isChecked("Skull Bash") and cast.able.skullBash() then
-					for i=1, #enemies.yards13 do
-						thisUnit = enemies.yards13[i]
+					for i=1, #enemies.yards13f do
+						thisUnit = enemies.yards13f[i]
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if cast.skullBash(thisUnit) then return true end
 						end
@@ -662,8 +662,8 @@ local function runRotation()
 				end
 		-- Mighty Bash
     			if isChecked("Mighty Bash") and cast.able.mightyBash() then
-    				for i=1, #enemies.yards5 do
-                        thisUnit = enemies.yards5[i]
+    				for i=1, #enemies.yards5f do
+                        thisUnit = enemies.yards5f[i]
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if cast.mightyBash(thisUnit) then return true end
 						end
@@ -671,8 +671,8 @@ local function runRotation()
 				end
 		-- Maim (PvP)
     			if isChecked("Maim") and cast.able.maim() then
-    				for i=1, #enemies.yards5 do
-                        thisUnit = enemies.yards5[i]
+    				for i=1, #enemies.yards5f do
+                        thisUnit = enemies.yards5f[i]
     					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and comboPoints > 0 and not buff.fieryRedMaimers.exists() then --and isInPvP() then
     						if cast.maim(thisUnit) then return true end
 		    			end
@@ -876,8 +876,8 @@ local function runRotation()
                 or mode.rotation == 3 or (talent.primalWrath and not usePrimalWrath())) 
                 and (buff.savageRoar.exists() or not talent.savageRoar) and debuff.rip.count() < 5 
             then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
+                for i = 1, #enemies.yards5f do
+                    local thisUnit = enemies.yards5f[i]
                     if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) 
                         and not UnitIsCharmed(thisUnit) and canDoT(thisUnit) and getFacing("player",thisUnit)
                     then
@@ -994,8 +994,8 @@ local function runRotation()
             -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
             -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
             if (cast.pool.rake() or cast.able.rake()) then --and #enemies.yards5 < 4 then
-                for i = 1, #enemies.yards5 do
-                    local thisUnit = enemies.yards5[i]
+                for i = 1, #enemies.yards5f do
+                    local thisUnit = enemies.yards5f[i]
                     if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) and (ttd(thisUnit) > 4 or isDummy(thisUnit)) 
                         and not UnitIsCharmed(thisUnit) and canDoT(thisUnit) and getFacing("player",thisUnit)
                     then
@@ -1224,7 +1224,7 @@ local function runRotation()
 --- In Combat Rotation ---
 --------------------------
         -- Cat is 4 fyte!
-            if inCombat and cast.able.catForm("player") and not cat and #enemies.yards5 > 0 and not moving and isChecked("Auto Shapeshifts") then
+            if inCombat and cast.able.catForm("player") and not cat and #enemies.yards5f > 0 and not moving and isChecked("Auto Shapeshifts") then
                 if cast.catForm("player") then return true end
             elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and hastar and opener then
 		-- Opener
@@ -1266,8 +1266,8 @@ local function runRotation()
         -- Ferocious Bite
                         -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(target.health.pct<25|talent.sabertooth.enabled)
                         if cast.able.ferociousBite() then
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
+                            for i = 1, #enemies.yards5f do
+                                local thisUnit = enemies.yards5f[i]
                                 if getFacing("player",thisUnit) and ((debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3
                                     and ttd(thisUnit) > 10 and (thp(thisUnit) < 25 or talent.sabertooth)) 
                                         or (ferociousBiteFinish(thisUnit) and (not talent.primalWrath or not usePrimalWrath())))
