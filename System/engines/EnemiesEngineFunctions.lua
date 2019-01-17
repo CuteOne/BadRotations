@@ -175,13 +175,14 @@ function updateOM()
 end
 
 -- /dump getEnemies("target",10)
-function getEnemies(thisUnit,radius,checkNoCombat)
+function getEnemies(thisUnit,radius,checkNoCombat,facing)
     local startTime = debugprofilestop()
 	local radius = tonumber(radius)
 	local targetDist = getDistance("target","player")
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
+	local isFacing = getFacing("player",thisUnit)
     if checkNoCombat == nil then checkNoCombat = false end
     if refreshStored == true then
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
@@ -215,7 +216,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
 	for k, v in pairs(enemyTable) do
 		thisEnemy = v.unit
 		distance =  getDistance(thisUnit,thisEnemy)
-		if distance < radius then
+		if distance < radius and (not facing or isFacing) then
 			tinsert(enemiesTable,thisEnemy)
 		end
     end
@@ -225,7 +226,7 @@ function getEnemies(thisUnit,radius,checkNoCombat)
     --         rawset(enemiesTable, enemy.unit, enemy.unit)
     --     end
     -- end
-	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") then
+	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
 		tinsert(enemiesTable,"target")
 	end
     ---

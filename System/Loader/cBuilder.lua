@@ -434,15 +434,17 @@ function br.loader:new(spec,specName)
             return aoe and dynamicTarget(range, false) or dynamicTarget(range, true)
         end
 
-        self.enemies.get = function(range,unit,checkNoCombat)
+        self.enemies.get = function(range,unit,checkNoCombat,facing)
             if unit == nil then unit = "player" end
             if checkNoCombat == nil then checkNoCombat = false end
-            local enemyTable = getEnemies(unit,range,checkNoCombat)
-            if unit ~= "player" then
-                if checkNoCombat then insertTable = "yards"..range..unit:sub(1,1).."nc" else insertTable = "yards"..range..unit:sub(1,1) end
-            else
-                if checkNoCombat then insertTable = "yards"..range.."nc" else insertTable = "yards"..range end
-            end
+            if facing == nil then facing = false end
+            local enemyTable = getEnemies(unit,range,checkNoCombat,facing)
+            -- Build enemies.yards variable
+            local insertTable = "yards"..range -- Ex: enemies.yards8 (returns all enemies around player in 8yrds)
+            if unit ~= "player" then insertTable = insertTable..unit:sub(1,1) end -- Ex: enemies.yards8t (returns all enemies around target in 8yrds)
+            if checkNoCombat then insertTable = insertTable.."nc" end -- Ex: enemies.yards8tnc (returns all units around target in 8yrds)
+            if facing then insertTable = insertTable.."f" end-- Ex: enemies.yards8tncf (returns all units the target is facing in 8yrds)
+            -- Add to table
             if self.enemies[insertTable] == nil then self.enemies[insertTable] = {} else wipe(self.enemies[insertTable]) end
             if #enemyTable > 0 then insertTableIntoTable(self.enemies[insertTable],enemyTable) end
             return enemyTable
