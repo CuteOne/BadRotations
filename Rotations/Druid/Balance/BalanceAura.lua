@@ -36,7 +36,7 @@ local function createToggles() -- Define custom toggles
     };
     CreateButton("ForceofNature",5,0)
     -- Starfall Button
-    ForceofNatureModes = {
+    StarfallModes = {
         [1] = { mode = "On", value = 1 , overlay = "Starfall Enabled", tip = "Will Use Starfall in AoE", highlight = 1, icon = br.player.spell.starfall },
         [2] = { mode = "Off", value = 2 , overlay = "Starfall Disabled", tip = "Will Not Use Starfall", highlight = 0, icon = br.player.spell.starfall }
     };
