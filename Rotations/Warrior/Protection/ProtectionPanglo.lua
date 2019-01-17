@@ -320,7 +320,7 @@ local function runRotation()
                 if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                         if cast.avatar() then return end
                 end
-                if isChecked("Racial") then
+                if isChecked("Racial") and useCDs() then
                     if (race == "Orc" or race == "Troll") or (race == "BloodElf" and power < powerMax - 40) then
                         if castSpell("target",racial,false,false,false) then return end
                     end
