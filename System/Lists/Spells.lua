@@ -1573,6 +1573,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 blackoutKick                = 116768,
+                danceOfChiJi                = 286587,
                 dampenHarm                  = 122278,
                 diffuseMagic                = 122783,
             },
