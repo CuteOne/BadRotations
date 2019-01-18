@@ -179,6 +179,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+        local ttd                                           = getTTD
         local ttm                                           = br.player.timeToMax
         local traits                                        = br.player.traits
         local travel, flight, cat                           = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
