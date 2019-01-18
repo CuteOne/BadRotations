@@ -669,13 +669,13 @@ local function runRotation()
     local function actionList_Stealthed()
         -- # If stealth is up, we really want to use Shadowstrike to benefits from the passive bonus, even if we are at max cp (from the precombat MfD).
         -- actions.stealthed=shadowstrike,if=buff.stealth.up
-        if stealth then
+        if stealth and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
         -- # Finish at 4+ CP without DS, 5+ with DS, and 6 with DS after Vanish
         -- actions.stealthed+=/call_action_list,name=finish,if=combo_points.deficit<=1-(talent.deeper_stratagem.enabled&buff.vanish.up)
         local finishThd = 0
-        if dSEnabled and buff.vanish.exists() then
+        if dSEnabled and (buff.vanish.exists() or cast.last.vanish(1)) then
             finishThd = 1
         end
         if comboDeficit <= (1 - finishThd) then
@@ -693,7 +693,7 @@ local function runRotation()
         end
         -- # Without Deeper Stratagem and 3 Ranks of Blade in the Shadows it is worth using Shadowstrike on 3 targets.
         -- actions.stealthed+=/shadowstrike,if=!talent.deeper_stratagem.enabled&azerite.blade_in_the_shadows.rank=3&spell_targets.shuriken_storm=3
-        if not talent.deeperStratagem and trait.bladeInTheShadows.rank == 3 and enemies10 == 3 then
+        if not talent.deeperStratagem and trait.bladeInTheShadows.rank == 3 and enemies10 == 3 and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
         -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3
@@ -701,7 +701,9 @@ local function runRotation()
             if cast.shurikenStorm("player") then return true end
         end
         -- actions.stealthed+=/shadowstrike
-        if cast.shadowstrike("target") then return true end
+        if targetDistance < 5 then
+            if cast.shadowstrike("target") then return true end
+        end
     end
     --Builders
     local function actionList_Builders()
