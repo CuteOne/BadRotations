@@ -157,6 +157,7 @@ local function runRotation()
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
+        local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
@@ -473,11 +474,11 @@ local function runRotation()
                 if cast.furyOfElune() then return true end
             end
             -- Incarnation
-            if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and power >= 40 then
+            if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and power >= 40 and ttd("target") >= 30 then
                 if cast.incarnationChoseOfElune("player") then return true end
             end
             -- Celestial Alignment
-            if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment")  and power >= 40 then
+            if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment")  and power >= 40 and ttd("target") >= 20 then
                 if cast.celestialAlignment("player") then return true end
             end
             --Starfall
@@ -603,7 +604,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat then
+            if inCombat and hastar and not deadtar then
                 if not chicken and not cast.last.moonkinForm(1) then
                     if cast.moonkinForm() then return true end
                 end
