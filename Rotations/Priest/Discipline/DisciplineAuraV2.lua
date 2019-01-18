@@ -837,7 +837,7 @@ local function runRotation()
                 if cast.penance(lowest.unit) then return true end
             end
             -- Schism (2+ Atonement)
-            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcd and norganBuff then
+            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcd and norganBuff and ttd(units.dyn40) > 9 then
                 if cast.schism(units.dyn40) then
                     schismBuff = (units.dyn40)
                 end
@@ -914,7 +914,7 @@ local function runRotation()
                 end
             end
             -- Schism
-            if talent.schism and isChecked("Schism") and norganBuff then
+            if talent.schism and isChecked("Schism") and norganBuff and ttd(units.dyn40) > 9 then
                 if cast.schism(units.dyn40) then
                     schismBuff = (units.dyn40)
                     return true
