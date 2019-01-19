@@ -65,7 +65,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
-            br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
+            br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead.")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth.")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting.")
@@ -210,8 +210,31 @@ local function runRotation()
     enemies.get(20,"player",true)
     enemies.get(30)
 
+    local tricksUnit
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 then
+        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") then
+            tricksUnit = "focus"
+        elseif getOptionValue("Auto Tricks") == 2 then
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) then
+                    tricksUnit = thisUnit
+                    break
+                end
+            end
+        end
+    end
+
+    local function ttd(unit)
+        if UnitIsPlayer(unit) then return 999 end
+        local ttdSec = getTTD(unit)
+        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        if ttdSec == -1 then return 999 end
+        return ttdSec
+    end
+
     local function shallWeDot(unit)
-        if isChecked("Auto Nightblade HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
+        if isChecked("Auto Nightblade HP Limit") and ttd(unit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
             if #br.friend == 1 then
                 if UnitHealth(unit) > UnitHealthMax("player") * 0.40 then
@@ -232,14 +255,6 @@ local function runRotation()
             return false
         end
         return true
-    end
-
-    local function ttd(unit)
-        if UnitIsPlayer(unit) then return 999 end
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
-        if ttdSec == -1 then return 999 end
-        return ttdSec
     end
 
     local function isTotem(unit)
@@ -367,9 +382,6 @@ local function runRotation()
 --- Action Lists ---
 --------------------
     local function actionList_Extra()
-        if isChecked("Tricks of the Trade on Focus") and inCombat and GetUnitIsFriend("player", "focus") then
-            cast.tricksOfTheTrade("focus")
-        end
         if not inCombat then
             -- actions.precombat+=/stealth
             if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() then
@@ -390,8 +402,6 @@ local function runRotation()
             if combo >= 4 then
                 if cast.eviscerate("target") then return true end
             end
-            if cast.shadowstrike("target") then return true end
-            if cast.backstab("target") then return true end
         end
     end
     local function actionList_Defensive()
@@ -740,11 +750,15 @@ local function runRotation()
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
             --pre mfd
-            if stealth and comboDeficit > 2 then
+            if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
                 if cast.markedForDeath("target") then
                     combo = comboMax
                     comboDeficit = 0
                 end
+            end
+            --tricks
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 then
+                cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth

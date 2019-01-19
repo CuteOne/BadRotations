@@ -56,7 +56,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createDropdownWithout(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
-            br.ui:createCheckbox(section, "Tricks of the Trade on Focus")
+            br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
@@ -173,6 +173,7 @@ local function runRotation()
     local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1)
     local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
+    local targetDistance                                = getDistance("target")
     local thp                                           = getHP("target")
     local tickTime                                      = 2 / (1 + (GetHaste()/100))
     local trait                                         = br.player.traits
@@ -189,8 +190,31 @@ local function runRotation()
     enemies.get(20,"player",true)
     enemies.get(30)
 
+    local tricksUnit
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 then
+        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") then
+            tricksUnit = "focus"
+        elseif getOptionValue("Auto Tricks") == 2 then
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) then
+                    tricksUnit = thisUnit
+                    break
+                end
+            end
+        end
+    end
+
+    local function ttd(unit)
+        if UnitIsPlayer(unit) then return 999 end
+        local ttdSec = getTTD(unit)
+        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
+        if ttdSec == -1 then return 999 end
+        return ttdSec
+    end
+
     local function shallWeDot(unit)
-        if isChecked("Auto Garrote HP Limit") and getTTD(thisUnit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
+        if isChecked("Auto Garrote HP Limit") and ttd(unit) == 999 and not UnitIsPlayer(unit) and not isDummy(unit) then
             local hpLimit = 0
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
@@ -205,14 +229,6 @@ local function runRotation()
             return false
         end
         return true
-    end
-
-    local function ttd(unit)
-        if UnitIsPlayer(unit) then return 999 end
-        local ttdSec = getTTD(unit)
-        if getOptionCheck("Enhanced Time to Die") then return ttdSec end
-        if ttdSec == -1 then return 999 end
-        return ttdSec
     end
 
     local function isTotem(unit)
@@ -333,9 +349,6 @@ local function runRotation()
 --- Action Lists ---
 --------------------
     local function actionList_Extra()
-        if isChecked("Tricks of the Trade on Focus") and inCombat and GetUnitIsFriend("player", "focus") then
-            cast.tricksOfTheTrade("focus")
-        end
         if not inCombat then
             -- actions.precombat+=/apply_poison
             if not moving and getOptionValue("Poison") == 1 and buff.deadlyPoison.remain() < 300 and not cast.last.deadlyPoison(1) then
@@ -364,7 +377,9 @@ local function runRotation()
         }
         if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
             if cast.mutilate("target") then return true end
-            if cast.envenom("target") then return true end
+            if combo >= 4 then
+                if cast.envenom("target") then return true end
+            end
         end
     end
     local function actionList_Defensive()
@@ -536,7 +551,7 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
-        if useCDs() and ttd("target") > 15 and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and getDistance("target") < 5 then
+        if useCDs() and ttd("target") > 15 and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and targetDistance < 5 then
             if getOptionValue("Potion") == 1 and ttd("target") > 15 and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() then
                 use.battlePotionOfAgility()
                 return true
@@ -546,7 +561,7 @@ local function runRotation()
             end
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and getDistance("target") < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
@@ -558,7 +573,7 @@ local function runRotation()
         -- actions.cds+=/berserking,if=debuff.vendetta.up
         -- actions.cds+=/fireblood,if=debuff.vendetta.up
         -- actions.cds+=/ancestral_call,if=debuff.vendetta.up
-        if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5 and getDistance("target") < 5  then
+        if useCDs() and isChecked("Racial") and debuff.vendetta.exists("target") and ttd("target") > 5 and targetDistance < 5  then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
                 if cast.racial("player") then return true end
             end
@@ -579,7 +594,7 @@ local function runRotation()
             if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
                 if cast.vendetta("target") then return true end
             end
-            if isChecked("Vanish") and not stealthedRogue and getDistance("target") < 5 and gcd < 0.2 then
+            if isChecked("Vanish") and not stealthedRogue and targetDistance < 5 and gcd < 0.2 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and not debuff.garrote.exists("target") and enemies10 == 1 then
@@ -787,10 +802,21 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and getDistance("target") < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
+            --pre mfd
+            if stealth and comboDeficit > 2 and talent.markedForDeath and validTarget and targetDistance < 5 then
+                if cast.markedForDeath("target") then
+                    combo = comboMax
+                    comboDeficit = 0
+                end
+            end
+            --tricks
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 then
+                cast.tricksOfTheTrade(tricksUnit)
+            end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
             if IsUsableSpell(spell.stealth) and not cast.last.vanish() then
@@ -801,7 +827,7 @@ local function runRotation()
                 if actionList_Stealthed() then return true end
             end
             --start aa
-            if validTarget and not stealthedRogue and getDistance("target") < 5 and not IsCurrentSpell(6603) then
+            if validTarget and not stealthedRogue and targetDistance < 5 and not IsCurrentSpell(6603) then
                 StartAttack("target")
             end
             -- actions+=/call_action_list,name=cds
@@ -815,7 +841,7 @@ local function runRotation()
             -- actions+=/arcane_torrent,if=energy.deficit>=15+variable.energy_regen_combined
             -- actions+=/arcane_pulse
             -- actions+=/lights_judgment
-            if useCDs() and isChecked("Racial") and getDistance("target") < 5 then
+            if useCDs() and isChecked("Racial") and targetDistance < 5 then
                 if race == "BloodElf" and energyDeficit >= (15 + energyRegenCombined) then
                     if cast.racial("player") then return true end
                 elseif race == "Nightborne" then
