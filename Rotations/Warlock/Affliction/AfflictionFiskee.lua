@@ -757,8 +757,9 @@ local function runRotation()
             if cast.haunt() then return true end
         end
         -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-        if (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
-            if cast.summonDarkglare("player") then return true end
+        if getSpellCD(spell.summonDarkglare) == 0 and (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+            return true
         end
         --Agony
         if ttd("target") > 8 and debuff.agony.refresh() then
@@ -844,8 +845,9 @@ local function runRotation()
             if cast.haunt() then return true end
         end
         -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-        if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
-            if cast.summonDarkglare("player") then return true end
+        if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+            return true
         end
         -- actions+=/agony,cycle_targets=1,if=remains<=gcd
         for i = 1, #enemyTable40 do
