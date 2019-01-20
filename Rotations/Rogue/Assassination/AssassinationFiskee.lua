@@ -191,13 +191,13 @@ local function runRotation()
     enemies.get(30)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 then
-        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
+        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) then
+                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight("player", thisUnit) then
                     tricksUnit = thisUnit
                     break
                 end
@@ -769,10 +769,10 @@ local function runRotation()
         end
         -- # Subterfuge w/ Shrouded Suffocation: Reapply for bonus CP and extended snapshot duration
         -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&combo_points.deficit>1
-        if talent.subterfuge and trait.shroudedSuffocation.active then
+        if talent.subterfuge and trait.shroudedSuffocation.active and comboDeficit > 1 then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if enemyTable5[i].ttd > debuff.garrote.remain(thisUnit) and comboDeficit > 1 then
+                if enemyTable5[i].ttd > debuff.garrote.remain(thisUnit) then
                     if cast.garrote(thisUnit) then return true end
                 end
             end

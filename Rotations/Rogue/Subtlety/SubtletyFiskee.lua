@@ -211,13 +211,13 @@ local function runRotation()
     enemies.get(30)
 
     local tricksUnit
-    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 then
-        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") then
+    if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
+        if getOptionValue("Auto Tricks") == 1 and GetUnitIsFriend("player", "focus") and getLineOfSight("player", "focus") then
             tricksUnit = "focus"
         elseif getOptionValue("Auto Tricks") == 2 then
             for i = 1, #br.friend do
                 local thisUnit = br.friend[i].unit
-                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) then
+                if UnitGroupRolesAssigned(thisUnit) == "TANK" and not UnitIsDeadOrGhost(thisUnit) and getLineOfSight("player", thisUnit) then
                     tricksUnit = thisUnit
                     break
                 end
