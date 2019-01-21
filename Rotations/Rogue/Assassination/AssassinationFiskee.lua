@@ -300,9 +300,15 @@ local function runRotation()
         end
         for i = 1, #enemyTable30 do
             local thisUnit = enemyTable30[i]
+            local fokIgnore = {
+                [120651]=true -- Explosive
+            }
+            local objectID = GetObjectID(thisUnit.unit)
             if thisUnit.distance <= 10 then
-                tinsert(enemyTable10, thisUnit)
-                if deadlyPoison10 and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
+                    tinsert(enemyTable10, thisUnit)
+                    if deadlyPoison10 and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
                     tinsert(enemyTable5, thisUnit)
