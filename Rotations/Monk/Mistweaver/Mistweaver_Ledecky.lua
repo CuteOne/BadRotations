@@ -1,7 +1,5 @@
 local rotationName = "Ledecky" -- Change to name of profile listed in options drop down
 
-
-
 if rotationName == "Ledecky" then
 	local ticker = C_Timer.NewTicker(1, function()
 		local start, duration, enabled, modRate = GetSpellCooldown(191837)
@@ -808,8 +806,8 @@ local function runRotation()
 							if cast.blackoutKick() then return true end
 						end
 						if cast.tigerPalm() then return true end
-					elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLighting) and isChecked(colordh.."Crackling Jade Lightning") then
-						if cast.cracklingJadeLighting() then return true end
+					elseif #enemies.yards40 > 0 and not isCastingSpell(spell.cracklingJadeLightning) and isChecked(colordh.."Crackling Jade Lightning") then
+						if cast.cracklingJadeLightning() then return true end
 					end
 				end
 			end
