@@ -41,5 +41,6 @@ br.lists.los = {
 	[130217] = true, -- Nazmani Weevil (Uldir - Taloc's fight)
 	[140286] = true, -- Uldir Defensive Beam *Uldir)
 	[138530] = true, -- Volatile Droplet (Uldir - Taloc's fight)
-	[133392] = true, -- Sethraliss
+    [133392] = true, -- Sethraliss
+    [146256] = true -- Laminaria
 }
