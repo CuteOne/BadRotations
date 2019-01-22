@@ -12,6 +12,7 @@ if not metaTable2 then
 	br.unitBlacklist = { -- blacklist for units
 		[129359]=true, -- Sawtooth Shark
         [129448]=true, -- Hammer Shark
+        [144942]=true, -- Spark Bot
 	}
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
