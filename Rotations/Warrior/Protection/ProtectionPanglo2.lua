@@ -267,7 +267,7 @@ local function runRotation()
                     thisUnit = enemies.yards20[i]
                     unitDist = getDistance(thisUnit)
                     targetMe = UnitIsUnit("player",thisUnit) or false
-                    if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                         if isChecked("Pummel") and unitDist < 6 then
                             if cast.pummel(thisUnit) then return end
                         end
