@@ -204,6 +204,12 @@ interruptWhitelist = {
 	[272571] = true, -- choking-waters
 	[256957] = true, -- watertight-shell
 	-- Siege of Boralus end
+	-- Battle of Dazarlor start
+	[283628] = true, -- Heal of the forces of the crusade, champion of the light encounter
+	[282243] = true, -- Apetagonize, Grong encounter
+	[286379] = true, -- Pyroblast, Jade Masters encounter
+	-- Battle of Dazarlor end
+
 	-- Old Content start 
 	[191823] = true, -- Furious Blast
 	[191848] = true, -- Rampage
