@@ -316,5 +316,11 @@ validUnitBypassList = {
 	[131009] = "Spirit of Gold", --Atal
 	[125828] = "Soulspawn", --Atal
     [134691] = "Static Charged Dervish", --Temple
-    [147218] = "Spirit of Gold" --Opulence
+    [147218] = "Spirit of Gold", --Opulence
+    [148436] = "Barrier", --Jadefire Masters
+	[148415] = "Barrier", --Jadefire Masters
+	[147377] = "Barrier", --Jadefire Masters
+	[147376] = "Barrier", --Jadefire Masters
+    [147374] = "Barrier", --Jadefire Masters
+    [147375] = "Barrier" --Jadefire Masters
 }
