@@ -229,7 +229,6 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
-        local lowest                                        = br.friend[1].unit
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -261,18 +260,14 @@ local function runRotation()
         friends.yards8 = getAllies("player",8)
         friends.yards25 = getAllies("player",25)
         friends.yards40 = getAllies("player",40)
-
-        local totalHealth = 0
-        local avg
-        local function avgHealth()
-            avg = 0
-            for i=1, #br.friend do
-                if getHP(br.friend[i].unit) < 250 then
-                    totalHealth = totalHealth + br.friend[i].hp
-                end
+        
+        local lowest = {}
+        lowest.unit = "player"
+        lowest.hp = 100
+        for i = 1, #br.friend do
+            if br.friend[i].hp < lowest.hp then
+                lowest = br.friend[i]
             end
-            avg = totalHealth/#br.friend
-            return avg
         end
 --------------------
 --- Action Lists ---
@@ -309,6 +304,54 @@ local function runRotation()
         end -- End Action List - Extras	
     -- Action List - Defensive
         local function actionList_Defensive()
+            -- Earth Shield
+            if talent.earthShield then
+                -- check if shield already exists
+                local foundShield = false
+                if isChecked("Earth Shield") then
+                    for i = 1, #br.friend do
+                        if buff.earthShield.exists(br.friend[i].unit) then
+                            foundShield = true
+                        end
+                    end
+                    -- if no shield found, apply to focus if exists
+                    if foundShield == false then
+                        if GetUnitExists("focus") == true then
+                            if not buff.earthShield.exists("focus") then
+                                if cast.earthShield("focus") then return end
+                            end
+                        else
+                            for i = 1, #tanks do
+                                if not buff.earthShield.exists(tanks[i].unit) then
+                                    if cast.earthShield(tanks[i].unit) then return end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Temple of Seth
+            if inCombat and isChecked("Temple of Seth") then
+                for i = 1, GetObjectCount() do
+                    local thisUnit = GetObjectWithIndex(i)
+                    if GetObjectID(thisUnit) == 133392 then
+                        sethObject = thisUnit
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= getValue("Temple of Seth") then
+                            if not buff.riptide.exists(sethObject) then
+                                CastSpellByName(GetSpellInfo(61295),sethObject)
+                        --cast.riptide("target") then return true end
+                            end
+                            if getHP(sethObject) < 50 then
+                                CastSpellByName(GetSpellInfo(8004),sethObject)
+                        --if cast.healingSurge("target") then return true end
+                            else
+                                CastSpellByName(GetSpellInfo(77472),sethObject)
+                        --if cast.healingWave("target") then return true end
+                            end
+                        end
+                    end
+                end
+            end
             if useDefensive() then
             -- Healthstone
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
@@ -339,8 +382,17 @@ local function runRotation()
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") and avgHealth() > getOptionValue("DPS Threshold") then
+                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
                     if cast.purge() then return end
+                end
+                    -- Capacitor Totem
+                if cd.capacitorTotem.remain() <= gcd then
+                    if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat  and lastSpell ~= spell.capacitorTotem then
+                        if cast.capacitorTotem("player") then return end
+                    end
+                    if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
+                        if cast.capacitorTotem("player") then return end
+                    end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -392,35 +444,35 @@ local function runRotation()
         function actionList_PreCombat()
         -- Riptide
             if isChecked("Riptide") then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 5.4 then
-                        if cast.riptide(br.friend[i].unit) then return end     
+                --for i = 1, #br.friend do
+                    if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 5.4 then
+                        if cast.riptide(lowest.unit) then return end     
                     end
-                end
+                --end
             end
         -- Healing Stream Totem
-           if isChecked("Healing Stream Totem") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Stream Totem") then
-                        if cast.healingStreamTotem(br.friend[i].unit) then return end     
+           if isChecked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd then
+               -- for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Healing Stream Totem") then
+                        if cast.healingStreamTotem(lowest.unit) then return end     
                     end
-                end
+               -- end
             end
         -- Healing Surge
             if isChecked("Healing Surge") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
-                        if cast.healingSurge(br.friend[i].unit) then return end     
+               -- for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 34) then
+                        if cast.healingSurge(lowest.unit) then return end     
                     end
-                end
+              --  end
             end
         -- Healing Wave
             if isChecked("Healing Wave") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
-                        if cast.healingWave(br.friend[i].unit) then return end     
+             --   for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 34) then
+                        if cast.healingWave(lowest.unit) then return end     
                     end
-                end
+             --   end
             end
         -- Chain Heal
             if isChecked("Chain Heal") then
@@ -431,18 +483,18 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if not moving then
+            if not moving and cd.healingRain.remain() <= gcd then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
             end
         -- Spirit Link Totem
-            if not moving then
+            if not moving and cd.spiritLinkTotem.remain() <= gcd then
                 if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                     if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
                 end
             end
-            if not moving then
+            if not moving and cd.downpour.remain() <= gcd then
                 if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) and isChecked("Downpour Key") then
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end
                 end
@@ -450,26 +502,24 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
     -- Action List - DPS
         local function actionList_DPS()
-        -- Capacitor Totem
-            if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat  and lastSpell ~= spell.capacitorTotem then
-                if cast.capacitorTotem("player") then return end
-            end
-            if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
-                if cast.capacitorTotem("player") then return end
-            end
+        
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
-                for i = 1, #enemies.yards40 do        
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.flameShock.exists(thisUnit) and isValidUnit(thisUnit) then
-                        if cast.lavaBurst(thisUnit) then return end
+                if debuff.flameShock.exists("target") then
+                    if cast.lavaBurst() then return true end
+                else
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if debuff.flameShock.exists(thisUnit) then
+                            if cast.lavaBurst(thisUnit) then return true end
+                        end
                     end
                 end
             end
         -- Flameshock
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if not debuff.flameShock.exists(thisUnit) and isValidUnit(thisUnit) then
+                if not debuff.flameShock.exists(thisUnit) then
                     if cast.flameShock(thisUnit) then return end
                 end
             end
@@ -485,38 +535,16 @@ local function runRotation()
             if cast.lightningBolt() then return end
         end -- End Action List - DPS
         local function actionList_AMR()
-            -- Temple of Seth
-            if inCombat and isChecked("Temple of Seth") then
-                for i = 1, GetObjectCount() do
-                    local thisUnit = GetObjectWithIndex(i)
-                    if GetObjectID(thisUnit) == 133392 then
-                        sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and avgHealth() >= getValue("Temple of Seth") then
-                            if not buff.riptide.exists(sethObject) then
-                                CastSpellByName(GetSpellInfo(61295),sethObject)
-                        --cast.riptide("target") then return true end
-                            end
-                            if getHP(sethObject) < 50 then
-                                CastSpellByName(GetSpellInfo(8004),sethObject)
-                        --if cast.healingSurge("target") then return true end
-                            else
-                                CastSpellByName(GetSpellInfo(77472),sethObject)
-                        --if cast.healingWave("target") then return true end
-                            end
-                        end
-                    end
-                end
-            end
         -- Ancestral Protection Totem
-            if isChecked("Ancestral Protection Totem") then
+            if isChecked("Ancestral Protection Totem") and useCDs() and cd.ancestralProtectionTotem.remain() <= gcd then
                 if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then return end
             end
         -- Earthen Wall Totem
-            if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
+            if isChecked("Earthen Wall Totem") and talent.earthenWallTotem and cd.earthenWallTotem.remain() <= gcd then
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then return end
             end
         -- Purify Spirit
-           if br.player.mode.decurse == 1 then
+           if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then return end
@@ -553,60 +581,34 @@ local function runRotation()
                     return true
                 end
         -- Spirit Link Totem
-            if isChecked("Spirit Link Totem") and useCDs() and not moving then
+            if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then
                 if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                     if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then return end 
                 end
                 if castWiseAoEHeal(br.friend,spell.spiritLinkTotem,12,getValue("Spirit Link Totem"),getValue("Spirit Link Totem Targets"),40,false,true) then return end
             end
         -- Healing Tide Totem
-            if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() then
+            if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
                 if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") then    
                     if cast.healingTideTotem() then return end    
                 end
             end
         -- Ascendance
-            if isChecked("Ascendance") and useCDs() and talent.ascendance and cd.healingTideTotem.remain() < 166 and cd.healingTideTotem.remain() > gcd then
+            if isChecked("Ascendance") and useCDs() and talent.ascendance and cd.healingTideTotem.remain() < 166 and cd.healingTideTotem.remain() > gcd and cd.ascendance.remain() <= gcd then
                 if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                     if cast.ascendance() then return end    
                 end
             end	
-        -- Earth Shield
-            if talent.earthShield then
-                -- check if shield already exists
-                local foundShield = false
-                if isChecked("Earth Shield") then
-                    for i = 1, #br.friend do
-                        if buff.earthShield.exists(br.friend[i].unit) then
-                            foundShield = true
-                        end
-                    end
-                    -- if no shield found, apply to focus if exists
-                    if foundShield == false then
-                        if GetUnitExists("focus") == true then
-                            if not buff.earthShield.exists("focus") then
-                                if cast.earthShield("focus") then return end
-                            end
-                        else
-                            for i = 1, #br.friend do
-                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.earthShield.exists(br.friend[i].unit) then
-                                    if cast.earthShield(br.friend[i].unit) then return end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
         -- Unleash Life
-            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Unleash Life") then
+            if isChecked("Unleash Life") and talent.unleashLife and not hasEquiped(137051) and cd.unleashLife.remain() <= gcd then
+              --  for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Unleash Life") then
                         if cast.unleashLife() then return end     
                     end
-                end
+              --  end
             end
         -- Cloud Burst Totem
-            if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and charges.cloudburstTotem.count() > 0 then
+            if isChecked("Cloudburst Totem") and talent.cloudburstTotem and not buff.cloudburstTotem.exists() and cd.cloudburstTotem.remain() <= gcd then
                 if getLowAllies(getValue("Cloudburst Totem")) >= getValue("Cloudburst Totem Targets") then
                     if cast.cloudburstTotem("player") then
                         ChatOverlay(colorGreen.."Cloudburst Totem!")
@@ -615,7 +617,7 @@ local function runRotation()
                 end
             end
         -- Healing Rain
-            if not moving then
+            if not moving and cd.healingRain.remain() <= gcd then
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
@@ -654,13 +656,13 @@ local function runRotation()
                 end
             end
         -- Wellspring
-            if isChecked("Wellspring") then
+            if isChecked("Wellspring") and cd.wellspring.remain() <= gcd then
                 if castWiseAoEHeal(br.friend,spell.wellspring,20,getValue("Wellspring"),getValue("Wellspring Targets"),6,true,true) then return end
             end
         -- Chain Heal
             if isChecked("Chain Heal") then
                 if talent.unleashLife and talent.highTide then
-                    if cast.unleashLife(lowest) then return end
+                    if cast.unleashLife(lowest.unit) then return end
                     if buff.unleashLife.remain() > 2 then
                         if getOptionValue("Chain Heal Logic") == 1 then
                             if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")+1) then return true end
@@ -683,7 +685,7 @@ local function runRotation()
                 end
             end
         -- Downpour
-            if not moving then
+            if not moving and cd.downpour.remain() <= gcd then
                 if (SpecificToggle("Downpour Key") and not GetCurrentKeyBoardFocus()) and isChecked("Downpour Key") then
                     if CastSpellByName(GetSpellInfo(spell.downpour),"cursor") then return end 
                 end
@@ -722,45 +724,45 @@ local function runRotation()
                 end 
             end
         -- Healing Stream Totem
-            if isChecked("Healing Stream Totem") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Stream Totem") then
+            if isChecked("Healing Stream Totem") and cd.healingStreamTotem.remain() <= gcd then
+              --  for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Healing Stream Totem") then
                         if not talent.echoOfTheElements then
-                            if cast.healingStreamTotem(br.friend[i].unit) then return end
+                            if cast.healingStreamTotem(lowest.unit) then return end
                         elseif talent.echoOfTheElements and (not HSTime or GetTime() - HSTime > 15) then
-                            if cast.healingStreamTotem(br.friend[i].unit) then
+                            if cast.healingStreamTotem(lowest.unit) then
                             HSTime = GetTime()
                             return true end
                         end 
                     end
-                end
+             --   end
             end
         -- Riptide
-            if isChecked("Riptide") then
+            if isChecked("Riptide") and cd.riptide.remain() <= gcd then
                 if not buff.tidalWaves.exists() and level >= 34 then
-                    if cast.riptide(lowest) then return end
+                    if cast.riptide(lowest.unit) then return end
                 end
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Riptide") and buff.riptide.remain(br.friend[i].unit) < 5.4 then
-                        if cast.riptide(br.friend[i].unit) then return end     
+             --   for i = 1, #br.friend do
+                    if lowest.hp <= getValue("Riptide") and buff.riptide.remain(lowest.unit) < 5.4 then
+                        if cast.riptide(lowest.unit) then return end     
                     end
-                end
+           --     end
             end
         -- Healing Surge
             if isChecked("Healing Surge") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp < 30 or (br.friend[i].hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100)) then
-                        if cast.healingSurge(br.friend[i].unit) then return end     
+           --     for i = 1, #br.friend do                           
+                    if lowest.hp < 30 or (lowest.hp <= getValue("Healing Surge") and (buff.tidalWaves.exists() or level < 100)) then
+                        if cast.healingSurge(lowest.unit) then return end     
                     end
-                end
+            --    end
             end
         -- Healing Wave
             if isChecked("Healing Wave") then
-                for i = 1, #br.friend do                           
-                    if br.friend[i].hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
-                        if cast.healingWave(br.friend[i].unit) then return end     
+             --   for i = 1, #br.friend do                           
+                    if lowest.hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
+                        if cast.healingWave(lowest.unit) then return end     
                     end
-                end
+              --  end
             end
         end
 -----------------
@@ -789,10 +791,10 @@ local function runRotation()
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Defensive()
                     actionList_Interrupts()
-                    actionList_AMR()
-                    if br.player.mode.dps == 1 and avgHealth() > getOptionValue("DPS Threshold") then
+                    if br.player.mode.dps == 1 and GetUnitExists("target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         actionList_DPS()
                     end
+                    actionList_AMR()
                 end
             end -- End In Combat Rotation
         end -- Pause
