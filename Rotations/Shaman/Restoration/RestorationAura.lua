@@ -564,12 +564,12 @@ local function runRotation()
         -- Trinkets
                 if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
                     if GetItemCooldown(158320) <= gcd then
-                        useItem(158320)
+                        UseItemByName(158320,lowest.unit)
                     end
                 end
                 if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
                     if GetItemCooldown(160649) <= gcd then
-                        useItem(160649)
+                        UseItemByName(160649,lowest.unit)
                     end
                 end
                 if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
