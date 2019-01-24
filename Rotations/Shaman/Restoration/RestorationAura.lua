@@ -387,7 +387,7 @@ local function runRotation()
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
-                    if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat  and lastSpell ~= spell.capacitorTotem then
+                    if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and lastSpell ~= spell.capacitorTotem and #enemies.yards5 > 0 then
                         if cast.capacitorTotem("player") then return end
                     end
                     if isChecked("Capacitor Totem - AoE") and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat and lastSpell ~= spell.capacitorTotem then
