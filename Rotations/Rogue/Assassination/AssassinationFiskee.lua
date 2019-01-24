@@ -41,6 +41,11 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Exsanguinate Off", tip = "Will not use Exsanguinate.", highlight = 0, icon = br.player.spell.exsanguinate }
     };
     CreateButton("Exsang",6,0)
+    TBModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Toxic Blade On", tip = "Will use Toxic Blade.", highlight = 1, icon = br.player.spell.toxicBlade },
+        [2] = { mode = "Off", value = 2 , overlay = "Toxic Blade Off", tip = "Will not use Toxic Blade.", highlight = 0, icon = br.player.spell.toxicBlade }
+    };
+    CreateButton("TB",6,0)
 end
 
 ---------------
@@ -144,6 +149,7 @@ local function runRotation()
     UpdateToggle("Interrupt",0.25)
     br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
     br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
+    br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
 --------------
 --- Locals ---
 --------------
@@ -183,6 +189,19 @@ local function runRotation()
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
+
+    if not UnitAffectingCombat("player") then
+        if not br.player.talent.exsanguinate then
+            buttonExsang:Hide()
+            if not br.player.talent.toxicBlade then
+                buttonTB:Hide()
+            else
+                buttonTB:Show()
+            end
+        else
+            buttonExsang:Show()
+        end
+    end
 
     local garroteCount = 0
 
@@ -634,7 +653,7 @@ local function runRotation()
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
-        if talent.toxicBlade and debuff.rupture.exists("target") then
+        if talent.toxicBlade and mode.tb == 1 and debuff.rupture.exists("target") then
             if cast.toxicBlade("target") then return true end
         end
     end
