@@ -134,14 +134,11 @@ function BadRotationsUpdate(self)
 						end
 					end
 					-- Pause if key press that is not ignored
-					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) then
-						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil or UnitChannelInfo("player") ~= nil) then
-							if UnitChannelInfo("player") ~= nil then
-								SpellStopCasting()
-							end
+					if not GetCurrentKeyBoardFocus() and not isChecked("Queue Casting") and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and UnitChannelInfo("player") == nil then
+						if rotationPause and not keyPause and GetTime() - rotationPause < getOptionValue("Pause Interval") and (getSpellCD(61304) > 0 or UnitCastingInfo("player") ~= nil) then
 							keyPause = true
 							return
-						elseif keyPause and getSpellCD(61304) == 0 and not UnitCastingInfo("player") and not UnitChannelInfo("player") then
+						elseif keyPause and getSpellCD(61304) == 0 and not UnitCastingInfo("player") then
 							keyPause = false
 							rotationPause = GetTime()
 							return
