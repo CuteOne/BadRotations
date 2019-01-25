@@ -207,6 +207,10 @@ local function runRotation()
         local lowestInternalBleeding = debuff.bloodseeker.lowest(range,"stack")
         local maxLatentPoison = debuff.latentPoison.max(range,"stack")
 
+        -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
+        local carveCdr = 5
+        if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 else carveCdr = 5 end
+
         local function focusTimeTill(amount)
             if focus >= amount then return 0.5 end
             return ((amount-focus)/focusRegen)+0.5
@@ -490,22 +494,20 @@ local function runRotation()
                     end
                 end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- blood_fury,if=cooldown.coordinated_assault.remains>30
-                -- ancestral_call,if=cooldown.coordinated_assault.remains>30
-                -- fireblood,if=cooldown.coordinated_assault.remains>30
-                -- lights_judgment
-                -- berserking,if=cooldown.coordinated_assault.remains>60|time_to_die<11
-                -- arcane_torrent,if=cooldown.kill_command.remains>gcd.max&focus<=30
                 if isChecked("Racial") then --and cd.racial.remain() == 0 then
-                    if (cd.coordinatedAssault.remain() > 30
-                        and (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf"))
-                        or race == "LightforgedDraenei" or (cd.killCommand.remain() > gcdMax and focus <= 30 and race == "BloodElf")
-                    then
-                        if race == "LightforgedDraenei" then
-                            if cast.racial("target","ground") then return true end
-                        else
-                            if cast.racial("player") then return true end
-                        end
+                    -- blood_fury,if=cooldown.coordinated_assault.remains>30
+                    -- ancestral_call,if=cooldown.coordinated_assault.remains>30
+                    -- fireblood,if=cooldown.coordinated_assault.remains>30 
+                    if (cd.coordinatedAssault.remain() > 30 and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf")) then
+                        if cast.racial("player") then return true end
+                    end
+                    -- lights_judgment
+                    if race == "LightforgedDraenei" then
+                        if cast.racial("target","ground") then return true end
+                    end
+                    -- berserking,if=cooldown.coordinated_assault.remains>60|time_to_die<11
+                    if (cd.coordinatedAssault.remain() > 30 or ttd(units.dyn5) < 13) and race == "Troll" then
+                        if cast.racial("player") then return end 
                     end
                 end
             -- Potion
@@ -523,18 +525,18 @@ local function runRotation()
             then
                 if cast.aspectOfTheEagle() then return end
             end
-        -- A Murder of Crows
-            -- a_murder_of_crows
-            if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
-                if cast.aMurderOfCrows() then return end
-            end
-        -- Coordinated Assault
-            -- coordinated_assault
-            if cast.able.coordinatedAssault() and eagleScout() > 0
-                and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
-            then
-                if cast.coordinatedAssault() then return end
-            end
+        -- -- A Murder of Crows
+        --     -- a_murder_of_crows
+        --     if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
+        --         if cast.aMurderOfCrows() then return end
+        --     end
+        -- -- Coordinated Assault
+        --     -- coordinated_assault
+        --     if cast.able.coordinatedAssault() and eagleScout() > 0
+        --         and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+        --     then
+        --         if cast.coordinatedAssault() then return end
+        --     end
         end -- End Action List - Cooldowns
     -- Action List - Single Target
         local function actionList_St()
@@ -556,9 +558,9 @@ local function runRotation()
                 and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax) 
             then
                 if cast.raptorStrike() then return end 
-            end   
+            end
         -- Serpent Sting 
-            -- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<gcd
+            -- serpent_sting,if=buff.vipers_venom.react&buff.vipers_venom.remains<gcd
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and buff.vipersVenom.exists() and buff.vipersVenom.remain() < gcdMax then 
                 if cast.serpentSting() then return end 
             end
@@ -645,9 +647,18 @@ local function runRotation()
         end -- End Action List - Single Target
     -- Action List - Cleave
         local function actionList_Cleave()
-            -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
-            local carveCdr = 5
-            if #enemies.yards5 < 5 then carveCdr = #enemies.yards5 end
+        -- A Murder of Crows
+            -- a_murder_of_crows
+            if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
+                if cast.aMurderOfCrows() then return end
+            end
+        -- Coordinated Assault
+            -- coordinated_assault
+            if cast.able.coordinatedAssault() and eagleScout() > 0
+                and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+            then
+                if cast.coordinatedAssault() then return end
+            end
         -- Carve
             -- carve,if=dot.shrapnel_bomb.ticking
             if cast.able.carve(nil,"cone",2,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
@@ -696,7 +707,7 @@ local function runRotation()
                 if cast.wildfireBomb(units.dyn40,"aoe") then return end
             end
         -- Serpent Sting
-            -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.up
+            -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.react
             if cast.able.serpentSting(lowestSerpentSting) and canDoT(lowestSerpentSting) and ttd(lowestSerpentSting) > 3 and (buff.vipersVenom.exists()) then
                 if cast.serpentSting(lowestSerpentSting) then return end
             end
@@ -735,6 +746,34 @@ local function runRotation()
         end -- End Action List - Cleave
     -- Action List - Wildfire Infusion
         local function actionList_WfiSt()
+        -- A Murder of Crows
+            -- a_murder_of_crows
+            if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
+                if cast.aMurderOfCrows() then return end
+            end
+        -- Coordinated Assault
+            -- coordinated_assault
+            if cast.able.coordinatedAssault() and eagleScout() > 0
+                and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+            then
+                if cast.coordinatedAssault() then return end
+            end
+        -- Mongoose Bite
+            -- mongoose_bite,if=azerite.wilderness_survival.enabled&next_wi_bomb.volatile&dot.serpent_sting.remains>2.1*gcd&dot.serpent_sting.remains<3.5*gcd&cooldown.wildfire_bomb.remains>2.5*gcd
+            if cast.able.mongooseBite() and talent.mongooseBite and traits.wildernessSurvival.active and nextBomb(spell.volatile)
+                and debuff.serpentSting.remain(units.dyn40) > 2.1 * gcdMax and debuff.serpentSting.remain(units.dyn40) < 3.5 * gcdMax
+                and cd.wildfireBomb.remain() > 2.5 * gcdMax
+            then
+                if cast.mongooseBite() then return end
+            end
+        -- Wildfire Bomb
+            -- wildfire_bomb,if=full_recharge_time<gcd|(focus+cast_regen<focus.max)&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
+            if cast.able.wildfireBomb(units.dyn40,"aoe") and (charges.wildfireBomb.timeTillFull() < gcdMax or (focus + cast.regen.wildfireBomb() < focusMax)
+                and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
+                and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3))
+            then
+                if cast.wildfireBomb(units.dyn40,"aoe") then return end
+            end
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3&(!talent.alpha_predator.enabled|buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
             if cast.able.killCommand() and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3
@@ -748,13 +787,6 @@ local function runRotation()
                 if cast.raptorStrike() then return end
             end
         -- Wildfire Bomb
-            -- wildfire_bomb,if=full_recharge_time<gcd|(focus+cast_regen<focus.max)&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
-            if cast.able.wildfireBomb(units.dyn40,"aoe") and (charges.wildfireBomb.timeTillFull() < gcdMax or (focus + cast.regen.wildfireBomb() < focusMax)
-                and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
-                and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3))
-            then
-                if cast.wildfireBomb(units.dyn40,"aoe") then return end
-            end
             -- wildfire_bomb,if=next_wi_bomb.shrapnel&buff.mongoose_fury.down&(cooldown.kill_command.remains>gcd|focus>60)&!dot.serpent_sting.refreshable
             if cast.able.wildfireBomb(units.dyn40,"aoe") and (nextBomb(spell.shrapnelBomb) and not buff.mongooseFury.exists()
                 and (cd.killCommand.remain() > gcdMax or focus > 60) and not debuff.serpentSting.refresh(units.dyn40))
@@ -772,9 +804,10 @@ local function runRotation()
                 if cast.flankingStrike() then return end
             end
         -- Serpent Sting
-            -- serpent_sting,if=buff.vipers_venom.up|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled|buff.mongoose_fury.stack=5)
-            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) and (not talent.mongooseBite or not talent.vipersVenom
-                or nextBomb(spell.volatileBomb) and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active or buff.mongooseFury.stack() == 5))
+            -- serpent_sting,if=buff.vipers_venom.react|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled|buff.mongoose_fury.stack=5)
+            if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) 
+                and (not talent.mongooseBite or not talent.vipersVenom or nextBomb(spell.volatileBomb) 
+                and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active or buff.mongooseFury.stack() == 5))
             then
                 if cast.serpentSting() then return end
             end
@@ -785,24 +818,12 @@ local function runRotation()
             end
         -- Mongoose Bite
             -- mongoose_bite_eagle,if=buff.mongoose_fury.up|focus>60|dot.shrapnel_bomb.ticking
-            if cast.able.mongooseBite() and talent.mongooseBite and buff.aspectOfTheEagle.exists()
-                and (buff.mongooseFury.exists() or focus > 60 or debuff.shrapnelBomb.exists(units.dyn40))
-            then
-                if cast.mongooseBite() then return end
-            end
-            -- mongoose_bite,if=buff.mongoose_fury.up|focus>60|dot.shrapnel_bomb.ticking
-            if cast.able.mongooseBite() and talent.mongooseBite and not buff.aspectOfTheEagle.exists()
-                and (buff.mongooseFury.exists() or focus > 60 or debuff.shrapnelBomb.exists(units.dyn40))
-            then
+            if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 60 or debuff.shrapnelBomb.exists(units.dyn40)) then
                 if cast.mongooseBite() then return end
             end
         -- Raptor Strike
-            -- raptor_strike_eagle
-            if cast.able.raptorStrike() and not talent.mongooseBite and buff.aspectOfTheEagle.exists() then
-                if cast.raptorStrike() then return end
-            end
             -- raptor_strike
-            if cast.able.raptorStrike() and not talent.mongooseBite and not buff.aspectOfTheEagle.exists() then
+            if cast.able.raptorStrike() and not talent.mongooseBite then
                 if cast.raptorStrike() then return end
             end
         -- Serpent Sting
@@ -1055,8 +1076,8 @@ local function runRotation()
                         if actionList_WfiSt() then return end
                     end
             -- Call Action List - Single Target
-                    -- call_action_list,name=st,if=active_enemies<2
-                    if eagleScout() < 2 then
+                    -- call_action_list,name=st,if=active_enemies<2|azerite.blur_of_talons.enabled&talent.birds_of_prey.enabled&buff.coordinated_assault.up
+                    if eagleScout() < 2 or (traits.blurOfTalons.active and talent.birdsOfPrey and buff.coordinatedAssault.exists()) then
                         if actionList_St() then return end
                     end
             -- Call Action List - Cleave

@@ -197,32 +197,22 @@ local function runRotation()
         if (equiped.soulOfTheSlayer() or talent.firstBlood) then flood = 1 else flood = 0 end
         if isCastingSpell(spell.eyeBeam,"player") and buff.metamorphosis.exists() then metaExtended = true elseif not buff.metamorphosis.exists() then metaExtended = false end
 
+    -- Blade Dance Variable
+        -- variable,name=blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
+        local bladeDanceVar = talent.firstBlood or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0))
     -- Wait for Nemesis
         -- variable,name=waiting_for_nemesis,value=!(!talent.nemesis.enabled|cooldown.nemesis.ready|cooldown.nemesis.remains>target.time_to_die|cooldown.nemesis.remains>60)
         local waitForNemesis = not (not talent.nemesis or cd.nemesis.remain() == 0 or cd.nemesis.remain() > ttd(units.dyn5) or cd.nemesis.remain() > 60)
     -- Pool for Meta Variable
         -- variable,name=pooling_for_meta,value=!talent.demonic.enabled&cooldown.metamorphosis.remains<6&fury.deficit>30&(!variable.waiting_for_nemesis|cooldown.nemesis.remains<10)
-        if isChecked("Metamorphosis") and useCDs()
-            and not talent.demonic and cd.metamorphosis.remain() < 6 and powerDeficit > 30 and (not waitForNemesis or cd.nemesis.remain() < 10)
-        then
-            poolForMeta = true
-        else
-            poolForMeta = false
-        end
-    -- Blade Dance Variable
-        -- variable,name=blade_dance,value=talent.first_blood.enabled|set_bonus.tier20_4pc|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
-        if (equiped.soulOfTheSlayer() or talent.firstBlood) --[[or equiped.t20 >= 4]] or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-            bladeDanceVar = true
-        else
-            bladeDanceVar = false
-        end
+        local poolForMeta = isChecked("Metamorphosis") and useCDs() and not talent.demonic and cd.metamorphosis.remain() < 6 
+            and powerDeficit > 30 and (not waitForNemesis or cd.nemesis.remain() < 10)
     -- Pool for Blade Dance Variable
         -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
-        if bladeDanceVar and power < 75 - flood * 20 then
-            poolForBladeDance = true
-        else
-            poolForBladeDance = false
-        end
+        local poolForBladeDance = bladeDanceVar and power < 75 - flood * 20
+    -- Pool for Eye Beam
+        -- variable,name=pooling_for_eye_beam,value=talent.demonic.enabled&!talent.blind_fury.enabled&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
+        local poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and powerDeficit > 20
     -- Wait for Dark Slash
         -- variable,name=waiting_for_dark_slash,value=talent.dark_slash.enabled&!variable.pooling_for_blade_dance&!variable.pooling_for_meta&cooldown.dark_slash.up
         local waitForDarkSlash = talent.darkSlash and not poolForBladeDance and not poolForMeta and cd.darkSlash.remain() == 0
@@ -385,9 +375,9 @@ local function runRotation()
                             -- if cast.metamorphosis("best",false,1,8) then return end
                             if cast.metamorphosis("player") then return end
                         end
-                        -- metamorphosis,if=talent.demonic.enabled&buff.metamorphosis.up&(!azerite.chaotic_transformation.enabled|!variable.blade_dance|!cooldown.blade_dance.ready)
-                        if cast.able.metamorphosis() and talent.demonic and buff.metamorphosis.exists() 
-                            and (not traits.chaoticTransformation.active or not bladeDanceVar or cd.bladeDance.remain() > 0) 
+                        -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&cooldown.blade_dance.remains>gcd.max))
+                        if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active 
+                            or (cd.eyeBeam.remain() > 20 and cd.bladeDance.remain() > gcd)) 
                         then
                             if cast.metamorphosis("player") then return end
                         end
@@ -421,9 +411,9 @@ local function runRotation()
                         useItem(14)
                     end
         -- Potion
-                    -- potion,name=old_war,if=buff.metamorphosis.remains>25|target.time_to_die<30
+                    -- potion,if=buff.metamorphosis.remains>25|target.time_to_die<60
                     if isChecked("Potion") and canUse(127844) and inRaid then
-                        if buff.metamorphosis.remain() > 25 and ttd(units.dyn5) >= 30 then
+                        if buff.metamorphosis.remain() > 25 and ttd(units.dyn5) >= 60 then
                             useItem(127844)
                         end
                     end
@@ -465,8 +455,8 @@ local function runRotation()
                 if cast.deathSweep("player","aoe",1,8) then return end
             end
         -- Eye Beam
-            -- eye_beam,if=!buff.metamorphosis.extended_by_demonic&(raid_event.adds.up|raid_event.adds.in>25)
-            if cast.able.eyeBeam() and not moving and not metaExtended and enemies.yards8r > 0
+            -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
+            if cast.able.eyeBeam() and not moving and enemies.yards8r > 0
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                     or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
@@ -491,19 +481,19 @@ local function runRotation()
             if cast.able.immolationAura() and #enemies.yards8 > 0 then
                 if cast.immolationAura("player","aoe",1,8) then return end
             end
-        -- Felblade
-            -- felblade,if=fury<40|(buff.metamorphosis.down&fury.deficit>=40)
-            if cast.able.felblade() and (power < 40 or (not buff.metamorphosis.exists() and powerDeficit >= 40)) and not cast.last.vengefulRetreat() and getDistance("target") < 5 then
-                if cast.felblade() then return end
-            end
         -- Annihilation
-            -- annihilation,if=(talent.blind_fury.enabled|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance
-            if cast.able.annihilation() and buff.metamorphosis.exists() and (talent.blindFury or powerDeficit < 30 or buff.metamorphosis.remain() < 5) and not poolForBladeDance then
+            -- annihilation,if=!variable.pooling_for_blade_dance
+            if cast.able.annihilation() and buff.metamorphosis.exists() and not poolForBladeDance then
                 if cast.annihilation() then return end
             end
+        -- Felblade
+            -- felblade,if=fury.deficit>=40
+            if cast.able.felblade() and powerDeficit >= 40 and not cast.last.vengefulRetreat() and getDistance("target") < 5 then
+                if cast.felblade() then return end
+            end
         -- Chaos Strike
-            -- chaos_strike,if=(talent.blind_fury.enabled|fury.deficit<30)&!variable.pooling_for_meta&!variable.pooling_for_blade_dance
-            if cast.able.chaosStrike() and not buff.metamorphosis.exists() and (talent.blindFury or powerDeficit < 30) and not poolForMeta and not poolForBladeDance then
+            -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
+            if cast.able.chaosStrike() and not poolForBladeDance and not poolForEyeBeam then
                 if cast.chaosStrike() then return end
             end
         -- Fel Rush

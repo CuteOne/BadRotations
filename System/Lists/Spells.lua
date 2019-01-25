@@ -1005,6 +1005,7 @@ br.lists.spells = {
                 latentPoison                = 273283,
                 upCloseAndPersonal          = 278533,
                 venomousFangs               = 274590,
+                wildernessSurvival          = 279589,
             }
         },
         -- All
