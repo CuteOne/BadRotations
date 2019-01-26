@@ -191,15 +191,14 @@ local function runRotation()
     if profileStop == nil then profileStop = false end
 
     if not UnitAffectingCombat("player") then
-        if not br.player.talent.exsanguinate then
-            buttonExsang:Hide()
-            if not br.player.talent.toxicBlade then
-                buttonTB:Hide()
-            else
+        if not talent.exsanguinate then
+            if talent.toxicBlade then
                 buttonTB:Show()
             end
+            buttonExsang:Hide()
         else
             buttonExsang:Show()
+            buttonTB:Hide()
         end
     end
 
@@ -276,6 +275,7 @@ local function runRotation()
     local enemyTable10 = { }
     local enemyTable5 = { }
     local deadlyPoison10 = true
+    local garroteRefresh5 = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
