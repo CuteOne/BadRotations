@@ -328,5 +328,6 @@ validUnitBypassList = {
 	[147377] = "Barrier", --Jadefire Masters
 	[147376] = "Barrier", --Jadefire Masters
     [147374] = "Barrier", --Jadefire Masters
-    [147375] = "Barrier" --Jadefire Masters
+    [147375] = "Barrier", --Jadefire Masters
+    [146756] = "Energized Storm" --Jadefire Masters
 }
