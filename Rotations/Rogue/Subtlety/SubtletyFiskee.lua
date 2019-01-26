@@ -682,10 +682,10 @@ local function runRotation()
         if stealth and targetDistance < 5 then
             if cast.shadowstrike("target") then return true end
         end
-        -- # Finish at 4+ CP without DS, 5+ with DS, and 6 with DS after Vanish
-        -- actions.stealthed+=/call_action_list,name=finish,if=combo_points.deficit<=1-(talent.deeper_stratagem.enabled&buff.vanish.up)
+        -- # Finish at 4+ CP without DS, 5+ with DS, and 6 with DS after Vanish or The First Dance and no Dark Shadow
+        -- actions.stealthed+=/call_action_list,name=finish,if=combo_points.deficit<=1-(talent.deeper_stratagem.enabled&(buff.vanish.up|azerite.the_first_dance.enabled&!talent.dark_shadow.enabled))
         local finishThd = 0
-        if dSEnabled and (buff.vanish.exists() or cast.last.vanish(1)) then
+        if dSEnabled and ((buff.vanish.exists() or cast.last.vanish(1)) or (trait.theFirstDance.active and not talent.darkShadow)) then
             finishThd = 1
         end
         if comboDeficit <= (1 - finishThd) then
