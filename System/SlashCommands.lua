@@ -225,14 +225,18 @@ function handler(message, editbox)
 				)
 			else
 				local spellName, _, _, _, _, _, spellId = GetSpellInfo(msg3)
+				local notOnCD = true 
+				if br ~= nil and br.player ~= nil and spellName ~= nil then notOnCD = getSpellCD(spellName) <= br.player.gcdMax end
 				if msg4 ~= nil then targetUnit = tostring(msg4)	end
 				if msg5 ~= nil then specialCast = tostring(msg5) end 
 				if msg6 ~= nil then minCount = tonumber(msg6) end 
 				if msg7 ~= nil then range = tonumber(msg7) end 
 				if spellName == nil then
 					Print("Invalid Spell ID: |cffFFDD11 Unable to add.")
+				elseif not notOnCD then 
+					Print("Spell |cFFFF0000" .. spellName .. "|r not added, cooldown greater than gcd.")
 				else
-					if #br.player.queue == 0 then
+					if #br.player.queue == 0 and notOnCD then
 						tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit, castType = specialCast, minUnits = mincount, effectRng = range})
 						Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
 					elseif #br.player.queue ~= 0 then
@@ -240,7 +244,7 @@ function handler(message, editbox)
 							if spellId == br.player.queue[i].id then
 								Print("|cFFFF0000" .. spellName .. "|r is already queued.")
 								break
-							else
+							elseif notOnCD then
 								tinsert(br.player.queue, {id = spellId, name = spellName, target = targetUnit, castType = specialCast, minUnits = mincount, effectRng = range})
 								Print("Added |cFFFF0000" .. spellName .. "|r to the queue.")
 								break
