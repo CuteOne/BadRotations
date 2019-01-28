@@ -413,7 +413,7 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
+            if isChecked("Racial") and (race == "Orc" or race == "Troll" or race=="MagharOrc" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
                 if castSpell("player",racial,false,false,false) then return end
             end
     -- Adrenaline Rush
@@ -508,6 +508,21 @@ local function runRotation()
             if cast.able.ambush() and stealthingAll and ambushCondition() then
                 if cast.ambush() then return end
             end
+			
+			 if inCombat and isValidUnit(units.dyn5) then
+            -- Auto Attack
+                --auto_attack
+                -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
+                --     StopAttack()
+                -- else
+                --     StartAttack(units.dyn5)
+                -- end
+                if not IsCurrentSpell(6603) then
+                    StartAttack(units.dyn5)
+				end
+			end
+				
+				
         -- Pistol Shot
             -- pistol_shot,if=combo_points.deficit>=1+buff.broadside.up+talent.quick_draw.enabled&buff.opportunity.up
             if cast.able.pistolShot() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() then
