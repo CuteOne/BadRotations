@@ -148,10 +148,12 @@ if not metaTable2 then
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then
 				if o.objectID == 140853 then -- If mother, TTD is 10 pct
-                    o.ttd = o:unitTtd(10)
+					o.ttd = o:unitTtd(10)
+				elseif o.objectID == 149684 then -- Jaina tps out at 5% (not sure about mythic yet)
+					o.ttd = o:unitTtd(5)
 				else
 					o.ttd = o:unitTtd()
-                end
+				end
                 if o.ttd > 5 and o.objectID == 120651 then -- correct ttd for explosive
                     local castEnd = select(5,UnitCastingInfo(o.unit))
                     if castEnd ~= nil then
