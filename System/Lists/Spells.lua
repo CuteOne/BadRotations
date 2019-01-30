@@ -1748,7 +1748,7 @@ br.lists.spells = {
         },
         -- Retribution
         [70] = {
-            abilities                       = {                
+            abilities                       = {
                 bladeOfJustice              = 184575,
                 cleanseToxins               = 213644,
                 divineStorm                 = 53385,
@@ -1784,16 +1784,16 @@ br.lists.spells = {
                 glyphOfWingedVengeance      = 57979,
             },
             talents                         = {
-                bladeOfWrath                = 231832, 
-                consecration                = 205228, 
-                crusade                     = 231895, 
-                divineJudgment              = 271580, 
-                divinePurpose               = 223817, 
-                executionSentence           = 267798, 
-                eyeForAnEye                 = 205191,                
-                firesOfJustice              = 203316, 
-                fistOfJustice               = 234299, 
-                hammerOfWrath               = 24275, 
+                bladeOfWrath                = 231832,
+                consecration                = 205228,
+                crusade                     = 231895,
+                divineJudgment              = 271580,
+                divinePurpose               = 223817,
+                executionSentence           = 267798,
+                eyeForAnEye                 = 205191,
+                firesOfJustice              = 203316,
+                fistOfJustice               = 234299,
+                hammerOfWrath               = 24275,
                 inquisition                 = 84963,
                 justicarsVengeance          = 215661,
                 righteousVerdict            = 267610,
@@ -1809,15 +1809,15 @@ br.lists.spells = {
         -- All
         Shared = {
             abilities                       = {
-                avengingWrath               = 31884, 
-                blessingOfFreedom           = 1044, 
+                avengingWrath               = 31884,
+                blessingOfFreedom           = 1044,
                 blessingOfProtection        = 1022,
-                contemplation               = 121183, 
-                crusaderStrike              = 35395, 
-                divineShield                = 642, 
-                divineSteed                 = 190784,  
-                flashOfLight                = 19750, 
-                hammerOfJustice             = 853, 
+                contemplation               = 121183,
+                crusaderStrike              = 35395,
+                divineShield                = 642,
+                divineSteed                 = 190784,
+                flashOfLight                = 19750,
+                hammerOfJustice             = 853,
                 handOfReckoning             = 62124,
                 layOnHands                  = 633,
                 redemption                  = 7328,
@@ -1826,7 +1826,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                divineShield                = 642,                
+                divineShield                = 642,
                 divineSteed                 = 190784,
                 blessingOfProtection        = 1022,
             },
@@ -3157,6 +3157,7 @@ br.lists.spells = {
                 boomingVoice                = 202743,
                 cracklingThunder            = 203201,
                 heavyRepercussions          = 203177,
+                dragonsRoar                 = 23260,
                 indomitable                 = 202095,
                 intoTheFray                 = 202603,
                 neverSurrender              = 202561,
@@ -3227,7 +3228,7 @@ br.lists.spells = {
                 concordanceOfTheLegionfall      = 239042,
             },
             buffs                               = {
-                ancientHysteria                 = 90355,                
+                ancientHysteria                 = 90355,
                 battlePotionOfAgility           = 279152,
                 battlePotionOfIntellect         = 279151,
                 battlePotionOfStrength          = 279153,
