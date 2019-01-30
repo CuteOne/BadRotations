@@ -3152,7 +3152,6 @@ br.lists.spells = {
 
             },
             talents                         = {
-                avatar                      = 107574,
                 bestServedCold              = 202560,
                 bolster                     = 280001,
                 boomingVoice                = 202743,
