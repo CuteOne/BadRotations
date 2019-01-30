@@ -290,7 +290,7 @@ function isAlive(Unit)
 end
 function isInstanceBoss(unit)
 	if IsInInstance() then
-		local lockTimeleft, isPreviousInstance, encountersTotal, encountersComplete = GetInstanceLockTimeRemaining();
+		local _, _, encountersTotal = GetInstanceLockTimeRemaining();
 		for i=1,encountersTotal do
 			if unit == "player" then
 				local bossList = select(1,GetInstanceLockTimeRemainingEncounter(i))
