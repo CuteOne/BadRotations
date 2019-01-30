@@ -423,19 +423,15 @@ function br.loader:new(spec,specName)
         end
 
         self.units.get = function(range,aoe)
-            local aoeUnit = dynamicTarget(range, false)
-            local faceUnit = dynamicTarget(range, true)
             local dynString = "dyn"..range
-            -- Build units.dyn varaible
             if aoe == nil then aoe = false end
             if aoe then dynString = dynString.."AOE" end
+            local facing = not aoe
+            local thisUnint = dynamicTarget(range, facing)
+            -- Build units.dyn varaible
             if self.units[dynString] == nil then self.units[dynString] = {} end
-            if aoe then
-                self.units[dynString] = aoeUnit -- Ex: units.dyn8AOE (returns "best" unit in 8yrds around "player")
-            else
-                self.units[dynString] = faceUnit -- Ex: units.dyn5 (returns "best" unit in 5yrds that "player" is facing)
-            end
-            return aoe and aoeUnit or faceUnit -- Backwards compatability for old way
+            self.units[dynString] = thisUnit
+            return thisUnit -- Backwards compatability for old way
         end
 
         self.enemies.get = function(range,unit,checkNoCombat,facing)
