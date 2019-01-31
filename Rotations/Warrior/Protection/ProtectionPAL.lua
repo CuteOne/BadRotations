@@ -288,44 +288,51 @@ local function runRotation()
             end
           end
           --demo shout
-
-          if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() and ((not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >=3)) or (talent.boomingVoice and rage <=60))  then
-            if cast.demoralizingShout() then
+          if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() then
+            if not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >= 3) or talent.boomingVoice and rage <= 60 then
+              if cast.demoralizingShout() then
+                return true
+              end
+            end
+          end
+          -- shield block
+          if cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
+            if cast.shieldBlock() then
               return true
             end
           end
-        end
-        -- shield block
-        if cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
-          if cast.shieldBlock() then
-            return true
-          end
-        end
-        -- last stand as filler
-        if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
-          if cast.lastStand() then
-            return true
-          end
-        end
-        if php <= 75 and cast.able.victoryRush() then
-          if cast.victoryRush() then
-            return true
-          end
-        end
-        --ignore pain
-        if cast.able.ignorePain() and mainTank() and ipCapCheck() then
-          if buff.vengeanceIgnorePain.exists() and rage >= 42 then
-            if cast.ignorePain() then
-              return
+          -- last stand as filler
+          if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+            if cast.lastStand() then
+              return true
             end
           end
-          if rage >= 55 and not buff.vengeanceRevenge.exists() then
-            if cast.ignorePain() then
-              return
+          --Victory rush / Impending Victory
+          if isChecked("Victory Rush - Impending Victory") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush - Impending Victory") then
+            if talent.impendingVictory then
+              if cast.impendingVictory() then
+                return true
+              end
+            elseif buff.victorious.exists() then
+              if cast.victoryRush() then
+                return true
+              end
+            end
+          end
+          --ignore pain
+          if cast.able.ignorePain() and mainTank() and ipCapCheck() then
+            if buff.vengeanceIgnorePain.exists() and rage >= 42 then
+              if cast.ignorePain() then
+                return
+              end
+            end
+            if rage >= 55 and not buff.vengeanceRevenge.exists() then
+              if cast.ignorePain() then
+                return
+              end
             end
           end
         end
-
       end
 
       local function Interrupts()
@@ -372,7 +379,6 @@ local function runRotation()
         end
 
         --shockwave if x amount of targets
-        -- local function castBestConeAngle(spell,angle,range,minUnits,checkNoCombat) isChecked("Shockwave") and
         if cast.able.shockwave() then
           if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
             return true
@@ -406,7 +412,6 @@ local function runRotation()
             end
           end
         end
-
         if isChecked("Devastate") and cast.able.devastate() then
           for i = 1, #enemies.yards8 do
             thisUnit = enemies.yards8[i]
@@ -417,20 +422,13 @@ local function runRotation()
             end
           end
         end
-
-        if isChecked("Victory Rush - Impending Victory") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush - Impending Victory") and buff.victorious.exists() then
-          if talent.impendingVictory then
-            if cast.impendingVictory() then
-              return
-            end
-          else
-            if cast.victoryRush() then
-              return
-            end
+        -- heroic_throw
+        if cast.able.heroicThrow() then
+          if cast.heroicThrow("target") then
+            return true
           end
         end
-
-      end
+      end -- end attacks
 
       local function Cooldowns()
         -------------------------
