@@ -332,7 +332,7 @@ local function runRotation()
               end
             end
           end
-          if isChecked(shieldwall) and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
+          if isChecked("shieldwall") and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
             if cast.shieldwall() then
               return true
             end
