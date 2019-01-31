@@ -176,24 +176,24 @@ local function runRotation()
       ---       Functions           ---
       ---------------------------------
         -- Thanks to Panglo
-        local function ipCapCheck()
-          if buff.ignorePain.exists() then
-              local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D",""))),10)
-              local ipMax = math.floor(ipValue * 1.3)
-              local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))),10)
-              if ipCurrent == nil then ipCurrent = 0 return end
-              if ipCurrent <= (ipMax * 0.2) then
-                  ---print("IP below cap")
-                  return true
-              else
-                  --print("dont cast IP")
-                  return false
-              end
-          else
-              --print("IP not on")
-              return true
-          end
+      local function ipCapCheck()
+        if buff.ignorePain.exists() then
+            local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D",""))),10)
+            local ipMax = math.floor(ipValue * 1.3)
+            local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))),10)
+            if ipCurrent == nil then ipCurrent = 0 return end
+            if ipCurrent <= (ipMax * 0.2) then
+                ---print("IP below cap")
+                return true
+            else
+                --print("dont cast IP")
+                return false
+            end
+        else
+            --print("IP not on")
+            return true
         end
+      end
 
 
 
@@ -275,16 +275,15 @@ local function runRotation()
           end
         end
 
-        if isChecked("Victory Rush - Impending Victory") and not talent.impendingVictory and cast.able.victoryRush() then
-          for i = 1, #enemies.yards8 do
-            thisUnit = enemies.yards8[i]
-            if getFacing("player",thisUnit) and php <= getOptionValue("Victory Rush - Impending Victory") then
-              if cast.victoryRush(thisUnit) then return end
+        if isChecked("Victory Rush - Impending Victory") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush - Impending Victory") and buff.victorious.exists() then
+            if talent.impendingVictory then
+                if cast.impendingVictory() then return end
+            else
+                if cast.victoryRush() then return end
             end
-          end
         end
 
-      end
+        end
 
       -----------------------------
       ---      Rotation itself  ---
