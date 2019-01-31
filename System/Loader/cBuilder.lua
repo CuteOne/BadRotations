@@ -427,7 +427,7 @@ function br.loader:new(spec,specName)
             if aoe == nil then aoe = false end
             if aoe then dynString = dynString.."AOE" end
             local facing = not aoe
-            local thisUnint = dynamicTarget(range, facing)
+            local thisUnit = dynamicTarget(range, facing)
             -- Build units.dyn varaible
             if self.units[dynString] == nil then self.units[dynString] = {} end
             self.units[dynString] = thisUnit
