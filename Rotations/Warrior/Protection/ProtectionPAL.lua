@@ -34,6 +34,12 @@ local function createToggles()
     [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel }
   };
   CreateButton("Interrupt", 4, 0)
+  --Taunt Button
+  TauntModes = {
+    [1] = { mode = "On", value = 1, overlay = "Auto Taunt Enabled", tip = "Will taunt all.", highlight = 1, icon = br.player.spell.taunt },
+    [2] = { mode = "Off", value = 2, overlay = "Auto Taunt Disabled", tip = "Will not taunt.", highlight = 0, icon = br.player.spell.polymorph }
+  };
+  CreateButton("Taunt", 5, 0)
 end
 
 ---------------
@@ -47,6 +53,7 @@ local function createOptions()
     --- GENERAL OPTIONS --- -- Define General Options
     -----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
+    br.ui:createCheckbox(section, "Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
 
     br.ui:checkSectionState(section)
     ------------------------
@@ -119,6 +126,7 @@ local function runRotation()
     UpdateToggle("Cooldown", 0.25)
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
+    local tauntSetting = br.data.settings[br.selectedSpec].toggles["Taunt"]
     --------------
     --- Locals ---
     --------------
@@ -150,6 +158,11 @@ local function runRotation()
     local talent = br.player.talent
     local ttm = br.player.timeToMax
     local units = br.player.units
+    local rage, powerDeficit = br.player.power.rage.amount(), br.player.power.rage.deficit()
+    local hasAggro = UnitThreatSituation("player")
+    if hasAggro == nil then
+      hasAggro = 0
+    end
 
     if leftCombat == nil then
       leftCombat = GetTime()
@@ -180,6 +193,13 @@ local function runRotation()
       ---------------------------------
       ---       Functions           ---
       ---------------------------------
+      local function mainTank()
+        if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
+          return true
+        else
+          return false
+        end
+      end
       -- Thanks to Panglo
       local function ipCapCheck()
         if buff.ignorePain.exists() then
@@ -255,15 +275,54 @@ local function runRotation()
 
       local function Defensives()
         if useDefensive() then
+          --taunt
+          if tauntSetting == 1 then
+            for i = 1, #enemies.yards30 do
+              local thisUnit = enemies.yards30[i]
+              if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+                if cast.taunt(thisUnit) then
+                  return
+                end
+              end
+            end
+          end
+          --demo shout
           if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") and cast.able.demoralizingShout() then
             if cast.demoralizingShout() then
               return true
             end
           end
         end
-
-        --use Shockwave as defensive if low on hp
-
+        -- shield block
+        if cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
+          if cast.shieldBlock() then
+            return true
+          end
+        end
+        -- last stand as filler
+        if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+          if cast.lastStand() then
+            return true
+          end
+        end
+        if php <= 75 and cast.able.victoryRush() then
+          if cast.victoryRush() then
+            return true
+          end
+        end
+        --ignore pain
+        if cast.able.ignorePain() and mainTank() and ipCapCheck() then
+          if buff.vengeanceIgnorePain.exists() and rage >= 42 then
+            if cast.ignorePain() then
+              return
+            end
+          end
+          if rage >= 55 and not buff.vengeanceRevenge.exists() then
+            if cast.ignorePain() then
+              return
+            end
+          end
+        end
 
       end
 
@@ -313,7 +372,9 @@ local function runRotation()
         --shockwave if x amount of targets
         -- local function castBestConeAngle(spell,angle,range,minUnits,checkNoCombat) isChecked("Shockwave") and
         if cast.able.shockwave() then
-          castBestConeAngle('shockwave', 30, 7, 3, true)
+          if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
+            return true
+          end
         end
 
         if isChecked("Revenge") and cast.able.revenge() then
