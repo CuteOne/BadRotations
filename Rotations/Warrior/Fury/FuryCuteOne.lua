@@ -197,6 +197,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP("target")
+        local traits                                        = br.player.traits
         local units                                         = br.player.units
 
         units.get(5)
@@ -362,30 +363,32 @@ local function runRotation()
             if cast.able.siegebreaker() then
                 if cast.siegebreaker() then return end
             end
-	    -- Rampage
-	    if isChecked("Faster Rampage") then
-               if cast.able.rampage() and buff.recklessness.exists()
-		    or (talent.carnage and (buff.enrage.exists() or rage > 75))
-		    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
-		    or (talent.massacre and (buff.enrage.exists() or rage > 85)) 
-	        then
-		     if cast.rampage() then return end
-	        end
-            else
-	        if cast.able.rampage() and (buff.recklessness.exists()
-	           or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
-		   or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+        -- Rampage
+            -- rampage,if=buff.recklessness.up|(talent.frothing_berserker.enabled|talent.carnage.enabled&(buff.enrage.remains<gcd|rage>90)|talent.massacre.enabled&(buff.enrage.remains<gcd|rage>90))
+            if isChecked("Faster Rampage") then
+                if cast.able.rampage() and buff.recklessness.exists()
+                    or (talent.carnage and (buff.enrage.exists() or rage > 75))
+                    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
+                    or (talent.massacre and (buff.enrage.exists() or rage > 85))
                 then
                     if cast.rampage() then return end
                 end
-	    end	
+            else
+                if cast.able.rampage() and (buff.recklessness.exists()
+                    or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
+                    or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+                then
+                    if cast.rampage() then return end
+                end
+            end
+        -- Execute
             -- execute,if=buff.enrage.up
             if cast.able.execute() and (buff.enrage.exists()) then
                 if cast.execute() then return end
 	      end
         -- Bloodthirst
-            -- bloodthirst,if=buff.enrage.down
-            if cast.able.bloodthirst() and (not buff.enrage.exists()) then
+            -- bloodthirst,if=buff.enrage.down|azerite.cold_steel_hot_blood.rank>1
+            if cast.able.bloodthirst() and (not buff.enrage.exists() or traits.coldSteelHotBlood.rank > 1) then
                 if cast.bloodthirst() then return end
             end
         -- Raging Blow

@@ -3108,6 +3108,9 @@ br.lists.spells = {
                 warMachine                  = 262231,
                 warpaint                    = 208154,
             },
+            traits                          = {
+                coldSteelHotBlood           = 288080
+            }
         },
         -- Protection
         [73] = {
