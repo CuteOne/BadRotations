@@ -154,6 +154,7 @@ local function runRotation()
     local race = br.player.race
     local thisUnit = thisUnit
     local racial = br.player.getRacial()
+    local ttd = getTTD("target")
     local spell = br.player.spell
     local talent = br.player.talent
     local ttm = br.player.timeToMax
@@ -434,8 +435,22 @@ local function runRotation()
         -------------------------
         -------Auto racial-------
         -------------------------
-        if isChecked("use Racials") and cast.able.racial() then
-          if cast.racial() then
+        if isChecked("use Racials") and cast.able.racial() and ttd > 6 then
+          if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+            if race == "LightforgedDraenei" then
+              if cast.racial("target", "ground") then
+                return true
+              end
+            else
+              if cast.racial("player") then
+                return true
+              end
+            end
+          end
+        end
+
+        if cast.able.avatar("player") and (ttd > 10 or #enemies.yards8 >= 3) and rage <= 80 and (cd.shieldSlam.remain() == 0 or cd.shieldSlam.remain() > 4) then
+          if cast.avatar("player") then
             return true
           end
         end
@@ -447,7 +462,7 @@ local function runRotation()
         if Defensives() then
           return
         end
-                if Cooldowns() then
+        if Cooldowns() then
           return
         end
         if AttackSpells() then
