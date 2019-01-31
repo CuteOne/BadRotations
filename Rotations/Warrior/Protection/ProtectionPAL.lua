@@ -180,19 +180,11 @@ local function runRotation()
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
-    --------------------
-    --- Action Lists ---
-    --------------------
 
-    -----------------
-    --- Rotations ---
-    -----------------
-    -- Pause
-    if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
-      return true
-    else
+
+
       ---------------------------------
-      ---       Functions           ---
+      ---     Utility Functions   ---
       ---------------------------------
       local function mainTank()
         if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
@@ -265,6 +257,35 @@ local function runRotation()
         end
         return false
       end
+
+
+      -----------------------------
+      ---      Modifiers        ---
+      -----------------------------
+      if isChecked("Heroic Leap Hotkey") and SpecificToggle("Heroic Leap Hotkey") then
+        CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
+        return
+      end
+      if IsLeftAltKeyDown() and cast.able.heroicThrow("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 30 then
+        CastSpellByName(GetSpellInfo(spell.heroicThrow), "mouseover")
+        return
+      end
+
+      if isChecked("Intercept Hotkey") and SpecificToggle("Intercept Hotkey") then
+        if GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 0 and getDistance("player", "mouseover") <= 25 then
+          if cast.intercept("mouseover") then
+            return
+          end
+        elseif not GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 25 then
+          if cast.intercept("mouseover") then
+            return
+          end
+        end
+      end
+
+      -----------------------------
+      ---    Combat Functions  ---
+      -----------------------------
 
       local function antislow()
         if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
@@ -544,40 +565,10 @@ local function runRotation()
         end
       end
 
-      -----------------------------
-      ---      Modifiers        ---
-      -----------------------------
-      if isChecked("Heroic Leap Hotkey") and SpecificToggle("Heroic Leap Hotkey") then
-        CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
-        return
-      end
-      if IsLeftAltKeyDown() and cast.able.heroicThrow("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 30 then
-        CastSpellByName(GetSpellInfo(spell.heroicThrow), "mouseover")
-        return
-      end
-
-      if isChecked("Intercept Hotkey") and SpecificToggle("Intercept Hotkey") then
-        if GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 0 and getDistance("player", "mouseover") <= 25 then
-          if cast.intercept("mouseover") then
-            return
-          end
-        elseif not GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 25 then
-          if cast.intercept("mouseover") then
-            return
-          end
-        end
-      end
-
-      if cast.able.battleShout("player") then
-        for i = 1, #br.friend do
-          if not buff.battleShout.exists(br.friend[i].unit, "any") and getDistance("player", br.friend[i].unit) < 100 and
-                  not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
-            if cast.battleShout() then
-              return
-            end
-          end
-        end
-      end
+      -- Pause
+      if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        return true
+      else
 
     end -- Pause
   end -- End Timer
