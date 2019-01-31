@@ -258,8 +258,14 @@ local function runRotation()
     end
 
     local function isTotem(unit)
+        local eliteTotems = { -- totems we can dot
+            [125977] = "Reanimate Totem",
+            [127315] = "Reanimate Totem",
+            [146731] = "Zombie Dust Totem"
+        }
         local creatureType = UnitCreatureType(unit)
-        if creatureType ~= nil and GetObjectID(unit) ~= 125977 and GetObjectID(unit) ~= 127315 then --reanimate totem
+        local objectID = GetObjectID(unit)
+        if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
         end
         return false
