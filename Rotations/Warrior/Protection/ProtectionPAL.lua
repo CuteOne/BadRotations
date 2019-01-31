@@ -67,7 +67,7 @@ local function createOptions()
     -------------------------
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
     br.ui:createSpinner(section, "Demoralizing Shout", 75, 0, 100, 5, "Your Health % to be cast at")
-
+    br.ui:createSpinner(section, "Shieldwall", 25, 0, 100, 5, "Your Health % to be cast at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -332,6 +332,11 @@ local function runRotation()
               end
             end
           end
+          if isChecked(shieldwall) and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
+            if cast.shieldwall() then
+              return true
+            end
+          end
         end
       end
 
@@ -368,68 +373,128 @@ local function runRotation()
       end
 
       local function AttackSpells()
-        if cast.able.thunderClap() and talent.cracklingThunder then
-          if cast.thunderClap("player", nil, 1, 12) then
-            return
-          end
-        elseif not talent.cracklingThunder then
-          if cast.thunderClap("player", nil, 1, 8) then
-            return
-          end
-        end
 
-        --shockwave if x amount of targets
-        if cast.able.shockwave() then
-          if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
-            return true
-          end
-        end
-
-        if isChecked("Revenge") and cast.able.revenge() then
-          for i = 1, #enemies.yards8 do
-            thisUnit = enemies.yards8[i]
-            if getFacing("player", thisUnit) then
-              if cast.revenge(thisUnit) then
-                return
+        --single target rotation
+        if #enemies.yards8 == 1 then
+          --shield slam
+          if isChecked("Shield Slam") and cast.able.shieldSlam() then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.shieldSlam(thisUnit) then
+                  return
+                end
               end
             end
           end
-        end
-
-        if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
-          if cast.dragonRoar(nil, "aoe") then
-            return
-          end
-        end
-
-        if isChecked("Shield Slam") and cast.able.shieldSlam() then
-          for i = 1, #enemies.yards8 do
-            thisUnit = enemies.yards8[i]
-            if getFacing("player", thisUnit) then
-              if cast.shieldSlam(thisUnit) then
-                return
+          --Revenge
+          if isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or rage > 80 and cd.shieldBlock == 0 then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.revenge(thisUnit) then
+                  return
+                end
               end
             end
           end
-        end
-        if isChecked("Devastate") and cast.able.devastate() then
-          for i = 1, #enemies.yards8 do
-            thisUnit = enemies.yards8[i]
-            if getFacing("player", thisUnit) then
-              if cast.devastate(thisUnit) then
-                return
+          --ThunderClap
+          if cast.able.thunderClap() and talent.cracklingThunder then
+            if cast.thunderClap("player", nil, 1, 12) then
+              return
+            end
+          elseif not talent.cracklingThunder then
+            if cast.thunderClap("player", nil, 1, 8) then
+              return
+            end
+          end
+          --dragon roar
+          if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+            if cast.dragonRoar(nil, "aoe") then
+              return
+            end
+          end
+          --Devastate
+          if isChecked("Devastate") and cast.able.devastate() then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.devastate(thisUnit) then
+                  return
+                end
               end
             end
           end
-        end
-        -- heroic_throw
-        if cast.able.heroicThrow() then
-          if cast.heroicThrow("target") then
-            return true
+          -- heroic_throw
+          if cast.able.heroicThrow() then
+            if cast.heroicThrow("target") then
+              return true
+            end
+          end
+
+        elseif #enemies.yards8 >= 2 then
+          --shockwave if x amount of targets
+          if cast.able.shockwave() then
+            if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
+              return true
+            end
+          end
+          --ThunderClap
+          if cast.able.thunderClap() and talent.cracklingThunder then
+            if cast.thunderClap("player", nil, 1, 12) then
+              return
+            end
+          elseif not talent.cracklingThunder then
+            if cast.thunderClap("player", nil, 1, 8) then
+              return
+            end
+          end
+          if isChecked("Shield Slam") and cast.able.shieldSlam() then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.shieldSlam(thisUnit) then
+                  return
+                end
+              end
+            end
+          end
+          --dragon roar
+          if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+            if cast.dragonRoar(nil, "aoe") then
+              return
+            end
+          end
+          --Revenge
+          if isChecked("Revenge") and cast.able.revenge() and php >= 65 or buff.revenge.exists() or (rage > 80 and cd.shieldBlock == 0) then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.revenge(thisUnit) then
+                  return
+                end
+              end
+            end
+          end
+          --Devastate
+          if isChecked("Devastate") and cast.able.devastate() then
+            for i = 1, #enemies.yards8 do
+              thisUnit = enemies.yards8[i]
+              if getFacing("player", thisUnit) then
+                if cast.devastate(thisUnit) then
+                  return
+                end
+              end
+            end
+          end
+          -- heroic_throw
+          if cast.able.heroicThrow() then
+            if cast.heroicThrow("target") then
+              return true
+            end
           end
         end
-      end -- end attacks
-
+      end-- end attacks
       local function Cooldowns()
         -------------------------
         -------Auto racial-------
