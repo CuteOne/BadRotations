@@ -288,7 +288,8 @@ local function runRotation()
             end
           end
           --demo shout
-          if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") and cast.able.demoralizingShout() then
+
+          if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() and ((not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >=3)) or (talent.boomingVoice and rage <=60))  then
             if cast.demoralizingShout() then
               return true
             end
@@ -459,12 +460,16 @@ local function runRotation()
       ---      Rotation itself  ---
       -----------------------------
       if inCombat and not (IsMounted() or IsFlying()) then
-        if Defensives() then
-          return
-        end
+        StartAttack()
         if Cooldowns() then
           return
         end
+        if php <= 90 then
+          if Defensives() then
+            return
+          end
+        end
+
         if AttackSpells() then
           return
         end
