@@ -1,5 +1,10 @@
 local rotationName = "Fiskee - 8.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
+local br = br
+br.rogueTables = {}
+local rogueTables = br.rogueTables
+rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
+local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
@@ -46,6 +51,11 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Toxic Blade Off", tip = "Will not use Toxic Blade.", highlight = 0, icon = br.player.spell.toxicBlade }
     };
     CreateButton("TB",6,0)
+    GarroteModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Garrote On", tip = "Will use Garrote outside stealth.", highlight = 1, icon = br.player.spell.garrote },
+        [2] = { mode = "Off", value = 2 , overlay = "Garrote Off", tip = "Will not use Garrote outside stealth.", highlight = 0, icon = br.player.spell.garrote }
+    };
+    CreateButton("Garrote",7,0)
 end
 
 ---------------
@@ -68,6 +78,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
+            br.ui:createSpinner(section,  "Disable Garrote on # Units",  10,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -150,6 +161,7 @@ local function runRotation()
     br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
     br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
     br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
+    br.player.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
 --------------
 --- Locals ---
 --------------
@@ -250,8 +262,14 @@ local function runRotation()
     end
 
     local function isTotem(unit)
+        local eliteTotems = { -- totems we can dot
+            [125977] = "Reanimate Totem",
+            [127315] = "Reanimate Totem",
+            [146731] = "Zombie Dust Totem"
+        }
         local creatureType = UnitCreatureType(unit)
-        if creatureType ~= nil and GetObjectID(unit) ~= 125977 and GetObjectID(unit) ~= 127315 then --reanimate totem
+        local objectID = GetObjectID(unit)
+        if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
         end
         return false
@@ -265,17 +283,21 @@ local function runRotation()
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
         if isTotem(unit) then return true end
-        unitCreator = UnitCreator(unit)
+        local unitCreator = UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
         if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
         return false
     end
 
-    local enemyTable30 = { }
-    local enemyTable10 = { }
-    local enemyTable5 = { }
+    local function clearTable(t)
+        local count = #t
+        for i=0, count do t[i]=nil end
+    end
+
+    clearTable(enemyTable5)
+    clearTable(enemyTable10)
+    clearTable(enemyTable30)
     local deadlyPoison10 = true
-    local garroteRefresh5 = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -299,11 +321,11 @@ local function runRotation()
         end
         if #enemyTable30 > 1 then
             for i = 1, #enemyTable30 do
-                local hpNorm = (5-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+5 -- normalization of HP value, high is good
+                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
                 if enemyTable30[i].facing then enemyScore = enemyScore + 30 end
-                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
+                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
                 if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
                 local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
                 if raidTarget ~= nil then 
@@ -363,12 +385,18 @@ local function runRotation()
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
-    local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 % (2 * (GetHaste()/100)))
+    local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100)))
 
     if not inCombat and mode.open ~= 1 and opener == true and not cast.last.kidneyShot(1) and not cast.last.kidneyShot(2) then
         opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
     end
     if mode.open == 1 then opener = true end
+
+    local garroteCheck = true
+
+    if (isChecked("Disable Garrote on # Units") and enemies10 >= getOptionValue("Disable Garrote on # Units")) or mode.garrote == 2 then
+        garroteCheck = false
+    end
 
 --------------------
 --- Action Lists ---
@@ -637,7 +665,7 @@ local function runRotation()
                 end
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
-                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and cd.garrote.remain() == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
+                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and getSpellCD(spell.garrote) == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
@@ -649,7 +677,7 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 16 and not debuff.garrote.refresh("target") and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
@@ -724,12 +752,13 @@ local function runRotation()
             if isChecked("Vanish") and cd.vanish.remain() == 0 then vanishCheck = true end
             if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
         end
-        if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 then
+        if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 and garroteCheck then
             if garroteCount <= getOptionValue("Multidot Limit") then
                 for i = 1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
-                    if debuff.garrote.refresh(thisUnit) and
+                    if ((garroteRemain == 0 and garroteCount < getOptionValue("Multidot Limit")) or (garroteRemain > 0 and garroteCount <= getOptionValue("Multidot Limit"))) and
+                    debuff.garrote.refresh(thisUnit) and
                     (debuff.garrote.applied(thisUnit) <= 1 or (garroteRemain <= tickTime and enemies10 >= (3 + sSActive))) and
                     (not debuff.garrote.exsang(thisUnit) or (garroteRemain < (tickTime * 2) and enemies10 >= (3 + sSActive))) and
                     (((enemyTable5[i].ttd-garroteRemain)>4 and enemies10 <= 1) or enemyTable5[i].ttd>12) then
@@ -782,7 +811,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and debuff.garrote.applied(thisUnit) <= 1 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
@@ -858,7 +887,7 @@ local function runRotation()
             -- actions+=/call_action_list,name=cds
             if validTarget then
                 if actionList_Cooldowns() then return true end
-            end
+            end            
             -- actions+=/call_action_list,name=dot
             if actionList_Dot() then return true end
             -- actions+=/call_action_list,name=direct
