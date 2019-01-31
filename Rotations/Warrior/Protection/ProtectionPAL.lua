@@ -409,7 +409,7 @@ local function runRotation()
             end
           end
           --Revenge
-          if isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or rage > 80 and cd.shieldBlock == 0 then
+          if isChecked("Revenge") and cast.able.revenge() and( buff.revenge.exists() or rage > 80 and cd.shieldBlock == 0) then
             for i = 1, #enemies.yards8 do
               thisUnit = enemies.yards8[i]
               if getFacing("player", thisUnit) then
