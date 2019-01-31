@@ -60,7 +60,7 @@ local function createOptions()
     --- Cooldowns
     ------------------------
     section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-
+    br.ui:createCheckbox(section, "use Racials", "check here to auto use racials")
     br.ui:checkSectionState(section)
     -------------------------
     --- Defensives
@@ -430,11 +430,24 @@ local function runRotation()
 
       end
 
+      local function Cooldowns()
+        -------------------------
+        -------Auto racial-------
+        -------------------------
+        if isChecked("use Racials") and cast.able.racial() then
+          if cast.racial() then
+            return true
+          end
+        end
+      end
       -----------------------------
       ---      Rotation itself  ---
       -----------------------------
       if inCombat and not (IsMounted() or IsFlying()) then
         if Defensives() then
+          return
+        end
+                if Cooldowns() then
           return
         end
         if AttackSpells() then
