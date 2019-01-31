@@ -291,7 +291,6 @@ local function runRotation()
     clearTable(enemyTable10)
     clearTable(enemyTable30)
     local deadlyPoison10 = true
-    local garroteRefresh5 = 0
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -346,7 +345,6 @@ local function runRotation()
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
-                    if useCDs() and cd.vanish.remain() == 0 and debuff.garrote.refresh(thisUnit.unit) then garroteRefresh5 = garroteRefresh5 + 1 end
                     tinsert(enemyTable5, thisUnit)
                 end
             end
@@ -654,7 +652,7 @@ local function runRotation()
                 end
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
-                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and cd.garrote.remain() == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
+                if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and getSpellCD(spell.garrote) == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
@@ -799,7 +797,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
-                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and debuff.garrote.applied(thisUnit) <= 1 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
