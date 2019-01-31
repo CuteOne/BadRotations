@@ -255,8 +255,14 @@ local function runRotation()
     end
 
     local function isTotem(unit)
+        local eliteTotems = { -- totems we can dot
+            [125977] = "Reanimate Totem",
+            [127315] = "Reanimate Totem",
+            [146731] = "Zombie Dust Totem"
+        }
         local creatureType = UnitCreatureType(unit)
-        if creatureType ~= nil and GetObjectID(unit) ~= 125977 and GetObjectID(unit) ~= 127315 then --reanimate totem
+        local objectID = GetObjectID(unit)
+        if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
         end
         return false
@@ -340,6 +346,7 @@ local function runRotation()
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
+                    if useCDs() and cd.vanish.remain() == 0 and debuff.garrote.refresh(thisUnit.unit) then garroteRefresh5 = garroteRefresh5 + 1 end
                     tinsert(enemyTable5, thisUnit)
                 end
             end
@@ -373,7 +380,7 @@ local function runRotation()
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
-    local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 % (2 * (GetHaste()/100)))
+    local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100)))
 
     if not inCombat and mode.open ~= 1 and opener == true and not cast.last.kidneyShot(1) and not cast.last.kidneyShot(2) then
         opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
