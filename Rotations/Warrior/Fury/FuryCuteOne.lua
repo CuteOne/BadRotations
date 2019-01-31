@@ -426,7 +426,9 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind
-            if cast.able.whirlwind(nil,"aoe") and #enemies.yards8 > 0 then
+            if cast.able.whirlwind(nil,"aoe") and #enemies.yards8 > 0 and (level < 75 or charges.ragingBlow.count() == 0
+                or rage >= 90 or (talent.massacre and rage >= 80))
+            then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         end -- End Action List - Single
