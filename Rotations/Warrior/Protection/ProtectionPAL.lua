@@ -72,7 +72,7 @@ local function createOptions()
     br.ui:createCheckbox(section, "Shield Slam", "Use Shield Slam")
     br.ui:createCheckbox(section, "Dragon Roar", "Use Dragon Roar")
     br.ui:createCheckbox(section, "Revenge", "Use Revenge")
-    br.ui:createSpinner(section, "Victory Rush - Impending Victory", "Your Health % to be cast at")
+    br.ui:createSpinner(section, "Victory Rush - Impending Victory", 80,  0,  100,  5, "Your Health % to be cast at")
 
     br.ui:checkSectionState(section)
 
