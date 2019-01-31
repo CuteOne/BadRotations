@@ -1,5 +1,10 @@
 local rotationName = "Fiskee - 8.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
+local br = br
+br.rogueTables = {}
+local rogueTables = br.rogueTables
+rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
+local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
@@ -265,15 +270,20 @@ local function runRotation()
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
         if isTotem(unit) then return true end
-        unitCreator = UnitCreator(unit)
+        local unitCreator = UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
         if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
         return false
     end
 
-    local enemyTable30 = { }
-    local enemyTable10 = { }
-    local enemyTable5 = { }
+    local function clearTable(t)
+        local count = #t
+        for i=0, count do t[i]=nil end
+    end
+
+    clearTable(enemyTable5)
+    clearTable(enemyTable10)
+    clearTable(enemyTable30)
     local deadlyPoison10 = true
     local garroteRefresh5 = 0
     if #enemies.yards30 > 0 then
@@ -299,11 +309,11 @@ local function runRotation()
         end
         if #enemyTable30 > 1 then
             for i = 1, #enemyTable30 do
-                local hpNorm = (5-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+5 -- normalization of HP value, high is good
+                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
                 if enemyTable30[i].facing then enemyScore = enemyScore + 30 end
-                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 10 end
+                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
                 if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
                 local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
                 if raidTarget ~= nil then 
