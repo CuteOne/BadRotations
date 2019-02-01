@@ -66,6 +66,10 @@ local function createOptions()
     --- Defensives
     -------------------------
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
+    br.ui:createCheckbox(section, "Shield Block", "Use Shield Block")
+    br.ui:createCheckbox(section, "Last Stand", "Use Last Stand")
+    br.ui:createCheckbox(section, "Ignore Pain", "Use Ignore Pain")
+
     br.ui:createSpinner(section, "Demoralizing Shout", 75, 0, 100, 5, "Your Health % to be cast at")
     br.ui:createSpinner(section, "Shieldwall", 25, 0, 100, 5, "Your Health % to be cast at")
     br.ui:checkSectionState(section)
@@ -317,13 +321,13 @@ local function runRotation()
             end
           end
           -- shield block
-          if cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
+          if isChecked("Shield Block") and cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
             if cast.shieldBlock() then
               return true
             end
           end
           -- last stand as filler
-          if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+          if isChecked("Last Stand") and talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
             if cast.lastStand() then
               return true
             end
@@ -341,13 +345,13 @@ local function runRotation()
             end
           end
           --ignore pain
-          if cast.able.ignorePain() and mainTank() and ipCapCheck() then
+          if isChecked("Ignore Pain") and cast.able.ignorePain() and mainTank() and ipCapCheck() then
             if buff.vengeanceIgnorePain.exists() and rage >= 42 then
               if cast.ignorePain() then
                 return
               end
             end
-            if rage >= 55 and not buff.vengeanceRevenge.exists() then
+            if isChecked("Ignore Pain") and rage >= 55 and not buff.vengeanceRevenge.exists() then
               if cast.ignorePain() then
                 return
               end
