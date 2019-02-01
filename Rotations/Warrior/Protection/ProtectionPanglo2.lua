@@ -73,8 +73,9 @@ local function createOptions()
             br.ui:createCheckbox(section,"Demoralizing Shout - CD")
             -- Ravager
             br.ui:createCheckbox(section,"Ravager")
+            -- Dragons Roar
+            br.ui:createCheckbox(section,"Dragon Roar")
             -- Shockwave
-            br.ui:createCheckbox(section,"Shockwave")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -157,6 +158,7 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local heirloomNeck                                  = 122667 or 122668
@@ -242,7 +244,7 @@ local function runRotation()
 
         ------Stuff with the things ------
 
-        local function upsizeWithFries()
+        local function actionList_Extras()
             if isChecked("Charge OoC") then
                 if cast.able.intercept("target") and getDistance("player","target") <= 25 then
                     if cast.intercept("target") then return end
@@ -261,7 +263,7 @@ local function runRotation()
             end
         end
 
-        local function silenceThemHoes()
+        local function actionList_Interrupts()
             if useInterrupts() then
                 for i=1, #enemies.yards20 do
                     thisUnit = enemies.yards20[i]
@@ -285,7 +287,7 @@ local function runRotation()
             end        
         end
 
-        local function moveMeDaddy()
+        local function actionList_Moving()
             if br.player.mode.mover == 1 then 
                 if cast.able.intercept("target") and (getDistance("player","target") >= 8 and getDistance("player","target") <= 25) then
                     if cast.intercept("target") then return end
@@ -293,7 +295,7 @@ local function runRotation()
             end
         end
 
-        local function bigDickDPS()
+        local function actionList_Cooldowns()
             if useCDs() and #enemies.yards5 >= 1 then
                 if isChecked("Avatar") then
                     --print("cd avatar")
@@ -308,7 +310,7 @@ local function runRotation()
             end
         end
 
-        local function dontTazeMeBro()
+        local function actionList_Defensives()
             if useDefensive() then
                 if isChecked("Taunt") and inInstance then
                     for i = 1, #enemies.yards30 do
@@ -321,7 +323,7 @@ local function runRotation()
                 if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
                     if cast.shieldBlock() then return end
                 end
-                if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+                if talent.bolster and isChecked("Last Stand Filler") and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
                     if cast.lastStand() then return end
                 end
                 if php <= 65 and cast.able.victoryRush() then
@@ -355,7 +357,7 @@ local function runRotation()
                  if  isChecked("Shield Wall") and php <= getOptionValue("Shield Wall") and cd.lastStand.remain() > 0 and not buff.lastStand.exists() then
                     if cast.shieldWall() then return end
                 end
-                 if  ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units"))) then
+                 if  ((isChecked("Shockwave - HP") and php <= getOptionValue("Shockwave - HP")) or (isChecked("Shockwave - Units") and #enemies.yards8 >= getOptionValue("Shockwave - Units")  and not moving)) then
                     if cast.shockwave() then return end
                 end
                if  isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
@@ -367,18 +369,24 @@ local function runRotation()
             end
         end
 
-        local function parseTime()
+        local function actionList_Single()
+            --Avatar units
             if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
                 ---print("norm avatar")
                 if cast.avatar() then return end
             end
+
+            -- Heroic Throw
             if #enemies.yards10 == 0 and isChecked("Use Heroic Throw") then
-                if cast.heroicThrow() then return end
+                if cast.heroicThrow("target") then return end
             end
-            if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+
+            --Use Demo Shout on CD
+            if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
                 if cast.demoralizingShout() then return end
             end
-        -- shield slam always
+
+            --Use Trinkets
             if isChecked("Trinkets") then
                 if canTrinket(13) then
                     useItem(13)
@@ -387,22 +395,45 @@ local function runRotation()
                     useItem(14)
                 end
             end
+
+            -- Ravager Usage
+            if isChecked("Ravager") then 
+                if cast.ravager("target", "ground") then return end
+            end
+
+            --Dragon Roar
+            if isChecked("Dragon Roar") and not moving then
+                if cast.dragonRoar() then return end
+            end
+
+            --High Priority Thunder Clap
+            if talent.unstoppableForce and buff.avatar.exists() and debuff.demoralizingShout.exists(units.dyn8) then
+                if cast.thunderClap() then return end
+            end
+
+            -- Shield Slam
+            if cast.shieldSlam() then return end
+            
+            -- Low Prio Thunder Clap
             if talent.cracklingThunder then
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
             end
-            if cast.shieldSlam() then return end
-            -- Clap the booty
-            -- Revenge of the stiff
+            
+            -- Revenge
             if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
                 if cast.revenge() then return end
             end
+            
+            --avoid rage cap
+            if rageCap() then return end
+            
             --Less Victorious
             if php <= 80 and not (cast.able.shieldSlam() or cast.able.thunderClap()) then
                 if cast.victoryRush() then return end
             end
-            --devastating blows
+            --Devestate
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) then
                 if cast.devastate() then return end
             end
@@ -420,7 +451,7 @@ local function runRotation()
                 if cast.shieldSlam() then return end
             end
             -- Recover
-            if not (cast.able.shieldSlam() or cast.able.thunderClap()) and buff.revenge.exists() then
+            if not (cast.able.thunderClap()) and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
                 if cast.revenge() then return end
             end
             -- Drink
@@ -438,28 +469,27 @@ local function runRotation()
         return true
         else
             if not inCombat and not IsMounted() and isValidUnit("target") then
-                if upsizeWithFries() then return end
+                if actionList_Extras() then return end
             end
             if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
                 
-                if dontTazeMeBro() then return end
+                if actionList_Defensives() then return end
 
-                if moveMeDaddy() then return end
+                if actionList_Moving() then return end
 
-                if bigDickDPS() then return end
+                if actionList_Cooldowns() then return end
 
-                if silenceThemHoes() then return end
+                if actionList_Interrupts() then return end
 
                 if (talent.unstoppableForce and buff.avatar.exists()) then
                     if technoViking() then return end
                 end
 
                 if not (talent.unstoppableForce and buff.avatar.exists()) then
-                    if rageCap() then return end
-                    if parseTime() then return end
+                    if actionList_Single() then return end
                 end
             end-- combat check
         end--pause
