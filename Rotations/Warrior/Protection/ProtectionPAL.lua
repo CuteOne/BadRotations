@@ -69,9 +69,9 @@ local function createOptions()
     br.ui:createCheckbox(section, "Shield Block", "Use Shield Block")
     br.ui:createCheckbox(section, "Last Stand", "Use Last Stand")
     br.ui:createCheckbox(section, "Ignore Pain", "Use Ignore Pain")
-
+    br.ui:createSpinner(section, "Rallying Cry", 25, 0, 100, 5, "Your Health % or Group % to be cast at")
     br.ui:createSpinner(section, "Demoralizing Shout", 75, 0, 100, 5, "Your Health % to be cast at")
-    br.ui:createSpinner(section, "Shieldwall", 25, 0, 100, 5, "Your Health % to be cast at")
+    br.ui:createSpinner(section, "Shieldwall", 40, 0, 100, 5, "Your Health % to be cast at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -164,6 +164,8 @@ local function runRotation()
     local ttm = br.player.timeToMax
     local units = br.player.units
     local rage, powerDeficit = br.player.power.rage.amount(), br.player.power.rage.deficit()
+    local friends = friends or {}
+
     local hasAggro = UnitThreatSituation("player")
     if hasAggro == nil then
       hasAggro = 0
@@ -177,7 +179,7 @@ local function runRotation()
     end
     units.get(5)
     units.get(8)
-
+    friends.yards40 = getAllies("player",40)
     enemies.get(5)
     enemies.get(8)
     enemies.get(10)
@@ -307,7 +309,7 @@ local function runRotation()
               local thisUnit = enemies.yards30[i]
               if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                 if cast.taunt(thisUnit) then
-                  return
+                  return true
                 end
               end
             end
@@ -348,15 +350,25 @@ local function runRotation()
           if isChecked("Ignore Pain") and cast.able.ignorePain() and mainTank() and ipCapCheck() then
             if buff.vengeanceIgnorePain.exists() and rage >= 42 then
               if cast.ignorePain() then
-                return
+                return true
               end
             end
             if isChecked("Ignore Pain") and rage >= 55 and not buff.vengeanceRevenge.exists() then
               if cast.ignorePain() then
-                return
+                return true
               end
             end
           end
+          if isChecked("Rallying Cry") then
+            for i=1, #friends.yards40 do
+              if friends.yards40[i].hp <= getOptionValue("Rallying Cry") or php <= getOptionValue("Rallying Cry") then
+                if cast.rallyingCry() then
+                  return true
+                end
+              end
+            end
+          end
+
           if isChecked("shieldwall") and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
             if cast.shieldwall() then
               return true
