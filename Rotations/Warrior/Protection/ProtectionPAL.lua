@@ -325,7 +325,7 @@ local function runRotation()
             return true
           end
         end
-        -- last stand as filler
+        -- last stand when shieldblock is down - if bolster
         if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
           if cast.lastStand() then
             return true
@@ -356,8 +356,8 @@ local function runRotation()
             end
           end
         end
-        if isChecked("shieldwall") and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
-          if cast.shieldwall() then
+        if isChecked("shieldwall") and cast.able.shieldWall() and php <= getOptionValue("shieldwall") then
+          if cast.shieldWall() then
             return true
           end
         end
