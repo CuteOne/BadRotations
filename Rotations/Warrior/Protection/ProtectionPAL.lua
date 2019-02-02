@@ -54,6 +54,7 @@ local function createOptions()
     -----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
     br.ui:createCheckbox(section, "Open World Defensives", "Use this checkbox to ensure defensives are used while in Open World")
+    br.ui:createCheckbox(section, "Battle Shout", "Keep Battle Shout Buff Up")
 
     br.ui:checkSectionState(section)
     ------------------------
@@ -80,6 +81,7 @@ local function createOptions()
     br.ui:createCheckbox(section, "Devastate", "Use Devastate")
     br.ui:createCheckbox(section, "Shield Slam", "Use Shield Slam")
     br.ui:createCheckbox(section, "Dragon Roar", "Use Dragon Roar")
+    br.ui:createCheckbox(section, "Ravager", "Use Ravager")
     br.ui:createCheckbox(section, "Revenge", "Use Revenge")
     br.ui:createSpinner(section, "Victory Rush - Impending Victory", 80, 0, 100, 5, "Your Health % to be cast at")
 
@@ -184,6 +186,7 @@ local function runRotation()
     enemies.get(30)
     enemies.get(40)
     enemies.get(8, "target")
+    friends.get(8)
     ---------------------------------
     ---     Utility Functions   ---
     ---------------------------------
@@ -435,6 +438,12 @@ local function runRotation()
             return
           end
         end
+        -- Ravager
+        if isChecked("Ravager") then
+          if cast.ravager("target", "ground") then
+            return
+          end
+        end
         --Devastate
         if isChecked("Devastate") and cast.able.devastate() then
           for i = 1, #enemies.yards8 do
@@ -486,6 +495,12 @@ local function runRotation()
             return
           end
         end
+        -- Ravager
+        if isChecked("Ravager") then
+          if cast.ravager("target", "ground") then
+            return
+          end
+        end
         --Revenge
         if isChecked("Revenge") and cast.able.revenge() and php >= 65 or buff.revenge.exists() or (rage > 80 and cd.shieldBlock == 0) then
           for i = 1, #enemies.yards8 do
@@ -534,6 +549,10 @@ local function runRotation()
         if (Trinket13 == 161463 or Trinket14 == 161463) and GetItemCooldown(161463) == 0 and buff.avatar.exists() then
           useItem(161463)
         end
+        --Jes' howler
+        if (Trinket13 == 159627 or Trinket14 == 159627) and GetItemCooldown(159627) == 0 and (#friends.yard8 >= 2 or php <= 50) then
+          useItem(159627)
+        end
       end
 
       -------------------------
@@ -556,6 +575,17 @@ local function runRotation()
       if cast.able.avatar("player") and (ttd > 10 or #enemies.yards8 >= 3) and rage <= 80 and (cd.shieldSlam.remain() == 0 or cd.shieldSlam.remain() > 4) then
         if cast.avatar("player") then
           return true
+        end
+      end
+    end
+    -- Battle Shout
+    if isChecked("Battle Shout") and cast.able.battleShout() then
+      for i = 1, #br.friend do
+        local thisUnit = br.friend[i].unit
+        if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 600 then
+          if cast.battleShout() then
+            return
+          end
         end
       end
     end
