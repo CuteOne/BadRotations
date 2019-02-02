@@ -6,10 +6,14 @@ br.lists.dummies = {
 	[96442]  = "Training Dummy", 			  -- Damage (Location Unknown)
 	[109595] = "Training Dummy",              -- Location Unknown
 	[113963] = "Raider's Training Dummy", 	  -- Damage (Location Unknown)
+	[131985] = "Dungeoneer's Training Dummy", -- Damage (Zuldazar)
+	[131990] = "Raider's Training Dummy",     -- Tanking (Zuldazar)
+	[132976] = "Training Dummy", 			  -- Morale Booster (Zuldazar)
 -- Level 1
 	[17578]  = "Hellfire Training Dummy",     -- Lvl 1 (The Shattered Halls)
 	[60197]  = "Training Dummy",              -- Lvl 1 (Scarlet Monastery)
 	[64446]  = "Training Dummy",              -- Lvl 1 (Scarlet Monastery)
+	[144077] = "Training Dummy",              -- Lvl 1 (Dazar'alor) - Morale Booster
 -- Level 3
 	[44171]  = "Training Dummy",              -- Lvl 3 (New Tinkertown, Dun Morogh)
 	[44389]  = "Training Dummy",              -- Lvl 3 (Coldridge Valley)
@@ -90,9 +94,29 @@ br.lists.dummies = {
 	[93828]  = "Training Dummy",              -- Lvl 102 (Hellfire Citadel)
 	[97668]  = "Boxer's Trianing Dummy",      -- Lvl 102 (Highmountain)
 	[98581]  = "Prepfoot Training Dummy",     -- Lvl 102 (Highmountain)
+-- Level 110 - 120
+	[126781] = "Training Dummy", 			  -- Lvl 110 - 120 (Boralus) - Damage
+	[131989] = "Training Dummy", 			  -- Lvl 110 - 120 (Boralus) - Damage
+	[131994] = "Training Dummy", 			  -- Lvl 110 - 120 (Boralus) - Healing
+	[144082] = "Training Dummy",              -- Lvl 110 - 120 (Dazar'alor) - PVP Damage
+	[144085] = "Training Dummy", 			  -- Lvl 110 - 120 (Dazar'alor) - Damage
+	[144081] = "Training Dummy",              -- Lvl 110 - 120 (Dazar'alor) - Damage
+-- Level 111 - 120
+	[131997] = "Training Dummy", 			  -- Lvl 111 - 120 (Boralus, Zuldazar) - PVP Damage
+	[131998] = "Training Dummy",              -- Lvl 111 - 120 (Boralus, Zuldazar) - PVP Healing
+-- Level 112 - 120
+	[144074] = "Training Dummy", 			  -- Lvl 112 - 120 (Dazar'alor) - PVP Healing
+-- Level 112 - 122
+	[131992] = "Dungeoneer's Training Dummy",  -- Lvl 112 - 122 (Boralus) - Tanking
+-- Level 113 - 120 
+	[132036] = "Training Dummy", 			  -- Lvl 113 - 120 (Boralus) - Healing
+-- Level 113 - 122
+	[144078] = "Dungeoneer's Training Dummy", -- Lvl 113 - 122 (Dazar'alor) - Tanking
+-- Level 114 - 120
+	[144075] = "Training Dummy", 			  -- Lvl 114 - 120 (Dazar'alor) - Healing
 -- Level ??
-	[24792]  = "Advanced Training Dummy",     -- Lvl ?? Boss (Location Unknonw)
-	[30527]  = "Training Dummy", 		      -- Lvl ?? Boss (Location Unknonw)
+	[24792]  = "Advanced Training Dummy",     -- Lvl ?? Boss (Location Unknown)
+	[30527]  = "Training Dummy", 		      -- Lvl ?? Boss (Location Unknown)
 	[31146]  = "Raider's Training Dummy",     -- Lvl ?? (Orgrimmar, Stormwind City, Ironforge, ...)
 	[87320]  = "Raider's Training Dummy",     -- Lvl ?? (Lunarfall, Stormshield) - Damage
 	[87329]  = "Raider's Training Dummy",     -- Lvl ?? (Stormshield) - Tank
@@ -109,6 +133,6 @@ br.lists.dummies = {
 	[113864] = "Raider's Training Dummy",     -- Lvl ?? (Trueshot Lodge) - Damage
 	[70245]  = "Training Dummy",              -- Lvl ?? (Throne of Thunder)
 	[113964] = "Raider's Training Dummy",     -- Lvl ?? (The Dreamgrove) - Tanking
-	[144081] = "Training Dummy",     		  -- Dazal'alor 4 dummies
-	[144086] = "Raider's Training Dummy",     -- Dazal'alor
+	[131983] = "Raider's Training Dummy",     -- Lvl ?? (Boralus) - Damage
+	[144086] = "Raider's Training Dummy",     -- Lvl ?? (Dazal'alor) - Damage
 }

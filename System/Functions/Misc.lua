@@ -410,10 +410,8 @@ function isValidUnit(Unit)
 	end
 	if not pause(true) and Unit ~= nil and
 		(br.units[Unit] ~= nil or Unit == "target" or validUnitBypassList[GetObjectID(Unit)] ~= nil or burnUnit) and
-		(not UnitIsTapDenied(Unit) or dummy) and
-		(isSafeToAttack(Unit) or burnUnit) and
-		((reaction < 5 and not hostileOnly) or (hostileOnly and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) and
-		mcCheck and not isCC
+		mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit) and		
+			((not hostileOnly and reaction < 5) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
 	 then
 		local instance = IsInInstance()
 		local distanceToTarget = getDistance(Unit, "target")

@@ -208,6 +208,9 @@ interruptWhitelist = {
 	[283628] = true, -- Heal of the forces of the crusade, champion of the light encounter
 	[282243] = true, -- Apetagonize, Grong encounter
 	[286379] = true, -- Pyroblast, Jade Masters encounter
+	[286563] = true, -- Tidal Empowerment, Brother Joseph , Stormwall Blockade encounter
+	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
+	[289861] = true, -- Howling Winds, Lady Jaina Proudmoore
 	-- Battle of Dazarlor end
 
 	-- Old Content start 

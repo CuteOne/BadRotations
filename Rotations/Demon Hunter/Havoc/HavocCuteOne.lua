@@ -263,7 +263,7 @@ local function runRotation()
             elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
                 if cast.felRush() then return end
             end
-        end
+        end            
 
         -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
 --------------------
@@ -447,7 +447,7 @@ local function runRotation()
         -- Fel Barrage
             -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
             if cast.able.felBarrage() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if cast.felBarrage() then return end
+                if cast.felBarrage("player","aoe",1,8) then return end
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
@@ -562,7 +562,7 @@ local function runRotation()
         -- Fel Barrage
             -- fel_barrage,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>30)
             if cast.able.felBarrage() and waitForMomentum and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                if cast.felBarrage() then return end
+                if cast.felBarrage("player","aoe",1,8) then return end
             end
         -- Death Sweep
             -- death_sweep,if=variable.blade_dance
