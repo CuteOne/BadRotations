@@ -800,7 +800,8 @@ local function runRotation()
         if talent.subterfuge then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if shallWeDot(thisUnit) and debuff.garrote.refresh(thisUnit) and (enemyTable5[i].ttd - debuff.garrote.remain(thisUnit)) > 2 then
+                local garroteRemain = debuff.garrote.remain(thisUnit)
+                if shallWeDot(thisUnit) and garroteRemain <= 5.4 and (enemyTable5[i].ttd - garroteRemain) > 2 then
                     if cast.garrote(thisUnit) then return true end
                 end
             end
