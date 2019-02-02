@@ -362,7 +362,7 @@ local function runRotation()
             end
           end
         end
-                --ignore pain
+        --ignore pain
         if cast.able.ignorePain() and mainTank() and ipCapCheck() then
           if buff.vengeanceIgnorePain.exists() and rage >= 42 then
             if cast.ignorePain() then
@@ -375,7 +375,7 @@ local function runRotation()
             end
           end
         end
-        if isChecked("shieldwall") and cast.able.shieldWall() and php <= getOptionValue("shieldwall") then
+        if isChecked("Shieldwall") and cast.able.shieldWall() and php <= getOptionValue("Shieldwall") then
           if cast.shieldWall() then
             return true
           end
@@ -522,7 +522,7 @@ local function runRotation()
       -------Auto racial-------
       -------------------------
       if isChecked("use Racials") and cast.able.racial() and #enemies.yards8 >= 1 and ttd > 6 then
-        if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+        if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" or race == "Human" or race == "Gnome" or race == "Draenei" then
           if race == "LightforgedDraenei" then
             if cast.racial("target", "ground") then
               return true
@@ -533,6 +533,27 @@ local function runRotation()
             end
           end
         end
+        if race =="Human" and hasNoControl() and not cast.able(berserkerRage) then
+          if cast.racial("player") then
+            return true
+          end
+        end
+        if race == "Gnome" and hasNoControl() and not cast.able(berserkerRage) then
+          if cast.racial("player") then
+            return true
+          end
+        end
+        if race == "Draenei" then
+        for i=1, #friends.yards40 do
+          if friends.yards40[i].hp < 20 then
+            if cast.racial(friends.yards40[i]) then
+              return true
+            end
+          end
+        end
+      end
+
+
       elseif race == "BloodElf" then
         local torrentUnit = 0
         for i = 1, #enemies.yards8 do
