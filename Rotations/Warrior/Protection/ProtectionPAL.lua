@@ -69,8 +69,10 @@ local function createOptions()
     --- Defensives
     -------------------------
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
+    br.ui:createSpinner(section, "Healthstone", 30, 0, 100, 5, "Your Health % to be cast at")
     br.ui:createSpinner(section, "Demoralizing Shout", 75, 0, 100, 5, "Your Health % to be cast at")
-    br.ui:createSpinner(section, "Shieldwall", 25, 0, 100, 5, "Your Health % to be cast at")
+    br.ui:createSpinner(section, "Shieldwall", 35, 0, 100, 5, "Your Health % to be cast at")
+    br.ui:createSpinner(section, "Rallying Cry", 20, 0, 100, 5, "Your Health % or Group % to be cast at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -164,8 +166,10 @@ local function runRotation()
     local talent = br.player.talent
     local ttm = br.player.timeToMax
     local units = br.player.units
+    local friends = friends or {}
     local rage, powerDeficit = br.player.power.rage.amount(), br.player.power.rage.deficit()
     local hasAggro = UnitThreatSituation("player")
+    friends.yards40 = getAllies("player",40)
     if hasAggro == nil then
       hasAggro = 0
     end
@@ -178,7 +182,6 @@ local function runRotation()
     end
     units.get(5)
     units.get(8)
-
     enemies.get(5)
     enemies.get(8)
     enemies.get(10)
@@ -300,6 +303,11 @@ local function runRotation()
 
     local function Defensives()
       if useDefensive() then
+
+        --Healthstone
+        if isChecked("Healthstone") and use.able.healthstone() and php <= getOptionValue("Healthstone") and inCombat then
+          use.healthstone()
+        end
         --taunt
         if tauntSetting == 1 then
           for i = 1, #enemies.yards30 do
@@ -343,7 +351,18 @@ local function runRotation()
             end
           end
         end
-        --ignore pain
+
+        --Rallying Cry
+        if isChecked("Rallying Cry") then
+          for i=1, #friends.yards40 do
+            if friends.yards40[i].hp <= getOptionValue("Rallying Cry") or php <= getOptionValue("Rallying Cry") then
+              if cast.rallyingCry() then
+                return true
+              end
+            end
+          end
+        end
+                --ignore pain
         if cast.able.ignorePain() and mainTank() and ipCapCheck() then
           if buff.vengeanceIgnorePain.exists() and rage >= 42 then
             if cast.ignorePain() then
