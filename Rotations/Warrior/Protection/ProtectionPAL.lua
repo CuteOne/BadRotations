@@ -61,17 +61,15 @@ local function createOptions()
     ------------------------
     section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
     br.ui:createCheckbox(section, "use Racials", "check here to auto use racials")
+    br.ui:createCheckbox(section, "use Trinkets", "check here to auto use trinkets")
+
     br.ui:checkSectionState(section)
     -------------------------
     --- Defensives
     -------------------------
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
-    br.ui:createCheckbox(section, "Shield Block", "Use Shield Block")
-    br.ui:createCheckbox(section, "Last Stand", "Use Last Stand")
-    br.ui:createCheckbox(section, "Ignore Pain", "Use Ignore Pain")
-    br.ui:createSpinner(section, "Rallying Cry", 25, 0, 100, 5, "Your Health % or Group % to be cast at")
     br.ui:createSpinner(section, "Demoralizing Shout", 75, 0, 100, 5, "Your Health % to be cast at")
-    br.ui:createSpinner(section, "Shieldwall", 40, 0, 100, 5, "Your Health % to be cast at")
+    br.ui:createSpinner(section, "Shieldwall", 25, 0, 100, 5, "Your Health % to be cast at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -87,6 +85,7 @@ local function createOptions()
 
     br.ui:checkSectionState(section)
 
+    -------------------------
     -------------------------
     --- Interrupts
     -------------------------
@@ -164,8 +163,6 @@ local function runRotation()
     local ttm = br.player.timeToMax
     local units = br.player.units
     local rage, powerDeficit = br.player.power.rage.amount(), br.player.power.rage.deficit()
-    local friends = friends or {}
-
     local hasAggro = UnitThreatSituation("player")
     if hasAggro == nil then
       hasAggro = 0
@@ -179,412 +176,418 @@ local function runRotation()
     end
     units.get(5)
     units.get(8)
-    friends.yards40 = getAllies("player",40)
+
     enemies.get(5)
     enemies.get(8)
     enemies.get(10)
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
-
-
-
-      ---------------------------------
-      ---     Utility Functions   ---
-      ---------------------------------
-      local function mainTank()
-        if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
-          return true
-        else
-          return false
-        end
-      end
-      -- Thanks to Panglo
-      local function ipCapCheck()
-        if buff.ignorePain.exists() then
-          local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D", ""))), 10)
-          local ipMax = math.floor(ipValue * 1.3)
-          local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))), 10)
-          if ipCurrent == nil then
-            ipCurrent = 0
-            return
-          end
-          if ipCurrent <= (ipMax * 0.2) then
-            ---print("IP below cap")
-            return true
-          else
-            --print("dont cast IP")
-            return false
-          end
-        else
-          --print("IP not on")
-          return true
-        end
-      end
-
-      local function castBestConeAngle(spell, angle, range, minUnits, checkNoCombat)
-        if not isKnown(spell) or getSpellCD(spell) ~= 0 then
-          return false
-        end
-        local curFacing = ObjectFacing("player")
-        local enemiesTable = getEnemies("player", range, checkNoCombat)
-        local playerX, playerY, playerZ = ObjectPosition("player")
-        local coneTable = {}
-        for i = 1, #enemiesTable do
-          local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
-          if playerX and unitX then
-            local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-            tinsert(coneTable, angleToUnit)
-          end
-        end
-        local facing, bestAngle, mostHit = 0, 0, 0
-        while facing <= 6.2 do
-          local units = 0
-          for i = 1, #coneTable do
-            local angleToUnit = coneTable[i]
-            local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-            local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-            local finalAngle = shortestAngle / math.pi * 180
-            if finalAngle < angle / 2 then
-              units = units + 1
-            end
-          end
-          if units > mostHit then
-            mostHit = units
-            bestAngle = facing
-          end
-          facing = facing + 0.05
-        end
-        if mostHit >= minUnits then
-          FaceDirection(bestAngle, true)
-          CastSpellByName(GetSpellInfo(spell))
-          FaceDirection(curFacing, true)
-          return true
-        end
-        return false
-      end
-
-
-      -----------------------------
-      ---      Modifiers        ---
-      -----------------------------
-      if isChecked("Heroic Leap Hotkey") and SpecificToggle("Heroic Leap Hotkey") then
-        CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
-        return
-      end
-      if IsLeftAltKeyDown() and cast.able.heroicThrow("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 30 then
-        CastSpellByName(GetSpellInfo(spell.heroicThrow), "mouseover")
-        return
-      end
-
-      if isChecked("Intercept Hotkey") and SpecificToggle("Intercept Hotkey") then
-        if GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 0 and getDistance("player", "mouseover") <= 25 then
-          if cast.intercept("mouseover") then
-            return
-          end
-        elseif not GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 25 then
-          if cast.intercept("mouseover") then
-            return
-          end
-        end
-      end
-
-      -----------------------------
-      ---    Combat Functions  ---
-      -----------------------------
-
-      local function antislow()
-        if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
-          if cast.berserkerRage() then
-            return
-          end
-        end
-      end
-
-      local function Defensives()
-        if useDefensive() then
-          --taunt
-          if tauntSetting == 1 then
-            for i = 1, #enemies.yards30 do
-              local thisUnit = enemies.yards30[i]
-              if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-                if cast.taunt(thisUnit) then
-                  return true
-                end
-              end
-            end
-          end
-          --demo shout
-          if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() then
-            if not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >= 3) or talent.boomingVoice and rage <= 60 then
-              if cast.demoralizingShout() then
-                return true
-              end
-            end
-          end
-          -- shield block
-          if isChecked("Shield Block") and cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
-            if cast.shieldBlock() then
-              return true
-            end
-          end
-          -- last stand as filler
-          if isChecked("Last Stand") and talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
-            if cast.lastStand() then
-              return true
-            end
-          end
-          --Victory rush / Impending Victory
-          if isChecked("Victory Rush - Impending Victory") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush - Impending Victory") then
-            if talent.impendingVictory then
-              if cast.impendingVictory() then
-                return true
-              end
-            elseif buff.victorious.exists() then
-              if cast.victoryRush() then
-                return true
-              end
-            end
-          end
-          --ignore pain
-          if isChecked("Ignore Pain") and cast.able.ignorePain() and mainTank() and ipCapCheck() then
-            if buff.vengeanceIgnorePain.exists() and rage >= 42 then
-              if cast.ignorePain() then
-                return true
-              end
-            end
-            if isChecked("Ignore Pain") and rage >= 55 and not buff.vengeanceRevenge.exists() then
-              if cast.ignorePain() then
-                return true
-              end
-            end
-          end
-          if isChecked("Rallying Cry") then
-            for i=1, #friends.yards40 do
-              if friends.yards40[i].hp <= getOptionValue("Rallying Cry") or php <= getOptionValue("Rallying Cry") then
-                if cast.rallyingCry() then
-                  return true
-                end
-              end
-            end
-          end
-
-          if isChecked("shieldwall") and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
-            if cast.shieldwall() then
-              return true
-            end
-          end
-        end
-      end
-
-      local function Interrupts()
-        if useInterrupts() then
-          for i = 1, #enemies.yards20 do
-            thisUnit = enemies.yards20[i]
-            unitDist = getDistance(thisUnit)
-            targetMe = UnitIsUnit("player", thisUnit) or false
-            if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-              if isChecked("Pummel Interrupt") and unitDist < 6 then
-                if cast.pummel(thisUnit) then
-                  return
-                end
-              end
-              if isChecked("Intimidating Shout Interrupt") and unitDist <= 8 then
-                if cast.intimidatingShout() then
-                  return
-                end
-              end
-              if isChecked("Shockwave Interrupt") and unitDist < 10 then
-                if cast.shockwave() then
-                  return
-                end
-              end
-              if isChecked("Storm Bolt Interrupt") and unitDist < 20 then
-                if cast.stormBolt() then
-                  return
-                end
-              end
-            end
-          end
-        end
-      end
-
-      local function AttackSpells()
-
-        --single target rotation
-        if #enemies.yards8 == 1 then
-          --shield slam
-          if isChecked("Shield Slam") and cast.able.shieldSlam() then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.shieldSlam(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          --Revenge
-          if isChecked("Revenge") and cast.able.revenge() and (buff.revenge.exists() or rage > 80 and cd.shieldBlock == 0) then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.revenge(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          --ThunderClap
-          if cast.able.thunderClap() and talent.cracklingThunder then
-            if cast.thunderClap("player", nil, 1, 12) then
-              return
-            end
-          elseif not talent.cracklingThunder then
-            if cast.thunderClap("player", nil, 1, 8) then
-              return
-            end
-          end
-          --dragon roar
-          if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
-            if cast.dragonRoar(nil, "aoe") then
-              return
-            end
-          end
-          --Devastate
-          if isChecked("Devastate") and cast.able.devastate() then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.devastate(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          -- heroic_throw
-          if cast.able.heroicThrow() then
-            if cast.heroicThrow("target") then
-              return true
-            end
-          end
-
-        elseif #enemies.yards8 >= 2 then
-          --shockwave if x amount of targets
-          if cast.able.shockwave() then
-            if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
-              return true
-            end
-          end
-          --ThunderClap
-          if cast.able.thunderClap() and talent.cracklingThunder then
-            if cast.thunderClap("player", nil, 1, 12) then
-              return
-            end
-          elseif not talent.cracklingThunder then
-            if cast.thunderClap("player", nil, 1, 8) then
-              return
-            end
-          end
-          if isChecked("Shield Slam") and cast.able.shieldSlam() then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.shieldSlam(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          --dragon roar
-          if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
-            if cast.dragonRoar(nil, "aoe") then
-              return
-            end
-          end
-          --Revenge
-          if isChecked("Revenge") and cast.able.revenge() and php >= 65 or buff.revenge.exists() or (rage > 80 and cd.shieldBlock == 0) then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.revenge(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          --Devastate
-          if isChecked("Devastate") and cast.able.devastate() then
-            for i = 1, #enemies.yards8 do
-              thisUnit = enemies.yards8[i]
-              if getFacing("player", thisUnit) then
-                if cast.devastate(thisUnit) then
-                  return
-                end
-              end
-            end
-          end
-          -- heroic_throw
-          if cast.able.heroicThrow() then
-            if cast.heroicThrow("target") then
-              return true
-            end
-          end
-        end
-      end-- end attacks
-      local function Cooldowns()
-        -------------------------
-        -------Auto racial-------
-        -------------------------
-        if isChecked("use Racials") and cast.able.racial() and ttd > 6 then
-          if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
-            if race == "LightforgedDraenei" then
-              if cast.racial("target", "ground") then
-                return true
-              end
-            else
-              if cast.racial("player") then
-                return true
-              end
-            end
-          end
-        end
-
-        if cast.able.avatar("player") and (ttd > 10 or #enemies.yards8 >= 3) and rage <= 80 and (cd.shieldSlam.remain() == 0 or cd.shieldSlam.remain() > 4) then
-          if cast.avatar("player") then
-            return true
-          end
-        end
-      end
-      -----------------------------
-      ---      Rotation itself  ---
-      -----------------------------
-      if inCombat and not (IsMounted() or IsFlying()) then
-        StartAttack()
-        if Cooldowns() then
-          return
-        end
-        if php <= 90 then
-          if Defensives() then
-            return
-          end
-        end
-
-        if AttackSpells() then
-          return
-        end
-        if antislow() then
-          return
-        end
-        if Interrupts() then
-          return
-        end
-      end
-
-      -- Pause
-      if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+    enemies.get(8, "target")
+    ---------------------------------
+    ---     Utility Functions   ---
+    ---------------------------------
+    local function mainTank()
+      if (#enemies.yards30 >= 1 and (hasAggro >= 2)) or isChecked("Open World Defensives") then
         return true
       else
+        return false
+      end
+    end
+    -- Thanks to Panglo
+    local function ipCapCheck()
+      if buff.ignorePain.exists() then
+        local ipValue = tonumber((select(1, GetSpellDescription(190456):match("%d+%S+%d"):gsub("%D", ""))), 10)
+        local ipMax = math.floor(ipValue * 1.3)
+        local ipCurrent = tonumber((select(16, UnitBuffID("player", 190456))), 10)
+        if ipCurrent == nil then
+          ipCurrent = 0
+          return
+        end
+        if ipCurrent <= (ipMax * 0.2) then
+          ---print("IP below cap")
+          return true
+        else
+          --print("dont cast IP")
+          return false
+        end
+      else
+        --print("IP not on")
+        return true
+      end
+    end
+
+    local function castBestConeAngle(spell, angle, range, minUnits, checkNoCombat)
+      if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+        return false
+      end
+      local curFacing = ObjectFacing("player")
+      local enemiesTable = getEnemies("player", range, checkNoCombat)
+      local playerX, playerY, playerZ = ObjectPosition("player")
+      local coneTable = {}
+      for i = 1, #enemiesTable do
+        local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
+        if playerX and unitX then
+          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+          tinsert(coneTable, angleToUnit)
+        end
+      end
+      local facing, bestAngle, mostHit = 0, 0, 0
+      while facing <= 6.2 do
+        local units = 0
+        for i = 1, #coneTable do
+          local angleToUnit = coneTable[i]
+          local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+          local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
+          local finalAngle = shortestAngle / math.pi * 180
+          if finalAngle < angle / 2 then
+            units = units + 1
+          end
+        end
+        if units > mostHit then
+          mostHit = units
+          bestAngle = facing
+        end
+        facing = facing + 0.05
+      end
+      if mostHit >= minUnits then
+        FaceDirection(bestAngle, true)
+        CastSpellByName(GetSpellInfo(spell))
+        FaceDirection(curFacing, true)
+        return true
+      end
+      return false
+    end
+
+    -----------------------------
+    ---      Modifiers        ---
+    -----------------------------
+    if isChecked("Heroic Leap Hotkey") and SpecificToggle("Heroic Leap Hotkey") then
+      CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
+      return
+    end
+    if IsLeftAltKeyDown() and cast.able.heroicThrow("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 30 then
+      CastSpellByName(GetSpellInfo(spell.heroicThrow), "mouseover")
+      return
+    end
+
+    if isChecked("Intercept Hotkey") and SpecificToggle("Intercept Hotkey") then
+      if GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 0 and getDistance("player", "mouseover") <= 25 then
+        if cast.intercept("mouseover") then
+          return
+        end
+      elseif not GetUnitIsFriend("mouseover") and cast.able.intercept("mouseover") and getDistance("player", "mouseover") >= 8 and getDistance("player", "mouseover") <= 25 then
+        if cast.intercept("mouseover") then
+          return
+        end
+      end
+    end
+
+    -----------------------------
+    ---    Combat Functions  ---
+    -----------------------------
+
+    local function antislow()
+      if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
+        if cast.berserkerRage() then
+          return
+        end
+      end
+    end
+
+    local function Defensives()
+      if useDefensive() then
+        --taunt
+        if tauntSetting == 1 then
+          for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+              if cast.taunt(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        --demo shout
+        if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() then
+          if not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >= 3) or talent.boomingVoice and rage <= 60 then
+            if cast.demoralizingShout() then
+              return true
+            end
+          end
+        end
+        -- shield block
+        if cast.able.shieldBlock() and mainTank() and #enemies.yards8 >= 1 and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
+          if cast.shieldBlock() then
+            return true
+          end
+        end
+        -- last stand as filler
+        if talent.bolster and not buff.shieldBlock.exists() and cd.shieldBlock.remain() > gcd and mainTank() then
+          if cast.lastStand() then
+            return true
+          end
+        end
+        --Victory rush / Impending Victory
+        if isChecked("Victory Rush - Impending Victory") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush - Impending Victory") then
+          if talent.impendingVictory then
+            if cast.impendingVictory() then
+              return true
+            end
+          elseif buff.victorious.exists() then
+            if cast.victoryRush() then
+              return true
+            end
+          end
+        end
+        --ignore pain
+        if cast.able.ignorePain() and mainTank() and ipCapCheck() then
+          if buff.vengeanceIgnorePain.exists() and rage >= 42 then
+            if cast.ignorePain() then
+              return
+            end
+          end
+          if rage >= 55 and not buff.vengeanceRevenge.exists() then
+            if cast.ignorePain() then
+              return
+            end
+          end
+        end
+        if isChecked("shieldwall") and cast.able.shieldwall() and php <= getOptionValue("shieldwall") then
+          if cast.shieldwall() then
+            return true
+          end
+        end
+      end
+    end
+
+    local function Interrupts()
+      if useInterrupts() then
+        for i = 1, #enemies.yards20 do
+          thisUnit = enemies.yards20[i]
+          unitDist = getDistance(thisUnit)
+          targetMe = UnitIsUnit("player", thisUnit) or false
+          if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
+            if isChecked("Pummel Interrupt") and unitDist < 6 then
+              if cast.pummel(thisUnit) then
+                return
+              end
+            end
+            if isChecked("Intimidating Shout Interrupt") and unitDist <= 8 then
+              if cast.intimidatingShout() then
+                return
+              end
+            end
+            if isChecked("Shockwave Interrupt") and unitDist < 10 then
+              if cast.shockwave() then
+                return
+              end
+            end
+            if isChecked("Storm Bolt Interrupt") and unitDist < 20 then
+              if cast.stormBolt() then
+                return
+              end
+            end
+          end
+        end
+      end
+    end
+
+    local function AttackSpells()
+
+      --single target rotation
+      if #enemies.yards8 == 1 then
+        --shield slam
+        if isChecked("Shield Slam") and cast.able.shieldSlam() then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.shieldSlam(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        --Revenge
+        if isChecked("Revenge") and cast.able.revenge() and (buff.revenge.exists() or rage > 80 and cd.shieldBlock == 0) then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.revenge(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        --ThunderClap
+        if cast.able.thunderClap() and talent.cracklingThunder then
+          if cast.thunderClap("player", nil, 1, 12) then
+            return
+          end
+        elseif not talent.cracklingThunder then
+          if cast.thunderClap("player", nil, 1, 8) then
+            return
+          end
+        end
+        --dragon roar
+        if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+          if cast.dragonRoar(nil, "aoe") then
+            return
+          end
+        end
+        --Devastate
+        if isChecked("Devastate") and cast.able.devastate() then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.devastate(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        -- heroic_throw
+        if cast.able.heroicThrow() then
+          if cast.heroicThrow("target") then
+            return true
+          end
+        end
+
+      elseif #enemies.yards8 >= 2 then
+        --shockwave if x amount of targets
+        if cast.able.shockwave() then
+          if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
+            return true
+          end
+        end
+        --ThunderClap
+        if cast.able.thunderClap() and talent.cracklingThunder then
+          if cast.thunderClap("player", nil, 1, 12) then
+            return
+          end
+        elseif not talent.cracklingThunder then
+          if cast.thunderClap("player", nil, 1, 8) then
+            return
+          end
+        end
+        if isChecked("Shield Slam") and cast.able.shieldSlam() then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.shieldSlam(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        --dragon roar
+        if isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+          if cast.dragonRoar(nil, "aoe") then
+            return
+          end
+        end
+        --Revenge
+        if isChecked("Revenge") and cast.able.revenge() and php >= 65 or buff.revenge.exists() or (rage > 80 and cd.shieldBlock == 0) then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.revenge(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        --Devastate
+        if isChecked("Devastate") and cast.able.devastate() then
+          for i = 1, #enemies.yards8 do
+            thisUnit = enemies.yards8[i]
+            if getFacing("player", thisUnit) then
+              if cast.devastate(thisUnit) then
+                return
+              end
+            end
+          end
+        end
+        -- heroic_throw
+        if cast.able.heroicThrow() then
+          if cast.heroicThrow("target") then
+            return true
+          end
+        end
+      end
+    end-- end attacks
+    local function Cooldowns()
+
+      if isChecked("use Trinkets") then
+        local Trinket13 = GetInventoryItemID("player", 13)
+        local Trinket14 = GetInventoryItemID("player", 14)
+
+        -- Mchimba's Ritual Bandage
+        if (Trinket13 == 159618 or Trinket14 == 159618) and GetItemCooldown(159618) == 0 and php <= 60 then
+          useItem(159618)
+        end
+        --Big Red Button
+        if (Trinket13 == 159611 or Trinket14 == 159611) and GetItemCooldown(159611) == 0 and #enemies.yards8t >= 2 then
+          useItemGround("target", 159611, 30, 0, 8)
+        end
+        --doomsfury
+        if (Trinket13 == 161463 or Trinket14 == 161463) and GetItemCooldown(161463) == 0 and buff.avatar.exists() then
+          useItem(161463)
+        end
+      end
+
+      -------------------------
+      -------Auto racial-------
+      -------------------------
+      if isChecked("use Racials") and cast.able.racial() and ttd > 6 then
+        if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+          if race == "LightforgedDraenei" then
+            if cast.racial("target", "ground") then
+              return true
+            end
+          else
+            if cast.racial("player") then
+              return true
+            end
+          end
+        end
+      end
+
+      if cast.able.avatar("player") and (ttd > 10 or #enemies.yards8 >= 3) and rage <= 80 and (cd.shieldSlam.remain() == 0 or cd.shieldSlam.remain() > 4) then
+        if cast.avatar("player") then
+          return true
+        end
+      end
+    end
+    -----------------------------
+    ---      Rotation itself  ---
+    -----------------------------
+    if inCombat and not (IsMounted() or IsFlying()) then
+      StartAttack()
+      if Cooldowns() then
+        return
+      end
+      if php <= 90 then
+        if Defensives() then
+          return
+        end
+      end
+
+      if AttackSpells() then
+        return
+      end
+      if antislow() then
+        return
+      end
+      if Interrupts() then
+        return
+      end
+    end
+
+    -- Pause
+    if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+      return true
+    else
 
     end -- Pause
   end -- End Timer
