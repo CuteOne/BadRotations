@@ -169,7 +169,7 @@ local function runRotation()
     local friends = friends or {}
     local rage, powerDeficit = br.player.power.rage.amount(), br.player.power.rage.deficit()
     local hasAggro = UnitThreatSituation("player")
-    friends.yards40 = getAllies("player",40)
+    friends.yards40 = getAllies("player", 40)
     if hasAggro == nil then
       hasAggro = 0
     end
@@ -222,7 +222,51 @@ local function runRotation()
         return true
       end
     end
-
+    local function castBestConeAnglexx(spell, angle, range, minUnits, checkNoCombat)
+      if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+        return false
+      end
+      local curFacing = ObjectFacing("player")
+      local enemiesTable = getEnemies("player", range, checkNoCombat)
+      local playerX, playerY, playerZ = ObjectPosition("player")
+      local angles = {}
+      for i = 1, #enemiesTable do
+        local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
+        if playerX and unitX then
+          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+          tinsert(angles, angleToUnit)
+        end
+      end
+      local numAngles = table.getn(angles)
+      if numAngles == 0 or numAngles < minUnits then
+        return false
+      end
+      table.sort(angles, function(a, b)
+        return a < b
+      end)
+      angle = angle / 180 * math.pi
+      local bestAngle, mostHit = angles[1], 0
+      local i, j = 1, 2
+      while i <= numAngles and j < numAngles * 2 do
+        --local angleJ = j > numAngles and angles[j - numAngles + 1] + math.pi * 2 or angles[j]
+        local angleJ = j > numAngles and angles[j - numAngles] + math.pi * 2 or angles[j]
+        while i < j and angleJ - angles[i] > angle do
+          i = i + 1
+        end
+        if j - i > mostHit then
+          mostHit = j - i
+          bestAngle = (angleJ - angles[i]) / 2 + angles[i]
+        end
+        j = j + 1
+      end
+      if mostHit + 1 >= minUnits then
+        FaceDirection(bestAngle, true)
+        CastSpellByName(GetSpellInfo(spell))
+        FaceDirection(curFacing, true)
+        return true
+      end
+      return false
+    end
     local function castBestConeAngle(spell, angle, range, minUnits, checkNoCombat)
       if not isKnown(spell) or getSpellCD(spell) ~= 0 then
         return false
@@ -304,21 +348,28 @@ local function runRotation()
     local function Defensives()
       if useDefensive() then
 
-        --Healthstone
-        if isChecked("Healthstone") and use.able.healthstone() and php <= getOptionValue("Healthstone") and inCombat then
-          use.healthstone()
+        --Healthston
+        if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and inCombat then
+          if canUse(5512) then
+            useItem(5512)
+          end
         end
-        --taunt
-        if tauntSetting == 1 then
+
+
+        -- Taunt
+        if tauntSetting == 1 and cast.able.taunt() then
           for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
               if cast.taunt(thisUnit) then
-                return
+                return true
               end
             end
           end
         end
+
+
+
         --demo shout
         if isChecked("Demoralizing Shout") and cast.able.demoralizingShout() then
           if not talent.boomingVoice and (php <= getOptionValue("Demoralizing Shout") or #enemies.yard8 >= 3) or talent.boomingVoice and rage <= 60 then
@@ -354,7 +405,7 @@ local function runRotation()
 
         --Rallying Cry
         if isChecked("Rallying Cry") then
-          for i=1, #friends.yards40 do
+          for i = 1, #friends.yards40 do
             if friends.yards40[i].hp <= getOptionValue("Rallying Cry") or php <= getOptionValue("Rallying Cry") then
               if cast.rallyingCry() then
                 return true
@@ -395,7 +446,7 @@ local function runRotation()
               if cast.pummel(thisUnit) then
                 return true
               end
-            elseif isChecked("Shockwave Interrupt") and unitDist < 10 then
+            elseif isChecked("Shockwave Interrupt") and cast.able.shockwave and unitDist < 10 then
               if cast.shockwave() then
                 return true
               end
@@ -429,7 +480,7 @@ local function runRotation()
             if cast.revenge() then
               return true
             end
-          elseif cast.able.thunderClap()  then
+          elseif cast.able.thunderClap() then
             if cast.thunderClap() then
               return true
             end
@@ -533,7 +584,7 @@ local function runRotation()
             end
           end
         end
-        if race =="Human" and hasNoControl() and not cast.able(berserkerRage) then
+        if race == "Human" and hasNoControl() and not cast.able(berserkerRage) then
           if cast.racial("player") then
             return true
           end
@@ -544,14 +595,14 @@ local function runRotation()
           end
         end
         if race == "Draenei" then
-        for i=1, #friends.yards40 do
-          if friends.yards40[i].hp < 20 then
-            if cast.racial(friends.yards40[i]) then
-              return true
+          for i = 1, #friends.yards40 do
+            if friends.yards40[i].hp < 20 then
+              if cast.racial(friends.yards40[i]) then
+                return true
+              end
             end
           end
         end
-      end
 
 
       elseif race == "BloodElf" then
