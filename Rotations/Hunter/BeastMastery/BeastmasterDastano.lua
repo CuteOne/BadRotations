@@ -489,7 +489,7 @@ local function runRotation()
                 if cast.spiritmend(thisUnit) then return end
             end
 
-             if isChecked("Purge") and getValue("Purge") == 1 then
+             if isChecked("Purge") and UnitExists("pet") and getValue("Purge") == 1 then
                     for i = 1, #enemies.yards5p do 
                         local thisUnit = enemies.yards5p[i]
                                     --your dispel logic
@@ -525,7 +525,7 @@ local function runRotation()
                                 end
                             end
                     end
-            elseif isChecked("Purge") and getValue("Purge") == 2 then
+            elseif isChecked("Purge") and UnitExists("pet") and getValue("Purge") == 2 then
                     if  canDispel("target",spell.spiritShock) then
                           if cast.able.spiritShock("target") then
                                     if castSpell("target",spell.spiritShock,true,false,false,false,false,true) then
