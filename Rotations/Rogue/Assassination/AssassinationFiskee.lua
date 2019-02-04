@@ -173,7 +173,7 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
-    local falling, swimming, flying                     = getFallTime(), IsSwimming(), IsFlying()
+    local flying                                        = IsFlying()
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -183,13 +183,13 @@ local function runRotation()
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
     local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
-    local pullTimer                                     = br.DBM:getPulltimer()
+    --local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
-    local stealthedRogue                                = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
-    local stealthedAll                                  = br.player.buff.stealth.exists() or br.player.buff.vanish.exists() or br.player.buff.subterfuge.exists() or br.player.buff.shadowmeld.exists()
+    local stealthedRogue                                = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
+    local stealthedAll                                  = stealthedRogue or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
     local targetDistance                                = getDistance("target")
     local thp                                           = getHP("target")
@@ -309,7 +309,6 @@ local function runRotation()
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.facing = getFacing("player",thisUnit)
                 tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
@@ -324,7 +323,6 @@ local function runRotation()
                 local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
-                if enemyTable30[i].facing then enemyScore = enemyScore + 30 end
                 if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
                 if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
                 local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
@@ -332,7 +330,6 @@ local function runRotation()
                     enemyScore = enemyScore + raidTarget * 3
                     if raidTarget == 8 then enemyScore = enemyScore + 5 end
                 end
-                if UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end
                 enemyTable30[i].enemyScore = enemyScore
             end
             table.sort(enemyTable30, function(x,y)
@@ -385,7 +382,7 @@ local function runRotation()
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
-    local energyRegenCombined = energyRegen + ((debuff.garrote.count() + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100)))
+    local energyRegenCombined = energyRegen + ((garroteCount + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100)))
 
     if not inCombat and mode.open ~= 1 and opener == true and not cast.last.kidneyShot(1) and not cast.last.kidneyShot(2) then
         opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
