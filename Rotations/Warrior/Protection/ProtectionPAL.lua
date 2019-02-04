@@ -308,7 +308,35 @@ local function runRotation()
       end
       return false
     end
-
+    local CastSpellByNameFace = function(SpellName, Target, ...)
+      local castTime = select(4, GetSpellInfo(SpellName))
+      if isChecked("Auto Facing") and castTime == 0 and UnitExists(Target or "Target") and UnitIsVisible(Target or "Target") and not ObjectIsFacing("Player", Target or "Target") then
+        local facing = ObjectFacing("Player")
+        local playerx, playery = ObjectPosition("Player")
+        local targetx, targety = ObjectPosition(Target or "Target")
+        if not playerx or not targetx then
+          return
+        end
+        local angle = rad(atan2(targety - playery, targetx - playerx))
+        local mouselookActive = false
+        if IsMouselooking() then
+          mouselookActive = true
+          MouselookStop()
+        end
+        if angle < 0 then
+          FaceDirection(rad(360 + atan2(targety - playery, targetx - playerx)), true)
+        else
+          FaceDirection(angle, true)
+        end
+        CastSpellByName(SpellName, Target, ...)
+        FaceDirection(facing, true)
+        if mouselookActive then
+          MouselookStart()
+        end
+      else
+        CastSpellByName(SpellName, Target, ...)
+      end
+    end
     -----------------------------
     ---      Modifiers        ---
     -----------------------------
@@ -436,13 +464,15 @@ local function runRotation()
 
     local function Interrupts()
       if useInterrupts() then
+
+
         for i = 1, #enemies.yards20 do
           thisUnit = enemies.yards20[i]
           unitDist = getDistance(thisUnit)
           targetMe = UnitIsUnit("player", thisUnit) or false
 
           if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-            if isChecked("Pummel Interrupt") and unitDist < 6 then
+            if isChecked("Pummel Interrupt") and cast.able.pummel() and unitDist < 6 then
               if cast.pummel(thisUnit) then
                 return true
               end
@@ -450,7 +480,7 @@ local function runRotation()
               if cast.shockwave() then
                 return true
               end
-            elseif isChecked("Storm Bolt Interrupt") and unitDist < 20 then
+            elseif isChecked("Storm Bolt Interrupt") and cast.able.stormBolt and unitDist < 20 then
               if cast.stormBolt() then
                 return true
               end
@@ -466,19 +496,22 @@ local function runRotation()
 
     local function AttackSpells()
 
+
       --single target rotation
       if #enemies.yards8 == 1 then
-        for i = 1, #enemies.yards8 do
-          thisUnit = enemies.yards8[i]
-        end
-        if getFacing("player", thisUnit) then
+        if GetUnitExists("target") and getFacing("player", "target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 8 then
           if isChecked("Shield Slam") and cast.able.shieldSlam() then
             if cast.shieldSlam() then
               return true
             end
           elseif isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or (rage > 80 and cd.shieldBlock.remain() == 0) then
-            if cast.revenge() then
-              return true
+            for i = 1, #enemies.yards8 do
+              local thisUnit = enemies.yards8[i]
+              if not debuff.deepwoundsProt.exists(thisUnit) then
+                if cast.revenge(thisUnit) then
+                  return true
+                end
+              end
             end
           elseif cast.able.thunderClap() then
             if cast.thunderClap() then
@@ -496,48 +529,68 @@ local function runRotation()
             if cast.devastate() then
               return true
             end
-          elseif #enemies.yards8 == 0 and cast.able.heroicThrow() then
+          elseif getDistance("target") > 8 and getDistance("target") < 30 then
             if cast.heroicThrow("target") then
               return true
             end
           end
         end --single target rotation
-
       elseif #enemies.yards8 >= 2 then
-        if cast.able.shockwave() and #enemies.yards8 >= 3 then
-          if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
-            return true
-          end
-        elseif cast.able.thunderClap() and talent.cracklingThunder then
-          if cast.thunderClap("player", nil, 1, 12) then
-            return true
-          end
-        elseif cast.able.thunderClap() then
-          if cast.thunderClap("player", nil, 1, 8) then
-            return true
-          end
-        elseif isChecked("Shield Slam") and cast.able.shieldSlam() then
-          if cast.shieldSlam(units.dyn8) then
-            return true
-          end
-        elseif isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
-          if cast.dragonRoar(nil, "aoe") then
-            return true
-          end
-        elseif isChecked("Ravager") and cast.able.ravager() then
-          if cast.ravager("target", "ground") then
-            return true
-          end
-        elseif isChecked("Revenge") and cast.able.revenge() and php >= 65 or buff.revenge.exists() or (rage > 80 and cd.shieldBlock == 0) then
-          if cast.revenge(units.dyn8) then
-            return true
+        if GetUnitExists("target") and getFacing("player", "target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 8 then
+          if cast.able.shockwave() and #enemies.yards8 >= 3 then
+            if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
+              return true
+            end
+          elseif cast.able.thunderClap() and talent.cracklingThunder then
+            if cast.thunderClap("player", nil, 1, 12) then
+              return true
+            end
+          elseif cast.able.thunderClap() then
+            if cast.thunderClap("player", nil, 1, 8) then
+              return true
+            end
+          elseif isChecked("Shield Slam") and cast.able.shieldSlam() then
+            if cast.shieldSlam(units.dyn8) then
+              return true
+            end
+          elseif isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+            if cast.dragonRoar(nil, "aoe") then
+              return true
+            end
+          elseif isChecked("Ravager") and cast.able.ravager() then
+            if cast.ravager("target", "ground") then
+              return true
+            end
+          elseif isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or (rage > 80 and cd.shieldBlock.remain() == 0) then
+            for i = 1, #enemies.yards8 do
+              local thisUnit = enemies.yards8[i]
+              if not debuff.deepwoundsProt.exists(thisUnit) then
+                if cast.revenge(thisUnit) then
+                  return true
+                end
+              end
+            end
+          else
+            if cast.revenge() then
+              return true
+            end
           end
         elseif isChecked("Devastate") and cast.able.devastate() then
-          if cast.devastate(units.dyn8) then
-            return true
+          for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if not debuff.deepwoundsProt.exists(thisUnit) then
+              if cast.devastate(thisUnit) then
+                return true
+              end
+            else
+              if cast.devastate() then
+                return true
+              end
+            end
           end
-        elseif #enemies.yards8 == 0 and cast.able.heroicThrow() then
-          if cast.heroicThrow("target") then
+        elseif cast.able.heroicThrow() then
+          if cast.heroicThrow("target")
+          then
             return true
           end
         end
