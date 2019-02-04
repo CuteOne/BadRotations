@@ -3148,6 +3148,7 @@ br.lists.spells = {
                 vengeanceRevenge            = 202573,
             },
             debuffs                         = {
+                deepwoundsProt              = 115767,
                 demoralizingShout           = 1160,
                 thunderClap                 = 6343,
             },
