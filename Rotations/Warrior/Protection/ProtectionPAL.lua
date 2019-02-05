@@ -10,22 +10,23 @@ local rotationName = "ProtectionPAL"
 local function createToggles()
   -- Rotation Button
   RotationModes = {
-    [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.whirlwind },
-    [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.bladestorm },
-    [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.furiousSlash },
+    [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 0, icon = br.player.spell.thunderClap },
+    [2] = { mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.revenge },
+    [3] = { mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.devastate },
   };
   CreateButton("Rotation", 1, 0)
   -- Cooldown Button
   CooldownModes = {
-    [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-    [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-    [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+    [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.avatar },
+    [2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avatar },
+    [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar }
   };
+
   CreateButton("Cooldown", 2, 0)
   -- Defensive Button
   DefensiveModes = {
-    [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.enragedRegeneration },
-    [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.enragedRegeneration }
+    [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldBlock },
+    [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldBlock }
   };
   CreateButton("Defensive", 3, 0)
   -- Interrupt Button
@@ -37,7 +38,7 @@ local function createToggles()
   --Taunt Button
   TauntModes = {
     [1] = { mode = "On", value = 1, overlay = "Auto Taunt Enabled", tip = "Will taunt all.", highlight = 1, icon = br.player.spell.taunt },
-    [2] = { mode = "Off", value = 2, overlay = "Auto Taunt Disabled", tip = "Will not taunt.", highlight = 0, icon = br.player.spell.polymorph }
+    [2] = { mode = "Off", value = 2, overlay = "Auto Taunt Disabled", tip = "Will not taunt.", highlight = 0, icon = br.player.spell.taunt }
   };
   CreateButton("Taunt", 5, 0)
 end
