@@ -637,8 +637,8 @@ local function runRotation()
                                 else
                                     local meleeHurt = {}
                                     for j=1, #meleeFriends do
-                                        if meleeFriends[i].hp < getValue("Healing Rain") then
-                                            tinsert(meleeHurt,meleeFriends[i])
+                                        if meleeFriends[j].hp < getValue("Healing Rain") then
+                                            tinsert(meleeHurt,meleeFriends[j])
                                         end
                                     end
                                     if #meleeHurt >= getValue("Healing Rain Targets") then
