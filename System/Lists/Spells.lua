@@ -244,7 +244,7 @@ br.lists.spells = {
                 -- necroticStrike              = 223829,
                 -- outbreak                    = 77575,
                 -- scourgeOfWorlds             = 191748,
-                -- soulReaper                  = 130736,
+                soulReaper                  = 130736,
                 virulentPlague              = 191587,
             },
             glyphs                          = {
