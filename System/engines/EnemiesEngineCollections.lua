@@ -234,6 +234,7 @@ interruptWhitelist = {
 	[286563] = true, -- Tidal Empowerment, Brother Joseph , Stormwall Blockade encounter
 	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
 	[289861] = true, -- Howling Winds, Lady Jaina Proudmoore
+	[287419] = true, -- Angelic Renewal, Disciples Boss-Heal on Mythic Champions of Light.
 	-- Battle of Dazarlor end
 
 	-- Old Content start 
