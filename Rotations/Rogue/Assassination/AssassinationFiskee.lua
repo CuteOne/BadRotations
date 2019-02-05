@@ -641,13 +641,13 @@ local function runRotation()
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and debuff.rupture.exists("target") and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) then
+            if isChecked("Vendetta") and not stealthedRogue and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
                 if cast.vendetta("target") then return true end
             end
-            if isChecked("Vanish") and not stealthedRogue and targetDistance < 5 and gcd < 0.2 then
+            if isChecked("Vanish") and not stealthedRogue and targetDistance < 5 and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
-                if talent.subterfuge and not debuff.garrote.exists("target") and enemies10 == 1 and getSpellCD(spell.garrote) == 0 then
+                if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Exsg + (Nightstalker, or Subterfuge only on 1T): Maximum CP and Exsg ready for next GCD
@@ -674,11 +674,11 @@ local function runRotation()
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
-        if mode.exsang == 1 and talent.exsanguinate and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 8 then
+        if mode.exsang == 1 and talent.exsanguinate and getSpellCD(spell.exsanguinate) == 0 and debuff.rupture.remain("target") > 16 and (not debuff.garrote.refresh("target") or garroteCheck == false) and ttd("target") > 8 then
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
-        if talent.toxicBlade and mode.tb == 1 and debuff.rupture.exists("target") then
+        if talent.toxicBlade and mode.tb == 1 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") then
             if cast.toxicBlade("target") then return true end
         end
     end
@@ -749,7 +749,7 @@ local function runRotation()
             if isChecked("Vanish") and cd.vanish.remain() == 0 then vanishCheck = true end
             if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
         end
-        if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 and garroteCheck then
+        if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 and garroteCheck and getSpellCD(spell.garrote) == 0 then
             if garroteCount <= getOptionValue("Multidot Limit") then
                 for i = 1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
@@ -774,7 +774,7 @@ local function runRotation()
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         -- actions.dot+=/rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
-        if combo >= 4 then
+        if combo >= 4 and getSpellCD(spell.rupture) == 0 then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local ruptureRemain = debuff.rupture.remain(thisUnit)
@@ -885,7 +885,7 @@ local function runRotation()
             -- actions+=/call_action_list,name=cds
             if validTarget then
                 if actionList_Cooldowns() then return true end
-            end            
+            end
             -- actions+=/call_action_list,name=dot
             if actionList_Dot() then return true end
             -- actions+=/call_action_list,name=direct
