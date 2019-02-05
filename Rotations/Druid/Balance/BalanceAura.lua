@@ -41,6 +41,12 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Starfall Disabled", tip = "Will Not Use Starfall", highlight = 0, icon = br.player.spell.starfall }
     };
     CreateButton("Starfall",6,0)
+    -- Movement Button
+    MovementModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Movement Enabled", tip = "Will Use Starfall/Starsurge when moving", highlight = 1, icon = br.player.spell.dash },
+        [2] = { mode = "Off", value = 2 , overlay = "Movement Disabled", tip = "Will Not Use Starfall/Starsurge when moving", highlight = 0, icon = br.player.spell.dash }
+    };
+    CreateButton("Movement",7,0)
 end
 
 ---------------
@@ -145,8 +151,10 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("ForceofNature",0.25)
         UpdateToggle("Starfall",0.25)
+        UpdateToggle("Movement",0.25)
         br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
         br.player.mode.starfall = br.data.settings[br.selectedSpec].toggles["Starfall"]
+        br.player.mode.movement = br.data.settings[br.selectedSpec].toggles["Movement"]
 --------------
 --- Locals ---
 --------------
@@ -255,9 +263,9 @@ local function runRotation()
                     if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
-                        if cast.travelForm("player") then return true end
+                        CastSpellByID(783,"player") return true 
                     else
-                        if cast.travelForm("player") then return true end
+                        CastSpellByID(783,"player") return true 
                     end
                 end
             -- Aquatic Form
@@ -265,13 +273,22 @@ local function runRotation()
                         if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
-                        if cast.travelForm("player") then return true end
+                        CastSpellByID(783,"player") return true 
                     else
-                        if cast.travelForm("player") then return true end
+                        CastSpellByID(783,"player") return true 
+                    end
+                end
+            -- Travel Form
+                if not inCombat and not swimming and level >=58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783,"player") return true 
+                    else
+                        CastSpellByID(783,"player") return true 
                     end
                 end
             -- Cat Form
-                if not cat and not IsMounted() and not flying then
+                if not cat and not IsMounted() and not flying and IsIndoors() then
                     -- Cat Form when not swimming or flying or stag and not in combat
                     if moving and not swimming and not flying and not travel then
                         if cast.catForm("player") then return true end
@@ -484,7 +501,7 @@ local function runRotation()
                 if cast.celestialAlignment("player") then return true end
             end
             --Starfall
-            if #enemies.yards15t >= starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or isMoving("player")) then
+            if #enemies.yards15t >= starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or (isMoving("player") and mode.movement == 1)) then
                 if mode.starfall == 1 then
                     if createCastFunction("best",false,1,15,spell.starfall,nil,true) then return true end
                 elseif mode.starfall == 0 then
@@ -498,7 +515,7 @@ local function runRotation()
                 end
             end
             -- Starsurge
-            if buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3 and #enemies.yards15t < starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or isMoving("player")) then
+            if buff.lunarEmpowerment.stack() < 3 and buff.solarEmpowerment.stack() < 3 and #enemies.yards15t < starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or (isMoving("player") and mode.movement == 1)) then
                 if talent.starLord then
                     if not buff.starLord.exists() or buff.starLord.remains > 3 then
                         if cast.starsurge() then return true end
@@ -606,8 +623,8 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and hastar and not deadtar then
-                if not chicken and not cast.last.moonkinForm(1) then
+            if inCombat then
+                if not chicken and not cast.last.moonkinForm(1) and not isMoving("player") then
                     if cast.moonkinForm() then return true end
                 end
                 actionList_Interrupts()
