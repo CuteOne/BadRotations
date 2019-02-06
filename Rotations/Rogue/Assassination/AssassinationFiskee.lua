@@ -1,6 +1,5 @@
 local rotationName = "Fiskee - 8.1"
 local opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
-local br = br
 br.rogueTables = {}
 local rogueTables = br.rogueTables
 rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
@@ -345,7 +344,7 @@ local function runRotation()
             if thisUnit.distance <= 10 then
                 if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
-                    if deadlyPoison10 and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
+                    if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
                 if thisUnit.distance <= 5 then
@@ -769,7 +768,7 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
         local crimsonTargets
         if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain() < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
+        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
