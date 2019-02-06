@@ -244,7 +244,7 @@ br.lists.spells = {
                 -- necroticStrike              = 223829,
                 -- outbreak                    = 77575,
                 -- scourgeOfWorlds             = 191748,
-                -- soulReaper                  = 130736,
+                soulReaper                  = 130736,
                 virulentPlague              = 191587,
             },
             glyphs                          = {
@@ -1274,7 +1274,7 @@ br.lists.spells = {
                 iceBarrier                  = 11426,
             },
             artifacts                       = {
-                icyHand                     = 220817,
+               -- icyHand                     = 220817,
             },
             buffs                           = {
                 brainFreeze                 = 190446,
@@ -1298,11 +1298,11 @@ br.lists.spells = {
 
             },
             talents                         = {
-                articGale                   = 205038,
+                --articGale                   = 205038,
                 boneChilling                = 205027,
                 cometStorm                  = 153595,
                 ebonbolt                    = 257537,
-                frostBomb                   = 112948,
+                --frostBomb                   = 112948,
                 frozenTouch                 = 205030,
                 glacialSpike                = 199786,
                 iceNova                     = 157997,
@@ -3148,6 +3148,7 @@ br.lists.spells = {
                 vengeanceRevenge            = 202573,
             },
             debuffs                         = {
+                deepwoundsProt              = 115767,
                 demoralizingShout           = 1160,
                 thunderClap                 = 6343,
             },

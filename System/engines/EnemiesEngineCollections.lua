@@ -120,6 +120,17 @@ dispellOffensiveBuffs = {
 	[144351] = "Magic"
 }
 interruptWhitelist = {
+	-- Atal'Dazar start
+	[255824] = true, -- fanatic rage
+	[253583] = true, -- Fiery Enchant
+	[253544] = true, -- bwonsamdismantle
+	[253517] = true, -- mending word
+	[256849] = true, -- dinomight
+    [250368] = true, -- noxious-stench
+    [250096] = true, -- wracking-pain
+    [255041] = true, -- terrifying-screech
+    [279118] = true, -- unstable-hex
+	-- Atal'Dazar end
 	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids
 	[274438] = true, -- tempest
@@ -129,6 +140,8 @@ interruptWhitelist = {
 	[276767] = true, -- consuming-void
 	[268375] = true, -- detect-thoughts
 	[267809] = true, -- consume-essence
+	[268322] = true, -- drowned kick
+	[267977] = true, -- tidal surge
 	-- Shrine of Storm end
 	-- Motherload! start
 	[268129] = true, -- kajacola-refresher
@@ -138,6 +151,11 @@ interruptWhitelist = {
 	[263066] = true, -- transfiguration-serum
 	[262540] = true, -- overcharge
 	[269090] = true, -- artillery-barrage
+	[263103] = true, -- Blowtorch
+	[263066] = true, -- TransSyrum
+	[268797] = true, -- EnemyToGoo
+	[262092] = true, -- InhaleVapors
+	[280604] = true, -- ice-spritzer
 	-- Motherload! end
 	-- Underrot start
 	[265089] = true, -- dark-reconstitution
@@ -148,6 +166,9 @@ interruptWhitelist = {
 	[272183] = true, -- raise-dead
 	[265433] = true, -- withering-curse
 	[272180] = true, -- death-bolt
+	[266106] = true, -- sonic screech
+	[265523] = true, -- spiritdraintotem
+	[265091] = true, -- gift of ghuun
 	-- Underrot end
 	-- Freehold start
 	[257397] = true, -- healing-balm
@@ -156,6 +177,7 @@ interruptWhitelist = {
 	[257736] = true, -- thundering-squall
 	[257899] = true, -- painful-motivation
 	[256060] = true, -- revitalizing-brew
+	[257784] = true, -- Frostblast
 	-- Freehold end
 	-- Waycrest Manor start
 	[265368] = true, -- spirited-defense
@@ -190,6 +212,7 @@ interruptWhitelist = {
 	[267273] = true, -- poison-nova
 	[269972] = true, -- shadow-bolt-volley
 	[270923] = true, -- shadow-bolt
+	[269973] = true, -- deathlychill
 	-- Kings Rest end
 	-- Tol Dagor start
 	[258128] = true, -- debilitating-shout
@@ -211,6 +234,7 @@ interruptWhitelist = {
 	[286563] = true, -- Tidal Empowerment, Brother Joseph , Stormwall Blockade encounter
 	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
 	[289861] = true, -- Howling Winds, Lady Jaina Proudmoore
+	[287419] = true, -- Angelic Renewal, Disciples Boss-Heal on Mythic Champions of Light.
 	-- Battle of Dazarlor end
 
 	-- Old Content start 
