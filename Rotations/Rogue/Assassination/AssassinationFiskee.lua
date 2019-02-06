@@ -666,7 +666,7 @@ local function runRotation()
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
                 -- actions.cds+=/vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable
-                if talent.masterAssassin and not stealthedAll and not debuff.garrote.exists("target") and enemies10 == 1 then
+                if talent.masterAssassin and not stealthedAll and gcd < 0.1 and not buff.masterAssassin.exists() and not debuff.rupture.refresh("target") then
                     if cast.vanish("player") then return true end
                 end
             end
@@ -689,7 +689,7 @@ local function runRotation()
             if cast.envenom("target") then return true end
         end
         -- actions.direct+=/variable,name=use_filler,value=combo_points.deficit>1|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target
-        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and not stealthedRogue
+        local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
         if useFiller and enemies10 >= 2 and trait.echoingBlades.active then
