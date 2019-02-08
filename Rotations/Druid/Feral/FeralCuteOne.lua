@@ -309,8 +309,8 @@ local function runRotation()
             useThrash = 2
         else
             useThrash = 0
-        end     
-        
+        end
+
         -- Multi-Dot HP Limit Set
         local function canDoT(unit)
             local unitHealthMax = UnitHealthMax(unit)
@@ -324,7 +324,7 @@ local function runRotation()
             end 
             return unitHealthMax > maxHealth / 10
         end
-        
+
         -- TF Predator Snipe
         local function snipeTF()
             if getOptionValue("Snipe Tiger's Fury") == 1 and talent.predator and not cd.tigersFury.exists() 
@@ -372,21 +372,13 @@ local function runRotation()
                 local ripCount = 0
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
-                    if debuff.rip.remain(thisUnit) <= 3.6 and (ttd(thisUnit) > 8 or isDummy(thisUnit)) then ripCount = ripCount + 1 end
+                    if debuff.rip.remain(thisUnit) <= 4 and (ttd(thisUnit) > 8 or isDummy(thisUnit)) then ripCount = ripCount + 1 end
                 end
                 return ripCount > 1
             end 
             return false
         end
 
-        -- ChatOverlay("5yrds: "..tostring(units.dyn5).." | 40yrds: "..tostring(units.dyn40))
-        -- ubr = 0
-        -- ucr = 0
-        -- if UnitExists("target") then 
-            -- ubr = UnitBoundingRadius("target")
-            -- ucr = UnitCombatReach("target")
-        -- end 
-        -- ChatOverlay(round2(getDistance("target","player","dist"),2)..", "..round2(getDistance("target"),2)..", UCR: "..ucr..", UBR: "..ubr)
 --------------------
 --- Action Lists ---
 --------------------
@@ -406,7 +398,7 @@ local function runRotation()
 		        end
 			-- Aquatic Form
 			    if cast.able.travelForm("player") and (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and moving then
-				  	if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                         if cast.travelForm("player") then return true end
@@ -416,18 +408,14 @@ local function runRotation()
 				end
 			-- Cat Form
 				if cast.able.catForm() and not cat and not IsMounted() and not flying then
-			    	-- Cat Form when not swimming or flying or stag and not in combat
-			    	if moving and not swimming and not flying and not travel then
-		        		if cast.catForm("player") then return true end
-		        	end
-		        	-- Cat Form when not in combat and target selected and within 20yrds
-		        	if not inCombat and isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
-		        		if cast.catForm("player") then return true end
-		        	end
-		        	--Cat Form when in combat and not flying
-		        	-- if inCombat and not flying and not travel and not swimming then
-		        	-- 	if cast.catForm("player") then return true end
-		        	-- end
+                    -- Cat Form when not swimming or flying or stag and not in combat
+                    if moving and not swimming and not flying and not travel then
+                        if cast.catForm("player") then return true end
+                    end
+                    -- Cat Form when not in combat and target selected and within 20yrds
+                    if not inCombat and isValidUnit("target") and ((getDistance("target") < 30 and not swimming) or (getDistance("target") < 10 and swimming)) then
+                        if cast.catForm("player") then return true end
+                    end
                     -- Cat Form - Less Fall Damage
                     if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and (not swimming or (not moving and swimming and #enemies.yards5f > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then return true end
@@ -454,15 +442,15 @@ local function runRotation()
 	            if autoProwl() then
 	            -- Tiger's Fury - Low Energy
                     if cast.able.tigersFury() and energyDeficit > 60 then
-                	   if cast.tigersFury() then return true end
+                        if cast.tigersFury() then return true end
                     end
 	            -- Savage Roar - Use Combo Points
 	                if cast.able.savageRoar() and comboPoints >= 5 then
-	                	if cast.savageRoar() then return true end
+                        if cast.savageRoar() then return true end
 	                end
 	            -- Shred - Single
 	                if cast.able.shred() and #enemies.yards5f == 1 then
-	                	if cast.shred() then swipeSoon = nil; return true end
+                        if cast.shred() then swipeSoon = nil; return true end
 	                end
 	            -- Swipe - AoE
 	                if cast.able.swipeCat() and #enemies.yards8 > 1 then
@@ -470,7 +458,7 @@ local function runRotation()
 	                        swipeSoon = GetTime();
 	                    end
 	                    if swipeSoon ~= nil and swipeSoon < GetTime() - 1 then
-	                    	if cast.swipeCat(nil,"aoe") then swipeSoon = nil; return true end
+                            if cast.swipeCat(nil,"aoe") then swipeSoon = nil; return true end
 	                    end
 	                end
 	            end -- End 20yrd Enemy Scan
@@ -517,13 +505,19 @@ local function runRotation()
 				end
 		-- Remove Corruption
 				if isChecked("Remove Corruption") then
-					if getOptionValue("Remove Corruption - Target")==1 and cast.able.removeCorruption("player") and canDispel("player",spell.removeCorruption) then
+                    if getOptionValue("Remove Corruption - Target")==1 and cast.able.removeCorruption("player") 
+                        and canDispel("player",spell.removeCorruption) 
+                    then
 						if cast.removeCorruption("player") then return true end
 					end
-					if getOptionValue("Remove Corruption - Target")==2 and cast.able.removeCorruption("target") and canDispel("target",spell.removeCorruption) then
+                    if getOptionValue("Remove Corruption - Target")==2 and cast.able.removeCorruption("target") 
+                        and canDispel("target",spell.removeCorruption) 
+                    then
 						if cast.removeCorruption("target") then return true end
 					end
-					if getOptionValue("Remove Corruption - Target")==3 and cast.able.removeCorruption("mouseover") and GetUnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) then
+                    if getOptionValue("Remove Corruption - Target")==3 and cast.able.removeCorruption("mouseover") 
+                        and GetUnitIsFriend("mouseover") and canDispel("mouseover",spell.removeCorruption) 
+                    then
 						if cast.removeCorruption("mouseover") then return true end
 					end
                 end
@@ -551,13 +545,13 @@ local function runRotation()
                         if GetShapeshiftForm() == 0 then
                             cast.catForm("player")
                         else
-    				        for i=1, GetNumShapeshiftForms() do
-    				            if i == GetShapeshiftForm() then
+                            for i=1, GetNumShapeshiftForms() do
+                                if i == GetShapeshiftForm() then
                                     lastForm = i
                                     CastShapeshiftForm(i)
                                     return true
-    				            end
-    				        end
+                                end
+                            end
                         end
                     end
 			    end
@@ -572,13 +566,13 @@ local function runRotation()
                     end
 	            end
 	    -- Heirloom Neck
-	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
-	    			if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
-    					if use.heirloomNeck() then return true end
-	    			end
-	    		end
+                if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+                    if use.able.heirloomNeck() and item.heirloomNeck ~= 0 and item.heirloomNeck ~= item.manariTrainingAmulet then
+                        if use.heirloomNeck() then return true end
+                    end
+                end
 		-- Regrowth
-        		if isChecked("Regrowth") and cast.able.regrowth() and not (IsMounted() or IsFlying())
+                if isChecked("Regrowth") and cast.able.regrowth() and not (IsMounted() or IsFlying())
                     and (getOptionValue("Auto Heal") ~= 1 or (getOptionValue("Auto Heal") == 1 and getDistance(br.friend[1].unit) < 40))
                 then
                     local thisHP = php
@@ -622,11 +616,11 @@ local function runRotation()
 	            end
 		-- Survival Instincts
 	            if isChecked("Survival Instincts") and inCombat and cast.able.survivalInstincts() and php <= getOptionValue("Survival Instincts")
-	            	and not buff.survivalInstincts.exists() and charges.survivalInstincts.count() > 0
+                    and not buff.survivalInstincts.exists() and charges.survivalInstincts.count() > 0
 	            then
-	            	if cast.survivalInstincts() then return true end
+                    if cast.survivalInstincts() then return true end
 	            end
-    		end -- End Defensive Toggle
+            end -- End Defensive Toggle
 		end -- End Action List - Defensive
 	-- Action List - Interrupts
 		local function actionList_Interrupts()
@@ -641,24 +635,24 @@ local function runRotation()
 					end
 				end
 		-- Mighty Bash
-    			if isChecked("Mighty Bash") and cast.able.mightyBash() then
-    				for i=1, #enemies.yards5f do
+                if isChecked("Mighty Bash") and cast.able.mightyBash() then
+                    for i=1, #enemies.yards5f do
                         thisUnit = enemies.yards5f[i]
 						if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
 							if cast.mightyBash(thisUnit) then return true end
 						end
 					end
 				end
-		-- Maim (PvP)
-    			if isChecked("Maim") and cast.able.maim() then
-    				for i=1, #enemies.yards5f do
+		-- Maim
+                if isChecked("Maim") and cast.able.maim() then
+                    for i=1, #enemies.yards5f do
                         thisUnit = enemies.yards5f[i]
-    					if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and comboPoints > 0 and not buff.fieryRedMaimers.exists() then --and isInPvP() then
-    						if cast.maim(thisUnit) then return true end
-		    			end
-	            	end
-	          	end
-		 	end -- End useInterrupts check
+                        if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and comboPoints > 0 and not buff.fieryRedMaimers.exists() then
+                            if cast.maim(thisUnit) then return true end
+                        end
+                    end
+                end
+            end -- End useInterrupts check
 		end -- End Action List - Interrupts
 	-- Action List - Cooldowns
 		local function actionList_SimC_Cooldowns()
@@ -694,10 +688,6 @@ local function runRotation()
                         if cast.incarnationKingOfTheJungle() then return true end
                     end
                 end
-        -- Prowl
-                -- if useCDs() and talent.incarnationKingOfTheJungle and buff.incarnationKingOfTheJungle.exists() and freeProwl and not buff.prowl.exists() and not solo and friendsInRange > 0 then
-                --     if cast.prowl() then freeProwl = false; return true end
-                -- end
         -- Potion
                 -- potion,name=prolonged_power,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
                 if isChecked("Potion") and (use.able.potionOfTheOldWar() or use.able.potionOfProlongedPower()) and useCDs() and inRaid then
@@ -747,51 +737,58 @@ local function runRotation()
 		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and not opener then
-                if isValidUnit("target") and getDistance("target") < 5 then
+                if isValidUnit("target") and getDistance("target") < 5 and getFacing("player","target") and getSpellCD(61304) == 0 then
             -- Begin
 					if not OPN1 then
                         Print("Starting Opener")
                         openerCount = openerCount + 1
                         OPN1 = true
-                    end
-                    if OPN1 and not TF1 then
             -- Tiger's Fury 
-                        -- tigers_fury
-                        if castOpener("tigersFury","TF1",openerCount) then openerCount = openerCount + 1; end 
-                    end 
-                    if TF1 and not RK1 then 
+                    -- tigers_fury
+                    elseif OPN1 and not TF1 then
+                        if cd.tigersFury.remain() > gcd then
+                            castOpenerFail("tigersFury","TF1",openerCount)
+                        elseif cast.able.tigersFury() then
+                            castOpener("tigersFury","TF1",openerCount)
+                        end
+                        openerCount = openerCount + 1; 
+                        return
             -- Rake
-                        -- rake,if=!ticking|buff.prowl.up
-                        if not debuff.rake.exists("target") or buff.prowl.exists() then
-                            if castOpener("rake","RK1",openerCount) then openerCount = openerCount + 1; end
-                        else
-                            Print(openerCount..": Rake (Uncastable)")
-                            openerCount = openerCount + 1
-                            RK1 = true
-                        end
-                    end
-                    if RK1 and not MF1 then
+                    -- rake,if=!ticking|buff.prowl.up
+                    elseif TF1 and not RK1 then 
+                        if debuff.rake.exists("target") then 
+                            castOpenerFail("rake","RK1",castOpener)
+                        elseif cast.able.rake() then 
+                            castOpener("rake","RK1",openerCount)
+                        end 
+                        openerCount = openerCount + 1 
+                        return
             -- Moonfire
-                        -- moonfire_cat,if=!ticking
-                        if talent.lunarInspiration and not debuff.moonfireFeral.exists("target") then
-                            if castOpener("moonfireFeral","MF1",openerCount) then openerCount = openerCount + 1; end
-                        else
-                            Print(openerCount..": Moonfire (Uncastable)")
-                            openerCount = openerCount + 1
-                            MF1 = true
+                    -- moonfire_cat,if=!ticking
+                    elseif RK1 and not MF1 then
+                        if not talent.lunarInspiration or debuff.moonfireFeral.exists("target") then 
+                            castOpenerFail("moonfireFeral","MF1",openerCount)
+                        elseif cast.able.moonfireFeral() then 
+                            castOpener("moonfireFeral","MF1",openerCount)
                         end
-                    end
-					if MF1 and not RIP1 then
-       		-- Rip
-                        -- rip,if=!ticking
-                        if usePrimalWrath() then 
-                            if castOpener("primalWrath","RIP1",openerCount) then openerCount = openerCount + 1; end
-                        else
-                            if castOpener("rip","RIP1",openerCount) then openerCount = openerCount + 1; end
+                        openerCount = openerCount + 1 
+                        return
+            -- Rip
+                    -- rip,if=!ticking
+                    elseif MF1 and not RIP1 then
+                        if debuff.rip.exists("target") then 
+                            castOpenerFail("rip","RP1",castOpener)
+                        elseif cast.able.rip() then
+                            if usePrimalWrath() then 
+                                castOpener("primalWrath","RIP1",openerCount)
+                            else
+                                castOpener("rip","RIP1",openerCount)
+                            end
                         end
-                    end
+                        openerCount = openerCount + 1
+                        return
             -- Finish (rip exists)
-                    if RIP1 or debuff.rip.exists("target") then
+                    elseif RIP1 then
                         Print("Opener Complete")
                         openerCount = 0
                         opener = true
@@ -823,8 +820,8 @@ local function runRotation()
         -- Rip
             -- pool_resource,for_next=1
             -- rip,target_if=!ticking|(remains<=duration*0.3)&(!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
-            if (cast.pool.rip() or cast.able.rip()) and debuff.rip.count() < 5 
-                and (buff.savageRoar.exists() or not talent.savageRoar) and not usePrimalWrath()                 
+            if (cast.pool.rip() or cast.able.rip()) and not usePrimalWrath()
+                and (buff.savageRoar.exists() or not talent.savageRoar)               
             then
                 for i = 1, #enemies.yards5f do
                     local thisUnit = enemies.yards5f[i]
@@ -864,9 +861,9 @@ local function runRotation()
         -- Ferocious Bite
             -- ferocious_bite,max_energy=1
             if cast.able.ferociousBite() and fbMaxEnergy and not usePrimalWrath()
-                -- and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
-                -- and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or (ferociousBiteFinish(units.dyn5) and not usePrimalWrath())
-                --     or level < 20 or ttd(units.dyn5) <= 8 or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5) or isDummy(units.dyn5)) 
+                and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
+                and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25 or ferociousBiteFinish(units.dyn5)
+                    or level < 20 or ttd(units.dyn5) <= 8 or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5) or isDummy(units.dyn5)) 
             then
                 if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then 
                     Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(thp(thisUnit),0).."% health remaining.") 
@@ -953,7 +950,7 @@ local function runRotation()
             -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
             if cast.able.moonfireFeral() and talent.lunarInspiration and canDoT(units.dyn40) then --and #enemies.yards8 < 5 then
                 if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
-                    if cast.moonfireFeral() then return end
+                    if cast.moonfireFeral() then return true end
                 end
             end
         -- Brutal Slash
@@ -1020,16 +1017,6 @@ local function runRotation()
             then
                 if cast.shred() then return true end
             end
-            -- shred
-            -- if cast.able.shred() and (not debuff.rake.refresh(units.dyn5) or level < 12)
-            --     and ((talent.brutalSlash and (not charges.brutalSlash.exists() or not cast.safe.brutalSlash("player",8,getOptionValue("Brutal Slash Targets"))
-            --         or (charges.brutalSlash.timeTillFull() >= gcdMax and not buff.tigersFury.exists() and #enemies.yards8 < getOptionValue("Brutal Slash Targets"))
-            --         or (mode.rotation == 1 and #enemies.yards8 < getOptionValue("Brutal Slash Targets")) or mode.rotation == 3))
-            --         or (not talent.brutalSlash and ((mode.rotation == 1 and #enemies.yards8 == 1) or mode.rotation == 3 or not cast.safe.swipe("player",8,2) or level < 32))
-            --         or buff.clearcasting.exists())
-            -- then
-            --     if cast.shred() then return true end
-            -- end
         end
     -- Action List - PreCombat
         local function actionList_PreCombat()
@@ -1052,7 +1039,6 @@ local function runRotation()
                         if buff.felFocus.exists() then buff.felFocus.cancel() end
                         if use.oraliusWhisperingCrystal() then return true end
                     end
-        -- food,type=nightborne_delicacy_platte
         -- Lightforged/Defiled Augment Rune
                     -- augmentation,type=defiled
                     if isChecked("Augment Rune") and not buff.defiledAugmentation.exists() and (use.able.lightforgedAugmentRune() or use.able.defiledAugmentRune()) then
@@ -1134,7 +1120,6 @@ local function runRotation()
 --- Out of Combat Rotation ---
 ------------------------------
             if actionList_PreCombat() then return true end
-			-- if actionList_Opener() then return true end
 --------------------------
 --- In Combat Rotation ---
 --------------------------
@@ -1142,17 +1127,11 @@ local function runRotation()
             if inCombat and cast.able.catForm("player") and not cat and #enemies.yards5f > 0 and not moving and isChecked("Auto Shapeshifts") then
                 if cast.catForm("player") then return true end
             elseif inCombat and cat and profileStop==false and not isChecked("Death Cat Mode") and hastar and opener then
-		-- Opener
-				-- if actionList_Opener() then return true end
         -- Wild Charge
                 -- wild_charge
                 if isChecked("Displacer Beast / Wild Charge") and cast.able.wildCharge("player") and isValidUnit("target") then
                     if cast.wildCharge("target") then return true end
                 end
-        -- Displacer Beast
-                -- displacer_beast,if=movement.distance>10
-        -- Dash/Worgen Racial
-                -- dash,if=movement.distance&buff.displacer_beast.down&buff.wild_charge_movement.down
         -- Rake/Shred from Stealth
                 -- rake,if=buff.prowl.up|buff.shadowmeld.up
                 if (buff.prowl.exists() or buff.shadowmeld.exists()) and getDistance(units.dyn5) < 5 then
@@ -1162,7 +1141,7 @@ local function runRotation()
                     elseif cast.able.shred() then
                         if cast.shred(units.dyn5) then return true end
                     end
-                elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then --and getDistance("target") < 5 then
+                elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                     -- auto_attack
                     if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
                         StartAttack(units.dyn5)
