@@ -615,12 +615,12 @@ function br.loader:new(spec,specName)
             end
 
             -- Build Cast Funcitons
-            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
-                return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k)
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng,predict)
+                return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k,predict)
             end
 
-            self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng)
-                return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k)
+            self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng,predict)
+                return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k,predict)
                 -- return self.cast[v](nil,"debug")
             end
 
