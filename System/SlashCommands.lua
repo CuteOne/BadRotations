@@ -362,7 +362,12 @@ function handler(message, editbox)
 			end
 		elseif msg2 == nil then
 			-- Show UI Options
-			Print("Please provide one of the following options with showUI\n" .. "|cFFFF0000 main |r - Shows/Hides main bot options\n" .. "|cFFFF0000 profile |r - Shows/Hides profile options\n" .. "|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n")
+			Print("Please provide one of the following options with showUI\n" .. 
+				"|cFFFF0000 main |r - Shows/Hides main bot options\n" .. 
+				"|cFFFF0000 profile |r - Shows/Hides profile options\n" .. 
+				"|cFFFF0000 togglebar |r - Shows/Hides toggle bar\n" .. 
+				"|cFFFF0000 icon |r - Shows/Hides minimap button\n"
+			)
 		end
 	else
 		Print("Invalid Command: |cFFFF0000" .. msg .. "|r try |cffFFDD11 /br help")
