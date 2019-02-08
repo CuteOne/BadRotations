@@ -159,6 +159,7 @@ br.lists.spells = {
                 darkSuccor                  = 101568,
                 empowerRuneWeapon           = 47568,
                 frozenPulse                 = 195750,
+                icyCitadel                  = 272723,
                 icyTalons                   = 194879,
                 killingMachine              = 51124,
                 pillarOfFrost               = 51271,
@@ -201,7 +202,7 @@ br.lists.spells = {
                 runicAttenuation            = 207104,
             },
             traits                          = {
-
+                icyCitadel                  = 272718,
             }
         },
         -- Unholy

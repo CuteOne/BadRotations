@@ -188,6 +188,7 @@ local function runRotation()
         local runesTTM          = br.player.power.runes.ttm
         local swimming          = IsSwimming()
         local talent            = br.player.talent
+        local traits            = br.player.traits
         local ttd               = getTTD
         local units             = br.player.units
         local use               = br.player.use
@@ -421,16 +422,22 @@ local function runRotation()
         -- Frostwyrm's Fury
                 -- frostwyrms_fury,if=(buff.pillar_of_frost.remains<=gcd&buff.pillar_of_frost.up)
                 if getOptionValue("Frostwyrm's Fury") == 1 or (getOptionValue("Frostwyrm's Fury") == 2 and useCDs())
-                    and enemies.yards40r >= getOptionValue("Frostwyrm's Fury")
+                    and cast.able.frostwyrmsFury() and enemies.yards40r >= getOptionValue("Frostwyrm's Fury")
                 then
                     -- frostwyrms_fury,if=(buff.pillar_of_frost.remains<=gcd|(buff.pillar_of_frost.remains<8&buff.unholy_strength.remains<=gcd&buff.unholy_strength.up))&buff.pillar_of_frost.up
-                    if cast.able.frostwyrmsFury() and (buff.pillarOfFrost.remain() <= gcdMax or (buff.pillarOfFrost.remain() < 8 
+                    if (buff.pillarOfFrost.remain() <= gcdMax or (buff.pillarOfFrost.remain() < 8 
                         and buff.unholyStrength.remain() <= gcdMax and buff.unholyStrength.exists())) and buff.pillarOfFrost.exists() 
                     then
                         if cast.frostwyrmsFury() then return true end
                     end
+                    -- frostwyrms_fury,if=(buff.icy_citadel.remains<=gcd|(buff.icy_citadel.remains<8&buff.unholy_strength.remains<=gcd&buff.unholy_strength.up))&buff.icy_citadel.up&azerite.icy_citadel.rank>2
+                    if (buff.icyCitadel.remain() <= gcdMax or (buff.icyCitadel.remain() < 8 and buff.unholyStrength.remain() <= gcdMax and buff.unholyStrength.exists()))
+                        and buff.icyCitadel.exists() and traits.icyCitadel.rank > 2
+                    then 
+                        if cast.frostwyrmsFury() then return true end 
+                    end
                     -- frostwyrms_fury,if=target.time_to_die<gcd|(target.time_to_die<cooldown.pillar_of_frost.remains&buff.unholy_strength.up)
-                    if cast.able.frostwyrmsFury() and (ttd(units.dyn5) < gcdMax or (ttd(units.dyn5) < cd.pillarOfFrost.remain() and buff.unholyStrength.exists())) then 
+                    if (ttd(units.dyn5) < gcdMax or (ttd(units.dyn5) < cd.pillarOfFrost.remain() and buff.unholyStrength.exists())) then 
                         if cast.frostwyrmsFury() then return true end
                     end
                 end
