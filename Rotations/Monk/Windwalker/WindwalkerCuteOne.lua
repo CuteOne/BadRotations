@@ -106,7 +106,8 @@ local function createOptions()
         -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
+            br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
         -- Energizing Elixir
             br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
         -- SEF Timer/Behavior
@@ -476,13 +477,11 @@ local function runRotation()
         function actionList_Cooldowns()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
-                if isChecked("Trinkets") then
-                    if canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
-                        useItem(13)
-                    end
-                    if canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
-                        useItem(14)
-                    end
+                if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and canUse(13) then
+                    useItem(13)
+                end
+                if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and canUse(14) then
+                    useItem(14)
                 end
         -- Invoke Xuen
                 -- invoke_xuen_the_white_tiger
@@ -758,7 +757,7 @@ local function runRotation()
         function actionList_SingleTarget()
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if isChecked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch 
+            if isChecked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not moving
                 and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getOptionValue("Whirling Dragon Punch Targets") 
             then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
@@ -845,7 +844,7 @@ local function runRotation()
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch 
+            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not moving
                 and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getOptionValue("Whirling Dragon Punch Targets") 
             then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
