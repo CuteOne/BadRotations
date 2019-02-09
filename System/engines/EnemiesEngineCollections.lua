@@ -357,5 +357,8 @@ validUnitBypassList = {
     [147374] = "Barrier", --Jadefire Masters
     [147375] = "Barrier", --Jadefire Masters
     [146756] = "Energized Storm", --Jadefire Masters
-    [148522] = "Ice Block" --Jaina
+    [148522] = "Ice Block", --Jaina
+    [148716] = "Risen Soul", --M+ Reaping
+    [148893] = "Tormented Soul", --M+ Reaping
+    [148894] = "Lost Soul" --M+ Reaping
 }
