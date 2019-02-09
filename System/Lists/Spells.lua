@@ -159,6 +159,7 @@ br.lists.spells = {
                 darkSuccor                  = 101568,
                 empowerRuneWeapon           = 47568,
                 frozenPulse                 = 195750,
+                icyCitadel                  = 272723,
                 icyTalons                   = 194879,
                 killingMachine              = 51124,
                 pillarOfFrost               = 51271,
@@ -201,7 +202,7 @@ br.lists.spells = {
                 runicAttenuation            = 207104,
             },
             traits                          = {
-
+                icyCitadel                  = 272718,
             }
         },
         -- Unholy
@@ -2260,13 +2261,13 @@ br.lists.spells = {
                 opportunity                 = 195627,
                 ruthlessPrecision           = 193357,
                 rollTheBones                = {
-                broadside                   = 193356,
-                buriedTreasure              = 199600,
-                grandMelee                  = 193358,
-                ruthlessPrecision           = 193357,
-                skullAndCrossbones          = 199603,
-                trueBearing                 = 193359,
-            },
+                    broadside                   = 193356,
+                    buriedTreasure              = 199600,
+                    grandMelee                  = 193358,
+                    ruthlessPrecision           = 193357,
+                    skullAndCrossbones          = 199603,
+                    trueBearing                 = 193359,
+                },
                 sharkInfestedWaters         = 193357,
                 skullAndCrossbones          = 199603,
                 sliceAndDice                = 5171,
@@ -3076,6 +3077,7 @@ br.lists.spells = {
                 furiousSlash                = 202539,
                 meatCleaver                 = 85739,
                 recklessness                = 1719,
+                suddenDeath                 = 280776,
                 whirlwind                   = 85739,
             },
             debuffs                         = {
@@ -3235,7 +3237,17 @@ br.lists.spells = {
                 battlePotionOfAgility           = 279152,
                 battlePotionOfIntellect         = 279151,
                 battlePotionOfStrength          = 279153,
-                bloodlust                       = 2825,
+                bloodLust                       = {
+                    ancientHysteria             = 90355,
+		            bloodlust                   = 2825,
+		            drumsOfRage                 = 146555,
+                    drumsOfTheMaelstrom         = 256740,
+                    drumsOfTheMountain          = 230935,
+		            heroism                     = 32182,
+		            netherwinds                 = 160452,
+		            primalRage                  = 264667,
+                    timewarp                    = 80353,
+                },
                 concordanceOfTheLegionfall      = 239042,
                 defiledAugmentation             = 224001, -- Lightforged Augment Rune buff
                 felFocus                        = 242551,
