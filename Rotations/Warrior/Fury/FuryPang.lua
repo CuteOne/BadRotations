@@ -95,6 +95,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Storm Bolt", 60, 0, 100, 5, "Health Percentage to use at.")
             -- Victory Rush
             br.ui:createSpinner(section, "Victory Rush", 60, 0, 100, 5, "Health Percentage to use at.")
+            br.ui:createCheckbox(section, "Howl")
             br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -288,7 +289,7 @@ local function runRotation()
             end
 
             -- Execute
-            if cast.able.execute() and buff.enrage.exists() or rage <= 60 then
+            if cast.able.execute() and (thp <= 20 or (talent.massacre and thp <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 60) then
                 if cast.execute() then return end
             end
 
@@ -359,7 +360,7 @@ local function runRotation()
             end
 
             -- Execute
-            if buff.whirlwind.exists() and cast.able.execute() and (buff.enrage.exists() or rage <= 60) then
+            if buff.whirlwind.exists() and cast.able.execute() and (thp <= 20 or (talent.massacre and thp <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 60) then
                 if cast.execute() then return end
             end
 
@@ -395,24 +396,22 @@ local function runRotation()
         end -- end multi target
 
         function cooldownlist()
-            if useCDs() then
-                --trinkets
-                if isChecked("Trinkets") then
-                    if getOptionValue("Trinkets")==1 or (getOptionValue("Trinkets")==2 and useCDs()) then
-                        if canTrinket(13) then
-                            useItem(13)
-                        end
-                        if canTrinket(14) then
-                            useItem(14)
-                        end
+            --trinkets
+            if isChecked("Trinkets") then
+                if getOptionValue("Trinkets")==1 or (getOptionValue("Trinkets")==2 and useCDs()) then
+                    if canTrinket(13) then
+                        useItem(13)
+                    end
+                    if canTrinket(14) then
+                        useItem(14)
                     end
                 end
+            end
 
-                --racials
-                if isChecked("Racials") then
-                    if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
-                        if cast.racial() then return end
-                    end
+            --racials
+            if isChecked("Racials") then
+                if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
+                    if cast.racial() then return end
                 end
             end
         end
