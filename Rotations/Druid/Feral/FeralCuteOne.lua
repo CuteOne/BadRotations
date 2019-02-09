@@ -777,7 +777,7 @@ local function runRotation()
                     -- rip,if=!ticking
                     elseif MF1 and not RIP1 then
                         if debuff.rip.exists("target") or comboPoints == 0 then 
-                            castOpenerFail("rip","RP1",openerCount)
+                            castOpenerFail("rip","RIP1",openerCount)
                         elseif cast.able.rip() then
                             if usePrimalWrath() then 
                                 castOpener("primalWrath","RIP1",openerCount)
