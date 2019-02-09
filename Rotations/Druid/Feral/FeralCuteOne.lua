@@ -219,7 +219,7 @@ local function runRotation()
         local stealth                                       = br.player.buff.prowl.exists() or br.player.buff.shadowmeld.exists()
         local talent                                        = br.player.talent
         local thp                                           = getHP
-        local trait                                         = br.player.traits
+        local traits                                        = br.player.traits
         local travel, flight, cat                           = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.energy.ttm()
@@ -305,7 +305,7 @@ local function runRotation()
         -- Variables
         -- variable,name=use_thrash,value=0
         -- variable,name=use_thrash,value=2,if=azerite.wild_fleshrending.enabled
-        if trait.wildFleshrending.active then
+        if traits.wildFleshrending.active then
             useThrash = 2
         else
             useThrash = 0
@@ -737,7 +737,7 @@ local function runRotation()
 		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and not opener then
-                if isValidUnit("target") and getDistance("target") < 5 and getFacing("player","target") and getSpellCD(61304) == 0 then
+                if getDistance("target") < 5 and getFacing("player","target") and getSpellCD(61304) == 0 then
             -- Begin
 					if not OPN1 then
                         Print("Starting Opener")
@@ -757,7 +757,7 @@ local function runRotation()
                     -- rake,if=!ticking|buff.prowl.up
                     elseif TF1 and not RK1 then 
                         if debuff.rake.exists("target") then 
-                            castOpenerFail("rake","RK1",castOpener)
+                            castOpenerFail("rake","RK1",openerCount)
                         elseif cast.able.rake() then 
                             castOpener("rake","RK1",openerCount)
                         end 
@@ -776,8 +776,8 @@ local function runRotation()
             -- Rip
                     -- rip,if=!ticking
                     elseif MF1 and not RIP1 then
-                        if debuff.rip.exists("target") then 
-                            castOpenerFail("rip","RP1",castOpener)
+                        if debuff.rip.exists("target") or comboPoints == 0 then 
+                            castOpenerFail("rip","RP1",openerCount)
                         elseif cast.able.rip() then
                             if usePrimalWrath() then 
                                 castOpener("primalWrath","RIP1",openerCount)
@@ -888,8 +888,9 @@ local function runRotation()
             end
         -- Brutal Slash
             -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
-            if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3
-                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+            if cast.able.brutalSlash() and talent.brutalSlash and not buff.bloodtalons.exists()
+                and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE)) and mode.rotation < 3 
+                and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) or (mode.rotation == 2 and #enemies.yards8 > 0))                
             then
                 if cast.brutalSlash("player","aoe",1,8) then return true end
             end
@@ -955,20 +956,10 @@ local function runRotation()
             end
         -- Brutal Slash
             -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
-            --if talent.brutalSlash and ((buff.tigersFury.exists() and charges.brutalSlash.timeTillFull() < gcdMax)
-            --    or (charges.brutalSlash.recharge(true) < cd.tigersFury.remain()))
-            if cast.able.brutalSlash() and talent.brutalSlash and mode.rotation < 3 and ((buff.tigersFury.exists() and getOptionValue("Brutal Slash Targets") == 1)
-                or (getOptionValue("Brutal Slash Targets") > 1 and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets")) 
-                or (mode.rotation == 2 and #enemies.yards8 > 0))) or charges.brutalSlash.timeTillFull() < gcdMax)
+            if cast.able.brutalSlash() and talent.brutalSlash and not buff.bloodtalons.exists() and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE)) 
+                and (buff.tigersFury.exists() or charges.brutalSlash.timeTillFull() < gcdMax) and (#enemies.yards8 < getOptionValue("Brutal Slash Targets") 
+                    or (mode.rotation == 3 and #enemies.yards8 > 0))
             then
-                if cast.able.regrowth() and talent.bloodtalons and not buff.bloodtalons.exists() and equiped.ailuroPouncers() and buff.predatorySwiftness.stack() > 0 then
-                    if getOptionValue("Auto Heal")==1 and getDistance(br.friend[1].unit) < 40 then
-                        cast.regrowth(br.friend[1].unit)
-                    end
-                    if getOptionValue("Auto Heal")==2 then
-                        cast.regrowth("player")
-                    end
-                end
                 if cast.brutalSlash("player","aoe",1,8) then return true end
             end
         -- Moonfire
@@ -988,9 +979,9 @@ local function runRotation()
             -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
             -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
             if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4 and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3 then
-                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
+                if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active)) 
                     or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
-                    or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or trait.wildFleshrending.active)) 
+                    or (useThrash == 1 and buff.clearcasting.exists() and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active)) 
                 then
                     if cast.pool.thrashCat() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
                     if cast.able.thrashCat() or buff.clearcasting.exists() then
