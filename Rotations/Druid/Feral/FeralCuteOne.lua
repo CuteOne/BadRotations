@@ -314,7 +314,7 @@ local function runRotation()
         -- Multi-Dot HP Limit Set
         local function canDoT(unit)
             local unitHealthMax = UnitHealthMax(unit)
-            if not isBoss() then return ((unitHealthMax > UnitHealthMax("player") * 3) or (UnitHealth(unit) < unitHealthMax and getTTD(unit) > 10)) end            
+            if not isBoss(unit) then return ((unitHealthMax > UnitHealthMax("player") * 3) or (UnitHealth(unit) < unitHealthMax and getTTD(unit) > 10)) end            
             local maxHealth = 0
             for i = 1, #enemies.yards5f do
                 local thisMaxHealth = UnitHealthMax(enemies.yards5f[i])
