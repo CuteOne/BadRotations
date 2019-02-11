@@ -288,7 +288,7 @@ local function runRotation()
 --------------------------------------
             -- Defensives
           function actionList_Defensive()
-                if useDefensive() and getHP("player") > 0 then
+                if mode.defensive == 1 and getHP("player") > 0 then
                     -- Gift of the Narru
                    if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                        if castSpell("player",racial,false,false,false) then 
@@ -313,6 +313,15 @@ local function runRotation()
                             end
                         end
                     end
+
+                    -- Healthstones
+                    if isChecked("Healthstones") and php <= getOptionValue("Healthstones") and GetItemCooldown("5512") == 0 and inCombat and hasItem(5512) then
+                        if canUse(5512) then
+                            useItem(5512)
+                            return
+                        end
+                    end
+
 
                     -- PWS
                     if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
@@ -473,13 +482,30 @@ local function runRotation()
                     return
                 end
             end
+
+            -- VT Refresh
+            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+                if cast.vampiricTouch("target") then
+                    return
+                end
+            end
+
+
+            -- SWP Refresh
+            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+                if cast.shadowWordPain("target") then
+                    return
+                end
+            end
+
+
             -- Mindbender
-            if useCDs() and talent.mindbender and cast.able.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
+            if useCDs() and talent.mindbender and cast.able.mindbender and buff.voidForm.stack() < getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
                 if cast.mindbender("target") then
                     return
                 end
             else
-                if useCDs() and not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
+                if useCDs() and not talent.mindbender and buff.voidForm.stack() < getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
                     if cast.shadowfiend("target") then
                         return
                     end
@@ -695,6 +721,21 @@ local function runRotation()
                 end
             end
 
+            -- VT Refresh
+            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+                if cast.vampiricTouch("target") then
+                    return
+                end
+            end
+        
+        
+            -- SWP Refresh
+            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+                if cast.shadowWordPain("target") then
+                    return
+                end
+            end
+
             -- Shadow Crash
             if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then
                 if cast.shadowCrash("best",nil,1,10) then
@@ -759,7 +800,7 @@ local function runRotation()
             end
 
             -- SWD 2 
-            if ((mode.rotation == 1 and (#enemies.yards40 <= 4 or (talent.reaperOfSouls and #enemies <= 2))) or mode.rotation == 3) and charges.shadowWordDeath.count() == 2 and not buff.void.exists() then
+            if ((mode.rotation == 1 and (#enemies.yards40 <= 4 or (#enemies <= 2))) or mode.rotation == 3) and charges.shadowWordDeath.count() == 2 and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if getHP(thisUnit) < 20 then
