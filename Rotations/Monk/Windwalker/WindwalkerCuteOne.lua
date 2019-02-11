@@ -757,7 +757,7 @@ local function runRotation()
         function actionList_SingleTarget()
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if isChecked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not moving
+            if isChecked("Whirling Dragon Punch") and cast.able.whirlingDragonPunch() and talent.whirlingDragonPunch and not moving and not isExplosive("target")
                 and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getOptionValue("Whirling Dragon Punch Targets") 
             then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
@@ -770,7 +770,7 @@ local function runRotation()
         -- Fists of Fury 
             -- fists_of_fury,if=energy.time_to_max>3
             if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttm > 3 and #enemies.yards8f >= getOptionValue("Fists of Fury Targets")) 
-                and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1)
+                and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
             then 
                 if cast.fistsOfFury() then return true end 
             end 
@@ -781,12 +781,12 @@ local function runRotation()
             end
         -- Spinning Crane Kick 
             -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&buff.dance_of_chiji.up
-            if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists() then 
+            if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and buff.danceOfChiJi.exists() and not isExplosive("target") then 
                 if cast.spinningCraneKick(nil,"aoe") then return true end 
             end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=buff.rushing_jade_wind.down&active_enemies>1
-            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists()
+            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not isExplosive("target")
                 and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
             then
                 if cast.rushingJadeWind() then return true end
@@ -807,7 +807,7 @@ local function runRotation()
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))&buff.swift_roundhouse.stack<2
             if cast.able.blackoutKick() and not wasLastCombo(spell.blackoutKick) and buff.swiftRoundhouse.stack() < 2 and (((cd.risingSunKick.remain() > 3 or chi >= 3) 
                 and (cd.fistsOfFury.remain() > 4 or chi >= 4 or ((chi == 2 or ttm <= 3) and wasLastCombo(spell.tigerPalm) or ttd <= 3 
-                or #enemies.yards8f < getOptionValue("Fists of Fury Targets") or mode.fof == 2))) or buff.blackoutKick.exists())
+                or #enemies.yards8f < getOptionValue("Fists of Fury Targets") or mode.fof == 2))) or buff.blackoutKick.exists() or isExplosive("target"))
             then
                 if cast.blackoutKick() then return true end
             end
@@ -825,7 +825,7 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
-            if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2 or ttd < 3 or ttm < 3)
+            if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm) and (chiMax - chi >= 2 or ttd < 3 or ttm < 3 or isExplosive("target"))
             then
                 if cast.tigerPalm() then return true end
             end
@@ -839,12 +839,14 @@ local function runRotation()
         function actionList_AoE()
         -- Rising Sun Kick
             -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
-            if cast.able.risingSunKick(lowestMark) and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and cd.fistsOfFury.remain() > 3 then
+            if cast.able.risingSunKick(lowestMark) and (((talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and cd.fistsOfFury.remain() > 3) 
+                or isExplosive("target")) 
+            then
                 if cast.risingSunKick(lowestMark) then return true end
             end
         -- Whirling Dragon Punch
             -- whirling_dragon_punch
-            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not moving
+            if cast.able.whirlingDragonPunch() and isChecked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not moving and not isExplosive("target")
                 and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= getOptionValue("Whirling Dragon Punch Targets") 
             then
                 if cast.whirlingDragonPunch("player","aoe") then return true end
@@ -859,18 +861,18 @@ local function runRotation()
         -- Fists of Fury
             -- fists_of_fury,if=energy.time_to_max>3
             if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3 
-                and #enemies.yards8f >= getOptionValue("Fists of Fury Targets") and mode.fof == 1 
+                and #enemies.yards8f >= getOptionValue("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target") 
             then
                 if cast.fistsOfFury() then return true end
             end
         -- Rushing Jade Wind
             -- rushing_jade_wind,if=buff.rushing_jade_wind.down
-            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() then
+            if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not isExplosive("target") then
                 if cast.rushingJadeWind() then return true end
             end
         -- Spinning Crane Kick
             -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(((chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
-            if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+            if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and not isExplosive("target")
                 and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or ttm <= 3 or ttd <= 3 
                     or #enemies.yards8f < getOptionValue("Fists of Fury Targets") and mode.fof == 2) 
             then
@@ -890,7 +892,7 @@ local function runRotation()
             end
         -- Tiger Palm
             -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2&(!talent.hit_combo.enabled|!prev_gcd.1.tiger_palm)
-            if cast.able.tigerPalm(lowestMark) and (chiMax - chi >= 2 or ttd < 3 or ttm < 3) and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)) then
+            if cast.able.tigerPalm(lowestMark) and (chiMax - chi >= 2 or ttd < 3 or ttm < 3 or isExplosive("target")) and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)) then
                 if cast.tigerPalm(lowestMark) then return true end
             end
         -- Chi Wave
@@ -906,7 +908,7 @@ local function runRotation()
         -- Blackout Kick
             -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(buff.bok_proc.up|(talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi<4))
             if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick)
-                and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4) or ttd <= 3 or ttm <= 3)
+                and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4) or ttd <= 3 or ttm <= 3 or isExplosive("target"))
             then
                 if cast.blackoutKick(lowestMark) then return true end
             end
@@ -920,7 +922,7 @@ local function runRotation()
             end
         -- Fists of Fury
             -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
-            if chi >= 3 and  cast.able.fistsOfFury() and ((hasBloodLust() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
+            if chi >= 3 and  cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
                 or (#enemies.yards8f > 1 and #enemies.yards8f < 5)) and mode.fof == 1
             then
                 if cast.fistsOfFury() then return true end
@@ -1044,7 +1046,7 @@ local function runRotation()
         -- Potion
                     -- potion,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                     if inRaid and isChecked("Potion") and useCDs() and getDistance("target") < 5 then
-                        if buff.serenity.exists() or buff.stormEarthAndFire.exists() or talent.serenity or hasBloodLust() or ttd <= 60 then
+                        if buff.serenity.exists() or buff.stormEarthAndFire.exists() or talent.serenity or buff.bloodLust.exists() or ttd <= 60 then
                             if canUse(127844) then
                                 useItem(127844)
                             end

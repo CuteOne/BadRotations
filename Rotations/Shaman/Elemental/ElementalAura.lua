@@ -850,7 +850,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-            if inCombat and hastar and not deadtar then
+            if inCombat then
                 --if (buff.ghostWolf.exists() and mode.ghostWolf ~= 1) then return end
                     actionList_Interrupt()
                     actionList_Defensive()

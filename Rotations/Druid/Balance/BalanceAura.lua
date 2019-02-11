@@ -109,6 +109,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             br.ui:createCheckbox(section, "Solar Beam")
             br.ui:createCheckbox(section, "Mighty Bash")
+            br.ui:createCheckbox(section, "Typhoon")
             -- Interrupt Percentage
             br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
@@ -398,6 +399,10 @@ local function runRotation()
                         -- Solar Beam
                         if isChecked("Solar Beam") then
                             if cast.solarBeam(thisUnit) then return end
+                        end
+                        -- Typhoon
+                        if isChecked("Typhoon") and talent.typhoon and getDistance(thisUnit) <= 15 then
+                            if cast.typhoon() then return end
                         end
                         -- Mighty Bash
                         if isChecked("Mighty Bash") and talent.mightyBash and getDistance(thisUnit) <= 10 then
