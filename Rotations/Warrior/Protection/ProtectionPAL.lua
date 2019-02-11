@@ -486,7 +486,7 @@ local function runRotation()
       --single target rotation
       if #enemies.yards8 == 1 then
         if GetUnitExists("target") and getFacing("player", "target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 8 then
-          if isChecked("Shield Slam") and cast.able.shieldSlam() then
+          if isChecked("Shield Slam") and cd.shieldSlam.remain() == 0 and cast.able.shieldSlam() then
             if cast.shieldSlam() then
               return true
             end
@@ -586,17 +586,17 @@ local function runRotation()
 
     local function Cooldowns()
 
-       -- Taunt
-        if tauntSetting == 1 and cast.able.taunt() then
-          for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]
-            if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-              if cast.taunt(thisUnit) then
-                return true
-              end
+      -- Taunt
+      if tauntSetting == 1 and cast.able.taunt() then
+        for i = 1, #enemies.yards30 do
+          local thisUnit = enemies.yards30[i]
+          if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+            if cast.taunt(thisUnit) then
+              return true
             end
           end
         end
+      end
 
       if isChecked("use Trinkets") then
         local Trinket13 = GetInventoryItemID("player", 13)
@@ -610,13 +610,17 @@ local function runRotation()
         if (Trinket13 == 159611 or Trinket14 == 159611) and GetItemCooldown(159611) == 0 and #enemies.yards8t >= 2 then
           useItemGround("target", 159611, 30, 0, 8)
         end
-        --doomsfury
-        if (Trinket13 == 161463 or Trinket14 == 161463) and GetItemCooldown(161463) == 0 and buff.avatar.exists() then
-          useItem(161463)
-        end
         --Jes' howler
         if (Trinket13 == 159627 or Trinket14 == 159627) and GetItemCooldown(159627) == 0 and (#friends.yard8 >= 2 or php <= 50) then
           useItem(159627)
+        end
+        -- Vial of Animated Blood
+        if (Trinket13 == 159625 or Trinket14 == 159625) and GetItemCooldown(159625) == 0 and buff.avatar.exists() then
+          useItem(159625)
+        end
+        --doomsfury
+        if (Trinket13 == 161463 or Trinket14 == 161463) and GetItemCooldown(161463) == 0 and buff.avatar.exists() then
+          useItem(161463)
         end
       end
 
