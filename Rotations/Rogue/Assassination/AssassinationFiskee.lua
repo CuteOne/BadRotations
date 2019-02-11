@@ -215,6 +215,7 @@ local function runRotation()
 
     local garroteCount = 0
 
+    units.get(5)
     enemies.get(20)
     enemies.get(20,"player",true)
     enemies.get(30)
