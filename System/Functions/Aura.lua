@@ -505,17 +505,23 @@ function getDisease(range, aoe, mod)
 	end
 end
 -- TODO: update BL list
+function getLustID()	
+	for k, v in pairs(br.lists.spells.Shared.Shared.buffs["bloodLust"]) do
+		if UnitBuffID("player", v) then return v end
+	end 
+	return 0 
+end
 function hasBloodLust()
 	if UnitBuffID("player", 90355) or -- Ancient Hysteria
 		UnitBuffID("player", 2825) or -- Bloodlust
 		UnitBuffID("player", 146555) or -- Drums of Rage
 		UnitBuffID("player", 32182) or -- Heroism
 		UnitBuffID("player", 90355) or -- Netherwinds
-        UnitBuffID("player", 80353) or -- Timewarp
-        UnitBuffID("player", 230935) or -- Drums of the Mountain
-        UnitBuffID("player", 256740) or -- Drums of the Maelstrom
+		UnitBuffID("player", 80353) or -- Timewarp
+		UnitBuffID("player", 230935) or -- Drums of the Mountain
+		UnitBuffID("player", 256740) or -- Drums of the Maelstrom
 		UnitBuffID("player", 264667) -- Primal Rage
-	 then
+	then
 		return true
 	else
 		return false

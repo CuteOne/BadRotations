@@ -270,6 +270,7 @@ function br.loader:new(spec,specName)
         for k,v in pairs(self.spell.buffs) do
             if k ~= "rollTheBones" then
                 if self.buff[k] == nil then self.buff[k] = {} end
+                if k == "bloodLust" then v = getLustID() end
                 local buff = self.buff[k]
                 buff.cancel = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
@@ -291,9 +292,9 @@ function br.loader:new(spec,specName)
                 end
                 buff.remain = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
+                    if sourceUnit == nil then sourceUnit = 'player' end 
                     return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
-                    end
+                end
                 buff.remains = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
@@ -301,7 +302,7 @@ function br.loader:new(spec,specName)
                 end
                 buff.stack = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
+                    if sourceUnit == nil then sourceUnit = 'player' end 
                     return getBuffStacks(thisUnit,v,sourceUnit)
                 end
                 buff.refresh = function(thisUnit,sourceUnit)
@@ -615,12 +616,12 @@ function br.loader:new(spec,specName)
             end
 
             -- Build Cast Funcitons
-            self.cast[k] = function(thisUnit,debug,minUnits,effectRng)
-                return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k)
+            self.cast[k] = function(thisUnit,debug,minUnits,effectRng,predict)
+                return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k,predict)
             end
 
-            self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng)
-                return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k)
+            self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng,predict)
+                return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k,predict)
                 -- return self.cast[v](nil,"debug")
             end
 

@@ -376,10 +376,11 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	if not maxRange or maxRange == 0 then maxRange = 5 end
 	if checkdistance == nil then checkdistance = true end
 	if not checkdistance or getDistance("target") < maxRange then
-	    if (not castSpell(nil,"debug") and (cooldown == 0 or cooldown > br.player.gcdMax)) then
-	        Print(index..": "..spellName.." (Uncastable)");
-	        _G[flag] = true;
-	        return true
+		if (not castSpell(nil,"debug") and (cooldown == 0 or cooldown > br.player.gcdMax)) then
+			castOpenerFail(spellIndex,flag,index)
+	        -- Print(index..": "..spellName.." (Uncastable)");
+	        -- _G[flag] = true;
+			-- return true
 	    else
 	        if castSpell() then Print(index..": "..spellName); _G[flag] = true; return true end
 	    end
