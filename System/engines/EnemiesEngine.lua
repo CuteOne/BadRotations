@@ -136,10 +136,7 @@ if not metaTable2 then
 			end
 			-- Is valid unit - only check if enemyList checks out
 			if o.enemyListCheck == true then
-				if (o.validUnitRefresh == nil or o.validUnitRefresh < GetTime() - 0.5) then
-					o.isValidUnit = isValidUnit(o.unit)
-					o.validUnitRefresh = GetTime()
-				end
+                o.isValidUnit = isValidUnit(o.unit)
 			else
 				o.isValidUnit = false
 			end
@@ -191,7 +188,10 @@ if not metaTable2 then
 					end
 					tremove(br.om, i)
 				else
-					br.om[i]:UpdateUnit()
+                    if br.om[i].pulseTime == nil or GetTime() >= (br.om[i].pulseTime + 0.1) then
+                        br.om[i].pulseTime = GetTime()
+                        br.om[i]:UpdateUnit()
+                    end
 					i = i + 1
 				end
 			end

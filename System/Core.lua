@@ -41,15 +41,18 @@ end
 
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
-	if EWT then
-		-- Pulse Object Manager for Caching
-		if omPulse == nil then
-			omPulse = GetTime()
-		end
-		if GetTime() > omPulse then
-			omPulse = GetTime() + getUpdateRate()
-			updateOM()
-		end
+    if EWT then
+        if GetObjectManagerUpdates ~= nil then -- Only EWT support
+            updateOMEWT()
+        else -- Legacy OM
+            if omPulse == nil then
+                omPulse = GetTime()
+            end
+            if GetTime() > omPulse then
+                omPulse = GetTime() + getUpdateRate()
+                updateOM()
+            end
+        end
 	end
 end
 

@@ -354,6 +354,9 @@ function isCritter(Unit) -- From LibBabble
 	end
 	return false
 end
+function isExplosive(Unit)
+	return GetObjectID(Unit) == 120651
+end
 function isUndead(Unit)
 	if Unit == nil then Unit = "target" end
 	local unitType = UnitCreatureType(Unit)
