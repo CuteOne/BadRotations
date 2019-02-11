@@ -791,7 +791,7 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                if hastar and getDistance("target") <= 8 then
+               -- if hastar and getDistance("target") <= 8 then
                     actionList_Interrupts()
                     actionList_Defensive()
                     if isChecked("Capacitor Totem - Tank Stuns") and getDistance("target") <= 40 and (inInstance or inRaid) then
@@ -819,7 +819,7 @@ local function runRotation()
                     elseif getOptionValue("APL Mode") == 2 then
                         actionList_AMR()
                     end
-                end
+              --  end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer

@@ -122,7 +122,88 @@ local function PopulateUnitTables()
 	end
 end
 
+--Check OM Cache
+local brOM = {}
+local omCache = {}
+local function checkOM()
+    local objectCount = #brOM
+    if objectCount > 0 then
+        local autoLoot = isChecked("Auto Loot")
+        local playerObject = ObjectPointer("player")
+        local i = 1
+        while i <= #brOM do
+            local thisPointer = brOM[i].objectPointer
+            if ObjectExists(thisPointer) then
+                if br.unitSetup.cache[thisPointer] == nil and (brOM[i].pulseTime == nil or GetTime() >= brOM[i].pulseTime) then
+                    local distance = getBaseDistance(thisPointer)
+                    if distance > 50 then
+                        brOM[i].pulseTime = GetTime() + 0.2
+                    else
+                        brOM[i].pulseTime = GetTime() + 0.1
+                    end
+                    if distance < 50 and
+                    (GetUnitReaction(thisPointer, "player") < 5 or UnitCreator(thisPointer) == playerObject) and
+                    (not UnitIsDeadOrGhost(thisPointer) or (autoLoot and CanLootUnit(UnitGUID(thisPointer)))) then
+                        local enemyUnit = br.unitSetup:new(thisPointer)
+                        if enemyUnit then
+                            tinsert(br.om, enemyUnit)
+                        end
+                    end
+                end
+                i = i + 1
+            else
+                omCache[thisPointer] = nil
+                tremove(brOM, i)
+            end
+        end
+    end
+end
+
 --Update OM
+local initOM = true
+function updateOMEWT()
+	local startTime = debugprofilestop()
+	-- Cycle OM
+    if initOM then
+        local objectCount = GetObjectCount()
+        local thisObject
+        if objectCount > 0 then
+            for i = 1, objectCount do
+                thisObject = GetObjectWithIndex(i)
+                if omCache[thisObject] == nil and ObjectIsUnit(thisObject) then
+                    local insertObject = {}
+                    insertObject.objectPointer = thisObject
+                    tinsert(brOM, insertObject)
+                    omCache[thisObject] = true
+                end
+            end
+        end
+        initOM = false
+    else --Normal update
+        local num, objs = GetObjectManagerUpdates()
+        for k,v in pairs(objs) do
+            if omCache[v] == nil and ObjectIsUnit(v) then
+                local insertObject = {}
+                insertObject.objectPointer = v
+                tinsert(brOM, insertObject)
+                omCache[v] = true
+            end
+        end
+    end
+    refreshStored = true
+    checkOM()
+    br.om:Update()
+    -- Debugging
+	if isChecked("Debug Timers") then
+		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.objects.totalIterations = br.debug.cpu.enemiesEngine.objects.totalIterations + 1
+		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
+		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
+    end
+	PopulateUnitTables()
+end
+
+--Legacy OM
 function updateOM()
 	local startTime = debugprofilestop()
 	local inCombat = UnitAffectingCombat("player")
