@@ -245,7 +245,7 @@ local function runRotation()
   -- local level                                         = br.player.level
   -- local lowestHP                                      = br.friend[1].unit
   -- local lowest                                        = br.friend[1]
-  -- local mana                                          = br.player.powerPercentMana
+  local mana                                          = br.player.powerPercentMana
   -- local perk                                          = br.player.perk
   -- local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
   -- local ttm                                           = br.player.power.mana.ttm()
@@ -465,7 +465,7 @@ local function runRotation()
       end
     end
   end
-  if isChecked("Arcane Torrent Mana") and race == "BloodElf" and getSpellCD(69179) == 0 and br.player.power.mana.amount() < getOptionValue("Arcane Torrent Mana") then
+  if isChecked("Arcane Torrent Mana") and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
     if castSpell("player", racial, false, false, false) then
       return true
     end
