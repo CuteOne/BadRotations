@@ -78,7 +78,7 @@ end
 
 local function updateRate()
 	print("Current Update Rate: " .. getUpdateRate())
-	print("Current Dynamic Target Rate: " .. getEnemyUpdateRate())
+	--print("Current Dynamic Target Rate: " .. getEnemyUpdateRate())
 end
 
 local function forewardDisengage() -- from Stinky Twitch
