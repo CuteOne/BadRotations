@@ -518,7 +518,7 @@ local function runRotation()
         
             -- Mind Sear ST
             if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
+                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
                     if cast.mindSear() then
                         return
                     end
@@ -602,21 +602,21 @@ local function runRotation()
             end
 
             -- Mind Blast
-            if cast.last.voidEruption and not moving and not talent.shadowWordVoid then
+            if cast.last.voidEruption() and not moving and not talent.shadowWordVoid then
                 if cast.mindBlast() then 
                     return
                 end
             end
 
             -- Mind Blast 2
-            if cast.last.voidEruption and not moving and not talent.shadowWordVoid and power <= 95.2 and talent.fortressOfTheMind and not buff.void.exists() then
+            if cast.last.voidEruption() and not moving and not talent.shadowWordVoid and power <= 95.2 and talent.fortressOfTheMind and not buff.void.exists() then
                 if cast.mindBlast() then
                     return
                 end
             end
 
             -- Shadow Word Void
-            if cast.last.voidEruption and not moving and talent.shadowWordVoid and charges.shadowWordVoid.count() >= 1 then
+            if cast.last.voidEruption() and not moving and talent.shadowWordVoid and charges.shadowWordVoid.count() >= 1 then
                 if cast.shadowWordVoid() then 
                     return
                 end
@@ -667,7 +667,7 @@ local function runRotation()
 
             -- Mind Sear
             if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t >= 3 then
+                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t >= 3 then
                     if cast.mindSear() then
                         return
                     end
@@ -678,7 +678,7 @@ local function runRotation()
 
             -- Mind Flay
             if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindFlay) and (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
+                if not buff.void.exists() and not isCastingSpell(spell.mindFlay) and (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
                     if cast.mindFlay() then
                         return
                     end
@@ -809,7 +809,7 @@ local function runRotation()
 
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
+            elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
                 if cast.mindSear() then
                     return
                 end
@@ -818,14 +818,14 @@ local function runRotation()
             -- Mind Searcharges
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
+            elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
                 if cast.mindFlay() then 
                     return 
                 end
             end
             
             -- Mind Blast
-            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption and not moving then
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption() and not moving then
                 if cast.mindBlast() then
                     return
                 end
@@ -934,7 +934,7 @@ local function runRotation()
             -- Mind Searcharges
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
+            elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
                 if cast.mindSear() then 
                     return 
                 end
@@ -945,7 +945,7 @@ local function runRotation()
             -- Mind Flay
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and not buff.thoughtsHarvester.exists() then
+            elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and not buff.thoughtsHarvester.exists() then
                 if cast.mindFlay() then 
                     return 
                 end
