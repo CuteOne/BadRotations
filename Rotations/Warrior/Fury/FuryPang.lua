@@ -60,7 +60,7 @@ local function createOptions()
             -- Trinkets
             br.ui:createDropdown(section,"Trinkets", {"Always", "Cooldown"}, 1, "Use Trinkets always or with CDs")
             -- Racials
-            br.ui:createCheckbox(section,"Racial")
+            br.ui:createCheckbox(section,"Racials")
             -- Bladestorm Units
             br.ui:createSpinner(section, "Bladestorm Units", 3, 1, 10, 1, "Number of units to Bladestorm on")
             -- Dragons Roar
@@ -172,7 +172,7 @@ local function runRotation()
             if isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
-                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and buff.battleShout.remain(thisUnit) < 300 then
+                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and not buff.battleShout.exists(thisUnit) then
                         if cast.battleShout() then return end
                     end
                 end
@@ -344,6 +344,11 @@ local function runRotation()
                 if cast.siegebreaker() then return end
             end
 
+            -- Dragon Roar
+            if buff.enrage.exists() then 
+                if cast.dragonRoar() then return end
+            end
+
             -- Rampage
             if buff.whirlwind.exists() and (buff.recklessness.exists() or (not buff.enrage.exists() or (talent.carnage and rage >= 75) or (rage >= 85))) then
                 if cast.rampage() then return end
@@ -352,11 +357,6 @@ local function runRotation()
             -- Bladestorm
             if #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() then
                 if cast.bladestorm() then return end
-            end
-
-            -- Dragon Roar
-            if buff.enrage.exists() then 
-                if cast.dragonRoar() then return end
             end
 
             -- Execute
@@ -411,7 +411,7 @@ local function runRotation()
             --racials
             if isChecked("Racials") then
                 if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
-                    if cast.racial() then return end
+                    if cast.racial("player") then return end
                 end
             end
         end

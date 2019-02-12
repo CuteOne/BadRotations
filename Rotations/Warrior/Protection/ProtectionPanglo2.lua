@@ -58,6 +58,8 @@ local function createOptions()
 			-- Taunt
             br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
             br.ui:createCheckbox(section,"Use Heroic Throw","Check to enable Heroic Throw usage in Combat")
+            -- Shout Check
+            br.ui:createCheckbox(section,"Battle Shout","Enable automatic party buffing")
 		br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -76,6 +78,7 @@ local function createOptions()
             -- Dragons Roar
             br.ui:createCheckbox(section,"Dragon Roar")
             -- Shockwave
+            br.ui:createCheckbox(section,"Racial", "Automatically Use racials with Avatar")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -246,7 +249,7 @@ local function runRotation()
 
         local function actionList_Extras()
             if isChecked("Charge OoC") then
-                if cast.able.intercept("target") and getDistance("player","target") <= 25 then
+                if cast.able.intercept("target") and getDistance("player","target") <= 25 and not inCombat then
                     if cast.intercept("target") then return end
                 end
             end
@@ -261,6 +264,14 @@ local function runRotation()
                     end
                 end
             end
+            if isChecked("Battle Shout") and cast.able.battleShout() then
+                for i = 1, #br.friend do
+                    local thisUnit = br.friend[i].unit
+                    if not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and not buff.battleShout.exists(thisUnit) then
+                        if cast.battleShout() then return end
+                    end
+                end
+            end        
         end
 
         local function actionList_Interrupts()
@@ -301,25 +312,20 @@ local function runRotation()
                     --print("cd avatar")
                     if cast.avatar() then return end
                 end
-                if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+                if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
                     if cast.demoralizingShout() then return end
                 end
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
+                end
+                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() and (br.player.race == "Orc" or race == "Troll") then
+                    if cast.racial("player") then return true end
                 end
             end
         end
 
         local function actionList_Defensives()
             if useDefensive() then
-                if isChecked("Taunt") and inInstance then
-                    for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
-                        if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
-                            if cast.taunt(thisUnit) then return end
-                        end
-                    end
-                end    
                 if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
                     if cast.shieldBlock() then return end
                 end
@@ -440,6 +446,11 @@ local function runRotation()
         end
 
         local function technoViking()
+                      --Use Demo Shout on CD
+                      if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+                        if cast.demoralizingShout() then return end
+                    end
+        
             --stomp your feet
             if talent.cracklingThunder then
                 if cast.thunderClap("player",nil,1,12) then return end
@@ -464,18 +475,20 @@ local function runRotation()
         end
 
         --- Lets do things now
-    if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or 
-                (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
+            if pause() or 
+            (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
         return true
         else
-            if not inCombat and not IsMounted() and isValidUnit("target") then
+            if not inCombat and not IsMounted() then
                 if actionList_Extras() then return end
             end
             if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
                 if getDistance(units.dyn5) < 5 then
                     StartAttack()
                 end
-                
+
+                if actionList_Extras() then return end
+
                 if actionList_Defensives() then return end
 
                 if actionList_Moving() then return end
