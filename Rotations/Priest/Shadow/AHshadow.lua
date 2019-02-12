@@ -30,7 +30,7 @@ local function createToggles() -- Define custom toggles
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
     };
-    CreateButton("Interrupt",4,0)
+    CreateButton("Interrupts",4,0)
 end
 
 ---------------
@@ -140,7 +140,7 @@ local function runRotation()
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
+        UpdateToggle("Interrupts",0.25)
 --------------
 --- Locals ---
 --------------
@@ -481,21 +481,21 @@ local function runRotation()
 
             -- Dark Ascension
             if talent.darkAscension and not buff.voidForm.exists() then
-                if cast.darkAscension("target") then
+                if cast.darkAscension() then
                     return
                 end
             end
 
             -- VT Refresh 2.0
             if debuff.vampiricTouch.remain("target") < 6.3 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
-                if cast.vampiricTouch("target") then
+                if cast.vampiricTouch() then
                     return
                 end
             end
 
             -- SWP Refresh 2.0
             if debuff.shadowWordPain.remain("target") < 4.8 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
-                if cast.shadowWordPain("target") then
+                if cast.shadowWordPain() then
                     return
                 end
             end
@@ -503,7 +503,7 @@ local function runRotation()
 
             -- VT Refresh
             if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
-                if cast.vampiricTouch("target") then
+                if cast.vampiricTouch() then
                     return
                 end
             end
@@ -511,29 +511,20 @@ local function runRotation()
 
             -- SWP Refresh
             if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
-                if cast.shadowWordPain("target") then
+                if cast.shadowWordPain() then
                     return
-                end
-            end
-        
-            -- Mind Sear ST
-            if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
-                    if cast.mindSear("target") then
-                        return
-                    end
                 end
             end
 
 
             -- Mindbender
             if useCDs() and talent.mindbender and cast.able.mindbender and not buff.void.exists() then
-                if cast.mindbender("target") then
+                if cast.mindbender() then
                     return
                 end
             else
                 if useCDs() and not talent.mindbender and not buff.void.exists() then
-                    if cast.shadowfiend("target") then
+                    if cast.shadowfiend() then
                         return
                     end
                 end
@@ -541,7 +532,7 @@ local function runRotation()
 
             -- Dark Void
             if #enemies.yards10t >= getOptionValue("Dark Void Enemies") and talent.darkVoid then
-                if cast.darkVoid("target") then
+                if cast.darkVoid() then
                     return
                 end
             end
@@ -571,8 +562,11 @@ local function runRotation()
             
             -- SWP 2
             if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not buff.void.exists () then
-                if cast.shadowWordPain() then
-                    return
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if cast.shadowWordPain(thisUnit) then
+                        return
+                    end
                 end
             end
             -- VT 2
@@ -584,7 +578,7 @@ local function runRotation()
 
             -- Shadow Crash
             if isChecked("Shadow Crash") and talent.shadowCrash and not buff.void.exists() then 
-                if cast.shadowCrash("bestm",nil,1,8) then
+                if cast.shadowCrash("best",nil,1,8) then
                     return
                 end
             end
@@ -602,21 +596,21 @@ local function runRotation()
             end
 
             -- Mind Blast
-            if cast.last.voidEruption and not moving and not talent.shadowWordVoid then
+            if cast.last.voidEruption() and not moving and not talent.shadowWordVoid then
                 if cast.mindBlast() then 
                     return
                 end
             end
 
             -- Mind Blast 2
-            if cast.last.voidEruption and not moving and not talent.shadowWordVoid and power <= 95.2 and talent.fortressOfTheMind and not buff.void.exists() then
+            if cast.last.voidEruption() and not moving and not talent.shadowWordVoid and power <= 95.2 and talent.fortressOfTheMind and not buff.void.exists() then
                 if cast.mindBlast() then
                     return
                 end
             end
 
             -- Shadow Word Void
-            if cast.last.voidEruption and not moving and talent.shadowWordVoid and charges.shadowWordVoid.count() >= 1 then
+            if cast.last.voidEruption() and not moving and talent.shadowWordVoid and charges.shadowWordVoid.count() > 0 then
                 if cast.shadowWordVoid() then 
                     return
                 end
@@ -659,16 +653,25 @@ local function runRotation()
             end
 
             -- SVP 2
-            if talent.shadowWordVoid and (power <= 75 - 10 * legacy) and not buff.void.exists() and charges.shadowWordVoid.count() >= 1 then
-                if cast.shadowWordVoid then
+            if talent.shadowWordVoid and (power <= 75 - 10 * legacy) and not buff.void.exists() and charges.shadowWordVoid.count() > 0 then
+                if cast.shadowWordVoid() then
                     return
                 end
             end
 
             -- Mind Sear
             if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t >= 3 then
-                    if cast.mindSear("target") then
+                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t >= 3 then
+                    if cast.mindSear() then
+                        return
+                    end
+                end
+            end
+
+            -- Mind Sear ST
+            if not moving then
+                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
+                    if cast.mindSear() then
                         return
                     end
                 end
@@ -678,8 +681,8 @@ local function runRotation()
 
             -- Mind Flay
             if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindFlay) and (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
-                    if cast.mindFlay("target") then
+                if not buff.void.exists() and not isCastingSpell(spell.mindFlay) and (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
+                    if cast.mindFlay() then
                         return
                     end
                 end
@@ -689,8 +692,11 @@ local function runRotation()
 
             -- SVP 5 Moving
             if not debuff.shadowWordPain.exists(units.dyn40) or moving then
-                if cast.shadowWordPain() then
-                    return
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if cast.shadowWordPain(thisUnit) then
+                        return
+                    end
                 end
             end
 
@@ -726,7 +732,7 @@ local function runRotation()
 
             -- Dark Ascension
             if talent.darkAscension and buff.voidForm.exists() and power < 10 then
-                if cast.darkAscension("target") then
+                if cast.darkAscension() then
                     return
                 end
             end
@@ -734,14 +740,14 @@ local function runRotation()
             
             -- Dark Void
             if talent.darkVoid and #enemies.yards10t >= getOptionValue("Dark Void Enemies") then
-                if cast.darkVoid("target") then
+                if cast.darkVoid() then
                     return
                 end
             end
 
             -- VT Refresh
             if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
-                if cast.vampiricTouch("target") then
+                if cast.vampiricTouch() then
                     return
                 end
             end
@@ -749,7 +755,7 @@ local function runRotation()
         
             -- SWP Refresh
             if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
-                if cast.shadowWordPain("target") then
+                if cast.shadowWordPain() then
                     return
                 end
             end
@@ -763,12 +769,12 @@ local function runRotation()
 
             -- Mindbender
             if useCDs() and not buff.void.exists() and talent.mindbender then
-                if cast.mindbender("target") then 
+                if cast.mindbender() then 
                     return
                 end
             else 
                 if useCDs() and not buff.void.exists() and not talent.mindbender then
-                    if cast.shadowfiend("target") then
+                    if cast.shadowfiend() then
                         return
                     end
                 end
@@ -804,28 +810,18 @@ local function runRotation()
             if cd.voidBolt.remain() < gcd * 0.28 then
                 return true
             end
-
-            -- Mind Sear ST
-
-            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
-                return true
-            elseif (cast.last.mindSear or (cast.last.mindSea and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
-                if cast.mindSear("target") then
-                    return
-                end
-            end
         
             -- Mind Searcharges
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
-                if cast.mindFlay("target") then 
+            elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
+                if cast.mindFlay() then 
                     return 
                 end
             end
             
             -- Mind Blast
-            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption and not moving then
+            if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption() and not moving then
                 if cast.mindBlast() then
                     return
                 end
@@ -851,14 +847,14 @@ local function runRotation()
             -- Shadowfiend
             if useCDs() and not buff.void.exists() then
                 if not talent.mindbender  then
-                    if cast.shadowfiend("target") then 
+                    if cast.shadowfiend() then 
                         return 
                     end
                 end
             end
 
             -- Shadow Word - Void
-            if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 25) < 100 and not buff.void.exists() and charges.shadowWordVoid.count() >= 1 then
+            if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 25) < 100 and not buff.void.exists() and charges.shadowWordVoid.count() > 0 then
                 if cast.shadowWordVoid() then 
                     return 
                 end
@@ -934,9 +930,18 @@ local function runRotation()
             -- Mind Searcharges
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
-                if cast.mindSear("target") then 
+            elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
+                if cast.mindSear() then 
                     return 
+                end
+            end
+
+            -- Mind Sear ST
+            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
+                return true
+            elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
+                if cast.mindSear() then
+                    return
                 end
             end
 
@@ -945,8 +950,8 @@ local function runRotation()
             -- Mind Flay
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
-            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and not buff.thoughtsHarvester.exists() then
-                if cast.mindFlay("target") then 
+            elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and not buff.thoughtsHarvester.exists() then
+                if cast.mindFlay() then 
                     return 
                 end
             end
