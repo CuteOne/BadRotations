@@ -2051,10 +2051,13 @@ br.lists.spells = {
                 voidForm                    = 194249,
                 voidTorrent                 = 205065,
                 zeksExterminatus            = 236546, -- Legendary Cloak proc
+                thoughtsHarvester           = 288340,
             },
             debuffs                         = {
                 shadowWordPain              = 589,
                 vampiricTouch               = 34914,
+                weakenedSoul                = 6788,
+
             },
             glyphs                          = {
 
@@ -2106,6 +2109,7 @@ br.lists.spells = {
             buffs                           = {
                 classHallSpeed              = 224098,
                 powerWordFortitude          = 21562,
+                
             },
             debuffs                         = {
 
