@@ -102,7 +102,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Psychic Scream")
         br.ui:createCheckbox(section, "Psychic Horror")        
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "Interrupt At",  30,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "Interrupt At",  30,  10,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -244,7 +244,7 @@ local function runRotation()
 
         local mfTick
         if mfTick == nil or not inCombat or not isCastingSpell(spell.mindFlay) then mfTick = 0 end
-        if br.timer:useTimer("Mind Flay Ticks", 0.75) and isCastingSpell(spell.Mindflay) then
+        if br.timer:useTimer("Mind Flay Ticks", 0.75) and (isCastingSpell(spell.mindFlay) or isCastingSpell(spell.mindSear)) then
             mfTick = mfTick + 1
         end
 
@@ -344,7 +344,7 @@ local function runRotation()
                 function actionList_Interrupts()
                     if useInterrupts() then
                         for i = 1, enemies.yards30 do
-                            thisUnit = enemies.yards30[i]
+                        local thisUnit = enemies.yards30[i]
                             if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
 
                             -- Silence
@@ -519,7 +519,7 @@ local function runRotation()
             -- Mind Sear ST
             if not moving then
                 if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
-                    if cast.mindSear() then
+                    if cast.mindSear("target") then
                         return
                     end
                 end
@@ -668,7 +668,7 @@ local function runRotation()
             -- Mind Sear
             if not moving then
                 if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t >= 3 then
-                    if cast.mindSear() then
+                    if cast.mindSear("target") then
                         return
                     end
                 end
@@ -679,7 +679,7 @@ local function runRotation()
             -- Mind Flay
             if not moving then
                 if not buff.void.exists() and not isCastingSpell(spell.mindFlay) and (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
-                    if cast.mindFlay() then
+                    if cast.mindFlay("target") then
                         return
                     end
                 end
@@ -810,7 +810,7 @@ local function runRotation()
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
             elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
-                if cast.mindSear() then
+                if cast.mindSear("target") then
                     return
                 end
             end
@@ -819,7 +819,7 @@ local function runRotation()
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
             elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
-                if cast.mindFlay() then 
+                if cast.mindFlay("target") then 
                     return 
                 end
             end
@@ -935,7 +935,7 @@ local function runRotation()
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
             elseif (cast.last.mindSear() or (cast.last.mindSear() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
-                if cast.mindSear() then 
+                if cast.mindSear("target") then 
                     return 
                 end
             end
@@ -946,7 +946,7 @@ local function runRotation()
             if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
                 return true
             elseif (cast.last.mindFlay() or (cast.last.mindFlay() and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and not buff.thoughtsHarvester.exists() then
-                if cast.mindFlay() then 
+                if cast.mindFlay("target") then 
                     return 
                 end
             end
