@@ -48,17 +48,15 @@ local function createOptions()
         
         br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1, "Time to begin casting on Pull Timer (DBM Required)")
 
-        br.ui:createSpinnerWithout(section, "SWP Max Targets", 3, 1, 10, 1, "Limit that SWP will be cast on.")
+        br.ui:createSpinnerWithout(section, "SWP Max Targets", 4, 1, 10, 1, "Limit that SWP will be cast on.")
 
-        br.ui:createSpinnerWithout(section, "VT Max Targets", 3, 1, 10, 1, "Limit that VT will be cast on.")
+        br.ui:createSpinnerWithout(section, "VT Max Targets", 4, 1, 10, 1, "Limit that VT will be cast on.")
 
-        br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 0, 10, 1, "Limit  HP to stop VT Refresh.")
+        br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 1, 10, 1, "Limit  HP to stop VT Refresh.")
 
         br.ui:createSpinnerWithout(section, "Dark Void Enemies", 3, 1, 10, 1)
     
         br.ui:createCheckbox(section, "Shadow Crash")
-
-        br.ui:createCheckbox(section, "Dark Ascension Burst")
 
         br.ui:createCheckbox(section,"PWS: Body and Soul")
 
@@ -70,7 +68,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Intellect Potion")
         br.ui:createCheckbox(section, "Int. Flask")
         br.ui:createCheckbox(section, "use Trinkets")
-        br.ui:createSpinnerWithout(section, "Shadowfiend Stacks", 10, 5, 100, 5, "Voidform Stacks to cast Shadowfiend.")
 
 
 
@@ -101,10 +98,11 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         br.ui:createCheckbox(section, "Silence")
-        br.ui:createCheckbox(section, "Psychic Scream / Mindbomb")
+        br.ui:createCheckbox(section, "Mindbomb")
+        br.ui:createCheckbox(section, "Psychic Scream")
         br.ui:createCheckbox(section, "Psychic Horror")        
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "InterruptAt",  30,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
@@ -364,18 +362,23 @@ local function runRotation()
                             end
 
                             -- Mind Bomb or Psychic Scream
-                            if isChecked("Psychic Scream / Mind Bomb") and not talent.mindBomb then
+                            if isChecked("Psychic Scream") and not talent.mindBomb then
                                 if not talent.mindBomb and #enemies.yards8 > 0 then
                                     if cast.psychicScream("player") then
                                         return
                                     end
-                                else
-                                    if cast.mindBomb(thisUnit) then
-                                        return
+                            if isChecked("Mindbomb") and talent.mindBomb then
+                                    if #enemies.yards8t > 1 then
+                                        if cast.mindBomb then
+                                           return
+                                        end
                                     end
                                 end
+
+
                             end
                         end
+                    end
                     end
                 end
             end
@@ -477,11 +480,26 @@ local function runRotation()
             end
 
             -- Dark Ascension
-            if talent.darkAscension and not buff.voidForm.exists() and power <= 20 and isChecked("Dark Ascension Burst") then
+            if talent.darkAscension and not buff.voidForm.exists() then
                 if cast.darkAscension("target") then
                     return
                 end
             end
+
+            -- VT Refresh 2.0
+            if debuff.vampiricTouch.remain("target") < 6.3 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+                if cast.vampiricTouch("target") then
+                    return
+                end
+            end
+
+            -- SWP Refresh 2.0
+            if debuff.shadowWordPain.remain("target") < 4.8 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+                if cast.shadowWordPain("target") then
+                    return
+                end
+            end
+
 
             -- VT Refresh
             if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
@@ -497,15 +515,24 @@ local function runRotation()
                     return
                 end
             end
+        
+            -- Mind Sear ST
+            if not moving then
+                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
+                    if cast.mindSear() then
+                        return
+                    end
+                end
+            end
 
 
             -- Mindbender
-            if useCDs() and talent.mindbender and cast.able.mindbender and buff.voidForm.stack() < getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
+            if useCDs() and talent.mindbender and cast.able.mindbender and not buff.void.exists() then
                 if cast.mindbender("target") then
                     return
                 end
             else
-                if useCDs() and not talent.mindbender and buff.voidForm.stack() < getOptionValue("Shadowfiend Stacks") and not buff.void.exists() then
+                if useCDs() and not talent.mindbender and not buff.void.exists() then
                     if cast.shadowfiend("target") then
                         return
                     end
@@ -647,15 +674,6 @@ local function runRotation()
                 end
             end
 
-            -- Mind Sear ST
-            if not moving then
-                if not buff.void.exists() and not isCastingSpell(spell.mindSear) and (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and buff.thoughtsHarvester.exists() then 
-                    if cast.mindSear() then
-                        return
-                    end
-                end
-            end
-
             
 
             -- Mind Flay
@@ -707,7 +725,7 @@ local function runRotation()
             end
 
             -- Dark Ascension
-            if talent.darkAscension and buff.voidForm.exists() and power < 10 and isChecked("Dark Ascension Burst") then
+            if talent.darkAscension and buff.voidForm.exists() and power < 10 then
                 if cast.darkAscension("target") then
                     return
                 end
@@ -744,12 +762,12 @@ local function runRotation()
             end
 
             -- Mindbender
-            if useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() and talent.mindbender then
+            if useCDs() and not buff.void.exists() and talent.mindbender then
                 if cast.mindbender("target") then 
                     return
                 end
             else 
-                if useCDs() and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") and not buff.void.exists() and not talent.mindbender then
+                if useCDs() and not buff.void.exists() and not talent.mindbender then
                     if cast.shadowfiend("target") then
                         return
                     end
@@ -786,6 +804,25 @@ local function runRotation()
             if cd.voidBolt.remain() < gcd * 0.28 then
                 return true
             end
+
+            -- Mind Sear ST
+
+            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
+                return true
+            elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
+                if cast.mindSear() then
+                    return
+                end
+            end
+        
+            -- Mind Searcharges
+            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
+                return true
+            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
+                if cast.mindFlay() then 
+                    return 
+                end
+            end
             
             -- Mind Blast
             if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption and not moving then
@@ -813,7 +850,7 @@ local function runRotation()
 
             -- Shadowfiend
             if useCDs() and not buff.void.exists() then
-                if not talent.mindbender and buff.voidForm.stack() >= getOptionValue("Shadowfiend Stacks") then
+                if not talent.mindbender  then
                     if cast.shadowfiend("target") then 
                         return 
                     end
@@ -899,25 +936,6 @@ local function runRotation()
                 return true
             elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t >= 3 then
                 if cast.mindSear() then 
-                    return 
-                end
-            end
-
-            -- Mind Sear ST
-
-            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
-                return true
-            elseif (cast.last.mindSear or (cast.last.mindSear and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and buff.thoughtsHarvester.exists() then
-                if cast.mindSear() then
-                    return
-                end
-            end
-
-            -- Mind Searcharges
-            if mfTick >= 2 and (cd.voidBolt.remain() == 0 or (insanityDrain * gcd > power and (power - (insanityDrain * gcd) + 30) < 100 and charges.shadowWordDeath.count() >= 1)) and not moving then
-                return true
-            elseif (cast.last.mindFlay or (cast.last.mindFlay and br.timer:useTimer("mindFlayRecast", mindFlayChannel + gcd))) and not buff.void.exists() and not moving and #enemies.yards10t < 3 and not buff.thoughtsHarvester.exists() then
-                if cast.mindFlay() then 
                     return 
                 end
             end
