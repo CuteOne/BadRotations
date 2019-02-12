@@ -102,7 +102,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Psychic Scream")
         br.ui:createCheckbox(section, "Psychic Horror")        
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  30,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
+            br.ui:createSpinner(section,  "Interrupt At",  30,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS --- -- Degine Toggle Options
