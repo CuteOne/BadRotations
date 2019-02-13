@@ -751,7 +751,11 @@ local function runRotation()
             if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcdMax * 2 or not isChecked("Crusade") or not useCDs()) 
                 or buff.empyreanPower.exists() and not debuff.judgment.exists() and not buff.divinePurpose.exists()) 
             then
-                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+                if buff.empyreanPower.exists() then 
+                    if cast.divineStorm("player","aoe",1,8) then return end
+                else
+                    if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+                end
             end
         -- Templar's Verdict
             if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40) then
