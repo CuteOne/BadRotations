@@ -4,7 +4,7 @@ local rotationName = "AHshadow" -- Change to name of profile listed in options d
 --- Toggles ---
 ---------------
 local function createToggles() -- Define custom toggles
--- Rotation Button
+    -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.shadowWordVoid },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.mindSear},
@@ -12,20 +12,20 @@ local function createToggles() -- Define custom toggles
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.psychicHorror}
     };
     CreateButton("Rotation",1,0)
--- Cooldown Button
+    -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowfiend },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowfiend },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform }
     };
     CreateButton("Cooldown",2,0)
--- Defensive Button
+    -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion }
     };
     CreateButton("Defensive",3,0)
--- Interrupt Button
+    -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
@@ -44,66 +44,63 @@ local function createOptions()
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "Desired time to test in minutes.")
+            br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "Desired time to test in minutes.")
+            
+            br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1, "Time to begin casting on Pull Timer (DBM Required)")
+
+            br.ui:createSpinnerWithout(section, "SWP Max Targets", 4, 1, 10, 1, "Limit that SWP will be cast on.")
+
+            br.ui:createSpinnerWithout(section, "VT Max Targets", 4, 1, 10, 1, "Limit that VT will be cast on.")
+
+            br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 1, 10, 1, "Limit  HP to stop VT Refresh.")
+
+            br.ui:createSpinnerWithout(section, "Dark Void Enemies", 3, 1, 10, 1)
+
+            br.ui:createSpinnerWithout(section, "Mind Sear Targets", 3, 1, 10, 1)
         
-        br.ui:createSpinner(section, "Pre-Pull Timer", 5, 1, 10, 1, "Time to begin casting on Pull Timer (DBM Required)")
+            br.ui:createCheckbox(section, "Shadow Crash")
 
-        br.ui:createSpinnerWithout(section, "SWP Max Targets", 4, 1, 10, 1, "Limit that SWP will be cast on.")
-
-        br.ui:createSpinnerWithout(section, "VT Max Targets", 4, 1, 10, 1, "Limit that VT will be cast on.")
-
-        br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 1, 10, 1, "Limit  HP to stop VT Refresh.")
-
-        br.ui:createSpinnerWithout(section, "Dark Void Enemies", 3, 1, 10, 1)
-
-        br.ui:createSpinnerWithout(section, "Mind Sear Targets", 3, 1, 10, 1)
-    
-        br.ui:createCheckbox(section, "Shadow Crash")
-
-        br.ui:createCheckbox(section,"PWS: Body and Soul")
+            br.ui:createCheckbox(section,"PWS: Body and Soul")
 
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
-        br.ui:createCheckbox(section, "Intellect Potion")
-        br.ui:createCheckbox(section, "Int. Flask")
-        br.ui:createCheckbox(section, "Trinkets")
-        br.ui:createCheckbox(section, "Racials")
-
-
-
+            br.ui:createCheckbox(section, "Intellect Potion")
+            br.ui:createCheckbox(section, "Int. Flask")
+            br.ui:createCheckbox(section, "Trinkets")
+            br.ui:createCheckbox(section, "Racials")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        br.ui:createSpinner(section, "Dispersion", 10, 5, 100, 5)
+            br.ui:createSpinner(section, "Dispersion", 10, 5, 100, 5)
 
-        br.ui:createSpinner(section, "Vampiric Embrace", 10, 5, 100, 5)
+            br.ui:createSpinner(section, "Vampiric Embrace", 10, 5, 100, 5)
 
-        br.ui:createSpinner(section, "Healthstone", 10, 5, 100, 5)
+            br.ui:createSpinner(section, "Healthstone", 10, 5, 100, 5)
 
-        br.ui:createSpinner(section, "Shadow Mend", 10, 5, 100, 5)
+            br.ui:createSpinner(section, "Shadow Mend", 10, 5, 100, 5)
 
-        br.ui:createSpinner(section, "Power Word: Shield", 10, 5, 100, 5)
+            br.ui:createSpinner(section, "Power Word: Shield", 10, 5, 100, 5)
 
-        if br.player.race == "Draenei" then
-            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "Percent to cast GotN at")
-        end
+            if br.player.race == "Draenei" then
+                br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "Percent to cast GotN at")
+            end
 
-        br.ui:createCheckbox(section, "Fade", "Use Fade when you got aggro.")
+            br.ui:createCheckbox(section, "Fade", "Use Fade when you got aggro.")
 
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        br.ui:createCheckbox(section, "Silence")
-        br.ui:createCheckbox(section, "Mindbomb")
-        br.ui:createCheckbox(section, "Psychic Scream")
-        br.ui:createCheckbox(section, "Psychic Horror")        
+            br.ui:createCheckbox(section, "Silence")
+            br.ui:createCheckbox(section, "Mindbomb")
+            br.ui:createCheckbox(section, "Psychic Scream")
+            br.ui:createCheckbox(section, "Psychic Horror")        
             -- Interrupt Percentage
             br.ui:createSpinner(section,  "Interrupt At",  30,  10,  95,  5,  "|cffFFBB00Cast Percentage to use at.")    
         br.ui:checkSectionState(section)
@@ -136,17 +133,16 @@ end
 local function runRotation()
     if br.timer:useTimer("debugShadow", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
+        ---------------
+        --- Toggles --- -- List toggles here in order to update when pressed
+        ---------------
         UpdateToggle("Rotation",0.25)
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
---------------
---- Locals ---
---------------
+        --------------
+        --- Locals ---
+        --------------
         local addsExist                                     = false
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
@@ -231,14 +227,10 @@ local function runRotation()
         enemies.get(10,"target")
         enemies.get(40)
 
-
-
-
-
         -- Instanity Stacks
         if buff.voidForm.stack() == 0 then drainStacks = 0 end
         if inCombat and buff.voidForm.stack() > 0 and not (buff.dispersion.exists() or buff.voidTorrent.exists()) then
-           if br.timer:useTimer("drainStacker", 1) then
+            if br.timer:useTimer("drainStacker", 1) then
                 drainStacks = drainStacks + 1
             end
         end
@@ -261,52 +253,52 @@ local function runRotation()
             end
         end
 
---------------------
---- Action Lists ---
---------------------
-            -- Extras
-            function actionList_Extra()
-                -- Dispel Magic
-                if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
-                    if cast.dispelMagic() then
+        --------------------
+        --- Action Lists ---
+        --------------------
+        -- Extras
+        function actionList_Extra()
+            -- Dispel Magic
+            if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
+                if cast.dispelMagic() then
+                    return
+                end
+            end
+
+            -- Dummy Test
+            if isChecked("DPS Testing") then
+                if GetObjectExists("target") then
+                    if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                        StopAttack()
+                        ClearTarget()
+                        Print(tonumber(getOptionValue("DPS Testing")).."Minute Dummy Test Concluded - Profile Stopped.")
+                        profileStop = true
+                    end
+                end
+            end
+        end
+        -- Extras END
+        --------------------------------------
+        -- Defensives
+        function actionList_Defensive()
+            if mode.defensive == 1 and getHP("player") > 0 then
+                -- Gift of the Narru
+                if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
+                    if cast.racial() then 
+                        return 
+                    end
+                end
+
+                -- Dispersion
+                if isChecked("Dispersion") and php <= getOptionValue("Dispersion") then
+                    if cast.dispersion("player") then
                         return
                     end
                 end
 
-                -- Dummy Test
-                if isChecked("DPS Testing") then
-                    if GetObjectExists("target") then
-                        if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
-                            StopAttack()
-                            ClearTarget()
-                            Print(tonumber(getOptionValue("DPS Testing")).."Minute Dummy Test Concluded - Profile Stopped.")
-                            profileStop = true
-                        end
-                    end
-                end
-            end
-            -- Extras END
---------------------------------------
-            -- Defensives
-          function actionList_Defensive()
-                if mode.defensive == 1 and getHP("player") > 0 then
-                    -- Gift of the Narru
-                   if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
-                       if castSpell("player",racial,false,false,false) then 
-                            return 
-                       end
-                    end
-
-                    -- Dispersion
-                    if isChecked("Dispersion") and php <= getOptionValue("Dispersion") then
-                        if cast.dispersion("player") then
-                            return
-                        end
-                    end
-
-                    -- Fade
-                    if isChecked("Fade") then
-                        for i = 1, #enemies.yards40 do
+                -- Fade
+                if isChecked("Fade") then
+                    for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
                         if not solo and hasThreat(thisUnit) then
                             if cast.fade("player") then
@@ -314,86 +306,83 @@ local function runRotation()
                             end
                         end
                     end
-
-                    -- Healthstones
-                    if isChecked("Healthstones") and php <= getOptionValue("Healthstones") and GetItemCooldown("5512") == 0 and inCombat and hasItem(5512) then
-                        if canUse(5512) then
-                            useItem(5512)
-                            return
-                        end
-                    end
-
-
-                    -- PWS
-                    if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
-                        if cast.powerWordShield("player") then
-                            return
-                        end
-                    end
-
-                    -- Shadow Mend
-                    if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
-                        if cast.shadowMend("player") then
-                            return
-                        end
-                    end
-
                 end
+
+                -- Healthstones
+                if isChecked("Healthstones") and php <= getOptionValue("Healthstones") and GetItemCooldown(5512) == 0 and inCombat and hasItem(5512) then
+                    if canUse(5512) then
+                        useItem(5512)
+                        return
+                    end
+                end
+
+
+                -- PWS
+                if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
+                    if cast.powerWordShield("player") then
+                        return
+                    end
+                end
+
+                -- Shadow Mend
+                if isChecked("Shadow Mend") and php <= getOptionValue("Shadow Mend") then
+                    if cast.shadowMend("player") then
+                        return
+                    end
+                end
+
             end
+        end
+        -- Defensives end
+        ------------------------------------
+        -- Interrupts
+        function actionList_Interrupts()
+            if useInterrupts() then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
 
-                -- Defensives end
-------------------------------------
-                -- Interrupts
-                function actionList_Interrupts()
-                    if useInterrupt() then
-                        for i = 1, enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
-                            if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
-
-                            -- Silence
-                            if isChecked("Silence") then
-                                if cast.silence(thisUnit) then
-                                    return
-                                end
-                            end
-
-                            -- Psychic Horror
-                            if isChecked("Psychic Horror") then
-                                if cast.psychicHorror(thisUnit) then
-                                    return
-                                end
-                            end
-
-                            -- Mind Bomb or Psychic Scream
-                            if isChecked("Psychic Scream") and not talent.mindBomb then
-                                if not talent.mindBomb and #enemies.yards8 > 0 then
-                                    if cast.psychicScream("player") then
-                                        return
-                                    end
-                            if isChecked("Mindbomb") and talent.mindBomb then
-                                    if #enemies.yards8t > 1 then
-                                        if cast.mindBomb then
-                                           return
-                                        end
-                                    end
-                                end
-
-
+                        -- Silence
+                        if isChecked("Silence") then
+                            if cast.silence(thisUnit) then
+                                return
                             end
                         end
-                    end
+
+                        -- Psychic Horror
+                        if isChecked("Psychic Horror") then
+                            if cast.psychicHorror(thisUnit) then
+                                return
+                            end
+                        end
+
+                        -- Mind Bomb or Psychic Scream
+                        if isChecked("Psychic Scream") and not talent.mindBomb then
+                            if not talent.mindBomb and #enemies.yards8 > 0 then
+                                if cast.psychicScream("player") then
+                                    return
+                                end
+                            end
+                        end
+                        if isChecked("Mindbomb") and talent.mindBomb then
+                            if #enemies.yards8t > 1 then
+                                if cast.mindBomb(thisUnit) then
+                                    return
+                                end
+                            end
+                        end
                     end
                 end
             end
         end
         -- Interrupts END
-------------------------------
+        ------------------------------
         -- Cooldowns
         function actionList_Cooldowns()
             if useCDs() then
                 -- Racials
                 if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and isChecked("Racials") then
-                    if br.player.castRacial() then
+                    if cast.racial() then
                         return
                     end
                 end
@@ -426,36 +415,36 @@ local function runRotation()
             end
         end
         -- Cooldowns END
------------------------------------------
+        -----------------------------------------
         -- Pre Combat
         function actionList_PreCombat()
-            --Shadowform
-            if not buff.shadowform.exists() then
-                if cast.shadowform then
-                    return
+            if not inCombat then
+                --Shadowform
+                if not buff.shadowform.exists() then
+                    if cast.shadowform then
+                        return
+                    end
+                end
+
+                --    -- Mind Blast
+                --    if isValidUnit("target") then
+                --        if not moving and br.timer:useTimer("mbRecast", gcd) then
+                --            if cast.mindBlast("target") then
+                --                return
+                --            end
+                --        end
+                --    end
+
+                -- Body and Soul / Speed
+                if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() and not debuff.weakenedSoul.exists("player") then
+                    if cast.powerWordShield("player") then
+                        return
+                    end
                 end
             end
-
-        --    -- Mind Blast
-      --      if isValidUnit("target") then
-       --         if not moving and br.timer:useTimer("mbRecast", gcd) then
-        --            if cast.mindBlast("target") then
-        --                return
-       --             end
-       --         end
-       --     end
-
-            -- Body and Soul / Speed
-            if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and not IsMounted() and not debuff.weakenedSoul.exists("player") then
-                if cast.powerWordShield("player") then
-                    return
-                end
-            end
-
         end
-    -- Precombat END
-------------------------------------------
-
+        -- Precombat END
+        ------------------------------------------
         -- Check
         function actionList_Check()
             actorsFightTimeMod = 0
@@ -471,8 +460,8 @@ local function runRotation()
             -- S2M Checks
             -- NONE -- S2M SUCKS
         end
--- Checks END
-----------------------------------------
+        -- Checks END
+        ----------------------------------------
         -- Main
         function actionList_Main()
             -- Void Eruption
@@ -525,14 +514,14 @@ local function runRotation()
                     return
                 end
             end
-        
+
             -- Mind Blast 2
             if cast.last.voidEruption() and not moving and not talent.shadowWordVoid and power <= 95.2 and talent.fortressOfTheMind and not buff.void.exists() then
                 if cast.mindBlast() then
                     return
                 end
             end
-        
+
             -- Shadow Word Void
             if cast.last.voidEruption() and not moving and talent.shadowWordVoid and charges.shadowWordVoid.count() > 0 then
                 if cast.shadowWordVoid() then 
@@ -583,11 +572,11 @@ local function runRotation()
                     end
                 end
             end
-            
+
             -- SWP 2
             if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not buff.void.exists () then
                 for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
+                    local thisUnit = enemies.yards40[i]
                     if cast.shadowWordPain(thisUnit) then
                         return
                     end
@@ -688,7 +677,7 @@ local function runRotation()
             -- SVP 5 Moving
             if not debuff.shadowWordPain.exists(units.dyn40) or moving then
                 for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
+                    local thisUnit = enemies.yards40[i]
                     if cast.shadowWordPain(thisUnit) then
                         return
                     end
@@ -715,7 +704,7 @@ local function runRotation()
             end
         end
         -- Action Main End
------------------------------------------
+        -----------------------------------------
         -- Action Voidform
         function actionList_VoidForm()
             -- Void Bolt
@@ -732,7 +721,6 @@ local function runRotation()
                 end
             end
 
-            
             -- Dark Void
             if talent.darkVoid and #enemies.yards10t >= getOptionValue("Dark Void Enemies") then
                 if cast.darkVoid() then
@@ -741,15 +729,18 @@ local function runRotation()
             end
 
             -- VT Refresh
-            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() 
+                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") 
+            then
                 if cast.vampiricTouch() then
                     return
                 end
             end
-        
-        
+
             -- SWP Refresh
-            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() 
+                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") 
+            then
                 if cast.shadowWordPain() then
                     return
                 end
@@ -763,21 +754,21 @@ local function runRotation()
             end
 
             -- Mindbender
-            if useCDs() and not buff.void.exists() and talent.mindbender then
-                if cast.mindbender() then 
-                    return
-                end
-            else 
-                if useCDs() and not buff.void.exists() and not talent.mindbender then
+            if useCDs() and not buff.void.exists() then 
+                if talent.mindbender then 
+                    if cast.mindbender() then 
+                        return
+                    end
+                else
                     if cast.shadowfiend() then
                         return
                     end
-                end
+                end 
             end
 
             -- Berserking / Troll
-            if br.player.race == "Troll" and getSpellCD(racial) == 0 and buff.voidForm.stack() >= 10 and drainStacks <= 20 and not buff.void.exists() then
-                if castSpell("player",racial,false,false,false) then
+            if br.player.race == "Troll" and cd.racial.remain() == 0 and buff.voidForm.stack() >= 10 and drainStacks <= 20 and not buff.void.exists() then
+                if cast.racial() then
                     return
                 end
             end
@@ -789,23 +780,23 @@ local function runRotation()
                 end
             end
 
-            -- SWD
-          --  if ((mode.rotation == 1 and #enemies.yards40 <= 4 or mode.rotation == 3) and insanityDrain * gcd > power and (power - (insanityDrain * gcd))) < 100 and not buff.void.exists() and talent.shadowWordDeath then
-          --       for i = 1, #enemies.yards40 do
-         --            local thisUnit = enemies.yards40[i]
---if getHP(thisUnit) < 20 then
-          --              if cast.shadowWordDeath(thisUnit) then
-        --                    return
+            -- -- SWD
+            -- if ((mode.rotation == 1 and #enemies.yards40 <= 4 or mode.rotation == 3) and insanityDrain * gcd > power and (power - (insanityDrain * gcd))) < 100 and not buff.void.exists() and talent.shadowWordDeath then
+            --     for i = 1, #enemies.yards40 do
+            --         local thisUnit = enemies.yards40[i]
+            --         if getHP(thisUnit) < 20 then
+            --            if cast.shadowWordDeath(thisUnit) then
+            --                return
             --            end
-         --       end
-       --      end
-        --    end
+            --         end
+            --     end
+            -- end
 
             -- W8 for Void Bolt
             if cd.voidBolt.remain() < gcd * 0.28 then
                 return true
             end
-        
+
             -- Mind Blast
             if ((mode.rotation == 1 and #enemies.yards40 <= 4) or mode.rotation == 3) and not buff.void.exists() and cast.last.voidEruption() and not moving then
                 if cast.mindBlast() then
@@ -890,7 +881,8 @@ local function runRotation()
 
             -- Vampiric Touch
             if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving
-                and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
+                and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn 
+                or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
             then
                 if cast.vampiricTouch() then 
                     return 
@@ -945,19 +937,16 @@ local function runRotation()
 
         end 
         -- Void Form End
-        
-            
-
-
+        -----------------------------------------       
         -- Begin Profile
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause(true) or mode.rotation==4 or buff.void.exists() then
             return true
         else
------------------
---- Rotations ---
------------------
+            -----------------
+            --- Rotations ---
+            -----------------
             if actionList_Extra() then
                 return 
             end
@@ -966,39 +955,40 @@ local function runRotation()
                 return
             end
 
-
-
----------------------------------
---- Out Of Combat - Rotations ---
----------------------------------
-            if not inCombat then --  and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
-                if actionList_PreCombat() then return end
-            end -- End Out of Combat Rotation
------------------------------
---- In Combat - Rotations --- 
------------------------------
-if inCombat and not IsMounted() and not isCastingSpell(spell.voidTorrent) then
-    -- Action List - Cooldowns
-        actionList_Cooldowns()
-    -- Action List - Check
-        -- call_action_list,name=check,if=talent.surrender_to_madness.enabled&!buff.surrender_to_madness.up
-        if not buff.surrenderToMadness then
-            if actionList_Check() then return end
-        end
-    -- Action List - Void Form
-        -- run_action_list,name=vf,if=buff.voidform.up
-        if buff.voidForm.exists() then
-            if actionList_VoidForm() then return end
-        end
-    -- Action List - Main
-        -- run_action_list,name=main
-        if not buff.voidForm.exists() then
-            if actionList_Main() then return end
-        end
-    end -- End Combat Rotation
-end
-end -- End Timer
-end -- Run Rotation
+            if actionList_Interrupts() then 
+                return 
+            end
+            ---------------------------------
+            --- Out Of Combat - Rotations ---
+            ---------------------------------
+            if actionList_PreCombat() then 
+                return 
+            end
+            -----------------------------
+            --- In Combat - Rotations --- 
+            -----------------------------
+            if inCombat and not IsMounted() and not isCastingSpell(spell.voidTorrent) then
+                -- Action List - Cooldowns
+                actionList_Cooldowns()
+                -- Action List - Check
+                -- call_action_list,name=check,if=talent.surrender_to_madness.enabled&!buff.surrender_to_madness.up
+                if not buff.surrenderToMadness.exists() then
+                    if actionList_Check() then return end
+                end
+                -- Action List - Void Form
+                -- run_action_list,name=vf,if=buff.voidform.up
+                if buff.voidForm.exists() then
+                    if actionList_VoidForm() then return end
+                end
+                -- Action List - Main
+                -- run_action_list,name=main
+                if not buff.voidForm.exists() then
+                    if actionList_Main() then return end
+                end
+            end -- End Combat Rotation
+        end --End Rotation Logic
+    end -- End Timer
+end -- End Run Rotation
 local id = 258 -- Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{

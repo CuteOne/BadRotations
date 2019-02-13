@@ -2066,6 +2066,7 @@ br.lists.spells = {
                 auspiciousSpirits           = 155271,
                 bodyAndSoul                 = 64129,
                 darkVoid                    = 263346,
+                darkAscension               = 280711,
                 --dominantMind                = 205367,
                 fortressOfTheMind           = 193195,
                 legacyOfTheVoid             = 193225,
