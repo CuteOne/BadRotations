@@ -38,6 +38,18 @@ local function createToggles()
         [3] = { mode = "Off", value = 3 , overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.felRush}
     };
     CreateButton("Mover",5,0)
+-- Hold Eye Beam
+    EyeBeamModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use Eye beam", tip = "Use Eye beam", highlight = 1, icon = br.player.spell.eyeBeam},
+        [2] = { mode = "Off", value = 2 , overlay = "Don't use Eye beam", tip = "Don't use Eye beam", highlight = 0, icon = br.player.spell.eyeBeam}
+    };
+    CreateButton("EyeBeam",6,0)
+-- Hold Fel Barrage
+    FelBarrageModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use Fel Barrage", tip = "Use Fel Barrage", highlight = 1, icon = br.player.spell.felBarrage},
+        [2] = { mode = "Off", value = 2 , overlay = "Don't use Fel Barrage", tip = "Don't use Fel Barrage", highlight = 0, icon = br.player.spell.felBarrage}
+    };
+    CreateButton("FelBarrage",7,0)
 end
 
 ---------------
@@ -151,6 +163,10 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+        UpdateToggle("EyeBeam",0.25)
+        br.player.mode.eyeBeam = br.data.settings[br.selectedSpec].toggles["EyeBeam"]
+        UpdateToggle("FelBarrage",0.25)
+        br.player.mode.felBarrage = br.data.settings[br.selectedSpec].toggles["FelBarrage"]
 
 --------------
 --- Locals ---
@@ -446,7 +462,7 @@ local function runRotation()
         local function actionList_Demonic()
         -- Fel Barrage
             -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
-            if cast.able.felBarrage() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if mode.felBarrage == 1 and cast.able.felBarrage() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                 if cast.felBarrage("player","aoe",1,8) then return end
             end
         -- Death Sweep
@@ -456,7 +472,7 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-            if cast.able.eyeBeam() and not moving and enemies.yards8r > 0
+            if mode.eyeBeam == 1 and cast.able.eyeBeam() and not moving and enemies.yards8r > 0
                 and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
                     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
                     or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
@@ -467,7 +483,7 @@ local function runRotation()
         -- Blade Dance
             -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
             if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
-                and (cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank * 3))
+                and ((cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank * 3)) or mode.eyeBeam == 2)
                 --     or ((mode.rotation == 1 and (getOptionValue("Eye Beam Usage") == 3
                 --         or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE"))
                 --         or (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r == 0)))
@@ -561,7 +577,7 @@ local function runRotation()
             end
         -- Fel Barrage
             -- fel_barrage,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>30)
-            if cast.able.felBarrage() and waitForMomentum and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+            if mode.felBarrage == 1 and cast.able.felBarrage() and waitForMomentum and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                 if cast.felBarrage("player","aoe",1,8) then return end
             end
         -- Death Sweep
@@ -576,7 +592,7 @@ local function runRotation()
             end
         -- Eye Beam
             -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
-            if cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum and (not talent.momentum or buff.momentum.exists())
+            if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum and (not talent.momentum or buff.momentum.exists())
                 and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
                 -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
                 --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
