@@ -337,8 +337,8 @@ local function runRotation()
         ------------------------------------
         -- Interrupts
         function actionList_Interrupts()
-            if useInterrupt() then
-                for i = 1, enemies.yards30 do
+            if useInterrupts() then
+                for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
 
