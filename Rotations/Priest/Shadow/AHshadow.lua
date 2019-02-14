@@ -50,9 +50,11 @@ local function createOptions()
 
             br.ui:createSpinnerWithout(section, "SWP Max Targets", 4, 1, 10, 1, "Limit that SWP will be cast on.")
 
+            br.ui:createSpinnerWithout(section, "SWP Dot Hp Limit", 5, 1, 10, 1, "Limit HP to stop SWP Refresh. x10K")
+
             br.ui:createSpinnerWithout(section, "VT Max Targets", 4, 1, 10, 1, "Limit that VT will be cast on.")
 
-            br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 1, 10, 1, "Limit  HP to stop VT Refresh.")
+            br.ui:createSpinnerWithout(section, "VT Dot HP Limit", 5, 1, 10, 1, "Limit  HP to stop VT Refresh. x10K")
 
             br.ui:createSpinnerWithout(section, "Dark Void Enemies", 3, 1, 10, 1)
 
@@ -209,8 +211,8 @@ local function runRotation()
         if talent.reaperOfSouls then reaperOfSouls = 1 else reaperOfSouls = 0 end
         if talent.legacyOfTheVoid then legacy = 1 else legacy = 0 end
         if talent.fortressOfTheMind then fortress = 1 else fortress = 0 end
-        if artifact.lashOfInsanity.enabled() then lash = 1 else lash = 0 end
-        if isBoss() then vtHPLimit = getOptionValue("VT Dot HP Limit")/10 else vtHPLimit = getOptionValue("VT Dot HP Limit") end
+        if isBoss() then vtHPLimit = getOptionValue("VT Dot HP Limit") * 10000 else vtHPLimit = getOptionValue("VT Dot HP Limit") * 10000 end
+        if isBoss() then swpHPLimit = getOptionValue("VT Dot HP Limit") * 10000 else swpHPLimit = getOptionValue("SWP Dot HP Limit") * 10000 end
         if hasEquiped(132864) then mangaMad = 1 else mangaMad = 0 end
 
         units.get(5)
@@ -479,14 +481,14 @@ local function runRotation()
             end
 
             -- VT Refresh 2.0
-            if debuff.vampiricTouch.remain("target") < 6.3 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if debuff.vampiricTouch.remain("target") < 6.3 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and vtHPLimit then
                 if cast.vampiricTouch() then
                     return
                 end
             end
 
             -- SWP Refresh 2.0
-            if debuff.shadowWordPain.remain("target") < 4.8 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+            if debuff.shadowWordPain.remain("target") < 4.8 and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and swpHPLimit then
                 if cast.shadowWordPain() then
                     return
                 end
@@ -494,7 +496,7 @@ local function runRotation()
 
 
             -- VT Refresh
-            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") then
+            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and vtHPLimit then
                 if cast.vampiricTouch() then
                     return
                 end
@@ -502,9 +504,32 @@ local function runRotation()
 
 
             -- SWP Refresh
-            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") then
+            if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") and swpHPLimit then
                 if cast.shadowWordPain() then
                     return
+                end
+            end
+            -- Misery + VT APPLY
+            if talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- Misery + VT Refresh
+            if talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.vampiricTouch.refresh(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
                 end
             end
 
@@ -562,7 +587,7 @@ local function runRotation()
                 end
             end
             -- VT
-            if talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
+            if talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and ((debuff.vampiricTouch.remain(thisUnit) < 3 * gcd or debuff.shadowWordPain.remain(thisUnit) < 3 * gcd)) then
@@ -577,13 +602,15 @@ local function runRotation()
             if not talent.misery and debuff.shadowWordPain.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not buff.void.exists () then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if cast.shadowWordPain(thisUnit) then
-                        return
+                    if (getHP(thisUnit) > swpHPLimit or IsInInstance()) and ((debuff.shadowWordPain.remain(thisUnit) < 3 * gcd)) then
+                        if cast.shadowWordPain(thisUnit) then
+                            return
+                        end
                     end
                 end
             end
             -- VT 2
-            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving then
+            if not talent.misery and debuff.vampiricTouch.remain(units.dyn40) < (3 + (4 / 3)) * gcd and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving and vtHPLimit and VTmaxTargets then
                 if cast.vampiricTouch() then
                     return
                 end
@@ -621,7 +648,7 @@ local function runRotation()
             end
 
             -- VT 3
-            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() then
+            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) and (85.2 * (1 + 0.2 + GetMastery() / 16000) * (1 + 0.2 * sanlayn) * 0.5 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1 then
@@ -729,8 +756,8 @@ local function runRotation()
             end
 
             -- VT Refresh
-            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and not buff.void.exists() 
-                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") 
+            if (debuff.vampiricTouch.remain("target") < 6.3 * gcd) or (not debuff.vampiricTouch.exists("target")) and vtHPLimit and not buff.void.exists() 
+                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") 
             then
                 if cast.vampiricTouch() then
                     return
@@ -739,10 +766,34 @@ local function runRotation()
 
             -- SWP Refresh
             if (debuff.shadowWordPain.remain("target") < 4.8 * gcd) or (not debuff.shadowWordPain.exists("target")) and not buff.void.exists() 
-                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") 
+                and not moving and not isCastingSpell(spell.vampiricTouch) and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") 
             then
                 if cast.shadowWordPain() then
                     return
+                end
+            end
+
+            -- Misery + VT APPLY
+            if talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+        
+            -- Misery + VT Refresh
+            if talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.vampiricTouch.refresh(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
                 end
             end
 
@@ -793,7 +844,7 @@ local function runRotation()
             -- end
 
             -- W8 for Void Bolt
-            if cd.voidBolt.remain() < gcd * 0.28 then
+            if cd.voidBolt.remain() < gcd * 0.28 and charges.shadowWordVoid.count() < 2 then
                 return true
             end
 
@@ -805,7 +856,7 @@ local function runRotation()
             end
 
             -- More SVP pls.
-            if buff.voidForm.exists() and charges.shadowWordVoid.count() > 0 and cd.voidBolt.remain() == 1 and talent.shadowWordVoid then
+            if charges.shadowWordVoid.count() > 0 and cd.voidBolt.remain() == 1 and talent.shadowWordVoid then
                 if cast.shadowWordVoid then
                     return
                 end
@@ -839,7 +890,7 @@ local function runRotation()
             end
 
             -- Shadow Word - Void
-            if talent.shadowWordVoid and (power - (insanityDrain * gcd) + 25) < 100 and not buff.void.exists() and charges.shadowWordVoid.count() > 0 then
+            if talent.shadowWordVoid and not buff.void.exists() and charges.shadowWordVoid.count() > 0 then
                 if cast.shadowWordVoid() then 
                     return 
                 end
@@ -871,7 +922,7 @@ local function runRotation()
 
             -- Shadow Word - Pain
             if not talent.misery and not debuff.shadowWordPain.exists()
-                and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) or talent.auspiciousSpirits or talent.shadowyInsight or artifact.sphereOfInsanity.enabled())
+                and (((mode.rotation == 1 and #enemies.yards40 < 5) or mode.rotation == 3) or talent.auspiciousSpirits or talent.shadowyInsight)
                 and not buff.void.exists()
             then
                 if cast.shadowWordPain() then 
@@ -882,7 +933,7 @@ local function runRotation()
             -- Vampiric Touch
             if not talent.misery and not debuff.vampiricTouch.exists() and not isCastingSpell(spell.vampiricTouch) and not buff.void.exists() and not moving
                 and (((mode.rotation == 1 and #enemies.yards40 < 4) or mode.rotation == 3) or talent.sanlayn 
-                or (talent.auspiciousSpirits and artifact.unleashTheShadows.enabled()))
+                or (talent.auspiciousSpirits))
             then
                 if cast.vampiricTouch() then 
                     return 
@@ -890,7 +941,7 @@ local function runRotation()
             end
 
             -- VT Tick
-            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() < getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
+            if #enemies.yards40 > 1 and not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not buff.void.exists() and not moving and not isCastingSpell(spell.vampiricTouch) then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if (getHP(thisUnit) > vtHPLimit or IsInInstance()) and not debuff.vampiricTouch.exists(thisUnit) and (85.2 * (1 + 0.02 * buff.voidForm.stack()) * (1 + 0.2 + GetMastery() / 16000) * (1 + 0.2 * sanlayn) * 0.5 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1 then
@@ -902,7 +953,7 @@ local function runRotation()
             end
 
             -- Shadow Word - Pain
-            if #enemies.yards40 > 1 and not talent.misery and debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") and not buff.void.exists() then
+            if #enemies.yards40 > 1 and not talent.misery and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and not buff.void.exists() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if not debuff.shadowWordPain.exists(thisUnit) and (47.12 * (1 + 0.02 * buff.voidForm.stack()) * (1 + 0.2 + GetMastery() / 16000) * 0.75 * ttd(thisUnit) / (gcd * (138 + 80 * (#enemies.yards40 - 1)))) > 1 then
@@ -914,7 +965,7 @@ local function runRotation()
             end
 
             -- Mind Sear VF
-            if ((mode.rotation == 1 and #enemies.yards10t > getOptionValue("Mind Sear Targets")) or mode.rotation == 2) and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
+            if ((mode.rotation == 1 and #enemies.yards10t >= getOptionValue("Mind Sear Targets")) or mode.rotation == 2) and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
                 if cast.mindSear() then
                     return
                 end
