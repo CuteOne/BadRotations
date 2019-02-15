@@ -16,7 +16,8 @@ local function createToggles() -- Define custom toggles
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowfiend },
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowfiend },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform }
+        [3] = { mode = "Lust", value = 3 , overlay = "Cooldowns on Lust", tip = "Use Cooldowns on Bloodlust only", highlight = 0, icon = br.player.spell.shadowWordPain },
+        [4] = { mode = "Off", value = 4 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform }
     };
     CreateButton("Cooldown",2,0)
     -- Defensive Button
@@ -59,6 +60,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Dark Void Enemies", 3, 1, 10, 1)
 
             br.ui:createSpinnerWithout(section, "Mind Sear Targets", 3, 1, 10, 1)
+            
+            br.ui:createSpinnerWithout(section, "Full Cast Mind Sear", 5, 1, 20, 1, "Full Cast Mind Sear after Dark Void at X Targets.")
         
             br.ui:createCheckbox(section, "Shadow Crash")
 
@@ -311,10 +314,12 @@ local function runRotation()
                 end
 
                 -- Healthstones
-                if isChecked("Healthstones") and php <= getOptionValue("Healthstones") and GetItemCooldown(5512) == 0 and inCombat and hasItem(5512) then
+                if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512))
+                then
                     if canUse(5512) then
                         useItem(5512)
-                        return
+                    elseif canUse(healPot) then
+                        useItem(healPot)
                     end
                 end
 
@@ -381,7 +386,7 @@ local function runRotation()
         ------------------------------
         -- Cooldowns
         function actionList_Cooldowns()
-            if useCDs() then
+            if (mode.cooldown == 1 and isBoss()) or (mode.cooldown == 2) or (mode.cooldown == 3 and buff.bloodLust) or (not rotation.mode == 4) then
                 -- Racials
                 if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and isChecked("Racials") then
                     if cast.racial() then
@@ -423,7 +428,7 @@ local function runRotation()
             if not inCombat then
                 --Shadowform
                 if not buff.shadowform.exists() then
-                    if cast.shadowform then
+                    if cast.shadowform() then
                         return
                     end
                 end
@@ -527,6 +532,54 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                     if debuff.vampiricTouch.refresh(thisUnit)  then
                         if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- No Misery + VT APPLY
+            if not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- Misery + VT Refresh
+            if not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.vampiricTouch.refresh(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- AoE + SWP APPLY
+            if not talent.misery and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and not isCastingSpell(spell.vampiricTouch) and not isCastingSpell(spell.mindSearAoE) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit)  then
+                        if cast.shadowWordPain(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- AOE + SWP Refresh
+            if not talent.misery and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and not isCastingSpell(spell.vampiricTouch) and not isCastingSpell(spell.mindSearAoE) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.shadowWordPain.refresh(thisUnit)  then
+                        if cast.shadowWordPain(thisUnit, "aoe") then
                             return
                         end
                     end
@@ -679,22 +732,33 @@ local function runRotation()
             end
 
             -- Mind Sear VF
-            if ((mode.rotation == 1 and #enemies.yards10t > getOptionValue("Mind Sear Targets")) or mode.rotation == 2) and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
+            if ((mode.rotation == 1 and #enemies.yards10t >= getOptionValue("Mind Sear Targets")) or mode.rotation == 2) and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
                 if cast.mindSear() then
                     return
+                end
+            end
+
+            if not buff.void.exists() and not moving and not isCastingSpell(spell.mindSearAoE) and #enemies.yards10t >= getOptionValue("Full Cast Mind Sear") then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.shadowWordPain.exists(thisUnit) then
+                        if cast.mindSearAoE() then
+                            return
+                        end
+                    end
                 end
             end
 
 
             -- Mind Sear + Thought Harvester Buff
-            if buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 2 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
-                if cast.mindSear() then
+            if buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 2 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSearAoE) then
+                if cast.mindSearAoE() then
                     return
                 end
             end
 
             -- Mind Flay 
-            if not buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindFlay) then
+            if not buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 1 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindFlay) and (mode.rotation == 1 and #enemies.yards10t < getOptionValue("Mind Sear Targets")) or (mode.rotation == 3) then
                 if cast.mindFlay() then
                     return
                 end
@@ -791,6 +855,54 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                     if debuff.vampiricTouch.refresh(thisUnit)  then
                         if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- No Misery + VT APPLY
+            if not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.vampiricTouch.exists(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- NoMisery + VT Refresh
+            if not talent.misery and debuff.vampiricTouch.count() <= getOptionValue("VT Max Targets") and not isCastingSpell(spell.vampiricTouch) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.vampiricTouch.refresh(thisUnit)  then
+                        if cast.vampiricTouch(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- AoE + SWP APPLY
+            if not talent.misery and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and not isCastingSpell(spell.vampiricTouch) and not isCastingSpell(spell.mindSearAoE) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit)  then
+                        if cast.shadowWordPain(thisUnit, "aoe") then
+                            return
+                        end
+                    end
+                end
+            end
+
+            -- AOE + SWP Refresh
+            if not talent.misery and debuff.shadowWordPain.count() <= getOptionValue("SWP Max Targets") and not isCastingSpell(spell.vampiricTouch) and not isCastingSpell(spell.mindSearAoE) then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.shadowWordPain.refresh(thisUnit)  then
+                        if cast.shadowWordPain(thisUnit, "aoe") then
                             return
                         end
                     end
@@ -971,10 +1083,22 @@ local function runRotation()
                 end
             end
 
+            -- Full Cast Mind Sear VF
+            if not buff.void.exists() and not moving and not isCastingSpell(spell.mindSearAoE) and #enemies.yards10t >= getOptionValue("Full Cast Mind Sear") then
+                for i = 1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                    if debuff.shadowWordPain.exists(thisUnit) then
+                        if cast.mindSearAoE() then
+                            return
+                        end
+                    end
+                end
+            end
+
 
             -- Mind Sear + Thought Harvester Buff
-            if buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 2 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSear) then
-                if cast.mindSear() then
+            if buff.thoughtsHarvester.exists() and charges.shadowWordVoid.count() < 2 and not buff.void.exists() and not moving and not isCastingSpell(spell.mindSearAoE) then
+                if cast.mindSearAoE() then
                     return
                 end
             end
@@ -1018,7 +1142,7 @@ local function runRotation()
             -----------------------------
             --- In Combat - Rotations --- 
             -----------------------------
-            if inCombat and not IsMounted() and not isCastingSpell(spell.voidTorrent) then
+            if inCombat and not IsMounted() and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindSearAoE) then
                 -- Action List - Cooldowns
                 actionList_Cooldowns()
                 -- Action List - Check
@@ -1028,7 +1152,7 @@ local function runRotation()
                 end
                 -- Action List - Void Form
                 -- run_action_list,name=vf,if=buff.voidform.up
-                if buff.voidForm.exists() then
+                if buff.voidForm.exists() and not isCastingSpell(spell.mindSearAoE) then
                     if actionList_VoidForm() then return end
                 end
                 -- Action List - Main
