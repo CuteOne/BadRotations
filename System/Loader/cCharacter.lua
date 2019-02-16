@@ -63,6 +63,7 @@ function cCharacter:new(class)
 	self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
 	self.options 	    	= {}        -- Contains options
+	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
 	self.perk 	    		= {}	-- Perk Table
 	self.petId 	    		= 0 	-- Current Pet Id
 	self.pet 	    			= {} 	-- Pet Information Table
