@@ -748,7 +748,7 @@ local function runRotation()
             -- if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
             --     or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
             -- then
-            if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcdMax * 2 or not isChecked("Crusade") or not useCDs()) 
+            if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) 
                 or buff.empyreanPower.exists() and not debuff.judgment.exists() and not buff.divinePurpose.exists()) 
             then
                 if buff.empyreanPower.exists() then 
