@@ -564,11 +564,14 @@ local function runRotation()
             if cast.able.serpentSting() and ttd(units.dyn40) > 3 and buff.vipersVenom.exists() and buff.vipersVenom.remain() < gcdMax then 
                 if cast.serpentSting() then return end 
             end
-        -- Kill Command 
-            -- kill_command,if=focus+cast_regen<focus.max&(!talent.alpha_predator.enabled|full_recharge_time<gcd)
-            if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax and (not talent.alphaPredator or charges.killCommand.timeTillFull() < gcdMax) then 
-                if cast.killCommand() then return end 
-            end 
+        -- Kill Command
+            -- kill_command,if=focus+cast_regen<focus.max&(!talent.alpha_predator.enabled|talent.alpha_predator.enabled&full_recharge_time<1.5*gcd&azerite.primeval_intuition.enabled&focus+cast_regen<100|!azerite.primeval_intuition.enabled&focus+cast_regen<80)
+            if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (not talent.alphaPredator or talent.alphaPredator 
+                and charges.killCommand.timeTillFull() < 1.5 * gcdMax and traits.primevalIntuition.active() and focus + castRegen(spell.killCommand) < 100 
+                or not traits.primevalIntuition.active() and focus + castRegen(spell.killCommand) < 80)) 
+            then
+                if cast.killCommand() then return end
+            end
         -- Wildfire Bomb
             -- wildfire_bomb,if=focus+cast_regen<focus.max&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&(buff.mongoose_fury.down|full_recharge_time<4.5*gcd))
             if cast.able.wildfireBomb() and focus + focusRegen < focusMax and (charges.wildfireBomb.timeTillFull() < gcdMax 
@@ -625,8 +628,11 @@ local function runRotation()
                 if cast.killCommand() then return end 
             end
         -- Mongoose Bite
-            -- mongoose_bite,if=buff.mongoose_fury.up|focus>60
-            if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 60) then
+            -- mongoose_bite,if=buff.mongoose_fury.up|(azerite.primeval_intuition.enabled&(focus+cast_regen>110|talent.vipers_venom.enabled&focus>100))|(!azerite.primeval_intuition.enabled&(focus+cast_regen>90|talent.vipers_venom.enabled&focus+cast_regen>80))|buff.coordinated_assault.up
+            if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active() 
+                and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active() 
+                and (focus + focusRegen > 90 or talent.vipersVenom and focus + focusRegen > 80)) or buff.coordinatedAssault.exists()) 
+            then
                 if cast.mongooseBite() then return end
             end
         -- Raptor Strike

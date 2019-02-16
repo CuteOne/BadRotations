@@ -1022,6 +1022,7 @@ br.lists.spells = {
             traits                          = {
                 blurOfTalons                = 277653,
                 latentPoison                = 273283,
+                primevalIntuition           = 288570,
                 upCloseAndPersonal          = 278533,
                 venomousFangs               = 274590,
                 wildernessSurvival          = 279589,
