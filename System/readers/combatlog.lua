@@ -279,7 +279,9 @@ function br.read.combatLog()
                                 for k,v in pairs(br.player["spell"].debuffs) do
                                     if spell == v then 
                                         if pandemic[thisUnit] == nil then pandemic[thisUnit] = {} end
-                                        if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0) then                                        
+                                        if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0 
+                                            or debuff[k].duration(thisUnit) ~= pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3)) 
+                                        then                                        
                                             --Print("Debuff: "..spellName.." Applied (k = "..k..", v = "..v..", duration = "..debuff[k].duration(thisUnit))
                                             pandemic[thisUnit][k] = debuff[k].duration(thisUnit)
                                             break; 
