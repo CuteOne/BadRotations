@@ -30,6 +30,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
     };
     CreateButton("Interrupt",4,0)
+-- Hold Wake
+    WakeModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use wake", tip = "Use wake", highlight = 1, icon = br.player.spell.wakeOfAshes},
+        [2] = { mode = "Off", value = 2 , overlay = "Don't use wake", tip = "Don't use wake", highlight = 0, icon = br.player.spell.wakeOfAshes}
+    };
+    CreateButton("Wake",5,0)
 end
 ---------------
 --- OPTIONS ---
@@ -170,6 +176,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+	    UpdateToggle("Wake",0.25)
+        br.player.mode.wake = br.data.settings[br.selectedSpec].toggles["Wake"]
 
 --------------
 --- Locals ---
@@ -745,10 +753,17 @@ local function runRotation()
                 if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
             end
             -- divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
-            if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
-                or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
+            -- if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
+            --     or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
+            -- then
+            if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) 
+                or buff.empyreanPower.exists() and not debuff.judgment.exists() and not buff.divinePurpose.exists()) 
             then
-                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+                if buff.empyreanPower.exists() then 
+                    if cast.divineStorm("player","aoe",1,8) then return end
+                else
+                    if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+                end
             end
         -- Templar's Verdict
             if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40) then
@@ -773,7 +788,7 @@ local function runRotation()
             end
         -- Wake of Ashes
             -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15|spell_targets.wake_of_ashes>=2)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-            if cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
+            if mode.wake == 1 and cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
                 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd))
             then
                 if cast.wakeOfAshes(units.dyn12,"cone",1,12) then return end

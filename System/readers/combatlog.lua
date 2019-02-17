@@ -248,6 +248,55 @@ function br.read.combatLog()
                 end
             end
         end
+        ------------------
+        --[[Pandemic]]
+        if source == UnitGUID("player") then
+            if destination ~= nil and destination ~= "" then
+                local thisUnit = thisUnit
+                if EWT then
+                    local destination = GetObjectWithGUID(destination)
+                    if GetObjectExists(destination) then
+                        thisUnit = destination
+                    elseif GetObjectExists("target") then
+                        thisUnit = GetObjectWithGUID(UnitGUID("target"))
+                    else
+                        thisUnit = GetObjectWithGUID(UnitGUID("player"))
+                    end
+                    if br.player ~= nil then
+                        local debuff = br.player.debuff
+                        local pandemic = br.player.pandemic
+                        if br.player["spell"].debuffs ~= nil then
+                            if param == "SPELL_AURA_REMOVED" then                                   
+                                if not UnitAffectingCombat("player") or not UnitExists(thisUnit) or UnitIsDeadOrGhost(thisUnit) then 
+                                    if pandemic[thisUnit] ~= nil then pandemic[thisUnit] = nil end
+                                else
+                                    for k,v in pairs(br.player["spell"].debuffs) do
+                                        if spell == v and pandemic[thisUnit] ~= nil and pandemic[thisUnit][k] ~= nil then 
+                                            pandemic[thisUnit][k] = 0; 
+                                            break 
+                                        end
+                                    end 
+                                end
+                            end
+                            if param == "SPELL_AURA_APPLIED" then
+                                for k,v in pairs(br.player["spell"].debuffs) do
+                                    if spell == v then 
+                                        if pandemic[thisUnit] == nil then pandemic[thisUnit] = {} end
+                                        if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0 
+                                            or debuff[k].duration(thisUnit) ~= pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3)) 
+                                        then                                        
+                                            --Print("Debuff: "..spellName.." Applied (k = "..k..", v = "..v..", duration = "..debuff[k].duration(thisUnit))
+                                            pandemic[thisUnit][k] = debuff[k].duration(thisUnit)
+                                            break; 
+                                        end 
+                                    end                                       
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
         ---------------
         --[[ Debug --]]
         if getOptionCheck("Rotation Log") == true and source == br.guid and
@@ -394,7 +443,7 @@ function br.read.combatLog()
                         end
                         if br.player ~= nil and getDistance(thisUnit) < 40 then
                             local debuff = br.player.debuff
-                            local debuffID = br.player.spell.debuffs
+                            local debuffID = br.player["spell"].debuffs
                             if debuffID ~= nil then
                                 if spell == debuffID.rake or spell == debuffID.rip then
                                     if spell == debuffID.rake then

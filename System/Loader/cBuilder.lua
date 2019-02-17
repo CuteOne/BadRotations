@@ -389,10 +389,20 @@ function br.loader:new(spec,specName)
                     return getDebuffStacks(thisUnit,v,sourceUnit)
                 end
             end
+            debuff.pandemic = function(thisUnit,sourceUnit)
+                if thisUnit == nil then thisUnit = 'target' end
+                if sourceUnit == nil then sourceUnit = 'player' end
+                if thisUnit == 'target' then thisUnit = GetObjectWithGUID(UnitGUID("target")) end 
+                local pandemic = debuff.duration(thisUnit,sourceUnit)
+                if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then 
+                    pandemic = br.player.pandemic[thisUnit][k] 
+                end
+                return pandemic
+            end
             debuff.refresh = function(thisUnit,sourceUnit)
                 if thisUnit == nil then thisUnit = 'target' end
                 if sourceUnit == nil then sourceUnit = 'player' end
-                return debuff.remain(thisUnit,sourceUnit) <= debuff.duration(thisUnit,sourceUnit) * 0.3
+                return debuff.remain(thisUnit,sourceUnit) <= debuff.pandemic(thisUnit,sourceUnit) * 0.3
             end
             debuff.count = function()
                 return tonumber(getDebuffCount(v))

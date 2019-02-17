@@ -30,6 +30,12 @@ local function createToggles()
 	[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
 	};
 	CreateButton("Interrupt",4,0)
+-- Hold Wake
+    WakeModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use wake", tip = "Use wake", highlight = 1, icon = br.player.spell.wakeOfAshes},
+        [2] = { mode = "Off", value = 2 , overlay = "Don't use wake", tip = "Don't use wake", highlight = 0, icon = br.player.spell.wakeOfAshes}
+    };
+    CreateButton("Wake",5,0)
 end
 ---------------
 --- OPTIONS ---
@@ -176,6 +182,8 @@ local function runRotation()
 	UpdateToggle("Cooldown",0.25)
 	UpdateToggle("Defensive",0.25)
 	UpdateToggle("Interrupt",0.25)
+	UpdateToggle("Wake",0.25)
+    br.player.mode.wake = br.data.settings[br.selectedSpec].toggles["Wake"]
 
 	--------------
 	--- Locals ---
@@ -820,7 +828,7 @@ local function runRotation()
 			if actionList_Finisher() then return end
 		end
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-		if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) and getFacing("player","target") then
+		if mode.wake == 1 and talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) and getFacing("player","target") then
 			if cast.wakeOfAshes("player") then return end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
