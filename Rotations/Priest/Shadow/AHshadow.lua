@@ -260,7 +260,7 @@ local function runRotation()
         end
 
 
-        print("Sear Var: "..tostring(sear)..", Casting Sear: "..tostring(cast.current.mindSear()))
+       -- print("Sear Var: "..tostring(sear)..", Casting Sear: "..tostring(cast.current.mindSear()))
         -- Sear full cast
 
      --   if sear == true then
