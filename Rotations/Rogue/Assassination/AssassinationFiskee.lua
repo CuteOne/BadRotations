@@ -171,8 +171,7 @@ local function runRotation()
     local cd                                            = br.player.cd
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
-    local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
-    local flying                                        = IsFlying()
+    local energyDeficit, energyRegen                    = br.player.power.energy.deficit(), br.player.power.energy.regen()
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -181,10 +180,8 @@ local function runRotation()
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
-    local power, powmax, powgen                         = br.player.power, br.player.powerMax, br.player.powerRegen
     --local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
-    local racial                                        = br.player.getRacial()
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
     local stealthedRogue                                = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
@@ -648,11 +645,13 @@ local function runRotation()
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
+                    if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Exsg + (Nightstalker, or Subterfuge only on 1T): Maximum CP and Exsg ready for next GCD
                 -- actions.cds+=/vanish,if=talent.exsanguinate.enabled&(talent.nightstalker.enabled|talent.subterfuge.enabled&variable.single_target)&combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier<=1)
                 if talent.exsanguinate and (talent.nightstalker or (talent.subterfuge and enemies10 == 1)) and combo >= comboMax and cd.exsanguinate.remain() < 1 and (not talent.subterfuge or not trait.shroudedSuffocation.active or debuff.garrote.applied("target") <= 1) and getSpellCD(spell.garrote) == 0 then
+                    if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
@@ -663,6 +662,7 @@ local function runRotation()
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
                 if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and getSpellCD(spell.garrote) == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
+                    if cast.pool.garrote() then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
@@ -678,7 +678,7 @@ local function runRotation()
             if cast.exsanguinate("target") then return true end
         end
         -- actions.cds+=/toxic_blade,if=dot.rupture.ticking
-        if talent.toxicBlade and mode.tb == 1 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") then
+        if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") then
             if cast.toxicBlade("target") then return true end
         end
     end
