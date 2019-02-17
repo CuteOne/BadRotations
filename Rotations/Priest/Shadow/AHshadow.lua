@@ -404,7 +404,7 @@ local function runRotation()
         ------------------------------
         -- Cooldowns
         function actionList_Cooldowns()
-            if (mode.cooldown == 1 and isBoss()) or (mode.cooldown == 2) or (mode.cooldown == 3 and buff.bloodLust) or (not rotation.mode == 4) then
+            if (mode.cooldown == 1 and isBoss()) or (mode.cooldown == 2) or (mode.cooldown == 3 and buff.bloodLust) then
                 -- Racials
                 if (br.player.race == "Orc" or br.player.race == "Troll" or br.player.race == "BloodElf") and isChecked("Racials") then
                     if cast.racial() then
