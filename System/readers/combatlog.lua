@@ -271,7 +271,10 @@ function br.read.combatLog()
                                     if pandemic[thisUnit] ~= nil then pandemic[thisUnit] = nil end
                                 else
                                     for k,v in pairs(br.player["spell"].debuffs) do
-                                        if spell == v then pandemic[thisUnit][k] = 0; break end
+                                        if spell == v and pandemic[thisUnit] ~= nil and pandemic[thisUnit][k] ~= nil then 
+                                            pandemic[thisUnit][k] = 0; 
+                                            break 
+                                        end
                                     end 
                                 end
                             end
