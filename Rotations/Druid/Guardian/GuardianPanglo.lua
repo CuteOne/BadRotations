@@ -69,7 +69,9 @@ local function createOptions()
 		-- Maul At
             br.ui:createSpinnerWithout(section, "Maul At",  90,  5,  100,  5,  "|cffFFFFFFSet to desired rage to cast Maul. Min: 5 / Max: 100 / Interval: 5")
 		-- Auto Maul
-			br.ui:createCheckbox(section,"Taunt")			
+            br.ui:createCheckbox(section,"Taunt")	
+        -- Auto Prowl
+            br.ui:createCheckbox(section,"Auto Prowl")		
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -270,7 +272,7 @@ local function runRotation()
                 end
             end 
               -- prowl after cat?
-                if cat and not inCombat and not buff.prowl.exists() then
+                if cat and not inCombat and isChecked("Auto Prowl") and not buff.prowl.exists() then
                     if cast.prowl() then return end
                 end
             --Bear Form when in combat and not flying
