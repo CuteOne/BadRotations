@@ -133,7 +133,7 @@ local function checkOM()
         local i = 1
         while i <= #brOM do
             local thisPointer = brOM[i].objectPointer
-            if ObjectExists(thisPointer) then
+            if GetObjectExists(thisPointer) then
                 if br.unitSetup.cache[thisPointer] == nil and (brOM[i].pulseTime == nil or GetTime() >= brOM[i].pulseTime) then
                     local distance = getBaseDistance(thisPointer)
                     if distance > 50 then
