@@ -166,10 +166,9 @@ function updateOMEWT()
 	-- Cycle OM
     if initOM then
         local objectCount = GetObjectCount()
-        local thisObject
         if objectCount > 0 then
             for i = 1, objectCount do
-                thisObject = GetObjectWithIndex(i)
+                local thisObject = GetObjectWithIndex(i)
                 if omCache[thisObject] == nil and ObjectIsUnit(thisObject) then
                     local insertObject = {}
                     insertObject.objectPointer = thisObject
@@ -180,15 +179,17 @@ function updateOMEWT()
         end
         initOM = false
     else --Normal update
-        local num, objs = GetObjectManagerUpdates()
-        for k,v in pairs(objs) do
-            if omCache[v] == nil and ObjectIsUnit(v) then
-                local insertObject = {}
-                insertObject.objectPointer = v
-                tinsert(brOM, insertObject)
-                omCache[v] = true
-            end
-        end
+		local _, updates, objs = GetObjectCount(true)
+		if updates > 0 then
+			for _, v in pairs(objs) do
+				if omCache[v] == nil and ObjectIsUnit(v) then
+					local insertObject = {}
+					insertObject.objectPointer = v
+					tinsert(brOM, insertObject)
+					omCache[v] = true
+				end
+			end
+		end
     end
     refreshStored = true
     checkOM()
