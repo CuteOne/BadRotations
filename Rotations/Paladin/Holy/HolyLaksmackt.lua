@@ -59,11 +59,8 @@ local function createOptions()
   local function rotationOptions()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
-    -----------------------
+    ----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
-    br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
-    -- Necrotic Rot
-    br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
     -- Mastery bonus
     br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only in Raid effective)")
     -- Blessing of Freedom
@@ -83,9 +80,18 @@ local function createOptions()
     -- Overhealing Cancel
     br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "", "|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
     br.ui:checkSectionState(section)
+    section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
+
+    br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
+    -- m+ Rot
+    br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
+    br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
+    br.ui:checkSectionState(section)
     -------------------------
     ------ DEFENSIVES -------
     -------------------------
+
+
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
     -- Pot/Stone
     br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
@@ -245,7 +251,7 @@ local function runRotation()
   -- local level                                         = br.player.level
   -- local lowestHP                                      = br.friend[1].unit
   -- local lowest                                        = br.friend[1]
-  -- local mana                                          = br.player.powerPercentMana
+  local mana = br.player.power.mana.amount()
   -- local perk                                          = br.player.perk
   -- local power, powmax, powgen                         = br.player.power.mana.amount(), br.player.power.mana.max(), br.player.power.mana.regen()
   -- local ttm                                           = br.player.power.mana.ttm()
@@ -393,6 +399,69 @@ local function runRotation()
     [134388] = "A Knot of Snakes",
     [129758] = "Irontide Grenadier",
   }
+
+  ---functions
+  local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+    if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+      return false
+    end
+    local curFacing = ObjectFacing("player")
+    local playerX, playerY, playerZ = ObjectPosition("player")
+    local coneTable = {}
+
+    for i = 1, #br.friend do
+      local thisUnit = br.friend[i].unit
+      if br.friend[i].hp < health then
+        local unitX, unitY, unitZ = ObjectPosition(thisUnit)
+        if playerX and unitX then
+          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+          tinsert(coneTable, angleToUnit)
+        end
+      end
+    end
+    local facing, bestAngle, bestAngleUnitsHit = 0, 0, 0
+    while facing <= 6.2 do
+      local unitsHit = 0
+      for i = 1, #coneTable do
+        if br.friend[i].hp < health then
+          -- First check around us, light of dawn do heal 5 yards around
+          if br.friend[i].distance < rangeAround then
+            unitsHit = unitsHit + 1
+          else
+            --dont doubledipp so an else
+            if br.friend[i].distance < rangeInfront then
+              --only if they are in range
+              local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
+              if playerX and unitX then
+                local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+                local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
+                local finalAngle = shortestAngle / math.pi * 180
+                if finalAngle < angle then
+                  unitsHit = unitsHit + 1
+                end
+              end
+            end
+          end
+        end
+      end
+      if unitsHit > bestAngleUnitsHit then
+        bestAngleUnitsHit = unitsHit
+        bestAngle = facing
+      end
+      facing = facing + 0.05
+    end
+
+    if bestAngleUnitsHit >= minUnits then
+      FaceDirection(bestAngle, true)
+      CastSpellByName(GetSpellInfo(spell))
+      FaceDirection(curFacing, true)
+      return true
+    end
+    return false
+  end
+
+
   -- Beacon of Virtue
   if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and not IsMounted() then
     for i = 1, #br.friend do
@@ -465,7 +534,7 @@ local function runRotation()
       end
     end
   end
-  if isChecked("Arcane Torrent Mana") and race == "BloodElf" and getSpellCD(69179) == 0 and br.player.power.mana.amount() < getOptionValue("Arcane Torrent Mana") then
+  if isChecked("Arcane Torrent Mana") and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
     if castSpell("player", racial, false, false, false) then
       return true
     end
@@ -928,12 +997,12 @@ local function runRotation()
           local meleeFriends = getAllies(tankTarget, 5)
           -- get the best ground circle to encompass the most of them
           local loc = nil
-          if #meleeFriends >= 3 then
-            loc = getBestGroundCircleLocation(meleeFriends, 2, 6, 10)
+          if #meleeFriends >= 8 then
+            loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
           else
             local meleeHurt = {}
             for j = 1, #meleeFriends do
-              if meleeFriends[j].hp < 60 then
+              if meleeFriends[j].hp < 75 then
                 tinsert(meleeHurt, meleeFriends[j])
               end
             end
@@ -1088,10 +1157,15 @@ local function runRotation()
 
     -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
+      --[[ old function
       if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
         if cast.lightOfDawn() then
           return true
         end
+      end
+      ]]
+      if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5) then
+        return true
       end
     end
 
@@ -1130,8 +1204,20 @@ local function runRotation()
     local lightOfTheMartyrM20 = nil
     local lightOfTheMartyrM30 = nil
     local lightOfTheMartyrM40 = nil
+    local BleedStack = 0
+    local BleedFriend = nil
+
+    --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
     for i = 1, #br.friend do
       if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
+        --count grievance stacks here
+        if isChecked("Grievous Wounds") then
+          local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
+          if CurrentBleedstack > BleedStack then
+            BleedStack = CurrentBleedstack
+            BleedFriend = br.friend[i]
+          end
+        end
         if isChecked("Mastery bonus") and inRaid then
           if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (10 * master_coff) then
             holyShock10 = br.friend[i].unit
@@ -1251,6 +1337,18 @@ local function runRotation()
           return true
         end
       end
+      if BleedFriend ~= nil then
+        if cast.holyShock(BleedFriend.unit) then
+          return true
+        end
+        if cast.flashOfLight(BleedFriend.unit) then
+          return true
+        end
+        if php >= 60 and BleedFriend.hp > 80 and cast.lightOfTheMartyr(BleedFriend.unit) then
+          return true
+        end
+      end
+
       if holyShock10 ~= nil then
         if cast.holyShock(holyShock10) then
           return true
