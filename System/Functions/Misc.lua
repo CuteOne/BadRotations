@@ -402,6 +402,7 @@ function isValidUnit(Unit)
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
 	local dummy = isDummy(Unit)
+	local threatBypassUnit = validUnitBypassList[GetObjectID(Unit)] ~= nil
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
@@ -409,22 +410,21 @@ function isValidUnit(Unit)
 		return false
 	end
 	if not pause(true) and Unit ~= nil and
-		(br.units[Unit] ~= nil or Unit == "target" or validUnitBypassList[GetObjectID(Unit)] ~= nil or burnUnit) and
+		(br.units[Unit] ~= nil or Unit == "target" or threatBypassUnit or burnUnit) and
 		mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit) and		
 			((not hostileOnly and reaction < 5) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
 	 then
 		local instance = IsInInstance()
-		local distanceToTarget = getDistance(Unit, "target")
-		local distanceToPlayer = getDistance(Unit, "player")
+		local distanceToTarget = getDistance("target",Unit)
+		local distanceToPlayer = getDistance("player",Unit)
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or burnUnit
-		return hasThreat 
+		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or burnUnit or threatBypassUnit
+		if distanceToTarget < 8 then Print(UnitName(Unit).." | "..distanceToTarget) end
+		return hasThreat or (not hasThreat and (
 			-- Not In Instance
-			or (not instance and (playerTarget or distanceToTarget < 8))
+			(not instance and (playerTarget or distanceToTarget < 8)) or
 			-- In Instance 
-			or (instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))
-			-- Pre-validated 
-			or validUnitBypassList[GetObjectID(Unit)] ~= nil
+			(instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))))
 	end
 	return false
 end
