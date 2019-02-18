@@ -415,11 +415,11 @@ local function runRotation()
                     end
                 end
         -- Dampen Harm
-                if isChecked("Diffuse/Dampen") and php <= getOptionValue("Dampen Harm") and inCombat then
+                if isChecked("Diffuse/Dampen") and php <= getOptionValue("Diffuse/Dampen") and inCombat then
                     if cast.dampenHarm() then return true end
                 end
         -- Diffuse Magic
-                if isChecked("Diffuse/Dampen") and ((php <= getOptionValue("Diffuse Magic") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
+                if isChecked("Diffuse/Dampen") and ((php <= getOptionValue("Diffuse/Dampen") and inCombat) or canDispel("player",br.player.spell.diffuseMagic)) then
                     if cast.diffuseMagic() then return true end
                 end
         -- Detox
