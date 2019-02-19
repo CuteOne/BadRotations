@@ -52,7 +52,8 @@ function ObjectManagerUpdate(self)
                 omPulse = GetTime() + getUpdateRate()
                 updateOM()
             end
-        end
+		end
+		br.om:Update()
 	end
 end
 
