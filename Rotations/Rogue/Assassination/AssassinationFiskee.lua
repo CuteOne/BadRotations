@@ -442,7 +442,7 @@ local function runRotation()
                     end
                 end
                 --Azerite Powder Shot (1st boss freehold)
-                if bossID == 126832 and isCastingSpell(256106, "boss1") and getFacing("boss1", "player") then
+                if bossID == 126832 and isCastingSpell(256106, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
                     if cast.feint() then return true end
                 end
                 --Spit gold (1st boss KR)
