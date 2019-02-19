@@ -1081,40 +1081,40 @@ local function runRotation()
         StartAttack()
       end
       --Consecration
-      if isChecked("Consecration") and cast.able.consecration() and and mana > getValue("DPS Mana") and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
-    if cast.consecration() then
-    return true
-    end
-    end
-    -- Holy Prism
-    if isChecked("Holy Prism Damage") and talent.holyPrism and mana > getValue("DPS Mana") and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
-    if cast.holyPrism(units.dyn30) then
-    return true
-    end
-    end
-    -- Light's Hammer
-    if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and mana > getValue("DPS Mana") and not moving then
-    if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
-    return true
-    end
-    end
-    -- Judgement
-    if isChecked("Judgement") and cast.able.judgment() and getFacing("player", units.dyn30) then
-    if cast.judgment(units.dyn30) then
-    return true
-    end
-    end
-    -- Holy Shock
-    if isChecked("Holy Shock Damage") and cast.able.holyShock() and and mana > getValue("DPS Mana")  and getFacing("player", units.dyn40) then
-    if cast.holyShock(units.dyn40) then
-    return true
-    end
+      if isChecked("Consecration") and cast.able.consecration() and mana > getValue("DPS Mana") and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
+        if cast.consecration() then
+          return true
+        end
+      end
+      -- Holy Prism
+      if isChecked("Holy Prism Damage") and talent.holyPrism and mana > getValue("DPS Mana") and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
+        if cast.holyPrism(units.dyn30) then
+          return true
+        end
+      end
+      -- Light's Hammer
+      if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and mana > getValue("DPS Mana") and not moving then
+        if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
+          return true
+        end
+      end
+      -- Judgement
+      if isChecked("Judgement") and cast.able.judgment() and getFacing("player", units.dyn30) then
+        if cast.judgment(units.dyn30) then
+          return true
+        end
+      end
+      -- Holy Shock
+      if isChecked("Holy Shock Damage") and cast.able.holyShock() and mana > getValue("DPS Mana") and getFacing("player", units.dyn40) then
+        if cast.holyShock(units.dyn40) then
+          return true
+        end
       end
       -- Crusader Strike
       if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
-    if cast.crusaderStrike(units.dyn5) then
-      return true
-      end
+        if cast.crusaderStrike(units.dyn5) then
+          return true
+        end
       end
     end
   end
