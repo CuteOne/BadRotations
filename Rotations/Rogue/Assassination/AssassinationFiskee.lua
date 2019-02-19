@@ -313,7 +313,7 @@ local function runRotation()
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.objectID = GetObjectID(thisUnit.unit)
+                enemyUnit.objectID = GetObjectID(thisUnit)
                 tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
