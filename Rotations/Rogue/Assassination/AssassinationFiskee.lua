@@ -332,6 +332,7 @@ local function runRotation()
                 if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 5 end
                 if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
                 if garroteList[thisUnit.objectID] ~= nil then enemyScore = enemyScore + 50 end
+                if GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
                 local raidTarget = GetRaidTargetIndex(thisUnit.unit)
                 if raidTarget ~= nil then
                     enemyScore = enemyScore + raidTarget * 3
@@ -359,15 +360,6 @@ local function runRotation()
                     tinsert(enemyTable5, thisUnit)
                 end
             end
-        end
-        if #enemyTable5 > 1 then
-            table.sort(enemyTable5, function(x)
-                if GetUnitIsUnit(x.unit, "target") then
-                    return true
-                else
-                    return false
-                end
-            end)
         end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable30[1].unit)
