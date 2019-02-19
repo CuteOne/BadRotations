@@ -5,6 +5,7 @@ local rogueTables = br.rogueTables
 rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
 local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
+local garrotePrioList = ""
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
@@ -130,6 +131,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Lists")
             br.ui:createScrollingEditBoxWithout(section,"Dot Blacklist Units", dotBlacklist, "List of units to blacklist when multidotting", 240, 40)
             br.ui:createScrollingEditBoxWithout(section,"Stun Spells", stunSpellList, "List of spells to stun with auto stun function", 240, 50)
+            br.ui:createScrollingEditBoxWithout(section,"Garrote Prio Units", garrotePrioList, "List of units to prioritize for garrote", 240, 50)
             -- resetButton = br.ui:createButton(section, "Reset Lists")
             -- resetButton:SetEventListener("OnClick", function()
             --     local selectedProfile = br.data.settings[br.selectedSpec][br.selectedProfile]
@@ -286,6 +288,11 @@ local function runRotation()
         return false
     end
 
+    local garroteList = {}
+    for i in string.gmatch(getOptionValue("Garrote Prio Units"), "%d+") do
+        garroteList[tonumber(i)] = true
+    end
+
     local function clearTable(t)
         local count = #t
         for i=0, count do t[i]=nil end
@@ -306,6 +313,7 @@ local function runRotation()
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
+                enemyUnit.objectID = GetObjectID(thisUnit.unit)
                 tinsert(enemyTable30, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
@@ -317,17 +325,19 @@ local function runRotation()
         end
         if #enemyTable30 > 1 then
             for i = 1, #enemyTable30 do
-                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
+                local thisUnit = enemyTable30[i]
+                local hpNorm = (10-1)/(highestHP-lowestHP)*(thisUnit.hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
-                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
-                if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
-                local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
-                if raidTarget ~= nil then 
+                if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 5 end
+                if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
+                if garroteList[thisUnit.objectID] ~= nil then enemyScore = enemyScore + 50 end
+                local raidTarget = GetRaidTargetIndex(thisUnit.unit)
+                if raidTarget ~= nil then
                     enemyScore = enemyScore + raidTarget * 3
                     if raidTarget == 8 then enemyScore = enemyScore + 5 end
                 end
-                enemyTable30[i].enemyScore = enemyScore
+                thisUnit.enemyScore = enemyScore
             end
             table.sort(enemyTable30, function(x,y)
                 return x.enemyScore > y.enemyScore
@@ -338,9 +348,9 @@ local function runRotation()
             local fokIgnore = {
                 [120651]=true -- Explosive
             }
-            local objectID = GetObjectID(thisUnit.unit)
+
             if thisUnit.distance <= 10 then
-                if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
+                if fokIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
                     if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
                 end
