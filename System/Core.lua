@@ -42,7 +42,7 @@ end
 function ObjectManagerUpdate(self)
 	-- Check for Unlocker
     if EWT then
-        if GetObjectManagerUpdates ~= nil then -- Only EWT support
+		if EasyWoWToolbox ~= nil then -- Only EWT support
             updateOMEWT()
         else -- Legacy OM
             if omPulse == nil then

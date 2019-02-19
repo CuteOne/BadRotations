@@ -450,7 +450,7 @@ local function runRotation()
                 end
             end
             -- Warrior of Elune
-            if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune then
+            if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
                 if cast.warriorOfElune() then return true end
             end
             -- Stellar Flare

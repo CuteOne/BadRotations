@@ -1,8 +1,8 @@
-## Interface: 80000
+## Interface: 80100
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.24.0
+## Version: 1.25.0
 ## SavedVariablesPerCharacter: brdata, dungeondata, mdungeondata, raiddata, mraiddata
 
 BadRotations.lua
