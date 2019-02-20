@@ -50,12 +50,14 @@ end
 function updateOMEWT()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local _, updated, added, removed = GetUnitCount(true)
+	local _, updated, added, removed = GetObjectCount(true)
 	if updated and #added > 0 then
 		for _, v in pairs(added) do
-			local enemyUnit = br.unitSetup:new(v)
-			if enemyUnit then
-				tinsert(om, enemyUnit)
+			if ObjectIsUnit(v) then
+				local enemyUnit = br.unitSetup:new(v)
+				if enemyUnit then
+					tinsert(om, enemyUnit)
+				end
 			end
 		end
 	end
