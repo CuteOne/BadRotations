@@ -66,18 +66,31 @@ function updateOMEWT()
             end
         end
         initOM = false
-    else --Normal update
-		local _, updates, objs = GetObjectCount(true)
-		if updates > 0 then
-			for _, v in pairs(objs) do
-                if ObjectIsUnit(v) then
-					local enemyUnit = br.unitSetup:new(v)
-					if enemyUnit then
-						tinsert(om, enemyUnit)
+	else --Normal update
+		local _, updated, added, removed = GetObjectCount(true)
+		if updated then 
+			if #added > 0 then
+				for _, v in pairs(added) do
+					if ObjectIsUnit(v) then
+						local enemyUnit = br.unitSetup:new(v)
+						if enemyUnit then
+							tinsert(om, enemyUnit)
+						end
 					end
-                end
+				end
 			end
 		end
+		-- local _, updates, objs = GetObjectCount(true)
+		-- if updates > 0 then
+		-- 	for _, v in pairs(objs) do
+        --         if ObjectIsUnit(v) then
+		-- 			local enemyUnit = br.unitSetup:new(v)
+		-- 			if enemyUnit then
+		-- 				tinsert(om, enemyUnit)
+		-- 			end
+        --         end
+		-- 	end
+		-- end
     end
     refreshStored = true
     -- Debugging
@@ -110,8 +123,8 @@ function updateOM()
 			objectIndex = objectIndex + 1
 			omCounter = omCounter + 1
 			if omCounter == 1 then cycleTime = debugprofilestop() end
-			-- define our unit
-			local thisUnit = GetObjectWithIndex(i)
+				-- define our unit
+				local thisUnit = GetObjectWithIndex(i)
 				if ObjectIsUnit(thisUnit) then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					local enemyUnit = br.unitSetup:new(thisUnit)
