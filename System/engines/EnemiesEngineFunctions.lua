@@ -47,51 +47,18 @@ local function isTotem(unit)
 end
 
 --Update OM
-local initOM = true
 function updateOMEWT()
 	local om = br.om
 	local startTime = debugprofilestop()
-	-- Cycle OM
-    if initOM then --first run
-        local objectCount = GetObjectCount()
-        if objectCount > 0 then
-            for i = 1, objectCount do
-                local thisObject = GetObjectWithIndex(i)
-                if ObjectIsUnit(thisObject) then
-					local enemyUnit = br.unitSetup:new(thisObject)
-					if enemyUnit then
-						tinsert(om, enemyUnit)
-					end
-                end
-            end
-        end
-        initOM = false
-	else --Normal update
-		local _, updated, added, removed = GetObjectCount(true)
-		if updated then 
-			if #added > 0 then
-				for _, v in pairs(added) do
-					if ObjectIsUnit(v) then
-						local enemyUnit = br.unitSetup:new(v)
-						if enemyUnit then
-							tinsert(om, enemyUnit)
-						end
-					end
-				end
+	local _, updated, added, removed = GetUnitCount(true)
+	if updated and #added > 0 then
+		for _, v in pairs(added) do
+			local enemyUnit = br.unitSetup:new(v)
+			if enemyUnit then
+				tinsert(om, enemyUnit)
 			end
 		end
-		-- local _, updates, objs = GetObjectCount(true)
-		-- if updates > 0 then
-		-- 	for _, v in pairs(objs) do
-        --         if ObjectIsUnit(v) then
-		-- 			local enemyUnit = br.unitSetup:new(v)
-		-- 			if enemyUnit then
-		-- 				tinsert(om, enemyUnit)
-		-- 			end
-        --         end
-		-- 	end
-		-- end
-    end
+	end
     refreshStored = true
     -- Debugging
 	if isChecked("Debug Timers") then
