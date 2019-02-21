@@ -46,154 +46,22 @@ local function isTotem(unit)
 	return false
 end
 
-local function PopulateUnitTables()
-	local startTime = debugprofilestop()
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.units.targets = 0
-	end
-	-- Clean Up
-	-- Units
-	for k, v in pairs(br.units) do if not br.unitSetup.cache[br.units[k].unit] or br.unitSetup.cache[br.units[k].unit].enemyListCheck == false then br.units[k] = nil end end
-	-- Pets
-	if br.player ~= nil and br.player.pet ~= nil and br.player.pet.list ~= nil then
-		for k,v in pairs(br.player.pet.list) do if not br.unitSetup.cache[br.player.pet.list[k].unit] or not GetObjectExists(br.player.pet.list[k].unit) then br.player.pet.list[k] = nil end end
-	end
-	-- Lootables
-	for k, v in pairs(br.lootable) do
-		local hasLoot,canLoot = CanLootUnit(br.lootable[k].guid)
-		if not hasLoot or not GetObjectExists(br.lootable[k].unit) then br.lootable[k] = nil end
-	end
-	-- Enemies
-	for k, v in pairs(br.enemy) do if not br.unitSetup.cache[br.enemy[k].unit] or br.unitSetup.cache[br.enemy[k].unit].enemyListCheck == false or br.unitSetup.cache[br.enemy[k].unit].isValidUnit == false then br.enemy[k] = nil end end
-	-- Cycle the Object Manager
-	local omCounter = 0;
-	if br.om ~= nil then
-		local playerObject = GetObjectWithGUID(UnitGUID("player"))
-		for i=1, #br.om do
-			thisUnit = br.om[i].unit
-			omCounter = omCounter + 1
-			if isChecked("Debug Timers") and omCounter == 1 then cycleTime = debugprofilestop() end
-			-- Units
-			if br.units[thisUnit] == nil and br.om[i].enemyListCheck == true then
-				br.debug.cpu.enemiesEngine.units.targets = br.debug.cpu.enemiesEngine.units.targets + 1
-				AddUnit(thisUnit,br.units)
-				if isChecked("Debug Timers") then
-					br.debug.cpu.enemiesEngine.units.addTime = debugprofilestop()-startTime or 0
-				end
-			end
-			--Enemies
-			if br.enemy[thisUnit] == nil and br.om[i].isValidUnit == true and br.om[i].enemyListCheck == true then
-				AddUnit(thisUnit,br.enemy)
-				if isChecked("Debug Timers") then
-					br.debug.cpu.enemiesEngine.enemy.targets = br.debug.cpu.enemiesEngine.enemy.targets + 1
-					br.debug.cpu.enemiesEngine.enemy.addTime = debugprofilestop()-startTime or 0
-				end
-			end
-			-- Pet Info
-			if br.player ~= nil then
-				if br.player.pet == nil then br.player.pet = {} end
-				if br.player.pet.list == nil then br.player.pet.list = {} end
-				if br.player.pet.list[thisUnit] == nil and not isCritter(GetObjectID(thisUnit))
-					and (UnitCreator(thisUnit) == playerObject or GetObjectID(thisUnit) == 11492)
-				then
-					AddUnit(thisUnit,br.player.pet.list)
-					if UnitAffectingCombat("pet") or UnitAffectingCombat("player") then UpdatePet(thisUnit) end
-				end
-			end
-			-- Lootable
-			if br.lootable[thisUnit] == nil then
-				local hasLoot,canLoot = CanLootUnit(UnitGUID(thisUnit))
-				if hasLoot and canLoot then
-					AddUnit(thisUnit,br.lootable)
-				end
-			end
-			-- Debug Cycle Time
-			if isChecked("Debug Timers") then
-				br.debug.cpu.enemiesEngine.units.cycleTime = debugprofilestop()-cycleTime
-			end
-		end
-	end
-	-- Debugging
-	if isChecked("Debug Timers") then
-		br.debug.cpu.enemiesEngine.units.currentTime = debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.units.totalIterations = br.debug.cpu.enemiesEngine.units.totalIterations + 1
-		br.debug.cpu.enemiesEngine.units.elapsedTime = br.debug.cpu.enemiesEngine.units.elapsedTime + debugprofilestop()-startTime
-		br.debug.cpu.enemiesEngine.units.averageTime = br.debug.cpu.enemiesEngine.units.elapsedTime / br.debug.cpu.enemiesEngine.units.totalIterations
-	end
-end
-
---Check OM Cache
-local brOM = {}
-local omCache = {}
-local function checkOM()
-    local objectCount = #brOM
-    if objectCount > 0 then
-        local autoLoot = isChecked("Auto Loot")
-        local playerObject = ObjectPointer("player")
-        local i = 1
-        while i <= #brOM do
-            local thisPointer = brOM[i].objectPointer
-            if GetObjectExists(thisPointer) then
-                if br.unitSetup.cache[thisPointer] == nil and (brOM[i].pulseTime == nil or GetTime() >= brOM[i].pulseTime) then
-                    local distance = getBaseDistance(thisPointer)
-                    if distance > 50 then
-                        brOM[i].pulseTime = GetTime() + 0.2
-                    else
-                        brOM[i].pulseTime = GetTime() + 0.1
-                    end
-                    if distance < 50 and
-                    (GetUnitReaction(thisPointer, "player") < 5 or UnitCreator(thisPointer) == playerObject) and
-                    (not UnitIsDeadOrGhost(thisPointer) or (autoLoot and CanLootUnit(UnitGUID(thisPointer)))) then
-                        local enemyUnit = br.unitSetup:new(thisPointer)
-                        if enemyUnit then
-                            tinsert(br.om, enemyUnit)
-                        end
-                    end
-                end
-                i = i + 1
-            else
-                omCache[thisPointer] = nil
-                tremove(brOM, i)
-            end
-        end
-    end
-end
-
 --Update OM
-local initOM = true
 function updateOMEWT()
+	local om = br.om
 	local startTime = debugprofilestop()
-	-- Cycle OM
-    if initOM then
-        local objectCount = GetObjectCount()
-        if objectCount > 0 then
-            for i = 1, objectCount do
-                local thisObject = GetObjectWithIndex(i)
-                if omCache[thisObject] == nil and ObjectIsUnit(thisObject) then
-                    local insertObject = {}
-                    insertObject.objectPointer = thisObject
-                    tinsert(brOM, insertObject)
-                    omCache[thisObject] = true
-                end
-            end
-        end
-        initOM = false
-    else --Normal update
-		local _, updates, objs = GetObjectCount(true)
-		if updates > 0 then
-			for _, v in pairs(objs) do
-				if omCache[v] == nil and ObjectIsUnit(v) then
-					local insertObject = {}
-					insertObject.objectPointer = v
-					tinsert(brOM, insertObject)
-					omCache[v] = true
+	local _, updated, added, removed = GetObjectCount(true)
+	if updated and #added > 0 then
+		for _, v in pairs(added) do
+			if ObjectIsUnit(v) then
+				local enemyUnit = br.unitSetup:new(v)
+				if enemyUnit then
+					tinsert(om, enemyUnit)
 				end
 			end
 		end
-    end
+	end
     refreshStored = true
-    checkOM()
-    br.om:Update()
     -- Debugging
 	if isChecked("Debug Timers") then
 		br.debug.cpu.enemiesEngine.objects.currentTime = debugprofilestop()-startTime
@@ -201,17 +69,14 @@ function updateOMEWT()
 		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
 		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
     end
-	PopulateUnitTables()
 end
 
 --Legacy OM
 function updateOM()
 	local startTime = debugprofilestop()
-	local inCombat = UnitAffectingCombat("player")
 	local omCounter = 0
 	local fmod = math.fmod
 	local loopSet = floor(GetFramerate()) or 0
-	local autoLoot = isChecked("Auto Loot")
 	-- if isChecked("Disable Object Manager") and (inCombat or not isChecked("Auto Loot")) then
 	-- 	if next(br.om) ~= nil then br.om = {} end
 	-- 	return
@@ -222,20 +87,19 @@ function updateOM()
 	-- Cycle OM
 	local objectCount = EWT ~= nil and GetObjectCount() or 0
 	if objectCount > 0 then
-		local playerObject = GetObjectWithGUID(UnitGUID("player"))
 		if objectIndex == nil or objectIndex >= objectCount then objectIndex = 1 end
 		for i = objectIndex, objectCount do
 			objectIndex = objectIndex + 1
 			omCounter = omCounter + 1
 			if omCounter == 1 then cycleTime = debugprofilestop() end
-			-- define our unit
-			local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and (GetUnitIsVisible(thisUnit) and getBaseDistance(thisUnit) < 50
-					and (GetUnitReaction(thisUnit,"player") < 5 or UnitCreator(thisUnit) == playerObject) and (not UnitIsDeadOrGhost(thisUnit) or (autoLoot and CanLootUnit(UnitGUID(thisUnit)))))
-				then
+				-- define our unit
+				local thisUnit = GetObjectWithIndex(i)
+				if ObjectIsUnit(thisUnit) then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					local enemyUnit = br.unitSetup:new(thisUnit)
-					if enemyUnit then tinsert(br.om, enemyUnit) end
+					if enemyUnit then
+						tinsert(br.om, enemyUnit)
+					end
 				end
 			if isChecked("Debug Timers") then
 				br.debug.cpu.enemiesEngine.objects.cycleTime = debugprofilestop()-cycleTime
@@ -252,8 +116,6 @@ function updateOM()
 		br.debug.cpu.enemiesEngine.objects.elapsedTime = br.debug.cpu.enemiesEngine.objects.elapsedTime + debugprofilestop()-startTime
 		br.debug.cpu.enemiesEngine.objects.averageTime = br.debug.cpu.enemiesEngine.objects.elapsedTime / br.debug.cpu.enemiesEngine.objects.totalIterations
 	end
-	br.om:Update()
-	PopulateUnitTables()
 end
 
 -- /dump getEnemies("target",10)

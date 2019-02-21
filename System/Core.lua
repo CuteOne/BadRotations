@@ -13,6 +13,7 @@ end
 function br:ObjectManager()
 	-- Object Manager
 	if OM_Engine == nil then
+		ObjectManagerUpdate()
 		OM_Engine = CreateFrame("Frame", nil, UIParent)
 		OM_Engine:SetScript("OnUpdate", ObjectManagerUpdate)
 		OM_Engine:Show()
@@ -52,7 +53,8 @@ function ObjectManagerUpdate(self)
                 omPulse = GetTime() + getUpdateRate()
                 updateOM()
             end
-        end
+		end
+		br.om:Update()
 	end
 end
 
