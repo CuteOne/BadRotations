@@ -987,6 +987,15 @@ local function runRotation()
     end
     local Trinket13 = GetInventoryItemID("player", 13)
     local Trinket14 = GetInventoryItemID("player", 14)
+
+    --Balefire Branch(159630)
+    if (Trinket13 == 159630 or Trinket14 == 159630) and GetItemCooldown(159630) == 0 then
+
+      if getLowAllies(75) > 3 or (#tanks > 0 and tanks[1].hp <= 40) or lowest.hp <= 40 then
+        useItem(159630)
+      end
+    end
+    -- Ward of Envelopment(165569)
     if (Trinket13 == 165569 or Trinket14 == 165569) and GetItemCooldown(165569) == 0 then
       -- get melee players
       for i = 1, #tanks do
@@ -1077,8 +1086,8 @@ local function runRotation()
         end
       end
       -- Holy Prism
-      if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") and php < 95 then
-        if cast.holyPrism("player") then
+      if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
+        if cast.holyPrism(units.dyn30) then
           return true
         end
       end
