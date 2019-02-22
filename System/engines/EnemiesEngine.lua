@@ -122,7 +122,7 @@ if not metaTable2 then
 		function o:UpdateUnit()
 			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
 			o.name = UnitName(o.unit)
-			o.guid = ObjectGUID(o.unit)
+			o.guid = UnitGUID(o.unit)
 			o.distance = o:RawDistance()
 			o.hpabs = UnitHealth(o.unit)
 			o.hpmax = UnitHealthMax(o.unit)
