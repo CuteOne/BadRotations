@@ -1,5 +1,10 @@
-local rotationName = "immy"
+local rotationName = "immyc"
 immy = true
+local br = br
+br.rogueTables = {}
+local rogueTables = br.rogueTables
+rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}, {}, {}
+local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 
 ---------------
 --- Toggles ---
@@ -299,24 +304,130 @@ local function runRotation()
         --if stealthingRogue then print(br.player.buff.subterfuge.remain()) end
         --if asd then MouselookStop() end
         dotHPLimit = getOptionValue("Dots HP Limit") * 10000
-        units.get(5)
-        units.get(20)
-        enemies.get(5)
-        enemies.get(9)
-        enemies.get(20)
-        enemies.get(40)
-        if #br.player.enemies.yards5 > 1 then
-            table.sort(br.player.enemies.yards5, function(x,y)
-                return UnitHealth(x) > UnitHealth(y)
+        local sSActive
+        if trait.shroudedSuffocation.active then sSActive = 1 else sSActive = 0 end
+
+
+--______________________________________
+    enemies.get(20)
+    enemies.get(20,"player",true)
+    enemies.get(30)
+
+    local function isTotem(unit)
+        local eliteTotems = { -- totems we can dot
+            [125977] = "Reanimate Totem",
+            [127315] = "Reanimate Totem",
+            [146731] = "Zombie Dust Totem"
+        }
+        local creatureType = UnitCreatureType(unit)
+        local objectID = GetObjectID(unit)
+        if creatureType ~= nil and eliteTotems[objectID] == nil then
+            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+        end
+        return false
+    end
+
+    local function noDotCheck(unit)
+        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+        if isTotem(unit) then return true end
+        local unitCreator = UnitCreator(unit)
+        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
+        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+        return false
+    end
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    local function clearTable(t)
+        local count = #t
+        for i=0, count do t[i]=nil end
+    end
+
+    clearTable(enemyTable5)
+    clearTable(enemyTable10)
+    clearTable(enemyTable30)
+    local deadlyPoison10 = true
+    if #enemies.yards30 > 0 then
+        local highestHP
+        local lowestHP
+        for i = 1, #enemies.yards30 do
+            local thisUnit = enemies.yards30[i]
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.cleave == 1 or (mode.cleave == 2 and GetUnitIsUnit(thisUnit, "target"))) then
+                local enemyUnit = {}
+                enemyUnit.unit = thisUnit
+                enemyUnit.ttd = ttd(thisUnit)
+                enemyUnit.distance = getDistance(thisUnit)
+                enemyUnit.hpabs = UnitHealth(thisUnit)
+                enemyUnit.facing = getFacing("player",thisUnit)
+                tinsert(enemyTable30, enemyUnit)
+                if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
+                if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
+                if enemyTable30.lowestTTDUnit == nil or enemyTable30.lowestTTD > enemyUnit.ttd then
+                    enemyTable30.lowestTTDUnit = enemyUnit.unit
+                    enemyTable30.lowestTTD = enemyUnit.ttd
+                end
+            end
+        end
+        if #enemyTable30 > 1 then
+            for i = 1, #enemyTable30 do
+                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
+                if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
+                local enemyScore = hpNorm
+                if enemyTable30[i].facing then enemyScore = enemyScore + 30 end -- ??
+                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
+                if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
+                local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
+                if raidTarget ~= nil then 
+                    enemyScore = enemyScore + raidTarget * 3
+                    if raidTarget == 8 then enemyScore = enemyScore + 5 end
+                end
+                --if UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end -- ghuun check
+                if UnitBuffID(enemyTable30[i].unit, 79140) then enemyScore = enemyScore + 50 end  --vend score
+                enemyTable30[i].enemyScore = enemyScore
+            end
+            table.sort(enemyTable30, function(x,y)
+                return x.enemyScore > y.enemyScore
             end)
-            table.sort(br.player.enemies.yards5, function(x)
-                if GetUnitIsUnit(x, "target") then
+        end
+        for i = 1, #enemyTable30 do
+            local thisUnit = enemyTable30[i]
+            local fokIgnore = {
+                [120651]=true -- Explosive
+            }
+            local objectID = GetObjectID(thisUnit.unit)
+            if thisUnit.distance <= 10 then
+                if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
+                    tinsert(enemyTable10, thisUnit)
+                    if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
+                end
+                --if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
+                if thisUnit.distance <= 5 then
+                    tinsert(enemyTable5, thisUnit)
+                end
+            end
+        end
+        if #enemyTable5 > 1 then
+            table.sort(enemyTable5, function(x)
+                if GetUnitIsUnit(x.unit, "target") then
                     return true
                 else
                     return false
                 end
             end)
-        end      
+        end
+        if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
+            TargetUnit(enemyTable30[1].unit)
+        end
+    end
+    --Just nil fixes
+    if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
+    local enemies10 = #enemyTable10
+    local ttdval = enemies10 <= 1 and 4 or 12
+
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        
+
+
+           
         
         local function bleedscount()
             local counter = 0
@@ -345,7 +456,7 @@ local function runRotation()
         --     end
         --     return tonumber(counter)
         -- end
-        if #enemies.yards9 < 2 then singleTarget = true else singleTarget = false end
+        --if #enemies.yards9 < 2 then singleTarget = true else singleTarget = false end
         --local bleeds = debuff.garrote.count() + debuff.rupture.count()
             --Energy_Regen_Combined = energy.regen+poisoned_bleeds*7%(2*spell_haste);
         local energyRegenCombined = powerRegen + bleedscount() * 7 % (2 * (GetHaste()/100))
@@ -387,7 +498,6 @@ local function runRotation()
         -- end
         -- print(ngs())
         --if ngs() == 0 then ssbug = false end
-        local ttdval = #enemies.yards9 <= 1 and 4 or 12
         --if getCombatTime() == 0 or cast.last.vanish() then garrotecountbuff = debuff.garrote.remainCount(1) end
         -- local function waitshit()
         --     if (mode.special == 2 and (not isBoss() or isDummy())) or mode.special == 1 then
@@ -429,8 +539,8 @@ local function runRotation()
         end
         local function viabletargetcount()
             local counter = 0
-            for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
+            for i = 1, #enemyTable5 do
+                        local thisUnit = enemyTable5[i].unit
                         if UnitHealth(thisUnit) > dotHPLimit and donotdot(thisUnit) then 
                             counter = counter + 1
                         end
@@ -439,8 +549,8 @@ local function runRotation()
         end
         local function canvangar()
             local counter = 0
-            for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
+            for i = 1, #enemyTable5 do
+                        local thisUnit = enemyTable5[i].unit
                         if donotdot(thisUnit) and debuff.garrote.remain(thisUnit) <= 5.4 and not debuff.garrote.exsang(thisUnit) then 
                             counter = counter + 1
                         end
@@ -450,8 +560,8 @@ local function runRotation()
         end
         local function fokcccheck()
             if getOptionCheck("Don't break CCs") then
-                for i = 1, #enemies.yards9 do
-                    local thisUnit = enemies.yards9[i]
+                for i = 1, enemies10 do
+                    local thisUnit = enemyTable10[i].unit
                         if isLongTimeCCed(thisUnit) then
                             return false
                         else return true
@@ -504,9 +614,9 @@ local function runRotation()
         -- end        
         
         local function startaa()
-            for i = 1, #enemies.yards5 do
+            for i = 1, #enemyTable5 do
                 if not getFacing("player","target") then
-                    local thisUnit = enemies.yards5[i]
+                    local thisUnit = enemyTable5[i].unit
                     local firsttarget = GetObjectWithGUID(UnitGUID("target"))
                                         -- CastSpellByID(6603,thisUnit)
                                         -- CastSpellByID(6603,firsttarget)
@@ -545,7 +655,7 @@ local function runRotation()
                 or powerDeficit <= 25 + energyRegenCombined
                 or debuff.rupture.exsang(units.dyn5) and debuff.rupture.remain(units.dyn5) <= 2
                 or isChecked("No Pooling")
-                or #enemies.yards9 >= 2
+                or enemies10 >= 2
                 or solo
             then
                 return true
@@ -572,7 +682,7 @@ local function runRotation()
         local function getctinitial()
             return(
                 getapdmg() * 
-                (combo + 1) * #enemies.yards9 * 0.036 *
+                (combo + 1) * enemies10 * 0.036 *
                 (1 + (GetMasteryEffect("player") / 100)) *
                 (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100)) 
                 * 1.27
@@ -595,8 +705,8 @@ local function runRotation()
         --print(getenvdamage())
 
         local function burnpool()
-            for i = 1, #enemies.yards5 do
-                        local thisUnit = enemies.yards5[i]
+            for i = 1, #enemyTable5 do
+                        local thisUnit = enemyTable5[i].unit
                             if GetObjectID(thisUnit) == 120651 or GetObjectID(thisUnit) == 141851 --and getFacing("player", thisUnit) 
                                 then
                                     if combo >= 4 or getenvdamage(thisUnit) >=  UnitHealth(thisUnit) then
@@ -693,8 +803,6 @@ local function runRotation()
                 -- # Subterfuge: Apply or Refresh with buffed Garrotes
                 -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&refreshable&target.time_to_die-remains>2
                 if talent.subterfuge then
-                    if cast.able.garrote() then
-
                         -- if buff.subterfuge.remain() <= 1.4 and buff.subterfuge.remain() >= 0.4 and debuff.garrote.remain() < 18 and debuff.garrote.exists() and cd.vanish.remain() >= 110 then
                         --     if cast.garrote("target") then print("last sec subt garr"); return true end
                         -- end
@@ -712,11 +820,11 @@ local function runRotation()
                             if cast.garrote("target") then return true end
                         end
 
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                 if debuff.garrote.remain(thisUnit) <= 5.4 and debuff.garrote.exists(thisUnit) and not debuff.garrote.exsang(thisUnit)
-                                    and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 2 or true)
+                                    and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 2 or true)
                                     and donotdot(thisUnit)
                                     --and getFacing("player", thisUnit)
                                 then
@@ -737,11 +845,11 @@ local function runRotation()
                         --     return true end
                         -- end
 
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                 if not debuff.garrote.exists(thisUnit)
-                                    and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 2 or true)
+                                    and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 2 or true)
                                     and donotdot(thisUnit)
                                     --and getFacing("player", thisUnit)
                                 then
@@ -754,11 +862,11 @@ local function runRotation()
 
                         --# Subterfuge: Override normal Garrotes with snapshot versions
                         --actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&remains<=10&pmultiplier<=1&target.time_to_die-remains>2
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                     if debuff.garrote.remain(thisUnit) <= 10 and debuff.garrote.applied(thisUnit) <= 1
-                                    and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 2 or true)
+                                    and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 2 or true)
                                     and donotdot(thisUnit)
                                     --and getFacing("player", thisUnit)
                                 then
@@ -770,11 +878,11 @@ local function runRotation()
                             end
                         end
 
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                     if debuff.garrote.remain(thisUnit) <= 17 and trait.shroudedSuffocation.rank > 0
-                                    and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 2 or true)
+                                    and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 2 or true)
                                     and donotdot(thisUnit)
                                     --and getFacing("player", thisUnit)
                                 then
@@ -786,8 +894,6 @@ local function runRotation()
                                 end
                             end
                         end
-
-                    end
                 end
 
                         -- if mode.special == 1 and cast.able.rupture() and combo >=4 and s((cd.exsanguinate.remain() <= 2 and talent.exsanguinate ) or not debuff.rupture.exists()) then
@@ -796,7 +902,7 @@ local function runRotation()
                         -- end
                         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
                         -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking
-                        if #enemies.yards5 <= 2 then
+                        if #enemyTable5 <= 2 then
                             if cast.able.rupture("target") and talent.subterfuge and viabletargetcount() == 1 and trait.shroudedSuffocation.rank > 0 and not debuff.rupture.exists() --and getFacing("player", "target") 
                                 then
                                 if cast.rupture("target") then 
@@ -807,12 +913,12 @@ local function runRotation()
 
 
 
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
+                            for i = 1, #enemyTable5 do
+                                local thisUnit = enemyTable5[i].unit
                                 if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                     if (combo == 4 and debuff.rupture.remain(thisUnit) < 6 or combo == 5 and debuff.rupture.remain(thisUnit) < 7.2 ) and cast.able.rupture()
                                         and (not debuff.rupture.exsang(thisUnit) or debuff.rupture.remain(thisUnit) <= ExsanguinatedBleedTickTime*2 and EmpoweredDotRefresh())
-                                        and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 12 or true)
+                                        and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 12 or true)
                                         --and getFacing("player", thisUnit) --and (ttd(thisUnit) > 4 - debuff.rupture.remain(thisUnit) or ttd(thisUnit) > 9999)
                                     then
                                         if cast.able.rupture(thisUnit) then
@@ -825,11 +931,11 @@ local function runRotation()
                             end
 
                         
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
+                            for i = 1, #enemyTable5 do
+                                local thisUnit = enemyTable5[i].unit
                                 if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                     if combo >= 3 and not debuff.rupture.exists(thisUnit) and cast.able.rupture(thisUnit)
-                                        and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 12 or true)
+                                        and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 12 or true)
                                         --and getFacing("player", thisUnit) --and (ttd(thisUnit) > 4 - debuff.rupture.remain(thisUnit) or ttd(thisUnit) > 9999)
                                     then
                                             if cast.rupture(thisUnit) then 
@@ -840,10 +946,10 @@ local function runRotation()
                             end
                         end
 
-                        for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                if debuff.garrote.exists(thisUnit) and cast.able.garrote(thisUnit) and not debuff.garrote.exsang(thisUnit) and combo <= 3
+                                if debuff.garrote.exists(thisUnit) and not debuff.garrote.exsang(thisUnit) and combo <= 3
                                     --and getFacing("player", thisUnit)
                                 then
                                     if cast.garrote(thisUnit) then 
@@ -853,24 +959,22 @@ local function runRotation()
                             end
                         end
 
-                        if cast.able.rupture then
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
-                                if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
-                                    if debuff.rupture.exists(thisUnit) and (combo == 4 and debuff.rupture.remain(thisUnit) < 6 or combo == 5 and debuff.rupture.remain(thisUnit) < 7.2 ) and not debuff.rupture.exsang(thisUnit)
-                                        --and getFacing("player", thisUnit)
-                                    then
-                                        if cast.rupture(thisUnit) then 
-                                            if isChecked("Debug") then print("rupt 4cp") end
-                                        return true end
-                                    end
+                        for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
+                            if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
+                                if debuff.rupture.exists(thisUnit) and (combo == 4 and debuff.rupture.remain(thisUnit) < 6 or combo == 5 and debuff.rupture.remain(thisUnit) < 7.2 ) and not debuff.rupture.exsang(thisUnit)
+                                    --and getFacing("player", thisUnit)
+                                then
+                                    if cast.rupture(thisUnit) then 
+                                        if isChecked("Debug") then print("rupt 4cp") end
+                                    return true end
                                 end
                             end
                         end
 
-                        if cast.able.envenom() and combo >= 4 then 
-                            for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
+                        if combo >= 4 then 
+                            for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                 --if getFacing("player", thisUnit)
                                 --then
@@ -887,8 +991,8 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
                 if mode.interrupt == 1 then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
                         local distance = getDistance(thisUnit)
                         if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                             if distance <= 5 then
@@ -975,8 +1079,8 @@ local function runRotation()
 
 
                     if isChecked("Apply Deadly Poison in melee") then
-                            for i = 1, #enemies.yards5 do
-                                local thisUnit = enemies.yards5[i]
+                            for i = 1, #enemyTable5 do
+                                local thisUnit = enemyTable5[i].unit
                                     if UnitDebuffID(thisUnit,268756) or
                                         ((debuff.garrote.exists(thisUnit) or debuff.rupture.exists(thisUnit)) and not debuff.deadlyPoison.exists(thisUnit)) then
                                         --print("refresh poison melee")
@@ -1189,9 +1293,9 @@ local function runRotation()
 
         if talent.masterAssassin then
             if  not GAR1 and cast.able.mutilate() then
-                if cast.mutilate() then GAR1 = true; end
+                if cast.mutilate("target") then GAR1 = true; end
             elseif GAR1 and not RUP1 and cast.able.rupture() then
-                if cast.rupture() then RUP1 = true; end
+                if cast.rupture("target") then RUP1 = true; end
             elseif RUP1 and not VEN1 and cast.able.vendetta() then
                 if isChecked("Racial") then
                     if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll" then
@@ -1204,18 +1308,12 @@ local function runRotation()
                 if canUse(14) then
                     useItem(14)
                 end
-                if cast.vendetta() then VEN1 = true; end
-            elseif VEN1 and not MUTI1 and cast.able.toxicBlade() then
-                if cast.toxicBlade() then MUTI1 = true; end
-            elseif MUTI1 and not RUP2 and cast.able.mutilate() then
-                if cast.mutilate() then
-                    if combo >= 4 then RUP2 = true end
-                end
-            elseif RUP2 and not VAN1 then
+                if cast.vendetta("target") then VEN1 = true; end
+            elseif VEN1 and not MUTI1 then
                 if gcd >= 0.2 then ChatOverlay("Pooling gcd For vanish") return true end
-                if cast.vanish() then VAN1 = true; end
-            elseif VAN1 and not VANGAR and cast.able.envenom() then
-                if cast.envenom() then VANGAR = true; end
+                if cast.vanish() then MUTI1 = true; end
+            elseif MUTI1 and not RUP2 and cast.able.toxicBlade() then
+                if cast.toxicBlade("target") then RUP2 = true; end
                 Print("Opener Complete")
                 opener = true
                 toggle("Opener",2)
@@ -1375,15 +1473,15 @@ local function runRotation()
 
         local function actionList_Dot()
 
-        -- envenom 
-                    for i = 1, #enemies.yards5 do
-                            local thisUnit = enemies.yards5[i]
-                        --print(debuff.garrote.remain(thisUnit))+
+        -- garrote outside of cds
+                    for i = 1, #enemyTable5 do
+                            local thisUnit = enemyTable5[i].unit
+                            --print(debuff.garrote.remain(thisUnit))+
                             if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                                     if ((debuff.garrote.remain(thisUnit) <= 5.4 and debuff.garrote.applied(thisUnit) <= 1 and not debuff.garrote.exsang(thisUnit))
                                         or (debuff.garrote.remain(thisUnit) <= ExsanguinatedBleedTickTime*2 and EmpoweredDotRefresh()))
                                         and mode.van1 ~= 1 and mode.van2 ~= 1
-                                        and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > ttdval - debuff.garrote.remain(thisUnit) or true)
+                                        and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > ttdval - debuff.garrote.remain(thisUnit) or true)
                                         and mode.special == 2  
                                         and donotdot(thisUnit) --and getFacing("player", thisUnit)
                                         and cd.garrote.remain() <= gcdMax
@@ -1398,11 +1496,11 @@ local function runRotation()
                                                 if cast.garrote(thisUnit) then
                                                     if isChecked("Debug") then print("garrote dot") end
                                                 return true end
-                                        elseif (ttm <= 2 or debuff.garrote.remain(thisUnit) <= gcdMax + 0.5) and  comboDeficit <= 0 and debuff.rupture.remain(thisUnit) <= 7.2 and #enemies.yards5 <= 1 then
+                                        elseif (ttm <= 2 or debuff.garrote.remain(thisUnit) <= gcdMax + 0.5) and  comboDeficit <= 0 and debuff.rupture.remain(thisUnit) <= 7.2 and #enemyTable5 <= 1 then
                                                 if cast.rupture(thisUnit) then
                                                     if isChecked("Debug") then print("rip for garrote refresh") end
                                                 return true end
-                                        elseif (ttm <= 1 or debuff.garrote.remain(thisUnit) <= gcdMax + 0.5) and comboDeficit <= 0 and #enemies.yards5 <= 1 then
+                                        elseif (ttm <= 1 or debuff.garrote.remain(thisUnit) <= gcdMax + 0.5) and comboDeficit <= 0 and #enemyTable5 <= 1 then
                                                 if cast.envenom(thisUnit) then
                                                     if isChecked("Debug") then print("env for garrote refresh") end
                                                 return true end
@@ -1415,11 +1513,11 @@ local function runRotation()
         
         -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
 
-        if cast.able.crimsonTempest() and fokcccheck() and debuff.rupture.count() > 0  and talent.crimsonTempest and combo >=4 and #enemies.yards9 >= 3 and debuff.crimsonTempest.remain() < 2 + (#enemies.yards9 >= 5 and 1 or 0)
+        if cast.able.crimsonTempest() and fokcccheck()  and talent.crimsonTempest and combo >=4 and enemies10 >= 3 and debuff.crimsonTempest.remain() < 2 + (enemies10 >= 5 and 1 or 0)
                 --and not (GetObjectID(units.dyn5) == 120651 or GetObjectID(units.dyn5) == 141851)
                 then
-                if cast.crimsonTempest() then
-                    if isChecked("Debug") then print("rupture dot") end
+                if cast.crimsonTempest("player") then
+                    if isChecked("Debug") then print("ct 1st dot") end
                 return true end
                 -- for i = 1, #enemies.yards5 do
                 --     local thisUnit = enemies.yards5[i]
@@ -1436,18 +1534,17 @@ local function runRotation()
 
 
         if combo >= 4 then
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
+            for i = 1, #enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
                 if multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot) then
                         if (combo == 4 and debuff.rupture.remain(thisUnit) < 6 or combo == 5 and debuff.rupture.remain(thisUnit) < 7.2 ) 
                         and (debuff.rupture.applied(thisUnit) <= 1 or (debuff.rupture.remain(thisUnit) <= (debuff.rupture.exsang(thisUnit) and ExsanguinatedBleedTickTime or BleedTickTime) and EmpoweredDotRefresh()))
                         and (not debuff.rupture.exsang(thisUnit) or debuff.rupture.remain(thisUnit) <= ExsanguinatedBleedTickTime*2 and EmpoweredDotRefresh()) --and (ttd(thisUnit) > 4 - debuff.rupture.remain(thisUnit) or ttd(thisUnit) > 9999)
-                        and (getOptionCheck("Enhanced Time to Die") and ttd(thisUnit) > 6 or true)
+                        and (getOptionCheck("Enhanced Time to Die") and enemyTable5[i].ttd > 6 or true)
                         --and cast.able.rupture()
                         --ghuun or explosive orb check
                         --and not (GetObjectID(thisUnit) == 120651 or GetObjectID(thisUnit) == 141851)                        
                         and donotdot(thisUnit)
-                        and cast.able.rupture()
                         then
                                 if cast.rupture(thisUnit) then
                                     if isChecked("Debug") then print("rupture dot") end
@@ -1457,7 +1554,7 @@ local function runRotation()
             end
         end
 
-        if cast.able.crimsonTempest() and talent.crimsonTempest and combo >=4 and #enemies.yards9 >= 3 
+        if cast.able.crimsonTempest() and talent.crimsonTempest and combo >=4 and enemies10 >= 3 
                 and getctinitial() >= getenvdamage()
                 --and not (GetObjectID(units.dyn5) == 120651 or GetObjectID(units.dyn5) == 141851)
                 then
@@ -1475,19 +1572,16 @@ local function runRotation()
                 -- end
         end
 
-        if debuff.garrote.exists("target") and debuff.garrote.remain("target") <= gcdMax and combo <=4 and #enemies.yards5 <= 1 then
+        if debuff.garrote.exists("target") and debuff.garrote.remain("target") <= gcdMax and combo <=4 and #enemyTable5 <= 1 then
             return true
         end
     
         if combo >= ComboMaxSpend() - 1 and waitenvenom() then
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if cast.able.envenom(thisUnit) --and getFacing("player", thisUnit)
-                then
-                    if cast.envenom(thisUnit) then
-                        if isChecked("Debug") then print("envenom dot apl") end
-                    return true end
-                end
+            for i = 1, #enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
+                if cast.envenom(thisUnit) then
+                    if isChecked("Debug") then print("envenom dot apl") end
+                return true end
             end
         end
 
@@ -1514,8 +1608,13 @@ local function runRotation()
         -- end
         
         --pooling shit
+        if fokcccheck() and trait.echoingBlades.active and enemies10 >= 2 then
+            if cast.fanOfKnives("player") then
+                if isChecked("Debug") then print("fok aoe") end
+            return true end
+        end
 
-        if fokcccheck() and (buff.hiddenBlades.stack() >= 19 or #enemies.yards9 >= 4 + (stealthingRogue and 1 or 0)) then
+        if fokcccheck() and (buff.hiddenBlades.stack() >= 19 or enemies10 >= 4 + (stealthingRogue and 1 or 0)) then
             if cast.fanOfKnives("player") then
                 if isChecked("Debug") then print("fok aoe") end
             return true end
@@ -1525,20 +1624,15 @@ local function runRotation()
         --     if cast.fanOfKnives() then return end
         -- end
 
-        if cast.able.fanOfKnives() and #enemies.yards9 >= 3 and fokcccheck() then
-            for i = 1, #enemies.yards9 do
-                    local thisUnit = enemies.yards9[i]
-                        if not debuff.woundPoison.exists(thisUnit) then
-                            if cast.fanOfKnives("player") then
-                                if isChecked("Debug") then print("fok refresh poison") end
-                            return true end
-                        end
-            end
+        if enemies10 >= 3 and fokcccheck() and not deadlyPoison10 then
+            if cast.fanOfKnives("player") then
+                if isChecked("Debug") then print("fok refresh poison") end
+            return true end
         end
 
-        if #enemies.yards5 == 2 then
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
+        if #enemyTable5 == 2 then
+            for i = 1, #enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
                     if not debuff.woundPoison.exists(thisUnit) --and getFacing("player", thisUnit) 
                         then
                         if cast.mutilate(thisUnit) then
@@ -1550,8 +1644,8 @@ local function runRotation()
 
         --muti
 
-        for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
+        for i = 1,#enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
                     --if getFacing("player", thisUnit) then
                         if cast.mutilate(thisUnit) then
                             if isChecked("Debug") then print("muti") end

@@ -2259,6 +2259,7 @@ br.lists.spells = {
                 blunderbuss                 = 202895,
                 broadside                   = 193356,
                 buriedTreasure              = 199600,
+                deadShot                    = 272940,
                 grandMelee                  = 193358,
                 greenskinsWaterloggedWristcuffs = 209420,
                 hiddenBlade                 = 202754,
@@ -2281,6 +2282,7 @@ br.lists.spells = {
                 stealth                     = 1784,
                 swordplay                   = 211669,
                 trueBearing                 = 193359,
+                wits                        = 288988,
             },
             debuffs                         = {
                 ghostlyStrike               = 196937,
