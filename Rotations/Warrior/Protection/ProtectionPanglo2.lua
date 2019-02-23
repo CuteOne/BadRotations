@@ -84,7 +84,9 @@ local function createOptions()
         --- DEFENSIVE OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-            -- Healthstone
+        --Smart Spell reflect
+            br.ui:createCheckbox(section,"Smart Spell Reflect", "Auto reflect spells in instances")
+        -- Healthstone
             br.ui:createSpinner(section, "Healthstone/Potion",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             -- Demoralizing Shout
             br.ui:createSpinner(section, "Demoralizing Shout",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
@@ -204,7 +206,6 @@ local function runRotation()
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
-
 
         --- Quick maths ---
         local function mainTank()
@@ -326,6 +327,60 @@ local function runRotation()
 
         local function actionList_Defensives()
             if useDefensive() then
+                --Spell Reflect logic
+                local reflectID = { --Battle of Dazar'alor
+                                    [283572] = "Sacred Blade",
+                                    [284449] = "Reckoning",
+                                    [286988] = "Divine Burst",
+                                    [282036] = "Fireball",
+                                    [286988] = "Searing Embers",
+                                    [286646] = "Gigavolt Charge",
+                                    [282182] = "Buster Cannon",
+                                    --Uldir
+                                    [279669] = "Bacterial Outbreak",
+                                    [279660] = "Endemic Virus",
+                                    [274262] = "Explosive Corruption",
+                                    --Atal'Dazar
+                                    [250096] = "Wracking Pain",
+                                    --Kings Rest
+                                    [267618] = "Drain Fluids",
+                                    [267308] = "Lighting Bolt",
+                                    -- Temple of Sethraliss
+                                    [263318] = "Jolt",
+                                    [263775] = "Gust",
+                                    [268061] = "Chain Lightning",
+                                    --Shrine of the Storm
+                                    [265001] = "Sea Blast",
+                                    [264560] = "Choking Brine",
+                                    [264144] = "Undertow",
+                                    [268347] = "Void Bolt",
+                                    --Motherlode
+                                    [259856] = "Chemical Burn",
+                                    [260318] = "Alpha Cannon",
+                                    --Underrot
+                                    [260879] = "Blood Bolt",
+                                    --Told Dagor
+                                    [257777] = "Crippling Shiv",
+                                    [257033] = "Fuselighter",
+                                    --Waycrest Manor
+                                    [260701] = "Bramble Bolt",
+                                    [260700] = "Ruinous Bolt",
+                                    [260699] = "Soul Bolt",
+                                    [268271] = "Wracking Chord",
+                                    [261438] = "Wasting Strike",
+                                    [261440] = "Virulent Pathogen",
+                                    [266225] = "Darkened Lightning"
+                                }
+                if isChecked("Smart Spell Reflect") then
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
+                        local _,_,_,startCast,endCast,_,_,_,castID = UnitCastingInfo(thisUnit)
+
+                        if UnitTarget("player") and reflectID[castID] and (((GetTime()*1000)-startCast)/(endCast-startCast)*100) > 50 then
+                            if cast.spellReflection() then return end
+                        end
+                    end
+                end
                 if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
                     if cast.shieldBlock() then return end
                 end
@@ -413,7 +468,7 @@ local function runRotation()
             end
 
             --High Priority Thunder Clap
-            if talent.unstoppableForce and buff.avatar.exists() and debuff.demoralizingShout.exists(units.dyn8) then
+            if talent.unstoppableForce and buff.avatar.exists() and debuff.demoralizingShout.exists(units.dyn8) and not isExplosive("target") then
                 if cast.thunderClap() then return end
             end
 
@@ -421,14 +476,14 @@ local function runRotation()
             if cast.shieldSlam() then return end
             
             -- Low Prio Thunder Clap
-            if talent.cracklingThunder then
+            if talent.cracklingThunder and not isExplosive("target") then
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
             end
             
             -- Revenge
-            if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
+            if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) and not isExplosive("target") then
                 if cast.revenge() then return end
             end
             
