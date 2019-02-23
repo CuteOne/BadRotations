@@ -286,9 +286,9 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local lowest                                        = {}    --Lowest Unit
-        lowest.hp                                           = br.friend[1].hp
+        --lowest.hp                                           = br.friend[1].hp
         lowest.role                                         = br.friend[1].role
-        lowest.unit                                         = br.friend[1].unit
+        --lowest.unit                                         = br.friend[1].unit
         lowest.range                                        = br.friend[1].range
         lowest.guid                                         = br.friend[1].guid
         local tank                                          = {}    --Tank
@@ -328,19 +328,6 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
-        local totalHealth = 0
-        local avg
-        local function avgHealth()
-            avg = 0
-            for i=1, #br.friend do
-                if getHP(br.friend[i].unit) < 250 then
-                    totalHealth = totalHealth + br.friend[i].hp
-                end
-            end
-            avg = totalHealth/#br.friend
-            return avg
-        end
-
         local current
         local function currTargets()
             current = 0
@@ -369,6 +356,15 @@ local function runRotation()
                         DSAtone = DSAtone + 1
                     end
                 end
+            end
+        end
+
+        --local lowest = {}
+        lowest.unit = "player"
+        lowest.hp = 100
+        for i = 1, #br.friend do
+            if br.friend[i].hp < lowest.hp then
+                lowest = br.friend[i]
             end
         end
 
@@ -624,7 +620,7 @@ local function runRotation()
                     local thisUnit = GetObjectWithIndex(i)
                     if GetObjectID(thisUnit) == 133392 then
                         sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and avgHealth() >= getValue("Temple of Seth") then
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= getValue("Temple of Seth") then
                             if cd.penance.remain() <= gcd then
                                 CastSpellByName(GetSpellInfo(spell.penance),sethObject)
                             end
