@@ -708,8 +708,8 @@ local function runRotation()
                             local loc = nil
                             local meleeHurt = {}
                             for j=1, #meleeFriends do
-                                if meleeFriends[i].hp < getValue("PW:B/LB") then
-                                    tinsert(meleeHurt,meleeFriends[i])
+                                if meleeFriends[j].hp < getValue("PW:B/LB") then
+                                    tinsert(meleeHurt,meleeFriends[j])
                                 end
                             end
                             if #meleeHurt >= getValue("PW:B/LB Targets") then
