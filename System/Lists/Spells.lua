@@ -1,4 +1,4 @@
-function getRacialID()
+function getRacial()
     local race = select(2,UnitRace("player"))
 
     if race == "BloodElf" then
@@ -3240,7 +3240,7 @@ br.lists.spells = {
                 global                          = 61304,
                 shadowmeld                      = 58984,
                 quakingPalm                     = 107079,
-                racial                          = getRacialID(),
+                racial                          = getRacial(),
                 lightsJudgment                  = 247427,
             },
             artifacts                           = {
