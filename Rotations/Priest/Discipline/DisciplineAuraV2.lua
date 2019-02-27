@@ -487,20 +487,12 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         local function actionList_PreCombat()
-            prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
+            local prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
             if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUse(163222) and not solo then
                 useItem(163222)
             end
              -- Pre-pull Opener
             if prepullOpener then
-                if not openerTime then
-                    openerTime = GetTime()
-                end
-                if pullTimer > 5 then
-                    for i = 1, #br.friend do
-                        actionList_SpreadAtonement(i)
-                    end
-                end
                 if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and not cast.last.powerWordRadiance() then
                     for i = 1, charges.powerWordRadiance.count() do
                         cast.powerWordRadiance(lowest.unit)
