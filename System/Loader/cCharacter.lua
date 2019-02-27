@@ -270,94 +270,14 @@ function cCharacter:new(class)
 
 -- Sets the racial
 	function self.getRacial()
-		-- local versioncheck = select(1,GetBuildInfo())
-		-- local build = select(2,GetBuildInfo())
-		-- local vnumber = versioncheck:gsub("(%D+)","")
-		-- if tonumber(vnumber) > 735 or (tonumber(vnumber) == 735 and tonumber(build) >= 26972)
-		-- 	then version = "BFA"
-		-- else
-		-- 	version = "Legion"
-		-- end
-		-- if version == "Legion" then
-		-- 	if self.race == "BloodElf" then
-		--         BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
-		--     end
-		--     if self.race == "Draenei" then
-		--         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
-		--     end
-		--     if self.race == "Orc" then
-		--         OrcRacial = select(7, GetSpellInfo(GetSpellInfo(20572)))
-		--     end
-		-- 	local racialSpells = {
-		-- 		-- Alliance
-		-- 		Dwarf    			= 20594, -- Stoneform
-		-- 		Gnome    			= 20589, -- Escape Artist
-		-- 		Draenei  			= DraeneiRacial, -- Gift of the Naaru
-		-- 		Human    			= 59752, -- Every Man for Himself
-		-- 		NightElf 			= 58984, -- Shadowmeld
-		-- 		Worgen   			= 68992, -- Darkflight
-		-- 		-- Horde
-		-- 		BloodElf 			= BloodElfRacial, -- Arcane Torrent
-		-- 		Goblin   			= 69041, -- Rocket Barrage
-		-- 		Orc      			= OrcRacial, -- Blood Fury
-		-- 		Tauren  			= 20549, -- War Stomp
-		-- 		Troll    			= 26297, -- Berserking
-		-- 		Scourge  			= 7744,  -- Will of the Forsaken
-		-- 		-- Both
-		-- 		Pandaren 			= 107079, -- Quaking Palm
-		-- 		-- Allied Races
-		--         HighmountainTauren 	= 255654, -- Bull Rush
-		--         LightforgedDraenei 	= 255647, -- Light's Judgment
-		--         Nightborne 			= 260364, -- Arcane Pulse
-		--         VoidElf 			= 256948, -- Spatial Rift
-		-- 	}
-		-- 	if br.player ~= nil then
-		-- 		return br.player.spells.racial
-		-- 	else
-		-- 		return racialSpells[self.race]
-		-- 	end
-		-- elseif version == "BFA" then
-		-- 	if self.race == "BloodElf" then
-	        --     BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
-	        -- 	end
-		--     if self.race == "Draenei" then
-		--         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
-		--     end
-		--     if self.race == "Orc" then
-		--         OrcRacial = select(7, GetSpellInfo(GetSpellInfo(33702)))
-		--     end
-		-- 	local racialSpells = {
-		-- 		-- Alliance
-		-- 		Dwarf    			= 20594, -- Stoneform
-		-- 		Gnome    			= 20589, -- Escape Artist
-		-- 		Draenei  			= DraeneiRacial, -- Gift of the Naaru
-		-- 		Human    			= 59752, -- Every Man for Himself
-		-- 		NightElf 			= 58984, -- Shadowmeld
-		-- 		Worgen   			= 68992, -- Darkflight
-		-- 		-- Horde
-		-- 		BloodElf 			= BloodElfRacial, -- Arcane Torrent
-		-- 		Goblin   			= 69041, -- Rocket Barrage
-		-- 		Orc      			= OrcRacial, -- Blood Fury
-		-- 		Tauren  			= 20549, -- War Stomp
-		-- 		Troll    			= 26297, -- Berserking
-		-- 		Scourge  			= 7744,  -- Will of the Forsaken
-		-- 		-- Both
-		-- 		Pandaren 			= 107079, -- Quaking Palm
-		-- 		-- Allied Races
-		--         HighmountainTauren 	= 255654, -- Bull Rush
-		--         LightforgedDraenei 	= 255647, -- Light's Judgment
-		--         Nightborne 			= 260364, -- Arcane Pulse
-		--         VoidElf 			= 256948, -- Spatial Rift
-		-- 		DarkIronDwarf 		= 265221, -- Fireblood
-		--         MagharOrc 		= 274738, -- Ancestral Call
-		-- 	}
-		-- 	if br.player ~= nil then
-				return self.racial
-		-- 	else
-		-- 		return racialSpells[self.race]
-		-- 	end
-		-- end
-
+				local trueRace = nil
+				local forTheAlliance = UnitBuffID("player",193863) or false
+				if not forTheAlliance then trueRace = self.racial end
+				if trueRace ~= nil then
+					return trueRace
+				else
+					return self.racial
+				end
 	end
     --self.racial = self.getRacial()
     -- if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end

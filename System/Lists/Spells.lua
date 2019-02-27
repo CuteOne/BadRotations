@@ -35,7 +35,15 @@ function getRacialID()
         DarkIronDwarf = 265221, -- Fireblood
         MagharOrc = 274738, -- Ancestral Call
     }
-    return racialSpells[race]
+    local trueRace = nil
+    local forTheAlliance = UnitBuffID("player",193863) or false
+    if not forTheAlliance then trueRace = racialSpells[race] end
+    if trueRace ~= nil then
+        return trueRace
+    else
+        return racialSpells[race]
+    end
+    -- return racialSpells[race]
 end
 function getHeirloomNeck()
     local necks = {
