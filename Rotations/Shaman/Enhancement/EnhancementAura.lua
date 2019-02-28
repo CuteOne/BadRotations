@@ -590,7 +590,7 @@ local function runRotation()
                 end
             end
             -- Lava Lash
-            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack == 10 then
+            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack("target") == 10 then
                 if cast.lavaLash() then return true end
             end
             -- Stormstrike
@@ -606,7 +606,7 @@ local function runRotation()
                 if cast.lightningBolt() then return true end
             end
             -- Lava Lash
-            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack > 7 then
+            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack("target") > 7 then
                 if cast.lavaLash() then return true end
             end
             --Stormstrike
