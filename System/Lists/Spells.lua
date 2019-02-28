@@ -1,5 +1,8 @@
 function getRacial()
     local race = select(2,UnitRace("player"))
+    local BloodElfRacial
+    local DraeneiRacial
+    local OrcRacial
 
     if race == "BloodElf" then
         BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))

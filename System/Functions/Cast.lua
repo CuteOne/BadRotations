@@ -394,10 +394,6 @@ function castOpenerFail(spellIndex,flag,index)
 	_G[flag] = true;
 	return true
 end
-function canCast(spellID,unit)
-	if unit == nil then unit = "target" end
-	return castSpell(unit,spellID,false,false,false,false,false,false,false,true)
-end
 function castMouseoverHealing(Class)
 	if UnitAffectingCombat("player") then
 		local spellTable = {
@@ -578,7 +574,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return true
 	end
     -- Base Spell Availablility Check
-	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
+	if --[[isChecked("Use: "..spellName) and ]](select(2,IsUsableSpell(spellID)) or (not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0))
 		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) --and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
