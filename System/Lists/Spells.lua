@@ -2586,6 +2586,7 @@ br.lists.spells = {
                 earthenSpike                = 188089,
                 frostbrand                  = 147732,
                 lightningConduit            = 275391,
+                primalPrimer                = 273006,
                 searingAssault              = 268429,
                 stormTempests               = 214265,
             },
