@@ -374,9 +374,9 @@ local function runRotation()
                 if isChecked("Smart Spell Reflect") then
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
-                        local _,_,_,startCast,endCast,_,_,_,castID = UnitCastingInfo(thisUnit)
+                        local _,_,_,startCast,endCast,_,_,_,spellcastID = UnitCastingInfo(thisUnit)
 
-                        if UnitTarget("player") and reflectID[castID] and (((GetTime()*1000)-startCast)/(endCast-startCast)*100) > 50 then
+                        if UnitTarget("player") and reflectID[spellcastID] and (((GetTime()*1000)-startCast)/(endCast-startCast)*100) > 50 then
                             if cast.spellReflection() then return end
                         end
                     end
@@ -399,11 +399,11 @@ local function runRotation()
                         if cast.ignorePain() then return end
                     end
                 end  
-                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and (hasHealthPot() or hasItem(5512)) then
+                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and (hasItem(152494) or hasItem(5512)) then
                     if canUse(5512) then
                         useItem(5512)
-                    elseif canUse(getHealthPot()) then
-                        useItem(getHealthPot())
+                    elseif canUse(152494) then
+                        useItem(152494)
                     end
                 end
                 if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") then
