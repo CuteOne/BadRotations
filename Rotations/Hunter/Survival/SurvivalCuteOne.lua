@@ -567,8 +567,8 @@ local function runRotation()
         -- Kill Command
             -- kill_command,if=focus+cast_regen<focus.max&(!talent.alpha_predator.enabled|talent.alpha_predator.enabled&full_recharge_time<1.5*gcd&azerite.primeval_intuition.enabled&focus+cast_regen<100|!azerite.primeval_intuition.enabled&focus+cast_regen<80)
             if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (not talent.alphaPredator or talent.alphaPredator 
-                and charges.killCommand.timeTillFull() < 1.5 * gcdMax and traits.primevalIntuition.active() and focus + castRegen(spell.killCommand) < 100 
-                or not traits.primevalIntuition.active() and focus + castRegen(spell.killCommand) < 80)) 
+                and charges.killCommand.timeTillFull() < 1.5 * gcdMax and traits.primevalIntuition.active and focus + castRegen(spell.killCommand) < 100 
+                or not traits.primevalIntuition.active and focus + castRegen(spell.killCommand) < 80)) 
             then
                 if cast.killCommand() then return end
             end
@@ -629,8 +629,8 @@ local function runRotation()
             end
         -- Mongoose Bite
             -- mongoose_bite,if=buff.mongoose_fury.up|(azerite.primeval_intuition.enabled&(focus+cast_regen>110|talent.vipers_venom.enabled&focus>100))|(!azerite.primeval_intuition.enabled&(focus+cast_regen>90|talent.vipers_venom.enabled&focus+cast_regen>80))|buff.coordinated_assault.up
-            if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active() 
-                and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active() 
+            if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active 
+                and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active 
                 and (focus + focusRegen > 90 or talent.vipersVenom and focus + focusRegen > 80)) or buff.coordinatedAssault.exists()) 
             then
                 if cast.mongooseBite() then return end
