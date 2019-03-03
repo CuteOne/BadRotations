@@ -382,7 +382,16 @@ function castOpener(spellIndex,flag,index,checkdistance)
 	        -- _G[flag] = true;
 			-- return true
 	    else
-	        if castSpell() then Print(index..": "..spellName); _G[flag] = true; return true end
+			if castSpell() then
+				if br.player.opener[flag] == nil then 
+					Print(index..": "..spellName)
+					_G[flag] = true
+				elseif br.player.opener[flag] ~= true then 
+					Print(index..": "..spellName)
+					br.player.opener[flag] = true
+				end
+				return true 
+			end
 	    end
 	end
 end
@@ -390,8 +399,13 @@ function castOpenerFail(spellIndex,flag,index)
 	local spellCast = br.player.spell[spellIndex]
 	local castSpell = br.player.cast[spellIndex]
 	local spellName = select(1,GetSpellInfo(spellCast))
-	Print(index..": "..spellName.." (Uncastable)");
-	_G[flag] = true;
+	if br.player.opener[flag] == nil then 
+		Print(index..": "..spellName.." (Uncastable)")
+		_G[flag] = true
+	elseif br.player.opener[flag] ~= true then
+		Print(index..": "..spellName.." (Uncastable)")
+		br.player.opener[flag] = true
+	end
 	return true
 end
 function castMouseoverHealing(Class)

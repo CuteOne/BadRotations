@@ -62,6 +62,7 @@ function cCharacter:new(class)
 	self.level	    		= 0 	-- Player Level
 	self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
+	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
 	self.options 	    	= {}        -- Contains options
 	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
 	self.perk 	    		= {}	-- Perk Table
