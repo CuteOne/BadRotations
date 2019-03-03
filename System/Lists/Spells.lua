@@ -40,7 +40,8 @@ function getRacial()
     }
     local trueRace = nil
     local forTheAlliance = UnitBuffID("player",193863) or false
-    if not forTheAlliance then trueRace = racialSpells[race] end
+    local forTheHorde = UnitBuffID("player", 193864) or false
+    if not forTheAlliance or not forTheHorde then trueRace = racialSpells[race] end
     if trueRace ~= nil then
         return trueRace
     else
