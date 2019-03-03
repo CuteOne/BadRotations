@@ -54,6 +54,14 @@ end
 -- canInterrupt("target",20)
 function canInterrupt(unit,percentint)
 	unit = unit or "target"
+	local interruptTarget = getOptionValue("Interrupt Target")
+	if interruptTarget == 2 and not GetUnitIsUnit(unit, "target") then
+		return false
+	elseif interruptTarget == 3 and not GetUnitIsUnit(unit, "focus") then
+		return false
+	elseif interruptTarget == 4 and getOptionValue("Interrupt Mark") ~= GetRaidTargetIndex(unit) then
+		return false
+	end
 	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
 	local castDuration, castTimeRemain, castPercent = 0, 0, 0
 	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
