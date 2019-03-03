@@ -629,8 +629,8 @@ local function runRotation()
             end
         -- Mongoose Bite
             -- mongoose_bite,if=buff.mongoose_fury.up|(azerite.primeval_intuition.enabled&(focus+cast_regen>110|talent.vipers_venom.enabled&focus>100))|(!azerite.primeval_intuition.enabled&(focus+cast_regen>90|talent.vipers_venom.enabled&focus+cast_regen>80))|buff.coordinated_assault.up
-            if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active() 
-                and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active() 
+            if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active 
+                and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active 
                 and (focus + focusRegen > 90 or talent.vipersVenom and focus + focusRegen > 80)) or buff.coordinatedAssault.exists()) 
             then
                 if cast.mongooseBite() then return end
