@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.25.0
+## Version: 1.26.0
 ## SavedVariablesPerCharacter: brdata, dungeondata, mdungeondata, raiddata, mraiddata
 
 BadRotations.lua
@@ -18,6 +18,20 @@ System\LootManager.lua
 System\UsefulFeatures.lua
 System\SlashCommands.lua
 
+## Functions
+
+System\Functions\Action.lua
+System\Functions\Aura.lua
+System\Functions\Cast.lua
+System\Functions\Combat.lua
+System\Functions\Custom.lua
+System\Functions\Item.lua
+System\Functions\Misc.lua
+System\Functions\Power.lua
+System\Functions\Range.lua
+System\Functions\Spell.lua
+System\Functions\Unit.lua
+
 ## Lists
 
 System\Lists\BurnUnits.lua
@@ -32,20 +46,6 @@ System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
 System\Lists\Tier.lua
-
-## Functions
-
-System\Functions\Action.lua
-System\Functions\Aura.lua
-System\Functions\Cast.lua
-System\Functions\Combat.lua
-System\Functions\Custom.lua
-System\Functions\Item.lua
-System\Functions\Misc.lua
-System\Functions\Power.lua
-System\Functions\Range.lua
-System\Functions\Spell.lua
-System\Functions\Unit.lua
 
 ## Readers
 

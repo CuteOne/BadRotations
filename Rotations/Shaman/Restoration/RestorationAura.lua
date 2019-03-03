@@ -7,7 +7,7 @@ local function createToggles()
 -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.healingTideTotem},
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.healingTideTotem},
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.healingTideTotem},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.healingTideTotem}
     };
     CreateButton("Cooldown",1,0)
@@ -38,9 +38,15 @@ local function createToggles()
     -- Ghost Wolf Button
     GhostWolfModes = {
         [1] = { mode = "Moving", value = 1, overlay = "Moving Enabled", tip = "Will Ghost Wolf when movement detected", highlight = 1, icon = br.player.spell.ghostWolf},
-        [2] = { mode = "Hold", value = 1, overlay = "Hold Enabled", tip = "Will Ghost Wolf when key is held down", highlight = 0, icon = br.player.spell.ghostWolf},
+        [2] = { mode = "Hold", value = 2, overlay = "Hold Enabled", tip = "Will Ghost Wolf when key is held down", highlight = 0, icon = br.player.spell.ghostWolf},
     };
     CreateButton("GhostWolf",6,0)
+    -- Healing Rain Button
+    HealingRModes = {
+        [1] = { mode = "On", value = 1, overlay = "Healing Rain Enabled", tip = "Will use Healing Rain", highlight = 1, icon = br.player.spell.healingRain},
+        [2] = { mode = "Off", value = 2, overlay = "Healing Rain Disabled", tip = "Will not use Healing Rain", highlight = 0, icon = br.player.spell.healingRain},
+    };
+    CreateButton("HealingR",7,0)
 end
 
 --------------
@@ -78,6 +84,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
+        -- Critical HP
+            br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -207,9 +215,12 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Decurse",0.25)
         UpdateToggle("DPS",0.25)
+        UpdateToggle("GhostWolf",0.25)
+        UpdateToggle("HealingR",0.25)
         br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
         br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
         br.player.mode.ghostWolf = br.data.settings[br.selectedSpec].toggles["GhostWolf"]
+        br.player.mode.healingRain = br.data.settings[br.selectedSpec].toggles["HealingR"]
 --------------
 --- Locals ---
 --------------
@@ -269,6 +280,8 @@ local function runRotation()
                 lowest = br.friend[i]
             end
         end
+
+        local dpsSpells = {spell.lightningBolt, spell.chainLightning, spell.lavaBurst,spell.flameShock}
 --------------------
 --- Action Lists ---
 --------------------
@@ -502,7 +515,6 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
     -- Action List - DPS
         local function actionList_DPS()
-        
         -- Lava Burst - Lava Surge
             if buff.lavaSurge.exists() then
                 if debuff.flameShock.exists("target") then
@@ -621,7 +633,7 @@ local function runRotation()
                 if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then return end 
                 end
-                if isChecked("Healing Rain") and not buff.healingRain.exists() then
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and mode.healingRain == 1 then
                     if isChecked("Healing Rain on Melee") then
                         -- get melee players
                         for i=1, #tanks do
@@ -738,7 +750,7 @@ local function runRotation()
              --   end
             end
         -- Riptide
-            if isChecked("Riptide") and cd.riptide.remain() <= gcd then
+            if isChecked("Riptide") then
                 if not buff.tidalWaves.exists() and level >= 34 then
                     if cast.riptide(lowest.unit) then return end
                 end
@@ -768,8 +780,14 @@ local function runRotation()
 -----------------
 --- Rotations ---
 -----------------
-        -- Pause
         ghostWolf()
+        -- Dps Spell Cancel
+        for i = 1, #dpsSpells do
+            if isCastingSpell(dpsSpells[i]) and isChecked("Critical HP") and lowest.hp <= getValue("Critical HP") then
+                SpellStopCasting()
+            end
+        end
+        -- Pause
         if pause() or mode.rotation == 4 then
             return true
         else 
@@ -791,10 +809,10 @@ local function runRotation()
                 if (buff.ghostWolf.exists() and mode.ghostWolf == 1) or not buff.ghostWolf.exists() then
                     actionList_Defensive()
                     actionList_Interrupts()
+                    actionList_AMR()
                     if br.player.mode.dps == 1 and GetUnitExists("target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         actionList_DPS()
                     end
-                    actionList_AMR()
                 end
             end -- End In Combat Rotation
         end -- Pause

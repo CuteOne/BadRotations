@@ -1,5 +1,8 @@
-function getRacialID()
+function getRacial()
     local race = select(2,UnitRace("player"))
+    local BloodElfRacial
+    local DraeneiRacial
+    local OrcRacial
 
     if race == "BloodElf" then
         BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
@@ -35,7 +38,15 @@ function getRacialID()
         DarkIronDwarf = 265221, -- Fireblood
         MagharOrc = 274738, -- Ancestral Call
     }
-    return racialSpells[race]
+    local trueRace = nil
+    local forTheAlliance = UnitBuffID("player",193863) or false
+    if not forTheAlliance then trueRace = racialSpells[race] end
+    if trueRace ~= nil then
+        return trueRace
+    else
+        return racialSpells[race]
+    end
+    -- return racialSpells[race]
 end
 function getHeirloomNeck()
     local necks = {
@@ -2578,6 +2589,7 @@ br.lists.spells = {
                 earthenSpike                = 188089,
                 frostbrand                  = 147732,
                 lightningConduit            = 275391,
+                primalPrimer                = 273006,
                 searingAssault              = 268429,
                 stormTempests               = 214265,
             },
@@ -3232,7 +3244,7 @@ br.lists.spells = {
                 global                          = 61304,
                 shadowmeld                      = 58984,
                 quakingPalm                     = 107079,
-                racial                          = getRacialID(),
+                racial                          = getRacial(),
                 lightsJudgment                  = 247427,
             },
             artifacts                           = {

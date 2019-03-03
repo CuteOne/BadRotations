@@ -98,7 +98,7 @@ function br.loader:new(spec,specName)
 
         -- Ending the Race War!
         if self.spell.abilities["racial"] == nil then
-            local racialID = getRacialID()
+            local racialID = getRacial()
             self.spell.abilities["racial"] = racialID
             self.spell["racial"] = racialID
         end

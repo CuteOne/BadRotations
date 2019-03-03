@@ -394,10 +394,6 @@ function castOpenerFail(spellIndex,flag,index)
 	_G[flag] = true;
 	return true
 end
-function canCast(spellID,unit)
-	if unit == nil then unit = "target" end
-	return castSpell(unit,spellID,false,false,false,false,false,false,false,true)
-end
 function castMouseoverHealing(Class)
 	if UnitAffectingCombat("player") then
 		local spellTable = {

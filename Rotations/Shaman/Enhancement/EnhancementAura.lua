@@ -590,7 +590,7 @@ local function runRotation()
                 end
             end
             -- Lava Lash
-            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack == 10 then
+            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack("target") == 10 then
                 if cast.lavaLash() then return true end
             end
             -- Stormstrike
@@ -606,7 +606,7 @@ local function runRotation()
                 if cast.lightningBolt() then return true end
             end
             -- Lava Lash
-            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack > 7 then
+            if traits.primalPrimer.rank >= 2 and debuff.primalPrimer.stack("target") > 7 then
                 if cast.lavaLash() then return true end
             end
             --Stormstrike
@@ -791,35 +791,33 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-               -- if hastar and getDistance("target") <= 8 then
-                    actionList_Interrupts()
-                    actionList_Defensive()
-                    if isChecked("Capacitor Totem - Tank Stuns") and getDistance("target") <= 40 and (inInstance or inRaid) then
-                        if #enemies.yards8t >= getOptionValue("Capacitor Totem - Tank Stuns Targets") and inCombat then
-                            if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
-                        end
+                actionList_Interrupts()
+                actionList_Defensive()
+                if isChecked("Capacitor Totem - Tank Stuns") and getDistance("target") <= 40 and (inInstance or inRaid) then
+                    if #enemies.yards8t >= getOptionValue("Capacitor Totem - Tank Stuns Targets") and inCombat then
+                        if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
                     end
-                    if getOptionValue("APL Mode") == 1 or getOptionValue("APL Mode") == nil then
-                        actionList_Opener()
-                        if buff.ascendance.exists() then
-                            actionList_Ascendance()
-                        end
-                        actionList_PriorityBuffs()
-                        if #enemies.yards10 < 3 then
-                            actionList_Maintenance()
-                        end
-                        if useCDs() then
-                            actionList_CD()
-                        end
-                        actionList_Core()
-                        if #enemies.yards10 >= 3 then
-                            actionList_Maintenance()
-                        end
-                        actionList_Filler()
-                    elseif getOptionValue("APL Mode") == 2 then
-                        actionList_AMR()
+                end
+                if getOptionValue("APL Mode") == 1 or getOptionValue("APL Mode") == nil then
+                    actionList_Opener()
+                    if buff.ascendance.exists() then
+                        actionList_Ascendance()
                     end
-              --  end
+                    actionList_PriorityBuffs()
+                    if #enemies.yards10 < 3 then
+                        actionList_Maintenance()
+                    end
+                    if useCDs() then
+                        actionList_CD()
+                    end
+                    actionList_Core()
+                    if #enemies.yards10 >= 3 then
+                        actionList_Maintenance()
+                    end
+                    actionList_Filler()
+                elseif getOptionValue("APL Mode") == 2 then
+                    actionList_AMR()
+                end
             end -- End In Combat Rotation
         end -- Pause
     end -- End Timer
