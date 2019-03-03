@@ -189,6 +189,7 @@ local lootDelay
 local lowestHP
 local mode
 local multidot
+local opener
 local php
 local pullTimer
 local race
@@ -213,9 +214,6 @@ local leftCombat
 local profileStop
 local ripDuration = 24
 local useThrash
-
--- Opener Lacals
-local opener
 
 -----------------
 --- Functions ---
@@ -1144,6 +1142,7 @@ local function runRotation()
     lowestHP                           = br.friend[1].unit
     mode                               = br.player.mode
     multidot                           = br.player.mode.cleave == 1 and br.player.mode.rotation < 3
+    opener                             = br.player.opener
     php                                = br.player.health
     pullTimer                          = PullTimerRemain()
     race                               = br.player.race
@@ -1201,7 +1200,6 @@ local function runRotation()
     fbMaxEnergy = energy > 50
 
     -- Opener Reset
-    opener = br.player.opener
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
         opener.count = 0
         opener.OPN1 = false
@@ -1211,8 +1209,6 @@ local function runRotation()
         opener.RIP1 = false
         opener.complete = false
     end
-
-    ChatOverlay("TF1: "..tostring(opener.TF1).." | RK1: "..tostring(opener.RK1).." | RIP1: "..tostring(opener.RIP1))
 
     -- Variables
     -- variable,name=use_thrash,value=0
