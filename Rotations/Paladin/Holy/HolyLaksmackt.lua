@@ -1159,6 +1159,7 @@ local function runRotation()
   -- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS ----------- DPS -----------
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function DPS()
+
     if buff.avengingCrusader.exists() and getFacing("player", "target") then
       if cast.judgment("target") then
         return true
@@ -1167,7 +1168,8 @@ local function runRotation()
         return true
       end
     end
-    if mode.DPS == 1 and isChecked("DPS") then
+    --and isChecked("DPS")
+    if mode.DPS == 1 then
       if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
         TargetUnit("focustarget")
       end
@@ -1199,8 +1201,8 @@ local function runRotation()
           return true
         end
       end
-      -- Holy Shock
-      if isChecked("Holy Shock Damage") and lowest.hp > getValue("DPS Health") and cast.able.holyShock() and mana > getValue("DPS Mana") and (inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance) then
+      -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
+      if isChecked("Holy Shock Damage") and lowest.hp > getValue("DPS Health") and cast.able.holyShock() and ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) and mana > getValue("DPS Mana") then
         if cast.holyShock(units.dyn40) then
           return true
         end
