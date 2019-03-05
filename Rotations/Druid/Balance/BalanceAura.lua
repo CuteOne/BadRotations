@@ -276,12 +276,13 @@ local function runRotation()
                     end
                 end
             end
+            -- Wild Growth
+            if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
+                if cast.wildGrowth() then return true end
+            end
             -- Regrowth
             if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
                 if cast.regrowth("player") then return true end
-            end
-            if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
-                if cast.wildGrowth() then return true end
             end
             -- Shapeshift Form Management
 			if isChecked("Auto Shapeshifts") then --and br.timer:useTimer("debugShapeshift", 0.25) then
