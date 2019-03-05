@@ -799,22 +799,25 @@ local function runRotation()
                     end
                 end
                 if getOptionValue("APL Mode") == 1 or getOptionValue("APL Mode") == nil then
-                    actionList_Opener()
-                    if buff.ascendance.exists() then
-                        actionList_Ascendance()
+                    if getDistance("target") <= 8 then
+                        StartAttack()
                     end
-                    actionList_PriorityBuffs()
+                    if actionList_Opener() then return true end
+                    if buff.ascendance.exists() then
+                        if actionList_Ascendance() then return true end
+                    end
+                    if actionList_PriorityBuffs() then return true end
                     if #enemies.yards10 < 3 then
-                        actionList_Maintenance()
+                        if actionList_Maintenance() then return true end
                     end
                     if useCDs() then
-                        actionList_CD()
+                        if actionList_CD() then return true end
                     end
-                    actionList_Core()
+                    if actionList_Core() then return true end
                     if #enemies.yards10 >= 3 then
-                        actionList_Maintenance()
+                        if actionList_Maintenance() then return true end
                     end
-                    actionList_Filler()
+                    if actionList_Filler() then return true end
                 elseif getOptionValue("APL Mode") == 2 then
                     actionList_AMR()
                 end
