@@ -1088,7 +1088,7 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Rake/Shred
         -- buff.prowl.up|buff.shadowmeld.up
-        if isValidUnit("target") and opener.finished and getDistance(units.dyn5) < 5 then
+        if isValidUnit("target") and opener.complete and getDistance(units.dyn5) < 5 then
             if cast.able.shred() and level < 12 then
                 if cast.shred() then return true end
             elseif cast.able.rake() then
