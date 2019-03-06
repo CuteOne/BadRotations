@@ -20,6 +20,8 @@ function br.ui:createConfigWindow()
         -- br.ui:createCheckbox(section, "Start/Stop BadRotations", "Uncheck to prevent BadRotations pulsing.");
         rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.");
         -- br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
+        br.ui:createCheckbox(section, "Addon Debug Messages", "Check this to display developer debug messages.")
+        targetval = br.ui:createCheckbox(section, "Target Validation Debug", "Check this to display current target's validation.")
         br.ui:createCheckbox(section, "Display Failcasts", "Dispaly Failcasts in Debug.")
         br.ui:createCheckbox(section, "Queue Casting", "Allow Queue Casting on some profiles.")
         br.ui:createSpinner(section,  "Auto Loot" ,0.5, 0.1, 3, 0.1, "Sets Autloot on/off.", "Sets a delay for Auto Loot.")
