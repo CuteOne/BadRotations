@@ -1249,7 +1249,7 @@ local function runRotation()
         then
             if cast.catForm("player") then return true end
         elseif inCombat and cat and profileStop==false
-            and not isChecked("Death Cat Mode") and UnitExists("target") and opener
+            and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete
         then
             -- Wild Charge
             -- wild_charge
