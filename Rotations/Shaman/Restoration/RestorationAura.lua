@@ -639,7 +639,7 @@ local function runRotation()
                         for i=1, #tanks do
                             -- get the tank's target
                             local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil then
+                            if tankTarget ~= nil and getDistance(tanks[i].unit,"player") < 40 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget,5)
                                 -- get the best ground circle to encompass the most of them

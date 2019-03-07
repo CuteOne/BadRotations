@@ -742,3 +742,13 @@ function talentAnywhere()
 		end
 	end
 end
+
+function br.addonDebug(msg)
+	if msg == nil then
+		return
+	end
+	if isChecked("Addon Debug Messages") then
+		print(br.classColor .. "[BadRotations] Debug: |cffFFFFFF" .. msg)
+	end
+end
+

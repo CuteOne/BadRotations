@@ -272,17 +272,7 @@ function cCharacter:new(class)
 -- Sets the racial
 	 function self.getRacial()
 		return getRacial()
-	-- 			local trueRace = nil
-	-- 			local forTheAlliance = UnitBuffID("player",193863) or false
-	-- 			if not forTheAlliance then trueRace = self.racial end
-	-- 			if trueRace ~= nil then
-	-- 				return trueRace
-	-- 			else
-	-- 				return self.racial
-	-- 			end
 	 end
-    --self.racial = self.getRacial()
-    -- if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
 
     -- Casts the racial
 	function self.castRacial()
