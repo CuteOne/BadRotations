@@ -32,8 +32,8 @@ local function createToggles()
   CreateButton("Defensive", 2, 0)
   -- Interrupt Button
   InterruptModes = {
-    [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.hammerOfJustice },
-    [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
+    [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.blindingLight },
+    [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.blindingLight }
   };
   CreateButton("Interrupt", 3, 0)
   -- Cleanse Button
@@ -62,7 +62,7 @@ local function createOptions()
     ----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
     -- Mastery bonus
-    br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only in Raid effective)")
+    br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only Raid)")
     -- Blessing of Freedom
     br.ui:createCheckbox(section, "Blessing of Freedom")
     -- Pre-Pull Timer
@@ -195,7 +195,6 @@ local function createOptions()
     br.ui:createSpinner(section, "Rule of Law", 70, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
     br.ui:createSpinner(section, "RoL Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum RoL Targets", true)
     br.ui:createCheckbox(section, "Judgment heal")
-    br.ui:createCheckbox(section, "Judgment - SAFE")
     -- Light of Dawn
     br.ui:createSpinner(section, "Light of Dawn", 90, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
     br.ui:createSpinner(section, "LoD Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum LoD Targets", true)
@@ -1160,14 +1159,7 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function DPS()
 
-    if buff.avengingCrusader.exists() and getFacing("player", "target") then
-      if cast.judgment("target") then
-        return true
-      end
-      if cast.crusaderStrike("target") then
-        return true
-      end
-    end
+
     --and isChecked("DPS")
     if mode.DPS == 1 then
       if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
@@ -1208,7 +1200,7 @@ local function runRotation()
         end
       end
       -- Crusader Strike
-      if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if isChecked("Crusader Strike") and not talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1281,10 +1273,33 @@ local function runRotation()
     end
 
   end
+  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  --topPriority ------ topPriority ------topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ----
+  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  local function topPriority()
+    --Talent Crusaders Might
+    if isChecked("Crusader Strike") and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if (getSpellCD(20473) > 1.5 or getSpellCD(85222) > 1.5) then
+        if cast.crusaderStrike(units.dyn5) then
+          return true
+        end
+      end
+    end
+    --Avenging Crusader
+    if buff.avengingCrusader.exists() and getFacing("player", "target") then
+      if cast.able.judgment() then
+        if cast.judgment("target") then
+          return true
+        end
+        if cast.able.crusaderStrike() then
+          if cast.crusaderStrike("target") then
+            return true
+          end
+        end
+      end
+    end
+  end
 
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  --SingleTarget ------ SingleTarget ------SingleTarget ------ SingleTarget ------ SingleTarget ------ SingleTarget ------ SingleTarget ------ SingleTarget ------ SingleTarget ----
-  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function SingleTarget()
     local holyShock10 = nil
     local holyShock20 = nil
@@ -1468,7 +1483,7 @@ local function runRotation()
             return x.hp < y.hp
           end)
         end
-        if glimmerTable[1].unit ~= nil then
+        if #glimmerTable > 1 and glimmerTable[1].unit ~= nil then
           if cast.holyShock(glimmerTable[1].unit) then
             --Print("Just glimmered: " .. glimmerTable[1].unit)
             return true
@@ -1707,14 +1722,6 @@ local function runRotation()
         end
       end
     end
-    -- Crusader Strike
-    if isChecked("Crusader Strike") and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
-      if talent.crusadersMight and (getSpellCD(20473) > 1.5 or getSpellCD(85222) > 1.5) then
-        if cast.crusaderStrike(units.dyn5) then
-          return true
-        end
-      end
-    end
 
 
   end
@@ -1782,13 +1789,16 @@ local function runRotation()
             return
           end
         end
-        if DPS() then
-          return
+        if topPriority() then
+          return true
         end
         if AOEHealing() then
           return
         end
         if SingleTarget() then
+          return
+        end
+        if DPS() then
           return
         end
       end
