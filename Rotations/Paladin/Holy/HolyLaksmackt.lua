@@ -75,6 +75,8 @@ local function createOptions()
     end
     -- Redemption
     br.ui:createCheckbox(section, "Glimmer mode")
+    br.ui:createCheckbox(section, "Glimmer mode - ooc")
+
     br.ui:createCheckbox(section, "Redemption")
     -- Critical
     br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Critical Heals")
@@ -127,7 +129,7 @@ local function createOptions()
     ------ COOL  DOWNS ------
     -------------------------
     section = br.ui:createSection(br.ui.window.profile, "Cool Downs")
-    -- Lay on Hands
+    -- Lay on Hand
     br.ui:createSpinner(section, "Lay on Hands - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
     br.ui:createSpinner(section, "Lay on Hands - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
     br.ui:createDropdownWithout(section, "Lay on Hands Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf" }, 1, "|cffFFFFFFTarget for LoH")
@@ -480,7 +482,7 @@ local function runRotation()
 
 
   -- Beacon of Virtue
-  if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and not IsMounted() then
+  if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and getSpellCD(200025) == 0 and not IsMounted() then
     for i = 1, #br.friend do
       if UnitInRange(br.friend[i].unit) then
         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Beacon of Virtue"), #br.friend)
@@ -778,21 +780,22 @@ local function runRotation()
   -- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt --------- Interrupt -----
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function Interrupt()
-    if useInterrupts() then
+
+    if useInterrupts() and (cast.able.blindingLight() or cast.able.hammerOfJustice()) then
       for i = 1, #enemies.yards10 do
         local thisUnit = enemies.yards10[i]
         local distance = getDistance(thisUnit)
-        if canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and not UnitExists(thisUnit) and StunsBlackList[GetObjectID(thisUnit)] == nil
+        if canInterrupt(thisUnit, getOptionValue("InterruptAt")) and distance <= 10 and StunsBlackList[GetObjectID(thisUnit)] == nil
                 and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923) then
-          -- Hammer of Justice
-          if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit, 226510) == 0 then
-            if cast.hammerOfJustice(thisUnit) then
-              return true
-            end
-          end
           -- Blinding Light
           if isChecked("Blinding Light") and cast.able.blindingLight() then
             if cast.blindingLight() then
+              return true
+            end
+          end
+          -- Hammer of Justice
+          if isChecked("Hammer of Justice") and cast.able.hammerOfJustice() and getBuffRemain(thisUnit, 226510) == 0 then
+            if cast.hammerOfJustice(thisUnit) then
               return true
             end
           end
@@ -801,7 +804,7 @@ local function runRotation()
     end
   end
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  -- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ------
+  -- Beacon ---------- Beacon ---------- Beacon ---l------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ------
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function Beacon()
     local beaconOfLightinRaid = nil
@@ -1470,7 +1473,7 @@ local function runRotation()
 
 
       --Glimmer support
-      if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and inCombat then
+      if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
         local glimmerTable = { }
         --find lowest friend without glitter buff on them
         for i = 1, #br.friend do
