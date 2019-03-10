@@ -482,7 +482,7 @@ local function runRotation()
 
 
   -- Beacon of Virtue
-  if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and not IsMounted() then
+  if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and getSpellCD(200025) == 0 and not IsMounted() then
     for i = 1, #br.friend do
       if UnitInRange(br.friend[i].unit) then
         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Beacon of Virtue"), #br.friend)
