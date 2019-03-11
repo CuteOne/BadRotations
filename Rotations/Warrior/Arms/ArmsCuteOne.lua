@@ -192,7 +192,7 @@ local function runRotation()
         UpdateToggle("Mover",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
 		UpdateToggle("Bladestorm",0.25)
-		br.player.mode.bladeStorm = br.data.settings[br.selectedSpec].toggles["Bladestorm"]
+		br.player.mode.bladestorm = br.data.settings[br.selectedSpec].toggles["Bladestorm"]
         UpdateToggle("Heroic",0.25)
         br.player.mode.heroic = br.data.settings[br.selectedSpec].toggles["Heroic"]
 
