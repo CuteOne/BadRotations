@@ -288,7 +288,7 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Primal Wrath Usable
 local function usePrimalWrath()
-    if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8)
+    if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8) and cast.safe.primalWrath("player",8,1)
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if #enemies.yards8 >= 3 then return true end
