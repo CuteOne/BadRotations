@@ -618,9 +618,13 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function actionList_Defensive()
     if useDefensive() then
-      if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512)) then
+
+      --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
+      if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
         if canUse(5512) then
           useItem(5512)
+        elseif canUse(156634) then
+          useItem(156634)
         elseif canUse(getHealthPot()) then
           useItem(getHealthPot())
         end
