@@ -870,18 +870,18 @@ local function runRotation()
   --Cooldowns ------- Cooldowns -------Cooldowns ------- Cooldowns ------- Cooldowns ------- Cooldowns ------- Cooldowns ------- Cooldowns ------- Cooldowns ------- Cooldowns -----
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function Cooldowns()
-    local layOnHandsall = nil
-    local layOnHandsTANK = nil
+
     local blessingOfProtectionall = nil
     local blessingOfProtectionTANK = nil
     local blessingOfProtectionHD = nil
     local blessingOfSacrificeall = nil
     local blessingOfSacrificeTANK = nil
     local blessingOfSacrificeDAMAGER = nil
+    local layOnHandsTarget = nil
     local burst = nil
 
 
-
+    --Bursting
     --Print("Check" ..isChecked("Bursting").."#: "..getOptionValue("Bursting"))
     if isChecked("Bursting") and inInstance and #tanks > 0 then
       local ourtank = tanks[1].unit
@@ -891,14 +891,11 @@ local function runRotation()
       end
     end
 
+    --LoH / LayonHands
+
+
     for i = 1, #br.friend do
       if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) then
-        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-          layOnHandsall = br.friend[i].unit
-        end
-        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-          layOnHandsTANK = br.friend[i].unit
-        end
         if br.friend[i].hp <= getValue("Blessing of Protection") then
           blessingOfProtectionall = br.friend[i].unit
         end
@@ -920,23 +917,24 @@ local function runRotation()
       end
     end
     -- Lay on Hands
-    if isChecked("Lay on Hands") and cast.able.layOnHands() then
-      if getOptionValue("Lay on Hands Target") == 1 then
-        if layOnHandsall ~= nil then
-          if cast.layOnHands(layOnHandsall) then
-            return
+    if isChecked("Lay on Hands - min") and getSpellCD(633) == 0 then
+      for i = 1, #br.friend do
+        if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) then
+          if getOptionValue("Lay on Hands Target") == 1 then
+            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+              layOnHandsTarget = br.friend[i].unit
+            end
+          elseif getOptionValue("Lay on Hands Target") == 2 then
+            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+              layOnHandsTarget = br.friend[i].unit
+            end
+          elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 and php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) then
+            layOnHandsTarget = "player"
           end
-        end
-      elseif getOptionValue("Lay on Hands Target") == 2 then
-        if layOnHandsTANK ~= nil then
-          if cast.layOnHands(layOnHandsTANK) then
-            return
-          end
-        end
-      elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 then
-        if php <= getValue("Lay on Hands") then
-          if cast.layOnHands("player") then
-            return
+          if layOnHandsTarget ~= nil then
+            if cast.layOnHands(layOnHandsTarget) then
+              return true
+            end
           end
         end
       end
@@ -1345,6 +1343,13 @@ local function runRotation()
           end)
         end
         if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil then
+          if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
+            if glimmerTable[1].distance > 10 then
+              if cast.ruleOfLaw() then
+                return true
+              end
+            end
+          end
           if cast.holyShock(glimmerTable[1].unit) then
             --Print("Just glimmered: " .. glimmerTable[1].unit)
             return true
