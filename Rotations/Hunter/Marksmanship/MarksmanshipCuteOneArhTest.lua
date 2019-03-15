@@ -14,8 +14,8 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueShot },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueShot },
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueshot },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueshot },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.concussiveShot }
     };
    	CreateButton("Cooldown",2,0)
@@ -223,7 +223,7 @@ local function runRotation()
 						if cast.arcaneShot() then return end
 					end
 					--Rapid fire actions.st+=/rapid_fire,if=(!talent.lethal_shots.enabled|buff.lethal_shots.up)&azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1
-					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active or trait.inTheRhytm.rank > 1) then
+					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active or trait.inTheRhythm.rank > 1) then
 						if cast.rapidFire() then return end
 					end
 					--Aimed shot actions.st+=/aimed_shot,if=buff.precise_shots.down&(buff.double_tap.down&full_recharge_time<cast_time+gcd|buff.lethal_shots.up)
@@ -306,7 +306,7 @@ local function runRotation()
                 --Trueshot
                 if isChecked("Trueshot") and
                 charges.aimedShot.count() < 1 and charges.aimedShot.recharge() > gcdMax then
-                    if cast.trueShot() then return end
+                    if cast.trueshot() then return end
                 end
 
                 --DoubleTap
@@ -316,7 +316,7 @@ local function runRotation()
                 end
             end
         end
-                   
+
         -- Dummy Test
             if isChecked("DPS Testing") then
                 if GetObjectExists("target") then
