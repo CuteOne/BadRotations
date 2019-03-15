@@ -1219,7 +1219,7 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function AOEHealing()
     if burst then
-      Print("Burst:" .. burst)
+      --Print("Burst:" .. burst)
     end
     --Lights Hammner
     if isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving and burst == nil then
@@ -1285,7 +1285,7 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function topPriority()
     --Talent Crusaders Might
-    if isChecked("Crusader Strike") and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+    if isChecked("Crusader Strike") and not isChecked("Glimmer mode") and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
       if (getSpellCD(20473) > 1.5 or getSpellCD(85222) > 1.5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
@@ -1305,6 +1305,64 @@ local function runRotation()
         end
       end
     end
+  end
+
+  local function glimmer()
+    --Glimmer support
+    if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
+      local glimmerTable = { }
+      --find lowest friend without glitter buff on them
+      if getSpellCD(20473) == 0 then
+        --[[for i = 1, #br.friend do
+          --first prioritize tanks
+          if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and getLineOfSight("player", br.friend[i]) and getDistance("player", br.friend[i]) <= 40 and not UnitBuffID(br.friend[i].unit, 287280) then
+            if cast.holyShock(br.friend[1].unit) then
+              Print("Just glimmered: " .. glimmerTable[1].unit)
+              return true
+            end
+          end
+        end
+        ]]
+        -- tank first
+        for i = 1, #br.friend do
+          if UnitInRange(br.friend[i].unit) then
+            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
+              if cast.holyShock(br.friend[i].unit) then
+                --Print(br.friend[i].unit)
+                return true
+              end
+            end
+          end
+        end
+        for i = 1, #br.friend do
+          if not UnitBuffID(br.friend[i].unit, 287280) then
+            tinsert(glimmerTable, br.friend[i])
+          end
+        end
+        if #glimmerTable > 1 then
+          table.sort(glimmerTable, function(x, y)
+            return x.hp < y.hp
+          end)
+        end
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil then
+          if cast.holyShock(glimmerTable[1].unit) then
+            --Print("Just glimmered: " .. glimmerTable[1].unit)
+            return true
+          end
+        end
+        ---      if (getSpellCD(20473) > 1.5 or getSpellCD(85222) > 1.5) then
+      elseif getSpellCD(20473) > 0 and getSpellCD(85222) == 0 then
+        if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+        then
+          return true
+        end
+      elseif talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+        if cast.crusaderStrike(units.dyn5) then
+          return true
+        end
+      end
+    end
+
   end
 
   local function SingleTarget()
@@ -1450,7 +1508,7 @@ local function runRotation()
     end
 
     -- Holy Shock
-    if isChecked("Holy Shock") and cast.able.holyShock() then
+    if isChecked("Holy Shock") and getSpellCD(20473) == 0 then
       --critical first
       if #tanks > 0 then
         if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
@@ -1474,30 +1532,6 @@ local function runRotation()
           return true
         end
       end
-
-
-      --Glimmer support
-      if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
-        local glimmerTable = { }
-        --find lowest friend without glitter buff on them
-        for i = 1, #br.friend do
-          if not UnitBuffID(br.friend[i].unit, 287280) then
-            tinsert(glimmerTable, br.friend[i])
-          end
-        end
-        if #glimmerTable > 1 then
-          table.sort(glimmerTable, function(x, y)
-            return x.hp < y.hp
-          end)
-        end
-        if #glimmerTable > 1 and glimmerTable[1].unit ~= nil then
-          if cast.holyShock(glimmerTable[1].unit) then
-            --Print("Just glimmered: " .. glimmerTable[1].unit)
-            return true
-          end
-        end
-      end
-
       if isChecked("Mastery bonus") and inRaid and holyshocktarget ~= nil then
         if cast.holyShock(holyshocktarget) then
           return true
@@ -1509,9 +1543,14 @@ local function runRotation()
       end
     end
 
+
+    --/whispers-of-power  and getDebuffStacks(lowest.unit, 267034) < 2
     if BleedFriend ~= nil then
-      if php >= 60 and BleedFriend.hp > 70 and cast.lightOfTheMartyr(BleedFriend.unit) then
-        return true
+      if php >= 60 and BleedFriend.hp > 70 and getDebuffStacks(BleedFriend, 267034) < 2 then
+
+        if cast.lightOfTheMartyr(BleedFriend.unit) then
+          return true
+        end
       end
       if cast.flashOfLight(BleedFriend.unit) then
         return true
@@ -1739,7 +1778,7 @@ local function runRotation()
       ---------------------------------
       --- Out Of Combat - Rotations ---
       ---------------------------------
-      if not inCombat then
+      if not inCombat and not UnitBuffID("player", 115834) then
         if key() then
           return
         end
@@ -1752,12 +1791,18 @@ local function runRotation()
         if Cleanse() then
           return
         end
+        if isChecked("Glimmer mode") and isChecked("Glimmer mode - ooc") then
+          if glimmer() then
+            return true
+          end
+        end
         if isChecked("OOC Healing") then
           if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
             if Beacon() then
               return
             end
           end
+
           if AOEHealing() then
             return
           end
@@ -1769,7 +1814,7 @@ local function runRotation()
       -----------------------------
       --- In Combat - Rotations ---
       -----------------------------
-      if inCombat then
+      if inCombat and not UnitBuffID("player", 115834) then
         if key() then
           return
         end
@@ -1786,7 +1831,7 @@ local function runRotation()
         if Interrupt() then
           return
         end
-        if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
+        if isChecked(")Auto Beacon") and not talent.beaconOfVirtue then
           if Beacon() then
             return
           end
@@ -1798,6 +1843,11 @@ local function runRotation()
         end
         if topPriority() then
           return true
+        end
+        if isChecked("Glimmer mode") then
+          if glimmer() then
+            return true
+          end
         end
         if AOEHealing() then
           return
