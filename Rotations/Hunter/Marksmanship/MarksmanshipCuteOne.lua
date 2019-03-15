@@ -508,7 +508,7 @@ local function runRotation()
         -- Rapid Fire 
             -- rapid_fire,if=buff.trick_shots.up&(azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1|azerite.surging_shots.enabled|talent.streamline.enabled)
             if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() 
-                and (traits.focusedFire.active() or traits.inTheRhythm.rank() > 1 or traits.surgingShots.active() or talent.streamline) 
+                and (traits.focusedFire.active or traits.inTheRhythm.rank > 1 or traits.surgingShots.active or talent.streamline) 
             then
                 if cast.rapidFire() then return end 
             end
@@ -597,7 +597,7 @@ local function runRotation()
         -- Arcane Shot 
             -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)
             if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists() 
-                and (power > 41 or buff.masterMarksman.exists) or ((power > 50 and traits.focusedFire.active()) or power > 75) 
+                and (power > 41 or buff.masterMarksman.exists) or ((power > 50 and traits.focusedFire.active) or power > 75) 
                 and (cd.trueshot.remain() > 5 or power > 80) or ttd(units.dyn40) < 5)
             then
                 if cast.arcaneShot() then return end 
