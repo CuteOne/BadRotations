@@ -575,6 +575,7 @@ br.lists.spells = {
                 warriorOfElune              = 202425,
             },
             traits                          = {
+                arcanicPulsar               = 287773,
                 dawningSun                  = 276152,
                 highNoon                    = 278505,
                 livelySpirit                = 279642,
