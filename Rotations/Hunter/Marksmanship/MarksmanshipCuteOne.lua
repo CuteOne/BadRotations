@@ -31,18 +31,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
     CreateButton("Interrupt",4,0)
--- Explosive Shot Button
-    ExplosiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Explosive Shot Enabled", tip = "Will use Explosive Shot.", highlight = 1, icon = br.player.spell.explosiveShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Explosive Shot Disabled", tip = "Explosive Shot will not be used.", highlight = 0, icon = br.player.spell.explosiveShot }
-    };
-    CreateButton("Explosive",5,0)
--- Piercing Shot Button
-    PiercingModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Piercing Shot Enabled", tip = "Will use Piercing Shot.", highlight = 1, icon = br.player.spell.piercingShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Piercing Shot Disabled", tip = "Piercing Shot will not be used.", highlight = 0, icon = br.player.spell.piercingShot }
-    };
-    CreateButton("Piercing",6,0)
 -- MD Button
     MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
@@ -178,10 +166,6 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Explosive",0.25)
-        br.player.mode.explosive = br.data.settings[br.selectedSpec].toggles["Explosive"]
-        UpdateToggle("Piercing",0.25)
-        br.player.mode.piercing = br.data.settings[br.selectedSpec].toggles["Piercing"]
         UpdateToggle("Misdirection",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
 
@@ -447,12 +431,16 @@ local function runRotation()
             end
         -- Hunter's Mark
             -- hunters_mark,if=debuff.hunters_mark.down&!buff.trueshot.up
-            if cast.able.huntersMark() and not debuff.huntersMark.exists(units.dyn40) and not buff.trueshot.exists() then
+            if cast.able.huntersMark() and talent.huntersMark 
+                and not debuff.huntersMark.exists(units.dyn40) and not buff.trueshot.exists() 
+            then
                 if cast.huntersMark() then return end
             end
         -- Double Tap 
             -- double_tap,if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20
-            if opUseCD("Double Tap") and cast.able.doubleTap() and (cd.rapidFire.remain() < gcd or cd.rapidFire.remain() < cd.aimedShot.remain() or ttd(units.dyn40) < 20) then
+            if opUseCD("Double Tap") and cast.able.doubleTap() and talent.doubleTap 
+                and (cd.rapidFire.remain() < gcd or cd.rapidFire.remain() < cd.aimedShot.remain() or ttd(units.dyn40) < 20) 
+            then
                 if cast.doubleTap() then return end 
             end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -492,12 +480,12 @@ local function runRotation()
         local function actionList_TrickShots()
         -- Barrage
             -- barrage
-            if opUseCD("Barrage") and cast.able.barrage() then 
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage then 
                 if cast.barrage() then return end 
             end 
         -- Explosive Shot
             -- explosive_shot
-            if opUseCD("Explosive Shot") and cast.able.explosiveShot() then
+            if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
                 if cast.explosiveShot() then return end 
             end
         -- Aimed Shot 
@@ -531,17 +519,17 @@ local function runRotation()
             end
         -- Piercing Shot 
             -- piercing_shot
-            if opUseCD("Piercing Shot") and cast.able.piercingShot() then 
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
                 if cast.piercingShot() then return end 
             end 
         -- A Murder of Crows 
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() then 
+            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() and talent.aMudrerOfCrows then 
                 if cast.aMudrerOfCrows() then return end 
             end
         -- Serpent Sting 
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
-            if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
                 if cast.serpentSting() then return end 
             end
         -- Steady Shot 
@@ -554,22 +542,24 @@ local function runRotation()
         local function actionList_SingleTarget()
         -- Explosive Shot 
             -- explosive_shot
-            if opUseCD("Explosive Shot") and cast.able.explosiveShot() then
+            if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
                 if cast.explosiveShot() then return end 
             end
         -- Barrage
             -- barrage,if=active_enemies>1
-            if opUseCD("Barrage") and cast.able.barrage() and ((mode.rotation == 1 and #enemies.yards40f > 1) or (mode.rotation == 2 and #enemies.yards40f > 0)) then 
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage 
+                and ((mode.rotation == 1 and #enemies.yards40f > 1) or (mode.rotation == 2 and #enemies.yards40f > 0)) 
+            then 
                 if cast.barrage() then return end 
             end 
         -- A Murder of Crows 
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() then 
+            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() and talent.aMudrerOfCrows then 
                 if cast.aMudrerOfCrows() then return end 
             end
         -- Serpent Sting 
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
-            if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
                 if cast.serpentSting() then return end 
             end
         -- Rapid Fire 
@@ -591,7 +581,7 @@ local function runRotation()
             end
         -- Piercing Shot 
             -- piercing_shot
-            if opUseCD("Piercing Shot") and cast.able.piercingShot() then 
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
                 if cast.piercingShot() then return end 
             end
         -- Arcane Shot 
