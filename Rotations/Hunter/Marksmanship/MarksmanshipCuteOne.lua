@@ -513,9 +513,9 @@ local function runRotation()
                 if cast.rapidFire() then return end 
             end
         -- Multishot 
-            -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
-            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
-                if cast.multishot() then return end 
+            -- multiShot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
+            if cast.able.multiShot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
+                if cast.multiShot() then return end 
             end
         -- Piercing Shot 
             -- piercing_shot
