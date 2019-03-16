@@ -666,7 +666,6 @@ local function runRotation()
             StopAttack()
             return true
         else
-            br.player.getDebuffsCount()
 -----------------------
 --- Extras Rotation ---
 -----------------------
