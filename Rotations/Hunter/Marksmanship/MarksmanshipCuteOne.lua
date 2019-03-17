@@ -524,8 +524,8 @@ local function runRotation()
             end 
         -- A Murder of Crows 
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() and talent.aMudrerOfCrows then 
-                if cast.aMudrerOfCrows() then return end 
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
+                if cast.aMurderOfCrows() then return end 
             end
         -- Serpent Sting 
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
@@ -554,8 +554,8 @@ local function runRotation()
             end 
         -- A Murder of Crows 
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMudrerOfCrows() and talent.aMudrerOfCrows then 
-                if cast.aMudrerOfCrows() then return end 
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
+                if cast.aMurderOfCrows() then return end 
             end
         -- Serpent Sting 
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
