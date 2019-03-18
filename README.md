@@ -221,6 +221,7 @@ CuteOne |  Full   | 8.0  |   99% | :white_check_mark:
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
 Fengshen |  Full   | 8.0 |   99% | :white_check_mark:
+Laksmackt |  Full   | 8.1.5 |   99% | :white_check_mark:
 
 - Protection
 
