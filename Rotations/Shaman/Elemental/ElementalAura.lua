@@ -559,7 +559,7 @@ local function runRotation()
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs() and #enemies.yards8t >= getValue("SK Targets") and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
+            if useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then return true end
             end
             -- Liquid Magma Totem
