@@ -1303,7 +1303,7 @@ local function runRotation()
                     -- Regrowth
                     -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down
                     if cast.able.regrowth() and (comboPoints == 5 and buff.predatorySwiftness.exists()
-                        and talent.bloodtalons and not buff.bloodtalons.exists()
+                        and talent.bloodtalons and not buff.bloodtalons.exists())
                     then
                         local opValue = getOptionValue("Auto Heal")
                         if opValue == 1 and getDistance(br.friend[1].unit) < 40 then
