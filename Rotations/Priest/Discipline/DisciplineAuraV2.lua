@@ -735,6 +735,21 @@ local function runRotation()
                     UseItemByName(160649,lowest.unit)
                 end
             end
+            if isChecked("Ward of Envelopment") and hasEquiped(165569) then
+                if GetItemCooldown(165569) <= gcd then
+                    for i = 1, #tanks do
+                        local tankTarget = UnitTarget(tanks[i].unit)
+                        if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") then
+                            local x1,y1,z1 = GetObjectPosition(tanks[i].unit)
+                            UseItemByName(165569)
+                            if IsAoEPending() then
+                                ClickPosition(x1,y1,z1)
+                            end
+                            if IsAoEPending() then ClickPosition(x1,y1,z1,true) return false end
+                        end
+                    end
+                end
+            end
             -- Rapture when getting Innervate/Symbol
             if isChecked("Rapture when get Innervate") and freeMana then
                 if cast.rapture() then return true end
