@@ -20,7 +20,7 @@ function getRacial()
         Draenei  = DraeneiRacial,   -- Gift of the Naaru
         Human    = 59752,           -- Every Man for Himself
         NightElf = 58984,           -- Shadowmeld
-    Worgen   = 68992,               -- Darkflight
+        Worgen   = 68992,               -- Darkflight
         -- Horde
         BloodElf = BloodElfRacial,  -- Arcane Torrent
         Goblin   = 69041,           -- Rocket Barrage
@@ -1237,6 +1237,7 @@ br.lists.spells = {
                 pyroclasm                   = 269651,
             },
             debuffs                         = {
+                meteorBurn                  = 155158,
 
             },
             glyphs                          = {
@@ -2051,19 +2052,21 @@ br.lists.spells = {
             },
             buffs                           = {
                 dispersion                  = 47585,
+                harvestedThoughts           = 288343,
                 powerWordShield             = 17,
                 powerInfusion               = 10060,
                 shadowyInsight              = 124430,
                 shadowform                  = 232698,
                 surrenderedSoul             = 212570,
                 surrenderToMadness          = 193223,
+                thoughtsHarvester           = 288340,
                 void                        = 211657,
                 voidForm                    = 194249,
                 voidTorrent                 = 205065,
                 zeksExterminatus            = 236546, -- Legendary Cloak proc
-                thoughtsHarvester           = 288340,
             },
             debuffs                         = {
+                mindFlay                    = 15407,
                 shadowWordPain              = 589,
                 vampiricTouch               = 34914,
                 weakenedSoul                = 6788,
@@ -2099,6 +2102,14 @@ br.lists.spells = {
                 twistOfFate                 = 109142,
                 --voidRay                     = 205371,
                 voidTorrent                 = 263165,
+            },
+            traits                          = {
+                chorusOfInsanity            = 278661,
+                deathThroes                 = 278659,
+                searingDialogue             = 272788,
+                spitefulApparitions         = 277682,
+                thoughtHarvester            = 288340,
+                whispersOfTheDamned         = 275722,
             },
         },
         -- All
