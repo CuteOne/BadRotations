@@ -640,7 +640,7 @@ local function runRotation()
                 end
             end
         -- Ascendance
-            if isChecked("Ascendance") and useCDs() and talent.ascendance and cd.healingTideTotem.remain() < 166 and cd.healingTideTotem.remain() > gcd and cd.ascendance.remain() <= gcd then
+            if isChecked("Ascendance") and useCDs() and talent.ascendance and cd.ascendance.remain() <= gcd then
                 if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") then    
                     if cast.ascendance() then br.addonDebug("Casting Ascendance") return end    
                 end

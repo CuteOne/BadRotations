@@ -46,6 +46,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
         if getOptionValue("Load Prior Saved Settings") == 1 then
             if br.dungeon == nil then
                 br.dungeon = deepcopy(br.data)
+            elseif br.dungeon.settings == nil then
+                br.dungeon.settings = {}
+                br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
                 br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             end
@@ -53,6 +56,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
         elseif getOptionValue("Load Prior Saved Settings") == 2 then
             if br.mdungeon == nil then
                 br.mdungeon = deepcopy(br.data)
+            elseif br.mdungeon.settings == nil then
+                br.mdungeon.settings = {}
+                br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
                 br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             end
@@ -61,6 +67,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
          elseif getOptionValue("Load Prior Saved Settings") == 3 then
             if br.raid == nil then
                 br.raid = deepcopy(br.data)
+            elseif br.raid.settings == nil then
+                br.raid.settings = {}
+                br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
                 br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             end
@@ -69,6 +78,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
          elseif getOptionValue("Load Prior Saved Settings") == 4 then
             if br.mraid == nil then
                 br.mraid = deepcopy(br.data)
+            elseif br.mraid.settings == nil then
+                br.mraid.settings = {}
+                br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
                 br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             end
