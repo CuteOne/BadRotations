@@ -111,37 +111,69 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
     loadButton:SetEventListener("OnClick", function()
         if getOptionValue("Load Prior Saved Settings") == 1 then
             if br.dungeon ~= nil then
-                br.data.settings[br.selectedSpec] = {}
-                br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
-                print("Dungeon Data Loaded")
-                br.rotationChanged = true  
+                if br.dungeon.settings ~= nil then
+                    if br.dungeon.settings[br.selectedSpec] ~= nil then
+                        br.data.settings[br.selectedSpec] = {}
+                        br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
+                        print("Dungeon Data Loaded")
+                        br.rotationChanged = true  
+                    else
+                        print("Dungeon Settings do not exist.")
+                    end
+                else
+                    print("Dungeon Settings do not exist.")
+                end
             else
                 print("Dungeon Settings do not exist.")
             end
         elseif getOptionValue("Load Prior Saved Settings") == 2 then
             if br.mdungeon ~= nil then
-                br.data.settings[br.selectedSpec] = {}
-                br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
-                print("Mythic Dungeon Data Loaded")
-                br.rotationChanged = true
+                if br.mdungeon.settings ~= nil then
+                    if br.mdungeon.settings[br.selectedSpec] ~= nil then
+                        br.data.settings[br.selectedSpec] = {}
+                        br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
+                        print("Mythic Dungeon Data Loaded")
+                        br.rotationChanged = true
+                    else
+                        print("Mythic Dungeon settings do not exist.")
+                    end
+                else
+                    print("Mythic Dungeon settings do not exist.")
+                end
             else
                 print("Mythic Dungeon settings do not exist.")
             end
         elseif getOptionValue("Load Prior Saved Settings") == 3 then
             if br.raid ~= nil then
-                br.data.settings[br.selectedSpec] = {}
-                br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
-                print("Raid Data Loaded")
-                br.rotationChanged = true
+                if br.raid.settings ~= nil then
+                    if br.raid.settings[br.selectedSpec] ~= nil then
+                        br.data.settings[br.selectedSpec] = {}
+                        br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
+                        print("Raid Data Loaded")
+                        br.rotationChanged = true
+                    else
+                        print("Raid settings do not exist.")
+                    end
+                else
+                    print("Raid settings do not exist.")
+                end
             else
                 print("Raid settings do not exist.")
             end
         elseif getOptionValue("Load Prior Saved Settings") == 4 then
             if br.mraid ~= nil then
-                br.data.settings[br.selectedSpec] = {}
-                br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
-                print("Mythic Raid Data Loaded")
-                br.rotationChanged = true
+                if br.mraid.settings ~= nil then
+                    if br.mraid.settings[br.selectedSpec] ~= nil then
+                        br.data.settings[br.selectedSpec] = {}
+                        br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
+                        print("Mythic Raid Data Loaded")
+                        br.rotationChanged = true
+                    else
+                        print("Mythic Raid settings do not exist.")
+                    end
+                else
+                    print("Mythic Raid settings do not exist.")
+                end
             else
                 print("Mythic Raid settings do not exist.")
             end
