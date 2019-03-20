@@ -1309,19 +1309,26 @@ local function runRotation()
     --Glimmer support
     if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
       local glimmerTable = { }
-      --find lowest friend without glitter buff on them
       if getSpellCD(20473) == 0 then
-        --[[for i = 1, #br.friend do
-          --first prioritize tanks
-          if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and getLineOfSight("player", br.friend[i]) and getDistance("player", br.friend[i]) <= 40 and not UnitBuffID(br.friend[i].unit, 287280) then
-            if cast.holyShock(br.friend[1].unit) then
-              Print("Just glimmered: " .. glimmerTable[1].unit)
+        --critical first
+        if #tanks > 0 then
+          if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
+            if cast.holyShock(tanks[1].unit) then
               return true
             end
           end
         end
-        ]]
-        -- tank first
+        if php <= getValue("Critical HP") then
+          if cast.holyShock("player") then
+            return true
+          end
+        end
+        if lowest.hp <= getValue("Critical HP") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+          if cast.holyShock(lowest.unit) then
+            return true
+          end
+        end
+        --find lowest friend without glitter buff on them - tank first
         for i = 1, #br.friend do
           if UnitInRange(br.friend[i].unit) then
             if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 287280) then
@@ -1361,13 +1368,13 @@ local function runRotation()
         then
           return true
         end
-      elseif talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      end
+      if talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
       end
     end
-
   end
 
   local function SingleTarget()
