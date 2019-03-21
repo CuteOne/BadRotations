@@ -141,6 +141,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local equiped                                       = br.player.equiped
         local gcd                                           = br.player.gcdMax
+        local gcdMax                                        = br.player.gcdMax
         local heirloomNeck                                  = 122667 or 122668
         local inCombat                                      = br.player.inCombat
         local inRaid                                        = br.player.instance=="raid"
@@ -167,7 +168,11 @@ local function runRotation()
 
         if profileStop == nil then profileStop = false end
 
-
+        if cd.bloodthirst.remain() > (gcdMax/2) and cd.ragingBlow.remain() > (gcdMax/2) then
+            filler = true
+        else
+            filler = false
+        end
         function extralist()
             -- Battle Shout
             if isChecked("Battle Shout") and cast.able.battleShout() then
@@ -275,7 +280,7 @@ local function runRotation()
             end
 
             -- Rampage
-            if buff.recklessness.exists() or not buff.enrage.exists() or (talent.carnage and rage >= 75) or (rage >= 85) then
+            if buff.recklessness.exists() or (rage >= 75) or not buff.enrage.exists() then
                 if cast.rampage() then return end
             end
 
@@ -327,10 +332,12 @@ local function runRotation()
             end
 
             -- Furious Slash Filler
-            if cast.furiousSlash() then return end
+            if filler then 
+                if cast.furiousSlash() then return end
+            end
 
             -- whirlwind filler
-            if not talent.furiousSlash then 
+            if not talent.furiousSlash and filler then 
                 if cast.whirlwind("player",nil,1,5) then return end
             end
         end --  end single target

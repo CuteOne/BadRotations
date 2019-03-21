@@ -12,9 +12,9 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.battleCry },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.battleCry },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.battleCry }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Based on settings", highlight = 1, icon = br.player.spell.avatar },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avatar },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -55,6 +55,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Charge OoC")
             -- High Rage Dump
             br.ui:createSpinner(section, "High Rage Dump", 85, 1, 100, 1, "|cffFFFFFF Set to number of units to use Ignore Pain or Revenge at")
+            -- Aoe Threshold
+            br.ui:createSpinnerWithout(section, "Aoe Priority", 3, 1, 10, 1, "Set number of units to prioritise TC and Revenge")
 			-- Taunt
             br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
             br.ui:createCheckbox(section,"Use Heroic Throw","Check to enable Heroic Throw usage in Combat")
@@ -66,11 +68,11 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             -- Trinkets
-            br.ui:createCheckbox(section,"Trinkets")
+            br.ui:createDropdownWithout(section,"Trinkets", {"Always", "When CDs are enabled", "Never"}, "Decide when Trinkets will be used.")
             -- Avatar
             br.ui:createCheckbox(section,"Avatar")
             -- Avatar Spinner
-            br.ui:createSpinnerWithout(section, "Avatar Mob Count",  5,  0,  10,  1,  "|cffFFFFFFEnemies to cast Avatar on.")
+            br.ui:createSpinnerWithout(section, "Avatar Mob Count",  5,  0,  10,  1,  "|cffFFFFFFEnemies to cast Avatar when using AUTO CDS")
             -- Demoralizing Shout
             br.ui:createCheckbox(section,"Demoralizing Shout - CD")
             -- Ravager
@@ -148,9 +150,6 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
@@ -164,14 +163,10 @@ local function runRotation()
         local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
-        local heirloomNeck                                  = 122667 or 122668
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
-        local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk
@@ -272,6 +267,14 @@ local function runRotation()
                         if cast.battleShout() then return end
                     end
                 end
+            end
+            if inCombat and getOptionValue("Trinkets") == 1 then
+                if canTrinket(13) then
+                    useItem(13)
+                end
+                if canTrinket(14) then
+                    useItem(14)
+                end
             end        
         end
 
@@ -319,8 +322,20 @@ local function runRotation()
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
                 end
-                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() and (br.player.race == "Orc" or race == "Troll") then
-                    if cast.racial("player") then return true end
+                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() then
+                    if cast.racial("player") then return end
+                end
+                if isChecked("Racial") and useCDs() and buff.avatar.exists() then
+                    CastSpellByName("Berserking")
+                end
+                --Use Trinkets
+                if getOptionValue("Trinkets") == 2 then
+                    if canTrinket(13) then
+                        useItem(13)
+                    end
+                    if canTrinket(14) then
+                        useItem(14)
+                    end
                 end
             end
         end
@@ -447,16 +462,6 @@ local function runRotation()
                 if cast.demoralizingShout() then return end
             end
 
-            --Use Trinkets
-            if isChecked("Trinkets") then
-                if canTrinket(13) then
-                    useItem(13)
-                end
-                if canTrinket(14) then
-                    useItem(14)
-                end
-            end
-
             -- Ravager Usage
             if isChecked("Ravager") then 
                 if cast.ravager("target", "ground") then return end
@@ -468,22 +473,27 @@ local function runRotation()
             end
 
             --High Priority Thunder Clap
-            if talent.unstoppableForce and buff.avatar.exists() and debuff.demoralizingShout.exists(units.dyn8) and not isExplosive("target") then
+            if #enemies.yards8 >= getValue("Aoe Priority") or debuff.demoralizingShout.exists(units.dyn8) then
                 if cast.thunderClap() then return end
+            end
+
+            -- High Prio Revenge
+            if #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+                if cast.revenge() then return end
             end
 
             -- Shield Slam
             if cast.shieldSlam() then return end
             
             -- Low Prio Thunder Clap
-            if talent.cracklingThunder and not isExplosive("target") then
+            if talent.cracklingThunder then
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
             end
             
             -- Revenge
-            if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) and not isExplosive("target") then
+            if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
                 if cast.revenge() then return end
             end
             
@@ -495,7 +505,7 @@ local function runRotation()
                 if cast.victoryRush() then return end
             end
             --Devestate
-            if not (cast.able.shieldSlam() or cast.able.thunderClap()) then
+            if cd.shieldSlam.remain() > (gcdMax/2) and cd.thunderClap.remain() > (gcdMax/2) then
                 if cast.devastate() then return end
             end
         end
@@ -511,6 +521,10 @@ local function runRotation()
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
+            end
+            -- High Prio revenge
+            if #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+                if cast.revenge() then return end
             end
             -- Rest
             if not cast.able.thunderClap() then
