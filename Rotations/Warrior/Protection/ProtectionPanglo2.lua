@@ -38,7 +38,7 @@ local function createToggles()
     TauntModes = {
         [1] = { mode = "Dun", value = 1 , overlay = "Taunt only in Dungeon", tip = "Taunt will be used in dungeons.", highlight = 1, icon = br.player.spell.taunt },
         [2] = { mode = "All", value = 2 , overlay = "Auto Taunt Enabled", tip = "Taunt will be used everywhere.", highlight = 1, icon = br.player.spell.taunt },
-        [3] = { mode = "Off", value = 3 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.legSweep }
+        [3] = { mode = "Off", value = 3 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt }
     };
     CreateButton("Taunt",6,0)
 end
@@ -150,7 +150,7 @@ local function runRotation()
         UpdateToggle("Mover",0.25)
         UpdateToggle("Taunt",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Taunt"]
+        br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
 --------------
 --- Locals ---
 --------------
