@@ -6,7 +6,7 @@ local rotationName = "Panglo2"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.", highlight = 1, icon = br.player.spell.thunderClap },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.thunderClap },
         [2] = { mode = "Off", value = 2 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
     };
     CreateButton("Rotation",1,0)
@@ -35,6 +35,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge }
     };
     CreateButton("Mover",5,0)
+    TauntModes = {
+        [1] = { mode = "Dun", value = 1 , overlay = "Taunt only in Dungeon", tip = "Taunt will be used in dungeons.", highlight = 1, icon = br.player.spell.taunt },
+        [2] = { mode = "All", value = 2 , overlay = "Auto Taunt Enabled", tip = "Taunt will be used everywhere.", highlight = 1, icon = br.player.spell.taunt },
+        [3] = { mode = "Off", value = 3 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.legSweep }
+    };
+    CreateButton("Taunt",6,0)
 end
 
 ---------------
@@ -57,9 +63,6 @@ local function createOptions()
             br.ui:createSpinner(section, "High Rage Dump", 85, 1, 100, 1, "|cffFFFFFF Set to number of units to use Ignore Pain or Revenge at")
             -- Aoe Threshold
             br.ui:createSpinnerWithout(section, "Aoe Priority", 3, 1, 10, 1, "Set number of units to prioritise TC and Revenge")
-			-- Taunt
-            br.ui:createCheckbox(section,"Taunt","|cffFFFFFFAuto Taunt usage.")
-            br.ui:createCheckbox(section,"Use Heroic Throw","Check to enable Heroic Throw usage in Combat")
             -- Shout Check
             br.ui:createCheckbox(section,"Battle Shout","Enable automatic party buffing")
 		br.ui:checkSectionState(section)
@@ -145,8 +148,9 @@ local function runRotation()
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
+        UpdateToggle("Taunt",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-
+        br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Taunt"]
 --------------
 --- Locals ---
 --------------
@@ -252,14 +256,23 @@ local function runRotation()
             if isChecked("Berserker Rage") and hasNoControl(spell.berserkerRage) then
                 if cast.berserkerRage() then return end
             end
-            if isChecked("Taunt") and inInstance then
+            if br.player.mode.taunt == 1 and inInstance then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                         if cast.taunt(thisUnit) then return end
                     end
                 end
-            end
+            end -- End Taunt
+            if br.player.mode.taunt == 2 then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
+                        if cast.taunt(thisUnit) then return end
+                    end
+                end
+            end -- End Taunt
+    
             if isChecked("Battle Shout") and cast.able.battleShout() then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
