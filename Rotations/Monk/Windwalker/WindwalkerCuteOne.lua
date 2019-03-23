@@ -111,6 +111,7 @@ local function createOptions()
             -- Energizing Elixir
             br.ui:createDropdownWithout(section,"Energizing Elixir", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Energizing Elixir.")
             -- SEF Timer/Behavior
+            br.ui:createSpinnerWithout(section, "SEF Targets", 3, 1, 5, 1, "|cffFFFFFFDesired enemies to cast SEF on.")
             br.ui:createSpinnerWithout(section, "SEF Timer",  0.3,  0,  1,  0.05,  "|cffFFFFFFDesired time in seconds to resume rotation after casting SEF so clones can get into place. This value changes based on different factors so requires some testing to find what works best for you.")
             br.ui:createDropdownWithout(section, "SEF Behavior", {"|cff00FF00Fixate","|cffFFFF00Go Ham!"}, 1, "|cffFFFFFFStorm, Earth, and Fire Behavior.")
             -- Serenity
@@ -434,7 +435,8 @@ actionList.Cooldowns = function()
     end
     -- Storm, Earth, and Fire
     -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
-    if (mode.sef == 2 or (mode.sef == 1 and useCDs())) and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
+    if ((mode.sef == 2 and (#enemies.yards8 >= getOptionValue("SEF Targets") or isBoss())) or (mode.sef == 1 and useCDs())) 
+        and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
         and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15) and not talent.serenity
         and (cast.last.touchOfDeath() or not useCDs() or not isChecked("Touch of Death") or cd.touchOfDeath.remain() > gcd)
     then
