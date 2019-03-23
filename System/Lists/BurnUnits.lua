@@ -4,6 +4,7 @@ end
 -- burnUnits = List of UnitID/Names we should have highest prio on.
 br.lists.burnUnits = {
 	-- old content stuff
+	[30176] = {coef = 100, name = "Ahn'kahar Guardian", id = 30176}, -- Gives boss and other add immune buff while alive. 
 	[71603] = {coef = 100, name = "Immerseus Oozes", id = 71603}, -- kill on sight
 	-- Shadowmoon Burial Grounds
 	[75966] = {coef = 100, name = "Defiled Spirit", id = 75966}, -- need to be cc and snared and is not allowed to reach boss.
