@@ -196,6 +196,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local healPot                                       = getHealthPot()
         local hastar                                        = GetObjectExists("target")
         local inCombat                                      = br.player.inCombat
