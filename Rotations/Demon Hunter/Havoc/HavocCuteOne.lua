@@ -121,6 +121,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Chaos Nova")
             -- Disrupt
             br.ui:createCheckbox(section, "Disrupt")
+            -- Fel Eruption
+            br.ui:createCheckbox(section, "Fel Eruption")
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -297,6 +299,15 @@ end -- End Action List - Defensive
 -- Action List - Interrupts
 actionList.Interrupts = function()
     if useInterrupts() then
+        -- Fel Eruption
+        if isChecked("Fel Eruption") and talent.felEruption then 
+            for i=1, #enemies.yards20 do
+                thisUnit = enemies.yards20[i]
+                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and cast.able.felEruption(thisUnit) then
+                    if cast.felEruption(thisUnit) then return end
+                end
+            end 
+        end
         -- Disrupt
         if isChecked("Disrupt") then
             for i=1, #enemies.yards10 do
@@ -315,7 +326,7 @@ actionList.Interrupts = function()
                 end
             end
         end
-        end -- End useInterrupts check
+    end -- End useInterrupts check
 end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
@@ -723,6 +734,7 @@ local function runRotation()
     enemies.get(5)
     enemies.get(8)
     enemies.get(10)
+    enemies.get(20)
     enemies.get(50)
     enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
