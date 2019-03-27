@@ -541,8 +541,12 @@ local function runRotation()
         local function actionList_ST()
             --Flame Shock
             --actions.single_target=(|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<2*gcd|dot.flame_shock.remains<=gcd|talent.ascendance.enabled&dot.flame_shock.remains<(cooldown.ascendance.remains+buff.ascendance.duration)&cooldown.ascendance.remains<4&(!talent.storm_elemental.enabled|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120))&buff.wind_gust.stack<14&!buff.surge_of_power.up
-            if (not debuff.flameShock.exists("target") or (talent.stormElemental and cd.stormElemental.remains() < 2 * gcd) or (debuff.flameShock.remains("target") <= gcd) or (talent.ascendance and debuff.flameShock.remains("target") < (cd.ascendance.remains() + buff.ascendance.duration()) and cd.ascendance.remains() < 4 and (not talent.stormElemental or not stormEle))) and buff.windGust.stack() < 14 and not buff.surgeOfPower.exists() then
-                if cast.flameShock() then return true end
+            if debuff.flameShock.count() < #enemies.yards40 and #enemies.yards40 <= 2 then
+                for i = 1, #enemies.yards40 do
+                    if (not debuff.flameShock.exists(enemies.yards40[i]) and ((talent.stormElemental and cd.stormElemental.remains() < 2 * gcd) or (debuff.flameShock.remains("target") <= gcd) or (talent.ascendance and debuff.flameShock.remains("target") < (cd.ascendance.remains() + buff.ascendance.duration()) and cd.ascendance.remains() < 4 and (not talent.stormElemental or not stormEle)))) and buff.windGust.stack() < 14 and not buff.surgeOfPower.exists() then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
+                    end
+                end
             end
             --Ascendance
             --actions.single_target+=/ascendance,if=talent.ascendance.enabled&(time>=60|buff.bloodlust.up)&cooldown.lava_burst.remains>0&!talent.storm_elemental.enabled
@@ -621,8 +625,12 @@ local function runRotation()
             end
             -- Flame Shock (Surge of Power)
             --actions.single_target+=/flame_shock,target_if=refreshable&active_enemies>1&buff.surge_of_power.up
-            if talent.surgeOfPower and debuff.flameShock.remain("target") < 5.4 and #enemies.yards40 > 1 and buff.surgeOfPower.exists() then
-                if cast.flameShock() then return true end
+            if debuff.flameShock.count() < #enemies.yards40 and #enemies.yards40 <= 2 then
+                for i = 1, #enemies.yards40 do
+                    if talent.surgeOfPower and debuff.flameShock.remain(enemies.yards40[i]) < 5.4 and #enemies.yards40 > 1 and buff.surgeOfPower.exists() then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
+                    end
+                end
             end
             -- Lightning Bolt (Surge of Power)
             if talent.surgeOfPower and buff.surgeOfPower.exists() and holdBreak then
@@ -630,8 +638,12 @@ local function runRotation()
             end
             --Flame Shock (Refresh)
             --actions.single_target+=/flame_shock,target_if=refreshable
-            if debuff.flameShock.remain("target") < 5.4 and ((talent.surgeOfPower and not buff.surgeOfPower.exists()) or not talent.surgeOfPower) then
-                if cast.flameShock() then return true end
+            if debuff.flameShock.count() < #enemies.yards40 and #enemies.yards40 <= 2 then
+                for i = 1, #enemies.yards40 do
+                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 and ((talent.surgeOfPower and not buff.surgeOfPower.exists()) or not talent.surgeOfPower) then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
+                    end
+                end
             end
             -- Totem Mastery            
             --actions.single_target+=/totem_mastery,if=talent.totem_mastery.enabled&(buff.resonance_totem.remains<6|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15))
@@ -653,8 +665,12 @@ local function runRotation()
             if cast.lightningBolt() and holdBreak then return true end
             -- Moving Flame Shock
             --actions.single_target+=/flame_shock,moving=1,target_if=refreshable
-            if isMoving("player") and debuff.flameShock.remain("target") < 5.4 then
-                if cast.flameShock() then return true end
+            if debuff.flameShock.count() < #enemies.yards40 and #enemies.yards40 <= 2 and isMoving("player") then
+                for i = 1, #enemies.yards40 do
+                    if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 then
+                        if cast.flameShock(enemies.yards40[i]) then return true end
+                    end
+                end
             end
             -- Frost Shock
             --# Frost Shock is our movement filler.
