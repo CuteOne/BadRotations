@@ -342,7 +342,7 @@ local function runRotation()
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
                 end
-                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() and br.player.mode.holdcd == 1 then
+                if isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei") and useCDs() and buff.avatar.exists() and br.player.mode.holdcd == 1 then
                     if cast.racial("player") then return end
                 end
                 if isChecked("Racial") and useCDs() and buff.avatar.exists() then
@@ -375,28 +375,65 @@ local function runRotation()
                                     [279669] = "Bacterial Outbreak",
                                     [279660] = "Endemic Virus",
                                     [274262] = "Explosive Corruption",
+                                    --Reaping
+                                    [288693] = "Grave Bolt",
                                     --Atal'Dazar
                                     [250096] = "Wracking Pain",
+                                    [253562] = "Wildfire",
+                                    [252923] = "Venom Blast",
                                     --Kings Rest
                                     [267618] = "Drain Fluids",
                                     [267308] = "Lighting Bolt",
+                                    [270493] = "Spectral Bolt",
+                                    [269973] = "Deathly Chill",
+                                    [270923] = "Shadow Bolt",
+                                    --Free Hold
+                                    [259092] = "Lightning Bolt",
+                                    [281420] = "Water Bolt",
+                                    --Siege of Boralus
+                                    [272588] = "Rotting Wounds",
+                                    [272581] = "Water Spray",
+                                    [257063] = "Brackish Bolt",
+                                    [272571] = "Choking Waters",
                                     -- Temple of Sethraliss
                                     [263318] = "Jolt",
                                     [263775] = "Gust",
                                     [268061] = "Chain Lightning",
+                                    [272820] = "Shock",
+                                    [268013] = "Flame Shock",
+                                    [274642] = "Lava Burst",
+                                    [268703] = "Lightning Bolt",
+                                    [272699] = "Venomous Spit",
                                     --Shrine of the Storm
                                     [265001] = "Sea Blast",
                                     [264560] = "Choking Brine",
                                     [264144] = "Undertow",
                                     [268347] = "Void Bolt",
+                                    [267969] = "Water Blast",
+                                    [268233] = "Electrifying Shock",
+                                    [268315] = "Lash",
+                                    [268177] = "Windblast",
+                                    [268273] = "Deep Smash",
+                                    [268317] = "Rip Mind",
+                                    [265001] = "Sea Blast",
+                                    [274703] = "Void Bolt",
+                                    [268214] = "Carve Flesh",
                                     --Motherlode
                                     [259856] = "Chemical Burn",
                                     [260318] = "Alpha Cannon",
+                                    [262794] = "Energy Lash",
+                                    [263202] = "Rock Lance",
+                                    [262268] = "Caustic Compound",
+                                    [263262] = "Shale Spit",
+                                    [263628] = "Charged Claw",
                                     --Underrot
                                     [260879] = "Blood Bolt",
+                                    [265084] = "Blood Bolt",
                                     --Told Dagor
                                     [257777] = "Crippling Shiv",
                                     [257033] = "Fuselighter",
+                                    [258150] = "Salt Blast",
+                                    [258869] = "Blaze",
                                     --Waycrest Manor
                                     [260701] = "Bramble Bolt",
                                     [260700] = "Ruinous Bolt",
@@ -404,7 +441,11 @@ local function runRotation()
                                     [268271] = "Wracking Chord",
                                     [261438] = "Wasting Strike",
                                     [261440] = "Virulent Pathogen",
-                                    [266225] = "Darkened Lightning"
+                                    [266225] = "Darkened Lightning",
+                                    [273653] = "Shadow Claw",
+                                    [265881] = "Decaying Touch",
+                                    [264153] = "Spit",
+                                    [278444] = "Infest"
                                 }
                 if isChecked("Smart Spell Reflect") then
                     for i = 1, #enemies.yards30 do
