@@ -41,6 +41,11 @@ local function createToggles()
         [3] = { mode = "Off", value = 3 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt }
     };
     CreateButton("Taunt",6,0)
+    HoldcdModes = {
+        [1] = { mode = "ON", value = 1 , overlay = "CDs will not be held", tip = "CDs will not be held", highlight = 1, icon = br.player.spell.avatar },
+        [2] = { mode = "OFF", value = 2 , overlay = "CDs will be held", tip = "CDs will be held", highlight = 0, icon = br.player.spell.avatar }
+    };
+    CreateButton("Holdcd",7,0)
 end
 
 ---------------
@@ -149,6 +154,8 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         UpdateToggle("Taunt",0.25)
+        UpdateToggle("Holdcd",0.25)
+        br.player.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
         br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
 --------------
@@ -281,7 +288,7 @@ local function runRotation()
                     end
                 end
             end
-            if inCombat and getOptionValue("Trinkets") == 1 then
+            if inCombat and getOptionValue("Trinkets") == 1 and br.player.mode.holdcd == 1 then
                 if canTrinket(13) then
                     useItem(13)
                 end
@@ -325,24 +332,24 @@ local function runRotation()
 
         local function actionList_Cooldowns()
             if useCDs() and #enemies.yards5 >= 1 then
-                if isChecked("Avatar") then
+                if isChecked("Avatar") and br.player.mode.holdcd == 1 then
                     --print("cd avatar")
                     if cast.avatar() then return end
                 end
-                if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
+                if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving and br.player.mode.holdcd == 1 then
                     if cast.demoralizingShout() then return end
                 end
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
                 end
-                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() then
+                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() and br.player.mode.holdcd == 1 then
                     if cast.racial("player") then return end
                 end
                 if isChecked("Racial") and useCDs() and buff.avatar.exists() then
                     CastSpellByName("Berserking")
                 end
                 --Use Trinkets
-                if getOptionValue("Trinkets") == 2 then
+                if getOptionValue("Trinkets") == 2 and br.player.mode.holdcd == 1 then
                     if canTrinket(13) then
                         useItem(13)
                     end
@@ -434,7 +441,7 @@ local function runRotation()
                         useItem(152494)
                     end
                 end
-                if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") then
+                if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") and br.player.mode.holdcd == 1 then
                     if cast.demoralizingShout() then return end
                 end
                 if  isChecked("Last Stand") and php <= getOptionValue("Last Stand") then
@@ -460,7 +467,7 @@ local function runRotation()
 
         local function actionList_Single()
             --Avatar units
-            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
+            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) and br.player.mode.holdcd == 1 then
                 ---print("norm avatar")
                 if cast.avatar() then return end
             end
@@ -471,7 +478,7 @@ local function runRotation()
             end
 
             --Use Demo Shout on CD
-            if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
+            if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving and br.player.mode.holdcd == 1 then
                 if cast.demoralizingShout() then return end
             end
 
