@@ -41,6 +41,11 @@ local function createToggles()
         [3] = { mode = "Off", value = 3 , overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt }
     };
     CreateButton("Taunt",6,0)
+    HoldcdModes = {
+        [1] = { mode = "ON", value = 1 , overlay = "CDs will not be held", tip = "CDs will not be held", highlight = 1, icon = br.player.spell.avatar },
+        [2] = { mode = "OFF", value = 2 , overlay = "CDs will be held", tip = "CDs will be held", highlight = 0, icon = br.player.spell.avatar }
+    };
+    CreateButton("Holdcd",7,0)
 end
 
 ---------------
@@ -149,6 +154,8 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         UpdateToggle("Taunt",0.25)
+        UpdateToggle("Holdcd",0.25)
+        br.player.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
         br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
 --------------
@@ -281,7 +288,7 @@ local function runRotation()
                     end
                 end
             end
-            if inCombat and getOptionValue("Trinkets") == 1 then
+            if inCombat and getOptionValue("Trinkets") == 1 and br.player.mode.holdcd == 1 then
                 if canTrinket(13) then
                     useItem(13)
                 end
@@ -325,24 +332,24 @@ local function runRotation()
 
         local function actionList_Cooldowns()
             if useCDs() and #enemies.yards5 >= 1 then
-                if isChecked("Avatar") then
+                if isChecked("Avatar") and br.player.mode.holdcd == 1 then
                     --print("cd avatar")
                     if cast.avatar() then return end
                 end
-                if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
+                if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving and br.player.mode.holdcd == 1 then
                     if cast.demoralizingShout() then return end
                 end
                 if talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
                 end
-                if isChecked("Racial") and cast.able.racial() and useCDs() and buff.avatar.exists() then
+                if isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei") and useCDs() and buff.avatar.exists() and br.player.mode.holdcd == 1 then
                     if cast.racial("player") then return end
                 end
                 if isChecked("Racial") and useCDs() and buff.avatar.exists() then
                     CastSpellByName("Berserking")
                 end
                 --Use Trinkets
-                if getOptionValue("Trinkets") == 2 then
+                if getOptionValue("Trinkets") == 2 and br.player.mode.holdcd == 1 then
                     if canTrinket(13) then
                         useItem(13)
                     end
@@ -368,28 +375,65 @@ local function runRotation()
                                     [279669] = "Bacterial Outbreak",
                                     [279660] = "Endemic Virus",
                                     [274262] = "Explosive Corruption",
+                                    --Reaping
+                                    [288693] = "Grave Bolt",
                                     --Atal'Dazar
                                     [250096] = "Wracking Pain",
+                                    [253562] = "Wildfire",
+                                    [252923] = "Venom Blast",
                                     --Kings Rest
                                     [267618] = "Drain Fluids",
                                     [267308] = "Lighting Bolt",
+                                    [270493] = "Spectral Bolt",
+                                    [269973] = "Deathly Chill",
+                                    [270923] = "Shadow Bolt",
+                                    --Free Hold
+                                    [259092] = "Lightning Bolt",
+                                    [281420] = "Water Bolt",
+                                    --Siege of Boralus
+                                    [272588] = "Rotting Wounds",
+                                    [272581] = "Water Spray",
+                                    [257063] = "Brackish Bolt",
+                                    [272571] = "Choking Waters",
                                     -- Temple of Sethraliss
                                     [263318] = "Jolt",
                                     [263775] = "Gust",
                                     [268061] = "Chain Lightning",
+                                    [272820] = "Shock",
+                                    [268013] = "Flame Shock",
+                                    [274642] = "Lava Burst",
+                                    [268703] = "Lightning Bolt",
+                                    [272699] = "Venomous Spit",
                                     --Shrine of the Storm
                                     [265001] = "Sea Blast",
                                     [264560] = "Choking Brine",
                                     [264144] = "Undertow",
                                     [268347] = "Void Bolt",
+                                    [267969] = "Water Blast",
+                                    [268233] = "Electrifying Shock",
+                                    [268315] = "Lash",
+                                    [268177] = "Windblast",
+                                    [268273] = "Deep Smash",
+                                    [268317] = "Rip Mind",
+                                    [265001] = "Sea Blast",
+                                    [274703] = "Void Bolt",
+                                    [268214] = "Carve Flesh",
                                     --Motherlode
                                     [259856] = "Chemical Burn",
                                     [260318] = "Alpha Cannon",
+                                    [262794] = "Energy Lash",
+                                    [263202] = "Rock Lance",
+                                    [262268] = "Caustic Compound",
+                                    [263262] = "Shale Spit",
+                                    [263628] = "Charged Claw",
                                     --Underrot
                                     [260879] = "Blood Bolt",
+                                    [265084] = "Blood Bolt",
                                     --Told Dagor
                                     [257777] = "Crippling Shiv",
                                     [257033] = "Fuselighter",
+                                    [258150] = "Salt Blast",
+                                    [258869] = "Blaze",
                                     --Waycrest Manor
                                     [260701] = "Bramble Bolt",
                                     [260700] = "Ruinous Bolt",
@@ -397,7 +441,11 @@ local function runRotation()
                                     [268271] = "Wracking Chord",
                                     [261438] = "Wasting Strike",
                                     [261440] = "Virulent Pathogen",
-                                    [266225] = "Darkened Lightning"
+                                    [266225] = "Darkened Lightning",
+                                    [273653] = "Shadow Claw",
+                                    [265881] = "Decaying Touch",
+                                    [264153] = "Spit",
+                                    [278444] = "Infest"
                                 }
                 if isChecked("Smart Spell Reflect") then
                     for i = 1, #enemies.yards30 do
@@ -434,7 +482,7 @@ local function runRotation()
                         useItem(152494)
                     end
                 end
-                if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") then
+                if isChecked("Demoralizing Shout") and php <= getOptionValue("Demoralizing Shout") and br.player.mode.holdcd == 1 then
                     if cast.demoralizingShout() then return end
                 end
                 if  isChecked("Last Stand") and php <= getOptionValue("Last Stand") then
@@ -460,7 +508,7 @@ local function runRotation()
 
         local function actionList_Single()
             --Avatar units
-            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) then
+            if isChecked("Avatar") and (#enemies.yards8 >= getOptionValue("Avatar Mob Count")) and br.player.mode.holdcd == 1 then
                 ---print("norm avatar")
                 if cast.avatar() then return end
             end
@@ -471,7 +519,7 @@ local function runRotation()
             end
 
             --Use Demo Shout on CD
-            if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving then
+            if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving and br.player.mode.holdcd == 1 then
                 if cast.demoralizingShout() then return end
             end
 

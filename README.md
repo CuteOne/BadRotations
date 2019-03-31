@@ -144,13 +144,14 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Reyne   |  Full   | 8.0   |   100% | :heavy_check_mark:
-Aura    |  Full   | 8.1   |   80% | :white_check_mark:
+Aura    |  Full   | 8.1   |   80%  | :white_check_mark:
 
 - Restoration
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
 Collab |  Full   | 8.0   |   100% | :white_check_mark:
+Aura   |  Full   | 8.1   |   80%  | :interrobang:
 
 ### Hunter
 
