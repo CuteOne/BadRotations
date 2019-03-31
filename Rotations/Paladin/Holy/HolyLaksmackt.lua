@@ -1262,7 +1262,7 @@ local function runRotation()
       end
     end
     -- Judgment as heal
-    if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
+     if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
       if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or traits.graceoftheJusticar or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
         if cast.judgment(units.dyn30) then
           return true
