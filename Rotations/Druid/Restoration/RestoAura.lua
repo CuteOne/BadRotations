@@ -52,6 +52,7 @@ end
     local colorRed      = "|cffFF0000"
     local colorWhite    = "|cffFFFFFF"
     local colorGold     = "|cffFFDD11"
+    local colorYellow   = "|cffFFFF00"
 
 ---------------
 --- OPTIONS ---
@@ -71,7 +72,7 @@ local function createOptions()
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
-		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
+		br.ui:createDropdown(section,"Auto Shapeshifts",{colorGreen.."All",colorYellow.."Travel Only",colorYellow.."DPS Only"},1,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
 		-- DPS
         br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
         br.ui:createDropdown(section,"DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
@@ -420,34 +421,49 @@ local function runRotation()
 		end
 
 		-- Action List - Extras
-		local function actionList_Extras()
-			-- Shapeshift Form Management
-			if isChecked("Auto Shapeshifts") then
-				-- Flight Form
-				if IsFlyableArea() and not IsIndoors() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and falling > 1 and level>=58 then
-					if not noform then
-						clearForm()
-					end
-					CastSpellByID(783,"player")
-					return true
-				end
-				-- Travel Form
-				if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
-					CastSpellByID(783,"player")
-					return true
-				end
-				if not inCombat and moving and not travel and not IsMounted() and not IsIndoors() then
-					CastSpellByID(783,"player")
-					return true
-				end
-				-- Cat Form
-				if not cat and not IsMounted() and IsIndoors() then
-					-- Cat Form when not swimming or flying or stag and not in combat
-					if not inCombat and moving and not swimming and not flying and not travel and not isValidUnit("target") then
-						if cast.catForm("player") then return true end
-					end
-				end
-			end -- End Shapeshift Form Management
+        local function actionList_Extras()
+            if isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 2) then --and br.timer:useTimer("debugShapeshift", 0.25) then    
+            -- Flight Form
+                if not inCombat and canFly() and not swimming and br.fallDist > 90--[[falling > getOptionValue("Fall Timer")]] and level>=58 and not buff.prowl.exists() then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        -- CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783,"player") return true 
+                    else
+                        CastSpellByID(783,"player") return true 
+                    end
+                end
+            -- Aquatic Form
+                if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
+                        if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        -- CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783,"player") return true 
+                    else
+                        CastSpellByID(783,"player") return true 
+                    end
+                end
+            -- Travel Form
+                if not inCombat and not swimming and level >=58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783,"player") return true 
+                    else
+                        CastSpellByID(783,"player") return true 
+                    end
+                end
+            -- Cat Form
+                if not cat and not IsMounted() and not flying and IsIndoors() then
+                    -- Cat Form when not swimming or flying or stag and not in combat
+                    if moving and not swimming and not flying and not travel then
+                        if cast.catForm("player") then return true end
+                    end
+                    -- Cat Form - Less Fall Damage
+                    if (not canFly() or inCombat or level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
+                        if cast.catForm("player") then return true end
+                    end
+                end
+            end -- End Shapeshift Form Management
 			-- Revive
 			if isChecked("Revive") then
                 if getOptionValue("Revive")==1 and hastar and playertar and deadtar then
@@ -1197,35 +1213,56 @@ local function runRotation()
 			-- Guardian Affinity/Level < 45
             if talent.guardianAffinity or level < 45 then
                 -- Sunfire
-                if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
-                    clearForm()
-					if cast.sunfire(units.dyn40) then return true end
-				end
-				-- Moonfire
-                if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
-                    clearForm()
-					if cast.moonfire(units.dyn40) then return true end
-				end
-                if not bear and getDistance("target","player") <= 8 then
+                if not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
+                    if cast.sunfire("target") then return true end
+                end
+                -- Moonfire
+                if (not isChecked("DPS Key") and (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2))) or getDistance("target","player") > 8 then
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+                                if cast.moonfire(thisUnit) then return true end
+                            end
+                        end
+                    end
+                end
+                -- Bear Form
+                if not bear and getDistance("target","player") <= 8 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                     if cast.bearForm("player") then return true end
                 end
-				if bear then
+                if bear then
+                    -- Moonfire
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+                                if cast.moonfire(thisUnit) then return true end
+                            end
+                        end
+                    end
 					if br.player.power.rage.amount() >= 10 and php < 80 and not buff.frenziedRegeneration.exists() then
 						if cast.frenziedRegeneration() then return true end
 					end
 					if br.player.power.rage.amount() >= 45 then
 						if cast.ironfur() then return true end
 					end
-					if GetUnitExists(units.dyn5) then
-					    if cast.mangle(units.dyn5) then return true end
+					if GetUnitExists("target") then
+					    if cast.mangle("target") then return true end
 					end
-					if GetUnitExists(units.dyn8) then
-						if cast.thrashBear(units.dyn8) then return true end
+					if GetUnitExists("target") then
+						if cast.thrashBear("target") then return true end
 					end
 				end
 				-- Solar Wrath
-				if not moving and GetUnitExists(units.dyn40) and getDistance(units.dyn40,"player") > 8 then
-					if cast.solarWrath(units.dyn40) then return true end
+                if not moving and GetUnitExists("target") then
+                    if (isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key") then
+                        if getDistance("target","player") > 8 then 
+                            if cast.solarWrath("target") then return true end
+                        end
+                    elseif (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) then
+                        if cast.solarWrath("target") then return true end
+                    end
 				end
 			end
 			-- Feral Affinity
@@ -1244,7 +1281,7 @@ local function runRotation()
                     end
                     if debuff.sunfire.remains("target") > 2 and debuff.moonfire.remains("target") > 2 then
                         -- Cat Form
-                        if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and getDistance("target","player") then
+                        if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and getDistance("target","player") and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                             if cast.catForm("player") then return true end
                         end
                     end
@@ -1266,25 +1303,29 @@ local function runRotation()
                     end
                 elseif #enemies.yards8 > 1 and #enemies.yards8 < 4 then
                     -- Sunfire 
-                    if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") then
+                    if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
                         if cast.sunfire("target") then return true end
                     end
                     -- Moonfire
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.moonfire.exists(thisUnit) then
-                            if cast.moonfire(thisUnit) then return true end
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
+                            if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+                                if cast.moonfire(thisUnit) then return true end
+                            end
                         end
                     end
                     -- Sunfire
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.sunfire.exists(thisUnit) then
-                            if cast.sunfire(thisUnit) then return true end
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
+                            if not debuff.sunfire.exists(thisUnit) then
+                                if cast.sunfire(thisUnit) then return true end
+                            end
                         end
                     end
                     -- Cat Form
-                    if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and #enemies.yards8 > 0 then
+                    if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and #enemies.yards8 > 0 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                         if cast.catForm("player") then return true end
                     end
                     -- Rake
@@ -1315,21 +1356,25 @@ local function runRotation()
                     end
                 elseif #enemies.yards8 >= 4 then
                     --Sunfire
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.sunfire.exists(thisUnit) then
-                            if cast.sunfire(thisUnit) then return true end
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
+                            if not debuff.sunfire.exists(thisUnit) then
+                                if cast.sunfire(thisUnit) then return true end
+                            end
                         end
                     end
                     -- Moonfire
-                    for i = 1, #enemies.yards8 do
-                        local thisUnit = enemies.yards8[i]
-                        if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
-                            if cast.moonfire(thisUnit) then return true end
+                    if mana >= getOptionValue("DPS Save mana") then
+                        for i = 1, #enemies.yards8 do
+                            local thisUnit = enemies.yards8[i]
+                            if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+                                if cast.moonfire(thisUnit) then return true end
+                            end
                         end
                     end
                     -- Cat Form
-                    if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and #enemies.yards8 > 0 then
+                    if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and #enemies.yards8 > 0 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                         if cast.catForm("player") then return true end
                     end
                     -- Swipe
@@ -1337,7 +1382,7 @@ local function runRotation()
                         if cast.swipeCat() then return true end
                     end
                     -- Bear Form
-                    if br.player.power.energy.amount() < 35 and not bear then
+                    if br.player.power.energy.amount() < 35 and not bear and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                         bearTimer = GetTime()
                         catRecharge = br.player.power.energy.ttm()
                         if cast.bearForm("player") then return true end
@@ -1351,7 +1396,7 @@ local function runRotation()
 			-- Balance Affinity
 			if talent.balanceAffinity then
 				-- Moonkin form
-				if not moonkin and not moving and not travel and not IsMounted() and GetTime() - shiftTimer > 5 then
+				if not moonkin and not moving and not travel and not IsMounted() and GetTime() - shiftTimer > 5 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
 					for i = 1, #br.friend do
 						if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) < 5 then
 							return
@@ -1367,14 +1412,24 @@ local function runRotation()
 				if moonkin then
 					if cast.starsurge() then return true end
 				end
-				-- Sunfire
-				if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) and (not travel or (travel and not moving)) then
-					if cast.sunfire(units.dyn40) then return true end
-				end
-				-- Moonfire
-				if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) and (not travel or (travel and not moving)) then
-					if cast.moonfire(units.dyn40) then return true end
-				end
+                -- Sunfire
+                if mana >= getOptionValue("DPS Save mana") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not debuff.sunfire.exists(thisUnit) then
+                            if cast.sunfire(thisUnit) then return true end
+                        end
+                    end
+                end
+                -- Moonfire
+                if mana >= getOptionValue("DPS Save mana") then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+                            if cast.moonfire(thisUnit) then return true end
+                        end
+                    end
+                end
 				-- Lunar Strike charged
 				if moonkin and buff.lunarEmpowerment.exists() then
 					if cast.lunarStrike() then return true end
@@ -1397,7 +1452,7 @@ local function runRotation()
 		--- Rotations ---
 		-----------------
 		-- Pause
-		if pause(true) or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking then
+		if pause(true) or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking or buff.tranquility.exists() then
 			return true
 		else
 			---------------------------------
@@ -1421,9 +1476,6 @@ local function runRotation()
                 if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) and isChecked("DPS Key") then
                     if actionList_DPS() then return true end
                 else
-                    if not noform and not buff.incarnationTreeOfLife.exists() and not isChecked("Auto Shapeshifts") then
-                        clearForm()
-                    end
                     if key() then return end
 				    if BossEncounterCase() then return end
                     if actionList_Defensive() then return end
