@@ -283,7 +283,7 @@ local function runRotation()
 
 		shiftTimer = shiftTimer or 0
 		local function clearForm()
-			if not noform then
+			if not noform and not buff.incarnationTreeOfLife.exists() then
 				RunMacroText("/CancelForm")
 			end
 		end
@@ -432,7 +432,7 @@ local function runRotation()
 					return true
 				end
 				-- Travel Form
-				if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() and not IsIndoors() then
+				if not inCombat and swimming and not travel and not hastar and not deadtar and not buff.prowl.exists() then
 					CastSpellByID(783,"player")
 					return true
 				end
@@ -1196,7 +1196,17 @@ local function runRotation()
 		local function actionList_DPS()
 			-- Guardian Affinity/Level < 45
             if talent.guardianAffinity or level < 45 then
-                if not bear then
+                -- Sunfire
+                if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
+                    clearForm()
+					if cast.sunfire(units.dyn40) then return true end
+				end
+				-- Moonfire
+                if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
+                    clearForm()
+					if cast.moonfire(units.dyn40) then return true end
+				end
+                if not bear and getDistance("target","player") <= 8 then
                     if cast.bearForm("player") then return true end
                 end
 				if bear then
@@ -1212,16 +1222,6 @@ local function runRotation()
 					if GetUnitExists(units.dyn8) then
 						if cast.thrashBear(units.dyn8) then return true end
 					end
-				end
-				-- Sunfire
-                if not debuff.sunfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
-                    clearForm()
-					if cast.sunfire(units.dyn40) then return true end
-				end
-				-- Moonfire
-                if not debuff.moonfire.exists(units.dyn40) and mana >= getOptionValue("DPS Save mana") and GetUnitExists(units.dyn40) then
-                    clearForm()
-					if cast.moonfire(units.dyn40) then return true end
 				end
 				-- Solar Wrath
 				if not moving and GetUnitExists(units.dyn40) and getDistance(units.dyn40,"player") > 8 then
@@ -1397,7 +1397,7 @@ local function runRotation()
 		--- Rotations ---
 		-----------------
 		-- Pause
-		if pause() or mode.rotation == 4 or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking then
+		if pause(true) or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking then
 			return true
 		else
 			---------------------------------
@@ -1421,7 +1421,7 @@ local function runRotation()
                 if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) and isChecked("DPS Key") then
                     if actionList_DPS() then return true end
                 else
-                    if not noform and not isChecked("Auto Shapeshifts") then
+                    if not noform and not buff.incarnationTreeOfLife.exists() and not isChecked("Auto Shapeshifts") then
                         clearForm()
                     end
                     if key() then return end
