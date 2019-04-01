@@ -72,7 +72,8 @@ local function createOptions()
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
-		br.ui:createDropdown(section,"Auto Shapeshifts",{colorGreen.."All",colorYellow.."Travel Only",colorYellow.."DPS Only"},1,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
+        br.ui:createDropdown(section,"Auto Shapeshifts",{colorGreen.."All",colorYellow.."Travel Only",colorYellow.."DPS Only"},1,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
+        br.ui:createCheckbox(section,"Bear Form Shifting", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFShapeshifting into Bear Form to DPS for Guardian Affinity")
 		-- DPS
         br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
         br.ui:createDropdown(section,"DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
@@ -622,7 +623,7 @@ local function runRotation()
 				end
 				-- Innervate
 				if isChecked("Innervate") and mana ~= nil then
-					if getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80 then
+					if (getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80) then
 						if cast.innervate("player") then return true end
 					end
 				end
@@ -1228,7 +1229,7 @@ local function runRotation()
                     end
                 end
                 -- Bear Form
-                if not bear and getDistance("target","player") <= 8 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
+                if not bear and isChecked("Bear Form Shifting") and getDistance("target","player") <= 8 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                     if cast.bearForm("player") then return true end
                 end
                 if bear then
@@ -1281,7 +1282,7 @@ local function runRotation()
                     end
                     if debuff.sunfire.remains("target") > 2 and debuff.moonfire.remains("target") > 2 then
                         -- Cat Form
-                        if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and getDistance("target","player") and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
+                        if not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and getDistance("target","player") <= 8 and ((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key")) then
                             if cast.catForm("player") then return true end
                         end
                     end
