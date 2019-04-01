@@ -517,8 +517,8 @@ function isCastingSpell(spellID,unit)
 end
 -- if isCasting(12345,"target") then
 function isCasting(SpellID,Unit)
-	if GetObjectExists(Unit) and GetUnitIsVisible(Unit) then
-		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then
+	if GetUnitIsVisible(Unit) and UnitCastingInfo(Unit) then
+		if UnitCastingInfo(Unit) == GetSpellInfo(SpellID) then
 			return true
 		end
 	else
