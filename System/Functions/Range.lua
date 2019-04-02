@@ -1,9 +1,9 @@
 local sqrt, abs, atan, deg, tan = math.sqrt, math.abs, math.atan, math.deg, math.tan
 local testSpell = {
-    ["WAR"] = 6552,
-    ["PAL" ] = 35395,
+    ["WARRIOR"] = 6552,
+    ["PALADIN"] = 35395,
     ["ROGUE"] = 1766,
-    ["DK"] = 49998,
+    ["DEATHKNIGHT"] = 49998,
     ["MONK"] = 100780,
     ["SHAMAN"] = 17364,
     ["DRUIDC"] = 5221,
@@ -16,11 +16,12 @@ local testSpell = {
 function getDistance(Unit1,Unit2,option)
     local currentDist = 100
     local meleeSpell = nil
-    if testSpell[select(2,UnitClass("player"))] ~= nil then
-        meleeSpell = testSpell[select(2,UnitClass("player"))]
-    elseif select(2,UnitClass("player")) == "DRUID" and UnitBuffID("player",768) then
+    local playerClass = select(2,UnitClass("player"))
+    if testSpell[playerClass] ~= nil then
+        meleeSpell = testSpell[playerClass]
+    elseif playerClass == "DRUID" and UnitBuffID("player",768) then
         meleeSpell = testSpell["DRUIDC"]
-    elseif select(2,UnitClass("player")) == "DRUID" and UnitBuffID("player",5487) then
+    elseif playerClass == "DRUID" and UnitBuffID("player",5487) then
         meleeSpell = testSpell["DRUIDB"]
     elseif select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
         meleeSpell = testSpell["SHUNTER"]
