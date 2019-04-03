@@ -649,11 +649,13 @@ function br.loader:new(spec,specName)
                 end
             end
 
-            self.cast.pool[k] = function(altPower,specificAmt)
-                local powerType = select(2,UnitPowerType("player")):lower()
+            self.cast.pool[k] = function(altPower, specificAmt, multiplier)                
+                local powerType = select(2, UnitPowerType("player")):lower()
                 specificAmt = specificAmt or 0
+                multiplier = multiplier or 1
                 if altPower == nil then altPower = false end
-                return self.power[powerType].amount() < self.cast.cost[k](altPower) or self.power[powerType].amount() < specificAmt
+                return self.power[powerType].amount() < self.cast.cost[k](altPower) * multiplier or
+                    self.power[powerType].amount() < specificAmt
             end
 
             self.cast.current[k] = function(spellID,unit)
