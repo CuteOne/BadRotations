@@ -649,7 +649,7 @@ function br.loader:new(spec,specName)
                 end
             end
 
-            self.cast.pool[k] = function(altPower, specificAmt, multiplier)                
+            self.cast.pool[k] = function(altPower, specificAmt, multiplier)
                 local powerType = select(2, UnitPowerType("player")):lower()
                 specificAmt = specificAmt or 0
                 multiplier = multiplier or 1
