@@ -312,7 +312,7 @@ local function runRotation()
 				if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
 					if GetSpellCooldown(115175) == 0 and getBuffRemain("target",115175,"EXACT") == 0 then
 						CastSpellByName(GetSpellInfo(115175),"target") return true
-					elseif getBuffRemain("target",115175,"EXACT") > 1 then
+					elseif getBuffRemain("target",115175,"EXACT") > 1 and getBuffRemain("target",124682) < 1 then
 						CastSpellByName(GetSpellInfo(124682),"target") return true
 					elseif getBuffRemain("target",115175,"EXACT") > 1 and getBuffRemain("target",124682) > 1 then
 						CastSpellByName(GetSpellInfo(116670),"target") return true

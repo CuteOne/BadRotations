@@ -32,6 +32,13 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = spell.mindFreeze }
     };
     CreateButton("Interrupt",4,0)
+-- Death And Decay Button
+    DnDModes = {
+        [1] = { mode = "On", value = 1 , overlay = "DnD Enabled", tip = "Will use DnD.", highlight = 1, icon = spell.deathAndDecay },
+        [2] = { mode = "Off", value = 2 , overlay = "DnD Disabled", tip = "will NOT use DnD.", highlight = 0, icon = spell.deathAndDecay }
+    };
+    CreateButton("DnD",5,0)
+
 end
 
 ---------------
@@ -172,6 +179,8 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
+    UpdateToggle("DnD",0.25)
+    br.player.mode.dnd = br.data.settings[br.selectedSpec].toggles["DnD"]
 --------------
 --- Locals ---
 --------------
@@ -471,14 +480,14 @@ local function runRotation()
     local function actionList_AOE()
     -- Death and Decay 
         -- death_and_decay,if=cooldown.apocalypse.remains 
-        if cast.able.deathAndDecay("best",nil,1,8) and not talent.defile 
+        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile 
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
         then 
             if cast.deathAndDecay("best",nil,1,8) then return end 
         end
     -- Defile 
         -- defile 
-        if cast.able.defile("best",nil,1,8) then 
+        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) then 
             if cast.defile("best",nil,1,8) then return end 
         end 
     -- Epidemic 
@@ -495,6 +504,7 @@ local function runRotation()
         -- scourge_strike,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.scourgeStrike() and not talent.clawingShadows and deathAndDecayRemain > 0
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
+            and debuff.festeringWound.stack(units.dyn5) > 0
         then 
             if cast.scourgeStrike() then return end 
         end
@@ -588,14 +598,14 @@ local function runRotation()
         end 
     -- Death and Decay 
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
-        if cast.able.deathAndDecay("best",nil,1,8) and not talent.defile and talent.pestilence
+        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile and talent.pestilence
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
         then 
             if cast.deathAndDecay("best",nil,1,8) then return end 
         end 
     -- Defile 
         -- defile,if=cooldown.apocalypse.remains
-        if cast.able.defile("best",nil,1,8) and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
+        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike 
