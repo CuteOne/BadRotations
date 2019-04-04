@@ -89,6 +89,7 @@ local function createOptions()
             br.ui:createDropdown(section, "Potion", {"Agility", "Bursting Blood"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vanish", "|cffFFFFFF Will use Vanish")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
+            br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -640,8 +641,13 @@ local function runRotation()
         if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
-                if cast.vendetta("target") then return true end
+            if isChecked("Vendetta") and not stealthedRogue then
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                    if cast.vendetta("target") then return true end
+                end
+                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                    if cast.vendetta("target") then return true end
+                end
             end
             if isChecked("Vanish") and not stealthedRogue and targetDistance < 5 and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
