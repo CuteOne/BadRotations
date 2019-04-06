@@ -411,7 +411,8 @@ local function runRotation()
                 if cast.cripplingPoison("player") then return true end
             end
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() then
+            if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() and
+            (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
                 end
@@ -437,7 +438,10 @@ local function runRotation()
             if isChecked("Auto Defensive Unavoidables") then
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
-                if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
+                if bossID == 126848 and br.DBM:getTimer(256979) <= 1 and not isCastingSpell(256979, "boss1") then -- pause 1 sec before cast for pooling
+                    return true
+                end
+                if bossID == 126848 and isCastingSpell(256979, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
                     if talent.elusiveness then
                         if cast.feint() then return true end
                     elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
@@ -476,13 +480,13 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(healPot))
-                and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasHealthPot() or has.healthstone())
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(152494))
+            and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUse(healPot) then
-                    useItem(healPot)
+                elseif canUse(152494) then
+                    useItem(152494)
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
