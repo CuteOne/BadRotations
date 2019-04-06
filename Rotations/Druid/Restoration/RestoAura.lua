@@ -73,9 +73,10 @@ local function createOptions()
 		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  0,  20,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
         br.ui:createDropdown(section,"Auto Shapeshifts",{colorGreen.."All",colorYellow.."Travel Only",colorYellow.."DPS Only"},1,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
-        br.ui:createCheckbox(section,"Bear Form Shifting", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFShapeshifting into Bear Form to DPS for Guardian Affinity")
+		br.ui:createCheckbox(section,"Bear Form Shifting", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFShapeshifting into Bear Form to DPS for Guardian Affinity")
+		br.ui:createSpinnerWithout(section, "Temple of Seth Heal",70,0,100,5)
 		-- DPS
-        br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "","|cffFFFFFFMinimum Health to DPS")
+        br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFMinimum Health to DPS")
         br.ui:createDropdown(section,"DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
 		-- DPS Save mana
 		br.ui:createSpinnerWithout(section, "DPS Save mana",  40,  0,  100,  5,  "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
@@ -84,7 +85,7 @@ local function createOptions()
 		-- Revive
 		br.ui:createDropdown(section, "Revive", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Necrotic Rot
-		br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "","|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
+		br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1,"|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
 		br.ui:checkSectionState(section)
 		-- Cooldown Options
 		section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -94,25 +95,25 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Racial")
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)")
-		br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1, "","")
+		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "Minimum Trinket 1 Targets(This includes you)")
+		br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1 )
 		br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  4,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)")
-		br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1, "","")
+		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  4,  1,  40,  1,  "Minimum Trinket 2 Targets(This includes you)")
+		br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal","|cffFFFFFFTarget"}, 1)
 		-- Innervate
 		br.ui:createSpinner(section, "Innervate",  60,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Innervate Targets",  3,  0,  40,  1,  "","Minimum Innervate Targets")
+		br.ui:createSpinnerWithout(section, "Innervate Targets",  3,  0,  40,  1,"Minimum Innervate Targets")
 		--Incarnation: Tree of Life
 		br.ui:createSpinner(section, "Incarnation",  60,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Incarnation Targets",  3,  0,  40,  1,  "","Minimum Incarnation: Tree of Life Targets")
+		br.ui:createSpinnerWithout(section, "Incarnation Targets",  3,  0,  40,  1, "Minimum Incarnation: Tree of Life Targets")
 		-- Tranquility
 		br.ui:createSpinner(section, "Tranquility",  50,  0,  100,  5,  "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Tranquility Targets",  3,  0,  40,  1,  "","Minimum Tranquility Targets")
+		br.ui:createSpinnerWithout(section, "Tranquility Targets",  3,  0,  40,  1, "Minimum Tranquility Targets")
 		br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Rebirth
-		br.ui:createDropdown(section, "Rebirth", {"|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 1, "","|cffFFFFFFTarget to cast on")
+		br.ui:createDropdown(section, "Rebirth", {"|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 1, "|cffFFFFFFTarget to cast on")
 		-- Healthstone
 		br.ui:createSpinner(section, "Healthstone",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Barkskin
@@ -126,7 +127,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Mighty Bash")
         br.ui:createCheckbox(section, "Typhoon")
 		-- Interrupt Percentage
-		br.ui:createSpinner(section,  "InterruptAt",  95,  0,  95,  5,  "","|cffFFBB00Cast Percentage to use at.")
+		br.ui:createSpinner(section,  "InterruptAt",  95,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
 		br.ui:checkSectionState(section)
 		-- Healing Options
 		section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -140,41 +141,41 @@ local function createOptions()
 		-- Lifebloom
 		br.ui:createDropdown(section,"Lifebloom",{"|cffFFFFFFTank","|cffFFFFFFBoss1 Target","|cffFFFFFFSelf","|cffFFFFFFFocus"}, 1, "|cffFFFFFFTarget for Lifebloom")
 		-- Cenarion Ward
-		br.ui:createSpinner(section, "Cenarion Ward",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Cenarion Ward",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Cenarion Ward Target", {"|cffFFFFFFTank","|cffFFFFFFBoss1 Target","|cffFFFFFFSelf","|cffFFFFFFAny"}, 1, "|cffFFFFFFcast Cenarion Ward Target")
 		-- Ironbark
-		br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "","Health Percent to Cast At")
+		br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Ironbark Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Ironbark Target")
 		-- Swiftmend
-		br.ui:createSpinner(section, "Swiftmend", 30, 0, 100, 5, "","Health Percent to Cast At")
+		br.ui:createSpinner(section, "Swiftmend", 30, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createDropdownWithout(section, "Swiftmend Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny"}, 7, "|cffFFFFFFcast Swiftmend Target")
 		-- Rejuvenation
-		br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Rejuvenation Tank",  90,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Max Rejuvenation Targets",  10,  0,  20,  1,  "","|cffFFFFFFMaximum Rejuvenation Targets")
+		br.ui:createSpinner(section, "Rejuvenation",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Rejuvenation Tank",  90,  0,  100,  5, "|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Max Rejuvenation Targets",  10,  0,  20,  1, "|cffFFFFFFMaximum Rejuvenation Targets")
 		-- Germination
-		br.ui:createSpinnerWithout(section, "Germination",  70,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Germination Tank",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Germination",  70,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Germination Tank",  80,  0,  100,  5, "|cffFFFFFFHealth Percent to Cast At")
 		-- Hot Regrowth
-		br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
-		br.ui:createSpinner(section, "Hot Regrowth Tank",  90,  0,  100,  5,  "","|cffFFFFFFTank Health Percent priority Cast At")
-		br.ui:createSpinner(section, "Hot Regrowth",  80,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Regrowth Clearcasting",  80,  0,  100,  5, "|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Hot Regrowth Tank",  90,  0,  100,  5, "|cffFFFFFFTank Health Percent priority Cast At")
+		br.ui:createSpinner(section, "Hot Regrowth",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Regrowth
-		br.ui:createSpinner(section, "Regrowth Tank",  50,  0,  100,  5,  "","|cffFFFFFFTank Health Percent priority Cast At")
-		br.ui:createSpinner(section, "Regrowth",  30,  0,  100,  5,  "","|cffFFFFFFHealth Percent to Cast At")
+		br.ui:createSpinner(section, "Regrowth Tank",  50,  0,  100,  5, "|cffFFFFFFTank Health Percent priority Cast At")
+		br.ui:createSpinner(section, "Regrowth",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Cultivation
 		br.ui:createCheckbox(section,"Cultivation","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFrejuvenation priority when less than 5 targets are below 60% hp|cffFFBB00.")
 		-- Wild Growth
-		br.ui:createSpinner(section, "Wild Growth",  80,  0,  100,  5,  "","Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Wild Growth Targets",  3,  0,  40,  1,  "","Minimum Wild Growth Targets")
-		br.ui:createSpinner(section, "Soul of the Forest + Wild Growth",  80,  0,  100,  5,  "","Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Soul of the Forest + Wild Growth Targets",  3,  0,  40,  1,  "","Minimum Soul of the Forest + Wild Growth Targets")
+		br.ui:createSpinner(section, "Wild Growth",  80,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Wild Growth Targets",  3,  0,  40,  1,  "Minimum Wild Growth Targets")
+		br.ui:createSpinner(section, "Soul of the Forest + Wild Growth",  80,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Soul of the Forest + Wild Growth Targets",  3,  0,  40,  1,  "Minimum Soul of the Forest + Wild Growth Targets")
 		br.ui:createDropdownWithout(section, "Swiftmend + Wild Growth key", br.dropOptions.Toggle, 6)
 		-- Flourish
-		br.ui:createSpinner(section, "Flourish",  60,  0,  100,  5,  "","Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Flourish Targets",  3,  0,  40,  1,  "","Minimum Flourish Targets")
-		br.ui:createSpinnerWithout(section, "Flourish HOT Targets",  5,  0,  40,  1,  "","Minimum HOT Targets cast Flourish")
-		br.ui:createSpinnerWithout(section, "HOT Time count",  8,  0,  25,  1,  "","HOT Less than how many seconds to count")
+		br.ui:createSpinner(section, "Flourish",  60,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Flourish Targets",  3,  0,  40,  1,  "Minimum Flourish Targets")
+		br.ui:createSpinnerWithout(section, "Flourish HOT Targets",  5,  0,  40,  1,  "Minimum HOT Targets cast Flourish")
+		br.ui:createSpinnerWithout(section, "HOT Time count",  8,  0,  25,  1,  "HOT Less than how many seconds to count")
 		br.ui:checkSectionState(section)
 		-- Toggle Key Options
 		section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -371,22 +372,24 @@ local function runRotation()
 
 		local function BossEncounterCase()
 			-- Temple of Sethraliss
-			for i = 1, GetObjectCount() do
-				local thisUnit = GetObjectWithIndex(i)
-				if GetObjectID(thisUnit) == 133392 then
-					sethObject = thisUnit
-					if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 then
-						if talent.germination and not buff.rejuvenationGermination.exists(sethObject) then
-							clearForm()
-							if CastSpellByName(GetSpellInfo(774),sethObject) then return true end
-						end
-						if not buff.rejuvenation.exists(sethObject) then
-							clearForm()
-							if CastSpellByName(GetSpellInfo(774),sethObject) then return true end
-						end
-						if buff.rejuvenation.exists(sethObject) then
-							clearForm()
-							if CastSpellByName(GetSpellInfo(8936),sethObject) then return true end
+			if lowest.hp > getOptionValue("Temple of Seth Heal") then
+				for i = 1, GetObjectCount() do
+					local thisUnit = GetObjectWithIndex(i)
+					if GetObjectID(thisUnit) == 133392 then
+						sethObject = thisUnit
+						if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 then
+							if talent.germination and not buff.rejuvenationGermination.exists(sethObject) then
+								clearForm()
+								if CastSpellByName(GetSpellInfo(774),sethObject) then return true end
+							end
+							if not buff.rejuvenation.exists(sethObject) then
+								clearForm()
+								if CastSpellByName(GetSpellInfo(774),sethObject) then return true end
+							end
+							if buff.rejuvenation.exists(sethObject) then
+								clearForm()
+								if CastSpellByName(GetSpellInfo(8936),sethObject) then return true end
+							end
 						end
 					end
 				end
@@ -559,7 +562,7 @@ local function runRotation()
                     local thisUnit = enemies.yards15[i]
                     if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
                         -- Typhoon
-                        if isChecked("Typhoon") and talent.typhoon then
+                        if isChecked("Typhoon") and talent.typhoon and getFacing("player",thisUnit) then
                             if cast.typhoon() then return end
                         end
                         -- Mighty Bash
@@ -605,12 +608,12 @@ local function runRotation()
                         end
                     end
                 end
-                if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+                if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                     useItem(13)
                     br.addonDebug("Using Trinket 1")
                     return true
                 end
-                if isChecked("Trinket 2") and canUse(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+                if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
                     useItem(14)
                     br.addonDebug("Using Trinket 2")
                     return true
@@ -853,6 +856,22 @@ local function runRotation()
                         if cast.swiftmend(lowest.unit) then return true end
                     end
                 end
+			end
+			-- Emergency Regrowth
+			if not moving or buff.incarnationTreeOfLife.exists() then
+				for i = 1, #br.friend do
+					if isChecked("Regrowth Tank") and br.friend[i].hp <= 50 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
+						if not moonkin then
+							clearForm()
+						end
+						if cast.regrowth(br.friend[i].unit) then return true end
+					elseif isChecked("Regrowth") and br.friend[i].hp <= 30 and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit,209858) < getValue("Necrotic Rot"))) then
+						if not moonkin then
+							clearForm()
+						end
+						if cast.regrowth(br.friend[i].unit) then return true end
+					end
+				end
 			end
 			-- In advance cast Lifebloom
 			if isChecked("Lifebloom") and not cat and not travel then
@@ -1474,8 +1493,8 @@ local function runRotation()
 			--- In Combat - Rotations ---
 			-----------------------------
             if inCombat then
-                if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) and isChecked("DPS Key") then
-                    if actionList_DPS() then return true end
+                if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and isChecked("DPS Key") and lowest.hp > getOptionValue("DPS") then
+                    if actionList_DPS() then return end
                 else
                     if key() then return end
 				    if BossEncounterCase() then return end
@@ -1483,15 +1502,13 @@ local function runRotation()
                     if actionList_Cooldowns() then return end
                     if actionList_Interrupts() then return end
                     if not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") and not GetUnitIsFriend("target") then
-                        if actionList_DPS() then return true end
+                        if actionList_DPS() then return end
                     end
-                    if ((mode.dps == 2 and br.friend[1].hp <= getValue("DPS")) or mode.dps == 1) and not bear then
-                        if actionList_Decurse() then return end
-                        if actionList_AOEHealing() then return end
-                        if actionList_SingleTarget() then return end
-                        if actionList_Rejuvenation() then return end
-                        if actionList_RejuvenationMode() then return end
-                    end
+                    if actionList_Decurse() then return end
+					if actionList_AOEHealing() then return end
+					if actionList_SingleTarget() then return end
+					if actionList_Rejuvenation() then return end
+					if actionList_RejuvenationMode() then return end
                 end
 			end -- End In Combat Rotation
 		end -- Pause
