@@ -11,20 +11,20 @@ function canUse(itemID)
 	if itemID == 0 or getHP("player") == 0 then
 		return false
 	end
-	if (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID) or itemID <= 19) and
-		(IsEquippedItem(itemID) or (not IsEquippableItem(itemID) and (hasItem(itemID) or itemID <= 19)))
-	then
-		if itemID <= 19 then
-			local slotItemID = GetInventoryItemID("player", itemID)
-			if GetItemSpell(slotItemID) ~= nil then
-				if GetItemCooldown(slotItemID) == 0 then
-					return true
-				end
+	if itemID <= 19 then
+		local slotItemID = GetInventoryItemID("player", itemID)
+		if GetItemSpell(slotItemID) ~= nil then
+			if GetItemCooldown(slotItemID) == 0 then
+				return true
 			end
-		elseif itemID > 19 and GetItemCooldown(itemID) == 0 then
-			return true
 		end
-	end
+	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
+	((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
+	then 
+		if itemID > 19 and GetItemCooldown(itemID) == 0 then
+			return true
+			end
+		end
 	return false
 end
 -- if canTrinket(13) then
