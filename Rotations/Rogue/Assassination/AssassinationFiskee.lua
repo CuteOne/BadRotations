@@ -15,8 +15,7 @@ local function createToggles() -- Define custom toggles
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.garrote },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fanOfKnives },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.stealth}
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate }
     };
     CreateButton("Rotation",1,0)
     CooldownModes = {
@@ -830,7 +829,7 @@ local function runRotation()
         end
         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
         -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking&variable.single_target 
-        if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") and #enemyTable10 == 1 then
+        if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") and #enemies.yards30 == 1 then
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge w/ Shrouded Suffocation: Reapply for bonus CP and extended snapshot duration
