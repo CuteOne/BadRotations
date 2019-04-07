@@ -288,7 +288,8 @@ local function runRotation()
   local moving = isMoving("player")
   -------------
   -- Raid
-  -------------
+  ------------
+  
   local tanks = getTanksTable()
   local lowest = br.friend[1]
   local friends = friends or {}
@@ -1231,7 +1232,7 @@ local function runRotation()
         end
       end
       -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-      if isChecked("Holy Shock Damage") and lowest.hp > getValue("DPS Health") and cast.able.holyShock() and ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) and mana > getValue("DPS Mana") then
+      if isChecked("Holy Shock Damage") and lowest.hp > getValue("DPS Health") and cast.able.holyShock() and ((inInstance and #tanks >0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) and mana > getValue("DPS Mana") then
         if cast.holyShock(units.dyn40) then
           return true
         end
@@ -1262,7 +1263,7 @@ local function runRotation()
       end
     end
     -- Judgment as heal
-     if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
+    if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks >0 and  getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
       if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or traits.graceoftheJusticar or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
         if cast.judgment(units.dyn30) then
           return true
@@ -1381,7 +1382,7 @@ local function runRotation()
             return x.hp < y.hp
           end)
         end
-        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil then
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and inCombat then
           if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
             if glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
@@ -1449,10 +1450,11 @@ local function runRotation()
         --count grievance stacks here
         if isChecked("Grievous Wounds") then
           local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
-
           if CurrentBleedstack > BleedStack then
             BleedStack = CurrentBleedstack
             BleedFriend = br.friend[i]
+          --debug stuff
+            Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
           end
         end
         if isChecked("Mastery bonus") and inRaid then
@@ -1586,19 +1588,16 @@ local function runRotation()
         end
       end
     end
-
-
     --/whispers-of-power  and getDebuffStacks(lowest.unit, 267034) < 2
-    if BleedFriend ~= nil then
-      if php >= 60 and BleedFriend.hp > 70 and getDebuffStacks(BleedFriend, 267034) < 2 then
-
+    if BleedFriend ~= nil and BleedFriend ~= player then
+      if cast.able.lightOfTheMartyr() and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 then
         if cast.lightOfTheMartyr(BleedFriend.unit) then
           return true
         end
       end
-      if cast.flashOfLight(BleedFriend.unit) then
+      if cast.able.flashOfLight() then if cast.flashOfLight(BleedFriend.unit) then
         return true
-      end
+      end end
     end
     -- Divine Shield and Light of the Martyr
     if lightOfTheMartyrDS ~= nil and php <= getValue("Critical HP") then
