@@ -6,6 +6,7 @@ rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}
 local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
 local garrotePrioList = ""
+local fhbossPool = false
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
@@ -201,6 +202,7 @@ local function runRotation()
     if profileStop == nil then profileStop = false end
 
     if not UnitAffectingCombat("player") then
+        if fhbossPool then fhbossPool = false end
         if not talent.exsanguinate then
             if talent.toxicBlade then
                 buttonTB:Show()
@@ -437,20 +439,30 @@ local function runRotation()
             if isChecked("Auto Defensive Unavoidables") then
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
-                if bossID == 126848 and br.DBM:getTimer(256979) <= 1 and not isCastingSpell(256979, "boss1") then -- pause 1 sec before cast for pooling
-                    return true
+                local boss2ID = GetObjectID("boss2")
+                local boss = "boss1"
+                if boss2ID == 126848 then 
+                    bossID = 126848
+                    boss = "boss2"
                 end
-                if bossID == 126848 and isCastingSpell(256979, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
+                if bossID == 126848 and isCastingSpell(256979, boss) and GetUnitIsUnit("player", UnitTarget(boss)) then
                     if talent.elusiveness then
                         if cast.feint() then return true end
                     elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
                         if cast.evasion() then return true end
                     end
-                end
+                end                
                 --Azerite Powder Shot (1st boss freehold)
-                if bossID == 126832 and isCastingSpell(256106, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
-                    if cast.feint() then return true end
+                if not fhbossPool and bossID == 126832 and br.DBM:getTimer(256106) <= 1 then -- pause 1 sec before cast for pooling
+                    fhbossPool = true
                 end
+                if bossID == 126832 and isCastingSpell(256106, "boss1") then
+                    fhbossPool = false
+                    if GetUnitIsUnit("player", UnitTarget("boss1")) then
+                        if cast.feint() then return true end
+                    end
+                end
+                if fhbossPool then return true end
                 --Spit gold (1st boss KR)
                 if bossID == 135322 and isCastingSpell(265773, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
                     if cast.cloakOfShadows() then return true end
