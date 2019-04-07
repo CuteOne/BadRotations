@@ -368,22 +368,24 @@ local function runRotation()
             end
             if isChecked("Auto Attack/Passive") then
                 -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-                if petMode == nil then petMode = "None" end
-                if not inCombat then
-                    if petMode == "Passive" then
-                        if petMode == "Assist" then PetAssistMode() end
-                        if petMode == "Defensive" then PetDefensiveMode() end
-                    end
+                if petMode == nil then 
                     for i = 1, NUM_PET_ACTION_SLOTS do
                         local name, _, _, _, isActive = GetPetActionInfo(i)
                         if isActive then
                             if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                             if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
+                            if name == "PET_MODE_PASSIVE" then petMode = "Passive" end
                         end
                     end
-                elseif inCombat and petMode ~= "Passive" then
-                    PetPassiveMode()
-                    petMode = "Passive"
+                end
+                if not inCombat or (GetUnitExists("target") and getDistance("target") > 40) or not GetUnitExists("target") then
+                    if petMode ~= "Passive" then
+                        PetPassiveMode()
+                        petMode = "Passive"
+                    end
+                elseif inCombat and petMode ~= "Assist" then
+                    PetAssistMode()
+                    petMode = "Assist"
                 end
                 -- Pet Attack / retreat
                 if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not GetUnitIsUnit("target","pettarget") then
@@ -404,40 +406,42 @@ local function runRotation()
 
             -- Purge
             if isChecked("Purge") and getValue("Purge") == 1 then
-                for i = 1, #enemies.yards5p do 
-                    local thisUnit = enemies.yards5p[i]
-                                --your dispel logic
-                        if canDispel(thisUnit,spell.spiritShock) then
-                            if cast.able.spiritShock(thisUnit) then
-                                if castSpell(thisUnit,spell.spiritShock,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.chiJiTranq(thisUnit) then
-                                if castSpell(thisUnit,spell.chiJiTranq,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.naturesGrace(thisUnit) then
-                                if castSpell(thisUnit,spell.naturesGrace,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.netherShock(thisUnit) then
-                                if castSpell(thisUnit,spell.netherShock,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.sonicBlast(thisUnit) then
-                                if castSpell(thisUnit,spell.sonicBlast,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.soothingWater(thisUnit) then
-                                if castSpell(thisUnit,spell.soothingWater,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
-                            elseif cast.able.sporeCloud(thisUnit) then
-                                if castSpell(thisUnit,spell.sporeCloud,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
-                                    return end
+                if enemies.yards5p then
+                    for i = 1, #enemies.yards5p do 
+                        local thisUnit = enemies.yards5p[i]
+                                    --your dispel logic
+                            if canDispel(thisUnit,spell.spiritShock) then
+                                if cast.able.spiritShock(thisUnit) then
+                                    if castSpell(thisUnit,spell.spiritShock,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.chiJiTranq(thisUnit) then
+                                    if castSpell(thisUnit,spell.chiJiTranq,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.naturesGrace(thisUnit) then
+                                    if castSpell(thisUnit,spell.naturesGrace,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.netherShock(thisUnit) then
+                                    if castSpell(thisUnit,spell.netherShock,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.sonicBlast(thisUnit) then
+                                    if castSpell(thisUnit,spell.sonicBlast,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.soothingWater(thisUnit) then
+                                    if castSpell(thisUnit,spell.soothingWater,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                elseif cast.able.sporeCloud(thisUnit) then
+                                    if castSpell(thisUnit,spell.sporeCloud,true,false,false,false,false,true) then
+                                            print("casting dispel on ".. UnitName(thisUnit))
+                                        return end
+                                end
                             end
-                        end
+                    end
                 end
         elseif isChecked("Purge") and getValue("Purge") == 2 then
                 if  canDispel("target",spell.spiritShock) then
