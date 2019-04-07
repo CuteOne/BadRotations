@@ -1454,7 +1454,7 @@ local function runRotation()
             BleedStack = CurrentBleedstack
             BleedFriend = br.friend[i]
           --debug stuff
-            Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
+            --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
           end
         end
         if isChecked("Mastery bonus") and inRaid then
