@@ -619,13 +619,14 @@ local function runRotation()
 
                 if actionList_Extras() then return end
 
+              --I totally did this .. MOHAHAHA ... but Panglo said I could, eh!
+              if actionList_Interrupts() then return end
+
                 if actionList_Defensives() then return end
 
                 if actionList_Moving() then return end
 
                 if actionList_Cooldowns() then return end
-
-                if actionList_Interrupts() then return end
 
                 if (talent.unstoppableForce and buff.avatar.exists()) then
                     if technoViking() then return end
