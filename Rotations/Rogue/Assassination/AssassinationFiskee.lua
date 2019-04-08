@@ -519,11 +519,11 @@ local function runRotation()
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedRogue then
+        if not stealthedRogue then
             for i=1, #enemies.yards20 do
                 local thisUnit = enemies.yards20[i]
                 local distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
+                if useInterrupts() and canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(thisUnit) then return end
                     end
