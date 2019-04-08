@@ -86,8 +86,6 @@ local function createOptions()
     -------------------------
     ------ DEFENSIVES -------
     -------------------------
-
-
     section = br.ui:createSection(br.ui.window.profile, "Defensive")
     -- Pot/Stone
     br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
@@ -97,13 +95,21 @@ local function createOptions()
     if br.player.race == "Draenei" then
       br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
     end
+    br.ui:checkSectionState(section)
+    -------------------------
+    ------ Keys -------
+    -------------------------
+    section = br.ui:createSection(br.ui.window.profile, "Keys")
     -- Divine Shield + Aura of Sacrifice
     br.ui:createDropdown(section, "Divine Shield + Aura of Sacrifice Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFDivine Shield + Aura of Sacrifice usage.")
     -- Divine Shield + Hand Of Reckoning
     br.ui:createDropdown(section, "Divine Shield + Hand Of Reckoning Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFDivine Shield + Hand Of Reckoning usage.")
     -- Unstable Temporal Time Shifter
     br.ui:createDropdown(section, "Unstable Temporal Time Shifter", { "|cff00FF00Target", "|cffFF0000Mouseover", "|cffFFBB00Auto" }, 1, "", "|cffFFFFFFTarget to cast on")
+    -- Repentance
+    br.ui:createDropdown(section, "Repentance Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFRepentance Key")
     br.ui:checkSectionState(section)
+
     -------------------------
     --- INTERRUPT OPTIONS ---
     -------------------------
@@ -289,7 +295,7 @@ local function runRotation()
   -------------
   -- Raid
   ------------
-  
+
   local tanks = getTanksTable()
   local lowest = br.friend[1]
   local friends = friends or {}
@@ -594,7 +600,32 @@ local function runRotation()
         return true
       end
     end
+    -- Unstable Temporal Time Shifter
+    if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not moving and inCombat then
+      if getOptionValue("Unstable Temporal Time Shifter") == 1
+              and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+        UseItemByName(158379, "target")
+      end
+      if getOptionValue("Unstable Temporal Time Shifter") == 2
+              and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+        UseItemByName(158379, "mouseover")
+      end
+      if getOptionValue("Unstable Temporal Time Shifter") == 3 then
+        for i = 1, #br.friend do
+          if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+            UseItemByName(158379, br.friend[i].unit)
+          end
+        end
+      end
+    end
+    -- CC  /  Repentance
+    if talent.repentance and isChecked("Repentance Key") and (SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus()) and cast.able.repentance() then
+      if cast.repentance() then
+        return true
+      end
+    end
   end
+
   local function PrePull()
     -- Pre-Pull Timer
     if isChecked("Pre-Pull Timer") then
@@ -652,24 +683,6 @@ local function runRotation()
       if isChecked("Blessing of Freedom") and cast.able.blessingOfFreedom() and hasNoControl(spell.blessingOfFreedom) then
         if cast.blessingOfFreedom("player") then
           return true
-        end
-      end
-      -- Unstable Temporal Time Shifter
-      if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not moving then
-        if getOptionValue("Unstable Temporal Time Shifter") == 1
-                and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
-          UseItemByName(158379, "target")
-        end
-        if getOptionValue("Unstable Temporal Time Shifter") == 2
-                and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
-          UseItemByName(158379, "mouseover")
-        end
-        if getOptionValue("Unstable Temporal Time Shifter") == 3 then
-          for i = 1, #br.friend do
-            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
-              UseItemByName(158379, br.friend[i].unit)
-            end
-          end
         end
       end
     end
@@ -1167,7 +1180,10 @@ local function runRotation()
 
 
     --and isChecked("DPS")
-    if mode.DPS == 1 then
+    if mode.DPS == 1 and
+            (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
+                    isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health"))
+    then
       if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
         TargetUnit("focustarget")
       end
@@ -1175,19 +1191,9 @@ local function runRotation()
       if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
         StartAttack()
       end
-      --[[
-      --Consecration
-      if isChecked("Consecration") and cast.able.consecration() and mana > getValue("DPS Mana") and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
-        if cast.consecration() then
-          return true
-        end
-      end
-      ]]
 
       --Consecration
-
       if isChecked("Consecration") and cast.able.consecration() then
-
         if consecrationCastTime == nil then
           consecrationCastTime = 0
         end
@@ -1203,8 +1209,7 @@ local function runRotation()
           consecrationCastTime = 0;
           consecrationRemain = 0
         end
-
-        if isChecked("Consecration") and cast.able.consecration() and mana > getValue("DPS Mana") and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
+        if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
           if cast.able.consecration() and consecrationRemain < gcd then
             if cast.consecration() then
               return
@@ -1214,25 +1219,25 @@ local function runRotation()
       end
 
       -- Holy Prism
-      if isChecked("Holy Prism Damage") and lowest.hp > getValue("DPS Health") and talent.holyPrism and mana > getValue("DPS Mana") and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
+      if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
         if cast.holyPrism(units.dyn30) then
           return true
         end
       end
       -- Light's Hammer
-      if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and mana > getValue("DPS Mana") and not moving then
+      if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
         if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
           return true
         end
       end
       -- Judgment
-      if isChecked("Judgment - DPS") and lowest.hp > getValue("DPS Health") and cast.able.judgment() then
+      if isChecked("Judgment - DPS") and cast.able.judgment() then
         if cast.judgment(units.dyn30) then
           return true
         end
       end
       -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-      if isChecked("Holy Shock Damage") and lowest.hp > getValue("DPS Health") and cast.able.holyShock() and ((inInstance and #tanks >0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) and mana > getValue("DPS Mana") then
+      if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) then
         if cast.holyShock(units.dyn40) then
           return true
         end
@@ -1263,8 +1268,8 @@ local function runRotation()
       end
     end
     -- Judgment as heal
-    if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks >0 and  getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
-      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or traits.graceoftheJusticar or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
+    if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
+      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar and tanks[1].hp <= 95) or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
         if cast.judgment(units.dyn30) then
           return true
         end
@@ -1453,7 +1458,7 @@ local function runRotation()
           if CurrentBleedstack > BleedStack then
             BleedStack = CurrentBleedstack
             BleedFriend = br.friend[i]
-          --debug stuff
+            --debug stuff
             --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
           end
         end
@@ -1588,19 +1593,22 @@ local function runRotation()
         end
       end
     end
-    --/whispers-of-power  and getDebuffStacks(lowest.unit, 267034) < 2
+
+    -- Grievous stuff
     if BleedFriend ~= nil and BleedFriend ~= player then
-      if cast.able.lightOfTheMartyr() and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 then
+      if cast.able.lightOfTheMartyr() and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
         if cast.lightOfTheMartyr(BleedFriend.unit) then
           return true
         end
       end
-      if cast.able.flashOfLight() then if cast.flashOfLight(BleedFriend.unit) then
-        return true
-      end end
+      if cast.able.flashOfLight() then
+        if cast.flashOfLight(BleedFriend.unit) then
+          return true
+        end
+      end
     end
     -- Divine Shield and Light of the Martyr
-    if lightOfTheMartyrDS ~= nil and php <= getValue("Critical HP") then
+    if lightOfTheMartyrDS ~= nil and php <= getValue("Critical HP") and getDebuffStacks("player", 267034) < 2 then
       if cast.lightOfTheMartyr(lightOfTheMartyrDS) then
         return true
       end
@@ -1617,7 +1625,7 @@ local function runRotation()
       end
     end
     -- Light of Martyr
-    if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") then
+    if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 then
       if cast.lightOfTheMartyr(lightOfTheMartyrHP) then
         return true
       end
@@ -1727,7 +1735,7 @@ local function runRotation()
       end
     end
     -- Light of Martyr and Bestow Faith
-    if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getOptionValue("Bestow Faith Target") == 4 then
+    if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getDebuffStacks("player", 267034) < 2 and getOptionValue("Bestow Faith Target") == 4 then
       if lightOfTheMartyrBF10 ~= nil then
         if cast.lightOfTheMartyr(lightOfTheMartyrBF10) then
           return true
@@ -1777,7 +1785,7 @@ local function runRotation()
       end
     end
     -- Moving Martyr
-    if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") then
+    if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 then
       if #tanks > 0 then
         if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
           if cast.lightOfTheMartyr(tanks[1].unit) then
@@ -1785,7 +1793,7 @@ local function runRotation()
           end
         end
       end
-      if lowest.hp <= getValue("Critical HP") and not GetUnitIsUnit(lowest.unit, "player") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") then
+      if lowest.hp <= getValue("Critical HP") and not GetUnitIsUnit(lowest.unit, "player") and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot") and getDebuffStacks("player", 267034) < 2 then
         if cast.lightOfTheMartyr(lowest.unit) then
           return true
         end
