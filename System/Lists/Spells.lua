@@ -730,6 +730,8 @@ br.lists.spells = {
                 soulOfTheForest             = 114108,
                 cultivat                    = 200389,
                 tranquility                 = 157982,
+                springblossom               = 207386,
+                fullbloom                   = 290213,
             },
             debuffs                         = {
                 moonfire                    = 164812,
