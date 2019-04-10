@@ -310,7 +310,7 @@ local function runRotation()
   local LightCount = 0
   local FaithCount = 0
 
-  if traits.breakingDawn then
+  if traits.breakingDawn.active then
     lightOfDawn_distance = 40
   else
     lightOfDawn_distance = 15
@@ -770,12 +770,12 @@ local function runRotation()
     -- Cleanse
     if br.player.mode.cleanse == 1 and cast.able.cleanse() then
       for i = 1, #friends.yards40 do
-        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2 then
+        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2 or (getDebuffStacks(br.friend[i].unit,252781) >=19) then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
         end
-        if (inInstance and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
+        if (inInstance and (getDebuffStacks(br.friend[i].unit,252781) >=19) and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
                 or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (not inInstance and not inRaid) then
           if canDispel(br.friend[i].unit, spell.cleanse) then
             if cast.cleanse(br.friend[i].unit) then
@@ -1269,7 +1269,7 @@ local function runRotation()
     end
     -- Judgment as heal
     if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
-      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar and tanks[1].hp <= 95) or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
+      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar.active and tanks[1].hp <= 95) or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
         if cast.judgment(units.dyn30) then
           return true
         end
@@ -1448,6 +1448,11 @@ local function runRotation()
     local lightOfTheMartyrM40 = nil
     local BleedStack = 0
     local BleedFriend = nil
+    local BleedFriendCount = 0
+
+    --Pets
+
+
 
     --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
     for i = 1, #br.friend do
@@ -1455,6 +1460,9 @@ local function runRotation()
         --count grievance stacks here
         if isChecked("Grievous Wounds") then
           local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
+          if getDebuffStacks(br.friend[i].unit, 240559) > 0 then
+            BleedFriendCount = BleedFriendCount + 1
+          end
           if CurrentBleedstack > BleedStack then
             BleedStack = CurrentBleedstack
             BleedFriend = br.friend[i]
@@ -1601,6 +1609,12 @@ local function runRotation()
           return true
         end
       end
+      if talent.beaconOfVirtue and cast.able.beaconOfVirtue() and BleedFriendCount >= 2 then
+        if cast.beaconOfVirtue(BleedFriend.unit) then
+          return true
+        end
+      end
+
       if cast.able.flashOfLight() then
         if cast.flashOfLight(BleedFriend.unit) then
           return true
@@ -1631,7 +1645,7 @@ local function runRotation()
       end
     end
     -- Bestow Faith
-    if isChecked("Bestow Faith") and cast.able.bestowFaith() and talent.bestowFaith and getSpellCD(20473) ~= 0 then
+    if talent.bestowFaith and isChecked("Bestow Faith") and cast.able.bestowFaith() and getSpellCD(20473) ~= 0 then
       if getOptionValue("Bestow Faith Target") == 1 then
         if lowest.hp <= getValue("Bestow Faith") and UnitInRange(lowest.unit) then
           if cast.bestowFaith(lowest.unit) then
@@ -1657,7 +1671,8 @@ local function runRotation()
           end
         end
       end
-    end
+    end -- end Bestow Faith
+
     -- Flash of Light
     if isChecked("Flash of Light") and not moving and getSpellCD(20473) ~= 0 then
       if php <= getValue("Critical HP") then
