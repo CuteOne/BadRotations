@@ -300,6 +300,42 @@ local function runRotation()
         for i=0, count do t[i]=nil end
     end
 
+    --YOINK @IMMY
+    function getapdmg(offHand)
+        local useOH = offHand or false
+        local wdpsCoeff = 6
+        local ap = UnitAttackPower("player")
+        local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage("player")
+        local speed, offhandSpeed = UnitAttackSpeed("player")
+            if useOH and offhandSpeed then
+                local wSpeed = offhandSpeed * (1 + GetHaste() / 100)
+                local wdps = (minOffHandDamage + maxOffHandDamage) / wSpeed / percent - ap / wdpsCoeff
+            return (ap + wdps * wdpsCoeff) * 0.5
+            else
+                local wSpeed = speed * (1 + GetHaste() / 100)
+                local wdps = (minDamage + maxDamage) / 2 / wSpeed / percent - ap / wdpsCoeff
+            return ap + wdps * wdpsCoeff
+        end
+    end
+    function getmutidamage()
+        return            
+        (getapdmg() + getapdmg(true) * 0.5) * 0.35 * 1.27 * 
+        (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+    end
+    --YOINK @IMMY
+    function getenvdamage(unit)
+        if unit == nil then unit = "target" end
+        local apMod         = getapdmg()
+        local envcoef       = 0.16
+        local auramult      = 1.27
+        local masterymult   = (1 + (GetMasteryEffect("player") / 100))
+        local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+        local dsmod, tbmod
+        if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end 
+        if debuff.toxicBlade.exists(unit) then tbmod = 1.3 else tbmod = 1 end
+        return (apMod * combo * envcoef * auramult * tbmod * dsmod * masterymult * versmult)
+    end
+
     clearTable(enemyTable5)
     clearTable(enemyTable10)
     clearTable(enemyTable30)
@@ -423,14 +459,17 @@ local function runRotation()
         end
         --Burn Units
         local burnUnits = {
-            [120651]=true, -- Explosive
-            [141851]=true -- Infested
+            [120651]=true -- Explosive
         }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+        if UnitIsVisible("target") and burnUnits[GetObjectID("target")] ~= nil and targetDistance < 5 then
+            if getenvdamage() >= UnitHealth("target") then
+                if cast.envenom("target") then return true end
+            end
             if cast.mutilate("target") then return true end
             if combo >= 4 then
                 if cast.envenom("target") then return true end
             end
+            return true
         end
     end
     local function actionList_Defensive()
