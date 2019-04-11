@@ -73,6 +73,7 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
+            br.ui:createCheckbox(section, "Auto Target Burn Units", "|cffFFFFFF Will auto change target to high prio units if they are in range")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
@@ -217,6 +218,9 @@ local function runRotation()
     local garroteCount = 0
 
     units.get(5)
+    if isChecked("Auto Target Burn Units") then
+        enemies.get(5)
+    end
     enemies.get(20)
     enemies.get(20,"player",true)
     enemies.get(30)
@@ -385,7 +389,9 @@ local function runRotation()
         for i = 1, #enemyTable30 do
             local thisUnit = enemyTable30[i]
             local fokIgnore = {
-                [120651]=true -- Explosive
+                [120651]=true, -- Explosive
+                [136330]=true, -- Soul Thorns Waycrest Manor
+                [134388]=true -- A Knot of Snakes ToS
             }
 
             if thisUnit.distance <= 10 then
@@ -401,6 +407,18 @@ local function runRotation()
         end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable30[1].unit)
+        end
+        local autoTargetUnits = {
+            [120651]=true, -- Explosive
+            [136330]=true -- Soul Thorns Waycrest Manor
+        }
+        if isChecked("Auto Target Burn Units") and inCombat and not stealthedRogue and #enemies.yards5 > 0 and ((UnitIsVisible("target") and autoTargetUnits[GetObjectID("target")] == nil) or not UnitIsVisible("target")) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if autoTargetUnits[GetObjectID(thisUnit)] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then
+                    TargetUnit(thisUnit)
+                end
+            end
         end
     end
     --Just nil fixes
@@ -459,9 +477,14 @@ local function runRotation()
         end
         --Burn Units
         local burnUnits = {
-            [120651]=true -- Explosive
+            [120651]=true, -- Explosive
+            [136330]=true, -- Soul Thorns Waycrest Manor
+            [134388]=true -- A Knot of Snakes
         }
-        if UnitIsVisible("target") and burnUnits[GetObjectID("target")] ~= nil and targetDistance < 5 then
+        if UnitIsVisible("target") and (burnUnits[GetObjectID("target")] ~= nil or UnitIsFriend("target", "player")) and targetDistance < 5 then
+            if combo > 0 and GetObjectID("target") == 134388 then
+                if cast.kidneyShot("target") then return true end
+            end
             if getenvdamage() >= UnitHealth("target") then
                 if cast.envenom("target") then return true end
             end

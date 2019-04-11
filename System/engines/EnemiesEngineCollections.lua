@@ -363,4 +363,7 @@ validUnitBypassList = {
     [148716] = "Risen Soul", --M+ Reaping
     [148893] = "Tormented Soul", --M+ Reaping
 	[148894] = "Lost Soul", --M+ Reaping
+	[120651] = "Explosive", -- Explosive
+	[136330] = "Soul Thorns", -- Soul Thorns Waycrest Manor
+	[134388] = "A Knot of Snakes" -- A Knot of Snakes ToS
 }
