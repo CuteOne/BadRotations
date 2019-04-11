@@ -78,9 +78,11 @@ local function createOptions()
     br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
     -- m+ Rot
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
+    br.ui:createSpinner(section, "Reaping", 40, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
-    br.ui:createCheckbox(section, "Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
     br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
+    br.ui:createCheckbox(section, "Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble from choking water|cffFFBB00.", 1)
+
 
     br.ui:checkSectionState(section)
     -------------------------
@@ -770,12 +772,17 @@ local function runRotation()
     -- Cleanse
     if br.player.mode.cleanse == 1 and cast.able.cleanse() then
       for i = 1, #friends.yards40 do
-        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2 or (getDebuffStacks(br.friend[i].unit,252781) >=19) then
+
+        --[[ DEBUG if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
+          Print("Stacks: " ..getDebuffStacks(br.friend[i].unit, 288388) .." Threshold: " .. getValue("Reaping"))
+        end]]
+                -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul
+        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2 or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping")) then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
         end
-        if (inInstance and (getDebuffStacks(br.friend[i].unit,252781) >=19) and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
+        if (inInstance and (getDebuffStacks(br.friend[i].unit, 252781) >= 19) and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
                 or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (not inInstance and not inRaid) then
           if canDispel(br.friend[i].unit, spell.cleanse) then
             if cast.cleanse(br.friend[i].unit) then
@@ -1841,6 +1848,7 @@ local function runRotation()
     if pause() or drinking then
       return true
     else
+
       ---------------------------------
       --- Out Of Combat - Rotations ---
       ---------------------------------
