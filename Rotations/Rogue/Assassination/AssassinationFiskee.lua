@@ -415,8 +415,11 @@ local function runRotation()
         if isChecked("Auto Target Burn Units") and inCombat and not stealthedRogue and #enemies.yards5 > 0 and ((UnitIsVisible("target") and autoTargetUnits[GetObjectID("target")] == nil) or not UnitIsVisible("target")) then
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
-                if autoTargetUnits[GetObjectID(thisUnit)] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then
-                    TargetUnit(thisUnit)
+                local objID = GetObjectID(thisUnit)
+                if autoTargetUnits[objID] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then                    
+                    if (objID == 120651 and getCastTimeRemain(thisUnit) > 0 and getCastTimeRemain(thisUnit) < 5) or objID ~= 120651 then
+                        TargetUnit(thisUnit)
+                    end
                 end
             end
         end
