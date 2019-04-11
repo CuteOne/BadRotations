@@ -13,9 +13,9 @@ local function createToggles() -- Define custom toggles
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.empowerRuneWeapon },
-        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.empowerRuneWeapon },
-        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.empowerRuneWeapon }
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.pillarOfFrost },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.pillarOfFrost },
+        [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.pillarOfFrost }
     };
     CreateButton("Cooldown",2,0)
 -- Defensive Button
@@ -30,6 +30,12 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.mindFreeze }
     };
     CreateButton("Interrupt",4,0)
+    -- Interrupt Button
+    EmpowerModes = {
+        [1] = { mode = "On", value = 1 , overlay = "ERW Enabled", tip = "ERW will be used.", highlight = 1, icon = br.player.spell.empowerRuneWeapon },
+        [2] = { mode = "Off", value = 2 , overlay = "ERW Disabled", tip = "ERW will not be used.", highlight = 0, icon = br.player.spell.empowerRuneWeapon }
+    };
+    CreateButton("Empower",5,0)
 end
 
 ---------------
@@ -48,7 +54,7 @@ local function createOptions()
             -- Death Grip
             br.ui:createCheckbox(section,"Death Grip")
             -- Glacial Advance
-            br.ui:createSpinner(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinnerWithout(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section,"Path of Frost")
             br.ui:createSpinner(section, "BoS Rune Power",  80,  0,  100,  5, "|cffFFFFFFSet to desired rune power needed to use Breath of Sindragosa. Min: 1 / Max: 10 / Interval: 1")
@@ -132,6 +138,8 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
+        br.player.mode.empower = br.data.settings[br.selectedSpec].toggles["Empower"]
+        UpdateToggle("Empower",0.25)
 --------------
 --- Locals ---
 --------------
@@ -173,12 +181,16 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        units.get(30)
+
         enemies.get(8)
         enemies.get(10)
         enemies.get(15)
         enemies.get(20)
         enemies.get(10,"target")
         enemies.get(30)
+        enemies.get(30,"target")
+
 
         frostFeverCount = 0
         for i=1, #enemies.yards10 do
@@ -209,7 +221,7 @@ local function runRotation()
                 end
             end
         -- Chains of Ice
-            if isChecked("Chains of Ice") and cast.able.chainsOfIce() then
+            if isChecked("Chains of Ice") then
                 for i = 1, #enemies.yards30 do
                     local thisUnit = enemies.yards30[i]
                     if not debuff.chainsOfIce.exists(thisUnit) and not getFacing(thisUnit,"player") and getFacing("player",thisUnit)
@@ -220,13 +232,13 @@ local function runRotation()
                 end
             end
         -- Death Grip
-            if isChecked("Death Grip") and cast.able.deathGrip() then
+            if isChecked("Death Grip") then
                 if inCombat and isValidUnit(units.dyn30) and getDistance(units.dyn30) > 8 and not isDummy(units.dyn30) then
                     if cast.deathGrip(units.dyn30) then return true end
                 end
             end
         -- Path of Frost
-            if isChecked("Path of Frost") and cast.able.pathOfFrost() then
+            if isChecked("Path of Frost") then
                 if not inCombat and swimming and not buff.pathOfFrost.exists() then
                     if cast.pathOfFrost() then return true end
                 end
@@ -245,31 +257,31 @@ local function runRotation()
                     end
                 end
         -- Anti-Magic Shell
-                if isChecked("Anti-Magic Shell") and cast.able.antiMagicShell() and php < getOptionValue("Anti-Magic Shell") and inCombat then
+                if isChecked("Anti-Magic Shell") and php < getOptionValue("Anti-Magic Shell") and inCombat then
                     if cast.antiMagicShell() then return true end
                 end
         -- Blinding Sleet
-                if isChecked("Blinding Sleet") and cast.able.blindingSleet() and php < getOptionValue("Blinding Sleet") and inCombat then
+                if isChecked("Blinding Sleet") and php < getOptionValue("Blinding Sleet") and inCombat then
                     if cast.blindingSleet() then return true end
                 end
         -- Death Strike
-                if isChecked("Death Strike") and cast.able.deathStrike() and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
+                if isChecked("Death Strike") and inCombat and (buff.darkSuccor.exists() or php < getOptionValue("Death Strike"))
                     and (not talent.breathOfSindragosa or ((cd.breathOfSindragosa.remain() > 15 and not breathOfSindragosaActive or not useCDs()) or not isChecked("Breath of Sindragosa")))
                 then
                     if cast.deathStrike() then return true end
                 end
         -- Icebound Fortitude
-                if isChecked("Icebound Fortitude") and cast.able.iceboundFortitude() and php < getOptionValue("Icebound Fortitude") and inCombat then
+                if isChecked("Icebound Fortitude") and php < getOptionValue("Icebound Fortitude") and inCombat then
                     if cast.iceboundFortitude() then return true end
                 end
         -- Raise Ally
                 if isChecked("Raise Ally") then
-                    if cast.able.raiseAlly("target","dead") and getOptionValue("Raise Ally - Target")==1
+                    if getOptionValue("Raise Ally - Target")==1
                         and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
                     then
                         if cast.raiseAlly("target","dead") then return true end
                     end
-                    if cast.able.raiseAlly("mouseover","dead") and getOptionValue("Raise Ally - Target")==2
+                    if getOptionValue("Raise Ally - Target")==2
                         and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
                     then
                         if cast.raiseAlly("mouseover","dead") then return true end
@@ -282,7 +294,7 @@ local function runRotation()
             profileDebug = "Interrupts"
             if useInterrupts() then
             -- Mind Freeze
-                if isChecked("Mind Freeze") and cast.able.mindFreeze() then
+                if isChecked("Mind Freeze") then
                     for i=1, #enemies.yards15 do
                         thisUnit = enemies.yards15[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -291,7 +303,7 @@ local function runRotation()
                     end
                 end
                 --Asphyxiate
-                if isChecked("Asphyxiate") and cast.able.asphyxiate() then
+                if isChecked("Asphyxiate") then
                     for i=1, #enemies.yards20 do
                         thisUnit = enemies.yards20[i]
                         if canInterrupt(thisUnit,getOptionValue("InterruptAt")) then
@@ -307,15 +319,15 @@ local function runRotation()
                 if cast.howlingBlast() then return true end
             end
             -- Frost Strike (Icy Talons)
-            if talent.icyTalons and buff.icyTalons.exists() and buff.icyTalons.remain("target") <= gcdMax and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain("target") > gcd or not useCDs()) and not buff.breathOfSindragosa.exists() then
+            if talent.icyTalons and buff.icyTalons.exists() and buff.icyTalons.remain() <= gcdMax and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists() then
                 if cast.frostStrike() then return true end
             end
             -- Pillar of Frost
-            if #enemies.yards8 >= getValue("Pillar of Frost Targets") then
+            if useCDs() then
                 if cast.pillarOfFrost() then return true end
             end
             -- Frostwyrm's Fury
-            if talent.frostwyrmsFury and #enemies.yards8 >= getValue("Frostwyrm's Fury Targets") and useCDs() then
+            if talent.frostwyrmsFury and useCDs() then
                 if cast.frostwyrmsFury() then return true end
             end
             -- Breath of Sindragosa
@@ -347,7 +359,7 @@ local function runRotation()
                 if cast.frostStrike() then return true end
             end
             -- Howling Blast (Pillar of Frost)
-            if buff.pillarOfFrost.exists() and not buff.killingMachine.exists() and runes >= 2 then
+            if (buff.pillarOfFrost.exists() or not useCDs()) and not buff.killingMachine.exists() and runes >= 2 then
                 if cast.howlingBlast() then return true end
             end
             -- Obliterate 
@@ -359,20 +371,22 @@ local function runRotation()
                 if cast.hornOfWinter() then return true end
             end
             -- Empower Rune Weapon
-            if cast.empowerRuneWeapon() then return true end
+            if mode.empower == 1 and useCDs then
+                if cast.empowerRuneWeapon() then return true end
+            end
         end
 
         local function actionList_AoE()
             -- Glacial Advance
-            if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax then
+            if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not useCDs()) then
                 if cast.glacialAdvance() then return true end
             end
             -- Pillar of Frost
-            if getSpellCD(spell.pillarOfFrost) <= gcd then
+            if getSpellCD(spell.pillarOfFrost) <= gcd and #enemies.yards8 >= getValue("Pillar of Frost Targets") and useCDs() then
                 if cast.pillarOfFrost() then return true end
             end
             -- Frostwyrm's Fury
-            if talent.frostwyrmsFury and #enemies.yards8 >= getValue("Frostwyrm's Fury Targets") and useCDs() then
+            if talent.frostwyrmsFury and getEnemiesInRect(5,40) >= getValue("Frostwyrm's Fury Targets") and useCDs() then
                 if cast.frostwyrmsFury() then return true end
             end
             -- Breath of Sindragosa
@@ -382,6 +396,9 @@ local function runRotation()
             -- Frostscythe
             if talent.frostscythe and buff.killingMachine.exists() then
                 if cast.frostscythe() then return true end
+            end
+            if talent.coldHeart and buff.coldHeart.stack() >= 20 then
+                if cast.chainsOfIce() then return true end
             end
             -- Remorseless Winter
             if runes >= 1 then
@@ -396,10 +413,10 @@ local function runRotation()
                 if cast.obliterate() then return true end
             end
             -- Glacial Advance (No Icy Talons)
-            if talent.glacialAdvance and not talent.breathOfSindragosa then
+            if talent.glacialAdvance and not talent.breathOfSindragosa and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") then
                 if cast.glacialAdvance() then return true end
             end
-            if talent.glacialAdvance and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs) and not buff.breathOfSindragosa.exists() then
+            if talent.glacialAdvance and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists() and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") then
                 if cast.glacialAdvance() then return true end
             end
             -- Frostscythe 
@@ -415,12 +432,14 @@ local function runRotation()
                 if cast.hornOfWinter() then return true end
             end
             -- Empower Rune Weapon
-            if cast.empowerRuneWeapon() then return true end
+            if mode.empower == 1 and useCDs() then
+                if cast.empowerRuneWeapon() then return true end
+            end
             -- Frost Strike
             if not talent.breathOfSindragosa then
                 if cast.frostStrike() then return true end
             end
-            if talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs) and not buff.breathOfSindragosa.exists() then
+            if talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists() then
                 if cast.frostStrike() then return true end
             end
         end
@@ -443,7 +462,7 @@ local function runRotation()
             if inCombat and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
                 if actionList_Extras() then return true end
                 if actionList_Defensive() then return true end
-                if getDistance(units.dyn5) < 5 then
+                if getDistance("target") < 5 then
                     StartAttack()
                 end
                 if actionList_Interrupts() then return true end
@@ -463,10 +482,19 @@ local function runRotation()
                     use.slot(13)
                     use.slot(14)
                 end
-                if (#enemies.yards30 > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
+                if not debuff.frostFever.exists("target") and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
+                    if cast.howlingBlast() then return true end
+                end
+                if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
+                    if cast.glacialAdvance() then return true end
+                end
+                if talent.icyTalons and buff.icyTalons.remain() <= gcdMax and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
+                    if cast.frostStrike() then return true end
+                end
+                if (#enemies.yards10t > 1 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
                     if actionList_AoE() then return true end
                 else
-                    if (#enemies.yards30 <= 2 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
+                    if (#enemies.yards10t <= 1 and (mode.rotation ~= 2 and mode.rotation ~= 3)) or mode.rotation == 3 then
                         if actionList_ST() then return true end
                     end
                 end
