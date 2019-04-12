@@ -53,8 +53,6 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Death Grip
             br.ui:createCheckbox(section,"Death Grip")
-            -- Glacial Advance
-            br.ui:createSpinnerWithout(section, "Glacial Advance",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section,"Path of Frost")
             br.ui:createSpinner(section, "BoS Rune Power",  80,  0,  100,  5, "|cffFFFFFFSet to desired rune power needed to use Breath of Sindragosa. Min: 1 / Max: 10 / Interval: 1")
@@ -64,11 +62,12 @@ local function createOptions()
         --- TARGET   OPTIONS --- 
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Targets")
-        br.ui:createSpinner(section, "Pillar of Frost Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Pillar of Frost. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinner(section, "Frostwyrm's Fury Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Frostwyrm's Fury. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinner(section, "BoS Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Breath of Sindragosa. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinner(section, "Remorseless Winter Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Remorseless Winter. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinner(section, "Frostscythe Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Frostscythe. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Pillar of Frost Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Pillar of Frost. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Frostwyrm's Fury Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Frostwyrm's Fury. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "BoS Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Breath of Sindragosa. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Remorseless Winter Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Remorseless Winter. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Frostscythe Targets",  3,  1,  10,  1, "|cffFFFFFFSet to desired number of targets needed to use Frostscythe. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Glacial Advance Targets",  5,  1,  10,  1,  "|cffFFFFFFSet to desired targets to use Glacial Advance on. Min: 1 / Max: 10 / Interval: 1")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -339,7 +338,7 @@ local function runRotation()
                 if cast.chainsOfIce() then return true end
             end
             -- Remorseless Winter
-            if #enemies.yards8 >= getValue("Remorseless Winter Targets") then
+            if #enemies.yards8 > 0 then
                 if cast.remorselessWinter() then return true end
             end
             -- Frostscythe
@@ -378,7 +377,7 @@ local function runRotation()
 
         local function actionList_AoE()
             -- Glacial Advance
-            if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not useCDs()) then
+            if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance Targets") and (not talent.breathOfSindragosa or cd.breathOfSindragosa.remain() > 15 or not useCDs()) then
                 if cast.glacialAdvance() then return true end
             end
             -- Pillar of Frost
@@ -401,7 +400,7 @@ local function runRotation()
                 if cast.chainsOfIce() then return true end
             end
             -- Remorseless Winter
-            if runes >= 1 then
+            if runes >= 1 and #enemies.yards8 >= getOptionValue("Remorseless Winter Targets") then
                 if cast.remorselessWinter() then return true end
             end
             -- Howling Blast
@@ -413,10 +412,10 @@ local function runRotation()
                 if cast.obliterate() then return true end
             end
             -- Glacial Advance (No Icy Talons)
-            if talent.glacialAdvance and not talent.breathOfSindragosa and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") then
+            if talent.glacialAdvance and not talent.breathOfSindragosa and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance Targets") then
                 if cast.glacialAdvance() then return true end
             end
-            if talent.glacialAdvance and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists() and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") then
+            if talent.glacialAdvance and talent.breathOfSindragosa and (cd.breathOfSindragosa.remain() > gcdMax or not useCDs()) and not buff.breathOfSindragosa.exists() and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance Targets") then
                 if cast.glacialAdvance() then return true end
             end
             -- Frostscythe 
@@ -485,7 +484,7 @@ local function runRotation()
                 if not debuff.frostFever.exists("target") and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
                     if cast.howlingBlast() then return true end
                 end
-                if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance") and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
+                if talent.glacialAdvance and talent.icyTalons and buff.icyTalons.remain() <= gcdMax and getEnemiesInRect(5,20) >= getOptionValue("Glacial Advance Targets") and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
                     if cast.glacialAdvance() then return true end
                 end
                 if talent.icyTalons and buff.icyTalons.remain() <= gcdMax and (not talent.breathOfSindragosa or (cd.breathOfSindragosa.remain() > 15 or not useCDs())) then
