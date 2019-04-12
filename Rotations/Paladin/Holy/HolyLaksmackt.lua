@@ -782,7 +782,7 @@ local function runRotation()
             return true
           end
         end
-        if (inInstance and (getDebuffStacks(br.friend[i].unit, 252781) >= 19) and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
+        if (inInstance and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffStacks(br.friend[i].unit, 288388) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
                 or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (not inInstance and not inRaid) then
           if canDispel(br.friend[i].unit, spell.cleanse) then
             if cast.cleanse(br.friend[i].unit) then
