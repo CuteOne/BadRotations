@@ -484,7 +484,7 @@ local function runRotation()
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true -- A Knot of Snakes
         }
-        if UnitIsVisible("target") and (burnUnits[GetObjectID("target")] ~= nil or (UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
+        if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
                 if cast.kidneyShot("target") then return true end
             end
