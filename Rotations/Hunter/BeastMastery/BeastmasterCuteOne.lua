@@ -447,31 +447,31 @@ local function runRotation()
                 if  canDispel("target",spell.spiritShock) then
                       if cast.able.spiritShock("target") then
                                 if castSpell("target",spell.spiritShock,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.chiJiTranq("target") then
                                 if castSpell("target",spell.chiJiTranq,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.naturesGrace("target") then
                                 if castSpell("target",spell.naturesGrace,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.netherShock("target") then
                                 if castSpell("target",spell.netherShock,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.sonicBlast("target") then
                                 if castSpell("target",spell.sonicBlast,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.soothingWater("target") then
                                 if castSpell("target",spell.soothingWater,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                             elseif cast.able.sporeCloud("target") then
                                 if castSpell("target",spell.sporeCloud,true,false,false,false,false,true) then
-                                         print("casting dispel on ".. UnitName(thisUnit))
+                                         print("casting dispel on ".. UnitName("target"))
                                     return end
                                 end
                             end
