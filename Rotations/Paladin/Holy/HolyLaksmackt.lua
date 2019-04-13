@@ -1394,9 +1394,9 @@ local function runRotation()
             return x.hp < y.hp
           end)
         end
-        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and inCombat then
-          if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") then
-            if glimmerTable[1].distance > 10 then
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and (inCombat or isChecked("Glimmer mode - ooc")) then
+          if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
+            if  #glimmerTable >= 1 and glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
                 return true
               end
