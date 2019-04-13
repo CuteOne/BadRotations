@@ -80,6 +80,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  10,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
+            br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -484,7 +485,7 @@ local function runRotation()
             [136330]=true, -- Soul Thorns Waycrest Manor
             [134388]=true -- A Knot of Snakes
         }
-        if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
+        if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
             if combo > 0 and GetObjectID("target") == 134388 then
                 if cast.kidneyShot("target") then return true end
             end
