@@ -51,38 +51,43 @@ local function createOptions()
     --- GENERAL OPTIONS --- -- Define General Options
     ----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
-    -- Mastery bonus
-    br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only Raid)")
     -- Blessing of Freedom
     br.ui:createCheckbox(section, "Blessing of Freedom")
-    -- Pre-Pull Timer
-    br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+
     -- Auto Beacon
     br.ui:createCheckbox(section, "Auto Beacon")
     if br.player.race == "BloodElf" then
       br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
       br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
     end
-    -- Redemption
-    br.ui:createCheckbox(section, "Glimmer mode")
-    br.ui:createCheckbox(section, "Glimmer mode - ooc")
-
     br.ui:createCheckbox(section, "Redemption")
     -- Critical
     br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Critical Heals")
     -- Overhealing Cancel
     br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "", "|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
     br.ui:checkSectionState(section)
+    br.ui:checkSectionState(section)
+    -- Raid
+    section = br.ui:createSection(br.ui.window.profile, "Raid")
+    br.ui:createCheckbox(section, "Glimmer mode")
+    br.ui:createCheckbox(section, "Glimmer mode - ooc")
+    br.ui:createSpinner(section, "Promise of Power", 8, 0, 100, 1, "", "|cffFFFFFFPower Stacks Before Cleanse", true)
+    -- Mastery bonus
+    br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only Raid)")
+    -- Pre-Pull Timer
+    br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+    br.ui:checkSectionState(section)
+
     section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
 
     br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
     -- m+ Rot
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
     br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
+
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
     br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
     br.ui:createCheckbox(section, "Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble from choking water|cffFFBB00.", 1)
-
 
     br.ui:checkSectionState(section)
     -------------------------
@@ -621,8 +626,8 @@ local function runRotation()
       end
     end
     -- CC  /  Repentance
-    if talent.repentance and isChecked("Repentance Key") and (SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus()) and cast.able.repentance() then
-      if cast.repentance() then
+    if talent.repentance and isChecked("Repentance Key") and SpecificToggle("Repentance Key") and not GetCurrentKeyBoardFocus() and IsSpellInRange(GetSpellInfo(spell.repentance), "mouseover") then
+      if castSpell("mouseover", spell.repentance, true, false, false, true, false, true, true, false) then
         return true
       end
     end
@@ -776,14 +781,16 @@ local function runRotation()
         --[[ DEBUG if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
           Print("Stacks: " ..getDebuffStacks(br.friend[i].unit, 288388) .." Threshold: " .. getValue("Reaping"))
         end]]
-                -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul
-        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2 or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping")) then
+        -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul, 282562-promises-of-power
+        if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2
+                or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping" or not inCombat))
+                or (getDebuffStacks(br.friend[i].unit, 282562) >= getValue("Promise of Power" or not inCombat)) then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
         end
         if (inInstance and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffStacks(br.friend[i].unit, 288388) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
-                or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (not inInstance and not inRaid) then
+                or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (inRaid and getDebuffRemain(br.friend[i].unit, 282562) == 0) or (not inInstance and not inRaid) then
           if canDispel(br.friend[i].unit, spell.cleanse) then
             if cast.cleanse(br.friend[i].unit) then
               return true
@@ -1188,9 +1195,8 @@ local function runRotation()
 
     --and isChecked("DPS")
     if mode.DPS == 1 and
-            (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
-                    isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health"))
-    then
+            isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
+            isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") then
       if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
         TargetUnit("focustarget")
       end
@@ -1250,7 +1256,7 @@ local function runRotation()
         end
       end
       -- Crusader Strike
-      if isChecked("Crusader Strike") and not talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if isChecked("Crusader Strike") and (not talent.crusadersMight or not inInstance or not inRaid) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1269,14 +1275,14 @@ local function runRotation()
       if castWiseAoEHeal(br.friend, spell.lightsHammer, 10, getValue("Light's Hammer"), getValue("Light's Hammer Targets"), 6, false, true) then
         return true
       end
-    elseif isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving and burst == 1 then
+    elseif isChecked("Light's Hammer") and cast.able.lightsHammer() and talent.lightsHammer and not moving and burst ~= nil then
       if castWiseAoEHeal(br.friend, spell.lightsHammer, 10, 99, 1, 6, false, true) then
         return true
       end
     end
     -- Judgment as heal
     if isChecked("Judgment heal") and inCombat and cast.able.judgment() and (inInstance and #tanks > 0 and getDistance(units.dyn30, tanks[1].unit) <= 10 or not inInstance) then
-      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar.active and inInstance and #tanks > 0 and tanks[1].hp <= 95 or not inInstance)  or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
+      if buff.avengingCrusader.exists() or (talent.fistOfJustice and getSpellCD(853) > 5) or (traits.graceoftheJusticar.active and inInstance and #tanks > 0 and tanks[1].hp <= 95 or not inInstance) or (talent.judgmentOfLight and not debuff.judgmentoflight.exists(units.dyn30)) then
         if cast.judgment(units.dyn30) then
           return true
         end
@@ -1305,7 +1311,7 @@ local function runRotation()
     end
     --Beacon of Virtue
     if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and getCastTime(spell.flashOfLight) < getSpellCD(spell.beaconOfVirtue) and not moving then
-      if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") then
+      if getLowAllies(getValue("Beacon of Virtue")) >= getValue("BoV Targets") or burst ~= nil then
         if lowest.hp <= getValue("Beacon of Virtue") then
           if cast.flashOfLight(lowest.unit) then
             BOV = lowest.unit
@@ -1327,24 +1333,20 @@ local function runRotation()
   --topPriority ------ topPriority ------topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ------ topPriority ----
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function topPriority()
+    --Avenging Crusader (216331)  UnitBuffID("player", 216331)
+    if buff.avengingCrusader.exists("player") and getFacing("player", "target") then
+      if cast.judgment("target") then
+        return true
+      end
+      if cast.crusaderStrike("target") then
+        return true
+      end
+    end
     --Talent Crusaders Might
     if isChecked("Crusader Strike") and not isChecked("Glimmer mode") and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
       if (getSpellCD(20473) > gcd or getSpellCD(85222) > gcd) then
         if cast.crusaderStrike(units.dyn5) then
           return true
-        end
-      end
-    end
-    --Avenging Crusader
-    if buff.avengingCrusader.exists() and getFacing("player", "target") then
-      if cast.able.judgment() then
-        if cast.judgment("target") then
-          return true
-        end
-        if cast.able.crusaderStrike() then
-          if cast.crusaderStrike("target") then
-            return true
-          end
         end
       end
     end
@@ -1396,7 +1398,7 @@ local function runRotation()
         end
         if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and (inCombat or isChecked("Glimmer mode - ooc")) then
           if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
-            if  #glimmerTable >= 1 and glimmerTable[1].distance > 10 then
+            if #glimmerTable >= 1 and glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
                 return true
               end
