@@ -143,14 +143,12 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Reyne   |  Full   | 8.0   |   100% | :heavy_check_mark:
 Aura    |  Full   | 8.1   |   80%  | :white_check_mark:
 
 - Restoration
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Collab |  Full   | 8.0   |   100% | :white_check_mark:
 Aura   |  Full   | 8.1   |   80%  | :interrobang:
 
 ### Hunter
@@ -177,9 +175,9 @@ CuteOne          | Full          | 8.0 |    100% | :heavy_check_mark:
 
 - Arcane
 
-author | support  | patch | status |   raidable?
-:----- | :------: | :---: | -----: | :-----------:
-None   | None     |  N/A  |    0%  | :x:
+author |   support   | patch | status |   raidable?
+:----- | :---------: | :---: | -----: | :-----------:
+Reyne  |  Inactive   | 8.0   |   100% | :heavy_check_mark:
 
 - Fire
 
@@ -189,9 +187,9 @@ winston         |  Full   | 8.0 |   99% | :interrobang:
 
 - Frost
 
-author | support  | patch | status |   raidable?
-:----- | :------: | :---: | -----: | :-----------:
-Reyne  |   Full   | 8.0   |   100% | :heavy_check_mark:
+author | support      | patch | status |   raidable?
+:----- | :---------:  | :---: | -----: | :-----------:
+Reyne  |   Inactive   | 8.0   |   100% | :heavy_check_mark:
 
 ### Monk
 
@@ -199,15 +197,13 @@ Reyne  |   Full   | 8.0   |   100% | :heavy_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Kuukuu | Inactive| 7.2.5 |    90% | :interrobang:
 Panglo |   Full  |  8.0  |    100%| :white_check_mark:
 
 - Mistweaver
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-Cpoworks | Inactive | 7.1.5 |    70% | :x:
-Ledecky | Limited | 8.0 |    75% | :interrobang:
+Panglo   | Full     | 8.1   |    75% | :interrobang:
 
 - Windwalker
 
@@ -221,7 +217,6 @@ CuteOne |  Full   | 8.0  |   99% | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Fengshen |  Full   | 8.0 |   99% | :white_check_mark:
 Laksmackt |  Full   | 8.1.5 |   99% | :white_check_mark:
 
 - Protection
@@ -247,10 +242,9 @@ Aura       |     Full      | 8.0 |    100% |   :white_check_mark:
 
 - Holy
 
-author          | support | patch | status | raidable?
-:-------------- | :-----: | :---: | -----: | :-------:
-Odan            |  Unk    |  8.0  |   ??%  | :interrobang:
-Ledecky         |  Full   |  8.0  |   95%  | :white_check_mark:
+author     | support | patch | status | raidable?
+:--------- | :-----: | :---: | -----: | :-------:
+Aura       | Full    | 8.0   |   100% |   :white_check_mark:
 
 - Shadow
 
@@ -265,18 +259,22 @@ winston       | Full          | 8.0  |   95% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 8.0   |   100%  | :interrobang:
+Fiskee  |  Full   | 8.0   |   100%  | :white_check_mark:
+Immy    |  Full   | 8.0   |   100%  | :white_check_mark:
 
 - Outlaw
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 Vilt    |  Full   | 8.0   |   99%  | :white_check_mark:
+Immy    |  Full   | 8.0   |   100% | :white_check_mark:
 
 - Subtlety
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |    95% | :white_check_mark:
+CuteOne |  Full   | 8.0   |    95% | :white_check_mark:
+Fiskee  |  Full   | 8.0   |   100% | :white_check_mark:
 
 ### Shaman
 
@@ -309,9 +307,9 @@ Fiskee  |  Full   | 8.0 |   100% | :white_check_mark:
 
 - Demonology
 
-author          | support | patch | status |     raidable?
-:-------------- | :-----: | :---: | -----: | :----------------:
-Chem         |  Full   | 8.0   |   99% | :white_check_mark:
+author        | support | patch | status |     raidable?
+:------------ | :-----: | :---: | -----: | :----------------:
+Fiskee        |  Full   | 8.0   |   99%  | :white_check_mark:
 
 - Destruction
 
@@ -332,9 +330,10 @@ CuteOne |  Full   | 8.0 |   100% | :white_check_mark:
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
 CuteOne |  Full   | 8.0 |   100% | :white_check_mark:
+Panglo  |  Full   | 8.0 |   100% | :white_check_mark:
 
 - Protection
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Panglo |  Full   | 8.0 |   100% | :white_check_mark:
+Panglo  |  Full   | 8.0   |   100% | :white_check_mark:

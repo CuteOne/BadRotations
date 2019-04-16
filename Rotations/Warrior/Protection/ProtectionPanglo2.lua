@@ -209,7 +209,7 @@ local function runRotation()
         enemies.get(20)
         enemies.get(30)
         enemies.get(40)
-
+        
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -245,7 +245,7 @@ local function runRotation()
                 --print("dumping IP")
                 if cast.ignorePain() then return end
             end
-            if cast.able.revenge() and rage >= getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
+            if not isExplosive("target") and cast.able.revenge() and rage >= getValue("High Rage Dump") and (not ipCapCheck() or not mainTank()) then
                 --print("dumping R")
                 if cast.revenge() then return end
             end
@@ -304,7 +304,7 @@ local function runRotation()
                     thisUnit = enemies.yards20[i]
                     unitDist = getDistance(thisUnit)
                     targetMe = UnitIsUnit("player",thisUnit) or false
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if not isExplosive(thisUnit) and canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                         if isChecked("Pummel") and unitDist < 6 then
                             if cast.pummel(thisUnit) then return end
                         end
@@ -339,7 +339,7 @@ local function runRotation()
                 if isChecked("Demoralizing Shout - CD") and rage <= 65 and not moving and br.player.mode.holdcd == 1 then
                     if cast.demoralizingShout() then return end
                 end
-                if talent.ravager then
+                if not isExplosive("target") and talent.ravager then
                     if cast.ravager("best",false,1,8) then return end
                 end
                 if isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "LightforgedDraenei") and useCDs() and buff.avatar.exists() and br.player.mode.holdcd == 1 then
@@ -514,7 +514,7 @@ local function runRotation()
             end
 
             -- Heroic Throw
-            if #enemies.yards10 == 0 and isChecked("Use Heroic Throw") then
+            if not isExplosive("target") and #enemies.yards10 == 0 and isChecked("Use Heroic Throw") then
                 if cast.heroicThrow("target") then return end
             end
 
@@ -524,22 +524,22 @@ local function runRotation()
             end
 
             -- Ravager Usage
-            if isChecked("Ravager") then 
+            if not isExplosive("target") and isChecked("Ravager") then 
                 if cast.ravager("target", "ground") then return end
             end
 
             --Dragon Roar
-            if isChecked("Dragon Roar") and not moving then
+            if not isExplosive("target") and isChecked("Dragon Roar") and not moving then
                 if cast.dragonRoar() then return end
             end
 
             --High Priority Thunder Clap
-            if #enemies.yards8 >= getValue("Aoe Priority") or debuff.demoralizingShout.exists(units.dyn8) then
+            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") or debuff.demoralizingShout.exists(units.dyn8) then
                 if cast.thunderClap() then return end
             end
 
             -- High Prio Revenge
-            if #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
                 if cast.revenge() then return end
             end
 
@@ -547,14 +547,14 @@ local function runRotation()
             if cast.shieldSlam() then return end
             
             -- Low Prio Thunder Clap
-            if talent.cracklingThunder then
+            if not isExplosive("target") and talent.cracklingThunder then
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
             end
             
             -- Revenge
-            if buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
+            if not isExplosive("target") and buff.revenge.exists() or (buff.vengeanceRevenge.exists() and rage >= 50) then
                 if cast.revenge() then return end
             end
             
@@ -566,7 +566,7 @@ local function runRotation()
                 if cast.victoryRush() then return end
             end
             --Devestate
-            if cd.shieldSlam.remain() > (gcdMax/2) and cd.thunderClap.remain() > (gcdMax/2) then
+            if cd.shieldSlam.remain() > (gcdMax/2) and (isExplosive("target") or cd.thunderClap.remain() > (gcdMax/2)) then
                 if cast.devastate() then return end
             end
         end
@@ -578,13 +578,13 @@ local function runRotation()
                     end
         
             --stomp your feet
-            if talent.cracklingThunder then
+            if not isExplosive("target") and talent.cracklingThunder then
                 if cast.thunderClap("player",nil,1,12) then return end
             else
                 if cast.thunderClap("player",nil,1,8) then return end
             end
             -- High Prio revenge
-            if #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and #enemies.yards8 >= getValue("Aoe Priority") and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
                 if cast.revenge() then return end
             end
             -- Rest
@@ -592,14 +592,14 @@ local function runRotation()
                 if cast.shieldSlam() then return end
             end
             -- Recover
-            if not (cast.able.thunderClap()) and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
+            if not isExplosive("target") and not (cast.able.thunderClap()) and (buff.revenge.exists() or rage >= getValue("High Rage Dump")) then
                 if cast.revenge() then return end
             end
             -- Drink
             if not (cast.able.shieldSlam() or cast.able.thunderClap()) and ipCapCheck() and rage >= 55 then
                 if cast.ignorePain() then return end
             end
-            if not (cast.able.shieldSlam() or cast.able.thunderClap()) then
+            if not cast.able.shieldSlam() or (isExplosive("target") or cast.able.thunderClap()) then
                 if cast.devastate() then return end
             end
         end
