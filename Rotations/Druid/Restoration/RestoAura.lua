@@ -664,7 +664,7 @@ local function runRotation()
 			end
 			if getOptionValue("Revive") == 3 then
 				for i =1, #br.friend do
-					if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
+					if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
 						if cast.revive(br.friend[i].unit) then 
 							br.addonDebug("Casting Revive")
 							return true 
@@ -2040,14 +2040,6 @@ local function runRotation()
 				if actionList_Interrupts() then
 					return
 				end
-				if
-					not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") and
-						not GetUnitIsFriend("target")
-				 then
-					if actionList_DPS() then
-						return
-					end
-				end
 				if actionList_Decurse() then
 					return
 				end
@@ -2056,6 +2048,14 @@ local function runRotation()
 				end
 				if actionList_SingleTarget() then
 					return
+				end
+				if
+					not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") and
+						not GetUnitIsFriend("target")
+				 then
+					if actionList_DPS() then
+						return
+					end
 				end
 				if actionList_Rejuvenation() then
 					return

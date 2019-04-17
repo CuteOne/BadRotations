@@ -541,7 +541,7 @@ local function runRotation()
                 end
                 if getOptionValue("Resurrection - Target") == 3 then
                     for i =1, #br.friend do
-                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
                             if cast.resurrection(br.friend[i].unit) then return true end
                         end
                     end
