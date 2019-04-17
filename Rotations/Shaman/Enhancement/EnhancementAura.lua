@@ -661,10 +661,10 @@ local function runRotation()
             end
             -- Trinkets
             if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards8t >= 3 ) then
-                if canUse(13) then
+                if canTrinket(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canTrinket(14) then
                     useItem(14)
                 end
             end
@@ -770,7 +770,7 @@ local function runRotation()
         if ghostWolf() then
             return true
         end
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 2 then
             return true
         else    
 ---------------------------------
@@ -808,14 +808,14 @@ local function runRotation()
                         if actionList_Ascendance() then return true end
                     end
                     if actionList_PriorityBuffs() then return true end
-                    if #enemies.yards10 < 3 then
+                    if #enemies.yards10t < 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if useCDs() then
                         if actionList_CD() then return true end
                     end
                     if actionList_Core() then return true end
-                    if #enemies.yards10 >= 3 then
+                    if #enemies.yards10t >= 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if actionList_Filler() then return true end
