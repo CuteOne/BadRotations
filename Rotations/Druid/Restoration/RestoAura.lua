@@ -191,7 +191,7 @@ local function createOptions()
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
 		-- Revive
-		br.ui:createDropdown(section, "Revive", {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+		br.ui:createDropdown(section, "Revive", {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
 		-- Necrotic Rot
 		br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
 		br.ui:checkSectionState(section)
@@ -650,16 +650,26 @@ local function runRotation()
 		end -- End Shapeshift Form Management
 		-- Revive
 		if isChecked("Revive") then
-			if getOptionValue("Revive") == 1 and hastar and playertar and deadtar then
+			if getOptionValue("Revive") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 				if cast.revive("target", "dead") then
 					br.addonDebug("Casting Revive")
 					return true
 				end
 			end
-			if getOptionValue("Revive") == 2 and hasMouse and playerMouse and deadMouse then
+			if getOptionValue("Revive") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
 				if cast.revive("mouseover", "dead") then
 					br.addonDebug("Casting Revive")
 					return true
+				end
+			end
+			if getOptionValue("Revive") == 3 then
+				for i =1, #br.friend do
+					if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and lastSpell ~= spell.resurrection then
+						if cast.revive(br.friend[i].unit) then 
+							br.addonDebug("Casting Revive")
+							return true 
+						end
+					end
 				end
 			end
 		end
@@ -1971,9 +1981,9 @@ local function runRotation()
 	if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and isChecked("DPS Key") and travel then
 		clearForm()
 	end
-	if lowest.hp < getOptionValue("DPS") and travel and not isMoving("player") then
-		clearForm()
-	end
+	 if lowest.hp < getOptionValue("DPS") and travel and not isMoving("player") then
+	 	clearForm()
+	 end
 	-- Pause
 	if pause(true) or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking or isCastingSpell(spell.tranquility) then
 		return true
