@@ -104,6 +104,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Pain Suppression",  15,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 15")
             br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
             br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+            br.ui:createSpinner(section, "Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
         br.ui:checkSectionState(section)
         -------------------------
         ------ AOE HEALING ------
@@ -474,11 +475,11 @@ local function runRotation()
                         end
                     end
                     --Trinkets
-                    if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+                    if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                         useItem(13)
                         return true
                     end
-                    if isChecked("Trinket 2") and canUse(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+                    if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
                         useItem(14)
                         return true
                     end
@@ -1019,7 +1020,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or mode.rotation == 4 or UnitDebuffID("player",240447) or (getBuffRemain("player", 192001) > 0 and mana < 100) or getBuffRemain("player", 192002) > 10 or (getBuffRemain("player", 192002) > 0 and mana < 100) or getBuffRemain("player", 188023) > 0 or getBuffRemain("player", 175833) > 0 then
+        if pause() or UnitDebuffID("player",240447) or (getBuffRemain("player", 192001) > 0 and mana < 100) or getBuffRemain("player", 192002) > 10 or (getBuffRemain("player", 192002) > 0 and mana < 100) or getBuffRemain("player", 188023) > 0 or getBuffRemain("player", 175833) > 0 then
             return true
         else
 ---------------------------------

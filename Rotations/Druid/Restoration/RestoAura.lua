@@ -1680,7 +1680,7 @@ local function runRotation()
 		end
 		-- Feral Affinity
 		if talent.feralAffinity and GetUnitExists("target") then
-			local nearEnemies = #enemies.yards8
+			local nearEnemies = #enemies.yards5
 			if travel then
 				clearForm()
 			end
@@ -1840,10 +1840,10 @@ local function runRotation()
 						local thisUnit = enemies.yards8[i]
 						if not debuff.sunfire.exists(thisUnit) then
 							if cast.sunfire(thisUnit) then
-								return true
 							end
 						end
 					end
+					--return true
 				end
 				-- Moonfire
 				if mana >= getOptionValue("DPS Save mana") then
@@ -1851,10 +1851,10 @@ local function runRotation()
 						local thisUnit = enemies.yards8[i]
 						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
 							if cast.moonfire(thisUnit) then
-								return true
 							end
 						end
 					end
+					--return true
 				end
 				-- Cat Form
 				if
@@ -1968,6 +1968,12 @@ local function runRotation()
 	-----------------
 	--- Rotations ---
 	-----------------
+	if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and isChecked("DPS Key") and travel then
+		clearForm()
+	end
+	if lowest.hp < getOptionValue("DPS") and travel and not isMoving("player") then
+		clearForm()
+	end
 	-- Pause
 	if pause(true) or (travel and not inCombat) or IsMounted() or flying or stealthed or drinking or isCastingSpell(spell.tranquility) then
 		return true

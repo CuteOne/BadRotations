@@ -613,12 +613,12 @@ local function runRotation()
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
             if (cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists()) and not stormEle and holdBreak then
-                if debuff.flameShock.exists("target") then
+                if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
                     if cast.lavaBurst() then return true end
                 else
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if debuff.flameShock.exists(thisUnit) then
+                        if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
                             if cast.lavaBurst(thisUnit) then return true end
                         end
                     end
