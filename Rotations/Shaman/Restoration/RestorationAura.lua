@@ -137,7 +137,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Earthen Wall Totem",  95,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Earthen Wall Totem Targets",  1,  0,  40,  1,  "Minimum Earthen Wall Totem Targets")
             -- Ancestral Spirit
-            br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+            br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -322,11 +322,18 @@ local function runRotation()
             end
             -- Ancestral Spirit
             if isChecked("Ancestral Spirit") then
-                if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
+                if getOptionValue("Ancestral Spirit")==1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
                     if cast.ancestralSpirit("target","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
-                if getOptionValue("Ancestral Spirit")==2 and hasMouse and playerMouse and deadMouse then
+                if getOptionValue("Ancestral Spirit")==2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
                     if cast.ancestralSpirit("mouseover","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
+                end
+                if getOptionValue("Ancestral Spirit") == 3 then
+                    for i =1, #br.friend do
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                            if cast.ancestralSpirit(br.friend[i].unit) then return true end
+                        end
+                    end
                 end
             end
         end -- End Action List - Extras	
@@ -422,7 +429,7 @@ local function runRotation()
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
+                if isChecked("Purge") and canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
                     if cast.purge() then br.addonDebug("Casting Purge") return end
                 end
                     -- Capacitor Totem
