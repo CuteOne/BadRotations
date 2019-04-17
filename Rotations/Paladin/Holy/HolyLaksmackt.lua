@@ -102,6 +102,7 @@ local function createOptions()
     if br.player.race == "Draenei" then
       br.ui:createSpinner(section, "Gift of The Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
     end
+    br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
     br.ui:checkSectionState(section)
     -------------------------
     ------ Keys -------
@@ -649,6 +650,11 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function actionList_Defensive()
     if useDefensive() then
+
+      --engineering belt
+      if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUse(6) then
+        useItem(6)
+      end
 
       --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
       if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
