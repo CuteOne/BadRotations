@@ -505,7 +505,7 @@ local function runRotation()
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
                 local boss2ID = GetObjectID("boss2")
-                local boss3ID = GetObjectID("boss2")
+                local boss3ID = GetObjectID("boss3")
                 local boss = "boss1"
                 if boss2ID == 126848 then 
                     bossID = 126848
