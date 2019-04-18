@@ -789,8 +789,8 @@ local function runRotation()
         end]]
         -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul, 282562-promises-of-power
         if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2
-                or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping" or not inCombat))
-                or (getDebuffStacks(br.friend[i].unit, 282562) >= getValue("Promise of Power" or not inCombat)) then
+                or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping") or not inCombat)
+                or (getDebuffStacks(br.friend[i].unit, 282562) >= getValue("Promise of Power") or not inCombat) then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
