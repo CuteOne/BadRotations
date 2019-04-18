@@ -366,14 +366,14 @@ local function runRotation()
                     end
                 elseif getOptionValue("Rebirth") == 2 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 elseif getOptionValue("Rebirth") == 3 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
@@ -384,7 +384,7 @@ local function runRotation()
                     end
                 elseif getOptionValue("Rebirth") == 5 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
