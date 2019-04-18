@@ -469,7 +469,7 @@ local function runRotation()
                 if cast.cripplingPoison("player") then return true end
             end
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() and
+            if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
             (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
