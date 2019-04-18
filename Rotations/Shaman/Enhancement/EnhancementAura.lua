@@ -226,6 +226,7 @@ local function runRotation()
         enemies.get(30)
         enemies.get(8,"target") -- enemies.yards8t
         
+        
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
@@ -808,14 +809,14 @@ local function runRotation()
                         if actionList_Ascendance() then return true end
                     end
                     if actionList_PriorityBuffs() then return true end
-                    if #enemies.yards10t < 3 then
+                    if #enemies.yards8t < 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if useCDs() then
                         if actionList_CD() then return true end
                     end
                     if actionList_Core() then return true end
-                    if #enemies.yards10t >= 3 then
+                    if #enemies.yards8t >= 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if actionList_Filler() then return true end

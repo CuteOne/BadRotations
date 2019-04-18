@@ -469,7 +469,7 @@ local function runRotation()
                 if cast.cripplingPoison("player") then return true end
             end
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and not stealth and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() and
+            if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
             (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
@@ -505,7 +505,7 @@ local function runRotation()
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
                 local boss2ID = GetObjectID("boss2")
-                local boss3ID = GetObjectID("boss2")
+                local boss3ID = GetObjectID("boss3")
                 local boss = "boss1"
                 if boss2ID == 126848 then 
                     bossID = 126848
