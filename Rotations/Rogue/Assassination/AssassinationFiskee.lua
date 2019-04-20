@@ -396,7 +396,7 @@ local function runRotation()
                 [134388]=true -- A Knot of Snakes ToS
             }
 
-            if IsSpellInRange(spell10y, thisUnit) == 1 then
+            if IsSpellInRange(spell10y, thisUnit.unit) == 1 then
                 if fokIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
                     if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
