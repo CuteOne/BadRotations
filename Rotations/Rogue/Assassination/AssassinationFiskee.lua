@@ -218,13 +218,12 @@ local function runRotation()
 
     local garroteCount = 0
 
-    units.get(5)
     if isChecked("Auto Target Burn Units") then
-        enemies.get(5)
+        enemies.get(5, nil, nil, spell.kick)
     end
-    enemies.get(20)
-    enemies.get(20,"player",true)
-    enemies.get(30)
+    enemies.get(15, nil, nil, spell.blind)
+    enemies.get(15,"player",true, spell.blind)
+    enemies.get(30, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
     if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
@@ -345,6 +344,8 @@ local function runRotation()
     clearTable(enemyTable10)
     clearTable(enemyTable30)
     local deadlyPoison10 = true
+    local spell5y = GetSpellInfo(spell.kick)
+    local spell10y = GetSpellInfo(spell.pickPocket)
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -354,7 +355,7 @@ local function runRotation()
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.distance = getDistance(thisUnit)
+                enemyUnit.yards5 = IsSpellInRange(spell5y, thisUnit) == 1
                 enemyUnit.hpabs = UnitHealth(thisUnit)
                 enemyUnit.objectID = GetObjectID(thisUnit)
                 tinsert(enemyTable30, enemyUnit)
@@ -373,7 +374,7 @@ local function runRotation()
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
                 if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 5 end
-                if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
+                if thisUnit.yards5 then enemyScore = enemyScore + 30 end
                 if garroteList[thisUnit.objectID] ~= nil then enemyScore = enemyScore + 50 end
                 if GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
                 local raidTarget = GetRaidTargetIndex(thisUnit.unit)
@@ -395,13 +396,13 @@ local function runRotation()
                 [134388]=true -- A Knot of Snakes ToS
             }
 
-            if thisUnit.distance <= 10 then
+            if IsSpellInRange(spell10y, thisUnit) == 1 then
                 if fokIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
                     if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
-                if thisUnit.distance <= 5 then
+                if thisUnit.yards5 then
                     tinsert(enemyTable5, thisUnit)
                 end
             end
@@ -437,7 +438,7 @@ local function runRotation()
     local enemies10 = #enemyTable10
 
     if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 3 then
-        enemies10 = #enemies.get(10)
+        enemies10 = #enemies.get(10, nil, nil, spell.pickPocket)
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
@@ -474,7 +475,7 @@ local function runRotation()
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
                 end
-                if #enemies.yards20nc > 0 and getOptionValue("Auto Stealth") == 2 then
+                if #enemies.yards15nc > 0 and getOptionValue("Auto Stealth") == 2 then
                     if cast.stealth() then return end
                 end
             end
@@ -600,8 +601,8 @@ local function runRotation()
             stunList[tonumber(i)] = true
         end
         if not stealthedRogue then
-            for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
+            for i=1, #enemies.yards15 do
+                local thisUnit = enemies.yards15[i]
                 local distance = getDistance(thisUnit)
                 if useInterrupts() and canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
