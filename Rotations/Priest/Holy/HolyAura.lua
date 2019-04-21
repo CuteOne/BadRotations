@@ -543,7 +543,7 @@ local function runRotation()
 				end
 			end
 			-- Serenity On Me Emergency
-			if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and not buff.spiritOfRedemption.exists() and inCombat then
+			if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and not buff.spiritOfRedemption.exists() then
 				if cast.holyWordSerenity("player") then return end
 			end
 			-- Holy Word: Serenity
@@ -553,7 +553,7 @@ local function runRotation()
 				end
 			end
 			-- Binding Heal On Me
-			if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+			if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") and not buff.spiritOfRedemption.exists() then
 				if lowest.hp <= getValue("Binding Heal On Me") then
 					if cast.bindingHeal(lowest.unit) then
 						RunMacroText("/stopspelltarget")
@@ -583,13 +583,14 @@ local function runRotation()
 			-- Flash Heal Others
 			if isChecked("Flash Heal Emergency") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
 				for i = 1, #br.friend do
-					if isChecked("Tanks Only") then
+					if buff.spiritOfRedemption.exists() then
+						if cast.flashHeal(lowest.unit) then return end
+					elseif isChecked("Tanks Only") then
 						if br.friend[i].hp <= getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 							if cast.flashHeal(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
-							if cast.flashHeal(br.friend[i].unit) then return end
-
 						end
+					elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
+						if cast.flashHeal(br.friend[i].unit) then return end
 					end
 				end
 			end
