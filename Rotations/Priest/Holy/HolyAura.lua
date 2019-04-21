@@ -765,9 +765,9 @@ local function runRotation()
 			end
 			-- Dispel Magic
 			if isChecked("Dispel Magic") then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
-					if canDispel(enemies.yards30[i],spell.dispelMagic) and lowest.hp > 40 then
+				for i = 1, #enemies.yards40 do
+					local thisUnit = enemies.yards40[i]
+					if canDispel(enemies.yards40[i],spell.dispelMagic) and lowest.hp > 40 then
 						if cast.dispelMagic() then return end
 					end
 				end
