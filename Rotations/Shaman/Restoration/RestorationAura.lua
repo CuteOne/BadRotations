@@ -440,8 +440,13 @@ local function runRotation()
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
-                    if cast.purge() then br.addonDebug("Casting Purge") return end
+                if isChecked("Purge") then
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
+                        if canDispel(enemies.yards30[i],spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
+                            if cast.purge() then br.addonDebug("Casting Purge") return end
+                        end
+                    end
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
