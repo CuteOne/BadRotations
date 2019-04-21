@@ -183,6 +183,8 @@ local function createOptions()
 		)
 		br.ui:createCheckbox(section, "Bear Form Shifting", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFShapeshifting into Bear Form to DPS for Guardian Affinity")
 		br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 70, 0, 100, 5, "Minimum party member health to focus on healing Seth")
+		-- Bursting Stack
+		br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		-- DPS
 		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFMinimum Health to DPS")
 		br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
@@ -204,10 +206,11 @@ local function createOptions()
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 4, 1, 40, 1, "Minimum Trinket 1 Targets(This includes you)")
-		br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget"}, 1)
 		br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 4, 1, 40, 1, "Minimum Trinket 2 Targets(This includes you)")
-		br.ui:createDropdownWithout(section, "Trinket 2 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget"}, 1)
+		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+        br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+        br.ui:createSpinner(section,"Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
 		-- Innervate
 		br.ui:createSpinner(section, "Innervate", 60, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Innervate Targets", 3, 0, 40, 1, "Minimum Innervate Targets")
@@ -414,6 +417,7 @@ local function runRotation()
 	local rejuvCount = 0
 	local tanks = getTanksTable()
 	local ttd = getTTD
+	local burst = nil
 
 	units.get(5)
 	units.get(8)
@@ -424,6 +428,14 @@ local function runRotation()
 	enemies.get(15)
 	enemies.get(40)
 	friends.yards40 = getAllies("player", 40)
+
+	if inInstance and select(3,GetInstanceInfo()) == 8 then
+		local ourtank = tanks[1].unit
+		local Burststack = getDebuffStacks(ourtank, 240443)
+		if Burststack >= getOptionValue("Bursting") then
+		  burst = true
+		end
+	end
 
 	local lowest = {}
 	lowest.unit = "player"
@@ -843,15 +855,23 @@ local function runRotation()
 					end
 				end
 			end
-			if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-				useItem(13)
-				br.addonDebug("Using Trinket 1")
-				return true
+			if isChecked("Trinket 1") and canTrinket(13) then
+				if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+					UseItemByName(167865,lowest.unit)
+				elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+					useItem(13)
+					br.addonDebug("Using Trinket 1")
+					return true
+				end
 			end
-			if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-				useItem(14)
-				br.addonDebug("Using Trinket 2")
-				return true
+			if isChecked("Trinket 2") and canTrinket(14) then
+				if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+					UseItemByName(167865,lowest.unit)
+				elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+					useItem(13)
+					br.addonDebug("Using Trinket 2")
+					return true
+				end
 			end
 			-- Mana Potion
 			if isChecked("Mana Potion") and mana <= getValue("Mana Potion") then
@@ -861,7 +881,7 @@ local function runRotation()
 			end
 			-- Innervate
 			if isChecked("Innervate") and mana ~= nil then
-				if (getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80) then
+				if (getLowAllies(getValue("Innervate")) >= getValue("Innervate Targets") and mana < 80) or burst == true then
 					if cast.innervate("player") then
 						return true
 					end
@@ -869,7 +889,7 @@ local function runRotation()
 			end
 			-- Incarnation: Tree of Life
 			if isChecked("Incarnation") and talent.incarnationTreeOfLife and not buff.incarnationTreeOfLife.exists() then
-				if getLowAllies(getValue("Incarnation")) >= getValue("Incarnation Targets") then
+				if getLowAllies(getValue("Incarnation")) >= getValue("Incarnation Targets") or burst == true then
 					if cast.incarnationTreeOfLife() then
 						return true
 					end
@@ -877,7 +897,7 @@ local function runRotation()
 			end
 			-- Tranquility
 			if isChecked("Tranquility") and not moving and not buff.incarnationTreeOfLife.exists() then
-				if getLowAllies(getValue("Tranquility")) >= getValue("Tranquility Targets") then
+				if getLowAllies(getValue("Tranquility")) >= getValue("Tranquility Targets") or burst == true then
 					if cast.tranquility() then
 						return true
 					end
@@ -2048,6 +2068,30 @@ local function runRotation()
 				end
 				if actionList_SingleTarget() then
 					return
+				end
+				if #enemies.yards5 < 1 then
+					-- Moonfire
+					if mana >= getOptionValue("DPS Save mana") then
+						for i = 1, #enemies.yards40 do
+							local thisUnit = enemies.yards40[i]
+							if not debuff.moonfire.exists(thisUnit) then
+								if cast.moonfire(thisUnit) then
+									return true
+								end
+							end
+						end
+					end
+					-- Sunfire
+					if mana >= getOptionValue("DPS Save mana") then
+						for i = 1, #enemies.yards40 do
+							local thisUnit = enemies.yards40[i]
+							if not debuff.sunfire.exists(thisUnit) then
+								if cast.sunfire(thisUnit) then
+									return true
+								end
+							end
+						end
+					end
 				end
 				if
 					not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") and
