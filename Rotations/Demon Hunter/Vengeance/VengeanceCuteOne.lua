@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- Variable Intensity Gigavolt Oscillating Reactor
+            br.ui:createCheckbox(section,"Power Reactor", "|cffFFBB00Check to use the Gigavolt Oscillating Reactor Trinket.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -301,12 +303,20 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
             -- Trinkets
-                if isChecked("Trinkets") and getDistance("target") < 5 then
+                if isChecked("Trinkets") and not isChecked("Power Reactor") and getDistance("target") < 5 then
                     if canUse(13) then
                         useItem(13)
                     end
                     if canUse(14) and getNumEnemies("player",12) >= 1 then
                         useItem(14)
+                    end
+                end
+            end
+            -- Variable Intensity Gigavolt Oscillating Reactor
+			if useCDs() and getDistance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
+                if isChecked("Power Reactor") and hasEquiped(165572) then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
+                        useItem(165572)
                     end
                 end
             end -- End useCDs check
