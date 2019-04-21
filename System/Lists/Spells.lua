@@ -425,13 +425,13 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                demonSpikes                 = 203819,
                 bladeTurning                = 247254,
+                demonSpikes                 = 203819,
                 empowerWards                = 218256,
-                immolationAura              = 178740,
-                soulFragments               = 203981,
-                metamorphosis               = 187827,
                 feastofSouls                = 207693,
+                immolationAura              = 178740,
+                metamorphosis               = 187827,
+                soulFragments               = 203981,
                 siphonedPower               = 218561,
             },
             debuffs                         = {
@@ -480,6 +480,7 @@ br.lists.spells = {
             buffs                           = {
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
+                vigorEngaged                = 287916,
             },
             debuffs                         = {
 
