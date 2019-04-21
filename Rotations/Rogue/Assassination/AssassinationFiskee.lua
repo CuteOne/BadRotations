@@ -219,11 +219,11 @@ local function runRotation()
     local garroteCount = 0
 
     if isChecked("Auto Target Burn Units") then
-        enemies.get(5, nil, nil, spell.kick)
+        enemies.get(5, nil, nil, nil, spell.kick)
     end
-    enemies.get(15, nil, nil, spell.blind)
-    enemies.get(15,"player",true, spell.blind)
-    enemies.get(30, nil, nil, spell.poisonedKnife)
+    enemies.get(15, nil, nil, nil, spell.blind)
+    enemies.get(15,"player",true, nil, spell.blind)
+    enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
     if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
@@ -438,7 +438,7 @@ local function runRotation()
     local enemies10 = #enemyTable10
 
     if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 3 then
-        enemies10 = #enemies.get(10, nil, nil, spell.pickPocket)
+        enemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
