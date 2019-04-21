@@ -3143,7 +3143,6 @@ br.lists.spells = {
         -- Protection
         [73] = {
             abilities                       = {
-                defensiveStance             = 71,
                 demoralizingShout           = 1160,
                 devastate                   = 20243,
                 focusedRage                 = 204488,
@@ -3174,6 +3173,7 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
+                victorious                  = 32216,
             },
             debuffs                         = {
                 deepwoundsProt              = 115767,
