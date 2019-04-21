@@ -78,10 +78,13 @@ local function createOptions()
 		-- Flask / Crystal
 		--    br.ui:createCheckbox(section,"Flask / Crystal")
 		-- Trinkets
-		br.ui:createCheckbox(section,"Trinkets")
-		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
-        br.ui:createSpinner(section, "Inoculating Extract", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
-        br.ui:createSpinner(section, "Ward of Envelopment", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
+		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
+		br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  4,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)
+		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+		br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+		br.ui:createSpinner(section,"Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
 		-- Pre-Pot Timer
 		br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
 		-- Racial
@@ -95,11 +98,13 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
+		-- Bursting Stack
+		br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
 		-- Dispel Magic
-		br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs when targeted.")
+		br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs.")
 		-- Mass Dispel Hotkey
 		br.ui:createDropdown(section,"Mass Dispel Hotkey", br.dropOptions.Toggle, 6, "Hold down the set hotkey and Mass Dispel will be casted at mouse cursor on next GCD.")
 		-- Purify
@@ -288,6 +293,14 @@ local function runRotation()
 		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
 
+		if inInstance and select(3,GetInstanceInfo()) == 8 then
+			local ourtank = tanks[1].unit
+			local Burststack = getDebuffStacks(ourtank, 240443)
+			if Burststack >= getOptionValue("Bursting") then
+			  burst = true
+			end
+		end
+
 		renewCount = 0
 		for i=1, #br.friend do
 			local renewRemain = getBuffRemain(br.friend[i].unit,spell.buffs.renew,"player") or 0 -- Spell ID 139
@@ -433,31 +446,14 @@ local function runRotation()
 			if useCDs() then
 				--Salvation
 				if isChecked("Holy Word: Salvation") and not moving then
-					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") then
+					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") or burst == true then
 						if cast.holyWordSalvation() then return end
 					end
 				end
 				-- Divine Hymn
 				if isChecked("Divine Hymn") and not moving then
-					if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") then
+					if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") or burst == true then
 						if cast.divineHymn() then return end
-					end
-				end
-				-- Trinkets
-				if isChecked("Trinkets") then
-					if canUse(11) then
-						useItem(11)
-					end
-					if canUse(12) then
-						useItem(12)
-					end
-					if not isChecked("Revitalizing Voodoo Totem") and not isChecked("Inoculating Extract") and not isChecked("Ward of Envelopment") then
-						if canTrinket(13) then
-							useItem(13)
-						end
-						if canTrinket(14) then
-							useItem(14)
-						end
 					end
 				end
 				--Revitalizing Voodoo
@@ -488,6 +484,17 @@ local function runRotation()
 						end
 					end
 				end
+				-- Trinkets
+				if isChecked("Trinket 1") and canTrinket(13) and (getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true) then
+                    useItem(13)
+                    br.addonDebug("Using Trinket 1")
+                    return true
+                end
+                if isChecked("Trinket 2") and canTrinket(14) and (getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true) then
+                    useItem(14)
+                    br.addonDebug("Using Trinket 2")
+                    return true
+                end
 				-- Racial: Blood Elf Arcane Torrent
 				if isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= getValue("Arcane Torrent Mana") then
 					if castSpell("player",racial,false,false,false) then return end
@@ -757,6 +764,14 @@ local function runRotation()
 				end
 			end
 			-- Dispel Magic
+			if isChecked("Dispel Magic") then
+				for i = 1, #enemies.yards30 do
+					local thisUnit = enemies.yards30[i]
+					if canDispel(enemies.yards30[i],spell.dispelMagic) and lowest.hp > 40 then
+						if cast.dispelMagic() then return end
+					end
+				end
+			end
 			if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
 				if cast.dispelMagic() then return end
 			end
