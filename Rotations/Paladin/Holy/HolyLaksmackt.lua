@@ -50,6 +50,17 @@ local function createOptions()
     -----------------------
     --- GENERAL OPTIONS --- -- Define General Options
     ----------------------
+    -- Trinkets
+    section = br.ui:createSection(br.ui.window.profile, "Trinkets")
+    br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
+    br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
+    br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
+    br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
+    br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
+    br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
+    -- br.ui:createCheckbox(section, "Advanced Trinket Support")
+    br.ui:checkSectionState(section)
+
     section = br.ui:createSection(br.ui.window.profile, "General")
     -- Blessing of Freedom
     br.ui:createCheckbox(section, "Blessing of Freedom")
@@ -60,18 +71,18 @@ local function createOptions()
       br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
       br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
     end
-    br.ui:createCheckbox(section, "Redemption")
+    br.ui:createCheckbox(section, "Mass Rez")
     -- Critical
     br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Critical Heals")
     -- Overhealing Cancel
     br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "", "|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
-    br.ui:checkSectionState(section)
+    br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
     br.ui:checkSectionState(section)
     -- Raid
     section = br.ui:createSection(br.ui.window.profile, "Raid")
     br.ui:createCheckbox(section, "Glimmer mode")
     br.ui:createCheckbox(section, "Glimmer mode - ooc")
-    br.ui:createSpinner(section, "Promise of Power", 8, 0, 100, 1, "", "|cffFFFFFFPower Stacks Before Cleanse", true)
+    --br.ui:createSpinner(section, "Promise of Power", 8, 0, 100, 1, "", "|cffFFFFFFPower Stacks Before Cleanse", true)
     -- Mastery bonus
     br.ui:createCheckbox(section, "Mastery bonus", "|cff15FF00Give priority to the nearest player...(Only Raid)")
     -- Pre-Pull Timer
@@ -80,10 +91,9 @@ local function createOptions()
 
     section = br.ui:createSection(br.ui.window.profile, "M+ Settings")
 
-    br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
     -- m+ Rot
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
-    br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
+    --br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
 
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
     br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
@@ -160,17 +170,6 @@ local function createOptions()
     br.ui:createSpinner(section, "Aura Mastery Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Aura Mastery Targets", true)
     br.ui:checkSectionState(section)
 
-
-    -- Trinkets
-    section = br.ui:createSection(br.ui.window.profile, "Trinkets")
-    br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
-    br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
-    br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
-    br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
-    br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-    br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
-    -- br.ui:createCheckbox(section, "Advanced Trinket Support")
-    br.ui:checkSectionState(section)
     -------------------------
     ---- SINGLE TARGET ------
     -------------------------
@@ -701,11 +700,11 @@ local function runRotation()
     end
   end
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-  -- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- Cleanse
+  -- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess ----------- CanIRess -----------
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function CanIRess()
-    if isChecked("Redemption") and not moving and resable then
-      if cast.redemption("target", "dead") then
+    if isChecked("Mass Rez") and not moving and resable then
+      if cast.absolution("target", "dead") then
         return true
       end
     end
@@ -788,6 +787,7 @@ local function runRotation()
           Print("Stacks: " ..getDebuffStacks(br.friend[i].unit, 288388) .." Threshold: " .. getValue("Reaping"))
         end]]
         -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul, 282562-promises-of-power
+        --[[ removing as support moved into HE system
         if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2
                 or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping") or (not inCombat and getDebuffStacks(br.friend[i].unit, 288388) > 0))
                 or (getDebuffStacks(br.friend[i].unit, 282562) >= getValue("Promise of Power") or (not inCombat and getDebuffStacks(br.friend[i].unit, 282562) > 0)) then
@@ -797,10 +797,18 @@ local function runRotation()
         end
         if (inInstance and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffStacks(br.friend[i].unit, 288388) == 0 and getDebuffRemain(br.friend[i].unit, 261440) == 0 and getDebuffRemain(br.friend[i].unit, 270920) == 0)
                 or (inRaid and getDebuffRemain(br.friend[i].unit, 277498) == 0) or (inRaid and getDebuffRemain(br.friend[i].unit, 282562) == 0) or (not inInstance and not inRaid) then
+          -- stuff
           if canDispel(br.friend[i].unit, spell.cleanse) then
             if cast.cleanse(br.friend[i].unit) then
               return true
             end
+          end
+        end
+
+      end]]
+        if canDispel(br.friend[i].unit, spell.cleanse) then
+          if cast.cleanse(br.friend[i].unit) then
+            return true
           end
         end
       end
