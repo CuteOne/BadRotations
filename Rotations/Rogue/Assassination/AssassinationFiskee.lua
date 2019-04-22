@@ -976,7 +976,7 @@ local function runRotation()
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(spell.stealth) and not cast.last.vanish() then
+            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() then
                 cast.stealth("player")
             end
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue
