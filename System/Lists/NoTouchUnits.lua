@@ -27,4 +27,5 @@ br.lists.noTouchUnits = {
     {unitID = 144683, buff = 284436}, -- Champion of the Light (A), Ra'wani Kanae, Seal of Reckoning
     {unitID = 144680, buff = 284436}, -- Champion of the Light (H), Frida Ironbellows, Seal of Reckoning
     {unitID = 144942, buff = 289644}, -- Spark Bot,High Tinker Mekkatorque, Mythic 
+    {unitID = 145644, buff = 284337}, -- Bwonsamdi with Unliving buff
 }

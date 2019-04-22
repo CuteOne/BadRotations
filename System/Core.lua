@@ -35,9 +35,9 @@ function getUpdateRate()
 		updateRate = 0.1
 	else
 		updateRate = getOptionValue("Bot Update Rate")
-		-- if updateRate < 0.2 then
-		-- 	updateRate = 0.2
-		-- end
+	-- 	if updateRate < 0.2 then
+	-- 	 	updateRate = 0.2
+	-- 	end
 	end
 
 	return updateRate
@@ -102,9 +102,9 @@ local function testKeys(self, key)
 end
 
 keyBoardFrame:SetScript("OnKeyDown", testKeys)
--- local brlocVersion = GetAddOnMetadata("BadRotations","Version")
--- local brcurrVersion
--- local brUpdateTimer
+local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+local brcurrVersion
+local brUpdateTimer
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -119,21 +119,21 @@ function BadRotationsUpdate(self)
 		return false
 	else 
 		if EWT and GetObjectCount() ~= nil then
-			-- if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300  then
-			-- 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-			-- 	if brlocVersion and brcurrVersion then
-			-- 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-			-- 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-			-- 		if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-			-- 			if isChecked("Overlay Messages") then
-			-- 				ChatOverlay("BadRotations is currently out of date.")
-			-- 			else
-			-- 				 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
-			-- 			end
-			-- 		end
-			-- 		brUpdateTimer = GetTime()
-			-- 	end
-			-- end
+			if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300  then
+				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+				if brlocVersion and brcurrVersion then
+					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+					if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+						if isChecked("Overlay Messages") then
+							ChatOverlay("BadRotations is currently out of date.")
+						else
+							 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
+						end
+					end
+					brUpdateTimer = GetTime()
+				end
+			end
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					if pauseSpellId ~= nil then
@@ -233,6 +233,17 @@ function BadRotationsUpdate(self)
 					-- Healing Engine
 					if isChecked("HE Active") then
 						br.friend:Update()
+						local groupSize
+						groupSize = GetNumGroupMembers()
+						if groupSize == 0 then
+							groupSize = 1
+						end
+						if #br.friend < groupSize then
+							br.addonDebug("Group size does not match #br.friend. Recreating br.friend.")
+							table.wipe(br.memberSetup.cache)
+							table.wipe(br.friend)
+							SetupTables()
+						end
 					end
 					-- Auto Loot
 					autoLoot()
