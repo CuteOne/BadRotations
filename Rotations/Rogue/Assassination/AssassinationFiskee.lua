@@ -808,7 +808,7 @@ local function runRotation()
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
-        if useFiller and thp < 30 and (buff.blindside.exists() or (not talent.venomRush and not trait.doubleDose.active)) then
+        if useFiller and (buff.blindside.exists() or (thp < 35 and not talent.venomRush and not trait.doubleDose.active)) then
             if cast.blindside("target") then return true end
         end
         -- # Tab-Mutilate to apply Deadly Poison at 2 targets
