@@ -102,9 +102,9 @@ local function testKeys(self, key)
 end
 
 keyBoardFrame:SetScript("OnKeyDown", testKeys)
-local brlocVersion = GetAddOnMetadata("BadRotations","Version")
-local brcurrVersion
-local brUpdateTimer
+-- local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+-- local brcurrVersion
+-- local brUpdateTimer
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -119,21 +119,21 @@ function BadRotationsUpdate(self)
 		return false
 	else 
 		if EWT and GetObjectCount() ~= nil then
-			if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300 and EasyWoWToolbox ~= nil  then
-				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-				if brlocVersion and brcurrVersion then
-					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-					if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-						if isChecked("Overlay Messages") then
-							ChatOverlay("BadRotations is currently out of date.")
-						else
-							 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
-						end
-					end
-					brUpdateTimer = GetTime()
-				end
-			end
+			-- if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300 and GetCoreLevel() == nil  then
+			-- 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+			-- 	if brlocVersion and brcurrVersion then
+			-- 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+			-- 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+			-- 		if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+			-- 			if isChecked("Overlay Messages") then
+			-- 				ChatOverlay("BadRotations is currently out of date.")
+			-- 			else
+			-- 				 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
+			-- 			end
+			-- 		end
+			-- 		brUpdateTimer = GetTime()
+			-- 	end
+			-- end
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					if pauseSpellId ~= nil then
