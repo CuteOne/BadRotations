@@ -119,7 +119,7 @@ function BadRotationsUpdate(self)
 		return false
 	else 
 		if EWT and GetObjectCount() ~= nil then
-			if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300  then
+			if brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300 and EasyWoWToolbox ~= nil  then
 				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
 				if brlocVersion and brcurrVersion then
 					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
