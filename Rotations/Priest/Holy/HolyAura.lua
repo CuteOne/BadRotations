@@ -99,7 +99,7 @@ local function createOptions()
 		-- Temple of Sethraliss
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
 		-- Bursting Stack
-		br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+		br.ui:createSpinner(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
@@ -285,6 +285,7 @@ local function runRotation()
 		local tank                                          = {}    --Tank
 		local averageHealth                                 = 0
 		local tanks = getTanksTable()
+		local burst = nil
 
 		units.get(5)
 		units.get(8,true)
