@@ -184,7 +184,7 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Bear Form Shifting", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFShapeshifting into Bear Form to DPS for Guardian Affinity")
 		br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 70, 0, 100, 5, "Minimum party member health to focus on healing Seth")
 		-- Bursting Stack
-		br.ui:createSpinner(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		-- DPS
 		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFMinimum Health to DPS")
 		br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
@@ -2069,7 +2069,7 @@ local function runRotation()
 				if actionList_SingleTarget() then
 					return
 				end
-				if #enemies.yards5 < 1 then
+				if #enemies.yards5 < 1 and mode.dps == 2 and isChecked("DPS Key") and not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
 					-- Moonfire
 					if mana >= getOptionValue("DPS Save mana") then
 						for i = 1, #enemies.yards40 do
