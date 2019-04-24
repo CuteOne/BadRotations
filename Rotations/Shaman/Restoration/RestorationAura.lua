@@ -83,7 +83,7 @@ local function createOptions()
         -- Temple of Seth
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
         -- Bursting Stack
-            br.ui:createSpinner(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
+            br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
         -- Critical HP
@@ -270,7 +270,6 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
-        local lowestTank                                    = {}    --Tank
         local enemies                                       = br.player.enemies
         local friends                                       = friends or {}
         local burst = nil
@@ -299,10 +298,13 @@ local function runRotation()
         end
 
         if inInstance and select(3,GetInstanceInfo()) == 8 then
-            local ourtank = tanks[1].unit
-            local Burststack = getDebuffStacks(ourtank, 240443)
-            if Burststack >= getOptionValue("Bursting") then
-              burst = true
+            for i = 1, #tanks do
+                local ourtank = tanks[i].unit
+                local Burststack = getDebuffStacks(ourtank, 240443)
+                if Burststack >= getOptionValue("Bursting") then
+                    burst = true
+                    break
+                end
             end
         end
 
@@ -668,15 +670,23 @@ local function runRotation()
                         end
                     end
                 end
-                if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                    useItem(13)
-                    br.addonDebug("Using Trinket 1")
-                    return true
+                if isChecked("Trinket 1") and canTrinket(13) then
+                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+                        UseItemByName(167865,lowest.unit)
+                    elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+                        useItem(13)
+                        br.addonDebug("Using Trinket 1")
+                        return true
+                    end
                 end
-                if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                    useItem(14)
-                    br.addonDebug("Using Trinket 2")
-                    return true
+                if isChecked("Trinket 2") and canTrinket(14) then
+                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+                        UseItemByName(167865,lowest.unit)
+                    elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+                        useItem(14)
+                        br.addonDebug("Using Trinket 2")
+                        return true
+                    end
                 end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then

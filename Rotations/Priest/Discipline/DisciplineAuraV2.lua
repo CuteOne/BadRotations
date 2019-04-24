@@ -76,6 +76,7 @@ local function createOptions()
             br.ui:createCheckbox(section, "Gift of Forgiveness", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGift of Forgiveness azerite trait logic.|cffFFBB00.")
             br.ui:createCheckbox(section, "Raid Penance", "|cffFFFFFFCheck this to only use Penance when moving.")
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
+            br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, Trinkets will be triggered.")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -287,12 +288,6 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local lowest                                        = {}    --Lowest Unit
-        --lowest.hp                                           = br.friend[1].hp
-        lowest.role                                         = br.friend[1].role
-        --lowest.unit                                         = br.friend[1].unit
-        lowest.range                                        = br.friend[1].range
-        lowest.guid                                         = br.friend[1].guid
-        local tank                                          = {}    --Tank
 
         units.get(5)
         units.get(30)
@@ -356,6 +351,17 @@ local function runRotation()
                     if atonementRemain > 0 then 
                         DSAtone = DSAtone + 1
                     end
+                end
+            end
+        end
+
+        if inInstance and select(3,GetInstanceInfo()) == 8 then
+            for i = 1, #tanks do
+                local ourtank = tanks[i].unit
+                local Burststack = getDebuffStacks(ourtank, 240443)
+                if Burststack >= getOptionValue("Bursting") then
+                    burst = true
+                    break
                 end
             end
         end
@@ -475,13 +481,23 @@ local function runRotation()
                         end
                     end
                     --Trinkets
-                    if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                        useItem(13)
-                        return true
+                    if isChecked("Trinket 1") and canTrinket(13) then
+                        if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+                            UseItemByName(167865,lowest.unit)
+                        elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+                            useItem(13)
+                            br.addonDebug("Using Trinket 1")
+                            return true
+                        end
                     end
-                    if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                        useItem(14)
-                        return true
+                    if isChecked("Trinket 2") and canTrinket(14) then
+                        if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+                            UseItemByName(167865,lowest.unit)
+                        elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+                            useItem(14)
+                            br.addonDebug("Using Trinket 2")
+                            return true
+                        end
                     end
                 end
             end

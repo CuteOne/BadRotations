@@ -99,7 +99,7 @@ local function createOptions()
 		-- Temple of Sethraliss
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
 		-- Bursting Stack
-		br.ui:createSpinner(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
@@ -298,12 +298,15 @@ local function runRotation()
 		friends.yards40 = getAllies("player",40)
 
 		if inInstance and select(3,GetInstanceInfo()) == 8 then
-			local ourtank = tanks[1].unit
-			local Burststack = getDebuffStacks(ourtank, 240443)
-			if Burststack >= getOptionValue("Bursting") then
-			  burst = true
-			end
-		end
+            for i = 1, #tanks do
+                local ourtank = tanks[i].unit
+                local Burststack = getDebuffStacks(ourtank, 240443)
+                if Burststack >= getOptionValue("Bursting") then
+					burst = true
+					break
+                end
+            end
+        end
 
 		renewCount = 0
 		for i=1, #br.friend do
@@ -494,17 +497,24 @@ local function runRotation()
 						end
 					end
 				end
-				-- Trinkets
-				if isChecked("Trinket 1") and canTrinket(13) and (getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true) then
-                    useItem(13)
-                    br.addonDebug("Using Trinket 1")
-                    return true
-                end
-                if isChecked("Trinket 2") and canTrinket(14) and (getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true) then
-                    useItem(14)
-                    br.addonDebug("Using Trinket 2")
-                    return true
-                end
+				if isChecked("Trinket 1") and canTrinket(13) then
+					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+						UseItemByName(167865,lowest.unit)
+					elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+						useItem(13)
+						br.addonDebug("Using Trinket 1")
+						return true
+					end
+				end
+				if isChecked("Trinket 2") and canTrinket(14) then
+					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+						UseItemByName(167865,lowest.unit)
+					elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+						useItem(14)
+						br.addonDebug("Using Trinket 2")
+						return true
+					end
+				end
 				-- Racial: Blood Elf Arcane Torrent
 				if isChecked("Arcane Torrent") and inCombat and (br.player.race == "BloodElf") and mana <= getValue("Arcane Torrent Mana") then
 					if castSpell("player",racial,false,false,false) then return end
