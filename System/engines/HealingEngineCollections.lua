@@ -60,7 +60,9 @@ novaEngineTables.BadDebuffList= {
 	[243961] = "Misery", --Immune to all healing effects.
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
 	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
-	[282738] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
+	--Crucible of storms
+	[282733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
+	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
