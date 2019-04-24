@@ -826,19 +826,19 @@ local function runRotation()
 			end
 			-- Trinkets
 			if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
-				if GetItemCooldown(158320) <= gcd then
+				if GetItemCooldown(158320) <= gcdMax then
 					UseItemByName(158320, lowest.unit)
 					br.addonDebug("Using Revitalizing Voodoo Totem")
 				end
 			end
 			if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
-				if GetItemCooldown(160649) <= gcd then
+				if GetItemCooldown(160649) <= gcdMax then
 					UseItemByName(160649, lowest.unit)
 					br.addonDebug("Using Inoculating Extract")
 				end
 			end
 			if isChecked("Ward of Envelopment") and hasEquiped(165569) then
-				if GetItemCooldown(165569) <= gcd then
+				if GetItemCooldown(165569) <= gcdMax then
 					for i = 1, #tanks do
 						local tankTarget = UnitTarget(tanks[i].unit)
 						if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") and getDistance(tanks[i].unit, "player") < 40 and getLineOfSight("player", tanks[i].unit) then
