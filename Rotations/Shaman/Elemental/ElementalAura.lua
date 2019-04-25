@@ -45,8 +45,8 @@ local function createToggles() -- Define custom toggles
     CreateButton("StormKeeper",6,0)
     -- Earth Shock Override Button
     EarthShockModes = {
-        [1] = { mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
-        [2] = { mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake},
+        [2] = { mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
+        [1] = { mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake},
     };
     CreateButton("EarthShock",7,0)
 end
