@@ -94,11 +94,9 @@ local function createOptions()
     -- m+ Rot
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
     --br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
-
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
     br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
     br.ui:createCheckbox(section, "Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble from choking water|cffFFBB00.", 1)
-
     br.ui:checkSectionState(section)
     -------------------------
     ------ DEFENSIVES -------
@@ -1369,7 +1367,6 @@ local function runRotation()
   local function glimmer()
     --Glimmer support
     if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
-      local glimmerTable = { }
       if getSpellCD(20473) == 0 then
         --critical first
         if #tanks > 0 then
@@ -1400,6 +1397,7 @@ local function runRotation()
             end
           end
         end
+        glimmerTable = { }
         for i = 1, #br.friend do
           if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280) and not UnitBuffID(br.friend[i].unit, 115191) then
             tinsert(glimmerTable, br.friend[i])
@@ -1414,6 +1412,7 @@ local function runRotation()
           if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
             if #glimmerTable >= 1 and glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
+                --Print(getDistance(glimmerTable[1]))
                 return true
               end
             end
