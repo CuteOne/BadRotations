@@ -430,10 +430,13 @@ local function runRotation()
 	friends.yards40 = getAllies("player", 40)
 
 	if inInstance and select(3,GetInstanceInfo()) == 8 then
-		local ourtank = tanks[1].unit
-		local Burststack = getDebuffStacks(ourtank, 240443)
-		if Burststack >= getOptionValue("Bursting") then
-		  burst = true
+		for i = 1, #tanks do
+			local ourtank = tanks[i].unit
+			local Burststack = getDebuffStacks(ourtank, 240443)
+			if Burststack >= getOptionValue("Bursting") then
+				burst = true
+				break
+			end
 		end
 	end
 
@@ -868,7 +871,7 @@ local function runRotation()
 				if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
 					UseItemByName(167865,lowest.unit)
 				elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
-					useItem(13)
+					useItem(14)
 					br.addonDebug("Using Trinket 2")
 					return true
 				end
