@@ -251,33 +251,35 @@ function br.read.commonReaders()
 	end
 	--Frame:SetScript("OnEvent", addonReader)
 	GameTooltip:HookScript("OnTooltipSetUnit", function(self)
-		local name,lunit = self:GetUnit()
-		if not UnitIsVisible(lunit) then
-			return
-		end
-		local unit = ObjectPointer(lunit)
-		local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
-		local playerTarget = GetUnitIsUnit(unit, "target")
-		local targeting = isTargeting(unit)
-		local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
-		local reaction = GetUnitReaction(unit, "player") or 10
-		if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
-			if isValidUnit(unit) then
-				self:AddLine("Unit is Valid",0,1,0)
-			elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or validUnitBypassList[GetObjectID(unit)] ~= nil or burnUnit) then
-				self:AddLine("Not in Units Table",1,0,0)
-			elseif not (not UnitIsTapDenied(unit) or dummy) then
-				self:AddLine("Unit is Tap Denied",1,0,0)
-			elseif not (isSafeToAttack(unit) or burnUnit) then
-				self:AddLine("Safe Attack Fail",1,0,0)
-			elseif not ((reaction < 5 and not isChecked("Hostiles Only")) or (isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
-				self:AddLine("Reaction Value Fail",1,0,0)
-			elseif not ((isChecked("Attack MC Targets") and (not GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not GetUnitIsFriend(unit, "player")) then
-				self:AddLine("MC Check Fail",1,0,0)
-			elseif getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
-				self:AddLine("CC Check Fail",1,0,0)
-			elseif not hasThreat then
-				self:AddLine("Threat Fail",1,0,0)
+		if EWT and GetObjectCount() ~= nil then
+			local name,lunit = self:GetUnit()
+			if not UnitIsVisible(lunit) then
+				return
+			end
+			local unit = ObjectPointer(lunit)
+			local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
+			local playerTarget = GetUnitIsUnit(unit, "target")
+			local targeting = isTargeting(unit)
+			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
+			local reaction = GetUnitReaction(unit, "player") or 10
+			if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
+				if isValidUnit(unit) then
+					self:AddLine("Unit is Valid",0,1,0)
+				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or validUnitBypassList[GetObjectID(unit)] ~= nil or burnUnit) then
+					self:AddLine("Not in Units Table",1,0,0)
+				elseif not (not UnitIsTapDenied(unit) or dummy) then
+					self:AddLine("Unit is Tap Denied",1,0,0)
+				elseif not (isSafeToAttack(unit) or burnUnit) then
+					self:AddLine("Safe Attack Fail",1,0,0)
+				elseif not ((reaction < 5 and not isChecked("Hostiles Only")) or (isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
+					self:AddLine("Reaction Value Fail",1,0,0)
+				elseif not ((isChecked("Attack MC Targets") and (not GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not GetUnitIsFriend(unit, "player")) then
+					self:AddLine("MC Check Fail",1,0,0)
+				elseif getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
+					self:AddLine("CC Check Fail",1,0,0)
+				elseif not hasThreat then
+					self:AddLine("Threat Fail",1,0,0)
+				end
 			end
 		end
 	end)
@@ -322,6 +324,9 @@ function br.read.commonReaders()
 			return
 		end
 		-- Update Player Info
+		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
+		-- 	br.rotationChanged = true
+		-- end
 		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" then
 			br.updatePlayerInfo = true
 		end
