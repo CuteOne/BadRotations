@@ -350,8 +350,13 @@ local function runRotation()
         -- Action List - Defensive
         local function actionList_Defensive()
             -- Purge
-            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                if cast.purge() then return true end
+            if isChecked("Purge") then
+                for i = 1, #enemies.yards30 do
+                    local thisUnit = enemies.yards30[i]
+                    if canDispel(enemies.yards30[i],spell.purge) then
+                        if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return end
+                    end
+                end
             end
             if useDefensive() then
         -- Pot/Stoned

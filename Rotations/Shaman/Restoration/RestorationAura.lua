@@ -446,7 +446,7 @@ local function runRotation()
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
                         if canDispel(enemies.yards30[i],spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
-                            if cast.purge() then br.addonDebug("Casting Purge") return end
+                            if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return end
                         end
                     end
                 end
