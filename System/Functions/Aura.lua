@@ -74,13 +74,12 @@ local function Dispel(unit)
 		return false
 	end
 	for i=1,40 do
-		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitAura(unit,i,"HELPFUL|HARMFUL")
+		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 		if buffName then
 			if (buffSpellID == 288388 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282562 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
 				return true
 			end
 			if novaEngineTables.DispelID[buffSpellID] ~= nil then
-				print("Spell Detected: "..GetSpellInfo(buffSpellID))
 				if select(3,UnitDebuffID(unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
 				then
 					if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
