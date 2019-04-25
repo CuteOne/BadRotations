@@ -74,7 +74,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf(Will break form for instant cast lava burst and flame shock.)")
             br.ui:createDropdownWithout(section, "Force GW Key",br.dropOptions.Toggle,6, "|cff0070deSet key to hold down for Ghost Wolf(Will not break form until key is released.)")
             -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Water Walking
             br.ui:createCheckbox(section, "Water Walking")
             -- Frost Shock
@@ -351,10 +351,17 @@ local function runRotation()
         local function actionList_Defensive()
             -- Purge
             if isChecked("Purge") then
-                for i = 1, #enemies.yards30 do
-                    local thisUnit = enemies.yards30[i]
-                    if canDispel(enemies.yards30[i],spell.purge) then
-                        if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return end
+                if getOptionValue("Purge") == 1 then
+                    if canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
+                        if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                    end
+                    if getOptionValue("Purge") == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
+                                if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                            end
+                        end
                     end
                 end
             end

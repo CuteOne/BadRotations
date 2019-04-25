@@ -127,7 +127,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -351,10 +351,17 @@ local function runRotation()
                 end
                 -- Purge
                 if isChecked("Purge") then
-                    for i = 1, #enemies.yards30 do
-                        local thisUnit = enemies.yards30[i]
-                        if canDispel(enemies.yards30[i],spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
-                            if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return end
+                    if getOptionValue("Purge") == 1 then
+                        if canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
+                            if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                        end
+                        if getOptionValue("Purge") == 2 then
+                            for i = 1, #enemies.yards30 do
+                                local thisUnit = enemies.yards30[i]
+                                if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
+                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                                end
+                            end
                         end
                     end
                 end
