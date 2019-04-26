@@ -484,9 +484,9 @@ local function runRotation()
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end
@@ -593,9 +593,9 @@ local function runRotation()
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or debuff.flameShock.remain() < 5.4) or (talent.stormElemental and stormEle and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump")))) and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end
@@ -749,9 +749,9 @@ local function runRotation()
             end
             -- Earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end
