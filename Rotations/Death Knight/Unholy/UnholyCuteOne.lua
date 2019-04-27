@@ -204,16 +204,10 @@ local function runRotation()
     local units                                         = br.player.units
     local use                                           = br.player.use
     -- Other Locals
-    local deathAndDecayRemain                           = deathAndDecayRemain
-    local deathAndDecayTimer                            = deathAndDecayTimer
-    local frenzied                                      = frenzied
     local level                                         = UnitLevel("player")
     local petCombat                                     = UnitAffectingCombat("pet")
     local php                                           = getHP("player")
-    local poolForGargoyle                               = poolForGargoyle
-    local thisUnit                                      = thisUnit
     local ttd                                           = getTTD
-    local waitForPetToAppear                            = waitForPetToAppear
 
     -- Units Declaration
     units.get(5)
@@ -246,18 +240,16 @@ local function runRotation()
 --------------------
     local function actionList_PetManagement()
         if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
-        if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
+        if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
             waitForPetToAppear = GetTime()
         elseif isChecked("Raise Dead") then
             if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
                 if UnitIsDeadOrGhost("pet") or deadPet or (not deadPet and not (IsPetActive() or UnitExists("pet"))) 
-                    or (talent.allWillServe and not pet.risenSkulker.exists() and (IsPetActive() or UnitExists("pet"))) 
+                    or (talent.allWillServe and not pet.risenSkulker.exists()) 
                 then 
+                    Print("Raising the Dead!")
                     if cast.raiseDead() then waitForPetToAppear = GetTime(); return end 
                 end
-            end
-            if waitForPetToAppear == nil then
-                waitForPetToAppear = GetTime()
             end
         end
         if isChecked("Auto Attack/Passive") then
