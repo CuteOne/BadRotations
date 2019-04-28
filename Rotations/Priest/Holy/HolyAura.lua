@@ -78,10 +78,13 @@ local function createOptions()
 		-- Flask / Crystal
 		--    br.ui:createCheckbox(section,"Flask / Crystal")
 		-- Trinkets
-		br.ui:createCheckbox(section,"Trinkets")
-		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
-        br.ui:createSpinner(section, "Inoculating Extract", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
-        br.ui:createSpinner(section, "Ward of Envelopment", 80, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 80")
+		br.ui:createSpinner(section, "Trinket 1",  70,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets",  4,  1,  40,  1,  "","Minimum Trinket 1 Targets(This includes you)", true)
+		br.ui:createSpinner(section, "Trinket 2",  70,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets",  4,  1,  40,  1,  "","Minimum Trinket 2 Targets(This includes you)", true)
+		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+		br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
+		br.ui:createSpinner(section,"Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
 		-- Pre-Pot Timer
 		br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
 		-- Racial
@@ -95,11 +98,13 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Holy Word: Chastise")
 		-- Temple of Sethraliss
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
+		-- Bursting Stack
+		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
 		-- Dispel Magic
-		br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs when targeted.")
+		br.ui:createCheckbox(section,"Dispel Magic","Will dispel enemy's buffs.")
 		-- Mass Dispel Hotkey
 		br.ui:createDropdown(section,"Mass Dispel Hotkey", br.dropOptions.Toggle, 6, "Hold down the set hotkey and Mass Dispel will be casted at mouse cursor on next GCD.")
 		-- Purify
@@ -115,6 +120,9 @@ local function createOptions()
 		-- Divine Hymn
 		br.ui:createSpinner(section, "Divine Hymn",  50,  0,  100,  5,  "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Divine Hymn Targets",  3,  0,  40,  1,  "Minimum Divine Hymn Targets")
+		-- Apotheosis
+		br.ui:createSpinner(section, "Apotheosis",  50,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:createSpinnerWithout(section, "Apotheosis Targets",  3,  0,  40,  1,  "Minimum Apotheosis Targets")
 		-- Guardian Spirit
 		br.ui:createSpinner(section, "Guardian Spirit",  30,  0,  100,  5,  "Health Percent to Cast At")
 		-- Guardian Spirit Tank Only
@@ -277,6 +285,7 @@ local function runRotation()
 		local tank                                          = {}    --Tank
 		local averageHealth                                 = 0
 		local tanks = getTanksTable()
+		local burst = nil
 
 		units.get(5)
 		units.get(8,true)
@@ -287,6 +296,17 @@ local function runRotation()
 		enemies.get(8,"target")
 		enemies.get(40)
 		friends.yards40 = getAllies("player",40)
+
+		if inInstance and select(3,GetInstanceInfo()) == 8 then
+            for i = 1, #tanks do
+                local ourtank = tanks[i].unit
+                local Burststack = getDebuffStacks(ourtank, 240443)
+                if Burststack >= getOptionValue("Bursting") then
+					burst = true
+					break
+                end
+            end
+        end
 
 		renewCount = 0
 		for i=1, #br.friend do
@@ -346,14 +366,6 @@ local function runRotation()
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat
 		function actionList_PreCombat()
-			-- Renew
-			if isChecked("Renew") then
-				for i = 1, #br.friend do
-					if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
-						if cast.renew(br.friend[i].unit) then return end
-					end
-				end
-			end
 			-- Renew on tank
 			if isChecked("Renew on Tanks")  then
 				for i = 1, #br.friend do
@@ -362,14 +374,22 @@ local function runRotation()
 					end
 				end
 			end
+			-- Renew
+			if isChecked("Renew") then
+				for i = 1, #br.friend do
+					if br.friend[i].hp <= getValue("Renew") and not buff.renew.exists(br.friend[i].unit) then
+						if cast.renew(br.friend[i].unit) then return end
+					end
+				end
+			end
 			-- Heal
 			if isChecked("Heal") then
-				if lowest.hp <= getValue("Heal") then
+				if lowest.hp <= getValue("Heal") and not isMoving("player") then
 					if cast.heal(lowest.unit) then return end
 				end
 			end
 			-- Flash Heal
-			if isChecked("Flash Heal") and getDebuffRemain("player",240447) == 0 then
+			if isChecked("Flash Heal") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
 				if lowest.hp <= getValue("Flash Heal") then
 					if cast.flashHeal(lowest.unit) then return end
 				end
@@ -433,33 +453,22 @@ local function runRotation()
 			if useCDs() then
 				--Salvation
 				if isChecked("Holy Word: Salvation") and not moving then
-					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") then
+					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") or burst == true then
 						if cast.holyWordSalvation() then return end
 					end
 				end
 				-- Divine Hymn
 				if isChecked("Divine Hymn") and not moving then
-					if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") then
+					if getLowAllies(getValue("Divine Hymn")) >= getValue("Divine Hymn Targets") or burst == true then
 						if cast.divineHymn() then return end
 					end
 				end
-				-- Trinkets
-				if isChecked("Trinkets") then
-					if canUse(11) then
-						useItem(11)
+				-- Apotheosis
+				if isChecked("Apotheosis") then
+					if getLowAllies(getValue("Apotheosis")) >= getValue("Apotheosis Targets") or burst == true then
+						if cast.apotheosis() then return end
 					end
-					if canUse(12) then
-						useItem(12)
-					end
-					if not isChecked("Revitalizing Voodoo Totem") and not isChecked("Inoculating Extract") and not isChecked("Ward of Envelopment") then
-						if canTrinket(13) then
-							useItem(13)
-						end
-						if canTrinket(14) then
-							useItem(14)
-						end
-					end
-				end
+				end	
 				--Revitalizing Voodoo
 				if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
 					if GetItemCooldown(158320) <= gcd then
@@ -486,6 +495,24 @@ local function runRotation()
 								if IsAoEPending() then ClickPosition(x1,y1,z1,true) return false end
 							end
 						end
+					end
+				end
+				if isChecked("Trinket 1") and canTrinket(13) then
+					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+						UseItemByName(167865,lowest.unit)
+					elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+						useItem(13)
+						br.addonDebug("Using Trinket 1")
+						return true
+					end
+				end
+				if isChecked("Trinket 2") and canTrinket(14) then
+					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+						UseItemByName(167865,lowest.unit)
+					elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+						useItem(14)
+						br.addonDebug("Using Trinket 2")
+						return true
 					end
 				end
 				-- Racial: Blood Elf Arcane Torrent
@@ -527,7 +554,7 @@ local function runRotation()
 				end
 			end
 			-- Serenity On Me Emergency
-			if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and inCombat then
+			if isChecked("Serenity On Me") and php <= getOptionValue("Serenity On Me") and not buff.spiritOfRedemption.exists() then
 				if cast.holyWordSerenity("player") then return end
 			end
 			-- Holy Word: Serenity
@@ -537,7 +564,7 @@ local function runRotation()
 				end
 			end
 			-- Binding Heal On Me
-			if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
+			if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not isMoving("player") and not buff.spiritOfRedemption.exists() then
 				if lowest.hp <= getValue("Binding Heal On Me") then
 					if cast.bindingHeal(lowest.unit) then
 						RunMacroText("/stopspelltarget")
@@ -545,11 +572,11 @@ local function runRotation()
 				end
 			end
 			-- Flash Heal On Me
-			if isChecked("Flash Heal On Me") and inCombat and not isMoving("player") and php <= getValue("Flash Heal On Me")then
+			if isChecked("Flash Heal On Me") and inCombat and not isMoving("player") and php <= getValue("Flash Heal On Me") and not buff.spiritOfRedemption.exists() then
 				if cast.flashHeal("player") then return end
 			end
 			--Apotheosis Mode
-			if isChecked("Apotheosis Mode") and getBuffRemain("player",200183) > 0 then
+			if isChecked("Apotheosis Mode") and getBuffRemain("player",200183) > 0 and not buff.spiritOfRedemption.exists() then
 				for i = 1, #br.friend do
 					if isChecked("Tank Ignore") and isChecked("Apotheosis Binding Heal") and br.friend[i].hp >= getValue("Tank Ignore") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
 						if br.friend[i].hp <= getValue("Apotheosis Binding Heal") and GetSpellCooldown(2050) > getValue("Serenity and Sanctify CD") and GetSpellCooldown(34861) > getValue("Serenity and Sanctify CD") then
@@ -567,13 +594,14 @@ local function runRotation()
 			-- Flash Heal Others
 			if isChecked("Flash Heal Emergency") and getDebuffRemain("player",240447) == 0 and not isMoving("player") then
 				for i = 1, #br.friend do
-					if isChecked("Tanks Only") then
+					if buff.spiritOfRedemption.exists() then
+						if cast.flashHeal(lowest.unit) then return end
+					elseif isChecked("Tanks Only") then
 						if br.friend[i].hp <= getValue("Flash Heal Emergency") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
 							if cast.flashHeal(br.friend[i].unit) then return end
-						elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
-							if cast.flashHeal(br.friend[i].unit) then return end
-
 						end
+					elseif br.friend[i].hp <= getValue("Flash Heal Emergency") then
+						if cast.flashHeal(br.friend[i].unit) then return end
 					end
 				end
 			end
@@ -757,14 +785,11 @@ local function runRotation()
 				end
 			end
 			-- Dispel Magic
-			if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and GetObjectExists("target") then
-				if cast.dispelMagic() then return end
-			end
-			-- Moving
-			if isMoving("player") then
-				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
-					if cast.angelicFeather("player") then
-						RunMacroText("/stopspelltarget")
+			if isChecked("Dispel Magic") then
+				for i = 1, #enemies.yards40 do
+					local thisUnit = enemies.yards40[i]
+					if canDispel(enemies.yards40[i],spell.dispelMagic) and lowest.hp > 40 then
+						if cast.dispelMagic() then return end
 					end
 				end
 			end
@@ -777,6 +802,14 @@ local function runRotation()
 						end
 					elseif br.friend[i].hp <= getValue("Renew while moving") and not buff.renew.exists(br.friend[i].unit) then
 						if cast.renew(br.friend[i].unit) then return end
+					end
+				end
+			end
+			-- Moving
+			if isMoving("player") then
+				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
+					if cast.angelicFeather("player") then
+						RunMacroText("/stopspelltarget")
 					end
 				end
 			end

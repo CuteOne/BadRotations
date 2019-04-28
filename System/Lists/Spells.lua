@@ -425,13 +425,13 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                demonSpikes                 = 203819,
                 bladeTurning                = 247254,
+                demonSpikes                 = 203819,
                 empowerWards                = 218256,
-                immolationAura              = 178740,
-                soulFragments               = 203981,
-                metamorphosis               = 187827,
                 feastofSouls                = 207693,
+                immolationAura              = 178740,
+                metamorphosis               = 187827,
+                soulFragments               = 203981,
                 siphonedPower               = 218561,
             },
             debuffs                         = {
@@ -480,6 +480,7 @@ br.lists.spells = {
             buffs                           = {
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
+                vigorEngaged                = 287916,
             },
             debuffs                         = {
 
@@ -3143,7 +3144,6 @@ br.lists.spells = {
         -- Protection
         [73] = {
             abilities                       = {
-                defensiveStance             = 71,
                 demoralizingShout           = 1160,
                 devastate                   = 20243,
                 focusedRage                 = 204488,
@@ -3174,6 +3174,7 @@ br.lists.spells = {
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
+                victorious                  = 32216,
             },
             debuffs                         = {
                 deepwoundsProt              = 115767,

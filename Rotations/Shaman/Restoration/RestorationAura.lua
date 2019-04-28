@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Earth Shield")
         -- Temple of Seth
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Seth NPC. Default: 80")
+        -- Bursting Stack
+            br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs/AoE Healing will be triggered.")
         -- DPS Threshold
             br.ui:createSpinnerWithout(section, "DPS Threshold", 50, 0, 100, 5, "|cffFFFFFFMinimum Health to stop DPS. Default: 50" )
         -- Critical HP
@@ -129,7 +131,7 @@ local function createOptions()
         -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
         -- Capacitor Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -268,9 +270,9 @@ local function runRotation()
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
-        local lowestTank                                    = {}    --Tank
         local enemies                                       = br.player.enemies
         local friends                                       = friends or {}
+        local burst = nil
 
         units.get(8)
         units.get(40)
@@ -292,6 +294,17 @@ local function runRotation()
         for i = 1, #br.friend do
             if br.friend[i].hp < lowest.hp then
                 lowest = br.friend[i]
+            end
+        end
+
+        if inInstance and select(3,GetInstanceInfo()) == 8 then
+            for i = 1, #tanks do
+                local ourtank = tanks[i].unit
+                local Burststack = getDebuffStacks(ourtank, 240443)
+                if Burststack >= getOptionValue("Bursting") then
+                    burst = true
+                    break
+                end
             end
         end
 
@@ -429,8 +442,20 @@ local function runRotation()
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
-                    if cast.purge() then br.addonDebug("Casting Purge") return end
+                if isChecked("Purge") then
+                    if getOptionValue("Purge") == 1 then
+                        if canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
+                            if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                        end
+                        if getOptionValue("Purge") == 2 then
+                            for i = 1, #enemies.yards30 do
+                                local thisUnit = enemies.yards30[i]
+                                if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
+                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                                end
+                            end
+                        end
+                    end
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
@@ -652,15 +677,23 @@ local function runRotation()
                         end
                     end
                 end
-                if isChecked("Trinket 1") and canTrinket(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
-                    useItem(13)
-                    br.addonDebug("Using Trinket 1")
-                    return true
+                if isChecked("Trinket 1") and canTrinket(13) then
+                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+                        UseItemByName(167865,lowest.unit)
+                    elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+                        useItem(13)
+                        br.addonDebug("Using Trinket 1")
+                        return true
+                    end
                 end
-                if isChecked("Trinket 2") and canTrinket(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
-                    useItem(14)
-                    br.addonDebug("Using Trinket 2")
-                    return true
+                if isChecked("Trinket 2") and canTrinket(14) then
+                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+                        UseItemByName(167865,lowest.unit)
+                    elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+                        useItem(14)
+                        br.addonDebug("Using Trinket 2")
+                        return true
+                    end
                 end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then
@@ -684,13 +717,13 @@ local function runRotation()
             end
         -- Healing Tide Totem
             if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
-                if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") --[[ or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) ]] then    
+                if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") or burst == true --[[ or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) ]] then    
                     if cast.healingTideTotem() then br.addonDebug("Casting Healing Tide Totem") HTTimer = GetTime() return end    
                 end
             end
         -- Ascendance
             if isChecked("Ascendance") and useCDs() and talent.ascendance and cd.ascendance.remain() <= gcd and (not HTTimer or GetTime() - HTTimer > 10) then
-                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") --[[ or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) ]] then    
+                if getLowAllies(getValue("Ascendance")) >= getValue("Ascendance Targets") or burst == true --[[ or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) ]] then    
                     if cast.ascendance() then br.addonDebug("Casting Ascendance") return end    
                 end
             end
@@ -807,7 +840,7 @@ local function runRotation()
                 end
             end
             -- Healing Wave
-            if isChecked("Healing Wave") and movingCheck then
+            if isChecked("Healing Wave") and movingCheck and not burst then
                 if lowest.hp <= getValue("Healing Wave") and buff.tidalWaves.stack() == 2 then
                     if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
@@ -853,7 +886,7 @@ local function runRotation()
             end
         -- Riptide
             if isChecked("Riptide") then
-                if not buff.tidalWaves.exists() and level >= 34 then
+                if not buff.tidalWaves.stack() == 2 and level >= 34 then
                     if cast.riptide(lowest.unit) then br.addonDebug("Casting Riptide") return end
                 end
                for i = 1, #br.friend do
@@ -863,7 +896,7 @@ local function runRotation()
                end
             end
         -- Healing Wave
-            if isChecked("Healing Wave") and movingCheck then
+            if isChecked("Healing Wave") and movingCheck and not burst then
              --   for i = 1, #br.friend do                           
                     if lowest.hp <= getValue("Healing Wave") and (buff.tidalWaves.exists() or level < 100) then
                         if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
@@ -880,8 +913,13 @@ local function runRotation()
             end
             -- Healing Surge
             if isChecked("Healing Surge") and movingCheck then
-                if lowest.hp <= getValue("Healing Surge") then
+                if lowest.hp <= 50 then
                     if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
+                end
+            end
+            if isChecked("Healing Wave") and movingCheck and not burst then
+                if lowest.hp <= 65 then
+                    if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
                 end
             end
         end
@@ -919,7 +957,8 @@ local function runRotation()
                     actionList_Defensive()
                     actionList_Interrupts()
                     actionList_AMR()
-                    if br.player.mode.dps == 1 and GetUnitExists("target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.mode.dps == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                        br.addonDebug("Nothing to heal. Lowest HP is "..tostring(lowest.hp).." on "..tostring(UnitName(lowest.unit)))
                         if isExplosive(target) then
                             actionList_Explosive()
                         else

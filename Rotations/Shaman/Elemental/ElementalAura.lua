@@ -45,8 +45,8 @@ local function createToggles() -- Define custom toggles
     CreateButton("StormKeeper",6,0)
     -- Earth Shock Override Button
     EarthShockModes = {
-        [1] = { mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
-        [2] = { mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake},
+        [2] = { mode = "On", value = 1, overlay = "ES Override Enabled", tip = "Will only use Earth Shock", highlight = 1, icon = br.player.spell.earthShock},
+        [1] = { mode = "Off", value = 1, overlay = "ES Override Disabled", tip = "Will use Earthquake and Earth Shock", highlight = 0, icon = br.player.spell.earthquake},
     };
     CreateButton("EarthShock",7,0)
 end
@@ -74,7 +74,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Ghost Wolf Key",br.dropOptions.Toggle,6,"|cff0070deSet key to hold down for Ghost Wolf(Will break form for instant cast lava burst and flame shock.)")
             br.ui:createDropdownWithout(section, "Force GW Key",br.dropOptions.Toggle,6, "|cff0070deSet key to hold down for Ghost Wolf(Will not break form until key is released.)")
             -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Water Walking
             br.ui:createCheckbox(section, "Water Walking")
             -- Frost Shock
@@ -350,8 +350,20 @@ local function runRotation()
         -- Action List - Defensive
         local function actionList_Defensive()
             -- Purge
-            if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                if cast.purge() then return true end
+            if isChecked("Purge") then
+                if getOptionValue("Purge") == 1 then
+                    if canDispel("target",spell.purge) and GetObjectExists("target") then
+                        if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                    end
+                    if getOptionValue("Purge") == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if canDispel(thisUnit,spell.purge) then
+                                if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                            end
+                        end
+                    end
+                end
             end
             if useDefensive() then
         -- Pot/Stoned
@@ -472,9 +484,9 @@ local function runRotation()
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end
@@ -581,9 +593,9 @@ local function runRotation()
             --actions.single_target+=/earthquake,if=active_enemies>1&spell_targets.chain_lightning>1&!talent.exposed_elements.enabled
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or debuff.flameShock.remain() < 5.4) or (talent.stormElemental and stormEle and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump")))) and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end
@@ -737,9 +749,9 @@ local function runRotation()
             end
             -- Earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and holdBreak then
-                if mode.earthShock == 2 then
+                if mode.earthShock == 1 then
                     if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then return true end
-                elseif mode.earthShock == 1 then
+                elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
             end

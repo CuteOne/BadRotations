@@ -5,7 +5,7 @@
 -----------------------------------------Bubba's Healing Engine--------------------------------------]]
 if not metaTable1 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit
+	local getDistance,tinsert,tremove,UnitClass,GetUnitIsUnit = getDistance,tinsert,tremove,UnitClass,GetUnitIsUnit
 	local UnitDebuff,UnitExists,UnitHealth,UnitHealthMax = UnitDebuff,UnitExists,UnitHealth,UnitHealthMax
 	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
 	br.friend = {} -- This is our main Table that the world will see
@@ -90,7 +90,8 @@ if not metaTable1 then
 			and GetUnitReaction("player",tar) > 4
 			and not UnitIsDeadOrGhost(tar)
 			and UnitIsConnected(tar))
-			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil	or (getOptionCheck("Heal Pets") == true and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
+			and ((UnitIsOtherPlayersPet(tar) and getOptionCheck("Heal Pets")) or not UnitIsOtherPlayersPet(tar)))
+			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
@@ -108,26 +109,40 @@ if not metaTable1 then
 			o.unit = unit
 		end
 		-- This is the function for Dispel checking built into the player itself.
-		function o:Dispel()
-			if not UnitInPhase(o.unit) then
-				return false
-			end
-			for i = 1, #novaEngineTables.DispelID do
-				if UnitDebuffID(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id)) ~= nil and novaEngineTables.DispelID[i].id ~= nil then
-					if select(3,UnitDebuffID(o.unit,GetSpellInfo(novaEngineTables.DispelID[i].id))) >= novaEngineTables.DispelID[i].stacks
-                    and (isChecked("Dispel delay") and
-                            (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) - getDebuffRemain(o.unit, novaEngineTables.DispelID[i].id)) > (getDebuffDuration(o.unit, novaEngineTables.DispelID[i].id) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) ))then -- Dispel Delay
-						if novaEngineTables.DispelID[i].range ~= nil then
-							if #getAllies(o.unit,novaEngineTables.DispelID[i].range) > 1 then
-								return false
-							end
-						end
-						return true
-					end
-				end
-			end
-			return nil
-		end
+		-- function o:Dispel()
+		-- 	if not UnitInPhase(o.unit) then
+		-- 		return false
+		-- 	end
+		-- 	for i=1,40 do
+		-- 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitAura(o.unit,i,"HELPFUL|HARMFUL")
+		-- 		if buffName then
+		-- 			if (buffSpellID == 288388 and select(3,UnitDebuffID(o.unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282562 and select(3,UnitDebuffID(o.unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
+		-- 				return true
+		-- 			end
+		-- 			if novaEngineTables.DispelID[buffSpellID] ~= nil then
+		-- 				if select(3,UnitDebuffID(o.unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
+		-- 				then
+		-- 					if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
+		-- 						return true
+		-- 					else
+		-- 						if (isChecked("Dispel delay") and
+		-- 						(getDebuffDuration(o.unit, buffSpellID) - getDebuffRemain(o.unit,buffSpellID)) > (getDebuffDuration(o.unit, buffSpellID) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) then -- Dispel Delay then
+		-- 							if novaEngineTables.DispelID[buffSpellID].range ~= nil then
+		-- 								if #getAllies(o.unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
+		-- 									return false
+		-- 								end
+		-- 								return true
+		-- 							end
+		-- 							return true
+		-- 						end
+		-- 						return false
+		-- 					end
+		-- 				end
+		-- 			end
+		-- 		end
+		-- 		return nil
+		-- 	end
+		-- end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
@@ -182,27 +197,26 @@ if not metaTable1 then
 					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Tank")
 				end
 			end
-			if getOptionCheck("Prioritize Debuff") then
-				-- Using Dispel Check to see if we should give bonus weight
-				if o.dispel then
-					PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Debuff")
-				end
-			end
-			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
-			-- Debuffs HP compensation
-			-- local debugTimerStartTime = GetTime()
-			-- local HpDebuffs = novaEngineTables.SpecificHPDebuffs
-			-- for i = 1, #HpDebuffs do
-			-- 	local _,_,count,_,_,_,_,_,_,spellID = UnitDebuffID(o.unit,HpDebuffs[i].debuff)
-			-- 	if spellID ~= nil and (HpDebuffs[i].stacks == nil or (count and count >= HpDebuffs[i].stacks)) then
-			-- 		PercentWithIncoming = PercentWithIncoming - HpDebuffs[i].value
-			-- 		break
+			-- if getOptionCheck("Prioritize Debuff") then
+			-- 	-- Using Dispel Check to see if we should give bonus weight
+			-- 	if o.dispel then
+			-- 		PercentWithIncoming = PercentWithIncoming - getOptionValue("Prioritize Debuff")
 			-- 	end
 			-- end
-			-- local elapsedDebugTime = GetTime() - debugTimerStartTime
-			-- if elapsedDebugTime > 0.5 then
-			-- 	Print("WARNING: Debuff Scan took a long time: "..elapsedDebugTime.." Seconds")
-			-- end
+			local ActualWithIncoming = ( UnitHealthMax(o.unit) - ( UnitHealth(o.unit) + incomingheals ) )
+			-- Debuffs HP compensation
+			local debugTimerStartTime = GetTime()
+			for i=1,40 do
+				local _,_,count,_,_,_,_,_,_,SpellID = UnitAura(o.unit,i,"HELPFUL|HARMFUL")
+				if novaEngineTables.SpecificHPDebuffs[SpellID] ~= nil and (novaEngineTables.SpecificHPDebuffs[SpellID].stacks == nil or (count and count >= novaEngineTables.SpecificHPDebuffs[SpellID].stacks)) then
+			 		PercentWithIncoming = PercentWithIncoming - novaEngineTables.SpecificHPDebuffs[SpellID].value
+			 		break
+			 	end
+			end
+			local elapsedDebugTime = GetTime() - debugTimerStartTime
+			if elapsedDebugTime > 0.5 then
+				Print("WARNING: Debuff Scan took a long time: "..elapsedDebugTime.." Seconds")
+			end
 			if getOptionCheck("Blacklist") == true and br.data.blackList ~= nil then
 				for i = 1, #br.data.blackList do
 					if o.guid == br.data.blackList[i].guid then
@@ -216,7 +230,7 @@ if not metaTable1 then
 		-- returns unit GUID
 		function o:nGUID()
 			local nShortHand = ""
-			if GetUnitExists(unit) then
+			if GetUnitIsVisible(unit) then
 				targetGUID = UnitGUID(unit)
 				nShortHand = UnitGUID(unit):sub(-5)
 			end
@@ -530,5 +544,5 @@ if not metaTable1 then
 		br.friend()
 	end
 	-- We are setting up the Tables for the first time
-	SetupTables()
+		SetupTables()
 end

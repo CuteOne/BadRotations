@@ -2,28 +2,36 @@ novaEngineTables = { }
 -- This is for the Dispel Check, all Debuffs we want dispelled go here
 -- valid arguments: stacks = num range = num
 novaEngineTables.DispelID = {
-	{ id = 143579, stacks = 3 }, -- Immersius
-	{ id = 143434, stacks = 3 }, -- Fallen Protectors
-	{ id = 144514, stacks = 0 }, -- Norushen
-	{ id = 144351, stacks = 0 }, -- Sha of Pride
-	{ id = 146902, stacks = 0 }, -- Galakras(Korga Poisons)
-	{ id = 143432, stacks = 0 }, -- General Nazgrim
-	{ id = 142913, stacks = 0, range = 10}, -- Malkorok(Displaced Energy)
-	{ id = 115181, stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
-	{ id = 143791, stacks = 0 }, -- Thok(Corrosive Blood)
-	{ id = 145206, stacks = 0 }, -- Aqua Bomb(Proving Grounds)
+	[143579] = {stacks = 3 }, -- Immersius
+	[143434] = {stacks = 3 }, -- Fallen Protectors
+	[144514] = {stacks = 0 }, -- Norushen
+	[144351] = {stacks = 0 }, -- Sha of Pride
+	[146902] = {stacks = 0 }, -- Galakras(Korga Poisons)
+	[143432] = {stacks = 0 }, -- General Nazgrim
+	[142913] = {stacks = 0, range = 10}, -- Malkorok(Displaced Energy)
+	[115181] = {stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
+	[143791] = {stacks = 0 }, -- Thok(Corrosive Blood)
+	[145206] = {stacks = 0 }, -- Aqua Bomb(Proving Grounds)
 	-- Ko'ragh
-	{ id = 142913, stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
-	{ id = 185066, stacks = 0}, -- Mark of Necromancer red level
+	[142913] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
+	[185066] = {stacks = 0}, -- Mark of Necromancer red level
 	-- Xavius
-	{ id = 206651, stacks = 3}, -- Xavius Darkening Soul
-	{ id = 209158, stacks = 3}, -- Xavius Blackening Soul
+	[206651] = {stacks = 3}, -- Xavius Darkening Soul
+	[209158] = {stacks = 3}, -- Xavius Blackening Soul
 	-- Belac
-	{ id = 233983, stacks = 0, range = 8}, -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
+	[233983] = {stacks = 0, range = 8}, -- Echoing Anguish http://www.wowhead.com/spell=233983/echoing-anguish
 	-- Antoran High Command (Antorus)
-	{ id = 257974, stacks = 9}, -- http://www.wowhead.com/spell=257974/chaos-pulse
+	[257974] = {stacks = 9}, -- http://www.wowhead.com/spell=257974/chaos-pulse
 	-- Imonar the Soulhunter
-	{ id = 247552, stacks = 0, range = 15} -- http://www.wowhead.com/spell=247552/sleep-canister
+	[247552] = {stacks = 0, range = 15}, -- http://www.wowhead.com/spell=247552/sleep-canister
+	-- Conclave of the Chosen
+	[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
+	-- SoB
+	[275014] = {stacks = 0, range = 3}, --https://www.wowhead.com/spell=274991/putrid-waters
+	-- Waycrest Manor
+	[261440] = {stacks = 0, range = 6}, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	-- Atal'Dazar
+	[252781] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=252781/unstable-hex
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
@@ -51,6 +59,10 @@ novaEngineTables.BadDebuffList= {
 	[236550] = "Discorporate", --Decreases all Healing by 75%
 	[243961] = "Misery", --Immune to all healing effects.
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
+	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
+	--Crucible of storms
+	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
+	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
@@ -65,60 +77,66 @@ novaEngineTables.SpecialHealUnitList = {
 -- the value used here will be substract from current health, we could use negative values to add back health instead
 -- these are checked debuff on allies ie br.friend[i].unit wear 145263 and its hp is 70, engine will use 50 instead
 novaEngineTables.SpecificHPDebuffs = {
-	--{ debuff = 123456, value = 20, stacks = 1 }, -- Exemple.
-	--{ debuff = 123456, value = -100, stacks = 3 }, -- Exemple
+	--[123456, value = 20, stacks = 1 }, -- Exemple.
+	--[123456, value = -100, stacks = 3 }, -- Exemple
 	-- Twin Ogrons
-	{ debuff = 158241 , value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
-	{ debuff = 155569 , value = 20 }, -- http://www.wowhead.com/spell=155569/injured
-	{ debuff = 163374 , value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
+	[158241] = {value = 20 }, -- http://www.wowhead.com/spell=158241/blaze
+	[155569] = {value = 20 }, -- http://www.wowhead.com/spell=155569/injured
+	[163374] = {value = 20 }, -- http://www.wowhead.com/spell=163374/arcane-volatility
 	-- Imperator
-	{ debuff = 157763 , value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
-	{ debuff = 156225 , value = 40 , stacks = 8 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 35 , stacks = 7 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 30 , stacks = 6 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 25 , stacks = 5 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 20 , stacks = 4 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 15 , stacks = 3 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 10 , stacks = 2 }, --http://www.wowhead.com/spell=156225/branded
-	{ debuff = 156225 , value = 5  , stacks = 1 }, --http://www.wowhead.com/spell=156225/branded
+	[157763] = {value = 20 }, -- http://www.wowhead.com/spell=157763/fixate
+	[156225] = {value = 40 , stacks = 8 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 35 , stacks = 7 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 30 , stacks = 6 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 25 , stacks = 5 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 20 , stacks = 4 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 15 , stacks = 3 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 10 , stacks = 2 }, --http://www.wowhead.com/spell=156225/branded
+	[156225] = {value = 5 , stacks = 1 }, --http://www.wowhead.com/spell=156225/branded
 	--Kargath
-	{ debuff = 159113 , value = 20 }, --http://www.wowhead.com/spell=159113/impale
-	{ debuff = 159386 , value = 20 }, --http://www.wowhead.com/spell=159386/iron-bomb
-	{ debuff = 159413 , value = 30 }, --http://www.wowhead.com/spell=159413/mauling-brew
+	[159113] = {value = 20 }, --http://www.wowhead.com/spell=159113/impale
+	[159386] = {value = 20 }, --http://www.wowhead.com/spell=159386/iron-bomb
+	[159413] = {value = 30 }, --http://www.wowhead.com/spell=159413/mauling-brew
 	--Brackenspore
-	{ debuff = 163241 , value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
-	{ debuff = 163241 , value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
-	{ debuff = 163241 , value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
-	{ debuff = 163241 , value = 20 , stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
+	[163241] = {value = 40 , stacks = 4 }, --http://www.wowhead.com/spell=163241/rot
+	[163241] = {value = 30 , stacks = 3 }, --http://www.wowhead.com/spell=163241/rot
+	[163241] = {value = 20 , stacks = 2 }, --http://www.wowhead.com/spell=163241/rot
+	[163241] = {value = 20 ,stacks = 1 }, --http://www.wowhead.com/spell=163241/rot
 	-- Gruul
-	{ debuff = 155506 , value = 30 }, --http://www.wowhead.com/spell=155506/petrified
-	{ debuff = 173192 , value = 30 }, --http://www.wowhead.com/spell=173192/cave-in
-	{ debuff = 145263 , value = 20 }, -- Proving Grounds Healer Debuff.
+	[155506] = {value = 30 }, --http://www.wowhead.com/spell=155506/petrified
+	[173192] = {value = 30 }, --http://www.wowhead.com/spell=173192/cave-in
+	[145263] = {value = 20 }, -- Proving Grounds Healer Debuff.
 	-- Blast Furnace
-	{ debuff = 155196 , value = 30 }, --http://www.wowhead.com/spell=155196/fixate
-	{ debuff = 155242 , value = 30 }, --http://www.wowhead.com/spell=155242/heat
-	{ debuff = 156934 , value = 15 }, --http://www.wowhead.com/spell=156934/rupture
-	{ debuff = 176121 , value = 15 }, --http://www.wowhead.com/spell=176121/volatile-fire
+	[155196] = {value = 30 }, --http://www.wowhead.com/spell=155196/fixate
+	[155242] = {value = 30 }, --http://www.wowhead.com/spell=155242/heat
+	[156934] = {value = 15 }, --http://www.wowhead.com/spell=156934/rupture
+	[176121] = {value = 15 }, --http://www.wowhead.com/spell=176121/volatile-fire
 	--Flame Bender
-	{ debuff = 155277 , value = 30 }, --http://www.wowhead.com/spell=155277/blazing-radiance
+	[155277] = {value = 30 }, --http://www.wowhead.com/spell=155277/blazing-radiance
 	--BeastMaster
-	{ debuff = 162283 , value = 30 }, --http://www.wowhead.com/spell=162283/rend-and-tear
+	[162283] = {value = 30 }, --http://www.wowhead.com/spell=162283/rend-and-tear
 	-- Iron Maidens
-	{ debuff = 158078 , value = 30 }, --http://www.wowhead.com/spell=158078/blood-ritual
-	{ debuff = 156112 , value = 30 }, --http://www.wowhead.com/spell=156112/convulsive-shadows
-	{ debuff = 158315 , value = 15 }, --http://www.wowhead.com/spell=158315/dark-hunt
+	[158078] = {value = 30 }, --http://www.wowhead.com/spell=158078/blood-ritual
+	[156112] = {value = 30 }, --http://www.wowhead.com/spell=156112/convulsive-shadows
+	[158315] = {value = 15 }, --http://www.wowhead.com/spell=158315/dark-hunt
 	--Trains
-	{ debuff = 165195 , value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
+	[165195] = {value = 30 }, --http://www.wowhead.com/spell=165195/prototype-pulse-grenade
 	-- Tyrant Velhari
-	{ debuff = 180116 , value = 30 }, --http://www.wowhead.com/spell=180166/touch-of-harm
+	[180116] = {value = 30 }, --http://www.wowhead.com/spell=180166/touch-of-harm
 	-- Chronomatic Anomaly (M)
-	{ debuff = 206609 , value = 30 }, --http://www.wowhead.com/spell=206609/time-release
+	[206609] = {value = 30 }, --http://www.wowhead.com/spell=206609/time-release
 	-- Gul'dan 
-	{ debuff = 221891 , value = 30 }, --http://www.wowhead.com/spell=221891/soul-siphon
+	[221891] = {value = 30 }, --http://www.wowhead.com/spell=221891/soul-siphon
 	-- Sisters of the Moon (ToS)
-	--{ debuff = 233263 , value = 30 }, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
+	[233263] = {value = 30 }, --http://www.wowhead.com/spell=233263/embrace-of-the-eclipse
 	-- Fallen Avater (ToS)
-	{ debuff = 240728 , value = -100, stacks = 8 }, --http://www.wowhead.com/spell=240728/tainted-essence
+	[240728] = {value = -100, stacks = 8 }, --http://www.wowhead.com/spell=240728/tainted-essence
+	-- Rastakhan (BoD)
+	[284781] = {value = 50}, --https://www.wowhead.com/spell=284781/grievous-axe
+	[286779] = {value = 30}, --https://www.wowhead.com/spell=286779/focused-demise
+
+	[260741] = {value = 30}, --https://www.wowhead.com/spell=260741/jagged-nettles
+
 }
 -- this table will assign role to any unit wearing the unit name
 novaEngineTables.roleTable = {
@@ -129,6 +147,7 @@ novaEngineTables.roleTable = {
 	["Commander Jarod Shadowsong"] = { role = "TANK", class = "Warrior"},
 	["Granny Marl"] = {role = "DPS", class = "Hunter"},
 	["Callie Carrington"] = {role = "DPS", class = "Rogue"},
+	["Primal Earth Elemental"] = {role = "TANK", class = "Warrior"}
 }
 -- special targets to include when we want to heal npcs
 novaEngineTables.SavedSpecialTargets = {

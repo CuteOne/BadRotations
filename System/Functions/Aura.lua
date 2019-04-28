@@ -69,6 +69,40 @@ end
 -- 		end
 -- 	end
 -- end
+local function Dispel(unit)
+	if not UnitInPhase(unit) then
+		return false
+	end
+	for i=1,40 do
+		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+		if buffName then
+			if (buffSpellID == 288388 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282566 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
+				return true
+			end
+			if novaEngineTables.DispelID[buffSpellID] ~= nil then
+				if select(3,UnitDebuffID(unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
+				then
+					if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
+						return true
+					else
+						if (isChecked("Dispel delay") and
+						(getDebuffDuration(unit, buffSpellID) - getDebuffRemain(unit,buffSpellID)) > (getDebuffDuration(unit, buffSpellID) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) then -- Dispel Delay then
+							if novaEngineTables.DispelID[buffSpellID].range ~= nil then
+								if #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
+									return false
+								end
+								return true
+							end
+							return true
+						end
+						return false
+					end
+				end
+			end
+		end
+		return nil
+	end
+end
 
 -- if canDispel("target",SpellID) == true then
 function canDispel(Unit, spellID)
@@ -199,8 +233,8 @@ function canDispel(Unit, spellID)
 					for i = 1, #br.friend do
 						local thisUnit = br.friend[i].unit
 						if Unit == thisUnit then
-							if br.friend[i].dispel ~= nil then
-								dispelUnitObj = br.friend[i].dispel
+							if Dispel(thisUnit) ~= nil then
+								dispelUnitObj = Dispel(thisUnit)
 							end
 						end
 					end
