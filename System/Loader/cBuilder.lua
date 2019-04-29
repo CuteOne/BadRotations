@@ -731,7 +731,7 @@ function br.loader:new(spec,specName)
                 if k == "rake" or k == "rip" or k == "rupture" or k == "garrote" then
                     if self.debuff[k].bleed == nil then self.debuff[k].bleed = {} end
                     for l, w in pairs(self.debuff[k].bleed) do
-                        if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
+                        if --[[not UnitAffectingCombat("player") or]] UnitIsDeadOrGhost(l) then
                             self.debuff[k].bleed[l] = nil
                         elseif not self.debuff[k].exists(l) then
                             self.debuff[k].bleed[l] = 0
@@ -741,21 +741,21 @@ function br.loader:new(spec,specName)
             end
         end
 
-            if spec == 259 then
-                for k, v in pairs(self.debuff) do
-                    if k == "garrote" or k == "rupture" then
-                        if self.debuff[k].exsa == nil then self.debuff[k].exsa = {} end
-                        for l, w in pairs(self.debuff[k].exsa) do
-                            if not UnitAffectingCombat("player") or UnitIsDeadOrGhost(l) then
-                                self.debuff[k].exsa[l] = nil
-                            elseif not self.debuff[k].exists(l) then
-                                self.debuff[k].exsa[l] = false
-                            end
+        if spec == 259 then
+            for k, v in pairs(self.debuff) do
+                if k == "garrote" or k == "rupture" then
+                    if self.debuff[k].exsa == nil then self.debuff[k].exsa = {} end
+                    for l, w in pairs(self.debuff[k].exsa) do
+                        if --[[not UnitAffectingCombat("player") or]] UnitIsDeadOrGhost(l) then
+                            self.debuff[k].exsa[l] = nil
+                        elseif not self.debuff[k].exists(l) then
+                            self.debuff[k].exsa[l] = false
                         end
                     end
                 end
             end
         end
+    end
 
 ---------------
 --- TOGGLES ---

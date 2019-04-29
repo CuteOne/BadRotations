@@ -85,7 +85,7 @@ function br.read.combatLog()
         if castTime == nil then castTime = 0 end
         if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
             if sourceName ~= nil then
-                if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                if --[[isInCombat("player") and ]]GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
                     -- Last Cast
                         for k, v in pairs(br.player.spell.abilities) do
@@ -107,7 +107,7 @@ function br.read.combatLog()
          then
             -- Print(tostring(param).." | "..tostring(sourceName).." | "..tostring(spellName).."("..spell..")".." | "..tostring(destName))
             if sourceName ~= nil then
-                if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                if --[[isInCombat("player") and ]]GetUnitIsUnit(sourceName, "player") then
                     if spell == lastCast then
                         lastCast = lastCast2
                         lastCast2 = lastCast3
