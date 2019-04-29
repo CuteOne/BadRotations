@@ -349,8 +349,8 @@ function br.loader:new(spec,specName)
 
             if GetSpecializationInfo(GetSpecialization()) == 259 then
                 local multiplier = 1
-                if self.buff.stealth.exists() and self.talent.nightstalker and (dot == self.spell.debuffs.rupture or dot == self.spell.debuffs.garrote) then multiplier = 1.5 end
-                if (self.buff.stealth.exists() or self.buff.vanish.exists() or (self.buff.subterfuge.exists() and self.buff.subterfuge.remain() >= 0.1 and self.buff.subterfuge.remain() >= getSpellCD(61304))) and dot == self.spell.debuffs.garrote and self.talent.subterfuge then multiplier = 1.8 end
+                if self.talent.nightstalker and (self.buff.stealthMarker or self.buff.stealth.exists() or self.buff.vanish.exists() or self.buff.shadowmeld.exists()) and (dot == self.spell.debuffs.rupture or dot == self.spell.debuffs.garrote) then print("multi calced") multiplier = 1.5 end
+                if self.talent.subterfuge and (self.buff.stealthMarker or self.buff.subterfuge.exists() or self.buff.stealthSubterfuge.exists() or self.buff.vanish.exists() or self.buff.shadowmeld.exists()) and dot == self.spell.debuffs.garrote then multiplier = 1.8 end
                 return multiplier
             end
             return 0

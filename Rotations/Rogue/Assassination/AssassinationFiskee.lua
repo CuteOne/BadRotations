@@ -188,7 +188,7 @@ local function runRotation()
     --local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local spell                                         = br.player.spell
-    local stealth                                       = br.player.buff.stealth.exists()
+    local stealth                                       = br.player.buff.stealth.exists() or br.player.buff.stealthSubterfuge.exists()
     local stealthedRogue                                = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.4 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
     local stealthedAll                                  = stealthedRogue or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
@@ -759,7 +759,7 @@ local function runRotation()
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
-                if talent.nightstalker and not talent.exsanguinate and comboDeficit >= comboMax and debuff.vendetta.exists("target") then
+                if talent.nightstalker and not talent.exsanguinate and combo >= comboMax and debuff.vendetta.exists("target") then
                     if cast.pool.envenom() then return true end
                     if cast.vanish("player") then return true end
                 end

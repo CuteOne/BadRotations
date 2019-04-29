@@ -662,6 +662,8 @@ function cl:Rogue(...)
                     if br.player ~= nil and getDistance(thisUnit) < 40 then
                         local debuff = br.player.debuff
                         local debuffID = br.player.spell.debuffs
+                        local buff = br.player.buff
+                        local buffID = br.player.spell.buffs
                         if debuffID ~= nil then
                             if spell == 200806 then
                                 if debuff.rupture.exsa == nil then
@@ -686,6 +688,7 @@ function cl:Rogue(...)
                                 end
                             end
                             if spell == debuffID.rupture or spell == debuffID.garrote then
+                                local k
                                 if spell == debuffID.rupture then
                                     k = "rupture"
                                 end
@@ -696,6 +699,7 @@ function cl:Rogue(...)
                                     debuff[k].bleed = {}
                                 end
                                 if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                    if buff.stealthMarker then buff.stealthMarker = nil end
                                     debuff[k].bleed[thisUnit] = debuff[k].calc()
                                     debuff[k].exsa[thisUnit] = false
                                     if GetUnitIsUnit(thisUnit, "target") then
@@ -711,6 +715,12 @@ function cl:Rogue(...)
                                         debuff[k].exsa["target"] = false
                                     end
                                 end
+                            end
+                            if spell == buffID.stealth or spell == buffID.stealthSubterfuge or spell == buffID.vanish then
+                              if param == "SPELL_AURA_REMOVED" then
+                                buff.stealthMarker = true
+                                C_Timer.After(0.15, function() buff.stealthMarker = nil end) -- deletes the marker on the next frame if the interval is less than the frame rate.
+                              end
                             end
                         end
                     end
