@@ -760,7 +760,7 @@ local function runRotation()
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
                 if talent.nightstalker and not talent.exsanguinate and combo >= comboMax and debuff.vendetta.exists("target") then
-                    if cast.pool.envenom() then return true end
+                    if cast.pool.rupture() then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
