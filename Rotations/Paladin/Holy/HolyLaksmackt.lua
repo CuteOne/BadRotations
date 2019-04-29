@@ -93,7 +93,7 @@ local function createOptions()
 
     -- m+ Rot
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
-    --br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
+    br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
     br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
     br.ui:createCheckbox(section, "Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble from choking water|cffFFBB00.", 1)
@@ -773,6 +773,8 @@ local function runRotation()
       end
     end
   end
+
+
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   -- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse ----------- Cleanse -------
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -781,11 +783,13 @@ local function runRotation()
     if br.player.mode.cleanse == 1 and cast.able.cleanse() then
       for i = 1, #friends.yards40 do
 
-        --[[ DEBUG if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
+        --[[ DEBUG
+        if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
           Print("Stacks: " ..getDebuffStacks(br.friend[i].unit, 288388) .." Threshold: " .. getValue("Reaping"))
         end]]
         -- 275014=putrid-waters, 252781= unstable-hex, 261440=virulent-pathogen, 288388=reap-soul, 282562-promises-of-power
-        --[[ removing as support moved into HE system
+        --[[ removing as support moved into HE system]]
+
         if inInstance and (getDebuffRemain(br.friend[i].unit, 275014) >= 2 or getDebuffRemain(br.friend[i].unit, 261440) >= 2) and #getAllies(br.friend[i].unit, 6) < 2
                 or (getDebuffStacks(br.friend[i].unit, 288388) >= getValue("Reaping") or (not inCombat and getDebuffStacks(br.friend[i].unit, 288388) > 0))
                 or (getDebuffStacks(br.friend[i].unit, 282562) >= getValue("Promise of Power") or (not inCombat and getDebuffStacks(br.friend[i].unit, 282562) > 0)) then
@@ -802,13 +806,15 @@ local function runRotation()
             end
           end
         end
-
-      end]]
+--[[
         if canDispel(br.friend[i].unit, spell.cleanse) then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
         end
+      ]]
+
+
       end
     end
   end
