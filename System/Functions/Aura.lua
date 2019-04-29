@@ -76,7 +76,7 @@ local function Dispel(unit)
 	for i=1,40 do
 		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 		if buffName then
-			if (buffSpellID == 288388 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282562 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
+			if (buffSpellID == 288388 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282566 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
 				return true
 			end
 			if novaEngineTables.DispelID[buffSpellID] ~= nil then
