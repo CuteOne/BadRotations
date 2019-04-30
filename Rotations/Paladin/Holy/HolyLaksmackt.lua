@@ -557,7 +557,7 @@ local function runRotation()
       end
     end
   end
-  if isChecked("Arcane Torrent Mana") and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
+  if isChecked("Arcane Torrent Mana") and inCombat and race == "BloodElf" and getSpellCD(69179) == 0 and mana < getOptionValue("Arcane Torrent Mana") then
     if castSpell("player", racial, false, false, false) then
       return true
     end
@@ -806,13 +806,13 @@ local function runRotation()
             end
           end
         end
---[[
-        if canDispel(br.friend[i].unit, spell.cleanse) then
-          if cast.cleanse(br.friend[i].unit) then
-            return true
-          end
-        end
-      ]]
+        --[[
+                if canDispel(br.friend[i].unit, spell.cleanse) then
+                  if cast.cleanse(br.friend[i].unit) then
+                    return true
+                  end
+                end
+              ]]
 
 
       end
@@ -1416,7 +1416,7 @@ local function runRotation()
         end
         if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and (inCombat or isChecked("Glimmer mode - ooc")) then
           if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
-            if #glimmerTable >= 1 and glimmerTable[1].distance > 10 then
+            if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
                 --Print(getDistance(glimmerTable[1]))
                 return true
@@ -1444,11 +1444,8 @@ local function runRotation()
   end
 
   local function SingleTarget()
-    local holyShock10 = nil
-    local holyShock20 = nil
-    local holyShock30 = nil
-    local holyShock40 = nilc
     local holyshocktarget = nil
+    local folTarget = nil
     local lightOfTheMartyrDS = nil
     local lightOfTheMartyrHS = nil
     local lightOfTheMartyrTANK = nil
@@ -1478,9 +1475,6 @@ local function runRotation()
     local BleedFriend = nil
     local BleedFriendCount = 0
 
-    --Pets
-
-
 
     --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
     for i = 1, #br.friend do
@@ -1509,6 +1503,7 @@ local function runRotation()
             holyshocktarget = br.friend[i].unit
           end
         end
+
         if holyshocktarget == nil and br.friend[i].hp <= getValue("Holy Shock") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
           holyshocktarget = br.friend[i].unit
         end
@@ -1524,31 +1519,35 @@ local function runRotation()
         if br.friend[i].hp <= getValue("Light of the Martyr") and not GetUnitIsUnit(br.friend[i].unit, "player") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
           lightOfTheMartyrHP = br.friend[i].unit
         end
+
+        --Flash of Light
         if br.friend[i].hp <= getValue("FoL Tanks") and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-          flashOfLightTANK = br.friend[i].unit
+          folTarget = br.friend[i].unit
         end
+
         if isChecked("Mastery bonus") and inRaid then
-          if br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (10 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
-            flashOfLightInfuse10 = br.friend[i].unit
+          if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (10 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+            folTarget = br.friend[i].unit
           elseif br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (10 * master_coff) then
-            flashOfLight10 = br.friend[i].unit
+            folTarget = br.friend[i].unit
           end
-          if br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (20 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
-            flashOfLightInfuse20 = br.friend[i].unit
-          elseif br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (20 * master_coff) then
-            flashOfLight20 = br.friend[i].unit
+          if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (20 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+            folTarget = br.friend[i].unit
+          elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (20 * master_coff) then
+            folTarget = br.friend[i].unit
           end
-          if br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (30 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
-            flashOfLightInfuse30 = br.friend[i].unit
-          elseif br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (30 * master_coff) then
-            flashOfLight30 = br.friend[i].unit
+          if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and br.friend[i].distance <= (30 * master_coff) and buff.infusionOfLight.remain("player") > gcd then
+            folTarget = br.friend[i].unit
+          elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and br.friend[i].distance <= (30 * master_coff) then
+            folTarget = br.friend[i].unit
           end
         end
-        if br.friend[i].hp <= getValue("FoL Infuse") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and buff.infusionOfLight.remain("player") > gcd then
-          flashOfLightInfuse40 = br.friend[i].unit
-        elseif br.friend[i].hp <= getValue("Flash of Light") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
-          flashOfLight40 = br.friend[i].unit
+        if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and buff.infusionOfLight.remain("player") > gcd then
+          folTarget = br.friend[i].unit
+        elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+          folTarget = br.friend[i].unit
         end
+
         if isChecked("Mastery bonus") and inRaid then
           if br.friend[i].hp <= getValue("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit, "player") and br.friend[i].distance <= (10 * master_coff) then
             lightOfTheMartyrBF10 = br.friend[i].unit
@@ -1702,7 +1701,8 @@ local function runRotation()
     end -- end Bestow Faith
 
     -- Flash of Light
-    if isChecked("Flash of Light") and not moving and getSpellCD(20473) ~= 0 then
+    if isChecked("Flash of Light") and not moving then
+      --Critical first
       if php <= getValue("Critical HP") then
         if cast.flashOfLight("player") then
           return true
@@ -1728,51 +1728,11 @@ local function runRotation()
           return true
         end
       end
-      if flashOfLightInfuse10 ~= nil then
-        if cast.flashOfLight(flashOfLightInfuse10) then
-          healing_obj = flashOfLightInfuse10
-          return true
-        end
-      end
-      if flashOfLight10 ~= nil then
-        if cast.flashOfLight(flashOfLight10) then
-          healing_obj = flashOfLight10
-          return true
-        end
-      end
-      if flashOfLightInfuse20 ~= nil then
-        if cast.flashOfLight(flashOfLightInfuse20) then
-          healing_obj = flashOfLightInfuse20
-          return true
-        end
-      end
-      if flashOfLight20 ~= nil then
-        if cast.flashOfLight(flashOfLight20) then
-          healing_obj = flashOfLight20
-          return true
-        end
-      end
-      if flashOfLightInfuse30 ~= nil then
-        if cast.flashOfLight(flashOfLightInfuse30) then
-          healing_obj = flashOfLightInfuse30
-          return true
-        end
-      end
-      if flashOfLight30 ~= nil then
-        if cast.flashOfLight(flashOfLight30) then
-          healing_obj = flashOfLight30
-          return true
-        end
-      end
-      if flashOfLightInfuse40 ~= nil then
-        if cast.flashOfLight(flashOfLightInfuse40) then
-          healing_obj = flashOfLightInfuse40
-          return true
-        end
-      end
-      if flashOfLight40 ~= nil then
-        if cast.flashOfLight(flashOfLight40) then
-          healing_obj = flashOfLight40
+
+      if folTarget ~= nil then
+        if cast.flashOfLight(folTarget) then
+          healing_obj = folTarget
+          --Print(folTarget)
           return true
         end
       end
