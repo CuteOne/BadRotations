@@ -759,7 +759,7 @@ local function runRotation()
                 end
                 -- # Vanish with Nightstalker + No Exsg: Maximum CP and Vendetta up
                 -- actions.cds+=/vanish,if=talent.nightstalker.enabled&!talent.exsanguinate.enabled&combo_points>=cp_max_spend&debuff.vendetta.up
-                if talent.nightstalker and not talent.exsanguinate and combo >= comboMax and debuff.vendetta.exists("target") then
+                if talent.nightstalker and not talent.exsanguinate and combo >= comboMax and (debuff.vendetta.exists("target") or not isChecked("Vendetta")) then
                     if cast.pool.rupture() then return true end
                     if cast.vanish("player") then return true end
                 end
