@@ -60,6 +60,8 @@ novaEngineTables.BadDebuffList= {
 	[243961] = "Misery", --Immune to all healing effects.
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
 	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
+	--Battle of Dazar'alor
+	[284663 ] = "Bwonsamdi's Wrath", --Bwonsamdi's Wrath (mythic conclave)
 	--Crucible of storms
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
