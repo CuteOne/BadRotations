@@ -699,7 +699,7 @@ function cl:Rogue(...)
                                     debuff[k].bleed = {}
                                 end
                                 if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                    if buff.stealthMarkerT then print(GetTime() - buff.stealthMarkerT) buff.stealthMarkerT = nil end
+                                    if buff.stealthMarker then buff.stealthMarker = nil end
                                     debuff[k].bleed[thisUnit] = debuff[k].calc()
                                     debuff[k].exsa[thisUnit] = false
                                     if GetUnitIsUnit(thisUnit, "target") then
@@ -718,9 +718,8 @@ function cl:Rogue(...)
                             end
                             if spell == buffID.stealth or spell == buffID.stealthSubterfuge or spell == buffID.vanish then
                               if param == "SPELL_AURA_REMOVED" then
-                                buff.stealthMarker = true print("stealth removed")
-                                buff.stealthMarkerT = GetTime()
-                                C_Timer.After(0.01, function() print("marker delete") buff.stealthMarker = nil buff.stealthMarkerT = nil end) -- deletes the marker on the next frame if the interval is less than the frame rate.
+                                buff.stealthMarker = true
+                                C_Timer.After(0.15, function() buff.stealthMarker = nil end) -- deletes the marker on the next frame if the interval is less than the frame rate.
                               end
                             end
                         end
