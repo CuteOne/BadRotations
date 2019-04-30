@@ -69,34 +69,55 @@ end
 -- 		end
 -- 	end
 -- end
-local function Dispel(unit)
+local function Dispel(unit,buff)
 	if not UnitInPhase(unit) then
 		return false
 	end
-	for i=1,40 do
-		local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
-		if buffName then
-			if (buffSpellID == 288388 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping")) or (buffSpellID == 282566 and select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power")) then
-				return true
-			end
-			if novaEngineTables.DispelID[buffSpellID] ~= nil then
-				if select(3,UnitDebuffID(unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
-				then
-					if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
+	if not buff then
+		for i=1,40 do
+			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+			if buffName then
+				if buffSpellID == 288388 then
+					if select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping") then
+						return true
+					else 
+						return false
+					end
+				elseif buffSpellID == 282566 then
+					if select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power") then
 						return true
 					else
-						if (isChecked("Dispel delay") and
-						(getDebuffDuration(unit, buffSpellID) - getDebuffRemain(unit,buffSpellID)) > (getDebuffDuration(unit, buffSpellID) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100) )) then -- Dispel Delay then
-							if novaEngineTables.DispelID[buffSpellID].range ~= nil then
-								if #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
-									return false
+						return false
+					end
+				elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
+					if select(3,UnitDebuffID(unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
+					then
+						if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
+							return true
+						else
+							if (getDebuffDuration(unit, buffSpellID) - getDebuffRemain(unit,buffSpellID)) > (getDebuffDuration(unit, buffSpellID) * (math.random(getValue("Dispel delay")-2, getValue("Dispel delay")+2)/100)) then -- Dispel Delay then
+								if novaEngineTables.DispelID[buffSpellID].range ~= nil then
+									if #getAllies(unit,novaEngineTables.DispelID[buffSpellID].range) > 1 then
+										return false
+									end
+									return true
 								end
 								return true
 							end
-							return true
+							return false
 						end
-						return false
-					end
+					end	
+					return false
+				end
+			end
+		end
+		return nil
+	elseif buff then
+		for i=1,40 do
+			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitBuff(unit,i)
+			if buffName then
+				if novaEngineTables.PurgeID[buffSpellID] ~= nil then
+					return true
 				end
 			end
 		end
@@ -227,26 +248,31 @@ function canDispel(Unit, spellID)
 			while UnitDebuff(Unit, i) do
 				local _, _, _, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)
 				local debuffRemain = debuffExpire - GetTime()
+				local dispelUnitObj
 				-- local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
 				-- Blackout Debuffs
 				if (debuffType and ValidType(debuffType)) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker
-					for i = 1, #br.friend do
-						local thisUnit = br.friend[i].unit
-						if Unit == thisUnit then
-							if Dispel(thisUnit) ~= nil then
-								dispelUnitObj = Dispel(thisUnit)
+					if isChecked("Dispel Only Whitelist") and novaEngineTables.DispelID[debuffid] == nil then
+						return false
+					else
+						for i = 1, #br.friend do
+							local thisUnit = br.friend[i].unit
+							if Unit == thisUnit then
+								if Dispel(thisUnit) ~= nil then
+									dispelUnitObj = Dispel(thisUnit)
+								end
 							end
 						end
-					end
-					if (dispelUnitObj == nil) then
-						if (isChecked("Dispel delay") and (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6)) or not isChecked("Dispel delay") then
+						if dispelUnitObj == nil then
+							if (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+								HasValidDispel = true
+								break
+							end
+						elseif dispelUnitObj == true then
 							HasValidDispel = true
+							dispelUnitObj = nil
 							break
 						end
-					elseif dispelUnitObj == true then
-						HasValidDispel = true
-						dispelUnitObj = nil
-						break
 					end
 				end
 				i = i + 1
@@ -255,12 +281,19 @@ function canDispel(Unit, spellID)
 			while UnitBuff(Unit, i) do
 				local _, _, _, buffType, buffDuration, buffExpire, _, _, _, buffid = UnitBuff(Unit, i)
 				local buffRemain = buffExpire - GetTime()
-				-- local _,_,_,_,buffType,_,_,_,_,_,buffid = UnitBuff(Unit,i)
-				-- Blackout Debuffs
+				local dispelUnitObj
 				if (buffType and ValidType(buffType)) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
-					if (isChecked("Dispel delay") and (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6)) or not isChecked("Dispel delay") then
-						HasValidDispel = true
-						break
+					if isChecked("Purge Only Whitelist") then
+						dispelUnitObj = Dispel(Unit,true)
+					else 
+						dispelUnitObj = true
+					end
+					if dispelUnitObj == true then
+						if (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+							HasValidDispel = true
+							dispelUnitObj = nil
+							break
+						end
 					end
 				end
 				i = i + 1
