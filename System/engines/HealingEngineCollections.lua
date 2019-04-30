@@ -26,12 +26,17 @@ novaEngineTables.DispelID = {
 	[247552] = {stacks = 0, range = 15}, -- http://www.wowhead.com/spell=247552/sleep-canister
 	-- Conclave of the Chosen
 	[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
+	[285879] = {stacks = 0}, --https://www.wowhead.com/spell=285879/mind-wipe
 	-- SoB
 	[275014] = {stacks = 0, range = 3}, --https://www.wowhead.com/spell=274991/putrid-waters
 	-- Waycrest Manor
 	[261440] = {stacks = 0, range = 6}, --https://www.wowhead.com/spell=261439/virulent-pathogen
 	-- Atal'Dazar
 	[252781] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=252781/unstable-hex
+}
+-- List of buffs to purge
+novaEngineTables.PurgeID = {
+	[282098] = true,
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
@@ -63,6 +68,7 @@ novaEngineTables.BadDebuffList= {
 	--Crucible of storms
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
+	[284663] = " Bwonsamdi's Wrath", -- Immune to all healing effects.
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
