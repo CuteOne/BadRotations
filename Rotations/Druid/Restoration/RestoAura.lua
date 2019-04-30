@@ -186,8 +186,10 @@ local function createOptions()
 		-- Bursting Stack
 		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
 		-- DPS
-		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFMinimum Health to DPS")
-		br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS")
+		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFIf over this value, rotation will switch to DPS. (Auto DPS Only)")
+		br.ui:createSpinnerWithout(section, "Critical Heal", 70, 0, 100, 5, "|cffFFFFFFIf under this value, rotation will switch to healing. (Auto DPS Only)")
+		br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS (Will ignore DPS HP Thresholds)")
+		br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1" )
 		-- DPS Save mana
 		br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
 		-- Auto Soothe
@@ -923,21 +925,9 @@ local function runRotation()
 		end
 		-- Nature's Cure
 		if mode.decurse == 1 then
-			for i = 1, #br.friend do
-				if canDispel(br.friend[i].unit, spell.naturesCure) then
-					if
-						inInstance and
-							((getDebuffRemain(br.friend[i].unit, 275014) > 2 and #getAllies(br.friend[i].unit, 6) < 2) or (getDebuffRemain(br.friend[i].unit, 252781) > 2 and #getAllies(br.friend[i].unit, 9) < 2))
-					 then
-						if cast.naturesCure(br.friend[i].unit) then
-							return true
-						end
-					end
-					if (not inInstance or (inInstance and getDebuffRemain(br.friend[i].unit, 275014) == 0 and getDebuffRemain(br.friend[i].unit, 252781) == 0)) and not UnitIsCharmed(br.friend[i].unit) then
-						if cast.naturesCure(br.friend[i].unit) then
-							return true
-						end
-					end
+			for i = 1, #friends.yards40 do
+				if canDispel(br.friend[i].unit,spell.naturesCure) then
+					if cast.naturesCure(br.friend[i].unit) then br.addonDebug("Casting Nature's Cure") return end
 				end
 			end
 		end
@@ -1717,9 +1707,12 @@ local function runRotation()
 			if travel then
 				clearForm()
 			end
+			if cat and getDistance("target") <= 8 then
+				StartAttack()
+			end
 			if nearEnemies < 1 then
 				-- Moonfire
-				if mana >= getOptionValue("DPS Save mana") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
@@ -1878,17 +1871,6 @@ local function runRotation()
 					end
 					--return true
 				end
-				-- Moonfire
-				if mana >= getOptionValue("DPS Save mana") then
-					for i = 1, nearEnemies do
-						local thisUnit = enemies.yards8[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
-							if cast.moonfire(thisUnit) then
-							end
-						end
-					end
-					--return true
-				end
 				-- Cat Form
 				if
 					not cat and (not bear or (bear and (not bearTimer or GetTime() - bearTimer >= catRecharge))) and GetUnitExists("target") and nearEnemies > 0 and
@@ -1962,7 +1944,7 @@ local function runRotation()
 				end
 			end
 			-- Moonfire
-			if mana >= getOptionValue("DPS Save mana") then
+			if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 				for i = 1, #enemies.yards40 do
 					local thisUnit = enemies.yards40[i]
 					if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
@@ -2043,6 +2025,13 @@ local function runRotation()
 		--- In Combat - Rotations ---
 		-----------------------------
 		if inCombat then
+			if not isChecked("DPS Key") then
+				if (restoDPS and lowest.hp <= getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() then
+					restoDPS = false
+				elseif not restoDPS and lowest.hp > getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() then
+					restoDPS = true
+				end
+			end
 			if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and isChecked("DPS Key") and lowest.hp > getOptionValue("DPS") then
 				if actionList_DPS() then
 					return
@@ -2066,15 +2055,17 @@ local function runRotation()
 				if actionList_Decurse() then
 					return
 				end
-				if actionList_AOEHealing() then
-					return
-				end
-				if actionList_SingleTarget() then
-					return
+				if (not restoDPS and not isChecked("DPS Key")) or isChecked("DPS Key") then
+					if actionList_AOEHealing() then
+						return
+					end
+					if actionList_SingleTarget() then
+						return
+					end
 				end
 				if #enemies.yards5 < 1 and mode.dps == 2 and isChecked("DPS Key") and not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
 					-- Moonfire
-					if mana >= getOptionValue("DPS Save mana") then
+					if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 						for i = 1, #enemies.yards40 do
 							local thisUnit = enemies.yards40[i]
 							if not debuff.moonfire.exists(thisUnit) then
@@ -2096,19 +2087,23 @@ local function runRotation()
 						end
 					end
 				end
-				if
-					not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") and
-						not GetUnitIsFriend("target")
-				 then
+				if not isChecked("DPS Key") and not buff.incarnationTreeOfLife.exists() and ((mode.dps == 2 and br.friend[1].hp > getValue("DPS")) or bear) and GetUnitExists("target") 
+					and	not GetUnitIsFriend("target") and restoDPS
+				then
 					if actionList_DPS() then
 						return
 					end
 				end
-				if actionList_Rejuvenation() then
-					return
-				end
-				if actionList_RejuvenationMode() then
-					return
+				if  (not restoDPS and not isChecked("DPS Key")) or isChecked("DPS Key") then
+					if actionList_Rejuvenation() then
+						return
+					end
+					if actionList_RejuvenationMode() then
+						return
+					end
+					if actionList_DPS() then
+						return 
+					end
 				end
 			end
 		end -- End In Combat Rotation
