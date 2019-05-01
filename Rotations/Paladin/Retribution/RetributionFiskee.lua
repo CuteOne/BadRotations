@@ -56,8 +56,6 @@ local function createOptions()
 		br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 		-- Opener
 		br.ui:createCheckbox(section, "Opener")
-		-- Challenge Skin Helper
-		br.ui:createCheckbox(section, "Challenge Skin Helper")
 		-- Greater Blessing of Kings
 		br.ui:createCheckbox(section, "Greater Blessing of Kings")
 		-- Greater Blessing of Wisdom
@@ -67,7 +65,9 @@ local function createOptions()
 		-- Hand of Hindeance
 		br.ui:createCheckbox(section, "Hand of Hinderance")
 		-- Wake of Ashes
-		br.ui:createDropdownWithout(section,"Wake of Ashes", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Wake of Ashes talent.")
+		br.ui:createDropdownWithout(section,"Wake of Ashes", {"|cff00FF00Everything","|cffFFFF00Cooldowns"}, 1, "|cffFFFFFFWhen to use Wake of Ashes talent.")
+		-- Wake of Ashes Target
+		br.ui:createDropdownWithout(section,"Wake of Ashes Target", {"|cff00FF00Target","|cff00FF00Best"}, 1, "|cffFFFFFFUse on target or best cone angle.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- COOLDOWN OPTIONS ---
@@ -289,26 +289,54 @@ local function runRotation()
 	if kingsUnit == nil then kingsUnit = "player" end
 	if wisdomUnit == nil then wisdomUnit = "player" end
 
-	-- Challenge Skin Heler
-	if isChecked("Challenge Skin Helper") then
-		for i=1, #enemies.yards10 do
-			thisUnit = enemies.yards10[i]
-			distance = getDistance(thisUnit)
-			if isCastingSpell(237946,thisUnit) then
-				-- Repentance
-				if distance < 30 then
-					if cast.repentance(thisUnit) then return end
-				end
-				-- Hammer of Justice
-				if isChecked("Hammer of Justice") and distance < 10 then
-					if cast.hammerOfJustice(thisUnit) then return end
-				end
-				-- Blinding Light
-				if isChecked("Blinding Light") and distance < 10 then
-					if cast.blindingLight() then return end
-				end
+	local function castBestConeAngle(spell,range,angle,minUnits,checkNoCombat,pool)
+		if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+			return false
+		end
+		range = range or 10
+		angle = angle or 45
+		minUnits = minUnits or 1
+		checkNoCombat = checkNoCombat or false
+		pool = pool or false
+		local curFacing = ObjectFacing("player")
+		local enemiesTable = getEnemies("player",range,checkNoCombat)
+		local playerX, playerY, playerZ = ObjectPosition("player")
+		local coneTable = {}
+		for i = 1, #enemiesTable do
+			local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
+			if playerX and unitX then
+				local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+				tinsert(coneTable, angleToUnit)
 			end
 		end
+		local facing, bestAngle, mostHit = 0, 0, 0
+		while facing <= 6.2 do
+			local units = 0
+			for i = 1, #coneTable do
+				local angleToUnit = coneTable[i]
+				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+				local finalAngle = shortestAngle/math.pi*180
+				if finalAngle < angle/2 then
+					units = units + 1
+				end
+			end
+			if units > mostHit then
+				mostHit = units
+				bestAngle = facing
+			end
+			facing = facing + 0.05
+		end
+		if mostHit >= minUnits then
+			if pool and energy < getSpellCost(spell) then
+				return true
+			end
+			FaceDirection(bestAngle, true)
+			CastSpellByName(GetSpellInfo(spell))
+			FaceDirection(curFacing, true)
+			return true
+		end
+		return false
 	end
 	--------------------
 	--- Action Lists ---
@@ -828,8 +856,12 @@ local function runRotation()
 			if actionList_Finisher() then return end
 		end
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-		if mode.wake == 1 and talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) and getFacing("player","target") then
-			if cast.wakeOfAshes("player") then return end
+		if mode.wake == 1 and talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
+			if getOptionValue("Wake of Ashes Target") == 1 and getFacing("player","target") and getDistance("target") < 8 then
+				if cast.wakeOfAshes("player") then return end
+			elseif getOptionValue("Wake of Ashes Target") == 2 then
+				if castBestConeAngle(spell.wakeOfAshes, 12, 60, 1, false) then return true end
+			end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
