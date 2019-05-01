@@ -1793,13 +1793,13 @@ local function runRotation()
 			-- Solar Wrath
 			if not moving and GetUnitExists("target") then
 				if (isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key") then
-					if getDistance("target", "player") > 5 or not bear then
+					if getDistance("target", "player") > 5 or not bear and getFacing("player","target") then
 						if cast.solarWrath("target") then
 							br.addonDebug("Casting Solar Wrath")
 							return true
 						end
 					end
-				elseif (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) then
+				elseif  (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and getFacing("player","target")then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
@@ -1844,7 +1844,7 @@ local function runRotation()
 					end
 				end
 				-- Solar Wrath
-				if not moving then
+				if not moving and getFacing("player","target") then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
@@ -2064,7 +2064,7 @@ local function runRotation()
 				end
 			end
 			-- Starsurge
-			if moonkin then
+			if moonkin and getFacing("player","target") then
 				if cast.starsurge() then
 					br.addonDebug("Casting Starsurge")
 					return true
@@ -2102,14 +2102,14 @@ local function runRotation()
 				end
 			end
 			-- Solar Wrath charged
-			if buff.solarEmpowerment.exists() and not moving then
+			if buff.solarEmpowerment.exists() and not moving and getFacing("player","target") then
 				if cast.solarWrath("target") then
 					br.addonDebug("Casting Solar Wrath")
 					return true
 				end
 			end
 			-- Solar Wrath uncharged
-			if GetUnitExists("target") and not moving then
+			if GetUnitExists("target") and not moving and getFacing("player","target") then
 				if cast.solarWrath("target") then
 					br.addonDebug("Casting Solar Wrath")
 					return true
@@ -2170,11 +2170,11 @@ local function runRotation()
 		-----------------------------
 		if inCombat then
 			if not isChecked("DPS Key") then
-				if (restoDPS and lowest.hp <= getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() then
+				if (restoDPS and lowest.hp <= getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() or mode.dps == 1 then
 					ChatOverlay("Healing Engaged")
 					br.addonDebug("Healing Engaged")
 					restoDPS = false
-				elseif not restoDPS and lowest.hp > getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() then
+				elseif not restoDPS and lowest.hp > getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() and mode.dps == 2 then
 					ChatOverlay("DPS Engaged")
 					br.addonDebug("DPS Engaged")
 					restoDPS = true
