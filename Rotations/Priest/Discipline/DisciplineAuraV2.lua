@@ -767,6 +767,14 @@ local function runRotation()
                     end
                 end
             end
+            --Pillar of the Drowned Cabal
+            if hasEquiped(167863) and canUse(16) then
+                for i = 1, #br.friend do
+                    if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+                        UseItemByName(167863,br.friend[i].unit)
+                    end
+                end
+            end
             -- Rapture when getting Innervate/Symbol
             if isChecked("Rapture when get Innervate") and freeMana then
                 if cast.rapture() then return true end

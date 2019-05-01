@@ -695,6 +695,15 @@ local function runRotation()
                         return true
                     end
                 end
+                --Pillar of the Drowned Cabal
+                if hasEquiped(167863) and canUse(16) then
+                    for i = 1, #br.friend do
+                        if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+                            UseItemByName(167863,br.friend[i].unit)
+                            br.addonDebug("Using Pillar of Drowned Cabal")
+                        end
+                    end
+                end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then
                 -- if raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count"))) then

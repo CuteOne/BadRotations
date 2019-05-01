@@ -425,6 +425,7 @@ local function runRotation()
 	units.get(8)
 
 	enemies.get(5)
+	enemies.get(5,"player",false,true)
 	enemies.get(8)
 	enemies.get(8, "target")
 	enemies.get(15)
@@ -898,7 +899,7 @@ local function runRotation()
 			if hasEquiped(167863) and canUse(16) then
 				for i = 1, #br.friend do
 					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
-						useItemByName(167863,br.friend[i].unit)
+						UseItemByName(167863,br.friend[i].unit)
 						br.addonDebug("Using Pillar of Drowned Cabal")
 					end
 				end
@@ -1808,7 +1809,7 @@ local function runRotation()
 		end
 		-- Feral Affinity
 		if talent.feralAffinity and GetUnitExists("target") then
-			local nearEnemies = #enemies.yards5
+			local nearEnemies = #enemies.yards5f
 			if travel then
 				clearForm()
 			end
@@ -1817,6 +1818,7 @@ local function runRotation()
 				br.addonDebug("Auto Attacking")
 			end
 			if nearEnemies < 1 then
+				br.addonDebug("No Near Enemies")
 				-- Moonfire
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
@@ -1849,6 +1851,7 @@ local function runRotation()
 					end
 				end
 			elseif nearEnemies == 1 then
+				br.addonDebug("1 Near Enemy")
 				-- Moonfire
 				if not debuff.moonfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
 					if cast.moonfire("target") then
@@ -1904,6 +1907,7 @@ local function runRotation()
 					end
 				end
 			elseif nearEnemies > 1 and nearEnemies < 4 then
+				br.addonDebug("2-3 Near Enemies")
 				-- Sunfire
 				if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
 					if cast.sunfire("target") then
@@ -1984,6 +1988,7 @@ local function runRotation()
 					end
 				end
 			elseif nearEnemies >= 4 then
+				br.addonDebug("4+ Near Enemies")
 				--Sunfire
 				if mana >= getOptionValue("DPS Save mana") then
 					for i = 1, nearEnemies do

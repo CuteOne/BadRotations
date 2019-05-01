@@ -497,6 +497,15 @@ local function runRotation()
 						end
 					end
 				end
+				--Pillar of the Drowned Cabal
+                if hasEquiped(167863) and canUse(16) then
+                    for i = 1, #br.friend do
+                        if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+							UseItemByName(167863,br.friend[i].unit)
+							br.addonDebug("Using Pillar of Drowned Cabal")
+                        end
+                    end
+                end
 				if isChecked("Trinket 1") and canTrinket(13) then
 					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
 						UseItemByName(167865,lowest.unit)
