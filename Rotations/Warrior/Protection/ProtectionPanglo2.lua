@@ -202,6 +202,7 @@ local function createOptions()
         )
         -- Shout Check
         br.ui:createCheckbox(section, "Battle Shout", "Enable automatic party buffing")
+
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -211,7 +212,8 @@ local function createOptions()
         br.ui:createDropdownWithout(
             section,
             "Trinkets",
-            {"Always", "When CDs are enabled", "Never"},
+            {"Always", "When CDs are enabled", "Never", "With Avatar"},
+            1,
             "Decide when Trinkets will be used."
         )
         -- Avatar
@@ -241,6 +243,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         --Smart Spell reflect
         br.ui:createCheckbox(section, "Smart Spell Reflect", "Auto reflect spells in instances")
+        -- Engi Belt stuff thanks to Lak
+        br.ui:createSpinner(section, "Engineering Belt", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Healthstone
         br.ui:createSpinner(section, "Healthstone/Potion", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Demoralizing Shout
@@ -473,7 +477,11 @@ local function runRotation()
                     end
                 end
             end
-            if inCombat and getOptionValue("Trinkets") == 1 and br.player.mode.holdcd == 1 then
+            if
+                inCombat and
+                    (getOptionValue("Trinkets") == 1 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) and
+                    br.player.mode.holdcd == 1
+             then
                 if canTrinket(13) then
                     useItem(13)
                 end
@@ -560,7 +568,10 @@ local function runRotation()
                     CastSpellByName("Berserking")
                 end
                 --Use Trinkets
-                if getOptionValue("Trinkets") == 2 and br.player.mode.holdcd == 1 then
+                if
+                    (getOptionValue("Trinkets") == 2 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) and
+                        br.player.mode.holdcd == 1
+                 then
                     if canTrinket(13) then
                         useItem(13)
                     end
@@ -711,6 +722,9 @@ local function runRotation()
                         end
                     end
                 end
+                if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUse(6) then
+                    useItem(6)
+                end
                 if
                     isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
                         (hasItem(152494) or hasItem(5512))
@@ -858,7 +872,10 @@ local function runRotation()
             end
 
             --Less Victorious
-            if php <= 75 and (talent.impendingVictory or buff.victorious.exists()) and not (cast.able.shieldSlam() or cast.able.thunderClap()) then
+            if
+                php <= 75 and (talent.impendingVictory or buff.victorious.exists()) and
+                    not (cast.able.shieldSlam() or cast.able.thunderClap())
+             then
                 if cast.victoryRush() then
                     return
                 end
@@ -936,6 +953,7 @@ local function runRotation()
          then
             return true
         else
+            -- combat check
             if not inCombat and not IsMounted() then
                 if actionList_Extras() then
                     return
@@ -979,13 +997,12 @@ local function runRotation()
                     end
                 end
             end
-         -- combat check
         end
-     --pause
+    --pause
     end
- --timer
+    --timer
 end
- --runrotation
+--runrotation
 local id = 73
 if br.rotations[id] == nil then
     br.rotations[id] = {}
