@@ -85,13 +85,12 @@ if not metaTable1 then
 	end
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if ((UnitIsVisible(tar)
+		if UnitIsVisible(tar)
 			and not UnitIsCharmed(tar)
 			and GetUnitReaction("player",tar) > 4
 			and not UnitIsDeadOrGhost(tar)
-			and UnitIsConnected(tar))
-			and ((UnitIsOtherPlayersPet(tar) and getOptionCheck("Heal Pets")) or not UnitIsOtherPlayersPet(tar)))
-			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil
+			and UnitIsConnected(tar)
+			and ((UnitIsOtherPlayersPet(tar) and getOptionCheck("Heal Pets")) or not UnitIsOtherPlayersPet(tar))
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
@@ -505,10 +504,10 @@ if not metaTable1 then
 						elseif y.role then return false end
 					end)
 				end
-				if getOptionCheck("Special Priority") == true then
+				if getOptionCheck("Prioritize Special Targets") == true then
 					if GetUnitExists("focus") and br.memberSetup.cache[select(2, getGUID("focus"))] then
 						table.sort(br.friend, function(x)
-							if x.unit == "focus" then
+							if UnitIsUnit(x.unit,"focus") then
 								return true
 							else
 								return false
@@ -517,7 +516,7 @@ if not metaTable1 then
 					end
 					if GetUnitExists("target") and br.memberSetup.cache[select(2, getGUID("target"))] then
 						table.sort(br.friend, function(x)
-							if x.unit == "target" then
+							if UnitIsUnit(x.unit,"target") then
 								return true
 							else
 								return false
@@ -526,7 +525,7 @@ if not metaTable1 then
 					end
 					if GetUnitExists("mouseover") and br.memberSetup.cache[select(2, getGUID("mouseover"))] then
 						table.sort(br.friend, function(x)
-							if x.unit == "mouseover" then
+							if UnitIsUnit(x.unit,"mouseover") then
 								return true
 							else
 								return false
