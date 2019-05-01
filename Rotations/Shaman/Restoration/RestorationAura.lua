@@ -370,7 +370,7 @@ local function runRotation()
                             end
                         else
                             for i = 1, #tanks do
-                                if not buff.earthShield.exists(tanks[i].unit) then
+                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
                                     if cast.earthShield(tanks[i].unit) then br.addonDebug("Casting Earth Shield") return end
                                 end
                             end
@@ -806,7 +806,7 @@ local function runRotation()
                         for i=1, #tanks do
                             -- get the tank's target
                             local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil then
+                            if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget,5)
                                 -- get the best ground circle to encompass the most of them

@@ -781,7 +781,7 @@ local function runRotation()
 				end
 				if getOptionValue("Rebirth") == 3 then -- Tank
 					for i = 1, #tanks do
-						if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") then
+						if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") and getDistance(tanks[i].unit) <= 40 then
 							if cast.rebirth(tanks[i].unit, "dead") then
 								br.addonDebug("Casting Rebirth")
 								return true
@@ -1142,7 +1142,7 @@ local function runRotation()
 				end
 			elseif getOptionValue("Ironbark Target") == 4 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Ironbark") then
+					if tanks[i].hp <= getValue("Ironbark") and getDistance(tanks[i].unit) <= 40 then
 						clearForm()
 						if cast.ironbark(tanks[i].unit) then
 							br.addonDebug("Casting Ironbark")
@@ -1211,7 +1211,7 @@ local function runRotation()
 				end
 			elseif getOptionValue("Swiftmend Target") == 4 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Swiftmend") and (not inInstance or (inInstance and getDebuffStacks(tanks[i].unit, 209858) < getValue("Necrotic Rot"))) then
+					if tanks[i].hp <= getValue("Swiftmend") and (not inInstance or (inInstance and getDebuffStacks(tanks[i].unit, 209858) < getValue("Necrotic Rot"))) and getDistance(tanks[i].unit) <= 40 then
 						clearForm()
 						if cast.swiftmend(tanks[i].unit) then
 							br.addonDebug("Casting Swiftmend")
@@ -1304,7 +1304,7 @@ local function runRotation()
 				end
 			elseif isChecked("Hot Regrowth Tank") then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Hot Regrowth Tank") and buff.regrowth.remain(tanks[i].unit) < gcdMax then
+					if tanks[i].hp <= getValue("Hot Regrowth Tank") and buff.regrowth.remain(tanks[i].unit) < gcdMax and getDistance(tanks[i].unit) <= 40 then
 						if not moonkin then
 							clearForm()
 						end
@@ -1332,7 +1332,7 @@ local function runRotation()
 		if isChecked("Lifebloom") and not cat and not travel then
 			if getOptionValue("Lifebloom") == 1 then
 				for i = 1, #tanks do
-					if bloomCount < 1 and not buff.lifebloom.exists(tanks[i].unit) then
+					if bloomCount < 1 and not buff.lifebloom.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
 						clearForm()
 						if cast.lifebloom(tanks[i].unit) then
 							br.addonDebug("Casting Lifebloom")
@@ -1372,7 +1372,7 @@ local function runRotation()
 		if isChecked("Cenarion Ward") and inCombat and talent.cenarionWard then
 			if getOptionValue("Cenarion Ward Target") == 1 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= getValue("Cenarion Ward") then
+					if tanks[i].hp <= getValue("Cenarion Ward") and getDistance(tanks[i].unit) <= 40 then
 						clearForm()
 						if cast.cenarionWard(tanks[i].unit) then
 							br.addonDebug("Casting Cenarion Ward")
@@ -1423,13 +1423,13 @@ local function runRotation()
 		-- Rejuvenation
 		if isChecked("Rejuvenation") then
 			for i = 1, #tanks do
-				if talent.germination and tanks[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(tanks[i].unit) then
+				if talent.germination and tanks[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
 					clearForm()
 					if cast.rejuvenation(tanks[i].unit) then
 						br.addonDebug("Casting Rejuvenation")
 						return true
 					end
-				elseif not talent.germination and tanks[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(tanks[i].unit) then
+				elseif not talent.germination and tanks[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
 					clearForm()
 					if cast.rejuvenation(tanks[i].unit) then
 						br.addonDebug("Casting Rejuvenation")

@@ -486,7 +486,7 @@ local function runRotation()
 					if GetItemCooldown(165569) <= gcd then
 						for i = 1, #tanks do
 							local tankTarget = UnitTarget(tanks[i].unit)
-							if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") then
+							if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") and getDistance(tanks[i].unit) <= 40 then
 								local x1,y1,z1 = GetObjectPosition(tanks[i].unit)
 								UseItemByName(165569)
 								if IsAoEPending() then
@@ -726,7 +726,7 @@ local function runRotation()
 				if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
 					for i=1, #tanks do
 						thisTank = tanks[i]
-						if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
+						if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP"))and getDistance(thisTank.unit) <= 40 then
 							if cast.bindingHeal(thisTank.unit, "aoe") then return true end
 						end
 					end
