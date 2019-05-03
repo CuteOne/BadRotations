@@ -710,7 +710,7 @@ local function runRotation()
                     for i=1, #tanks do
                         -- get the tank's target
                         local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil then
+                        if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
                             -- get players in melee range of tank's target
                             local meleeFriends = getAllies(tankTarget,5)
                             -- get the best ground circle to encompass the most of them
@@ -756,7 +756,7 @@ local function runRotation()
                 if GetItemCooldown(165569) <= gcd then
                     for i = 1, #tanks do
                         local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") then
+                        if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") and getDistance(tanks[i].unit) <= 40 then
                             local x1,y1,z1 = GetObjectPosition(tanks[i].unit)
                             UseItemByName(165569)
                             if IsAoEPending() then
@@ -764,6 +764,14 @@ local function runRotation()
                             end
                             if IsAoEPending() then ClickPosition(x1,y1,z1,true) return false end
                         end
+                    end
+                end
+            end
+            --Pillar of the Drowned Cabal
+            if hasEquiped(167863) and canUse(16) then
+                for i = 1, #br.friend do
+                    if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+                        UseItemByName(167863,br.friend[i].unit)
                     end
                 end
             end

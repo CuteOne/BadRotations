@@ -486,7 +486,7 @@ local function runRotation()
 					if GetItemCooldown(165569) <= gcd then
 						for i = 1, #tanks do
 							local tankTarget = UnitTarget(tanks[i].unit)
-							if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") then
+							if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") and getDistance(tanks[i].unit) <= 40 then
 								local x1,y1,z1 = GetObjectPosition(tanks[i].unit)
 								UseItemByName(165569)
 								if IsAoEPending() then
@@ -497,6 +497,15 @@ local function runRotation()
 						end
 					end
 				end
+				--Pillar of the Drowned Cabal
+                if hasEquiped(167863) and canUse(16) then
+                    for i = 1, #br.friend do
+                        if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+							UseItemByName(167863,br.friend[i].unit)
+							br.addonDebug("Using Pillar of Drowned Cabal")
+                        end
+                    end
+                end
 				if isChecked("Trinket 1") and canTrinket(13) then
 					if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
 						UseItemByName(167865,lowest.unit)
@@ -717,7 +726,7 @@ local function runRotation()
 				if talent.bindingHeal and not moving and #bindingHealCandidates >= 2 then
 					for i=1, #tanks do
 						thisTank = tanks[i]
-						if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) then
+						if thisTank.hp <= getValue("Binding Heal") and not GetUnitIsUnit(thisTank.unit,"player") and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP"))and getDistance(thisTank.unit) <= 40 then
 							if cast.bindingHeal(thisTank.unit, "aoe") then return true end
 						end
 					end

@@ -75,22 +75,22 @@ local function Dispel(unit,buff)
 	end
 	if not buff then
 		for i=1,40 do
-			local buffName,_,_,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
+			local buffName,_,stacks,_,_,_,buffCaster,_,_,buffSpellID = UnitDebuff(unit,i)
 			if buffName then
 				if buffSpellID == 288388 then
-					if select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Reaping") then
+					if stacks >= getOptionValue("Reaping") then
 						return true
 					else 
 						return false
 					end
 				elseif buffSpellID == 282566 then
-					if select(3,UnitDebuffID(unit,buffSpellID)) >= getOptionValue("Promise of Power") then
+					if stacks >= getOptionValue("Promise of Power") then
 						return true
 					else
 						return false
 					end
 				elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
-					if select(3,UnitDebuffID(unit,buffSpellID)) >= novaEngineTables.DispelID[buffSpellID].stacks
+					if stacks >= novaEngineTables.DispelID[buffSpellID].stacks
 					then
 						if novaEngineTables.DispelID[buffSpellID].stacks ~= 0 and novaEngineTables.DispelID[buffSpellID].range == nil then
 							return true
@@ -209,23 +209,9 @@ function canDispel(Unit, spellID)
 		-- Consume Magic
 		if spellID == 278326 then typesList = {"Magic"}	end
 	end
-	-- local function Enraged()
-	-- 	local enrageBuff = select(5,UnitAura(Unit))=="" or false
-	-- 	if typesList == nil then
-	-- 		return false
-	-- 	else
-	-- 		for i = 1,#typesList do
-	-- 			if typesList[i]=="Enrage" and enrageBuff then
-	-- 				return true
-	-- 			else
-	-- 				return false
-	-- 			end
-	-- 		end
-	-- 	end
-	-- end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == select(7, GetSpellInfo(GetSpellInfo(69179))) then	typesList = {"Magic"} end
+		if spellID == 69179 then typesList = {"Magic"} end
 	end
 	local function ValidType(debuffType)
 		local typeCheck = false
@@ -249,9 +235,7 @@ function canDispel(Unit, spellID)
 				local _, _, _, debuffType, debuffDuration, debuffExpire, _, _, _, debuffid = UnitDebuff(Unit, i)
 				local debuffRemain = debuffExpire - GetTime()
 				local dispelUnitObj
-				-- local _,_,_,_,debuffType,_,_,_,_,_,debuffid = UnitDebuff(Unit,i)
-				-- Blackout Debuffs
-				if (debuffType and ValidType(debuffType)) and debuffid ~= 138733 then --Ionization from Jin'rokh the Breaker
+				if (debuffType and ValidType(debuffType)) then 
 					if isChecked("Dispel Only Whitelist") and novaEngineTables.DispelID[debuffid] == nil then
 						return false
 					else
@@ -282,7 +266,7 @@ function canDispel(Unit, spellID)
 				local _, _, _, buffType, buffDuration, buffExpire, _, _, _, buffid = UnitBuff(Unit, i)
 				local buffRemain = buffExpire - GetTime()
 				local dispelUnitObj
-				if (buffType and ValidType(buffType)) and buffid ~= 138733 then --Ionization from Jin'rokh the Breaker
+				if (buffType and ValidType(buffType)) then 
 					if isChecked("Purge Only Whitelist") then
 						dispelUnitObj = Dispel(Unit,true)
 					else 

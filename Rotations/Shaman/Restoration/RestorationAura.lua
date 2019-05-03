@@ -370,7 +370,7 @@ local function runRotation()
                             end
                         else
                             for i = 1, #tanks do
-                                if not buff.earthShield.exists(tanks[i].unit) then
+                                if not buff.earthShield.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
                                     if cast.earthShield(tanks[i].unit) then br.addonDebug("Casting Earth Shield") return end
                                 end
                             end
@@ -695,6 +695,15 @@ local function runRotation()
                         return true
                     end
                 end
+                --Pillar of the Drowned Cabal
+                if hasEquiped(167863) and canUse(16) then
+                    for i = 1, #br.friend do
+                        if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+                            UseItemByName(167863,br.friend[i].unit)
+                            br.addonDebug("Using Pillar of Drowned Cabal")
+                        end
+                    end
+                end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then
                 -- if raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count"))) then
@@ -797,7 +806,7 @@ local function runRotation()
                         for i=1, #tanks do
                             -- get the tank's target
                             local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil then
+                            if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
                                 -- get players in melee range of tank's target
                                 local meleeFriends = getAllies(tankTarget,5)
                                 -- get the best ground circle to encompass the most of them

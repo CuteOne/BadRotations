@@ -12,6 +12,7 @@ novaEngineTables.DispelID = {
 	[115181] = {stacks = 0 }, -- Spoils of Pandaria(Breath of Fire)
 	[143791] = {stacks = 0 }, -- Thok(Corrosive Blood)
 	[145206] = {stacks = 0 }, -- Aqua Bomb(Proving Grounds)
+	[138733] = {stacks = 0 , range = 8}, -- Jin'rokh the Breaker (Ionization)
 	-- Ko'ragh
 	[142913] = {stacks = 0, range = 5}, -- http://www.wowhead.com/spell=162185/expel-magic-fire
 	[185066] = {stacks = 0}, -- Mark of Necromancer red level
@@ -64,11 +65,12 @@ novaEngineTables.BadDebuffList= {
 	[236550] = "Discorporate", --Decreases all Healing by 75%
 	[243961] = "Misery", --Immune to all healing effects.
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
+	--Battle of Dazar'alor
 	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
+	[284663 ] = "Bwonsamdi's Wrath", --Bwonsamdi's Wrath (mythic conclave)
 	--Crucible of storms
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
-	[284663] = " Bwonsamdi's Wrath", -- Immune to all healing effects.
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
