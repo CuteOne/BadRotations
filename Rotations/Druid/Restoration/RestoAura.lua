@@ -189,9 +189,10 @@ local function createOptions()
 		br.ui:createSpinnerWithout(section, "DPS", 70, 0, 100, 5, "|cffFFFFFFIf over this value, rotation will switch to DPS. (Auto DPS Only)")
 		br.ui:createSpinnerWithout(section, "Critical Heal", 70, 0, 100, 5, "|cffFFFFFFIf under this value, rotation will switch to healing. (Auto DPS Only)")
 		br.ui:createDropdown(section, "DPS Key", br.dropOptions.Toggle, 6, "Set a key for using DPS (Will ignore DPS HP Thresholds)")
+		br.ui:createCheckbox(section, "HOT Mode", "Keep HOTs on tanks when cat weaving. (Experimental)")
 		br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1" )
 		-- DPS Save mana
-		br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
+		br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent to Stop DPS")
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
 		-- Revive
@@ -1282,12 +1283,26 @@ local function runRotation()
 			end
 		end
 		-- In advance cast Lifebloom
-		if isChecked("Lifebloom") and not cat and not travel then
-			if lowest.hp <= 80 and buff.lifebloom.remain(lowest.unit) < 4.5 and buff.lifebloom.remain(lowest.unit) > 0 then
-				clearForm()
-				if cast.lifebloom(lowest.unit) then
-					br.addonDebug("Casting Lifebloom")
-					return true
+		if isChecked("Lifebloom") and not cat and not travel and bloomCount < 1 then
+			for i = 1, #tanks do
+				if tanks[i].hp <= 80 and buff.lifebloom.remain(tanks[i].unit) < 4.5 and buff.lifebloom.remain(tanks[i].unit) > 0 then
+					clearForm()
+					if cast.lifebloom(tanks[i].unit) then
+						br.addonDebug("Casting Lifebloom")
+						return true
+					end
+				end
+			end
+		end
+		-- In advance cast Cenarion Ward
+		if isChecked("Cenarion Ward") and not cat and not travel and talent.cenarionWard then
+			for i = 1, #tanks do
+				if tanks[i].hp <= 80 and buff.cenarionWard.remain(tanks[i].unit) < 4.5 and buff.cenarionWard.remain(tanks[i].unit) > 0 then
+					clearForm()
+					if cast.cenarionWard(tanks[i].unit) then
+						br.addonDebug("Casting Cenarion Ward")
+						return true
+					end
 				end
 			end
 		end
@@ -1730,7 +1745,7 @@ local function runRotation()
 			end
 			-- Moonfire
 			if (not isChecked("DPS Key") and (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2))) or getDistance("target", "player") > 8 then
-				if mana >= getOptionValue("DPS Save mana") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
@@ -1754,7 +1769,7 @@ local function runRotation()
 			end
 			if bear then
 				-- Moonfire
-				if mana >= getOptionValue("DPS Save mana") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
@@ -1791,7 +1806,7 @@ local function runRotation()
 				end
 			end
 			-- Solar Wrath
-			if not moving and GetUnitExists("target") then
+			if not moving and GetUnitExists("target") and mana >= getOptionValue("DPS Save mana") then
 				if (isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key") then
 					if getDistance("target", "player") > 5 or not bear and getFacing("player","target") then
 						if cast.solarWrath("target") then
@@ -1799,7 +1814,7 @@ local function runRotation()
 							return true
 						end
 					end
-				elseif  (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and getFacing("player","target")then
+				elseif mana >= getOptionValue("DPS Save mana")and (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and getFacing("player","target")then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
@@ -1813,12 +1828,44 @@ local function runRotation()
 			if travel then
 				clearForm()
 			end
+			if not catRecover and br.player.power.energy.amount() < 50 and combo == 0 then
+				catRecover = true
+			elseif catRecover and br.player.power.energy.amount() == 100 then
+				catRecover = false
+			end
+			if (catRecover or (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2))) and isChecked("HOT Mode") then
+				if cat then
+					clearForm()
+				end
+				for i = 1, #tanks do
+					if bloomCount == 1 and buff.lifebloom.exists(tanks[i].unit) and buff.lifebloom.remains(tanks[i].unit) < 4.5 then
+						if cast.lifebloom(tanks[i].unit) then
+							br.addonDebug("Casting Lifebloom")
+							return true
+						end
+					elseif bloomCount < 1 and UnitTarget(tanks[i].unit) ~= nil then
+						if cast.lifebloom(tanks[i].unit) then
+							br.addonDebug("Casting Lifebloom")
+							return true
+						end
+					elseif talent.cenarionWard and UnitTarget(tanks[i].unit) ~= nil and buff.cenarionWard.remains(tanks[i].unit) < 9 then
+						if cast.cenarionWard(tanks[i].unit) then
+							br.addonDebug("Casting Cenarion Ward")
+							return true
+						end
+					elseif buff.rejuvenation.remains(tanks[i].unit) < 4.5 then
+						if cast.rejuvenation(tanks[i].unit) then
+							br.addonDebug("Casting Rejuvenation")
+							return true
+						end
+					end
+				end
+			end
 			if cat and getDistance("target") <= 5 then
 				StartAttack()
 				br.addonDebug("Auto Attacking")
 			end
-			if nearEnemies < 1 then
-				br.addonDebug("No Near Enemies")
+			if nearEnemies < 1 or ((not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and not cat) then
 				-- Moonfire
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
@@ -1844,7 +1891,7 @@ local function runRotation()
 					end
 				end
 				-- Solar Wrath
-				if not moving and getFacing("player","target") then
+				if not moving and getFacing("player","target") and mana >= getOptionValue("DPS Save mana") then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
@@ -1853,7 +1900,7 @@ local function runRotation()
 			elseif nearEnemies == 1 then
 				br.addonDebug("1 Near Enemy")
 				-- Moonfire
-				if not debuff.moonfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
+				if not debuff.moonfire.exists("target") and mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					if cast.moonfire("target") then
 						br.addonDebug("Casting Moonfire")
 						return true
@@ -1907,7 +1954,6 @@ local function runRotation()
 					end
 				end
 			elseif nearEnemies > 1 and nearEnemies < 4 then
-				br.addonDebug("2-3 Near Enemies")
 				-- Sunfire
 				if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
 					if cast.sunfire("target") then
@@ -1916,7 +1962,7 @@ local function runRotation()
 					end
 				end
 				-- Moonfire
-				if mana >= getOptionValue("DPS Save mana") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, nearEnemies do
 						local thisUnit = enemies.yards8[i]
 						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
@@ -1988,7 +2034,6 @@ local function runRotation()
 					end
 				end
 			elseif nearEnemies >= 4 then
-				br.addonDebug("4+ Near Enemies")
 				--Sunfire
 				if mana >= getOptionValue("DPS Save mana") then
 					for i = 1, nearEnemies do
@@ -2041,85 +2086,87 @@ local function runRotation()
 		end -- End - Feral Affinity
 		-- Balance Affinity
 		if talent.balanceAffinity then
-			-- Moonkin form
-			if
-				not moonkin and not moving and not travel and not IsMounted() and GetTime() - shiftTimer > 5 and
-					((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key"))
-			 then
-				for i = 1, #br.friend do
-					if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) < 5 then
-						return
-					end
-				end
-				if cast.moonkinForm() then
-					br.addonDebug("Casting Moonkin Form")
-					return true
-				end
-			end
-			-- Lunar Strike 3 charges
-			if moonkin and buff.lunarEmpowerment.stack() == 3 then
-				if cast.lunarStrike() then
-					br.addonDebug("Casting Lunar Strike")
-					return true
-				end
-			end
-			-- Starsurge
-			if moonkin and getFacing("player","target") then
-				if cast.starsurge() then
-					br.addonDebug("Casting Starsurge")
-					return true
-				end
-			end
-			-- Sunfire
 			if mana >= getOptionValue("DPS Save mana") then
-				for i = 1, #enemies.yards40 do
-					local thisUnit = enemies.yards40[i]
-					if not debuff.sunfire.exists(thisUnit) then
-						if cast.sunfire(thisUnit) then
-							br.addonDebug("Casting Sunfire")
-							return true
+				-- Moonkin form
+				if
+					not moonkin and not moving and not travel and not IsMounted() and GetTime() - shiftTimer > 5 and
+						((isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key"))
+				then
+					for i = 1, #br.friend do
+						if buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) < 5 then
+							return
+						end
+					end
+					if cast.moonkinForm() then
+						br.addonDebug("Casting Moonkin Form")
+						return true
+					end
+				end
+				-- Lunar Strike 3 charges
+				if moonkin and buff.lunarEmpowerment.stack() == 3 then
+					if cast.lunarStrike() then
+						br.addonDebug("Casting Lunar Strike")
+						return true
+					end
+				end
+				-- Starsurge
+				if moonkin and getFacing("player","target") then
+					if cast.starsurge() then
+						br.addonDebug("Casting Starsurge")
+						return true
+					end
+				end
+				-- Sunfire
+				if mana >= getOptionValue("DPS Save mana") then
+					for i = 1, #enemies.yards40 do
+						local thisUnit = enemies.yards40[i]
+						if not debuff.sunfire.exists(thisUnit) then
+							if cast.sunfire(thisUnit) then
+								br.addonDebug("Casting Sunfire")
+								return true
+							end
 						end
 					end
 				end
-			end
-			-- Moonfire
-			if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
-				for i = 1, #enemies.yards40 do
-					local thisUnit = enemies.yards40[i]
-					if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
-						if cast.moonfire(thisUnit) then
-							br.addonDebug("Casting Moonfire")
-							return true
+				-- Moonfire
+				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+					for i = 1, #enemies.yards40 do
+						local thisUnit = enemies.yards40[i]
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+							if cast.moonfire(thisUnit) then
+								br.addonDebug("Casting Moonfire")
+								return true
+							end
 						end
 					end
 				end
-			end
-			-- Lunar Strike charged
-			if moonkin and buff.lunarEmpowerment.exists() then
-				if cast.lunarStrike() then
-					br.addonDebug("Casting Lunar Strike")
-					return true
+				-- Lunar Strike charged
+				if moonkin and buff.lunarEmpowerment.exists() then
+					if cast.lunarStrike() then
+						br.addonDebug("Casting Lunar Strike")
+						return true
+					end
 				end
-			end
-			-- Solar Wrath charged
-			if buff.solarEmpowerment.exists() and not moving and getFacing("player","target") then
-				if cast.solarWrath("target") then
-					br.addonDebug("Casting Solar Wrath")
-					return true
+				-- Solar Wrath charged
+				if buff.solarEmpowerment.exists() and not moving and getFacing("player","target") then
+					if cast.solarWrath("target") then
+						br.addonDebug("Casting Solar Wrath")
+						return true
+					end
 				end
-			end
-			-- Solar Wrath uncharged
-			if GetUnitExists("target") and not moving and getFacing("player","target") then
-				if cast.solarWrath("target") then
-					br.addonDebug("Casting Solar Wrath")
-					return true
+				-- Solar Wrath uncharged
+				if GetUnitExists("target") and not moving and getFacing("player","target") then
+					if cast.solarWrath("target") then
+						br.addonDebug("Casting Solar Wrath")
+						return true
+					end
 				end
-			end
-			-- Lunar Strike uncharged
-			if moonkin then
-				if cast.lunarStrike() then
-					br.addonDebug("Casting Lunar Strike")
-					return true
+				-- Lunar Strike uncharged
+				if moonkin then
+					if cast.lunarStrike() then
+						br.addonDebug("Casting Lunar Strike")
+						return true
+					end
 				end
 			end
 		end -- End -- Balance Affinity
