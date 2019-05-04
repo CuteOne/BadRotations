@@ -126,7 +126,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
-    if checkNoCombat == nil then checkNoCombat = false end
+	if checkNoCombat == nil then checkNoCombat = false end
+	if facing == nil then facing = false end
     if refreshStored == true then
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
     	refreshStored = false
@@ -135,8 +136,10 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 		if checkNoCombat == false then
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
 				if br.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
+					if br.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
-					return br.storedTables[checkNoCombat][thisUnit][radius]
+						return br.storedTables[checkNoCombat][thisUnit][radius][facing]
+					end
 				end
 			end		
 		end
@@ -180,7 +183,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 	if #enemiesTable > 0 and thisUnit ~= nil then
 		if br.storedTables[checkNoCombat] == nil then br.storedTables[checkNoCombat] = {} end
 		if br.storedTables[checkNoCombat][thisUnit] == nil then br.storedTables[checkNoCombat][thisUnit] = {} end
-		br.storedTables[checkNoCombat][thisUnit][radius] = enemiesTable
+		if br.storedTables[checkNoCombat][radius] == nil then br.storedTables[checkNoCombat][thisUnit][radius] = {} end
+		br.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
     return enemiesTable
