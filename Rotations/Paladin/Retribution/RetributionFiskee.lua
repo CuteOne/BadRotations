@@ -60,8 +60,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Greater Blessing of Kings")
 		-- Greater Blessing of Wisdom
 		br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
-		-- Hand of Freedom
-		br.ui:createCheckbox(section, "Hand of Freedom")
+		-- Blessing of Freedom
+		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Hand of Hindeance
 		br.ui:createCheckbox(section, "Hand of Hinderance")
 		-- Wake of Ashes
@@ -344,8 +344,8 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Hand of Freedom
-		if isChecked("Hand of Freedom") and hasNoControl(spell.handOfFreedom) then
-			if cast.handOfFreedom() then return end
+		if isChecked("Blessing of Freedom") and hasNoControl(spell.blessingOfFreedom) then
+			if cast.blessingOfFreedom() then return end
 		end
 		-- Hand of Hinderance
 		if isChecked("Hand of Hinderance") and isMoving("target") and not getFacing("target","player") and getDistance("target") > 8 and getHP("target") < 25 then
