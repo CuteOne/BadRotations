@@ -413,6 +413,7 @@ local function runRotation()
     local spell = br.player.spell
     local talent = br.player.talent
     local thp = getHP("target")
+    local trait = br.player.traits
     local travelTime = getDistance("target") / 16
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
@@ -644,7 +645,7 @@ local function runRotation()
             )
         end
         if
-            isChecked("Auto Target") and #enemyTable40 > 0 and
+            isChecked("Auto Target") and inCombat and #enemyTable40 > 0 and
                 ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and
                     not GetUnitIsUnit(enemyTable40[1].unit, "target")) or
                     not GetUnitExists("target"))
@@ -723,7 +724,7 @@ local function runRotation()
                 end
                 foundDreakstalker = true
                 dreadstalkersActive = true
-            elseif thisUnit.id == 17252 then
+            elseif thisUnit.id == 17252 and not UnitIsDeadOrGhost(thisUnit.unit) then
                 local grimoire = getBuffRemain(thisUnit.unit, 216187)
                 if grimoire == 0 then
                     felguardActive = true
@@ -1140,6 +1141,7 @@ local function runRotation()
                     (not cast.last.handOfGuldan(1) or not cast.last.handOfGuldan(2))) and
                 not cast.last.handOfGuldan(1) and
                 not cast.last.handOfGuldan(2) and
+                botSpell ~= spell.implosion and
                 not buff.demonicPower.exists()) or
                 (ttd("target") < 3 and wildImps > 0 and useCDs()) or
                 (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling)
@@ -1269,6 +1271,25 @@ local function runRotation()
                 return true
             end
         end
+        --
+        -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
+        if trait.explosivePotential.active and combatTime < 5 and shards > 2 and not buff.explosivePotential.exists() and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
+            if cast.handOfGuldan("target") then
+                return true
+            end
+        end 
+        -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&buff.demonic_core.stack=4
+        if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() == 4 then
+            if cast.demonbolt("target") then
+                return true
+            end
+        end
+        -- actions+=/implosion,if=azerite.explosive_potential.rank&buff.wild_imps.stack>2&buff.explosive_potential.remains<action.shadow_bolt.execute_time&(!talent.demonic_consumption.enabled|cooldown.summon_demonic_tyrant.remains>12)
+        if trait.explosivePotential.active and wildImps > 2 and botSpell ~= spell.implosion and buff.explosivePotential.remain() < cast.time.shadowBolt() and (not talent.demonicConsumption or cd.summonDemonicTyrant.remain() > 12 or not useCDs()) then
+            if cast.implosion("target") then
+                return true
+            end
+        end
         -- actions+=/doom,if=!ticking&time_to_die>30&spell_targets.implosion<2
         if not debuff.doom.exists("target") and ttd("target") > 30 and (#enemies.yards8t < 2 or mode.rotation == 3) then
             if cast.doom("target") then
@@ -1276,7 +1297,7 @@ local function runRotation()
             end
         end
         -- actions+=/demonic_strength,if=(buff.wild_imps.stack<6|buff.demonic_power.up)|spell_targets.implosion<2
-        if felguardActive and useCDs() and (wildImps < 6 or buff.demonicPower.exists() or (#enemies.yards8t < 2 or mode.rotation == 3)) then
+        if felguardActive and botSpell ~= spell.demonicStrength and useCDs() and (wildImps < 6 or buff.demonicPower.exists() or (#enemies.yards8t < 2 or mode.rotation == 3)) then
             if cast.demonicStrength("target") then
                 return true
             end
