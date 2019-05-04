@@ -2867,6 +2867,7 @@ br.lists.spells = {
                 demonicEmpowerment          = 193396,
                 demonicPower                = 265273,
                 demonwrath                  = 193440,
+                explosivePotential          = 275398,
                 forbiddenKnowledge          = 278738,
                 netherPortal                = 267218,
                 shadowyInspiration          = 196269,
@@ -2888,6 +2889,9 @@ br.lists.spells = {
                 summonVilefiend             = 264119,
 
             },
+            traits                          = {
+                explosivePotential          = 275395,
+            }
         },
         -- Destruction
         [267] = {
