@@ -1318,7 +1318,7 @@ local function runRotation()
 				end
 			elseif bloomCount == 1 then
 				for i = 1, #tanks do
-					if tanks[i].hp <= 90 and buff.lifebloom.remain(tanks[i].unit) < 4.5 and getDistance(tanks[i].unit) < 40 then
+					if tanks[i].hp <= 90 and buff.lifebloom.remain(tanks[i].unit) < 4.5 and buff.lifebloom.remain(tanks[i].unit) > 0 and getDistance(tanks[i].unit) < 40 then
 						--clearform()
 						if cast.lifebloom(tanks[i].unit) then
 							br.addonDebug("Casting Lifebloom")
@@ -1387,7 +1387,7 @@ local function runRotation()
 							br.addonDebug("Casting Lifebloom")
 							return true
 						end
-					elseif bloomCount == 1 and buff.lifebloom.remains(tanks[i].unit) < 4.5 and getDistance(tanks[i].unit) <= 40 then
+					elseif bloomCount == 1 and buff.lifebloom.remains(tanks[i].unit) < 4.5 and buff.lifebloom.remain(tanks[i].unit) > 0 and getDistance(tanks[i].unit) <= 40 then
 						--clearform()
 						if cast.lifebloom(tanks[i].unit) then 
 							br.addonDebug("Casting Lifebloom")
@@ -1403,7 +1403,7 @@ local function runRotation()
 							br.addonDebug("Casting Lifebloom")
 							return true
 						end
-					elseif bloomCount == 1 and buff.lifebloom.remains(br.friend[i].unit) < 4.5 and getDistance(br.friend[i].unit) <= 40 then
+					elseif bloomCount == 1 and buff.lifebloom.remains(br.friend[i].unit) < 4.5 and buff.lifebloom.remain(tanks[i].unit) > 0 and getDistance(br.friend[i].unit) <= 40 then
 						--clearform()
 						if cast.lifebloom(br.friend[i].unit) then 
 							br.addonDebug("Casting Lifebloom")
@@ -1889,7 +1889,7 @@ local function runRotation()
 					--clearform()
 				end
 				for i = 1, #tanks do
-					if bloomCount == 1 and buff.lifebloom.exists(tanks[i].unit) and buff.lifebloom.remains(tanks[i].unit) < 4.5 then
+					if bloomCount == 1 and buff.lifebloom.exists(tanks[i].unit) and buff.lifebloom.remains(tanks[i].unit) < 4.5 and buff.lifebloom.remain(tanks[i].unit) > 0 then
 						if cast.lifebloom(tanks[i].unit) then
 							br.addonDebug("Casting Lifebloom")
 							return true
