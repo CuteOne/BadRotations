@@ -51,12 +51,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 1 , overlay = "FoF Disabled", tip = "Will NOT cast Fists Of Fury.", highlight = 0, icon = br.player.spell.fistsOfFury}
     };
     CreateButton("FOF",7,0)
-    -- Opener
-    OpenerModes = {
-        [1] = { mode = "On", value = 2 , overlay = "Opener Enabled", tip = "Will use Opener.", highlight = 1, icon = br.player.spell.touchOfDeath},
-        [2] = { mode = "Off", value = 1 , overlay = "Opener Disabled", tip = "Will NOT use Opener.", highlight = 0, icon = br.player.spell.touchOfDeath}    
-    }
-    CreateButton("Opener",8,0)
 end
 
 ---------------
@@ -443,9 +437,8 @@ actionList.Cooldowns = function()
     -- storm_earth_and_fire,if=cooldown.storm_earth_and_fire.charges=2|(cooldown.fists_of_fury.remains<=6&chi>=3&cooldown.rising_sun_kick.remains<=1)|target.time_to_die<=15
     if ((mode.sef == 2 and (#enemies.yards8 >= getOptionValue("SEF Targets") or isBoss())) or (mode.sef == 1 and useCDs())) 
         and cast.able.stormEarthAndFire() and getDistance(units.dyn5) < 5
-        and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1)) and not talent.serenity
+        and (charges.stormEarthAndFire.count() == 2 or (cd.fistsOfFury.remain() <= 6 and chi >= 3 and cd.risingSunKick.remain() <= 1) or ttd <= 15) and not talent.serenity
         and (cast.last.touchOfDeath() or not useCDs() or not isChecked("Touch of Death") or cd.touchOfDeath.remain() > gcd)
-        and ttd > 15
     then
         if cast.stormEarthAndFire() then fixateTarget = "player"; return true end
     end
@@ -475,7 +468,7 @@ actionList.SingleTarget = function()
     -- Fists of Fury 
     -- fists_of_fury,if=energy.time_to_max>3
     if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttm > 3 and #enemies.yards8f >= getOptionValue("Fists of Fury Targets")) 
-        and mode.fof == 1 and ttd > 3 and not isExplosive("target") --(ttd > 3 or #enemies.yards8f > 1)
+        and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
     then 
         if cast.fistsOfFury() then return true end 
     end 
@@ -566,7 +559,7 @@ actionList.AoE = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and ttd > 3 and ttm > 3 
+    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3 
         and #enemies.yards8f >= getOptionValue("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target") 
     then
         if cast.fistsOfFury() then return true end
@@ -629,8 +622,8 @@ actionList.Serenity = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
-    if chi >= 3 and cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
-        or (#enemies.yards8f > 1 and #enemies.yards8f < 5)) and mode.fof == 1 and ttd > 3
+    if chi >= 3 and  cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
+        or (#enemies.yards8f > 1 and #enemies.yards8f < 5)) and mode.fof == 1
     then
         if cast.fistsOfFury() then return true end
     end
@@ -706,7 +699,7 @@ end --End Action List - Pre-Combat
 actionList.Opener = function()
     -- Start Attack
     -- auto_attack
-    if mode.opener == 1 and isChecked("Opener") and isBoss("target") and not opener.complete then
+    if isChecked("Opener") and isBoss("target") and not opener.complete then
         if isValidUnit("target") and getDistance("target") < 5 and getFacing("player","target") and getSpellCD(61304) == 0 then
             -- Potion
             -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
@@ -738,20 +731,20 @@ actionList.Opener = function()
                 return
             -- Trinkets 
             elseif opener.XUEN and not opener.TRNK1 then 
-                if not use.able.slot(13) then 
+                if not canUse(13) then 
                     Print(opener.count..": Trinket 1 (Uncastable)") 
-                elseif isChecked("Trinkets") and use.able.slot(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
-                    use.slot(13)
+                elseif isChecked("Trinkets") and canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
+                    useItem(13)
                     Print(opener.count..": Trinket 1")
                 end 
                 opener.count = opener.count + 1;                            
                 opener.TRNK1 = true
                 return
             elseif opener.TRNK1 and not opener.TRNK2 then 
-                if not use.able.slot(14) then 
+                if not canUse(14) then 
                     Print(opener.count..": Trinket 2 (Uncastable)") 
-                elseif isChecked("Trinkets") and use.able.slot(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
-                    use.slot(14)
+                elseif isChecked("Trinkets") and canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
+                    useItem(14)
                     Print(opener.count..": Trinket 2")
                 end
                 opener.count = opener.count + 1
@@ -922,7 +915,7 @@ actionList.Opener = function()
                 opener.complete = true
             end
         end
-    elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") or mode.opener == 2 then
+    elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
         opener.complete = true
     end -- End Boss and Opener Check
 end -- End Action List - Opener
@@ -945,8 +938,6 @@ local function runRotation()
     BurstToggle("burstKey", 0.25)
     UpdateToggle("FOF", 0.25)
     br.player.mode.fof = br.data.settings[br.selectedSpec].toggles["FOF"]
-    UpdateToggle("Opener", 0.25)
-    br.player.mode.opener = br.data.settings[br.selectedSpec].toggle["Opener"]
 
     --------------
     --- Locals ---
