@@ -26,8 +26,9 @@ local function createToggles()
     };
     CreateButton("BladeFlurry",2,0)
     NoBTEModes = {
-        [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
-        [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.betweenTheEyes}
+        [1] = { mode = "best", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
+        [2] = { mode = "target", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes}
+        [3] = { mode = "off", value = 3 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.betweenTheEyes}
     };
     CreateButton("NoBTE",2,1)    
 -- Defensive Button
@@ -630,6 +631,7 @@ local function runRotation()
         end
 
         local function cast20yards(skill,stuff)
+            if skill == "betweenTheEyes" and (mode.nobte == 3 or spread) then return end
 
             if isChecked("|cffFF0000Force Burn Stuff") or spread then
                 for i = 1, #burnTable20 do
@@ -643,7 +645,7 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("DRTracker") then
+            if mode.nobte == 1 then
                 if skill == "betweenTheEyes" then
                     for i = 1, #enemyTable20 do
                         if enemyTable20[i].id == 120651 then return end
@@ -661,12 +663,8 @@ local function runRotation()
                     end
                 end
             end
-            for i = 1, #enemyTable20 do
-                if skill == "betweenTheEyes" and enemyTable20[i].id == 120651 then return end
-                local thisUnit = enemyTable20[i].unit
-                if stuff then
-                    if cast[skill](thisUnit) then return true end
-                end
+            if skill == "betweenTheEyes" and mode.nobte == 2 then
+                if cast[skill]("target") then return true end
             end
 
         end
@@ -846,7 +844,7 @@ local function runRotation()
             local startTime = debugprofilestop()                          
 
             -- actions.finish=between_the_eyes,if=buff.ruthless_precision.up|(azerite.deadshot.rank>=2&buff.roll_the_bones.up)
-            if (mode.nobte == 1 and not spread) and (buff.ruthlessPrecision.exists() or ((traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) and buff.rollTheBones.count > 0)) then
+            if (buff.ruthlessPrecision.exists() or ((traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) and buff.rollTheBones.count > 0)) then
                 --print("626")
                 cast20yards("betweenTheEyes",true)
             end
@@ -862,7 +860,7 @@ local function runRotation()
                 end
             end
 
-            if (mode.nobte == 1 and not spread) and (traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) then
+            if (traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) then
                 --print("643")
                  cast20yards("betweenTheEyes",true)
             end
