@@ -545,7 +545,6 @@ local function runRotation()
                 end
             end
             -- Solar Wrath
-            -- Solar Wrathsunfire
             if traits.streakingStars.active and not isMoving("player") then
                 if not cast.last.solarWrath(1) and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and br.player.power.astralPower.deficit() > 20 then
                     if cast.solarWrath() then return true end

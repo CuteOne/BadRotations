@@ -676,18 +676,18 @@ local function runRotation()
 				local thisUnit = GetObjectWithIndex(i)
 				if GetObjectID(thisUnit) == 133392 then
 					sethObject = thisUnit
-					if getHP("target") < 100 and getBuffRemain("target",274148) == 0 then
-						if not buff.renew.exists("target") then
-							if CastSpellByName(GetSpellInfo(139),"target") then br.addonDebug("Casting Renew") return end
+					if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 then
+						if not buff.renew.exists(sethObject) then
+							if CastSpellByName(GetSpellInfo(139),sethObject) then br.addonDebug("Casting Renew") return end
 						end
 						if GetSpellCooldown(2050) == 0 then
-							if CastSpellByName(GetSpellInfo(2050),"target") then br.addonDebug("Casting Holy Word: Serenity") return end
+							if CastSpellByName(GetSpellInfo(2050),sethObject) then br.addonDebug("Casting Holy Word: Serenity") return end
 						end
 						if GetSpellCooldown(32546) == 0 and talent.bindingHeal then
-							if CastSpellByName(GetSpellInfo(32546),"target") then br.addonDebug("Casting Binding Heal") return end
+							if CastSpellByName(GetSpellInfo(32546),sethObject) then br.addonDebug("Casting Binding Heal") return end
 						end
 						if GetSpellCooldown(2060) == 0 then
-							if CastSpellByName(GetSpellInfo(2060),"target") then br.addonDebug("Casting Heal") return end
+							if CastSpellByName(GetSpellInfo(2060),sethObject) then br.addonDebug("Casting Heal") return end
 						end
 					end
 				end

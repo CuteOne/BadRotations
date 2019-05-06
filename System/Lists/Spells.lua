@@ -546,9 +546,9 @@ br.lists.spells = {
                 sephuzSecret                = 208052,
                 astralAcceleration          = 242232,
                 newMoonController           = -2027671,
-                starlordbuff                = 279709,
-                livelySpiritbuff            = 279279,
-                arcanicPulsarbuff           = 287790,
+                starLord                    = 279709,
+                livelySpirit                = 279279,
+                arcanicPulsar               = 287790,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
