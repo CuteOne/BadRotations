@@ -980,7 +980,7 @@ local function runRotation()
                         interruptID = select(8,UnitChannelInfo(unit))
                         if channelAsapList[interruptID] or channelLateList[interruptID] or isChecked("Any Cast") then interruptable = true end
                     end
-                    if interruptable or isChecked("Any") then
+                    if interruptable or isChecked("Any Cast") then
                         if not cd.kick.exists() and not hardinterrupt then
                             if willkick == nil then
                                 willkick = unit
