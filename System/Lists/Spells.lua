@@ -546,7 +546,9 @@ br.lists.spells = {
                 sephuzSecret                = 208052,
                 astralAcceleration          = 242232,
                 newMoonController           = -2027671,
-                starlord                    = 279709,
+                starlordbuff                = 279709,
+                livelySpiritbuff            = 279279,
+                arcanicPulsarbuff           = 287790,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -1658,6 +1660,7 @@ br.lists.spells = {
                 blessingOfSacrifice         = 6940,
                 beaconOfVirtue              = 200025,
                 bestowFaith                 = 223306,
+                glimmerOfLight              = 287280,
                 divineProtection            = 498,
                 divinePurpose               = 216411,
                 ferventMartyr               = 223316,
@@ -3308,6 +3311,8 @@ br.lists.spells = {
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,
+                cracklingTourmaline             = 166798,
+                saphireofBrilliance             = 290365,
             },
             debuffs                             = {
                 dampening                       = 110310,
