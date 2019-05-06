@@ -980,7 +980,6 @@ local function runRotation()
                         castEndTime = select(5,UnitChannelInfo(unit))
                         castLeft = castEndTime/1000 - GetTime()
                         interruptID = select(8,UnitChannelInfo(unit))
-                        interruptable = true
                         if channelAsapList[interruptID] or channelLateList[interruptID] or isChecked("Any Cast") then interruptable = true end
                     end
                     if interruptable or isChecked("Any") then
