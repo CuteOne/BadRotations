@@ -1382,14 +1382,14 @@ local function runRotation()
       if mode.DPS == 1 and
               isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-        if cast.holyShock(dyn30) then
+        if cast.holyShock(units.dyn30) then
           return true
         end
       end
-      if cast.judgment(dyn30) then
+      if cast.judgment(units.dyn30) then
         return true
       end
-      if cast.crusaderStrike(dyn5) then
+      if cast.crusaderStrike(units.dyn5) then
         return true
       end
     end
@@ -1399,17 +1399,14 @@ local function runRotation()
     if mode.DPS == 3 and buff.avengingWrath.exists() and getFacing("player", "target") then
       if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-        if cast.holyShock(dyn30) then
+        if cast.holyShock(units.dyn30) then
           return true
         end
       end
-      if cast.judgment(dyn30) then
+      if cast.judgment(units.dyn30) then
         return true
       end
-      if cast.crusaderStrike(dyn5) then
-        return true
-      end
-      if cast.crusaderStrike("target") then
+      if cast.crusaderStrike(units.dyn5) then
         return true
       end
     end
