@@ -1034,7 +1034,7 @@ local function runRotation()
                         if cast.kick(thisUnit) then end
                     end
                 end
-                if isChecked("AutoGouge") and not cd.gouge.exists()  then
+                if isChecked("AutoGouge") and not cd.gouge.exists() and getFacing(unit, "player") then
                     if canInterruptshit(thisUnit, true , forpro, true) then
                         if cast.gouge(thisUnit) then return true end
                     end
