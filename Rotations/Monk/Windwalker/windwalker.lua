@@ -518,7 +518,7 @@ end
     -- if time == nil then return end
     local time = math.floor(time)
     local total = EnergyP() 
-    local chigot = 0
+    local chigot = chi
     local checktime = 0
     local last = false
     -- if lastCombo == "tigerPalm" then
@@ -538,9 +538,9 @@ end
       total = total + powerRegen
       checktime = checktime + 1
     end
-    print(chigot)
+    return chigot 
   end
-  cangetchitp(25)
+  
   -- print(ttmP(50))
   -- print(getTimeTo50("player")) 
   -- Rushing Jade Wind - Cancel
@@ -783,25 +783,6 @@ end
     enemyTable20.lowestTTD = 999
   end
 
-  local function getRectUnit(width,length,unit)
-    width = width or 3
-    length = length or 30
-    local x, y, z = ObjectPosition(unit)
-    local facing = ObjectFacing(unit) or 0
-    local halfWidth = width/2
-    -- Near Left
-    local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + rad(90), 0)
-    -- Near Right
-    local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + rad(270), 0)
-    -- Far Left
-    local flX, flY, flZ = GetPositionFromPosition(nlX, nlY, nlZ, length, facing, 0)
-    -- Far Right
-    local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
-
-    return nlX, nlY, nrX, nrY, frX, frY, flX, flY, flZ, nlZ, nrZ, frZ
-  end
-
-
   local function ChiBurstBestRect()
     local function getRectUnit(facing)
       width = 7
@@ -845,7 +826,7 @@ end
       for i = 1, #enemies.yards40nc do
         local uX, uY, uZ = ObjectPosition(enemies.yards40nc[i])
         if isInside(uX,uY,nlX,nlY,nrX,nrY,frX,frY) then
-          if not UnitAffectingCombat(enemies.yards40nc[i]) and TraceLine(x, y, z, uX, uY, uZ , 0x100111) then
+          if UnitAffectingCombat(enemies.yards40nc[i]) and TraceLine(x, y, z, uX, uY, uZ , 0x100111) then
             unitsInRect = 0
             break
           end
@@ -1055,11 +1036,11 @@ end
     --     if cast.legSweep() then return true end
     -- end
     -- Touch of Karma
-    if isChecked("Touch of Karma") and php <= getOptionValue("Touch of Karma") and inCombat then
+    if isChecked("Touch of Karma") and php <= getOptionValue("Touch of Karma") and inCombat and IsUsableSpell(spell.touchOfKarma) then
       if cast.touchOfKarma("target") then
       end
     end
-    if isChecked("Touch of Karma for Insidious Gift at 20stacks") then
+    if isChecked("Touch of Karma for Insidious Gift at 20stacks") and IsUsableSpell(spell.touchOfKarma) then
       if getDebuffStacks("player", 295410) >= 20 then
         if cast.touchOfKarma("target") then
         end
@@ -1075,9 +1056,9 @@ end
   end -- End Action List - Defensive
   -- Action List - Interrupts
   local function actionList_Interrupts()
-    for i = 1, #getEnemies("player", 20) do
-      thisUnit = getEnemies("player", 20)[i]
-      distance = getDistance(thisUnit)
+    for i = 1, #enemyTable5 do
+      thisUnit = enemyTable5[i].unit
+      distance = enemyTable5[i].distance
       if canInterrupt(thisUnit, getOptionValue("InterruptAt")) then
         if isChecked("Spear Hand Strike") and cast.able.spearHandStrike(thisUnit) and distance < 5 then
           if cast.spearHandStrike(thisUnit) then
@@ -1335,7 +1316,7 @@ end
       cast5yards("risingSunKick", "ST RSK chi >=5")
     end
 
-    if ttmP() > fofcast --or lastcombo == "tigerPalm" or (cd.whirlingDragonPunch.remain() <= 1 and debuff.touchOfDeath.exists("target") and not isChecked("WDP abuse")) 
+    if ttmP() >= fofcast --or lastcombo == "tigerPalm" or (cd.whirlingDragonPunch.remain() <= 1 and debuff.touchOfDeath.exists("target") and not isChecked("WDP abuse")) 
       then
       smartfof("st")
     end
@@ -1352,12 +1333,11 @@ end
     --     end
     --   end
     -- end
-
-    cast5yards("risingSunKick", "ST RSK")
-
-    if buff.danceOfChiJi.exists("player") and lastcombo ~= "spinningCraneKick"  then
-      cast8yards("spinningCraneKick","ST ScK Dance")
+    if fofcd >= 2 or (EnergyP() >= 50 and lastcombo ~= "tigerPalm") then
+      cast5yards("risingSunKick", "ST RSK")
     end
+
+    
 
     
 
@@ -1369,12 +1349,14 @@ end
     --   cast8yards("spinningCraneKick"," sck st proc no sef")
     -- end
 
-    
+    if buff.danceOfChiJi.exists("player") and lastcombo ~= "spinningCraneKick"  then
+      if chiDeficit >= 2 and lastcombo ~= "tigerPalm" and (not buff.rushingJadeWind.exists() or EnergyP() > 56) then
+        cast5yards("tigerPalm", "ST tigerPalm chiDeficit >= 2 before Dance")
+      end 
+      cast8yards("spinningCraneKick","ST ScK Dance")
+    end
 
-    if lastcombo ~= "blackoutKick" and (buff.blackoutKick.exists() or
-      ((rskcd > 3 or chi >= 3)
-      and (fofcd > 4 or chi >= 4 or (chi == 2 and lastcombo == "tigerPalm"))))
-      then
+    if lastcombo ~= "blackoutKick" and (buff.blackoutKick.exists() or (cangetchitp(rskcd) >= 2 and fofcd >= rskcd + 2) or cangetchitp(fofcd) >= 3) then
       cast5yards("blackoutKick", "ST BlackoutKick")
     end
     --danceOfChiJi + SEF
