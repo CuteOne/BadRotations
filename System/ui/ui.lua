@@ -4,6 +4,14 @@ local DiesalGUI = LibStub("DiesalGUI-1.0")
 br.ui = {}
 br.spacing = 15
  --
+local BRFont = "DiesalFontNormal"
+do
+    local locale = GetLocale()
+    if locale == "koKR" or locale == "zhCN" or locale == "zhTW" then
+        BRFont = "GameFontNormalSmall"
+    end
+end
+
 
 --[[ FROM PE ]]
 DiesalGUI:RegisterObjectConstructor(
@@ -11,7 +19,7 @@ DiesalGUI:RegisterObjectConstructor(
     function()
         local self = DiesalGUI:CreateObjectBase(Type)
         local frame = CreateFrame("Frame", nil, UIParent)
-        local fontString = frame:CreateFontString(nil, "OVERLAY", "DiesalFontNormal")
+        local fontString = frame:CreateFontString(nil, "OVERLAY", BRFont)
         self.frame = frame
         self.fontString = fontString
         self.SetParent = function(self, parent)

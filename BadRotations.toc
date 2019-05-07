@@ -31,6 +31,7 @@ System\Functions\Power.lua
 System\Functions\Range.lua
 System\Functions\Spell.lua
 System\Functions\Unit.lua
+System\Functions\SmartQueue.lua
 
 ## Lists
 

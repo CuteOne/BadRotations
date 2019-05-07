@@ -108,6 +108,33 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callQueueEngine()
+        local function pairsByKeys (t, f)
+            local a = {}
+            for n in pairs(t) do table.insert(a, n) end
+                table.sort(a, f)
+                local i = 0      -- iterator variable
+                local iter = function ()   -- iterator function
+                i = i + 1
+                if a[i] == nil then 
+                    return nil
+                else return a[i], t[a[i]]
+                end
+            end
+            return iter
+        end
+        section = br.ui:createSection(br.ui.window.config, "Smart Queue")
+        br.ui:createSpinner(section,  "Smart Queue", 2, 0.5, 3, 0.1, "Auto cast spells you press (Only EWT support)", "Seconds to attempt cast")
+        if br.player ~= nil and br.player.spell ~= nil and br.player.spell.abilities ~= nil then
+            for k, v in pairsByKeys(br.player.spell.abilities) do
+                local spellName = GetSpellInfo(v)
+                if v ~= 61304 and spellName ~= nil then
+                    br.ui:createDropdown(section, spellName .. " (Queue)", {"Normal", "Cursor", "Cursor (No Cast)", "Mouseover"}, 1, "Active Queueing Of " .. spellName .. " (ID: " .. v .. ")", "Select cast mode")
+                end
+            end
+        end
+        br.ui:checkSectionState(section)
+    end
 
     -- Add Page Dropdown
     br.ui:createPagesDropdown(br.ui.window.config, {
@@ -122,6 +149,10 @@ function br.ui:createConfigWindow()
         {
             [1] = "Healing Engine",
             [2] = callHealingEngine,
+        },
+        {
+            [1] = "Queue Engine",
+            [2] = callQueueEngine,
         },
         {
             [1] = "Other Features",

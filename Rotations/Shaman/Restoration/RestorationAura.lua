@@ -650,60 +650,76 @@ local function runRotation()
                 end
             end
         -- Trinkets
-                if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
-                    if GetItemCooldown(158320) <= gcd then
-                        UseItemByName(158320,lowest.unit)
-                        br.addonDebug("Using Revitalizing Voodoo Totem")
-                    end
-                end
-                if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
-                    if GetItemCooldown(160649) <= gcd then
-                        UseItemByName(160649,lowest.unit)
-                        br.addonDebug("Using Inoculating Extract")
-                    end
-                end
-                if isChecked("Ward of Envelopment") and hasEquiped(165569) then
-                    if GetItemCooldown(165569) <= gcd then
-                        for i = 1, #tanks do
-                            local tankTarget = UnitTarget(tanks[i].unit)
-                            if tankTarget ~= nil and tanks[i].hp < getValue("Ward of Envelopment") and getDistance(tanks[i].unit,"player") < 40 and getLineOfSight("player",tanks[i].unit) then
-                                local x1,y1,z1 = GetObjectPosition(tanks[i].unit)
-                                UseItemByName(165569)
-                                if IsAoEPending() then
-                                    ClickPosition(x1,y1,z1)
-                                end
-                                if IsAoEPending() then ClickPosition(x1,y1,z1,true) return false end
-                            end
-                        end
-                    end
-                end
-                if isChecked("Trinket 1") and canTrinket(13) then
-                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 1") or burst == true) then
-                        UseItemByName(167865,lowest.unit)
-                    elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
-                        useItem(13)
-                        br.addonDebug("Using Trinket 1")
-                        return true
-                    end
-                end
-                if isChecked("Trinket 2") and canTrinket(14) then
-                    if hasEquiped(167865) and (lowest.hp < getValue("Trinket 2") or burst == true) then
-                        UseItemByName(167865,lowest.unit)
-                    elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
-                        useItem(14)
-                        br.addonDebug("Using Trinket 2")
-                        return true
-                    end
-                end
-                --Pillar of the Drowned Cabal
-                if hasEquiped(167863) and canUse(16) then
-                    for i = 1, #br.friend do
-                        if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
-                            UseItemByName(167863,br.friend[i].unit)
-                            br.addonDebug("Using Pillar of Drowned Cabal")
-                        end
-                    end
-                end
+			if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
+				if GetItemCooldown(158320) <= gcd then
+					UseItemByName(158320, lowest.unit)
+					br.addonDebug("Using Revitalizing Voodoo Totem")
+				end
+			end
+			if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
+				if GetItemCooldown(160649) <= gcd then
+					UseItemByName(160649, lowest.unit)
+					br.addonDebug("Using Inoculating Extract")
+				end
+			end
+			if isChecked("Ward of Envelopment") and hasEquiped(165569) and GetItemCooldown(165569) <= gcd then
+				-- get melee players
+				for i = 1, #tanks do
+					-- get the tank's target
+					local tankTarget = UnitTarget(tanks[i].unit)
+					if tankTarget ~= nil then
+					-- get players in melee range of tank's target
+					local meleeFriends = getAllies(tankTarget, 5)
+					-- get the best ground circle to encompass the most of them
+					local loc = nil
+					if #meleeFriends >= 8 then
+						loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+					else
+						local meleeHurt = {}
+						for j = 1, #meleeFriends do
+						if meleeFriends[j].hp < 75 then
+							tinsert(meleeHurt, meleeFriends[j])
+						end
+						end
+						if #meleeHurt >= 2 then
+						loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+						end
+					end
+					if loc ~= nil then
+						useItem(165569)
+						ClickPosition(loc.x, loc.y, loc.z)
+						return true
+					end
+					end
+				end
+			end
+			--Pillar of the Drowned Cabal
+			if hasEquiped(167863) and canUse(16) then
+				for i = 1, #br.friend do
+					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+						UseItemByName(167863,br.friend[i].unit)
+						br.addonDebug("Using Pillar of Drowned Cabal")
+					end
+				end
+			end
+			if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
+				if hasEquiped(167865,13) and (lowest.hp < getValue("Trinket 1") or burst == true) then
+					UseItemByName(167865,lowest.unit)
+					br.addonDebug("Using Void Stone")
+				elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+					useItem(13)
+					br.addonDebug("Using Trinket 1")
+				end
+			end
+			if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
+				if hasEquiped(167865,14) and (lowest.hp < getValue("Trinket 2") or burst == true) then
+					UseItemByName(167865,lowest.unit)
+					br.addonDebug("Using Void Stone")
+				elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+					useItem(14)
+					br.addonDebug("Using Trinket 2")
+				end
+			end
         -- Spirit Link Totem
             if isChecked("Spirit Link Totem") and useCDs() and not moving and cd.spiritLinkTotem.remain() <= gcd then
                 -- if raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count"))) then

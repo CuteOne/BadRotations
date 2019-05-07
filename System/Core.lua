@@ -226,6 +226,10 @@ function BadRotationsUpdate(self)
 							if not UnitAffectingCombat("player") then Print("No Combat Detected! - Queue Cleared.") end
 						end
 					end 
+					--Smart Queue
+					if EasyWoWToolbox ~= nil and isChecked("Smart Queue") then
+						br.smartQueue()
+					end
 					-- Update Player
 					if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 						br.player:update()

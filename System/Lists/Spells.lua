@@ -546,7 +546,9 @@ br.lists.spells = {
                 sephuzSecret                = 208052,
                 astralAcceleration          = 242232,
                 newMoonController           = -2027671,
-                starlord                    = 279709,
+                starLord                    = 279709,
+                livelySpirit                = 279279,
+                arcanicPulsar               = 287790,
             },
             debuffs                         = {
                 stellarFlare                = 202347,
@@ -1658,6 +1660,7 @@ br.lists.spells = {
                 blessingOfSacrifice         = 6940,
                 beaconOfVirtue              = 200025,
                 bestowFaith                 = 223306,
+                glimmerOfLight              = 287280,
                 divineProtection            = 498,
                 divinePurpose               = 216411,
                 ferventMartyr               = 223316,
@@ -2869,6 +2872,7 @@ br.lists.spells = {
                 demonicEmpowerment          = 193396,
                 demonicPower                = 265273,
                 demonwrath                  = 193440,
+                explosivePotential          = 275398,
                 forbiddenKnowledge          = 278738,
                 netherPortal                = 267218,
                 shadowyInspiration          = 196269,
@@ -2890,6 +2894,9 @@ br.lists.spells = {
                 summonVilefiend             = 264119,
 
             },
+            traits                          = {
+                explosivePotential          = 275395,
+            }
         },
         -- Destruction
         [267] = {
@@ -3306,6 +3313,8 @@ br.lists.spells = {
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,
+                cracklingTourmaline             = 166798,
+                saphireofBrilliance             = 290365,
             },
             debuffs                             = {
                 dampening                       = 110310,

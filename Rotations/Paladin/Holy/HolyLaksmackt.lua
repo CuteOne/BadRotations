@@ -9,35 +9,41 @@ local function createToggles()
   -- Define custom toggles
   -- Cooldown Button
   CooldownModes = {
-    [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.holyAvenger },
+    [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 0, icon = br.player.spell.holyAvenger },
     [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.auraMastery },
     [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.absolution }
   };
   CreateButton("Cooldown", 1, 0)
   -- Defensive Button
   DefensiveModes = {
-    [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.divineProtection },
+    [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 0, icon = br.player.spell.divineProtection },
     [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.blessingOfProtection }
   };
   CreateButton("Defensive", 2, 0)
   -- Interrupt Button
   InterruptModes = {
-    [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.blindingLight },
+    [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 0, icon = br.player.spell.blindingLight },
     [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.blindingLight }
   };
   CreateButton("Interrupt", 3, 0)
   -- Cleanse Button
   CleanseModes = {
-    [1] = { mode = "On", value = 1, overlay = "Cleanse Enabled", tip = "Cleanse Enabled", highlight = 1, icon = br.player.spell.cleanse },
+    [1] = { mode = "On", value = 1, overlay = "Cleanse Enabled", tip = "Cleanse Enabled", highlight = 0, icon = br.player.spell.cleanse },
     [2] = { mode = "Off", value = 2, overlay = "Cleanse Disabled", tip = "Cleanse Disabled", highlight = 0, icon = br.player.spell.cleanse }
   };
   CreateButton("Cleanse", 4, 0)
+  GlimmerModes = {
+    [1] = { mode = "On", value = 1, overlay = "Glimmer mode", tip = "Glimmer on", highlight = 0, icon = 287280 },
+    [2] = { mode = "Off", value = 2, overlay = "Normal", tip = "Glimmer off", highlight = 0, icon = br.player.spell.holyShock }
+  };
+  CreateButton("Glimmer", 5, 0)
   -- DPS
   DPSModes = {
-    [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 1, icon = br.player.spell.judgment },
-    [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment }
+    [1] = { mode = "On", value = 1, overlay = "DPS Enabled", tip = "DPS Enabled", highlight = 0, icon = br.player.spell.judgment },
+    [2] = { mode = "Off", value = 2, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.judgment },
+    [3] = { mode = "Max", value = 3, overlay = "DPS Burst", tip = "DPS Bursting", highlight = 0, icon = br.player.spell.avengingWrath }
   };
-  CreateButton("DPS", 5, 0)
+  CreateButton("DPS", 6, 0)
 end
 
 ---------------
@@ -260,7 +266,7 @@ local function runRotation()
   UpdateToggle("Interrupt", 0.25)
   UpdateToggle("Cleanse", 0.25)
   br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
-  UpdateToggle("DPS", 0.25)
+  br.player.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
   br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
   --------------
   --- Locals ---
@@ -291,7 +297,7 @@ local function runRotation()
   local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
   local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
   local inCombat = isInCombat("player")
-  local inInstance = br.player.instance == "party"
+  local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
   local inRaid = br.player.instance == "raid"
   local race = br.player.race
   local racial = br.player.getRacial()
@@ -424,69 +430,13 @@ local function runRotation()
   }
 
   ---functions
-
-  local function bestConeHealOLD(spell, minUnits, health, angle, rangeInfront, rangeAround)
-    if not isKnown(spell) or getSpellCD(spell) ~= 0 then
-      return false
-    end
-    local curFacing = ObjectFacing("player")
-    local playerX, playerY, playerZ = ObjectPosition("player")
-    local coneTable = {}
-
-    for i = 1, #br.friend do
-      local thisUnit = br.friend[i].unit
-      if br.friend[i].hp < health then
-        local unitX, unitY, unitZ = ObjectPosition(thisUnit)
-        if playerX and unitX then
-          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-          tinsert(coneTable, angleToUnit)
-        end
-      end
-    end
-    local facing, bestAngle, bestAngleUnitsHit = 0, 0, 0
-    while facing <= 6.2 do
-      local unitsHit = 0
-      for i = 1, #coneTable do
-        if br.friend[i].hp < health then
-          -- First check around us, light of dawn do heal 5 yards around
-          if br.friend[i].distance < rangeAround then
-            unitsHit = unitsHit + 1
-          else
-            --dont doubledipp so an else
-            if br.friend[i].distance < rangeInfront then
-              --only if they are in range
-              local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
-              if playerX and unitX then
-                local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-                local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-                local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-                local finalAngle = shortestAngle / math.pi * 180
-                if finalAngle < angle then
-                  unitsHit = unitsHit + 1
-                end
-              end
-            end
-          end
-        end
-      end
-      if unitsHit > bestAngleUnitsHit then
-        bestAngleUnitsHit = unitsHit
-        bestAngle = facing
-      end
-      facing = facing + 0.05
-    end
-
-    if bestAngleUnitsHit >= minUnits then
-      FaceDirection(bestAngle, true)
-      CastSpellByName(GetSpellInfo(spell))
-      FaceDirection(curFacing, true)
-      return true
-    end
-    return false
+  if lodFaced ~= nil and lodFaced then
+    FaceDirection(ObjectFacing("player"), true)
+    lodFaced = false
   end
 
-     local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
-    if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+ local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+    if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
       return false
     end
     local curFacing = ObjectFacing("player")
@@ -502,7 +452,10 @@ local function runRotation()
         elseif br.friend[i].distance < rangeInfront then
           local unitX, unitY, unitZ = ObjectPosition(thisUnit)
           if playerX and unitX then
-            local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+            local angleToUnit = rad(atan2(unitY - playerY, unitX - playerX))
+            if angleToUnit < 0 then
+              angleToUnit = rad(360 + atan2(unitY - playerY, unitX - playerX))
+            end
             tinsert(coneTable, angleToUnit)
           end
         end
@@ -512,10 +465,10 @@ local function runRotation()
     while facing <= 6.2 do
       local unitsHit = unitsAround
       for i = 1, #coneTable do
-                local angleToUnit = coneTable[i]
+        local angleToUnit = coneTable[i]
         local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-        local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-        local finalAngle = shortestAngle / math.pi * 180
+        --local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
+        local finalAngle = angleDifference / math.pi * 180
         if finalAngle < angle then
           unitsHit = unitsHit + 1
         end
@@ -527,14 +480,24 @@ local function runRotation()
       facing = facing + 0.05
     end
     if bestAngleUnitsHit >= minUnits then
+      local mouselookActive = false
+      if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
+        TurnOrActionStop()
+        MoveAndSteerStop()
+      end
       FaceDirection(bestAngle, true)
       CastSpellByName(GetSpellInfo(spell))
       FaceDirection(curFacing)
+      if mouselookActive then
+        MouselookStart()
+      end
+      lodFaced = true
       return true
     end
     return false
   end
-
 
   -- Beacon of Virtue
   if isChecked("Beacon of Virtue") and talent.beaconOfVirtue and cast.able.beaconOfVirtue and getSpellCD(200025) == 0 and not IsMounted() then
@@ -707,7 +670,7 @@ local function runRotation()
       end
     end
   end
-  --------------------------------------b--------------------------------------------------------------------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   -- Defensive ---------- Defensive ---------- Defensive ---------- Defensive ---------- Defensive ---------- Defensive ---------- Defensive --------- Defensive --------- Defensive
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function actionList_Defensive()
@@ -720,7 +683,9 @@ local function runRotation()
 
       --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
       if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-        if canUse(5512) then
+        if canUse(166799) then
+          useItem(166799)
+        elseif canUse(5512) then
           useItem(5512)
         elseif canUse(156634) then
           useItem(156634)
@@ -981,6 +946,7 @@ local function runRotation()
     local blessingOfSacrificeTANK = nil
     local blessingOfSacrificeDAMAGER = nil
     local layOnHandsTarget = nil
+    local burst = nil
     local burst = nil
 
     if isChecked("Group Avenger w/ Wrath") then
@@ -1410,9 +1376,17 @@ local function runRotation()
     end
     -- Light of Dawn
     if isChecked("Light of Dawn") and cast.able.lightOfDawn() then
-      if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
-      then
-        return true
+      if EasyWoWToolbox == nil then
+        if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+          if cast.lightOfDawn() then
+            return true
+          end
+        end
+      else
+        if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+        then
+          return true
+        end
       end
     end
 
@@ -1423,16 +1397,40 @@ local function runRotation()
   local function topPriority()
     --Avenging Crusader (216331)  UnitBuffID("player", 216331)
     if buff.avengingCrusader.exists("player") and getFacing("player", "target") then
-      if cast.judgment("target") then
+      if mode.DPS == 1 and
+              isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
+              isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
+        if cast.holyShock(units.dyn30) then
+          return true
+        end
+      end
+      if cast.judgment(units.dyn30) then
         return true
       end
-      if cast.crusaderStrike("target") then
+      if cast.crusaderStrike(units.dyn5) then
+        return true
+      end
+    end
+
+
+    --Wings, burst mode
+    if mode.DPS == 3 and buff.avengingWrath.exists() and getFacing("player", "target") then
+      if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
+              isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
+        if cast.holyShock(units.dyn30) then
+          return true
+        end
+      end
+      if cast.judgment(units.dyn30) then
+        return true
+      end
+      if cast.crusaderStrike(units.dyn5) then
         return true
       end
     end
     --Talent Crusaders Might
-    if isChecked("Crusader Strike") and not isChecked("Glimmer mode") and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
-      if (getSpellCD(20473) > gcd or getSpellCD(85222) > gcd) then
+    if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike() and lowest.hp > getValue("Critical HP") and getFacing("player", units.dyn5) then
+      if (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1442,7 +1440,7 @@ local function runRotation()
 
   local function glimmer()
     --Glimmer support
-    if (inInstance or inRaid) and isChecked("Glimmer mode") and #br.friend > 1 and (inCombat or isChecked("Glimmer mode - ooc")) then
+    if mode.Glimmer == 1 and (inInstance or inRaid) and #br.friend > 1 then
       if getSpellCD(20473) == 0 then
         --critical first
         if #tanks > 0 then
@@ -1475,7 +1473,7 @@ local function runRotation()
         end
         glimmerTable = { }
         for i = 1, #br.friend do
-          if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not UnitBuffID(br.friend[i].unit, 287280) and not UnitBuffID(br.friend[i].unit, 115191) then
+          if UnitInRange(br.friend[i].unit) and getLineOfSight(br.friend[i].unit, "player") and not buff.glimmerOfLight.exists(br.friend[i].unit) and not UnitBuffID(br.friend[i].unit, 115191) then
             tinsert(glimmerTable, br.friend[i])
           end
         end
@@ -1484,7 +1482,7 @@ local function runRotation()
             return x.hp < y.hp
           end)
         end
-        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and (inCombat or isChecked("Glimmer mode - ooc")) then
+        if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.Glimmer == 1 then
           if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
             if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
               if cast.ruleOfLaw() then
@@ -1500,12 +1498,20 @@ local function runRotation()
         end
         -- Check here to see if shock is not ready, but dawn is - then use dawn
       elseif getSpellCD(20473) > gcd and getSpellCD(85222) == 0 then
-        if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
-        then
-          return true
+        if EasyWoWToolbox == nil then
+          if healConeAround(getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5 * lightOfDawn_distance_coff) then
+            if cast.lightOfDawn() then
+              return true
+            end
+          end
+        else
+          if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+          then
+            return true
+          end
         end
       end
-      if talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1919,10 +1925,8 @@ local function runRotation()
         if Cleanse() then
           return
         end
-        if isChecked("Glimmer mode") and isChecked("Glimmer mode - ooc") then
-          if glimmer() then
-            return true
-          end
+        if glimmer() then
+          return true
         end
         if isChecked("OOC Healing") then
           if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
@@ -1959,7 +1963,7 @@ local function runRotation()
         if Interrupt() then
           return
         end
-        if isChecked(")Auto Beacon") and not talent.beaconOfVirtue then
+        if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
           if Beacon() then
             return
           end
@@ -1972,10 +1976,8 @@ local function runRotation()
         if topPriority() then
           return true
         end
-        if isChecked("Glimmer mode") then
-          if glimmer() then
-            return true
-          end
+        if glimmer() then
+          return true
         end
         if AOEHealing() then
           return
