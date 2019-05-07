@@ -678,6 +678,12 @@ local function runRotation()
             if skill == "betweenTheEyes" and mode.nobte == 2 then
                 if cast[skill]("target") then return true end
             end
+            for i = 1, #enemyTable20 do
+                local thisUnit = enemyTable20[i].unit 
+                if stuff then
+                    if cast[skill](thisUnit) then return true end
+                end
+            end
 
         end
 --------------------
