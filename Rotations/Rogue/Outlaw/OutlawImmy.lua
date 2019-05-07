@@ -905,7 +905,10 @@ local function runRotation()
             end
 
             cast5yards("sinisterStrike",true)
-
+            
+            if talent.dirtyTricks then
+                cast5yards("gouge",true)
+            end
             if isChecked("Debug Timers") then
                 if profile.Builder == nil then profile.Builder = {} end
                 local section = profile.Builder
