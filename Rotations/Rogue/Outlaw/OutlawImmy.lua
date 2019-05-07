@@ -668,7 +668,7 @@ local function runRotation()
                                 if cast[skill](thisUnit) then return true end
                             end
                         else
-                            if stuff and canCC(199804, thisUnit) then
+                            if stuff then
                                 if cast[skill](thisUnit) then return true end
                             end
                         end
