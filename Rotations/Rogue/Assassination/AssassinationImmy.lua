@@ -239,7 +239,7 @@ local function runRotation()
   local racial = br.player.getRacial()
   local solo = #br.friend < 2
   local spell = br.player.spell
-  local stealth = buff.stealth.exists() or buff.vanish.exists() or buff.stealthsub.exists()
+  local stealth = buff.stealth.exists() or buff.vanish.exists()
   --local stealthingAll = stealthingRogue or br.player.buff.shadowmeld.exists()
   local talent = br.player.talent
   -- local subtcheck = (true and gcdleft < br.player.buff.subterfuge.remain() and  br.player.buff.subterfuge.remain() >= 0.2 and br.player.buff.subterfuge.exists()) or false
