@@ -678,6 +678,12 @@ local function runRotation()
             if skill == "betweenTheEyes" and mode.nobte == 2 then
                 if cast[skill]("target") then return true end
             end
+            for i = 1, #enemyTable20 do
+                local thisUnit = enemyTable20[i].unit 
+                if stuff then
+                    if cast[skill](thisUnit) then return true end
+                end
+            end
 
         end
 --------------------
@@ -899,7 +905,10 @@ local function runRotation()
             end
 
             cast5yards("sinisterStrike",true)
-
+            
+            if talent.dirtyTricks then
+                cast5yards("gouge",true)
+            end
             if isChecked("Debug Timers") then
                 if profile.Builder == nil then profile.Builder = {} end
                 local section = profile.Builder
@@ -1034,7 +1043,7 @@ local function runRotation()
                         if cast.kick(thisUnit) then end
                     end
                 end
-                if isChecked("AutoGouge") and not cd.gouge.exists()  then
+                if isChecked("AutoGouge") and not cd.gouge.exists() and getFacing(unit, "player") then
                     if canInterruptshit(thisUnit, true , forpro, true) then
                         if cast.gouge(thisUnit) then return true end
                     end
