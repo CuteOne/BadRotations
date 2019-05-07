@@ -112,6 +112,25 @@ local function createToggles()
         }
     }
     CreateButton("Mover", 5, 0)
+    HoldcdModes = {
+        [1] = {
+            mode = "ON",
+            value = 1,
+            overlay = "CDs will not be held",
+            tip = "CDs will not be held",
+            highlight = 1,
+            icon = br.player.spell.recklessness
+        },
+        [2] = {
+            mode = "OFF",
+            value = 2,
+            overlay = "CDs will be held",
+            tip = "CDs will be held",
+            highlight = 0,
+            icon = br.player.spell.recklessness
+        }
+    }
+    CreateButton("Holdcd", 6, 0)
 end
 
 ---------------
@@ -213,7 +232,9 @@ local function runRotation()
     UpdateToggle("Defensive", 0.25)
     UpdateToggle("Interrupt", 0.25)
     UpdateToggle("Mover", 0.25)
+    UpdateToggle("Holdcd", 0.25)
     br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
+    br.player.mode.holdcd = br.data.settings[br.selectedSpec].toggles["Holdcd"]
 
     local buff = br.player.buff
     local cast = br.player.cast
@@ -425,7 +446,8 @@ local function runRotation()
         -- Recklessness
         if
             not buff.recklessness.exists() and
-                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs()))
+                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and
+                br.player.mode.holdcd == 1
          then
             if cast.recklessness() then
                 return
@@ -556,7 +578,7 @@ local function runRotation()
         -- Recklessness
         if
             not buff.recklessness.exists() and
-                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs()))
+                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.holdcd == 1
          then
             if cast.recklessness() then
                 return
@@ -661,7 +683,7 @@ local function runRotation()
 
     function cooldownlist()
         --trinkets
-        if isChecked("Trinkets") then
+        if isChecked("Trinkets") and br.player.mode.holdcd == 1 then
             if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) then
                 if canTrinket(13) then
                     useItem(13)
@@ -673,7 +695,7 @@ local function runRotation()
         end
 
         --racials
-        if isChecked("Racials") then
+        if isChecked("Racials") and br.player.mode.holdcd == 1 then
             if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
                 if cast.racial("player") then
                     return
@@ -689,8 +711,12 @@ local function runRotation()
     if pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 2 then
         return true
     else
-            if moverlist() then return end
-            if extralist() then return end
+        if moverlist() then
+            return
+        end
+        if extralist() then
+            return
+        end
         if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
             if getDistance(units.dyn5) < 6 then
                 StartAttack()
