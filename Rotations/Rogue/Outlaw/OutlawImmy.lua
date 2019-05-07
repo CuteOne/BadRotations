@@ -650,15 +650,27 @@ local function runRotation()
                     for i = 1, #enemyTable20 do
                         if enemyTable20[i].id == 120651 then return end
                         local thisUnit = enemyTable20[i].unit 
-                        if stuff and canCC(199804, thisUnit) and (select(5,UnitCastingInfo(unit)) ~= nil or select(5,UnitChannelInfo(unit)) ~= nil) then
-                            if cast[skill](thisUnit) then return true end
+                        if isChecked("DRTracker") then
+                            if stuff and canCC(199804, thisUnit) and (select(5,UnitCastingInfo(unit)) ~= nil or select(5,UnitChannelInfo(unit)) ~= nil) then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        else
+                            if stuff and (select(5,UnitCastingInfo(unit)) ~= nil or select(5,UnitChannelInfo(unit)) ~= nil) then
+                                if cast[skill](thisUnit) then return true end
+                            end
                         end
                     end
                     for i = 1, #enemyTable20 do
                         if enemyTable20[i].id == 120651 then return end
                         local thisUnit = enemyTable20[i].unit 
-                        if stuff and canCC(199804, thisUnit) then
-                            if cast[skill](thisUnit) then return true end
+                        if isChecked("DRTracker") then
+                            if stuff and canCC(199804, thisUnit) then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        else
+                            if stuff and canCC(199804, thisUnit) then
+                                if cast[skill](thisUnit) then return true end
+                            end
                         end
                     end
                 end
