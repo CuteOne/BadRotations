@@ -617,6 +617,7 @@ local function runRotation()
                 for i = 1, #burnTable5 do
                     local thisUnit = burnTable5[i].unit
                     if stuff then
+                        if skill == "gouge" and not getFacing(thisUnit, "player") then return end
                         if cast[skill](thisUnit) then return true end
                     end
                 end
@@ -625,6 +626,7 @@ local function runRotation()
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 if stuff then
+                    if skill == "gouge" and not getFacing(thisUnit, "player") then return end
                     if cast[skill](thisUnit) then return true end
                 end
             end
@@ -896,7 +898,7 @@ local function runRotation()
                 section.averageTime = section.elapsedTime / section.totalIterations
             end            
         end
-
+    -- Action List - Build
         local function actionList_Build()
             local startTime = debugprofilestop()      
 
@@ -909,6 +911,7 @@ local function runRotation()
             if talent.dirtyTricks then
                 cast5yards("gouge",true)
             end
+            
             if isChecked("Debug Timers") then
                 if profile.Builder == nil then profile.Builder = {} end
                 local section = profile.Builder
