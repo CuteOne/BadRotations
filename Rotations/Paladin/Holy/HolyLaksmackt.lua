@@ -435,8 +435,8 @@ local function runRotation()
     lodFaced = false
   end
 
-  local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
-    if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+ local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+    if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
       return false
     end
     local curFacing = ObjectFacing("player")
@@ -452,7 +452,10 @@ local function runRotation()
         elseif br.friend[i].distance < rangeInfront then
           local unitX, unitY, unitZ = ObjectPosition(thisUnit)
           if playerX and unitX then
-            local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
+            local angleToUnit = rad(atan2(unitY - playerY, unitX - playerX))
+            if angleToUnit < 0 then
+              angleToUnit = rad(360 + atan2(unitY - playerY, unitX - playerX))
+            end
             tinsert(coneTable, angleToUnit)
           end
         end
@@ -464,8 +467,8 @@ local function runRotation()
       for i = 1, #coneTable do
         local angleToUnit = coneTable[i]
         local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-        local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-        local finalAngle = shortestAngle / math.pi * 180
+        --local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
+        local finalAngle = angleDifference / math.pi * 180
         if finalAngle < angle then
           unitsHit = unitsHit + 1
         end
