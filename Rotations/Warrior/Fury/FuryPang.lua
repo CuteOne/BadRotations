@@ -287,7 +287,7 @@ local function runRotation()
                 local thisUnit = br.friend[i].unit
                 if
                     not UnitIsDeadOrGhost(thisUnit) and getDistance(thisUnit) < 100 and
-                        not buff.battleShout.exists(thisUnit)
+                        getBuffRemain(thisUnit, spell.battleShout) < 60
                  then
                     if cast.battleShout() then
                         return
