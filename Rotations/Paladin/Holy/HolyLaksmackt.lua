@@ -430,8 +430,12 @@ local function runRotation()
   }
 
   ---functions
+  if lodFaced ~= nil and lodFaced then
+    FaceDirection(ObjectFacing("player"), true)
+    lodFaced = false
+  end
 
-   local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+  local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
     if not isKnown(spell) or getSpellCD(spell) ~= 0 then
       return false
     end
@@ -458,7 +462,7 @@ local function runRotation()
     while facing <= 6.2 do
       local unitsHit = unitsAround
       for i = 1, #coneTable do
-                local angleToUnit = coneTable[i]
+        local angleToUnit = coneTable[i]
         local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
         local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
         local finalAngle = shortestAngle / math.pi * 180
@@ -473,9 +477,20 @@ local function runRotation()
       facing = facing + 0.05
     end
     if bestAngleUnitsHit >= minUnits then
+      local mouselookActive = false
+      if IsMouselooking() then
+        mouselookActive = true
+        MouselookStop()
+        TurnOrActionStop()
+        MoveAndSteerStop()
+      end
       FaceDirection(bestAngle, true)
       CastSpellByName(GetSpellInfo(spell))
       FaceDirection(curFacing)
+      if mouselookActive then
+        MouselookStart()
+      end
+      lodFaced = true
       return true
     end
     return false
@@ -1365,7 +1380,7 @@ local function runRotation()
           end
         end
       else
-        if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+        if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
         then
           return true
         end
@@ -1411,8 +1426,8 @@ local function runRotation()
       end
     end
     --Talent Crusaders Might
-    if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
-      if (getSpellCD(20473) > gcd or getSpellCD(85222) > gcd) then
+    if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike() and lowest.hp > getValue("Critical HP") and getFacing("player", units.dyn5) then
+      if (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1487,7 +1502,7 @@ local function runRotation()
             end
           end
         else
-          if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 90, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+          if bestConeHeal(spell.lightOfDawn, getValue("LoD Targets"), getValue("Light of Dawn"), 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
           then
             return true
           end
