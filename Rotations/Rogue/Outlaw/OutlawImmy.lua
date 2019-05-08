@@ -321,7 +321,7 @@ local function runRotation()
         local rtcoef       = 0.35
         local auramult      = 1.13
         local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
-        if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end 
+        if talent.deeperStratagem then dsmod = 1.05 else dsmod = 1 end 
         return(
                 apMod * combo * rtcoef * auramult * dsmod * versmult
                 )
@@ -537,7 +537,7 @@ local function runRotation()
         -- end
         local function shouldFinish()
             -- if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
-            if combo >= comboMax - ((buff.broadside.exists("player") and 1 or 0) + ((buff.opportunity.exists("player") and 1 or 0)))*(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() > 1) and 1 or 0) then
+            if combo >= comboMax - (talent.deeperStratagem and 1 or (((buff.broadside.exists("player") and 1 or 0) + ((buff.opportunity.exists("player") and 1 or 0)))*(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() > 1) and 1 or 0))) then 
                 return true
             else 
                 return false
@@ -1320,8 +1320,8 @@ local function runRotation()
                 end
             if shouldFinish() or (traits.snakeeyes.rank > 0 and not buff.snakeeeyes.exists() and rtbReroll()) then
                 if actionList_Finishers() then return end
-            end
-            if actionList_Build() then return end
+            --end
+            elseif actionList_Build() then return end
             if isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemyTable5 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= 1.2) then
                 if cast.pistolShot("target") then return true end
             end
