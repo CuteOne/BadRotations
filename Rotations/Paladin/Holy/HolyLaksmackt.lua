@@ -435,7 +435,7 @@ local function runRotation()
     lodFaced = false
   end
 
- local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
+  local function bestConeHeal(spell, minUnits, health, angle, rangeInfront, rangeAround)
     if not isKnown(spell) or getSpellCD(spell) ~= 0 or select(2, IsUsableSpell(spell)) then
       return false
     end
@@ -701,7 +701,7 @@ local function runRotation()
       end
       -- Divine Shield
       if isChecked("Divine Shield") and cast.able.divineShield() then
-        if php <= getOptionValue("Divine Shield") or (isChecked("Choking Waters") and (getDebuffRemain("player", 272571) > 0)) then
+        if (php <= getOptionValue("Divine Shield") or (isChecked("Choking Waters") and UnitDebuffID("player", 272571))) and not UnitDebuffID("player", 25771) then
           if cast.divineShield() then
             return true
           end
@@ -977,7 +977,7 @@ local function runRotation()
 
 
     for i = 1, #br.friend do
-      if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) then
+      if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
         if br.friend[i].hp <= getValue("Blessing of Protection") then
           blessingOfProtectionall = br.friend[i].unit
         end
@@ -1001,7 +1001,7 @@ local function runRotation()
     -- Lay on Hands
     if isChecked("Lay on Hands - min") and getSpellCD(633) == 0 then
       for i = 1, #br.friend do
-        if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) then
+        if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
           if getOptionValue("Lay on Hands Target") == 1 then
             if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
               layOnHandsTarget = br.friend[i].unit
@@ -1429,7 +1429,9 @@ local function runRotation()
       end
     end
     --Talent Crusaders Might
-    if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike() and lowest.hp > getValue("Critical HP") and getFacing("player", units.dyn5) then
+    if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike()
+            and lowest.hp > getValue("Critical HP")
+            and getFacing("player", units.dyn5) then
       if (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) then
         if cast.crusaderStrike(units.dyn5) then
           return true
