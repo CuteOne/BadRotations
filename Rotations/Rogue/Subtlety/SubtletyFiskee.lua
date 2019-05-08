@@ -390,7 +390,7 @@ local function runRotation()
     local function actionList_Extra()
         if not inCombat then
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() then
+            if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() then
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
                 end
@@ -768,7 +768,7 @@ local function runRotation()
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(spell.stealth) and not cast.last.vanish(1) then
+            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish(1) then
                 cast.stealth("player")
             end
             --start aa
