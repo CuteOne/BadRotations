@@ -1310,7 +1310,7 @@ local function runRotation()
         end
       end
       -- Crusader Strike
-      if isChecked("Crusader Strike") and (not talent.crusadersMight or not inInstance or not inRaid) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if isChecked("Crusader Strike") and (not talent.crusadersMight or (not inInstance and not inRaid)) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
