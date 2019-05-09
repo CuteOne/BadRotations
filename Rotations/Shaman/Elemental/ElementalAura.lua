@@ -472,7 +472,7 @@ local function runRotation()
             end
             -- Flame Shock
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
-            if debuff.flameShock.count() <= getValue("Maximum FlameShock Targets") then
+            if debuff.flameShock.count() < getValue("Maximum FlameShock Targets") then
                 if not talent.stormElemental or not stormEle or (#enemies.yards40 == 3 and buff.windGust.stack() < 14) then
                     for i=1, #enemies.yards40 do
                         if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 or not debuff.flameShock.exists(enemies.yards40[i]) then
