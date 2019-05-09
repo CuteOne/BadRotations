@@ -665,7 +665,7 @@ local function runRotation()
         end
         -- # Vanish unless we are about to cap on Dance charges. Only when Find Weakness is about to run out.
         -- actions.stealth_cds+=/vanish,if=!variable.shd_threshold&debuff.find_weakness.remains<1&combo_points.deficit>1
-        if not shdThreshold and cdUsage and comboDeficit > 1 and isChecked("Vanish") and ttd("target") > getOptionValue("CDs TTD Limit") and debuff.findWeakness.remains("target") < 1 and targetDistance < 5 then
+        if not shdThreshold and cdUsage and comboDeficit > 1 and targetDistance < 5 and isChecked("Vanish") and ttd("target") > getOptionValue("CDs TTD Limit") and debuff.findWeakness.remain("target") < 1 then
             if cast.vanish("player") then return true end
         end
         -- # Pool for Shadowmeld + Shadowstrike unless we are about to cap on Dance charges. Only when Find Weakness is about to run out.
