@@ -244,10 +244,9 @@ local function runRotation()
             waitForPetToAppear = GetTime()
         elseif isChecked("Raise Dead") then
             if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                if UnitIsDeadOrGhost("pet") or deadPet or (not deadPet and not (IsPetActive() or UnitExists("pet"))) 
-                    or (talent.allWillServe and not pet.risenSkulker.exists()) 
-                then 
-                    Print("Raising the Dead!")
+                if cast.able.raiseDead() and (UnitIsDeadOrGhost("pet") or deadPet or (not deadPet and not (IsPetActive() or UnitExists("pet"))) 
+                    or (talent.allWillServe and not pet.risenSkulker.exists())) 
+                then
                     if cast.raiseDead() then waitForPetToAppear = GetTime(); return end 
                 end
             end
