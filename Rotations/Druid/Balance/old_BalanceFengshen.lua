@@ -52,9 +52,7 @@ local function createOptions()
 		-- Pre-Pull Timer
 		br.ui:createSpinner(section, "Pre-Pull Timer",  2.5,  0,  10,  0.5,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
 		-- Travel Shapeshifts
-		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to
-
-		 form for situation|cffFFBB00.")
+		br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to form for situation|cffFFBB00.")
 		-- Auto Soothe
 		br.ui:createCheckbox(section, "Auto Soothe")
 		-- Revive
