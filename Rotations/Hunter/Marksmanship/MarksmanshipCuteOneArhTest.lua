@@ -273,9 +273,9 @@ local function runRotation()
 					if buff.trickShots.exists() and not buff.preciseShots.exists() and not buff.doubleTap.exists() then
 						if cast.aimedShot() then return end
 					end
-                    --Multishot actions.trickshots+=/multishot,if=buff.trick_shots.down|(buff.precise_shots.up|buff.lethal_shots.up)&(!talent.barrage.enabled&buff.steady_focus.down&focus>45|focus>70)
+                    --multishot actions.trickshots+=/multishot,if=buff.trick_shots.down|(buff.precise_shots.up|buff.lethal_shots.up)&(!talent.barrage.enabled&buff.steady_focus.down&focus>45|focus>70)
 					if (not buff.trickShots.exists() or buff.preciseShots.exists()) or power > 70 then
-						if cast.multiShot() then return end
+						if cast.multishot() then return end
 					end
 					--Steady shot actions.trickshots+=/steady_shot,if=focus+cast_regen<focus.max|(talent.lethal_shots.enabled&buff.lethal_shots.down)
 					if ((power + (cast.regen.steadyShot() + 10)) < powerMax) then

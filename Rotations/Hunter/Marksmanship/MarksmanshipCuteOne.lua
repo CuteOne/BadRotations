@@ -7,7 +7,7 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multiShot },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
     };
@@ -512,10 +512,10 @@ local function runRotation()
             if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() then 
                 if cast.rapidFire() then return end 
             end
-        -- Multishot 
-            -- multiShot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
-            if cast.able.multiShot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
-                if cast.multiShot() then return end 
+        -- multishot 
+            -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
+            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
+                if cast.multishot() then return end 
             end
         -- Piercing Shot 
             -- piercing_shot

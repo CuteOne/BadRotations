@@ -825,7 +825,7 @@ local function runRotation()
                     if mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                     then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
                     -- actions+=/kill_command if target hp < 35%
                     if cast.able.killCommand() and getHP("pettarget") < 35 then
@@ -850,7 +850,7 @@ local function runRotation()
                     -- actions+=/multishot,if=spell_targets>1&(pet.cat.buff.beast_cleave.remains<gcd.max|pet.cat.buff.beast_cleave.down)
                     if (mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1)
                         and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
                     -- actions+=/cobra_shot,if=(active_enemies<2|cooldown.kill_command.remains>focus.time_to_max)&(buff.bestial_wrath.up&active_enemies>1|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains>focus.time_to_max|focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost)
                     if (#enemies.yards8p < 2 or cd.killCommand.remain() > ttm) and ((buff.bestialWrath.exists() and #enemies.yards8p > 1) or

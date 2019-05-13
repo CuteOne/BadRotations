@@ -1178,7 +1178,7 @@ local function runRotation()
                       -- and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                          and (buff.beastCleave.remain("pet") < gcdMax)
                     then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
 
                        -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
@@ -1206,7 +1206,7 @@ local function runRotation()
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") <  gcdMax)
                     then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
                     -- actions+=/kill_command
                     if cast.killCommand("target") then return end
