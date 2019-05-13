@@ -873,7 +873,7 @@ br.lists.spells = {
                 intimidation                = 19577,
                 killCommand                 = 34026,
                 misdirection                = 34477,
-                multiShot                   = 2643,
+                multishot                   = 2643,
                 spittingCobra               = 194407,
                 stampede                    = 201430,
                 titansThunder               = 207068,
@@ -886,6 +886,7 @@ br.lists.spells = {
                 aspectOfTheWild             = 193530,
                 beastCleave                 = 118455,
                 bestialWrath                = 19574,
+                danceOfDeath                = 274443,
                 direBeast                   = 120694,
                 frenzy                      = 272790,
                 parselsTongue               = 248084,
@@ -907,7 +908,9 @@ br.lists.spells = {
                 spittingCobra               = 194407,
             },
             traits                          = {
+                danceOfDeath                = 274441,
                 primalInstincts             = 279806,
+                rapidReload                 = 278530,
             },
         },
         -- Marksmanship
