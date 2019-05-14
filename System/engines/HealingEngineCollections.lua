@@ -25,9 +25,15 @@ novaEngineTables.DispelID = {
 	[257974] = {stacks = 9}, -- http://www.wowhead.com/spell=257974/chaos-pulse
 	-- Imonar the Soulhunter
 	[247552] = {stacks = 0, range = 15}, -- http://www.wowhead.com/spell=247552/sleep-canister
+	-- Jadefire Masters
+	[286988] = {stacks = 0}, -- https://www.wowhead.com/spell=286988/searing-embers
 	-- Conclave of the Chosen
-	[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
+	--[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
 	[285879] = {stacks = 0}, --https://www.wowhead.com/spell=285879/mind-wipe
+	-- Mekkatorque
+	[287167] = {stacks = 0}, -- https://www.wowhead.com/spell=287167/discombobulation
+	-- Jaina Proudmoore
+	[287626] = {stacks = 0}, -- https://www.wowhead.com/spell=287626/grasp-of-frost
 	-- SoB
 	[275014] = {stacks = 0, range = 3}, --https://www.wowhead.com/spell=274991/putrid-waters
 	-- Waycrest Manor
@@ -38,11 +44,14 @@ novaEngineTables.DispelID = {
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
 	[282098] = true,
+	[283617] = true, -- Wave of Light (Champion of Light)
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
 	-- Midnight (Attumen the Huntsman)
 	{ id = 227404 }, -- Intangible Presence
+	{ id = 285000 }, -- https://www.wowhead.com/spell=285000/kelp-wrapped
+	--{ id = 284663}, --Bwonsamdi's Wrath
 }
 -- This is where we house the Debuffs that are bad for our users, and should not be healed when they have it
 novaEngineTables.BadDebuffList= {
@@ -67,10 +76,11 @@ novaEngineTables.BadDebuffList= {
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
 	--Battle of Dazar'alor
 	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
-	[284663 ] = "Bwonsamdi's Wrath", --Bwonsamdi's Wrath (mythic conclave)
+	[284663] = "Bwonsamdi's Wrath", --Bwonsamdi's Wrath (mythic conclave)
 	--Crucible of storms
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
+	[295271] = "Umbral Shell", -- Void Stone Trinket Debuff
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
