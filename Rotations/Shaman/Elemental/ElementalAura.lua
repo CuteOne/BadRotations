@@ -464,20 +464,6 @@ local function runRotation()
             if talent.stormKeeper and #enemies.yards10t >= getValue("SK Targets") and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then return true end
             end
-            -- Ascendance
-            --actions.aoe+=/ascendance,if=talent.ascendance.enabled&(talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120&cooldown.storm_elemental.remains>15|!talent.storm_elemental.enabled)
-            if isChecked("Ascendance") and talent.ascendance and ((talent.stormElemental and cd.stormElemental.remain()<120 and cd.stormElemental.remain()> 15) or not talent.stormElemental) and useCDs() and holdBreak then
-                if cast.ascendance() then return true end
-            end
-            -- Liquid Magma Totem
-            --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
-            if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
-                if cast.liquidMagmaTotem("target") then return true end
-            end
-            -- Moving Chain Lightning
-            if buff.stormKeeper.exists() and isMoving("player") and holdBreak then
-                if cast.chainLightning() then return true end
-            end
             -- Flame Shock
             --actions.aoe+=/flame_shock,if=spell_targets.chain_lightning<4,target_if=refreshable
             if flameShockCount < getValue("Maximum FlameShock Targets") then
@@ -492,6 +478,16 @@ local function runRotation()
                     end
                 end
             end
+            -- Ascendance
+            --actions.aoe+=/ascendance,if=talent.ascendance.enabled&(talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120&cooldown.storm_elemental.remains>15|!talent.storm_elemental.enabled)
+            if isChecked("Ascendance") and talent.ascendance and ((talent.stormElemental and cd.stormElemental.remain()<120 and cd.stormElemental.remain()> 15) or not talent.stormElemental) and useCDs() and holdBreak then
+                if cast.ascendance() then return true end
+            end
+            -- Liquid Magma Totem
+            --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
+            if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
+                if cast.liquidMagmaTotem("target") then return true end
+            end
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
@@ -500,6 +496,10 @@ local function runRotation()
                 elseif mode.earthShock == 2 then
                     if cast.earthShock() then return true end
                 end
+            end
+            -- Moving Chain Lightning
+            if buff.stormKeeper.exists() and (isMoving("player") or buff.stormKeeper.remains() < 3*gcdMax*buff.stormKeeper.stack()) and holdBreak then
+                if cast.chainLightning() then return true end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
@@ -515,6 +515,14 @@ local function runRotation()
                         end
                     end
                 end
+            end
+            -- actions.aoe+=/icefury,if=spell_targets.chain_lightning<4&!buff.ascendance.up
+            if talent.iceFury and #enemies.yards10t < 4 and not buff.ascendance.exists() and holdBreak then
+                if cast.iceFury() then return true end
+            end
+            -- actions.aoe+=/frost_shock,if=spell_targets.chain_lightning<4&buff.icefury.up&!buff.ascendance.up
+            if talent.iceFury and #enemies.yards10t < 4 and buff.iceFury.exists() and not buff.ascendance.exists() and isChecked("Frost Shock") and holdBreak then
+                if cast.frostShock() then return true end
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
@@ -628,14 +636,19 @@ local function runRotation()
             if talent.stormElemental and stormEle and holdBreak then
                 if cast.lightningBolt() then return end
             end
+            --# Cast Lightning Bolt regardless of the previous condition if you'd lose a Stormkeeper stack or have Stormkeeper and Master of the Elements active.
+            -- actions.single_target+=/lightning_bolt,if=(buff.stormkeeper.remains<1.1*gcd*buff.stormkeeper.stack|buff.stormkeeper.up&buff.master_of_the_elements.up)
+            if ((buff.stormKeeper.remains() < 1.1*gcdMax*buff.stormKeeper.stack()) or buff.stormKeeper.exists() and buff.masterOfTheElements.exists()) then
+                if cast.lightningBolt() then return true end
+            end
             -- Frost Shock
             --actions.single_target+=/frost_shock,if=talent.icefury.enabled&talent.master_of_the_elements.enabled&buff.icefury.up&buff.master_of_the_elements.up
-            if talent.iceFury and talent.masterOfTheElements and buff.iceFury.exists() and buff.masterOfTheElements.exists() then
+            if talent.iceFury and talent.masterOfTheElements and buff.iceFury.exists() and buff.masterOfTheElements.exists() and isChecked("Frost Shock") then
                 if cast.frostShock() then return end
             end
             --Lava Burst
             --actions.single_target+=/lava_burst,if=cooldown_react|buff.ascendance.up
-            if (cd.lavaBurst.remain() <= gcdMax or buff.ascendance.exists()) and not stormEle and holdBreak then
+            if buff.ascendance.exists() and not stormEle and holdBreak then
                 if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
                     if cast.lavaBurst() then return true end
                 else
@@ -660,9 +673,50 @@ local function runRotation()
             if talent.surgeOfPower and buff.surgeOfPower.exists() and holdBreak then
                 if cast.lightningBolt() then return true end
             end
+            -- actions.single_target+=/lava_burst,if=cooldown_react&!talent.master_of_the_elements.enabled
+            if cd.lavaBurst.remain() <= gcdMax and not talent.masterOfTheElements and not stormEle and holdBreak then
+                if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+                    if cast.lavaBurst() then return true end
+                else
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                            if cast.lavaBurst(thisUnit) then return true end
+                        end
+                    end
+                end
+            end
+            --# Slightly game Icefury buff to hopefully buff some empowered Frost Shocks with Master of the Elements.
+             --actions.single_target+=/icefury,if=talent.icefury.enabled&!(maelstrom>75&cooldown.lava_burst.remains<=0)&(!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120)
+             if talent.iceFury and (power <= 75 and cd.lavaBurst.remains() > 0) and not stormEle then
+                if cast.iceFury() then return true end
+             end
+             -- actions.single_target+=/lava_burst,if=cooldown_react&charges>talent.echo_of_the_elements.enabled
+             if cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 then
+                if cast.lavaBurst() then return true end
+             end
+             --# Slightly delay using Icefury empowered Frost Shocks to empower them with Master of the Elements too.
+             --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up&buff.icefury.remains<1.1*gcd*buff.icefury.stack
+             if talent.masterOfTheElements and talent.iceFury and buff.iceFury.exists() and (buff.iceFury.remains() < 1.5*gcdMax*buff.iceFury.stack()) and isChecked("Frost Shock") then
+                if cast.frostShock() then return true end
+             end
+             -- actions.single_target+=/lava_burst,if=cooldown_react
+            if cd.lavaBurst.remain() <= gcdMax and not stormEle and holdBreak then
+                if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) then
+                    if cast.lavaBurst() then return true end
+                else
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if debuff.flameShock.remain(thisUnit) > getCastTime(spell.lavaBurst) then
+                            if cast.lavaBurst(thisUnit) then return true end
+                        end
+                    end
+                end
+            end
+            
             --Flame Shock (Refresh)
             --actions.single_target+=/flame_shock,target_if=refreshable
-            if flameShockCount < #enemies.yards40 and #enemies.yards40 <= 2 then
+            if flameShockCount < #enemies.yards40 and #enemies.yards40 <= 2 and not buff.surgeOfPower.exists() then
                 for i = 1, #enemies.yards40 do
                     if debuff.flameShock.remain(enemies.yards40[i]) < 5.4 and ((talent.surgeOfPower and not buff.surgeOfPower.exists()) or not talent.surgeOfPower) then
                         if cast.flameShock(enemies.yards40[i]) then return true end
@@ -676,13 +730,12 @@ local function runRotation()
             end
             -- Frost Shock
             --actions.single_target+=/frost_shock,if=talent.icefury.enabled&buff.icefury.up&(buff.icefury.remains<gcd*4*buff.icefury.stack|buff.stormkeeper.up|!talent.master_of_the_elements.enabled)
-            if talent.iceFury and buff.iceFury.exists() and isChecked("Frost Shock") and holdBreak then
+            if talent.iceFury and buff.iceFury.exists() and ((buff.iceFury.remains() < 4*gcdMax*buff.iceFury.stack()) or buff.stormKeeper.exists() or not talent.masterOfTheElements) and isChecked("Frost Shock") and holdBreak then
                 if cast.frostShock() then return true end
             end
-            -- Ice Fury
-            --actions.single_target+=/icefury,if=talent.icefury.enabled
-            if talent.iceFury and holdBreak then
-                if cast.iceFury() then return true end
+            -- actions.single_target+=/chain_lightning,if=buff.tectonic_thunder.up&!buff.stormkeeper.up&spell_targets.chain_lightning>1
+            if (traits.tectonicThunder.active and buff.tectonicThunder.exists()) or (buff.stormKeeper.exists() and #enemies.yards10t > 0) then
+                if cast.chainLightning() then return true end
             end
             -- Lightning Bolt            
             --actions.single_target+=/lightning_bolt
