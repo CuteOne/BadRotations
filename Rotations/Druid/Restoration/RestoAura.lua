@@ -209,9 +209,11 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Racial")
 		-- Trinkets
 		br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 4, 1, 40, 1, "Minimum Trinket 1 Targets(This includes you)")
+		br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
+		br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
 		br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
-		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 4, 1, 40, 1, "Minimum Trinket 2 Targets(This includes you)")
+		br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
+		br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround" }, 1, "", "")
 		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
         br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
         br.ui:createSpinner(section,"Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
@@ -919,21 +921,97 @@ local function runRotation()
 				end
 			end
 			if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
-				if hasEquiped(167865,13) and (lowest.hp < getValue("Trinket 1") or burst == true) then
-					UseItemByName(167865,lowest.unit)
-					br.addonDebug("Using Void Stone")
-				elseif getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
-					useItem(13)
-					br.addonDebug("Using Trinket 1")
+				if getOptionValue("Trinket 1 Mode") == 1 then
+					if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+						useItem(13)
+						br.addonDebug("Using Trinket 1")
+						return true
+					end
+					elseif getOptionValue("Trinket 1 Mode") == 2 then
+						for i = 1, #br.friend do
+							if br.friend[i].hp <= getValue("Trinket 1") or burst == true then
+							UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
+							br.addonDebug("Using Trinket 1 (Target)")
+							return true
+							end
+						end
+					elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+						for i = 1, #tanks do
+							-- get the tank's target
+							local tankTarget = UnitTarget(tanks[i].unit)
+							if tankTarget ~= nil then
+							-- get players in melee range of tank's target
+							local meleeFriends = getAllies(tankTarget, 5)
+							-- get the best ground circle to encompass the most of them
+							local loc = nil
+							if #meleeFriends < 12 then
+								loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+							else
+								local meleeHurt = {}
+								for j = 1, #meleeFriends do
+								if meleeFriends[j].hp < getValue("Trinket 1") then
+									tinsert(meleeHurt, meleeFriends[j])
+								end
+								end
+								if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+								loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+								end
+							end
+							if loc ~= nil then
+								useItem(13)
+								br.addonDebug("Using Trinket 1 (Ground)")
+								ClickPosition(loc.x, loc.y, loc.z)
+								return true
+							end
+						end
+					end
 				end
 			end
 			if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
-				if hasEquiped(167865,14) and (lowest.hp < getValue("Trinket 2") or burst == true) then
-					UseItemByName(167865,lowest.unit)
-					br.addonDebug("Using Void Stone")
-				elseif getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
-					useItem(14)
-					br.addonDebug("Using Trinket 2")
+				if getOptionValue("Trinket 2 Mode") == 1 then
+					if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+						useItem(14)
+						br.addonDebug("Using Trinket 2")
+						return true
+					end
+					elseif getOptionValue("Trinket 2 Mode") == 2 then
+						for i = 1, #br.friend do
+							if br.friend[i].hp <= getValue("Trinket 2") or burst == true then
+							UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
+							br.addonDebug("Using Trinket 2 (Target)")
+							return true
+							end
+						end
+					elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+						for i = 1, #tanks do
+							-- get the tank's target
+							local tankTarget = UnitTarget(tanks[i].unit)
+							if tankTarget ~= nil then
+							-- get players in melee range of tank's target
+							local meleeFriends = getAllies(tankTarget, 5)
+							-- get the best ground circle to encompass the most of them
+							local loc = nil
+							if #meleeFriends < 12  then
+								loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+							else
+								local meleeHurt = {}
+								for j = 1, #meleeFriends do
+								if meleeFriends[j].hp < getValue("Trinket 2") then
+									tinsert(meleeHurt, meleeFriends[j])
+								end
+								end
+								if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+								loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+								end
+							end
+							if loc ~= nil then
+								useItem(14)
+								br.addonDebug("Using Trinket 2 (Ground)")
+								ClickPosition(loc.x, loc.y, loc.z)
+								return true
+							end
+						end
+					end
 				end
 			end
 			-- Mana Potion
