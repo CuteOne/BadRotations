@@ -73,10 +73,15 @@ local function createOptions()
             --Resurrection
             br.ui:createCheckbox(section, "Resurrection")
             br.ui:createDropdownWithout(section, "Resurrection - Target", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "|cffFFFFFFTarget to cast on")
+
             br.ui:createCheckbox(section, "Gift of Forgiveness", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGift of Forgiveness azerite trait logic.|cffFFBB00.")
+            
             br.ui:createCheckbox(section, "Raid Penance", "|cffFFFFFFCheck this to only use Penance when moving.")
+            
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
+            
             br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, Trinkets will be triggered.")
+            --br.ui:createSpinner(section, "Tank Heal", 30, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Non-Tank units. Default: 30")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -288,6 +293,7 @@ local function runRotation()
         local ttm                                           = br.player.power.mana.ttm()
         local units                                         = br.player.units
         local lowest                                        = {}    --Lowest Unit
+        local schismCount                                   = debuff.schism.count()
 
         units.get(5)
         units.get(30)
@@ -370,8 +376,19 @@ local function runRotation()
         lowest.unit = "player"
         lowest.hp = 100
         for i = 1, #br.friend do
-            if br.friend[i].hp < lowest.hp then
-                lowest = br.friend[i]
+            if isChecked("Tank Heal")  then
+                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and (lowest.unit == "player" and lowest.hp > getOptionValue("Tank Heal")) then
+                    lowest = br.friend[i]
+                end
+                if ((br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") or br.friend[i].unit == "player" or br.friend[i].hp <= getOptionValue("Tank Heal")) then
+                    if br.friend[i].hp < lowest.hp then
+                        lowest = br.friend[i]
+                    end
+                end
+            elseif not isChecked("Tank Heal") then
+                if br.friend[i].hp < lowest.hp then
+                    lowest = br.friend[i]
+                end
             end
         end
 
@@ -612,7 +629,7 @@ local function runRotation()
                     bnSTimer = GetTime() return true end
                 end
             end
-            if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", 2) then
+            if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(120,300)) then
                 for i = 1, #br.friend do
                     if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                         if cast.powerWordFortitude() then return true end
@@ -623,7 +640,7 @@ local function runRotation()
         
         local function actionList_AMR()
             -- Temple of Seth
-            if inCombat and isChecked("Temple of Seth") then
+            if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
                 for i = 1, GetObjectCount() do
                     local thisUnit = GetObjectWithIndex(i)
                     if GetObjectID(thisUnit) == 133392 then
@@ -640,12 +657,15 @@ local function runRotation()
             -- Atonement Key
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
-                    if cast.powerWordRadiance(br.friend[1].unit) then end
+                    if cast.powerWordRadiance(lowest.unit) then end
                 else 
+                    if getSpellCD(spell.rapture) <= gcd and isChecked("Rapture") then
+                        if cast.rapture() then end
+                    end
                     if atonementCount ~= 0 or isMoving("player") then
                         for i = 1, #br.friend do
                             if getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then 
-                                if cast.powerWordShield(br.friend[i]) then end
+                                if cast.powerWordShield(br.friend[i].unit) then end
                             end
                         end
                     end
@@ -817,14 +837,14 @@ local function runRotation()
                 if isChecked("Obey Atonement Limits") then
                     for i = 1, #br.friend do
                         if maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                            if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then
+                            if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
                                 if cast.powerWordShield(br.friend[i].unit) then return true end
                             end
                         end
                     end
                 else
                     for i = 1, #br.friend do
-                        if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then
+                        if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return true end
                         end
                     end
@@ -859,19 +879,24 @@ local function runRotation()
                 end
             end
             -- Shadow Covenant
-            if isChecked("Shadow Covenant") and talent.shadowCovenant then
+            if isChecked("Shadow Covenant") and talent.shadowCovenant and schismCount < 1 then
                 if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then
                     if cast.shadowCovenant(lowest.unit) then return true end
                 end
             end
             -- Power Word Radiance
-            if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then                
-                if isChecked("Power Word: Radiance") and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() then
-                    if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
-                        for i = 1, #br.friend do
-                            if not buff.atonement.exists(br.friend[i].unit) then
-                                if cast.powerWordRadiance(br.friend[i].unit) then
-                                    healCount = healCount + 1
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then                
+                if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() then
+                    if charges.powerWordRadiance.count() == 2 and not buff.rapture.exists() then 
+                        if cast.powerWordRadiance(lowest.unit) then healCount = healCount + 1 return true end
+                    elseif charges.powerWordRadiance.count() >= 1 then
+                        if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
+                            for i = 1, #br.friend do
+                                if not buff.atonement.exists(br.friend[i].unit) then
+                                    if cast.powerWordRadiance(br.friend[i].unit) then
+                                        healCount = healCount + 1
+                                        return true
+                                    end
                                 end
                             end
                         end
@@ -879,7 +904,7 @@ local function runRotation()
                 end
             end
             -- Contrition Penance Heal
-            if isChecked("Penance Heal") and penanceCheck and talent.contrition and atonementCount >= 3 then
+            if isChecked("Penance Heal") and penanceCheck and talent.contrition and atonementCount >= 3 and schismCount < 1 then
                 if cast.penance(lowest.unit) then return true end
             end
             -- Schism (2+ Atonement)
@@ -906,13 +931,13 @@ local function runRotation()
                         end
                     end
                 else
-                    if lowest.hp <= getOptionValue("Penance Heal") then
+                    if lowest.hp <= getOptionValue("Penance Heal") and schismCount < 1 then
                         if cast.penance(lowest.unit) then return true end
                     end
                 end
             end
             -- Power Word: Shield (Tank)
-            if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
                 for i = 1, #br.friend do
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.friend[i].hp <= getValue("Tank Atonement HP") and not buff.powerWordShield.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then
                         if cast.powerWordShield(br.friend[i].unit) then 
@@ -922,7 +947,7 @@ local function runRotation()
                 end
             end
             -- Shadow Mend
-            if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
                 if isChecked("Shadow Mend") and norganBuff then
                     for i=1, #br.friend do
                         if br.friend[i].hp <= getValue("Shadow Mend") then
@@ -950,7 +975,7 @@ local function runRotation()
                 end
             end
             -- Power Word: Shield
-            if (isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage") then
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
                 for i = 1, #br.friend do
                     if (br.friend[i].role ~= "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK") and br.friend[i].hp <= getValue("Party Atonement HP") and not buff.powerWordShield.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 and (maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
                         if cast.powerWordShield(br.friend[i].unit) then 
