@@ -306,6 +306,8 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
+	frame:RegisterEvent("LOADING_SCREEN_ENABLED")
+	frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(self, event, ...)
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
@@ -597,6 +599,12 @@ function br.read.commonReaders()
 			elseif prefix == "BigWigs" and string.find(message, "Pull") then
 				_brPullTimer = GetTime() + tonumber(string.sub(message, 8, 9))
 			end
+		end
+		if event == "LOADING_SCREEN_ENABLED" and disableControl == false then
+			disableControl = true
+		end
+		if event == "LOADING_SCREEN_DISABLED" and disableControl == true then
+			disableControl = false
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

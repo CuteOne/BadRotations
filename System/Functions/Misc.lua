@@ -211,7 +211,7 @@ function isGarrMCd(Unit)
 end
 -- if isInCombat("target") then
 function isInCombat(Unit)
-	if UnitAffectingCombat(Unit) then
+	if UnitAffectingCombat(Unit) or isChecked("Ignore Combat") then
 		return true
 	else
 		return false
@@ -510,6 +510,9 @@ function pause(skipCastingCheck)
 	-- if button == "RightButton" then
 	-- 	Print("Right Clicked")
 	-- end
+	if disableControl == true then
+		return true
+	end
 	if SpecificToggle("Pause Mode") == nil or getValue("Pause Mode") == 6 then
 		pausekey = IsLeftAltKeyDown()
 	else
