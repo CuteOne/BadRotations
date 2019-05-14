@@ -863,6 +863,7 @@ br.lists.spells = {
                 barbedShot                  = 217200,
                 barrage                     = 120360,
                 bestialWrath                = 19574,
+                bloodFury                   = select(7, GetSpellInfo(GetSpellInfo(33702))),
                 bindingShot                 = 109248,
                 chimaeraShot                = 53209,
                 cobraShot                   = 193455,
