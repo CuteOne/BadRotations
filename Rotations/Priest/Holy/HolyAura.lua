@@ -368,7 +368,7 @@ local function runRotation()
 				br.addonDebug("Casting Mass Dispel")
 				return
 			end
-			if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", 2) then
+			if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", math.random(120,300)) then
                 for i = 1, #br.friend do
                     if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
                         if cast.powerWordFortitude() then br.addonDebug("Casting Power Word: Fortitude") return end
@@ -671,7 +671,7 @@ local function runRotation()
 			if cast.flashHeal(lowest.unit) then br.addonDebug("Casting Flash Heal") return end
 		end
 	-- Temple of Sethraliss
-		if inCombat and isChecked("Temple of Sethraliss") then
+		if inCombat and isChecked("Temple of Sethraliss") and br.player.eID and br.player.eID == 2127 then
 			for i = 1, GetObjectCount() do
 				local thisUnit = GetObjectWithIndex(i)
 				if GetObjectID(thisUnit) == 133392 then
