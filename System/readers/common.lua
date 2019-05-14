@@ -306,8 +306,8 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
-	frame:RegisterEvent("LOADING_SCREEN_ENABLED")
-	frame:RegisterEvent("LOADING_SCREEN_DISABLED")
+	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
+	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(self, event, ...)
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
