@@ -886,6 +886,7 @@ br.lists.spells = {
                 aspectOfTheWild             = 193530,
                 beastCleave                 = 118455,
                 bestialWrath                = 19574,
+                bloodFury                   = select(7, GetSpellInfo(GetSpellInfo(33702))),
                 danceOfDeath                = 274443,
                 direBeast                   = 120694,
                 frenzy                      = 272790,

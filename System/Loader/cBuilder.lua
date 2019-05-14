@@ -266,12 +266,14 @@ function br.loader:new(spec,specName)
             end
         end
 
-        -- Build Buff Info
+        -- Make Buff Functions
         for k,v in pairs(self.spell.buffs) do
             if k ~= "rollTheBones" then
                 if self.buff[k] == nil then self.buff[k] = {} end
                 if k == "bloodLust" then v = getLustID() end
+                --br.api.buffs(self.buff[k],v)
                 local buff = self.buff[k]
+                -- br.player.buff.spell.cancel()
                 buff.cancel = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
@@ -280,34 +282,41 @@ function br.loader:new(spec,specName)
                         -- CancelUnitBuff(thisUnit,v,sourceUnit)
                     end
                 end
+                -- br.player.buff.spell.exists()
                 buff.exists = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
                     return UnitBuffID(thisUnit,v,sourceUnit) ~= nil
                 end
+                -- br.player.buff.spell.duration()
                 buff.duration = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
                     return getBuffDuration(thisUnit,v,sourceUnit)
                 end
+                -- br.player.buff.spell.remain()
                 buff.remain = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end 
                     return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
                 end
+                -- br.player.buff.spell.remains()
                 buff.remains = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end
                     return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
                 end
+                -- br.player.buff.spell.stack()
                 buff.stack = function(thisUnit,sourceUnit)
                     if thisUnit == nil then thisUnit = 'player' end
                     if sourceUnit == nil then sourceUnit = 'player' end 
                     return getBuffStacks(thisUnit,v,sourceUnit)
                 end
+                -- br.player.buff.spell.refresh()
                 buff.refresh = function(thisUnit,sourceUnit)
                     return buff.remain(thisUnit,sourceUnit) <= buff.duration(thisUnit,sourceUnit) * 0.3
                 end
+                -- br.player.buff.spell.count()
                 buff.count = function()
                     return tonumber(getBuffCount(v))
                 end
@@ -762,11 +771,16 @@ function br.loader:new(spec,specName)
 ---------------
 
     function self.getToggleModes()
+        for k,v in pairs(br.data.settings[br.selectedSpec].toggles) do
+            local toggle = k:sub(1,1):lower()..k:sub(2)
+            self.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
+            UpdateToggle(k,0.25)
+        end
 
-        self.mode.rotation      = br.data.settings[br.selectedSpec].toggles["Rotation"]
-        self.mode.cooldown      = br.data.settings[br.selectedSpec].toggles["Cooldown"]
-        self.mode.defensive     = br.data.settings[br.selectedSpec].toggles["Defensive"]
-        self.mode.interrupt     = br.data.settings[br.selectedSpec].toggles["Interrupt"]
+        -- self.mode.rotation      = br.data.settings[br.selectedSpec].toggles["Rotation"]
+        -- self.mode.cooldown      = br.data.settings[br.selectedSpec].toggles["Cooldown"]
+        -- self.mode.defensive     = br.data.settings[br.selectedSpec].toggles["Defensive"]
+        -- self.mode.interrupt     = br.data.settings[br.selectedSpec].toggles["Interrupt"]
     end
 
     -- Create the toggle defined within rotation files
