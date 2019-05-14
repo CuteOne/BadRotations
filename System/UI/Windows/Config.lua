@@ -78,8 +78,6 @@ function br.ui:createConfigWindow()
         br.ui:createSpinner(section, "Overhealing Cancel", 95, nil, nil, nil, "Set Desired Threshold at which you want to prevent your own casts. CURRENTLY NOT IMPLEMENTED!")
         --healingDebug = br.ui:createCheckbox(section, "Healing Debug", "Check to display Healing Engine Debug.")
         --br.ui:createSpinner(section, "Debug Refresh", 500, 0, 1000, 25, "Set desired Healing Engine Debug Table refresh for rate in ms.")
-        br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
-        br.ui:createSpinnerWithout(section, "Promise of Power", 8, 1, 10, 1, "Set how many stacks of promise of power needed to dispel.")
         br.ui:createSpinner(section, "Dispel delay", 1.5, 0, 5, 0.1, "Set desired dispel delay in seconds of debuff duration.\n|cffFF0000Will randomise around the value you set.")
         br.ui:createCheckbox(section, "Healer Line of Sight Indicator", "Draws a line to healers. Green In Line of Sight / Red Not In Line of Sight")
         br.ui:checkSectionState(section)
@@ -136,6 +134,14 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callHealingOptions()
+        section = br.ui:createSection(br.ui.window.config, "Healing Options")
+        br.ui:createSpinnerWithout(section, "Bwonsamdi's Wrath HP", 30,1,100, 5, "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)")
+        br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
+        br.ui:createSpinnerWithout(section, "Promise of Power", 8, 1, 10, 1, "Set how many stacks of promise of power needed to dispel.")
+        br.ui:checkSectionState(section)
+    end
+
     -- Add Page Dropdown
     br.ui:createPagesDropdown(br.ui.window.config, {
         {
@@ -149,6 +155,10 @@ function br.ui:createConfigWindow()
         {
             [1] = "Healing Engine",
             [2] = callHealingEngine,
+        },
+        {
+            [1] = "Healing Options",
+            [2] = callHealingOptions,
         },
         {
             [1] = "Queue Engine",

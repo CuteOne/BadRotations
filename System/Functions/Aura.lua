@@ -236,6 +236,13 @@ function canDispel(Unit, spellID)
 				local debuffRemain = debuffExpire - GetTime()
 				local dispelUnitObj
 				if (debuffType and ValidType(debuffType)) then 
+					if debuffid == 284663 then
+						if (GetHP(Unit) < getOptionValue("Bwonsamdi's Wrath HP") or pakuWrath == true) then
+							HasValidDispel = true
+						elseif UnitGroupRolesAssigned(Unit) == "TANK" and (debuffDuration - debuffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+							HasValidDispel = true
+						end
+					end
 					if isChecked("Dispel Only Whitelist") and novaEngineTables.DispelID[debuffid] == nil then
 						return false
 					else
