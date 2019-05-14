@@ -51,6 +51,12 @@ local function createToggles()
         [2] = { mode = "Off", value = 1 , overlay = "FoF Disabled", tip = "Will NOT cast Fists Of Fury.", highlight = 0, icon = br.player.spell.fistsOfFury}
     };
     CreateButton("FOF",7,0)
+    -- Opener
+    OpenerModes = {
+        [1] = { mode = "On", value = 2 , overlay = "Opener Enabled", tip = "Will use Opener.", highlight = 1, icon = br.player.spell.fistOfTheWhiteTiger},
+        [2] = { mode = "Off", value = 1 , overlay = "Opener Disabled", tip = "Will NOT use Opener.", highlight = 0, icon = br.player.spell.fistOfTheWhiteTiger}
+    };
+    CreateButton("Opener",8,0)
 end
 
 ---------------
@@ -69,7 +75,7 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Opener
-            br.ui:createCheckbox(section, "Opener")
+            -- br.ui:createCheckbox(section, "Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- CJL OOR
@@ -699,7 +705,7 @@ end --End Action List - Pre-Combat
 actionList.Opener = function()
     -- Start Attack
     -- auto_attack
-    if isChecked("Opener") and isBoss("target") and not opener.complete then
+    if mode.opener == 1 and isBoss("target") and not opener.complete then
         if isValidUnit("target") and getDistance("target") < 5 and getFacing("player","target") and getSpellCD(61304) == 0 then
             -- Potion
             -- potion,name=old_war,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
@@ -731,9 +737,9 @@ actionList.Opener = function()
                 return
             -- Trinkets 
             elseif opener.XUEN and not opener.TRNK1 then 
-                if not canUse(13) then 
+                if not canUse(13) or getOptionValue("Trinkets") == 3 then 
                     Print(opener.count..": Trinket 1 (Uncastable)") 
-                elseif isChecked("Trinkets") and canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
+                elseif canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
                     useItem(13)
                     Print(opener.count..": Trinket 1")
                 end 
@@ -741,9 +747,9 @@ actionList.Opener = function()
                 opener.TRNK1 = true
                 return
             elseif opener.TRNK1 and not opener.TRNK2 then 
-                if not canUse(14) then 
+                if not canUse(14) or getOptionValue("Trinkets") == 3 then 
                     Print(opener.count..": Trinket 2 (Uncastable)") 
-                elseif isChecked("Trinkets") and canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
+                elseif canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
                     useItem(14)
                     Print(opener.count..": Trinket 2")
                 end
@@ -915,7 +921,7 @@ actionList.Opener = function()
                 opener.complete = true
             end
         end
-    elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+    elseif (UnitExists("target") and not isBoss("target")) or mode.opener == 2 then
         opener.complete = true
     end -- End Boss and Opener Check
 end -- End Action List - Opener

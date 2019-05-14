@@ -433,12 +433,7 @@ actionList.Demonic = function()
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
     if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
-        and ((cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank * 3)) or mode.eyeBeam == 2)
-        --     or ((mode.rotation == 1 and (getOptionValue("Eye Beam Usage") == 3
-        --         or (getOptionValue("Eye Beam Usage") == 2 and enemies.yards8r < getOptionValue("Units To AoE"))
-        --         or (getOptionValue("Eye Beam Usage") == 1 and enemies.yards8r == 0)))
-        --     or mode.rotation == 2))
-        -- and (cd.metamorphosis.remain() ~= 0 or not isChecked("Metamorphosis") or not useCDs() or not isBoss())
+        and ((cd.eyeBeam.remain() > ((5 - traits.revolvingBlades.rank) * 3)) or mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then return end
     end
