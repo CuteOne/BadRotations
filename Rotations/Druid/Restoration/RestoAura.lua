@@ -1759,47 +1759,33 @@ local function runRotation()
 				{233264, 5, "Embrace of the Eclipse"},
 				{236542, 5, "Sundering Doom"},
 				{236544, 5, "Doomed Sundering"},
-				{235059, 5, "Rupturing Singularity"}
+				{235059, 5, "Rupturing Singularity"},
+				{196587, 5, "Soul Burst"}, --Amalgam of Souls
+				{211464, 5, "Fel Detonation"}, --Advisor Melandrus
+				{237276, 5, "Pulverizing Cudgel"}, --Thrashbite the Scornful
+				{193611, 5, "Focused Lightning"}, --Lady Hatecoil
+				{192305, 5, "Eye of the Storm"}, --Hyrja
+				{239132, 5, "Rupture Realities"}, --Fallen Avatar
+				{281936, 5, "Tantrum"}, -- Grong
+				{282399, 5, "Death Knell"}, --Grong(Revenant)
+				{284941, 5, "Wail of Greed"}, -- Opulence
+				{282107, 5, "Paku's Wrath"}, -- Conclave
+				{282742, 5, "Storm of Annihilation"}, -- Crucible of Storms
 			}
-			for i = 1, #precast_spell_list do
-				local boss_spell_id = precast_spell_list[i][1]
-				local precast_time = precast_spell_list[i][2]
-				local spell_name = precast_spell_list[i][3]
-				local time_remain = br.DBM:getPulltimer_fix(nil, boss_spell_id)
-				if time_remain < precast_time then
-					for j = 1, #br.friend do
-						if UnitInRange(br.friend[j].unit) then
+			for j = 1, #br.friend do
+				if UnitInRange(br.friend[j].unit) then
+					for i = 1, #precast_spell_list do
+						local boss_spell_id = precast_spell_list[i][1]
+						local precast_time = precast_spell_list[i][2]
+						local spell_name = precast_spell_list[i][3]
+						local time_remain = br.DBM:getPulltimer(nil, boss_spell_id)
+						if time_remain < precast_time then
 							if not buff.rejuvenation.exists(br.friend[j].unit) then
 								--clearform()
 								if cast.rejuvenation(br.friend[j].unit) then
 									br.addonDebug("Casting Rejuvenation")
 									return true
 								end
-							end
-						end
-					end
-				end
-			end
-			local Casting = {
-				--spell_id	, spell_name
-				{196587, "Soul Burst"}, --Amalgam of Souls
-				{211464, "Fel Detonation"}, --Advisor Melandrus
-				{237276, "Pulverizing Cudgel"}, --Thrashbite the Scornful
-				{193611, "Focused Lightning"}, --Lady Hatecoil
-				{192305, "Eye of the Storm"}, --Hyrja
-				{239132, "Rupture Realities"} --Fallen Avatar
-			}
-			for i = 1, #Casting do
-				local spell_id = Casting[i][1]
-				local spell_name = Casting[i][2]
-				for j = 1, #br.friend do
-					if UnitInRange(br.friend[j].unit) then
-						if UnitCastingInfo("boss1") == GetSpellInfo(spell_id) and not buff.rejuvenation.exists(br.friend[j].unit) then
-							--clearform()
-							if cast.rejuvenation(br.friend[j].unit) then
-								br.addonDebug("Casting Rejuvenation")
-								Print("DBM cast Rejuvenation--" .. spell_name)
-								return true
 							end
 						end
 					end
