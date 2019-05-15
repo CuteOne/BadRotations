@@ -110,7 +110,7 @@ local function createOptions()
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
             -- Bestial Wrath
-            br.ui:createCheckboxWithout(section,"Bestial Wrath", {"|cff00FF00Boss","|cffFFFF00Always"}, 1, "|cffFFFFFFSelect Bestial Wrath Usage.")
+            br.ui:createDropdownWithout(section,"Bestial Wrath", {"|cff00FF00Boss","|cffFFFF00Always"}, 1, "|cffFFFFFFSelect Bestial Wrath Usage.")
             -- Trueshot
             br.ui:createCheckbox(section,"Aspect of the Wild")
             -- Stampede
@@ -411,17 +411,18 @@ actionList.Extras = function()
         if isValidUnit("target") then
             if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
                 for i = 1, #br.friend do
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
-                        and UnitAffectingCombat(br.friend[i].unit)
+                    local thisFriend = br.friend[i].unit
+                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
+                        and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
                     then
-                        if cast.misdirection(br.friend[i].unit) then return end
+                        if cast.misdirection(thisFriend) then return end
                     end
                 end
             elseif getOptionValue("Misdirection") == 2 and GetUnitExists("focus")
                 and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player")
             then
                 if cast.misdirection("focus") then return end
-            elseif getOptionValue("Misdirection") == 3 and GetUnitExists("pet") then
+            elseif getOptionValue("Misdirection") == 3 and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") then
                 if cast.misdirection("pet") then return end
             end
         end
