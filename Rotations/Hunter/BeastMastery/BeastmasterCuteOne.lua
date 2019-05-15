@@ -302,11 +302,11 @@ actionList.PetManagement = function()
     end
     -- Claw
     if isChecked("Claw") and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
-        if cast.claw("pettarget") then return end
+        if cast.claw("pettarget","pet") then return end
     end
     -- Dash
     if isChecked("Dash") and cast.able.dash() and validTarget and getDistance("pettarget","pet") > 10 then
-        if cast.dash() then return end
+        if cast.dash(nil,"pet") then return end
     end
     -- Spirit Mend
     if isChecked("Spirit Mend") and petExists and not petDead and not petDead and lowestHP < getOptionValue("Spirit Mend") then
@@ -316,33 +316,27 @@ actionList.PetManagement = function()
 
     -- Purge
     if isChecked("Purge") then
-        if enemies.yards5p then
+        if #enemies.yards5p > 0 then
             local dispelled = false
             local dispelledUnit = "player"
-            for i = 1, #enemies.yards5p do 
+            for i = 1, #enemies.yards5p do
                 local thisUnit = enemies.yards5p[i]
                 if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
                     if canDispel(thisUnit,spell.spiritShock) then
-                        if cast.able.spiritShock(thisUnit) then
-                            if cast.spiritShock(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.chiJiTranq(thisUnit) then
-                            if cast.chiJiTranq(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.naturesGrace(thisUnit) then
-                            if cast.naturesGrace(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.netherShock(thisUnit) then
-                            if cast.netherShock(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.sonicBlast(thisUnit) then
-                            if cast.sonicBlast(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.soothingWater(thisUnit) then
-                            if cast.soothingWater(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        end
-                        if cast.able.sporeCloud(thisUnit) then
-                            if cast.sporeCloud(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
+                        if cast.able.spiritShock(thisUnit,"pet") then
+                            if cast.spiritShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.chiJiTranq(thisUnit,"pet") then
+                            if cast.chiJiTranq(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.naturesGrace(thisUnit,"pet") then
+                            if cast.naturesGrace(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.netherShock(thisUnit,"pet") then
+                            if cast.netherShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.sonicBlast(thisUnit,"pet") then
+                            if cast.sonicBlast(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.soothingWater(thisUnit,"pet") then
+                            if cast.soothingWater(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
+                        elseif cast.able.sporeCloud(thisUnit,"pet") then
+                            if cast.sporeCloud(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
                         end
                     end
                 end

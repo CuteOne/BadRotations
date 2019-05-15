@@ -353,11 +353,11 @@ local function runRotation()
             end
             -- Claw
             if isChecked("Claw") and cast.able.claw("pettarget") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
-                if cast.claw("pettarget") then return end
+                if cast.claw("pettarget","pet") then return end
             end
             -- Dash
             if isChecked("Dash") and cast.able.dash() and isValidUnit("pettarget") and getDistance("pettarget","pet") > 10 then
-                if cast.dash() then return end
+                if cast.dash(nil,"pet") then return end
             end
             -- Growl
             if isChecked("Auto Growl") then
@@ -369,11 +369,11 @@ local function runRotation()
                     end
                     if cast.able.growl() then
                         for i = 1, #enemies.yards30 do
-            				local thisUnit = enemies.yards30[i]
-            				if not isTanking(thisUnit) then
-            					if cast.growl(thisUnit) then return end
-            				end
-            			end
+                            local thisUnit = enemies.yards30[i]
+                            if not isTanking(thisUnit) then
+                                if cast.growl(thisUnit) then return end
+                            end
+                        end
                     end
                 end
             end
