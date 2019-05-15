@@ -489,20 +489,56 @@ local function runRotation()
             -- Liquid Magma Totem
             --actions.aoe+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled
             if talent.liquidMagmaTotem and useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
-                if cast.liquidMagmaTotem("target") then br.addonDebug("Casting Liquid Magma Totem") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.liquidMagmaTotem("target") then br.addonDebug("Casting Liquid Magma Totem") return true end
+                end
             end
             -- Earthquake
             --actions.aoe+=/earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.masterOfTheElements or buff.stormKeeper.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump") or buff.masterOfTheElements.exists() or #enemies.yards10t > 3) and holdBreak then
                 if mode.earthShock == 1 then
-                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    local cc = false
+                    if getOptionCheck("Don't break CCs") then
+                        for i = 1, #enemies.yards8t do 
+                            local thisUnit = #enemies.yards8t[i].unit
+                            if isLongTimeCCed(thisUnit) then
+                                cc = true
+                                break
+                            end
+                        end
+                    end
+                    if cc == false then
+                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    end
                 elseif mode.earthShock == 2 then
                     if cast.earthShock() then br.addonDebug("Casting Earthshock") return true end
                 end
             end
             -- Moving Chain Lightning
             if buff.stormKeeper.exists() and (isMoving("player") or buff.stormKeeper.remains() < 3*gcdMax*buff.stormKeeper.stack()) and holdBreak then
-                if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards8t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                end
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
@@ -535,12 +571,36 @@ local function runRotation()
             -- Lava Beam
             --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
             if buff.ascendance.exists() and #enemies.yards10t >= getValue("Lava Beam Targets") and holdBreak then
-                if cast.lavaBeam() then br.addonDebug("Casting Lava Beam") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards10t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.lavaBeam() then br.addonDebug("Casting Lava Beam") return true end
+                end
             end             
             -- Chain Lightning
             --actions.aoe+=/chain_lightning
             if #enemies.yards10t > 2 and holdBreak then
-                if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards10t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                end
             end
             -- Lava Burst (Moving)
             --actions.aoe+=/lava_burst,moving=1,if=talent.ascendance.enabled
@@ -576,7 +636,7 @@ local function runRotation()
         local function actionList_ST()
             --Flame Shock
             --actions.single_target=(|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<2*gcd|dot.flame_shock.remains<=gcd|talent.ascendance.enabled&dot.flame_shock.remains<(cooldown.ascendance.remains+buff.ascendance.duration)&cooldown.ascendance.remains<4&(!talent.storm_elemental.enabled|talent.storm_elemental.enabled&cooldown.storm_elemental.remains<120))&buff.wind_gust.stack<14&!buff.surge_of_power.up
-            if (flameShockCount < #enemies.yards40 and #enemies.yards40 <= 2) or #enemies.yards40 == 1 then
+            if flameShockCount < #enemies.yards40 then
                 for i = 1, #enemies.yards40 do
                     if ((talent.stormElemental and cd.stormElemental.remains() < 2 * gcd) or (debuff.flameShock.remains(enemies.yards40[i]) <= 5.4) or (talent.ascendance and debuff.flameShock.remains(enemies.yards40[i]) < (cd.ascendance.remains() + buff.ascendance.duration()) and cd.ascendance.remains() < 4 and (not talent.stormElemental or not stormEle))) and buff.windGust.stack() < 14 and not buff.surgeOfPower.exists() then
                         if cast.flameShock(enemies.yards40[i]) then br.addonDebug("Casting Flameshock") return true end
@@ -604,7 +664,19 @@ local function runRotation()
             -- Liquid Magma Totem
             --actions.single_target+=/liquid_magma_totem,if=talent.liquid_magma_totem.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
             if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and talent.liquidMagmaTotem and holdBreak then
-                if cast.liquidMagmaTotem() then br.addonDebug("Casting Liquid Magma Totem") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.liquidMagmaTotem() then br.addonDebug("Casting Liquid Magma Totem") return true end
+                end
             end
             -- Lightning Bolt
             --actions.single_target+=/lightning_bolt,if=buff.stormkeeper.up&spell_targets.chain_lightning<2&(buff.master_of_the_elements.up&!talent.surge_of_power.enabled|buff.surge_of_power.up)
@@ -616,7 +688,19 @@ local function runRotation()
             --&(!talent.surge_of_power.enabled|!dot.flame_shock.refreshable|cooldown.storm_elemental.remains>120)&(!talent.master_of_the_elements.enabled|buff.master_of_the_elements.up|maelstrom>=92)
             if #enemies.yards8t >= getValue("Earthquake Targets") and (not talent.surgeOfPower or (not debuff.flameShock.exists() or debuff.flameShock.remain() < 5.4) or (talent.stormElemental and stormEle and (not talent.masterOfTheElements or buff.masterOfTheElements.exists() or power >= getOptionValue("Earth Shock Maelstrom Dump")))) and holdBreak then
                 if mode.earthShock == 1 then
-                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    local cc = false
+                    if getOptionCheck("Don't break CCs") then
+                        for i = 1, #enemies.yards8t do 
+                            local thisUnit = #enemies.yards8t[i].unit
+                            if isLongTimeCCed(thisUnit) then
+                                cc = true
+                                break
+                            end
+                        end
+                    end
+                    if cc == false then
+                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    end
                 elseif mode.earthShock == 2 then
                     if cast.earthShock() then br.addonDebug("Casting Earthshock") return true end
                 end
@@ -716,7 +800,6 @@ local function runRotation()
                     end
                 end
             end
-            
             --Flame Shock (Refresh)
             --actions.single_target+=/flame_shock,target_if=refreshable
             if flameShockCount < #enemies.yards40 and #enemies.yards40 <= 2 and not buff.surgeOfPower.exists() then
@@ -821,7 +904,19 @@ local function runRotation()
             -- Earthquake
             if #enemies.yards8t >= getValue("Earthquake Targets") and holdBreak then
                 if mode.earthShock == 1 then
-                    if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    local cc = false
+                    if getOptionCheck("Don't break CCs") then
+                        for i = 1, #enemies.yards8t do 
+                            local thisUnit = #enemies.yards8t[i].unit
+                            if isLongTimeCCed(thisUnit) then
+                                cc = true
+                                break
+                            end
+                        end
+                    end
+                    if cc == false then
+                        if createCastFunction("best",false,1,8,spell.earthquake,nil,true) then br.addonDebug("Casting Earthquake") return true end
+                    end
                 elseif mode.earthShock == 2 then
                     if cast.earthShock() then br.addonDebug("Casting Earthshock") return true end
                 end
@@ -832,7 +927,19 @@ local function runRotation()
             end
             -- Liquid Magma Totem
             if useCDs() and #enemies.yards8t >= getValue("LMT Targets") and holdBreak then
-                if cast.liquidMagmaTotem("target") then br.addonDebug("Casting Liquid Magma Totem") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards8t do 
+                        local thisUnit = #enemies.yards8t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.liquidMagmaTotem("target") then br.addonDebug("Casting Liquid Magma Totem") return true end
+                end
             end
             -- Stormkeeper
             if useCDs() and (#enemies.yards8t >= getValue("SK Targets") or #enemies.yards8t == 0) and talent.stormKeeper and mode.stormKeeper == 1 and holdBreak then
@@ -844,14 +951,38 @@ local function runRotation()
             end
             -- Lava Beam (3+ Targets)
             if #enemies.yards10t >= getValue("Lava Beam Targets") and buff.ascendance.exists() and holdBreak then
-                if cast.lavaBeam() then br.addonDebug("Casting Lava Beam") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards10t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.lavaBeam() then br.addonDebug("Casting Lava Beam") return true end
+                end
             end
             if buff.surgeOfPower.exists() and holdBreak then
                 if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return true end
             end
             -- Chain Lightning (3+ Targets)
             if #enemies.yards10t >= 3 and not buff.ascendance.exists() and holdBreak then
-                if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards10t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                end
             end
             -- Lava Burst
             if debuff.flameShock.remain("target") > getCastTime(spell.lavaBurst) and holdBreak then
@@ -875,7 +1006,19 @@ local function runRotation()
             end
             -- Chain Lightning
             if #enemies.yards10t > 1 and not buff.ascendance.exists() and holdBreak then
-                if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                local cc = false
+                if getOptionCheck("Don't break CCs") then
+                    for i = 1, #enemies.yards10t do 
+                        local thisUnit = #enemies.yards10t[i].unit
+                        if isLongTimeCCed(thisUnit) then
+                            cc = true
+                            break
+                        end
+                    end
+                end
+                if cc == false then
+                    if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
+                end
             end
             -- Lightning Bolt
             if holdBreak then
