@@ -139,6 +139,7 @@ function br.loader:new(spec,specName)
     --Update Azerite Traits
     local function getAzeriteTraitInfo()
         -- Search Each Azerite Spell ID
+        if self.spell.traits == nil then return end
         for k, v in pairs(self.spell.traits) do
             self.traits[k] = {}
             self.traits[k].active = false
