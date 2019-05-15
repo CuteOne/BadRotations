@@ -138,36 +138,23 @@ function br.loader:new(spec,specName)
 
     --Update Azerite Traits
     local function getAzeriteTraitInfo()
-        local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem()
-        if self.spell.traits == nil then return end
+        -- Search Each Azerite Spell ID
         for k, v in pairs(self.spell.traits) do
             self.traits[k] = {}
             self.traits[k].active = false
             self.traits[k].rank = 0
-        end
-        if not azeriteItemLocation then return end
-        local azeritePowerLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation)
-        for slot = INVSLOT_FIRST_EQUIPPED, INVSLOT_LAST_EQUIPPED - 1 do -- exclude tabard
-            local item = Item:CreateFromEquipmentSlot(slot)
-            if (not item:IsItemEmpty()) then
-                local itemLocation = item:GetItemLocation()
-                if (C_AzeriteEmpoweredItem.IsAzeriteEmpoweredItem(itemLocation)) then
-                    local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-                    for tier, info in next, tierInfo do
-                        if (info.unlockLevel <= azeritePowerLevel) then
-                            for _, powerID in next, info.azeritePowerIDs do
-                                local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
-                                local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-                                if powerInfo and isSelected then
-                                    local azeriteSpellID = powerInfo["spellID"]
-                                    for k, v in pairs(self.spell.traits) do
-                                        if v == azeriteSpellID then
-                                            self.traits[k].active = true
-                                            self.traits[k].rank = self.traits[k].rank + 1
-                                        end
-                                    end
-                                end
-                            end
+            -- Search Each Equiped Azerite Item
+            for _, itemLocation in AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
+                local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+                -- Search Each Level Of The Azerite Item
+                for tier, info in next, tierInfo do
+                    -- Search Each Power On Level
+                    for _, powerID in next, info.azeritePowerIDs do
+                        local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
+                        local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+                        if powerInfo.spellID == v and isSelected then
+                            self.traits[k].active = true
+                            self.traits[k].rank = self.traits[k].rank + 1
                         end
                     end
                 end
@@ -189,6 +176,33 @@ function br.loader:new(spec,specName)
                 return getPerkRank(v)
             end
         end
+
+        -- --Build Azerite Info
+        -- for k,v in pairs(self.spell.traits) do
+        --     if not self.traits[k] then self.traits[k] = {} end
+        --     local traits = self.traits[k]
+
+        --     traits.rank = function()
+        --         local rank = 0
+        --         for _, itemLocation in AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
+        --             local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
+        --             for tier, info in next, tierInfo do
+        --                 for _, powerID in next, info.azeritePowerIDs do
+        --                     local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
+        --                     local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
+        --                     if powerInfo.spellID == v and isSelected then
+        --                         rank = rank + 1
+        --                     end
+        --                 end
+        --             end
+        --         end
+        --         return rank
+        --     end
+
+        --     traits.active = function()
+        --         return traits.rank() > 0
+        --     end
+        -- end
 
         -- Update Power
         if not self.power then self.power = {} end
