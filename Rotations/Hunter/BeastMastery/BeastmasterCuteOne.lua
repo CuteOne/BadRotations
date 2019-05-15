@@ -77,8 +77,8 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- AoE Units
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
-            -- Artifact
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
+            -- Misdirection
+            br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Opener
             br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
@@ -317,32 +317,37 @@ actionList.PetManagement = function()
     -- Purge
     if isChecked("Purge") then
         if enemies.yards5p then
+            local dispelled = false
+            local dispelledUnit = "player"
             for i = 1, #enemies.yards5p do 
                 local thisUnit = enemies.yards5p[i]
-                if getValue("Purge") == 1 or (getValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
-                    local dispelled = false
-                    local dispelledUnit = "player"
-                            --your dispel logic
+                if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
                     if canDispel(thisUnit,spell.spiritShock) then
                         if cast.able.spiritShock(thisUnit) then
                             if cast.spiritShock(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.chiJiTranq(thisUnit) then
+                        end
+                        if cast.able.chiJiTranq(thisUnit) then
                             if cast.chiJiTranq(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.naturesGrace(thisUnit) then
+                        end
+                        if cast.able.naturesGrace(thisUnit) then
                             if cast.naturesGrace(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.netherShock(thisUnit) then
+                        end
+                        if cast.able.netherShock(thisUnit) then
                             if cast.netherShock(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.sonicBlast(thisUnit) then
+                        end
+                        if cast.able.sonicBlast(thisUnit) then
                             if cast.sonicBlast(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.soothingWater(thisUnit) then
+                        end
+                        if cast.able.soothingWater(thisUnit) then
                             if cast.soothingWater(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
-                        elseif cast.able.sporeCloud(thisUnit) then
+                        end
+                        if cast.able.sporeCloud(thisUnit) then
                             if cast.sporeCloud(thisUnit) then dispelled = true; dispelledUnit = thisUnit; break end
                         end
                     end
                 end
             end
-            if dispelled then print("casting dispel on ".. UnitName(dispelledUnit)); return end
+            if dispelled then Print("Casting dispel on ".. UnitName(dispelledUnit)); return end
         end
     end
 
@@ -351,7 +356,7 @@ actionList.PetManagement = function()
         local _, autoCastEnabled = GetSpellAutocast(spell.growl)
         if autoCastEnabled then DisableSpellAutocast(spell.growl) end
         if not isTankInRange() and not buff.prowl.exists("pet") then
-            if cast.able.misdirection("pet") and #enemies.yards8p > 1 then
+            if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                 if cast.misdirection("pet") then return end
             end
             if cast.able.growl() then
@@ -403,19 +408,23 @@ actionList.Extras = function()
     end -- End Dummy Test
     -- Misdirection
     if mode.misdirection == 1 then
-          if isValidUnit("target") then
-              if inInstance or inRaid then
-                  for i = 1, #br.friend do
-                      if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                          if cast.misdirection(br.friend[i].unit) then return end
-                      end
-                  end
-              else
-                  if GetUnitExists("pet") then
-                      if cast.misdirection("pet") then return end
-                  end
-              end
-          end
+        if isValidUnit("target") then
+            if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
+                for i = 1, #br.friend do
+                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")
+                        and UnitAffectingCombat(br.friend[i].unit)
+                    then
+                        if cast.misdirection(br.friend[i].unit) then return end
+                    end
+                end
+            elseif getOptionValue("Misdirection") == 2 and GetUnitExists("focus")
+                and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player")
+            then
+                if cast.misdirection("focus") then return end
+            elseif getOptionValue("Misdirection") == 3 and GetUnitExists("pet") then
+                if cast.misdirection("pet") then return end
+            end
+        end
     end
 end -- End Action List - Extras
 
@@ -474,6 +483,15 @@ actionList.Interrupts = function()
                 end
             end
         end
+        -- Freezing Trap
+        if isChecked("Freezing Trap") and cast.able.freezingTrap() then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
+                if getDistance(thisUnit) > 8 and getCastTimeRemain(thisUnit) > 3 then
+                    if cast.freezingTrap(thisUnit,"ground") then return true end
+                end
+            end
+        end
         -- Intimidation
         if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and not deadPets then
             for i=1, #enemies.yards40 do
@@ -527,12 +545,16 @@ actionList.Cooldowns = function()
         end
         -- Aspect of the Wild
         -- aspect_of_the_wild,precast_time=1.1,if=!azerite.primal_instincts.enabled
-        if isChecked("Aspect of the Wild") and cast.able.aspectOfTheWild() and (not traits.primalInstincts.active) then
+        if isChecked("Aspect of the Wild") and cast.able.aspectOfTheWild() 
+            and (not traits.primalInstincts.active) and ttd(units.dyn40) > 15
+        then
             if cast.aspectOfTheWild() then return end
         end
         -- Bestial Wrath
         -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled
-        if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and cast.able.bestialWrath() and (traits.primalInstincts.active) then
+        if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and cast.able.bestialWrath() 
+            and (traits.primalInstincts.active) and ttd(units.dyn40) > 15
+        then
             if cast.bestialWrath() then return end
         end
     end -- End useCooldowns check
@@ -574,7 +596,7 @@ actionList.St = function()
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() then
+    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and ttd(units.dyn40) > 15 then
         if cast.aspectOfTheWild() then return end
     end
     -- A Murder of Crows
@@ -584,12 +606,16 @@ actionList.St = function()
     end
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15
-    if isChecked("Stampede") and talent.stampede and cast.able.stampede() and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists() or ttd(units.dyn40) < 15) then
+    if isChecked("Stampede") and talent.stampede and cast.able.stampede() 
+        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and ttd(units.dyn40) > 15
+    then
         if cast.stampede() then return end
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains>20|target.time_to_die<15
-    if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and cast.able.bestialWrath() and (cd.aspectOfTheWild.remain() > 20 or ttd(units.dyn40) < 15) then
+    if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and cast.able.bestialWrath() 
+        and cd.aspectOfTheWild.remain() > 20 and ttd(units.dyn40) > 15
+    then
         if cast.bestialWrath() then return end
     end
     -- Kill Command
@@ -649,8 +675,7 @@ actionList.Cleave = function()
     end
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
-    if mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") 
-        and #enemies.yards8p > 2 and cast.able.multishot() and (gcdMax - buff.beastCleave.remain("pet") > 0.25) 
+    if cast.able.multishot() and (gcdMax - buff.beastCleave.remain("pet") > 0.25)
     then
         if cast.multishot() then return end
     end
@@ -661,20 +686,20 @@ actionList.Cleave = function()
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() then
+    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and ttd(units.dyn40) > 15 then
         if cast.aspectOfTheWild() then return end
     end
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15
     if isChecked("Stampede") and talent.stampede and cast.able.stampede() 
-        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists() or ttd(units.dyn40) < 15) 
+        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and ttd(units.dyn40) > 15 
     then
         if cast.stampede() then return end
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains_guess>20|talent.one_with_the_pack.enabled|target.time_to_die<15
     if isChecked("Bestial Wrath") and mode.bestialWrath == 1 and cast.able.bestialWrath() 
-        and (cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack or ttd(units.dyn40) < 15) 
+        and (cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack) and ttd(units.dyn40) > 15 
     then
         if cast.bestialWrath() then return end
     end
@@ -705,22 +730,20 @@ actionList.Cleave = function()
     end
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|charges_fractional>1.4|target.time_to_die<9
-    if cast.able.barbedShot() and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists()) 
+    if cast.able.barbedShot() and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())
         or cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active 
-        or charges.barbedShot.frac() > 1.4 or ttd(units.dyn40) < 9) 
+        or charges.barbedShot.frac() > 1.4 or ttd(units.dyn40) < 9)
     then
         if cast.barbedShot() then return end
     end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
-    if mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 2 
-        and cast.able.multishot() and (traits.rapidReload.active and #enemies.yards40 > 2) 
-    then
+    if cast.able.multishot() and traits.rapidReload.active then
         if cast.multishot() then return end
     end
     -- Cobra Shot
     -- cobra_shot,if=cooldown.kill_command.remains>focus.time_to_max&(active_enemies<3|!azerite.rapid_reload.enabled)
-    if cast.able.cobraShot() and (cd.killCommand.remain() > ttm and (#enemies.yards40 < 3 or not traits.rapidReload.active)) then
+    if cast.able.cobraShot() and (cd.killCommand.remain() > ttm and (#enemies.yards8t < 3 or not traits.rapidReload.active)) then
         if cast.cobraShot() then return end
     end
     -- Spitting Cobra
@@ -815,6 +838,7 @@ local function runRotation()
 
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
+    enemies.get(8,"target")
     enemies.get(40)
     enemies.get(5,"pet")
     enemies.get(8,"pet")
@@ -884,11 +908,11 @@ local function runRotation()
                 -- call_action_list,name=cds
                 if actionList.Cooldowns() then return end
                 -- call_action_list,name=st,if=active_enemies<2
-                if (mode.rotation == 1 and #enemies.yards8p < getOptionValue("Units To AoE")) or mode.rotation == 3 then
+                if (mode.rotation == 1 and #enemies.yards8t < getOptionValue("Units To AoE")) or mode.rotation == 3 then
                     if actionList.St() then return end
                 end
                 -- call_action_list,name=cleave,if=active_enemies>1
-                if (mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE")) or mode.rotation == 2 then
+                if (mode.rotation == 1 and #enemies.yards8t >= getOptionValue("Units To AoE")) or mode.rotation == 2 then
                     if actionList.Cleave() then return end
                 end
             end -- End SimC APL
