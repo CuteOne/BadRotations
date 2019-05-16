@@ -8,14 +8,14 @@ local function createToggles()
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.cobraShot },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
-        [3] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.killCommand },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.exhilaration}
     };
     CreateButton("Rotation",1,0)
     -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheWild },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
+        [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheWild },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheWild }
     };
     CreateButton("Cooldown",2,0)
@@ -189,7 +189,7 @@ local item
 local level
 local lowestHP
 local mode
-local opener
+--local opener
 local php
 local potion
 local race
@@ -511,29 +511,27 @@ actionList.Cooldowns = function()
                 useItem(14)
             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-            if isChecked("Racial") then --and cd.racial.remain() == 0 then
+            if isChecked("Racial") and cast.able.racial() then --and cd.racial.remain() == 0 then
                 -- ancestral_call,if=cooldown.bestial_wrath.remains>30
                 -- fireblood,if=cooldown.bestial_wrath.remains>30
+                if cd.bestialWrath.remain() > 30 and (race == "MagharOrc" or race == "DarkIronDwarf") then 
+                    if cast.racial() then return end 
+                end 
                 -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
                 -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
+                if (buff.aspectOfTheWild.exists()
+                    and ((race == "Troll" and ((ttd(units.dyn40) > cd.berserking.remain() + buff.berserking.remain()
+                        or (thp(units.dyn40) < 35 or not talent.killerInstinct))
+                        or ttd(units.dyn40) < 13))
+                    or (race == "Orc" and ((ttd(units.dyn40) > cd.racial.remain() + buff.bloodFury.remain()
+                        or (thp(units.dyn40) < 35 or not talent.killerInstinct))
+                        or ttd(units.dyn40) < 16))))
+                then
+                    if cast.racial() then return end
+                end
                 -- lights_judgment,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains>gcd.max|!pet.cat.buff.frenzy.up
-                if cast.able.racial() then 
-                    if cd.bestialWrath.remain() > 30 and (race == "MagharOrc" or race == "DarkIronDwarf") then 
-                        if cast.racial() then return end 
-                    end 
-                    if (buff.aspectOfTheWild.exists()
-                        and ((race == "Troll" and ((ttd(units.dyn40) > cd.berserking.remain() + buff.berserking.remain()
-                            or (thp(units.dyn40) < 35 or not talent.killerInstinct))
-                            or ttd(units.dyn40) < 13))
-                        or (race == "Orc" and ((ttd(units.dyn40) > cd.racial.remain() + buff.bloodFury.remain()
-                            or (thp(units.dyn40) < 35 or not talent.killerInstinct))
-                            or ttd(units.dyn40) < 16))))
-                    then
-                        if cast.racial() then return end
-                    end
-                    if (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
-                        if cast.racial() then return end
-                    end
+                if (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
+                    if cast.racial() then return end
                 end
             end
             -- Potion
@@ -564,7 +562,7 @@ actionList.Opener = function()
     -- Start Attack
     -- auto_attack
     if isChecked("Opener") and isBoss("target") and not opener.complete then
-        if isValidUnit("target") and getDistance("target") < 5
+        if isValidUnit("target") and getDistance("target") < 40
             and getFacing("player","target") and getSpellCD(61304) == 0
         then
             -- Begin
@@ -572,150 +570,152 @@ actionList.Opener = function()
                 Print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
+                StartAttack()
+                return
             -- Aspect of the Wild - No Primal Instincts
             elseif opener.OPN1 and not opener.AOW1 then 
-                if talent.primalInstincts then 
+                if traits.primalInstincts.active then 
                     opener.AOW1 = true
                     opener.count = opener.count - 1
                 elseif cd.aspectOfTheWild.remain() > gcd then
-                    castOpenerFail("aspectOfTheWild","AOW1",openerCount)
+                    castOpenerFail("aspectOfTheWild","AOW1",opener.count)
                 elseif cast.able.aspectOfTheWild() then 
-                    castOpener("aspectOfTheWild","AOW1",openerCount)
+                    castOpener("aspectOfTheWild","AOW1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Bestial Wrath
             elseif opener.AOW1 and not opener.BW1 then 
                 if cd.bestialWrath.remain() > gcd then
-                    castOpenerFail("bestialWrath","BW1",openerCount)
+                    castOpenerFail("bestialWrath","BW1",opener.count)
                 elseif cast.able.bestialWrath() then 
-                    castOpener("bestialWrath","BW1",openerCount)
+                    castOpener("bestialWrath","BW1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Barbed Shot
             elseif opener.BW1 and not opener.BS1 then
                 if charges.barbedShot.count() == 0 then
-                    castOpenerFail("barbedShot","BS1",openerCount)
+                    castOpenerFail("barbedShot","BS1",opener.count)
                 elseif cast.able.barbedShot() then 
-                    castOpener("barbedShot","BS1",openerCount)
+                    castOpener("barbedShot","BS1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Barbed Shot 2 - Primal Instincts
             elseif opener.BS1 and not opener.BS2 then 
-                if not talent.primalInstincts then 
+                if not traits.primalInstincts.active then 
                     opener.BS2 = true 
                     opener.count = opener.count - 1
                 elseif charges.barbedShot.count() == 0 then 
-                    castOpenerFail("barbedShot","BS2",openerCount)
+                    castOpenerFail("barbedShot","BS2",opener.count)
                 elseif cast.able.barbedShot() then 
-                    castOpener("barbedShot","BS2",openerCount)
+                    castOpener("barbedShot","BS2",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Kill Command - No Primal Instincts
             elseif opener.BS2 and not opener.KC1 then
-                if talent.primalInstincts then 
+                if traits.primalInstincts.active then 
                     opener.KC1 = true
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > gcd then
-                    castOpenerFail("killCommand","KC1",openerCount)
+                    castOpenerFail("killCommand","KC1",opener.count)
                 elseif cast.able.killCommand() then 
-                    castOpener("killCommand","KC1",openerCount)
+                    castOpener("killCommand","KC1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Aspect of the Wild - Primal Instincts
             elseif opener.KC1 and not opener.AOW2 then
-                if not talent.primalInstincts then 
+                if not traits.primalInstincts.active then 
                     opener.AOW2 = true
                     opener.count = opener.count - 1
                 elseif cd.aspectOfTheWild.remain() > gcd then
-                    castOpenerFail("aspectOfTheWild","AOW2",openerCount)
+                    castOpenerFail("aspectOfTheWild","AOW2",opener.count)
                 elseif cast.able.aspectOfTheWild() then 
-                    castOpener("aspectOfTheWild","AOW2",openerCount)
+                    castOpener("aspectOfTheWild","AOW2",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- A Murder of Crows
             elseif opener.AOW2 and not opener.MOC1 then 
                 if cd.aMurderOfCrows.remain() > gcd then
-                    castOpenerFail("aMurderOfCrows","MOC1",openerCount)
+                    castOpenerFail("aMurderOfCrows","MOC1",opener.count)
                 elseif cast.able.aMurderOfCrows() then 
-                    castOpener("aMurderOfCrows","MOC1",openerCount)
+                    castOpener("aMurderOfCrows","MOC1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Kill Command 2 - Primal Instincts
             elseif opener.MOC1 and not opener.KC2 then 
-                if not talent.primalInstincts then 
+                if not traits.primalInstincts.active then 
                     opener.KC2 = true
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > gcd then
-                    castOpenerFail("killCommand","KC2",openerCount)
+                    castOpenerFail("killCommand","KC2",opener.count)
                 elseif cast.able.killCommand() then 
-                    castOpener("killCommand","KC2",openerCount)
+                    castOpener("killCommand","KC2",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
-            -- Chimera Shot 
+            -- Chimaera Shot 
             elseif opener.KC2 and not opener.CHS1 then 
                 if cd.chimaeraShot.remain() > gcd then
-                    castOpenerFail("chimeraShot","CHS1",openerCount)
-                elseif cast.able.chimeraShot() then 
-                    castOpener("chimeraShot","CHS1",openerCount)
+                    castOpenerFail("chimaeraShot","CHS1",opener.count)
+                elseif cast.able.chimaeraShot() then 
+                    castOpener("chimaeraShot","CHS1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Cobra Shot
             elseif opener.CHS1 and not opener.COS1 then 
                 if not cast.able.cobraShot() then
-                    castOpenerFail("cobraShot","COS1",openerCount)
+                    castOpenerFail("cobraShot","COS1",opener.count)
                 elseif cast.able.cobraShot() then 
-                    castOpener("cobraShot","COS1",openerCount)
+                    castOpener("cobraShot","COS1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Kill Command 3 
             elseif opener.COS1 and not opener.KC3 then 
                 if cd.killCommand.remain() > gcd then
-                    castOpenerFail("killCommand","KC3",openerCount)
+                    castOpenerFail("killCommand","KC3",opener.count)
                 elseif cast.able.killCommand() then 
-                    castOpener("killCommand","KC3",openerCount)
+                    castOpener("killCommand","KC3",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Barbed Shot 3
             elseif opener.KC3 and not opener.BS3 then 
                 if charges.barbedShot.count() == 0 then 
-                    castOpenerFail("barbedShot","BS3",openerCount)
+                    castOpenerFail("barbedShot","BS3",opener.count)
                 elseif cast.able.barbedShot() then 
-                    castOpener("barbedShot","BS3",openerCount)
+                    castOpener("barbedShot","BS3",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Cobra Shot 2 - No Primal Instincts
             elseif opener.BS3 and not opener.COS2 then 
-                if talent.primalInstincts then 
+                if traits.primalInstincts.active then 
                     opener.COS2 = true;
                     opener.count = opener.count - 1
                 elseif not cast.able.cobraShot() then
-                    castOpenerFail("cobraShot","COS2",openerCount)
+                    castOpenerFail("cobraShot","COS2",opener.count)
                 elseif cast.able.cobraShot() then 
-                    castOpener("cobraShot","COS2",openerCount)
+                    castOpener("cobraShot","COS2",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
             -- Kill Command 4 - No Primal Instincts
             elseif opener.COS2 and not opener.KC4 then 
-                if talent.primalInstincts then 
+                if traits.primalInstincts.active then 
                     opener.KC4 = true;
                     opener.count = opener.count - 1
                 elseif cd.killCommand.remain() > gcd then
-                    castOpenerFail("killCommand","KC4",openerCount)
+                    castOpenerFail("killCommand","KC4",opener.count)
                 elseif cast.able.killCommand() then 
-                    castOpener("killCommand","KC4",openerCount)
+                    castOpener("killCommand","KC4",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
@@ -734,9 +734,9 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max|full_recharge_time<gcd.max&cooldown.bestial_wrath.remains|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd
-    if cast.able.barbedShot() and (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax 
-        or charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax
-        or traits.primalInstincts.active and cd.aspectOfTheWild.remain() < gcdMax) 
+    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax) 
+        or (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax)
+        or (traits.primalInstincts.active and cd.aspectOfTheWild.remain() < gcdMax)) 
     then
         if cast.barbedShot() then return end
     end
@@ -769,7 +769,7 @@ actionList.St = function()
     if cast.able.killCommand() then
         if cast.killCommand() then return end
     end
-    -- Chimera Shot
+    -- Chimaera Shot
     -- chimaera_shot
     if cast.able.chimaeraShot() then
         if cast.chimaeraShot() then return end
@@ -849,7 +849,7 @@ actionList.Cleave = function()
     then
         if cast.bestialWrath() then return end
     end
-    -- Chimera Shot
+    -- Chimaera Shot
     -- chimaera_shot
     if cast.able.chimaeraShot() then
         if cast.chimaeraShot() then return end
