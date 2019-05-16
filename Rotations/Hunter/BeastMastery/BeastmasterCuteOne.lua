@@ -572,7 +572,154 @@ actionList.Opener = function()
                 Print("Starting Opener")
                 opener.count = opener.count + 1
                 opener.OPN1 = true
-            elseif opener.OPN1 then
+            -- Aspect of the Wild - No Primal Instincts
+            elseif opener.OPN1 and not opener.AOW1 then 
+                if talent.primalInstincts then 
+                    opener.AOW1 = true
+                    opener.count = opener.count - 1
+                elseif cd.aspectOfTheWild.remain() > gcd then
+                    castOpenerFail("aspectOfTheWild","AOW1",openerCount)
+                elseif cast.able.aspectOfTheWild() then 
+                    castOpener("aspectOfTheWild","AOW1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Bestial Wrath
+            elseif opener.AOW1 and not opener.BW1 then 
+                if cd.bestialWrath.remain() > gcd then
+                    castOpenerFail("bestialWrath","BW1",openerCount)
+                elseif cast.able.bestialWrath() then 
+                    castOpener("bestialWrath","BW1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Barbed Shot
+            elseif opener.BW1 and not opener.BS1 then
+                if charges.barbedShot.count() == 0 then
+                    castOpenerFail("barbedShot","BS1",openerCount)
+                elseif cast.able.barbedShot() then 
+                    castOpener("barbedShot","BS1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Barbed Shot 2 - Primal Instincts
+            elseif opener.BS1 and not opener.BS2 then 
+                if not talent.primalInstincts then 
+                    opener.BS2 = true 
+                    opener.count = opener.count - 1
+                elseif charges.barbedShot.count() == 0 then 
+                    castOpenerFail("barbedShot","BS2",openerCount)
+                elseif cast.able.barbedShot() then 
+                    castOpener("barbedShot","BS2",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Kill Command - No Primal Instincts
+            elseif opener.BS2 and not opener.KC1 then
+                if talent.primalInstincts then 
+                    opener.KC1 = true
+                    opener.count = opener.count - 1
+                elseif cd.killCommand.remain() > gcd then
+                    castOpenerFail("killCommand","KC1",openerCount)
+                elseif cast.able.killCommand() then 
+                    castOpener("killCommand","KC1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Aspect of the Wild - Primal Instincts
+            elseif opener.KC1 and not opener.AOW2 then
+                if not talent.primalInstincts then 
+                    opener.AOW2 = true
+                    opener.count = opener.count - 1
+                elseif cd.aspectOfTheWild.remain() > gcd then
+                    castOpenerFail("aspectOfTheWild","AOW2",openerCount)
+                elseif cast.able.aspectOfTheWild() then 
+                    castOpener("aspectOfTheWild","AOW2",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- A Murder of Crows
+            elseif opener.AOW2 and not opener.MOC1 then 
+                if cd.aMurderOfCrows.remain() > gcd then
+                    castOpenerFail("aMurderOfCrows","MOC1",openerCount)
+                elseif cast.able.aMurderOfCrows() then 
+                    castOpener("aMurderOfCrows","MOC1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Kill Command 2 - Primal Instincts
+            elseif opener.MOC1 and not opener.KC2 then 
+                if not talent.primalInstincts then 
+                    opener.KC2 = true
+                    opener.count = opener.count - 1
+                elseif cd.killCommand.remain() > gcd then
+                    castOpenerFail("killCommand","KC2",openerCount)
+                elseif cast.able.killCommand() then 
+                    castOpener("killCommand","KC2",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Chimera Shot 
+            elseif opener.KC2 and not opener.CHS1 then 
+                if cd.chimaeraShot.remain() > gcd then
+                    castOpenerFail("chimeraShot","CHS1",openerCount)
+                elseif cast.able.chimeraShot() then 
+                    castOpener("chimeraShot","CHS1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Cobra Shot
+            elseif opener.CHS1 and not opener.COS1 then 
+                if not cast.able.cobraShot() then
+                    castOpenerFail("cobraShot","COS1",openerCount)
+                elseif cast.able.cobraShot() then 
+                    castOpener("cobraShot","COS1",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Kill Command 3 
+            elseif opener.COS1 and not opener.KC3 then 
+                if cd.killCommand.remain() > gcd then
+                    castOpenerFail("killCommand","KC3",openerCount)
+                elseif cast.able.killCommand() then 
+                    castOpener("killCommand","KC3",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Barbed Shot 3
+            elseif opener.KC3 and not opener.BS3 then 
+                if charges.barbedShot.count() == 0 then 
+                    castOpenerFail("barbedShot","BS3",openerCount)
+                elseif cast.able.barbedShot() then 
+                    castOpener("barbedShot","BS3",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Cobra Shot 2 - No Primal Instincts
+            elseif opener.BS3 and not opener.COS2 then 
+                if talent.primalInstincts then 
+                    opener.COS2 = true;
+                    opener.count = opener.count - 1
+                elseif not cast.able.cobraShot() then
+                    castOpenerFail("cobraShot","COS2",openerCount)
+                elseif cast.able.cobraShot() then 
+                    castOpener("cobraShot","COS2",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            -- Kill Command 4 - No Primal Instincts
+            elseif opener.COS2 and not opener.KC4 then 
+                if talent.primalInstincts then 
+                    opener.KC4 = true;
+                    opener.count = opener.count - 1
+                elseif cd.killCommand.remain() > gcd then
+                    castOpenerFail("killCommand","KC4",openerCount)
+                elseif cast.able.killCommand() then 
+                    castOpener("killCommand","KC4",openerCount)
+                end 
+                opener.count = opener.count + 1
+                return
+            elseif opener.KC4 and opener.OPN1 then
                 Print("Opener Complete")
                 opener.count = 0
                 opener.complete = true
@@ -854,7 +1001,20 @@ local function runRotation()
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
         opener.count = 0
         opener.OPN1 = false
-
+        opener.AOW1 = false 
+        opener.BW1 = false
+        opener.BS1 = false
+        opener.BS2 = false 
+        opener.KC1 = false 
+        opener.AOW2 = false
+        opener.MOC1 = false
+        opener.KC2 = false
+        opener.CHS1 = false 
+        opener.COS1 = false 
+        opener.KC3 = false
+        opener.BS3 = false
+        opener.COS2 = false 
+        opener.KC4 = false
         opener.complete = false
     end
 
