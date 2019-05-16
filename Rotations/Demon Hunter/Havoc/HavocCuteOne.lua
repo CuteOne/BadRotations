@@ -18,7 +18,7 @@ local function createToggles()
         [2] = { mode = "On", value = 2 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     };
-   	CreateButton("Cooldown",2,0)
+    CreateButton("Cooldown",2,0)
     -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.darkness},
@@ -392,7 +392,7 @@ end -- End Action List - Cooldowns
 actionList.DarkSlash = function()
     -- Dark Slash
     -- dark_slash,if=fury>=80&(!variable.blade_dance|!cooldown.blade_dance.ready)
-    if cast.able.darkSlash(units.dyn5) and power >= 80 and (not bladeDanceVar or cd.bladeDance.remain() ~= 0) then
+    if cast.able.darkSlash(units.dyn5) and power >= 80 and (not bladeDanceVar or cd.bladeDance.remain() > gcd) then
         Print("Action List - Dark Slash")
         if cast.darkSlash(units.dyn5) then return end
     end
@@ -410,11 +410,6 @@ end -- End Action List - Dark Slash
 
 -- Action List - Demonic
 actionList.Demonic = function()
-    -- Fel Barrage
-    -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
-    if mode.felBarrage == 1 and cast.able.felBarrage() and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-        if cast.felBarrage("player","aoe",1,8) then return end
-    end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
     if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
@@ -432,10 +427,19 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > 0 or not useCDs() or not isChecked("Metamorphosis"))
-        and ((cd.eyeBeam.remain() > ((5 - traits.revolvingBlades.rank) * 3)) or mode.eyeBeam == 2)
+    if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis"))
+        -- and ((cd.eyeBeam.remain() > ((1 - traits.revolvingBlades.rank) * 3)) or mode.eyeBeam == 2)
+        and ((cd.eyeBeam.remain() > gcd) or mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then return end
+    end
+    -- Fel Barrage
+    -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
+    if mode.felBarrage == 1 and cast.able.felBarrage() and cd.eyeBeam.remain() > 20
+        and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE"))
+            or (mode.rotation == 2 and #enemies.yards8 > 0))
+    then
+        if cast.felBarrage("player","aoe",1,8) then return end
     end
     -- Immolation Aura
     -- immolation_aura
@@ -460,7 +464,7 @@ actionList.Demonic = function()
     -- Fel Rush
     -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
     if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
-        and talent.demonBlades and cd.eyeBeam.remain() ~= 0 and charges.felRush.count() == 2
+        and talent.demonBlades and cd.eyeBeam.remain() > gcd and charges.felRush.count() == 2
     then
         if mode.mover == 1 and getDistance("target") < 8 then
             cancelRushAnimation()
@@ -518,7 +522,9 @@ actionList.Normal = function()
     end
     -- Fel Barrage
     -- fel_barrage,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>30)
-    if mode.felBarrage == 1 and cast.able.felBarrage() and waitForMomentum and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+    if mode.felBarrage == 1 and cast.able.felBarrage() and waitForMomentum and (not traits.furiousGave or (cd.eyeBeam.remain() > 20 and cd.baldeDance > gcd))
+        and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
+    then
         if cast.felBarrage("player","aoe",1,8) then return end
     end
     -- Death Sweep

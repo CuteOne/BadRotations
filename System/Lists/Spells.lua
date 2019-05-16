@@ -401,6 +401,7 @@ br.lists.spells = {
             },
             traits                          = {
                 chaoticTransformation       = 288754,
+                furiousGaze                 = 273231,
                 revolvingBlades             = 279581,
                 unboundChaos                = 275144,
             },
