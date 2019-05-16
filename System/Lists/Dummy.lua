@@ -101,6 +101,7 @@ br.lists.dummies = {
 	[144082] = "Training Dummy",              -- Lvl 110 - 120 (Dazar'alor) - PVP Damage
 	[144085] = "Training Dummy", 			  -- Lvl 110 - 120 (Dazar'alor) - Damage
 	[144081] = "Training Dummy",              -- Lvl 110 - 120 (Dazar'alor) - Damage
+	[153285] = "Training Dummy", 			  -- Lvl 110 - 120 (Ogrimmar) - Damage
 -- Level 111 - 120
 	[131997] = "Training Dummy", 			  -- Lvl 111 - 120 (Boralus, Zuldazar) - PVP Damage
 	[131998] = "Training Dummy",              -- Lvl 111 - 120 (Boralus, Zuldazar) - PVP Healing
