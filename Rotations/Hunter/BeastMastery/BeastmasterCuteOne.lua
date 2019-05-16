@@ -21,7 +21,7 @@ local function createToggles()
     CreateButton("Cooldown",2,0)
     -- BW Button
     BestialWrathModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use bw according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
+        [1] = { mode = "On", value = 1 , overlay = "Will use BW", tip = "Will use BW according to rotation", highlight = 1, icon = br.player.spell.bestialWrath },
         [2] = { mode = "Off", value = 2 , overlay = "Will hold BW", tip = "Will hold BW until toggled again", highlight = 0, icon = br.player.spell.bestialWrath }
     };
     CreateButton("BestialWrath",3,0)
@@ -584,7 +584,7 @@ actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max|full_recharge_time<gcd.max&cooldown.bestial_wrath.remains|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd
     if cast.able.barbedShot() and (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax 
-        or charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() 
+        or charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax
         or traits.primalInstincts.active and cd.aspectOfTheWild.remain() < gcdMax) 
     then
         if cast.barbedShot() then return end
@@ -676,7 +676,7 @@ actionList.Cleave = function()
     end
     -- Barbeb Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
-    if cast.able.barbedShot() and (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain()) then
+    if cast.able.barbedShot() and (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax) then
         if cast.barbedShot() then return end
     end
     -- Aspect of the Wild
