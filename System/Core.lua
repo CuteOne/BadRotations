@@ -35,11 +35,10 @@ function getUpdateRate()
 		updateRate = 0.1
 	else
 		updateRate = getOptionValue("Bot Update Rate")
-	-- 	if updateRate < 0.2 then
-	-- 	 	updateRate = 0.2
-	-- 	end
 	end
-
+--	if updateRate < 0.2 then
+--		updateRate = 0.2
+-- 	end
 	return updateRate
 end
 
@@ -154,7 +153,7 @@ function BadRotationsUpdate(self)
 					--Quaking helper
 					if getOptionCheck("Quaking Helper") then
 						if (UnitChannelInfo("player") or UnitCastingInfo("player")) and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
-							SpellStopCasting()
+							RunMacroText("/stopcasting")
 						end
 					end
 					-- Pause if key press that is not ignored
@@ -242,7 +241,7 @@ function BadRotationsUpdate(self)
 						if groupSize == 0 then
 							groupSize = 1
 						end
-						if #br.friend < groupSize then
+						if #br.friend < groupSize and br.timer:useTimer("Reform", 5) then
 							br.addonDebug("Group size does not match #br.friend. Recreating br.friend.")
 							table.wipe(br.memberSetup.cache)
 							table.wipe(br.friend)
