@@ -492,7 +492,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do 
-                        local thisUnit = #enemies.yards8t[i].unit
+                        local thisUnit = #enemies.yards8t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -510,7 +510,7 @@ local function runRotation()
                     local cc = false
                     if getOptionCheck("Don't break CCs") then
                         for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i].unit
+                            local thisUnit = #enemies.yards8t[i]
                             if isLongTimeCCed(thisUnit) then
                                 cc = true
                                 break
@@ -529,7 +529,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards8t[i].unit
+                        local thisUnit = #enemies.yards8t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -574,7 +574,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards10t[i].unit
+                        local thisUnit = #enemies.yards10t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -591,7 +591,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards10t[i].unit
+                        local thisUnit = #enemies.yards10t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -667,7 +667,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do 
-                        local thisUnit = #enemies.yards8t[i].unit
+                        local thisUnit = #enemies.yards8t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -691,7 +691,7 @@ local function runRotation()
                     local cc = false
                     if getOptionCheck("Don't break CCs") then
                         for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i].unit
+                            local thisUnit = #enemies.yards8t[i]
                             if isLongTimeCCed(thisUnit) then
                                 cc = true
                                 break
@@ -820,7 +820,7 @@ local function runRotation()
                 if cast.frostShock() then br.addonDebug("Casting Frostshock") return true end
             end
             -- actions.single_target+=/chain_lightning,if=buff.tectonic_thunder.up&!buff.stormkeeper.up&spell_targets.chain_lightning>1
-            if (traits.tectonicThunder.active and buff.tectonicThunder.exists()) or (buff.stormKeeper.exists() and #enemies.yards10t > 0) then
+            if traits.tectonicThunder.active and buff.tectonicThunder.exists() and not buff.stormKeeper.exists() and #enemies.yards10t > 0 then
                 if cast.chainLightning() then br.addonDebug("Casting Chain Lightning") return true end
             end
             -- Lightning Bolt            
@@ -907,7 +907,7 @@ local function runRotation()
                     local cc = false
                     if getOptionCheck("Don't break CCs") then
                         for i = 1, #enemies.yards8t do 
-                            local thisUnit = #enemies.yards8t[i].unit
+                            local thisUnit = #enemies.yards8t[i]
                             if isLongTimeCCed(thisUnit) then
                                 cc = true
                                 break
@@ -930,7 +930,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards8t do 
-                        local thisUnit = #enemies.yards8t[i].unit
+                        local thisUnit = #enemies.yards8t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -954,7 +954,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards10t[i].unit
+                        local thisUnit = #enemies.yards10t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -973,7 +973,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards10t[i].unit
+                        local thisUnit = #enemies.yards10t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -1009,7 +1009,7 @@ local function runRotation()
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
-                        local thisUnit = #enemies.yards10t[i].unit
+                        local thisUnit = #enemies.yards10t[i]
                         if isLongTimeCCed(thisUnit) then
                             cc = true
                             break
@@ -1042,11 +1042,11 @@ local function runRotation()
                             if #enemies.yards8t >= getValue("Meteor Targets") then
                                 --if cast.meteor("pettarget") then end
                                 CastSpellByName(GetSpellInfo(spell.meteor))
-                                br.addonDebug("Casting Meteor (Pet)")
+                                --br.addonDebug("Casting Meteor (Pet)")
                             end        
                             if not cd.immolate.exists() then
                                 CastSpellByName(GetSpellInfo(spell.immolate))
-                                br.addonDebug("Casting Immolate (Pet)")
+                                --br.addonDebug("Casting Immolate (Pet)")
                             end                
                         elseif stormEle then
                             if select(2,GetSpellCooldown(157348)) ~= 0 then
@@ -1055,7 +1055,7 @@ local function runRotation()
                                     if #enemies.yards8t >= 1 then
                                         eyeActive = GetTime()
                                         CastSpellByName(GetSpellInfo(spell.eyeOfTheStorm))
-                                        br.addonDebug("Casting Eye Of The Storm (Pet)")
+                                        --br.addonDebug("Casting Eye Of The Storm (Pet)")
                                     end
                                 end
                             end
@@ -1063,10 +1063,10 @@ local function runRotation()
                             --print("Earth Elemental Detected")
                             if not buff.hardenSkin.exists() then
                                 CastSpellByName(GetSpellInfo(spell.hardenSkin))
-                                br.addonDebug("Casting Harden Skin (Pet)")
+                                --br.addonDebug("Casting Harden Skin (Pet)")
                             end 
                             CastSpellByName(GetSpellInfo(spell.pulverize))
-                            br.addonDebug("Casting Pulverize (Pet)")
+                            --br.addonDebug("Casting Pulverize (Pet)")
                         end                        
                     end
                 end
