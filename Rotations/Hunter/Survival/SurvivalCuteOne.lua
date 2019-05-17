@@ -513,7 +513,8 @@ local function runRotation()
             -- Potion
                 -- potion,if=buff.coordinated_assault.up&(buff.berserking.up|buff.blood_fury.up|!race.troll&!race.orc)|time_to_die<26
                 if isChecked("Potion") and inRaid and use.able.potionOfProlongedPower() and buff.coordinatedAssault.exists()
-                    and (buff.berserking.exists() or buff.bloodFury.exists() or not (race == "Orc" or race == "Troll") or ttd(units.dyn5) < 26)
+                    and ((race == "Orc" or race == "Troll") and buff.racial.exists()
+                        or not (race == "Orc" or race == "Troll") or ttd(units.dyn5) < 26)
                 then
                     use.potionOfProlongedPower()
                 end
