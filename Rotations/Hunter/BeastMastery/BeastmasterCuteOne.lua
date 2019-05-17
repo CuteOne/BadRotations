@@ -558,7 +558,7 @@ end -- End Action List - Cooldowns
 actionList.Opener = function()
     -- Start Attack
     -- auto_attack
-    if isChecked("Opener") and isBoss("target") and not opener.complete then
+    if isChecked("Opener") and useCDs() and not opener.complete then
         if isValidUnit("target") and getDistance("target") < 40
             and getFacing("player","target") and getSpellCD(61304) == 0
         then
@@ -722,7 +722,7 @@ actionList.Opener = function()
                 opener.complete = true
             end
         end
-    elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
+    elseif (UnitExists("target") and not useCDs()) or not isChecked("Opener") then
         opener.complete = true
     end
 end -- End Action List - Opener
