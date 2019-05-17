@@ -94,8 +94,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Spirit Mend
             br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
-            -- Pet Attacks
-            br.ui:createCheckbox(section, "Pet Attacks")
             -- Purge
             br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
         br.ui:checkSectionState(section)
@@ -240,7 +238,7 @@ actionList.PetManagement = function()
     local petActive = IsPetActive()
     local petExists = UnitExists("pet")
     local petDead = UnitIsDeadOrGhost("pet")
-    local validTarget = isValidUnit("pettarget")
+    local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
 
     if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
