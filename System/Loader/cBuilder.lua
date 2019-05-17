@@ -100,10 +100,11 @@ function br.loader:new(spec,specName)
         if self.spell.abilities["racial"] == nil then
             local racialID = getRacial()
             self.spell.abilities["racial"] = racialID
+            self.spell.buffs["racial"] = racialID
             self.spell["racial"] = racialID
         end
     end
-    
+
     -- Update Talent Info
     local function getTalentInfo()
         local talentFound
