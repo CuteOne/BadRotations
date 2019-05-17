@@ -528,15 +528,15 @@ actionList.Defensive = function()
                 -- Don't Break Form
                 if getOptionValue("Regrowth - OoC") == 2 then
                     -- Lowest Party/Raid or Player
-                    if (thisHP <= getOptionValue("Regrowth") and GetShapeshiftForm() == 0)
-                        or buff.predatorySwiftness.exists()
+                    if (thisHP <= getOptionValue("Regrowth") and not moving)
+                        and (GetShapeshiftForm() == 0 or buff.predatorySwiftness.exists())
                     then
                         if cast.regrowth(thisUnit) then return true end
                     end
                 end
                 -- Break Form
-                if getOptionValue("Regrowth - OoC") == 1 and php <= getOptionValue("Regrowth") then
-                    if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
+                if getOptionValue("Regrowth - OoC") == 1 and php <= getOptionValue("Regrowth") and not moving then
+                    if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                     else

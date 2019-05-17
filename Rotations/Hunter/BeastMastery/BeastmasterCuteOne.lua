@@ -520,12 +520,9 @@ actionList.Cooldowns = function()
                 -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
                 -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
                 if (buff.aspectOfTheWild.exists()
-                    and ((race == "Troll" and ((ttd(units.dyn40) > cd.berserking.remain() + buff.berserking.remain()
-                        or (thp(units.dyn40) < 35 or not talent.killerInstinct))
-                        or ttd(units.dyn40) < 13))
-                    or (race == "Orc" and ((ttd(units.dyn40) > cd.racial.remain() + buff.bloodFury.remain()
-                        or (thp(units.dyn40) < 35 or not talent.killerInstinct))
-                        or ttd(units.dyn40) < 16))))
+                    and ((race == "Troll" and ttd(units.dyn40) < 13) or (race == "Orc" and ttd(units.dyn40) < 16))
+                    and (ttd(units.dyn40) > cd.racial.remain() + buff.racial.remain()
+                        or (thp(units.dyn40) < 35 or not talent.killerInstinct)))
                 then
                     if cast.racial() then return end
                 end
