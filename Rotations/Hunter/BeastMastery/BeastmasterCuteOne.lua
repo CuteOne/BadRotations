@@ -754,8 +754,10 @@ actionList.St = function()
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains>20|target.time_to_die<15
-    if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-        and cast.able.bestialWrath() and cd.aspectOfTheWild.remain() > 20 and ttd(units.dyn40) > 15
+    if mode.bestialWrath == 1 and cast.able.bestialWrath() 
+        and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
+        and (not isChecked("Aspect of the Wild") or (getOptionValue("Bestial Wrath") == 2 and not useCDs()) or cd.aspectOfTheWild.remains() > 20) 
+        and ttd(units.dyn40) > 15 
     then
         if cast.bestialWrath() then return end
     end
@@ -839,8 +841,10 @@ actionList.Cleave = function()
     end
     -- Bestial Wrath
     -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains_guess>20|talent.one_with_the_pack.enabled|target.time_to_die<15
-    if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-        and cast.able.bestialWrath() and (cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack) and ttd(units.dyn40) > 15 
+    if mode.bestialWrath == 1 and cast.able.bestialWrath() 
+        and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
+        and (not isChecked("Aspect of the Wild") or (getOptionValue("Bestial Wrath") == 2 and not useCDs()) or cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack) 
+        and ttd(units.dyn40) > 15 
     then
         if cast.bestialWrath() then return end
     end
