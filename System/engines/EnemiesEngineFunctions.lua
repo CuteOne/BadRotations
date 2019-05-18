@@ -381,24 +381,24 @@ local function findBestUnit(range,facing)
 				local thisUnit = enemyList[i]
 				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
 				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
-				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-				-- local thisUnit = v.unit
-				-- local distance = getDistance(thisUnit)
-				-- if distance < range then
-				if not isCC then					
-					local coeficient = getUnitCoeficient(thisUnit) or 0
-					if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
-						if currHP == nil or UnitHealth(thisUnit) < currHP then
-							currHP = UnitHealth(thisUnit)
-							coeficient = coeficient + 100
+					local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+					-- local thisUnit = v.unit
+					-- local distance = getDistance(thisUnit)
+					-- if distance < range then
+					if not isCC then					
+						local coeficient = getUnitCoeficient(thisUnit) or 0
+						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
+							if currHP == nil or UnitHealth(thisUnit) < currHP then
+								currHP = UnitHealth(thisUnit)
+								coeficient = coeficient + 100
+							end
+						end
+						if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
+							bestUnitCoef = coeficient
+							bestUnit = thisUnit
 						end
 					end
-					if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
-						bestUnitCoef = coeficient
-						bestUnit = thisUnit
-					end
 				end
-				-- end
 	--			lastCheckTime = GetTime() + 1
 			end
 		end
