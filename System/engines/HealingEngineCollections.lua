@@ -44,7 +44,7 @@ novaEngineTables.DispelID = {
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
 	[282098] = true,
-	[283617] = true, -- Wave of Light (Champion of Light)
+	[283619] = true, -- Wave of Light (Champion of Light)
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
