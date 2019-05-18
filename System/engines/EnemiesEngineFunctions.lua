@@ -379,6 +379,8 @@ local function findBestUnit(range,facing)
 			tsort(enemyList,compare)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
+				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
+				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
 				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
 				-- local thisUnit = v.unit
 				-- local distance = getDistance(thisUnit)
