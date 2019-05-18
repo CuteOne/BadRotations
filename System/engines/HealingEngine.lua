@@ -85,19 +85,18 @@ if not metaTable1 then
 	end
 	-- Verifying the target is a Valid Healing target
 	function HealCheck(tar)
-		if UnitIsVisible(tar)
+		if ((UnitIsVisible(tar)
 			and not UnitIsCharmed(tar)
 			and GetUnitReaction("player",tar) > 4
-			and not UnitIsDeadOrGhost(tar)
 			and UnitIsConnected(tar)
-			and ((UnitIsOtherPlayersPet(tar) and getOptionCheck("Heal Pets")) or not UnitIsOtherPlayersPet(tar))
+			and not UnitIsDeadOrGhost(tar))
+			or novaEngineTables.SpecialHealUnitList[tonumber(select(2,getGUID(tar)))] ~= nil or (getOptionCheck("Heal Pets") and UnitIsOtherPlayersPet(tar) or UnitGUID(tar) == UnitGUID("pet")))
 			and CheckBadDebuff(tar)
 			and CheckCreatureType(tar)
 			and getLineOfSight("player", tar)
 			and UnitInPhase(tar)
 		then return true
 		else return false end
-
 	end
 	function br.memberSetup:new(unit)
 		-- Seeing if we have already cached this unit before
@@ -149,6 +148,10 @@ if not metaTable1 then
 			if select(9,GetInstanceInfo()) == 1676 and UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
+			if br.player.eID == 2266 or br.player.eID == 2285 -- Jadefire Masters
+			and ((UnitDebuffID("player",286369) and not UnitDebuffID(o.unit,286369)) or (not UnitDebuffID("player",286369) and UnitDebuffID(o.unit,286369)) or (UnitDebuffID("player",286370) and not UnitDebuffID(o.unit,286370)) or (not UnitDebuffID("player",286370) and UnitDebuffID(o.unit,286370))) then
+				return 260,250,250
+			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
 				return 250,250,250
@@ -181,7 +184,7 @@ if not metaTable1 then
 				nAbsorbs = 0
 			end
 			-- calc base + absorbs + incomings
-			local PercentWithIncoming = 100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)
+			local PercentWithIncoming = (100 * ( UnitHealth(o.unit) + incomingheals + nAbsorbs ) / UnitHealthMax(o.unit)) - (5 *getDebuffStacks(o.unit, 240559))
 			if getOptionCheck("Prioritize Tank") then
 				-- Using the group role assigned to the Unit
 				if o.role == "TANK" then
