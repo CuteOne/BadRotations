@@ -580,9 +580,11 @@ function br.read.commonReaders()
 			end
 		end
 		if event == "ENCOUNTER_START" then
-			br.player.eID = select(1, ...)
-			if br.player.eID and br.player.eID == 2141 then -- MOTHER Uldir fight
-				_brMotherFight = true
+			if br.player ~= nil then 
+				br.player.eID = select(1, ...)
+				if br.player.eID and br.player.eID == 2141 then -- MOTHER Uldir fight
+					_brMotherFight = true
+				end
 			end
 		end
 		if event == "ENCOUNTER_END" then
@@ -590,7 +592,7 @@ function br.read.commonReaders()
 			if eID and eID == 2141 then -- MOTHER Uldir fight
 				_brMotherFight = false
 			end
-			br.player.eID = nil
+			if br.player ~= nil then br.player.eID = nil end
 		end
 		if event == "CHAT_MSG_ADDON" then
 			local prefix, message = ...
