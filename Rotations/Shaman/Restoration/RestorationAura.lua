@@ -449,12 +449,11 @@ local function runRotation()
                         if canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
                             if cast.purge("target") then br.addonDebug("Casting Purge") return true end
                         end
-                        if getOptionValue("Purge") == 2 then
-                            for i = 1, #enemies.yards30 do
-                                local thisUnit = enemies.yards30[i]
-                                if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
-                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
-                                end
+                    elseif getOptionValue("Purge") == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
+                                if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
                             end
                         end
                     end
@@ -1061,7 +1060,6 @@ local function runRotation()
                     actionList_Interrupts()
                     actionList_AMR()
                     if br.player.mode.dps == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
-                        br.addonDebug("Nothing to heal. Lowest HP is "..tostring(lowest.hp).." on "..tostring(UnitName(lowest.unit)))
                         if isExplosive(target) then
                             actionList_Explosive()
                         else
