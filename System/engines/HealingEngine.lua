@@ -148,9 +148,19 @@ if not metaTable1 then
 			if select(9,GetInstanceInfo()) == 1676 and UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
-			if br.player.eID == 2266 or br.player.eID == 2285 -- Jadefire Masters
-			and ((UnitDebuffID("player",286369) and not UnitDebuffID(o.unit,286369)) or (not UnitDebuffID("player",286369) and UnitDebuffID(o.unit,286369)) or (UnitDebuffID("player",286370) and not UnitDebuffID(o.unit,286370)) or (not UnitDebuffID("player",286370) and UnitDebuffID(o.unit,286370))) then
-				return 260,250,250
+			local chiJiSong = {
+				286367,
+				286369,
+				284453,
+				284451,
+			}
+			if (br.player.eID == 2266 or br.player.eID == 2285) or (GetUnitExists("target") and (GetObjectID("target") == 144691 or GetObjectID("target") == 144690)) then -- Jadefire Masters
+				for i = 1, #chiJiSong do
+					if UnitDebuffID(o.unit,chiJiSong[i]) and not UnitDebuffID("player",chiJiSong[i]) then
+						print("Healing Unit Obscured")
+						return 250,250,250
+					end
+				end
 			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
