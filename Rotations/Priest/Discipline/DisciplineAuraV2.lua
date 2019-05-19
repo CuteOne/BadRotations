@@ -965,9 +965,7 @@ local function runRotation()
             -- Power Word Radiance
             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then                
                 if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() then
-                    if charges.powerWordRadiance.count() == 2 and not buff.rapture.exists() then 
-                        if cast.powerWordRadiance(lowest.unit) then healCount = healCount + 1 return true end
-                    elseif charges.powerWordRadiance.count() >= 1 then
+                    if charges.powerWordRadiance.count() >= 1 then
                         if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                             for i = 1, #br.friend do
                                 if not buff.atonement.exists(br.friend[i].unit) then
