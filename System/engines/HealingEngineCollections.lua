@@ -45,6 +45,7 @@ novaEngineTables.DispelID = {
 novaEngineTables.PurgeID = {
 	[282098] = true,
 	[283619] = true, -- Wave of Light (Champion of Light)
+	[289623] = true, -- Guardian Spirit (BoD Trash)
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
