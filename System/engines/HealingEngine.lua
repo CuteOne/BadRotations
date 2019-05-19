@@ -157,7 +157,6 @@ if not metaTable1 then
 			if (br.player.eID == 2266 or br.player.eID == 2285) or (GetUnitExists("target") and (GetObjectID("target") == 144691 or GetObjectID("target") == 144690)) then -- Jadefire Masters
 				for i = 1, #chiJiSong do
 					if UnitDebuffID(o.unit,chiJiSong[i]) and not UnitDebuffID("player",chiJiSong[i]) then
-						print("Healing Unit Obscured")
 						return 250,250,250
 					end
 				end
