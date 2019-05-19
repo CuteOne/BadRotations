@@ -105,8 +105,11 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 		end
 		return nil
 	elseif buff then
-		if novaEngineTables.PurgeID[buffSpellID] ~= nil and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
-			return true
+		if novaEngineTables.PurgeID[buffSpellID] ~= nil then
+			if (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
+				return true
+			end
+			return false
 		end
 		return nil
 	end
@@ -236,7 +239,7 @@ function canDispel(Unit, spellID)
 						local thisUnit = br.friend[i].unit
 						if Unit == thisUnit then
 							if Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid) ~= nil then
-								dispelUnitObj = Dispel(thisUnit)
+								dispelUnitObj = Dispel(thisUnit,stacks,debuffDuration,debuffRemain,debuffid)
 							end
 						end
 					end
@@ -259,17 +262,18 @@ function canDispel(Unit, spellID)
 				local buffRemain = buffExpire - GetTime()
 				local dispelUnitObj
 				if (buffType and ValidType(buffType)) then 
-					if isChecked("Purge Only Whitelist") then
+					if Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true) ~= nil then
 						dispelUnitObj = Dispel(Unit,stacks,buffDuration,buffRemain,buffid,true)
-					else 
-						dispelUnitObj = true
 					end
-					if dispelUnitObj == true then
+					if dispelUnitObj == nil and not isChecked("Purge Only Whitelist") then
 						if (buffDuration - buffRemain) > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 							HasValidDispel = true
-							dispelUnitObj = nil
 							break
 						end
+					elseif dispelUnitObj == true then
+						HasValidDispel = true
+						dispelUnitObj = nil
+						break
 					end
 				end
 				i = i + 1
