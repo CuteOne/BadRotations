@@ -2399,11 +2399,14 @@ local function runRotation()
 						end
 					end
 				end
-				if not isChecked("DPS Key") and mode.dps == 2 and GetUnitExists("target") 
-					and	not GetUnitIsFriend("target") and restoDPS
-				then
-					if actionList_DPS() then
-						return
+				if not isChecked("DPS Key") and mode.dps == 2 and restoDPS then
+					if not GetUnitExists("target") or (UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target")) and #enemies.yards40 ~= 0 and getOptionValue("Target Dynamic Target") then
+						TargetUnit(enemies.yards40[1])
+					end
+					if GetUnitExists("target") and not GetUnitIsFriend("target") then
+						if actionList_DPS() then
+							return
+						end
 					end
 				end
 				if  (not restoDPS and not isChecked("DPS Key")) or isChecked("DPS Key") then
