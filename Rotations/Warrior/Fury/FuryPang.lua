@@ -137,6 +137,7 @@ end
 --- OPTIONS ---
 ---------------
 local function createOptions()
+    local rotationKeys = {"None", GetBindingKey("Rotation Function 1"), GetBindingKey("Rotation Function 2"), GetBindingKey("Rotation Function 3"), GetBindingKey("Rotation Function 4"), GetBindingKey("Rotation Function 5")}
     local optionTable
 
     local function rotationOptions()
