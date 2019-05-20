@@ -175,8 +175,8 @@ local function createOptions()
         br.ui:createDropdownWithout(
             section,
             "Heroic Leap Hotkey",
-            br.dropOptions.Toggle,
-            7,
+            rotationKeys,
+            1,
             "Set desired hotkey to use Heroic Leap."
         )
         br.ui:checkSectionState(section)
@@ -309,12 +309,12 @@ local function runRotation()
             -- Healthstone/Health Potion
             if
                 isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
-                    (hasHealthPot() or hasItem(5512))
+                    (hasItem(152494) or hasItem(5512))
              then
                 if canUse(5512) then
                     useItem(5512)
-                elseif canUse(getHealthPot()) then
-                    useItem(getHealthPot())
+                elseif canUse(152494) then
+                    useItem(152494)
                 end
             end
 
@@ -513,7 +513,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists() and isChecked("Bladestorm Units") then
+        if buff.enrage.exists() and isChecked("Bladestorm Units") and br.player.mode.holdcd == 1 then
             if cast.bladestorm() then
                 return
             end
@@ -578,7 +578,8 @@ local function runRotation()
         -- Recklessness
         if
             not buff.recklessness.exists() and
-                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.holdcd == 1
+                (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and
+                br.player.mode.holdcd == 1
          then
             if cast.recklessness() then
                 return
@@ -615,7 +616,7 @@ local function runRotation()
         end
 
         -- Bladestorm
-        if #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() then
+        if #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.holdcd == 1 then
             if cast.bladestorm() then
                 return
             end
