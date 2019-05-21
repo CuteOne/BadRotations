@@ -563,7 +563,7 @@ local function runRotation()
 			-- Vivify 
 			if not talent.lifecycles then
 				for i = 1, #br.friend do
-					if br.friend[1].hp <= getValue("Vivify") and (isCastingSpell(spell.soothingMist) or not (cast.current.vifify() or cast.last.vivify(br.friend[1].unit))) then
+					if br.friend[1].hp <= getValue("Vivify") and (isCastingSpell(spell.soothingMist) or not (cast.active.vivify() or cast.last.vivify(br.friend[1].unit))) then
 						if cast.vivify(br.friend[1].unit) then return end
 					end
 				end
@@ -665,7 +665,7 @@ local function runRotation()
 			end
 			-- Vivify Lifecycles
 			for i = 1, #br.friend do
-				if br.friend[1].hp <= getValue("Vivify Lifecycles") and (isCastingSpell(spell.soothingMist) or not (cast.current.vifify() or cast.last.vivify(br.friend[1].unit))) then
+				if br.friend[1].hp <= getValue("Vivify Lifecycles") and (isCastingSpell(spell.soothingMist) or not (cast.active.vivify() or cast.last.vivify(br.friend[1].unit))) then
 					if cast.vivify(br.friend[1].unit) then return end
 				end
 			end
@@ -729,7 +729,7 @@ local function runRotation()
 				-- Vivify 
 				for i = 1, #br.friend do
 					if br.friend[1].hp <= (getValue("Vivify") *1.1) and not talent.lifecycles then
-						if br.friend[1].hp <= getValue("Vivify") and (isCastingSpell(spell.soothingMist) or not (cast.current.vifify() or cast.last.vivify(br.friend[1].unit))) then
+						if br.friend[1].hp <= getValue("Vivify") and (isCastingSpell(spell.soothingMist) or not (cast.active.vivify() or cast.last.vivify(br.friend[1].unit))) then
 								if cast.vivify(br.friend[1].unit) then return end
 						end
 					end
