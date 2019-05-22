@@ -88,6 +88,7 @@ local function createOptions()
             -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
             -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
+            br.ui:createDropdownWithout(section, "Pet Target", {"Any Unit", "Only Target"},1,"Select how you want pet to acquire targets.")
             -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
             -- Mend Pet
@@ -284,10 +285,8 @@ actionList.PetManagement = function()
         if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
             for i=1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if isValidUnit(thisUnit) or isDummy() then
-                    PetAttack(thisUnit)
-                    break
-                end
+                if getOptionValue("Pet Target") == 1 and (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
+                if getOptionValue("Pet Target") == 2 and UnitIsUnit(thisUnit,"target") then PetAttack(thisUnit); break end
             end
         elseif (not inCombat or (inCombat and not validTarget and not isDummy())) and IsPetAttackActive() then
             PetStopAttack()
