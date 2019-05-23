@@ -925,13 +925,30 @@ local function runRotation()
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge w/ Shrouded Suffocation: Reapply for bonus CP and extended snapshot duration
-        -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&combo_points.deficit>1
-        if talent.subterfuge and trait.shroudedSuffocation.active and comboDeficit > 1 then
+        -- actions.stealthed+=/garrote,target_if=min:remains,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&(remains<18|!ss_buffed)
+        if talent.subterfuge and trait.shroudedSuffocation.active then
+            local garroteTable = {}
+            local addUnit = {}
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if enemyTable5[i].ttd > debuff.garrote.remain(thisUnit) then
-                    if cast.pool.garrote() then return true end
-                    if cast.garrote(thisUnit) then return true end
+                local garroteRemain = debuff.garrote.remain(thisUnit)
+                if enemyTable5[i].ttd > garroteRemain and (garroteRemain < 18 or debuff.garrote.applied(thisUnit) <= 1) then
+                    addUnit.garroteRemain = garroteRemain
+                    addUnit.unit = thisUnit
+                    tinsert(garroteTable, addUnit)
+                end
+            end
+            if #garroteTable > 0 then 
+                if cast.pool.garrote() then return true end
+                if #garroteTable > 1 then
+                    table.sort(garroteTable, function(x,y)
+                        return x.garroteRemain < y.garroteRemain
+                    end)
+                    for i = 1, #garroteTable do
+                        if cast.garrote(garroteTable[i].unit) then return true end                        
+                    end
+                else
+                    if cast.garrote(garroteTable[1].unit) then return true end
                 end
             end
         end
