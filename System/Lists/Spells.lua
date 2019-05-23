@@ -3320,7 +3320,7 @@ br.lists.spells = {
                 shadowmeld                      = 58984,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,
-                cracklingTourmaline             = 166798,
+                cracklingTourmaline             = 290372,
                 saphireofBrilliance             = 290365,
             },
             debuffs                             = {
