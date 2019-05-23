@@ -23,5 +23,8 @@ br.lists.ccUnits = {
 	[134331] = {name = "Channel Lightning)", spell = 270889}, -- Motherload
 	[129640] = {name = "Clamping Jaws)", spell = 256897}, -- Seige of Boralus
 	[144168] = {name = "Ferocity)", spell = 272888}, -- Seige of Boralus A
-	[137517] = {name = "Ferocity)", spell = 272888} -- Seige of Boralus A-H
+	[137517] = {name = "Ferocity)", spell = 272888}, -- Seige of Boralus A-H
+  [131009] = {name = "Spirit of Gold"}, -- AD
+  [134388] = {name = "A Knot of Snakes"}, -- temple, snakes!
+  [129758] = {name = "Irontide Grenadier"} --FH last boss
 }
