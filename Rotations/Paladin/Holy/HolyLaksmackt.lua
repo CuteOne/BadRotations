@@ -32,7 +32,9 @@ local function createToggles()
   CreateButton("Cleanse", 4, 0)
   GlimmerModes = {
     [1] = { mode = "On", value = 1, overlay = "Glimmer mode", tip = "Glimmer on", highlight = 0, icon = 287280 },
-    [2] = { mode = "Off", value = 2, overlay = "Normal", tip = "Glimmer off", highlight = 0, icon = br.player.spell.holyShock }
+    [2] = { mode = "Off", value = 2, overlay = "Normal", tip = "Glimmer off", highlight = 0, icon = br.player.spell.holyShock },
+    [3] = { mode = "Tank", value = 3, overlay = "Normal", tip = "Glimmer on tank", highlight = 0, icon = 278573 }
+
   };
   CreateButton("Glimmer", 5, 0)
   -- DPS
@@ -95,7 +97,7 @@ local function createOptions()
     br.ui:createSpinner(section, "Necrotic Rot", 40, 0, 100, 1, "", "|cffFFFFFFNecrotic Rot Stacks does not healing the unit", true)
     --br.ui:createSpinner(section, "Reaping", 20, 0, 100, 1, "", "|cffFFFFFFReap Stacks Before Cleanse", true)
     br.ui:createCheckbox(section, "Grievous Wounds", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFGrievousWound|cffFFBB00.", 1)
-    br.ui:createSpinner(section, "Bursting", 1, 0, 10, 1, "", "|cffFFFFFFBurst Targets")
+    br.ui:createSpinner(section, "Bursting", 1, 0, 10, 3, "", "|cffFFFFFFBurst Targets")
     br.ui:createCheckbox(section, "Siege - Choking Waters", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble from choking water|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Freehold - pig", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFCatches pig in Freehold|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blacout barrel|cffFFBB00.", 1)
@@ -306,6 +308,10 @@ local function runRotation()
   local racial = br.player.getRacial()
   local traits = br.player.traits
   local moving = isMoving("player")
+  local BleedFriend = nil
+  local BleedFriendCount = 0
+  local BleedStack = 0
+
   -------------
   -- Raid
   ------------
@@ -507,7 +513,7 @@ local function runRotation()
     for i = 1, #br.friend do
       if UnitInRange(br.friend[i].unit) then
         local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Beacon of Virtue"), #br.friend)
-        if (BOV ~= nil and isCastingSpell(spell.flashOfLight)) or (#lowHealthCandidates >= getValue("BoV Targets") and isCastingSpell(spell.flashOfLight)) or
+        if ((BOV ~= nil or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or ((#lowHealthCandidates >= getValue("BoV Targets") or BleedFriendCount >= 2) and isCastingSpell(spell.flashOfLight)) or
                 (#lowHealthCandidates >= getValue("BoV Targets") and moving and cast.able.beaconOfVirtue() and getSpellCD(20473) < gcd) then
           if CastSpellByName(GetSpellInfo(200025), br.friend[i].unit) then
             return
@@ -947,7 +953,6 @@ local function runRotation()
     local blessingOfSacrificeTANK = nil
     local blessingOfSacrificeDAMAGER = nil
     local layOnHandsTarget = nil
-    local burst = nil
     local burst = nil
 
     if isChecked("Group Avenger w/ Wrath") then
@@ -1398,6 +1403,24 @@ local function runRotation()
   local function topPriority()
 
 
+    --Grievous Wounds
+    if isChecked("Grievous Wounds") then
+      for i = 1, #br.friend do
+        if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
+          local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
+          if getDebuffStacks(br.friend[i].unit, 240559) > 0 then
+            BleedFriendCount = BleedFriendCount + 1
+          end
+          if CurrentBleedstack > BleedStack then
+            BleedStack = CurrentBleedstack
+            BleedFriend = br.friend[i]
+            --debug stuff
+            --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
+          end
+        end
+      end
+    end
+
     -- Jagged Nettles and Dessication logic
     if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation") then
       for i = 1, #br.friend do
@@ -1420,7 +1443,6 @@ local function runRotation()
         end
       end
     end
-
 
 
     --Avenging Crusader (216331)  UnitBuffID("player", 216331)
@@ -1469,7 +1491,16 @@ local function runRotation()
   end
 
   local function glimmer()
+
     --Glimmer support
+
+    if mode.Glimmer == 3 and (inInstance or inRaid) and #tanks > 0 then
+      if not buff.glimmerOfLight.exists(tanks[1].unit) and not UnitBuffID(tanks[1].unit, 115191) then
+        if cast.holyShock(tanks[1].unit) then
+        end
+      end
+    end
+
     if mode.Glimmer == 1 and (inInstance or inRaid) and #br.friend > 1 then
       if getSpellCD(20473) == 0 then
         --critical first
@@ -1577,9 +1608,7 @@ local function runRotation()
     local lightOfTheMartyrM20 = nil
     local lightOfTheMartyrM30 = nil
     local lightOfTheMartyrM40 = nil
-    local BleedStack = 0
-    local BleedFriend = nil
-    local BleedFriendCount = 0
+
 
 
     --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
@@ -1739,11 +1768,6 @@ local function runRotation()
     if BleedFriend ~= nil and BleedFriend ~= player then
       if cast.able.lightOfTheMartyr() and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
         if cast.lightOfTheMartyr(BleedFriend.unit) then
-          return true
-        end
-      end
-      if talent.beaconOfVirtue and cast.able.beaconOfVirtue() and BleedFriendCount >= 2 then
-        if cast.beaconOfVirtue(BleedFriend.unit) then
           return true
         end
       end
