@@ -208,7 +208,7 @@ local function createOptions()
         --- Cooldown Options---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(
+        br.ui:createDropdown(
             section,
             "Trinkets",
             {"Always", "When CDs are enabled", "Never"},
@@ -684,7 +684,7 @@ local function runRotation()
     end
 
     local function List_Bearmode()
-        if br.player.mode.ironfur == 1 and (hasAggro >= 2) then
+        if br.player.mode.ironfur == 1 and (hasAggro >= 2 and bear) then
             if
                 (traits.layeredMane.active and rage >= 50) or not buff.ironfur.exists() or buff.goryFur.exists() or
                     rage >= 65 or
