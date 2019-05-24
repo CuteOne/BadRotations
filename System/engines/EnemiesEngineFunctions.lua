@@ -126,7 +126,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
-    if checkNoCombat == nil then checkNoCombat = false end
+	if checkNoCombat == nil then checkNoCombat = false end
+	if facing == nil then facing = false end
     if refreshStored == true then
     	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
     	refreshStored = false
@@ -135,8 +136,10 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 		if checkNoCombat == false then
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
 				if br.storedTables[checkNoCombat][thisUnit][radius] ~= nil then
+					if br.storedTables[checkNoCombat][thisUnit][radius][facing] ~= nil then
 				--print("Found Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
-					return br.storedTables[checkNoCombat][thisUnit][radius]
+						return br.storedTables[checkNoCombat][thisUnit][radius][facing]
+					end
 				end
 			end		
 		end
@@ -180,7 +183,8 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 	if #enemiesTable > 0 and thisUnit ~= nil then
 		if br.storedTables[checkNoCombat] == nil then br.storedTables[checkNoCombat] = {} end
 		if br.storedTables[checkNoCombat][thisUnit] == nil then br.storedTables[checkNoCombat][thisUnit] = {} end
-		br.storedTables[checkNoCombat][thisUnit][radius] = enemiesTable
+		if br.storedTables[checkNoCombat][radius] == nil then br.storedTables[checkNoCombat][thisUnit][radius] = {} end
+		br.storedTables[checkNoCombat][thisUnit][radius][facing] = enemiesTable
 		--print("Made Table Unit: "..UnitName(thisUnit).." Radius: "..radius.." CombatCheck: "..tostring(checkNoCombat))
 	end
     return enemiesTable
@@ -375,24 +379,26 @@ local function findBestUnit(range,facing)
 			tsort(enemyList,compare)
 			for i = 1, #enemyList do
 				local thisUnit = enemyList[i]
-				local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
-				-- local thisUnit = v.unit
-				-- local distance = getDistance(thisUnit)
-				-- if distance < range then
-				if not isCC then					
-					local coeficient = getUnitCoeficient(thisUnit) or 0
-					if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
-						if currHP == nil or UnitHealth(thisUnit) < currHP then
-							currHP = UnitHealth(thisUnit)
-							coeficient = coeficient + 100
+				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
+				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
+					local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+					-- local thisUnit = v.unit
+					-- local distance = getDistance(thisUnit)
+					-- if distance < range then
+					if not isCC then					
+						local coeficient = getUnitCoeficient(thisUnit) or 0
+						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
+							if currHP == nil or UnitHealth(thisUnit) < currHP then
+								currHP = UnitHealth(thisUnit)
+								coeficient = coeficient + 100
+							end
+						end
+						if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
+							bestUnitCoef = coeficient
+							bestUnit = thisUnit
 						end
 					end
-					if coeficient >= 0 and (bestUnitCoef == nil or coeficient > bestUnitCoef) then
-						bestUnitCoef = coeficient
-						bestUnit = thisUnit
-					end
 				end
-				-- end
 	--			lastCheckTime = GetTime() + 1
 			end
 		end

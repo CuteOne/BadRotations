@@ -7,7 +7,7 @@ local function createToggles()
   -- Rotation Button
   RotationModes = {
     [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot},
-    [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multiShot},
+    [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot},
     [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot},
     [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
   };
@@ -339,7 +339,7 @@ local function runRotation()
     -- Multi-Shot
     -- multi-shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
     if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and (buff.markingTargets.exists() or buff.trueshot.exists()) then
-      if cast.multiShot() then
+      if cast.multishot() then
         print("PS Multi Shot 3 cast at "..power.." Focus")
         return
       end
@@ -386,8 +386,8 @@ local function runRotation()
     end
     -- Multi-Shot
     -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and canGCD and (power + getCastRegen(spell.multiShot) + getCastRegen(spell.aimedShot)) < powerMax then
-      if cast.multiShot() then
+    if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 and canGCD and (power + getCastRegen(spell.multishot) + getCastRegen(spell.aimedShot)) < powerMax then
+      if cast.multishot() then
         print("PS Multi Shot 9 cast at "..power.." Focus")
         return
       end
@@ -435,7 +435,7 @@ local function runRotation()
     -- Multi-Shot
     -- multishot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
     if (mode.rotation == 1 or mode.rotation == 2) and #enemies.yards8t > 1 then
-      if cast.multiShot() then
+      if cast.multishot() then
         print("PS Multi Shot 15 cast at "..power.." Focus")
         return
       end

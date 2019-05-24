@@ -288,7 +288,7 @@ local function ferociousBiteFinish(thisUnit)
 end
 -- Primal Wrath Usable
 local function usePrimalWrath()
-    if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8)
+    if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8) and cast.safe.primalWrath("player",8,1)
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if #enemies.yards8 >= 3 then return true end
@@ -528,15 +528,15 @@ actionList.Defensive = function()
                 -- Don't Break Form
                 if getOptionValue("Regrowth - OoC") == 2 then
                     -- Lowest Party/Raid or Player
-                    if (thisHP <= getOptionValue("Regrowth") and GetShapeshiftForm() == 0)
-                        or buff.predatorySwiftness.exists()
+                    if (thisHP <= getOptionValue("Regrowth") and not moving)
+                        and (GetShapeshiftForm() == 0 or buff.predatorySwiftness.exists())
                     then
                         if cast.regrowth(thisUnit) then return true end
                     end
                 end
                 -- Break Form
-                if getOptionValue("Regrowth - OoC") == 1 and php <= getOptionValue("Regrowth") then
-                    if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() and not moving then
+                if getOptionValue("Regrowth - OoC") == 1 and php <= getOptionValue("Regrowth") and not moving then
+                    if GetShapeshiftForm() ~= 0 and not buff.predatorySwiftness.exists() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
                     else
@@ -1301,10 +1301,9 @@ local function runRotation()
                         end
                     end
                     -- Regrowth
-                    -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down&(!buff.incarnation.up|dot.rip.remains<8)
+                    -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down
                     if cast.able.regrowth() and (comboPoints == 5 and buff.predatorySwiftness.exists()
-                        and talent.bloodtalons and not buff.bloodtalons.exists()
-                        and (not buff.incarnationKingOfTheJungle.exists() or debuff.rip.remain(units.dyn5) < 8))
+                        and talent.bloodtalons and not buff.bloodtalons.exists())
                     then
                         local opValue = getOptionValue("Auto Heal")
                         if opValue == 1 and getDistance(br.friend[1].unit) < 40 then

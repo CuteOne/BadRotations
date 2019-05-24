@@ -110,12 +110,19 @@ if not metaTable2 then
 		end
 		--Add unit to table
 		function o:AddUnit(table)
-			local thisUnit = {
-				unit = o.unit,
-				name = o.name,
-				guid = o.guid,
-				id = o.objectID
-			}
+			local thisUnit
+			if UnitIsOtherPlayersPet(o.unit) then
+				thisUnit = {
+					unit = o.unit,
+				}
+			else
+				thisUnit = {
+					unit = o.unit,
+					name = o.name,
+					guid = o.guid,
+					id = o.objectID
+				}
+			end
 			rawset(table, o.unit, thisUnit)
 		end
 		-- Updating the values of the Unit
@@ -188,6 +195,11 @@ if not metaTable2 then
 			if br.player ~= nil and br.player.pet.list[o.unit] == nil and (o.objectID == 11492 or GetUnitIsUnit(UnitCreator(o.unit), "player")) then
 				o:AddUnit(br.player.pet.list)
 			end
+			-- Add other player pets
+			if br.pet ~= nil and br.pet[o.unit] == nil and (UnitIsOtherPlayersPet(o.unit)) then
+				o:AddUnit(br.pet)
+			end
+
 			-- add unit to setup cache
 			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
 		end
@@ -205,6 +217,9 @@ if not metaTable2 then
 			pX, pY, pZ = ObjectPosition("player")
 			pCR = UnitCombatReach("player")
 			autoLoot = isChecked("Auto Loot")
+			if br.pet == nil then
+				br.pet = {}
+			end
 			--Make sure we have pet tables
 			if br.player ~= nil then
 				if br.player.pet == nil then
@@ -237,6 +252,9 @@ if not metaTable2 then
 						end
 						if br.lootable[thisUnit] ~= nil then
 							br.lootable[thisUnit] = nil
+						end
+						if br.pet[thisUnit] ~= nil then
+							br.pet[thisUnit] = nil
 						end
 						tremove(br.om, i)
 					else

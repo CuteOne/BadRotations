@@ -517,8 +517,8 @@ function isCastingSpell(spellID,unit)
 end
 -- if isCasting(12345,"target") then
 function isCasting(SpellID,Unit)
-	if GetObjectExists(Unit) and GetUnitIsVisible(Unit) then
-		if isCasting(tostring(GetSpellInfo(SpellID)),Unit) == 1 then
+	if GetUnitIsVisible(Unit) and UnitCastingInfo(Unit) then
+		if UnitCastingInfo(Unit) == GetSpellInfo(SpellID) then
 			return true
 		end
 	else
@@ -616,8 +616,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			castDebug()
 			return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 		elseif thisUnit ~= nil then
-            local distance = getDistance(thisUnit)
-            if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
+			local distance = getDistance(thisUnit)
+			if debug == "pet" then distance = getDistance(thisUnit,"pet") end
+			if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
+				-- Print("Spell is in range!")
 				local hasEnemies = #getEnemies("player",maxRange) >= minUnits or spellType == "Helpful" or spellType == "Unknown"
                 if debug == "rect" then
 					if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") and hasEnemies then
@@ -644,9 +646,13 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
                 elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player") then
                     castDebug()
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
-                elseif debug == "norm" and hasEnemies then
+                elseif (debug == "norm" or debug == "pet") and hasEnemies then
 					castDebug()
-	                return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
+					if debug == "pet" then
+						return castSpell(thisUnit,spellCast,true,false,false,false,false,true)
+					else
+						return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
+					end
 	            end
 	        else
 				if (isChecked("Display Failcasts") or isChecked("Cast Debug")) and debug ~= "debug" then

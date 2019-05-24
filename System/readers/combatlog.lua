@@ -85,7 +85,7 @@ function br.read.combatLog()
         if castTime == nil then castTime = 0 end
         if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") then
             if sourceName ~= nil then
-                if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                if --[[isInCombat("player") and ]]GetUnitIsUnit(sourceName, "player") then
                     if br.player ~= nil then
                     -- Last Cast
                         for k, v in pairs(br.player.spell.abilities) do
@@ -107,7 +107,7 @@ function br.read.combatLog()
          then
             -- Print(tostring(param).." | "..tostring(sourceName).." | "..tostring(spellName).."("..spell..")".." | "..tostring(destName))
             if sourceName ~= nil then
-                if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                if --[[isInCombat("player") and ]]GetUnitIsUnit(sourceName, "player") then
                     if spell == lastCast then
                         lastCast = lastCast2
                         lastCast2 = lastCast3
@@ -396,6 +396,31 @@ function br.read.combatLog()
                     lastSpellStarted = spell
                 end
             end
+        end
+        -- Big Raid Damage Tracker
+        if isInCombat("player") then
+            if param == "SPELL_CAST_START" then
+                if spell == 281936 or spell == 282399 or spell == 284941 or spell == 282742 then
+                    if burstCount == nil then burstCount = 0 end
+                    burstCount = burstCount + 1
+                    raidBurstInc = true
+                elseif spell == 282107 then
+                    if burstCount == nil then burstCount = 0 end
+                    burstCount = burstCount + 1
+                    raidBurstInc = true
+                    pakuWrath = true
+                end
+            elseif param == "SPELL_CAST_SUCCESS" then
+                if spell == 281936 or spell == 282399 or spell == 284941 or spell == 282742 then
+                    raidBurstInc = false
+                elseif spell == 282107 then
+                    raidBurstInc = false
+                    pakuWrath = false
+                end
+            end
+        else
+            burstCount = 0
+            raidBurstInc = false
         end
     end
     function cl:Deathknight(...)

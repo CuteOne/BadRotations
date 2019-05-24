@@ -424,7 +424,7 @@ local function runRotation()
                             print("Kill Command Cast")
                             DIRE = false
                         end
-                    elseif cast.multiShot(units.dyn40) then
+                    elseif cast.multishot(units.dyn40) then
                         KCMS = true
                         print("Multi Shot Cast")
                         DIRE = false
@@ -601,13 +601,13 @@ local function runRotation()
                         end
                     -- Multi Shot
                         if #multishotTargets > 4 and (mode.rotation == 1 or mode.rotation == 2) and beastCleaveTimer < gcd then
-                            if cast.multiShot(units.dyn40) then return end
+                            if cast.multishot(units.dyn40) then return end
                         end
                     -- Kill Command
                         if cast.killCommand(units.dyn40) then return end
                     -- Multi Shot
                         if #multishotTargets > 1 and (mode.rotation == 1 or mode.rotation == 2) and beastCleaveTimer < gcd then
-                            if cast.multiShot(units.dyn40) then return end
+                            if cast.multishot(units.dyn40) then return end
                         end
                     -- Chimera Shot
                         if power < 90 and talent.chimeraShot then

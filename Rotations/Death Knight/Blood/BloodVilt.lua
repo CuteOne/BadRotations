@@ -97,6 +97,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD.")
         -- Use Bonestorm
             --br.ui:createCheckbox(section,"Use Bonestorm")
+            --RP Hold Toggle
+            br.ui:createDropdown(section,"Hold RP", br.dropOptions.Toggle, 6, "Hold Key to prevent RP spending")
         -- Bonestorm Target Amount
             br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm")
         -- Bonestorm RP Amount
@@ -533,13 +535,6 @@ local function runRotation()
                     if mode.DND == 1 and not isMoving("player") and not isMoving("target") and ((#enemies.yards8 >= 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists())) then
                         if cast.deathAndDecay("player") then return end
                     end
-                    --dump rp with deathstrike
-                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and runicPowerDeficit <= 30 then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
                     --#high prio heal
                     --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
                     if php < getOptionValue("Death Strike High Prio") then
@@ -547,8 +542,14 @@ local function runRotation()
                     end
                     if talent.bonestorm and mode.BoneStorm == 1 and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                         if cast.bonestorm("player") then return end
-                    end                
-
+                    end    
+                    --dump rp with deathstrike
+                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or mode.BoneStorm == 2)) and runicPowerDeficit <= 20 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
+                        if cast.deathStrike() then DSCastTime = GetTime(); return end
+                    end
+                    if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
+                        if cast.marrowrend() then MRCastTime = GetTime(); return end
+                    end            
                     if not talent.soulgorge and #enemies.yards8 > 0 and UnitsWithoutBloodPlague >= 1 then                        
                         if cast.bloodBoil("player") then return end                        
                     end
@@ -569,7 +570,7 @@ local function runRotation()
                         end
                     end
                     --#low prio heal
-                    if php < getOptionValue("Death Strike Low Prio") then
+                    if php < getOptionValue("Death Strike Low Prio") and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
@@ -605,7 +606,7 @@ local function runRotation()
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
                     -- Healing
-                    if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() then
+                    if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
 
@@ -627,7 +628,7 @@ local function runRotation()
                         if cast.blooddrinker() then return end
                     end
                     -- Death Strike
-                    if ((talent.blooddrinker or cd.blooddrinker.remain() <= gcd) and isChecked("Blooddrinker")) and not buff.dancingRuneWeapon.exists() and (runeTimeTill(1) <= gcd or runes >= 1) then
+                    if ((talent.blooddrinker or cd.blooddrinker.remain() <= gcd) and isChecked("Blooddrinker")) and not buff.dancingRuneWeapon.exists() and (runeTimeTill(1) <= gcd or runes >= 1) and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     -- Marrowrend
@@ -635,7 +636,7 @@ local function runRotation()
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
                     -- Death Strike
-                    if buff.boneShield.stack() <= 6 and runicPowerDeficit <= 20 and runes >= 2 then
+                    if buff.boneShield.stack() <= 6 and runicPowerDeficit <= 20 and runes >= 2 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     -- DND ST Rapid Decomp / AoE

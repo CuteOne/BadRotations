@@ -8,8 +8,8 @@ br.mraid = {}
 br.selectedSpec = "None"
 br.selectedProfile = 1
 br.dropOptions = {}
-br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
-br.dropOptions.Toggle2 ={"LeftCtrl","LeftShift","LeftAlt","RightCtrl","RightShift","RightAlt","MMouse","Mouse4","Mouse5","None" }
+--br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
+br.dropOptions.Toggle ={"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None","MMouse","Mouse4","Mouse5" }
 br.dropOptions.CD = {"Never","CDs","Always" }
 br.loadedIn = false
 br.rotations = {}
@@ -124,7 +124,17 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
         br.ui:saveWindowPosition()
         if getOptionCheck("Reset Options") then
         	-- Reset Settings
-        	brdata = {}
+			brdata = {}
+			if getOptionCheck("Reset Saved Profiles") then
+				dungeondata = {}
+				raiddata = {}
+				mdungeondata = {}
+				mraiddata = {}
+				br.dungeon = {}
+				br.mdungeon = {}
+				br.raid = {}
+				br.mraid = {}
+			end
 		elseif getOptionCheck("Reset Saved Profiles") then
 			dungeondata = {}
         	raiddata = {}

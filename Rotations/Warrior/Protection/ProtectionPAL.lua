@@ -223,121 +223,7 @@ local function runRotation()
         return true
       end
     end
-    local function castBestConeAnglexx(spell, angle, range, minUnits, checkNoCombat)
-      if not isKnown(spell) or getSpellCD(spell) ~= 0 then
-        return false
-      end
-      local curFacing = ObjectFacing("player")
-      local enemiesTable = getEnemies("player", range, checkNoCombat)
-      local playerX, playerY, playerZ = ObjectPosition("player")
-      local angles = {}
-      for i = 1, #enemiesTable do
-        local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
-        if playerX and unitX then
-          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-          tinsert(angles, angleToUnit)
-        end
-      end
-      local numAngles = table.getn(angles)
-      if numAngles == 0 or numAngles < minUnits then
-        return false
-      end
-      table.sort(angles, function(a, b)
-        return a < b
-      end)
-      angle = angle / 180 * math.pi
-      local bestAngle, mostHit = angles[1], 0
-      local i, j = 1, 2
-      while i <= numAngles and j < numAngles * 2 do
-        --local angleJ = j > numAngles and angles[j - numAngles + 1] + math.pi * 2 or angles[j]
-        local angleJ = j > numAngles and angles[j - numAngles] + math.pi * 2 or angles[j]
-        while i < j and angleJ - angles[i] > angle do
-          i = i + 1
-        end
-        if j - i > mostHit then
-          mostHit = j - i
-          bestAngle = (angleJ - angles[i]) / 2 + angles[i]
-        end
-        j = j + 1
-      end
-      if mostHit + 1 >= minUnits then
-        FaceDirection(bestAngle, true)
-        CastSpellByName(GetSpellInfo(spell))
-        FaceDirection(curFacing, true)
-        return true
-      end
-      return false
-    end
-    local function castBestConeAngle(spell, angle, range, minUnits, checkNoCombat)
-      if not isKnown(spell) or getSpellCD(spell) ~= 0 then
-        return false
-      end
-      local curFacing = ObjectFacing("player")
-      local enemiesTable = getEnemies("player", range, checkNoCombat)
-      local playerX, playerY, playerZ = ObjectPosition("player")
-      local coneTable = {}
-      for i = 1, #enemiesTable do
-        local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
-        if playerX and unitX then
-          local angleToUnit = getAngles(playerX, playerY, playerZ, unitX, unitY, unitZ)
-          tinsert(coneTable, angleToUnit)
-        end
-      end
-      local facing, bestAngle, mostHit = 0, 0, 0
-      while facing <= 6.2 do
-        local units = 0
-        for i = 1, #coneTable do
-          local angleToUnit = coneTable[i]
-          local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
-          local shortestAngle = angleDifference < math.pi and angleDifference or math.pi * 2 - angleDifference
-          local finalAngle = shortestAngle / math.pi * 180
-          if finalAngle < angle / 2 then
-            units = units + 1
-          end
-        end
-        if units > mostHit then
-          mostHit = units
-          bestAngle = facing
-        end
-        facing = facing + 0.05
-      end
-      if mostHit >= minUnits then
-        FaceDirection(bestAngle, true)
-        CastSpellByName(GetSpellInfo(spell))
-        FaceDirection(curFacing, true)
-        return true
-      end
-      return false
-    end
-    local CastSpellByNameFace = function(SpellName, Target, ...)
-      local castTime = select(4, GetSpellInfo(SpellName))
-      if isChecked("Auto Facing") and castTime == 0 and UnitExists(Target or "Target") and UnitIsVisible(Target or "Target") and not ObjectIsFacing("Player", Target or "Target") then
-        local facing = ObjectFacing("Player")
-        local playerx, playery = ObjectPosition("Player")
-        local targetx, targety = ObjectPosition(Target or "Target")
-        if not playerx or not targetx then
-          return
-        end
-        local angle = rad(atan2(targety - playery, targetx - playerx))
-        local mouselookActive = false
-        if IsMouselooking() then
-          mouselookActive = true
-          MouselookStop()
-        end
-        if angle < 0 then
-          FaceDirection(rad(360 + atan2(targety - playery, targetx - playerx)), true)
-        else
-          FaceDirection(angle, true)
-        end
-        CastSpellByName(SpellName, Target, ...)
-        FaceDirection(facing, true)
-        if mouselookActive then
-          MouselookStart()
-        end
-      else
-        CastSpellByName(SpellName, Target, ...)
-      end
-    end
+
     -----------------------------
     ---      Modifiers        ---
     -----------------------------
@@ -524,43 +410,42 @@ local function runRotation()
       elseif #enemies.yards8 >= 2 then
         if GetUnitExists("target") and getFacing("player", "target") and not UnitIsDeadOrGhost("target") and getDistance("target") <= 8 then
           if cast.able.shockwave() and #enemies.yards8 >= 3 then
-            if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then
-              return true
-            end
-          elseif cast.able.thunderClap() and talent.cracklingThunder then
-            if cast.thunderClap("player", nil, 1, 12) then
-              return true
-            end
-          elseif cast.able.thunderClap() then
-            if cast.thunderClap("player", nil, 1, 8) then
-              return true
-            end
-          elseif isChecked("Shield Slam") and cast.able.shieldSlam() then
-            if cast.shieldSlam(units.dyn8) then
-              return true
-            end
-          elseif isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
-            if cast.dragonRoar(nil, "aoe") then
-              return true
-            end
-          elseif isChecked("Ravager") and cast.able.ravager() then
-            if cast.ravager("target", "ground") then
-              return true
-            end
-          elseif isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or (rage > 80 and cd.shieldBlock.remain() == 0) then
-            for i = 1, #enemies.yards8 do
-              local thisUnit = enemies.yards8[i]
-              if not debuff.deepwoundsProt.exists(thisUnit) then
-                if cast.revenge(thisUnit) then
-                  return true
-                end
-              end
-            end
-          else
-            if cast.revenge() then
+            --[[if castBestConeAngle(spell.shockwave, 30, 7, 3, true) then]]
+            if cast.shockwave() then
               return true
             end
           end
+        elseif cast.able.thunderClap() and talent.cracklingThunder then
+          if cast.thunderClap("player", nil, 1, 12) then
+            return true
+          end
+        elseif cast.able.thunderClap() then
+          if cast.thunderClap("player", nil, 1, 8) then
+            return true
+          end
+        elseif isChecked("Shield Slam") and cast.able.shieldSlam() then
+          if cast.shieldSlam(units.dyn8) then
+            return true
+          end
+        elseif isChecked("Dragon Roar") and talent.dragonRoar and cast.able.dragonRoar(nil, "aoe") then
+          if cast.dragonRoar(nil, "aoe") then
+            return true
+          end
+        elseif isChecked("Ravager") and cast.able.ravager() then
+          if cast.ravager("target", "ground") then
+            return true
+          end
+        elseif isChecked("Revenge") and cast.able.revenge() and buff.revenge.exists() or (rage > 80 and cd.shieldBlock.remain() == 0) then
+          for i = 1, #enemies.yards8 do
+            local thisUnit = enemies.yards8[i]
+            if not debuff.deepwoundsProt.exists(thisUnit) then
+              if cast.revenge(thisUnit) then
+                return true
+              end
+            end
+          end
+        elseif cast.revenge() then
+          return true
         elseif isChecked("Devastate") and cast.able.devastate() then
           for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]

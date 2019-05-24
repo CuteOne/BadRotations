@@ -36,7 +36,9 @@ function getUpdateRate()
 	else
 		updateRate = getOptionValue("Bot Update Rate")
 	end
-
+--	if updateRate < 0.2 then
+--		updateRate = 0.2
+-- 	end
 	return updateRate
 end
 
@@ -72,25 +74,24 @@ local function testKeys(self, key)
 	local ignorePause = ignoreKeys
 	-- iterate over a list to ignore pause
 	if not isChecked("Disable Key Pause Queue") then
-		for i = 1, #actionBarKeys do
-			if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
-				buttonName = "ActionButton"..i
-				local button = _G[buttonName]
-				local slot = i
-				if HasAction(slot) then
-					local actionType, id = GetActionInfo(slot)
-					if actionType == "spell" then
-						pauseSpellId = id
-						if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
-							ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
-						end
-					end
-				end
-			end
-		end
-	elseif isChecked("Disable Key Pause Queue") then
-		pauseSpellId = nil
-	end
+        for i = 1, #actionBarKeys do
+            if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
+                buttonName = GetBindingAction(actionBarKeys[i])
+                local slot = buttonName:match("ACTIONBUTTON(%d+)") or buttonName:match("BT4Button(%d+)")
+                if HasAction(slot) then       
+                    local actionType, id = GetActionInfo(slot)
+                    if actionType == "spell" then
+                        pauseSpellId = id
+                        if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
+                            ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
+                        end
+                    end
+                end
+            end
+        end
+    elseif isChecked("Disable Key Pause Queue") then
+        pauseSpellId = nil
+    end
 	for i = 1, #ignorePause do
 		if string.find(key, ignorePause[i]) then
 			return
@@ -100,7 +101,9 @@ local function testKeys(self, key)
 end
 
 keyBoardFrame:SetScript("OnKeyDown", testKeys)
-
+local brlocVersion = GetAddOnMetadata("BadRotations","Version")
+local brcurrVersion
+local brUpdateTimer
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -115,6 +118,21 @@ function BadRotationsUpdate(self)
 		return false
 	else 
 		if EWT and GetObjectCount() ~= nil then
+			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and EasyWoWToolbox ~= nil then
+			 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+			 	if brlocVersion and brcurrVersion then
+			 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+			 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+			 		if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+			 			if isChecked("Overlay Messages") then
+			 				ChatOverlay("BadRotations is currently out of date.")
+			 			else
+			 				 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
+			 			end
+			 		end
+			 		brUpdateTimer = GetTime()
+			 	end
+			end
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					if pauseSpellId ~= nil then
@@ -134,8 +152,8 @@ function BadRotationsUpdate(self)
 
 					--Quaking helper
 					if getOptionCheck("Quaking Helper") then
-						if UnitChannelInfo("player") and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
-							SpellStopCasting()
+						if (UnitChannelInfo("player") or UnitCastingInfo("player")) and getDebuffRemain("player", 240448) < 0.5 and getDebuffRemain("player", 240448) > 0 then
+							RunMacroText("/stopcasting")
 						end
 					end
 					-- Pause if key press that is not ignored
@@ -207,6 +225,10 @@ function BadRotationsUpdate(self)
 							if not UnitAffectingCombat("player") then Print("No Combat Detected! - Queue Cleared.") end
 						end
 					end 
+					--Smart Queue
+					if EasyWoWToolbox ~= nil and isChecked("Smart Queue") then
+						br.smartQueue()
+					end
 					-- Update Player
 					if br.player ~= nil and not CanExitVehicle() then --br.debug.cpu.pulse.currentTime/10) then
 						br.player:update()
@@ -214,6 +236,17 @@ function BadRotationsUpdate(self)
 					-- Healing Engine
 					if isChecked("HE Active") then
 						br.friend:Update()
+						local groupSize
+						groupSize = GetNumGroupMembers()
+						if groupSize == 0 then
+							groupSize = 1
+						end
+						if #br.friend < groupSize and br.timer:useTimer("Reform", 5) then
+							br.addonDebug("Group size does not match #br.friend. Recreating br.friend.")
+							table.wipe(br.memberSetup.cache)
+							table.wipe(br.friend)
+							SetupTables()
+						end
 					end
 					-- Auto Loot
 					autoLoot()

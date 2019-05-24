@@ -51,6 +51,8 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Safe Damage Check", "Check to prevent damage to targets you dont want to attack.")
         br.ui:createCheckbox(section, "Don't break CCs", "Check to prevent damage to targets that are CC.")
         br.ui:createCheckbox(section, "Skull First", "Check to enable focus skull dynamically.")
+        br.ui:createCheckbox(section, "Dispel Only Whitelist", "Check to only dispel debuffs listed on the whitelist.")
+        br.ui:createCheckbox(section, "Purge Only Whitelist", "Check to only purge buffs listed on the whitelist.")
         br.ui:createCheckbox(section, "Interrupt Only Whitelist", "Check to only interrupt casts listed on the whitelist.")
         br.ui:createDropdownWithout(section, "Interrupt Target", {"All", "Target", "Focus", "Marked"},  1, "Interrupt target settings.")
         br.ui:createDropdownWithout(section, "Interrupt Mark", {"|cffffff00Star", "|cffffa500Circle", "|cff800080Diamond", "|cff008000Triangle", "|cffffffffMoon", "|cff0000ffSquare", "|cffff0000Cross", "|cffffffffSkull"},  8, "Mark to interrupt if Marked is selected in Interrupt Target.")
@@ -67,7 +69,6 @@ function br.ui:createConfigWindow()
         --br.ui:createCheckbox(section, "Disable Object Manager", "Check to disable OM. Will disable dynamic targetting. Will prevent all spells that require OM from working correctly.")
         br.ui:createCheckbox(section, "Heal Pets", "Check this to Heal Pets.")
         br.ui:createDropdown(section, "Special Heal", {"Target", "T/M", "T/M/F", "T/F"}, 1, "Check this to Heal Special Whitelisted Units.", "Choose who you want to Heal.")
-        br.ui:createCheckbox(section, "Sorting with Role", "Sorting with Role")
         br.ui:createDropdown(section, "Prioritize Special Targets", {"Special", "All"}, 1, "Prioritize Special targets(mouseover/target/focus).", "Choose Which Special Units to consider.")
         br.ui:createSpinner(section, "Blacklist", 95, nil, nil, nil, "|cffFFBB00How much |cffFF0000%HP|cffFFBB00 do we want to add to |cffFFDD00Blacklisted |cffFFBB00units. Use /Blacklist while mouse-overing someone to add it to the black list.")
         br.ui:createSpinner(section, "Prioritize Tank", 5, 0, 100, 1, "Check this to give tanks more priority")
@@ -86,11 +87,12 @@ function br.ui:createConfigWindow()
         -- Other Features
         section = br.ui:createSection(br.ui.window.config, "Other Features")
         br.ui:createSpinner(section, "Profession Helper", 0.5, 0, 1, 0.1, "Check to enable Professions Helper.", "Set Desired Recast Delay.")
-        br.ui:createDropdown(section, "Prospect Ores", {"BFA","Legion","WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores.")
-        br.ui:createDropdown(section, "Mill Herbs", {"Legion","WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs.")
-        br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens.")
-        br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps.")
-        br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes.")
+        br.ui:createDropdown(section, "Prospect Ores", {"BFA","Legion","WoD", "MoP", "Cata", "All"}, 1, "Prospect Desired Ores. Profession Helper must be checked.")
+        br.ui:createDropdown(section, "Mill Herbs", {"BFA","Legion","WoD", "MoP", "Cata", "All"}, 1, "Mill Desired Herbs. Profession Helper must be checked.")
+        br.ui:createCheckbox(section, "Disenchant", "Disenchant Cata blues/greens. Profession Helper must be checked.")
+        br.ui:createCheckbox(section, "Leather Scraps", "Combine leather scraps. Profession Helper must be checked.")
+        br.ui:createCheckbox(section, "Lockboxes", "Unlock Lockboxes. Profession Helper must be checked.")
+        br.ui:createCheckbox(section, "Fish Oil", "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked.")
         br.ui:createCheckbox(section, "Quaking Helper", "Auto cancel channeling and block casts during mythic+ affix quaking")
         br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
         br.ui:checkSectionState(section)
@@ -104,6 +106,41 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callQueueEngine()
+        local function pairsByKeys (t, f)
+            local a = {}
+            for n in pairs(t) do table.insert(a, n) end
+                table.sort(a, f)
+                local i = 0      -- iterator variable
+                local iter = function ()   -- iterator function
+                i = i + 1
+                if a[i] == nil then 
+                    return nil
+                else return a[i], t[a[i]]
+                end
+            end
+            return iter
+        end
+        section = br.ui:createSection(br.ui.window.config, "Smart Queue")
+        br.ui:createSpinner(section,  "Smart Queue", 2, 0.5, 3, 0.1, "Auto cast spells you press (Only EWT support)", "Seconds to attempt cast")
+        if br.player ~= nil and br.player.spell ~= nil and br.player.spell.abilities ~= nil then
+            for k, v in pairsByKeys(br.player.spell.abilities) do
+                local spellName = GetSpellInfo(v)
+                if v ~= 61304 and spellName ~= nil then
+                    br.ui:createDropdown(section, spellName .. " (Queue)", {"Normal", "Cursor", "Cursor (No Cast)", "Mouseover"}, 1, "Active Queueing Of " .. spellName .. " (ID: " .. v .. ")", "Select cast mode")
+                end
+            end
+        end
+        br.ui:checkSectionState(section)
+    end
+
+    local function callHealingOptions()
+        section = br.ui:createSection(br.ui.window.config, "Healing Options")
+        br.ui:createSpinnerWithout(section, "Bwonsamdi's Wrath HP", 30,1,100, 5, "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)")
+        br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
+        br.ui:createSpinnerWithout(section, "Promise of Power", 8, 1, 10, 1, "Set how many stacks of promise of power needed to dispel.")
+        br.ui:checkSectionState(section)
+    end
 
     -- Add Page Dropdown
     br.ui:createPagesDropdown(br.ui.window.config, {
@@ -118,6 +155,14 @@ function br.ui:createConfigWindow()
         {
             [1] = "Healing Engine",
             [2] = callHealingEngine,
+        },
+        {
+            [1] = "Healing Options",
+            [2] = callHealingOptions,
+        },
+        {
+            [1] = "Queue Engine",
+            [2] = callQueueEngine,
         },
         {
             [1] = "Other Features",

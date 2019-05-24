@@ -10,5 +10,8 @@ br.lists.shieldUnits = {
 	-- Agatha Challenge Skin
 	[115638] = {coef = -200, buff = 243027}, -- Shadow Shield
 	-- BFA dungeons
-	[134158] = {coef = -100, spell = 269928, frontal = true}
+	[134158] = {coef = -100, spell = 269928, frontal = true},
+	-- Timewalking
+	[29309] = {coef = -100, buff = 56153}, -- Elder Nadox: Ahn'kahet The Old Kingdom (Invulnerable buff from Ahn'kahar Guardian)
+	[30178] = {coef = -100, buff = 56153}, -- Ahn'kahar Swarmer: Ahn'kahet The Old Kingdom (Invulnerable buff from Ahn'kahar Guardian)
 }

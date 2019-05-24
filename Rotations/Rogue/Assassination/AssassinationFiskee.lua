@@ -6,6 +6,7 @@ rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30 = {}
 local enemyTable5, enemyTable10, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable10, rogueTables.enemyTable30
 local resetButton
 local garrotePrioList = ""
+local fhbossPool = false
 local dotBlacklist = "135824|139057|129359|129448|134503|137458|139185|120651"
 local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|269266|258317|258864|259711|258917|264038|253239|269931|270084|270482|270506|270507|267433|267354|268702|268846|268865|258908|264574|272659|272655|267237|265568|277567|265540"
 ---------------
@@ -15,8 +16,7 @@ local function createToggles() -- Define custom toggles
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.garrote },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fanOfKnives },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate },
-        [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.stealth}
+        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate }
     };
     CreateButton("Rotation",1,0)
     CooldownModes = {
@@ -73,12 +73,14 @@ local function createOptions()
             br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
+            br.ui:createCheckbox(section, "Auto Target Burn Units", "|cffFFFFFF Will auto change target to high prio units if they are in range")
             br.ui:createCheckbox(section, "Auto Garrote HP Limit", "|cffFFFFFF Will try to calculate if we should garrote from stealth on units, based on their HP")
             br.ui:createCheckbox(section, "Disable Auto Combat", "|cffFFFFFF Will not auto attack out of stealth, don't use with vanish CD enabled, will pause rotation after vanish")
             br.ui:createCheckbox(section, "Dot Blacklist", "|cffFFFFFF Check to ignore certain units when multidotting")
             br.ui:createSpinnerWithout(section,  "Multidot Limit",  3,  0,  8,  1,  "|cffFFFFFF Max units to dot with garrote.")
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  10,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
+            br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -89,6 +91,7 @@ local function createOptions()
             br.ui:createDropdown(section, "Potion", {"Agility", "Bursting Blood"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vanish", "|cffFFFFFF Will use Vanish")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
+            br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -186,7 +189,7 @@ local function runRotation()
     local race                                          = br.player.race
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
-    local stealthedRogue                                = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.2 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
+    local stealthedRogue                                = stealth or br.player.buff.vanish.exists() or br.player.buff.subterfuge.remain() > 0.4 or br.player.cast.last.vanish(1) or botSpell == spell.vanish
     local stealthedAll                                  = stealthedRogue or br.player.buff.shadowmeld.exists()
     local talent                                        = br.player.talent
     local targetDistance                                = getDistance("target")
@@ -201,6 +204,7 @@ local function runRotation()
     if profileStop == nil then profileStop = false end
 
     if not UnitAffectingCombat("player") then
+        if fhbossPool then fhbossPool = false end
         if not talent.exsanguinate then
             if talent.toxicBlade then
                 buttonTB:Show()
@@ -214,10 +218,12 @@ local function runRotation()
 
     local garroteCount = 0
 
-    units.get(5)
-    enemies.get(20)
-    enemies.get(20,"player",true)
-    enemies.get(30)
+    if isChecked("Auto Target Burn Units") then
+        enemies.get(5, nil, nil, nil, spell.kick)
+    end
+    enemies.get(15, nil, nil, nil, spell.blind)
+    enemies.get(15,"player",true, nil, spell.blind)
+    enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
     if isChecked("Auto Tricks") and GetSpellCooldown(spell.tricksOfTheTrade) == 0 and inCombat then
@@ -298,10 +304,48 @@ local function runRotation()
         for i=0, count do t[i]=nil end
     end
 
+    --YOINK @IMMY
+    function getapdmg(offHand)
+        local useOH = offHand or false
+        local wdpsCoeff = 6
+        local ap = UnitAttackPower("player")
+        local minDamage, maxDamage, minOffHandDamage, maxOffHandDamage, physicalBonusPos, physicalBonusNeg, percent = UnitDamage("player")
+        local speed, offhandSpeed = UnitAttackSpeed("player")
+            if useOH and offhandSpeed then
+                local wSpeed = offhandSpeed * (1 + GetHaste() / 100)
+                local wdps = (minOffHandDamage + maxOffHandDamage) / wSpeed / percent - ap / wdpsCoeff
+            return (ap + wdps * wdpsCoeff) * 0.5
+            else
+                local wSpeed = speed * (1 + GetHaste() / 100)
+                local wdps = (minDamage + maxDamage) / 2 / wSpeed / percent - ap / wdpsCoeff
+            return ap + wdps * wdpsCoeff
+        end
+    end
+    function getmutidamage()
+        return            
+        (getapdmg() + getapdmg(true) * 0.5) * 0.35 * 1.27 * 
+        (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+    end
+    --YOINK @IMMY
+    function getenvdamage(unit)
+        if unit == nil then unit = "target" end
+        local apMod         = getapdmg()
+        local envcoef       = 0.16
+        local auramult      = 1.27
+        local masterymult   = (1 + (GetMasteryEffect("player") / 100))
+        local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
+        local dsmod, tbmod
+        if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end 
+        if debuff.toxicBlade.exists(unit) then tbmod = 1.3 else tbmod = 1 end
+        return (apMod * combo * envcoef * auramult * tbmod * dsmod * masterymult * versmult)
+    end
+
     clearTable(enemyTable5)
     clearTable(enemyTable10)
     clearTable(enemyTable30)
     local deadlyPoison10 = true
+    local spell5y = GetSpellInfo(spell.kick)
+    local spell10y = GetSpellInfo(spell.pickPocket)
     if #enemies.yards30 > 0 then
         local highestHP
         local lowestHP
@@ -311,7 +355,7 @@ local function runRotation()
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.distance = getDistance(thisUnit)
+                enemyUnit.yards5 = IsSpellInRange(spell5y, thisUnit) == 1
                 enemyUnit.hpabs = UnitHealth(thisUnit)
                 enemyUnit.objectID = GetObjectID(thisUnit)
                 tinsert(enemyTable30, enemyUnit)
@@ -330,7 +374,7 @@ local function runRotation()
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
                 if thisUnit.ttd > 1.5 then enemyScore = enemyScore + 5 end
-                if thisUnit.distance <= 5 then enemyScore = enemyScore + 30 end
+                if thisUnit.yards5 then enemyScore = enemyScore + 30 end
                 if garroteList[thisUnit.objectID] ~= nil then enemyScore = enemyScore + 50 end
                 if GetUnitIsUnit(thisUnit.unit, "target") then enemyScore = enemyScore + 100 end
                 local raidTarget = GetRaidTargetIndex(thisUnit.unit)
@@ -347,22 +391,39 @@ local function runRotation()
         for i = 1, #enemyTable30 do
             local thisUnit = enemyTable30[i]
             local fokIgnore = {
-                [120651]=true -- Explosive
+                [120651]=true, -- Explosive
+                [136330]=true, -- Soul Thorns Waycrest Manor
+                [134388]=true -- A Knot of Snakes ToS
             }
 
-            if thisUnit.distance <= 10 then
+            if IsSpellInRange(spell10y, thisUnit.unit) == 1 then
                 if fokIgnore[thisUnit.objectID] == nil and not isTotem(thisUnit.unit) then
                     tinsert(enemyTable10, thisUnit)
                     if deadlyPoison10 and not trait.echoingBlades.active and (getOptionValue("Poison") == 1 and not debuff.deadlyPoison.exists(thisUnit.unit)) or (getOptionValue("Poison") == 2 and not debuff.woundPoison.exists(thisUnit.unit)) then deadlyPoison10 = false end
                 end
                 if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
-                if thisUnit.distance <= 5 then
+                if thisUnit.yards5 then
                     tinsert(enemyTable5, thisUnit)
                 end
             end
         end
         if isChecked("Auto Target") and inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
             TargetUnit(enemyTable30[1].unit)
+        end
+        local autoTargetUnits = {
+            [120651]=true, -- Explosive
+            [136330]=true -- Soul Thorns Waycrest Manor
+        }
+        if isChecked("Auto Target Burn Units") and inCombat and not stealthedRogue and #enemies.yards5 > 0 and ((UnitIsVisible("target") and autoTargetUnits[GetObjectID("target")] == nil) or not UnitIsVisible("target")) then
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                local objID = GetObjectID(thisUnit)
+                if autoTargetUnits[objID] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then                    
+                    if (objID == 120651 and getCastTimeRemain(thisUnit) > 0 and getCastTimeRemain(thisUnit) < 5) or objID ~= 120651 then
+                        TargetUnit(thisUnit)
+                    end
+                end
+            end
         end
     end
     --Just nil fixes
@@ -377,12 +438,11 @@ local function runRotation()
     local enemies10 = #enemyTable10
 
     if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 3 then
-        enemies10 = #enemies.get(10)
+        enemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
     end
 
     -- actions+=/variable,name=energy_regen_combined,value=energy.regen+poisoned_bleeds*7%(2*spell_haste)
-    local energyRegenCombined = energyRegen + ((garroteCount + debuff.rupture.count()) * 7 / (2 * (GetHaste()/100)))
-
+    local energyRegenCombined = energyRegen + ((garroteCount + debuff.rupture.count()) * 7 / (2 * (1 / (1 + (GetHaste()/100)))))
     if not inCombat and mode.open ~= 1 and opener == true and not cast.last.kidneyShot(1) and not cast.last.kidneyShot(2) then
         opener, opn1, opn2, opn3, opn4, opn5, opn6 = false, false, false, false, false, false, false
     end
@@ -410,11 +470,12 @@ local function runRotation()
                 if cast.cripplingPoison("player") then return true end
             end
             -- actions.precombat+=/stealth
-            if isChecked("Auto Stealth") and IsUsableSpell(spell.stealth) and not cast.last.vanish() and not IsResting() then
+            if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
+            (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
                 end
-                if #enemies.yards20nc > 0 and getOptionValue("Auto Stealth") == 2 then
+                if #enemies.yards15nc > 0 and getOptionValue("Auto Stealth") == 2 then
                     if cast.stealth() then return end
                 end
             end
@@ -422,13 +483,21 @@ local function runRotation()
         --Burn Units
         local burnUnits = {
             [120651]=true, -- Explosive
-            [141851]=true -- Infested
+            [136330]=true, -- Soul Thorns Waycrest Manor
+            [134388]=true -- A Knot of Snakes
         }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
+        if UnitIsVisible("target") and inCombat and (burnUnits[GetObjectID("target")] ~= nil or (not isChecked("Dot Players") and UnitIsFriend("target", "player") and validTarget)) and targetDistance < 5 then
+            if combo > 0 and GetObjectID("target") == 134388 then
+                if cast.kidneyShot("target") then return true end
+            end
+            if getenvdamage() >= UnitHealth("target") then
+                if cast.envenom("target") then return true end
+            end
             if cast.mutilate("target") then return true end
             if combo >= 4 then
                 if cast.envenom("target") then return true end
             end
+            return true
         end
     end
     local function actionList_Defensive()
@@ -436,17 +505,31 @@ local function runRotation()
             if isChecked("Auto Defensive Unavoidables") then
                 --Powder Shot (2nd boss freehold)
                 local bossID = GetObjectID("boss1")
-                if bossID == 126848 and isCastingSpell(256979, "target") and GetUnitIsUnit("player", UnitTarget("target")) then
+                local boss2ID = GetObjectID("boss2")
+                local boss3ID = GetObjectID("boss3")
+                local boss = "boss1"
+                if boss2ID == 126848 then 
+                    bossID = 126848
+                    boss = "boss2"
+                end
+                if bossID == 126848 and isCastingSpell(256979, boss) and GetUnitIsUnit("player", UnitTarget(boss)) then
                     if talent.elusiveness then
                         if cast.feint() then return true end
                     elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
                         if cast.evasion() then return true end
                     end
-                end
+                end                
                 --Azerite Powder Shot (1st boss freehold)
-                if bossID == 126832 and isCastingSpell(256106, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) then
-                    if cast.feint() then return true end
+                if not fhbossPool and bossID == 126832 and br.DBM:getTimer(256106) <= 1 then -- pause 1 sec before cast for pooling
+                    fhbossPool = true
                 end
+                if bossID == 126832 and isCastingSpell(256106, "boss1") then
+                    fhbossPool = false
+                    if GetUnitIsUnit("player", UnitTarget("boss1")) then
+                        if cast.feint() then return true end
+                    end
+                end
+                if fhbossPool then return true end
                 --Spit gold (1st boss KR)
                 if bossID == 135322 and isCastingSpell(265773, "boss1") and GetUnitIsUnit("player", UnitTarget("boss1")) and isChecked("Cloak Unavoidables") then
                     if cast.cloakOfShadows() then return true end
@@ -467,6 +550,19 @@ local function runRotation()
                 if bossID == 133384 and isCastingSpell(263912, "boss1") and (select(5,UnitCastingInfo("boss1"))/1000-GetTime()) < 1.5 then
                     if cast.feint() then return true end
                 end
+                --Severing Axe(King's Rest)
+                if getSpellCD(spell.evasion) == 0 then
+                    if boss2ID == 135475 then
+                        bossID = boss2ID
+                        boss = "boss2"
+                    elseif boss3ID == 135475 then
+                        bossID = boss3ID
+                        boss = "boss3"
+                    end
+                    if bossID == 135475 and UnitCastID(boss) == 266231 and GetUnitIsUnit("player", select(3,UnitCastID(boss))) then
+                        if cast.evasion() then return true end
+                    end
+                end
             end
             if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") and not inCombat then
                 if hasEquiped(122668) then
@@ -475,13 +571,13 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(healPot))
-                and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasHealthPot() or has.healthstone())
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(152494))
+            and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUse(healPot) then
-                    useItem(healPot)
+                elseif canUse(152494) then
+                    useItem(152494)
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
@@ -504,11 +600,11 @@ local function runRotation()
         for i in string.gmatch(getOptionValue("Stun Spells"), "%d+") do
             stunList[tonumber(i)] = true
         end
-        if useInterrupts() and not stealthedRogue then
-            for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
+        if not stealthedRogue then
+            for i=1, #enemies.yards15 do
+                local thisUnit = enemies.yards15[i]
                 local distance = getDistance(thisUnit)
-                if canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
+                if useInterrupts() and canInterrupt(thisUnit,getOptionValue("Interrupt %")) then
                     if isChecked("Kick") and distance < 5 then
                         if cast.kick(thisUnit) then return end
                     end
@@ -637,17 +733,22 @@ local function runRotation()
         if #enemyTable30 == 1 and comboDeficit >= comboMax then
             if cast.markedForDeath("target") then return true end
         end
-        if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") then
+        if useCDs() and ttd("target") > getOptionValue("CDs TTD Limit") and targetDistance < 5 then
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
-            -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1)&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
-            if isChecked("Vendetta") and not stealthedRogue and (not talent.subterfuge or trait.shroudedSuffocation.active or debuff.garrote.applied("target") > 1 or not isChecked("Vanish")) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
-                if cast.vendetta("target") then return true end
+            -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
+            if isChecked("Vendetta") and not stealthedRogue then
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                    if cast.vendetta("target") then return true end
+                end
+                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                    if cast.vendetta("target") then return true end
+                end
             end
-            if isChecked("Vanish") and not stealthedRogue and targetDistance < 5 and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
+            if isChecked("Vanish") and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
-                    if cast.pool.garrote() then return true end
+                    if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Exsg + (Nightstalker, or Subterfuge only on 1T): Maximum CP and Exsg ready for next GCD
@@ -664,7 +765,7 @@ local function runRotation()
                 -- # Vanish with Subterfuge + (No Exsg or 2T+): No stealth/subterfuge, Garrote Refreshable, enough space for incoming Garrote CP
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&(!talent.exsanguinate.enabled|!variable.single_target)&!stealthed.rogue&cooldown.garrote.up&dot.garrote.refreshable&(spell_targets.fan_of_knives<=3&combo_points.deficit>=1+spell_targets.fan_of_knives|spell_targets.fan_of_knives>=4&combo_points.deficit>=4)
                 if talent.subterfuge and (not talent.exsanguinate or enemies10 > 1) and not stealthedRogue and getSpellCD(spell.garrote) == 0 and debuff.garrote.refresh("target") and ((enemies10 <= 3 and comboDeficit >= 1 + enemies10) or (enemies10 >= 4 and comboDeficit >= 4)) then
-                    if cast.pool.garrote() then return true end
+                    if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
                 -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
@@ -708,7 +809,7 @@ local function runRotation()
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
-        if useFiller and thp < 30 and (buff.blindside.exists() or (not talent.venomRush and not trait.doubleDose.active)) then
+        if useFiller and (buff.blindside.exists() or (thp < 35 and not talent.venomRush and not trait.doubleDose.active)) then
             if cast.blindside("target") then return true end
         end
         -- # Tab-Mutilate to apply Deadly Poison at 2 targets
@@ -801,6 +902,7 @@ local function runRotation()
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
                 if shallWeDot(thisUnit) and garroteRemain <= 5.4 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                    if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
             end
@@ -812,22 +914,41 @@ local function runRotation()
                 local thisUnit = enemyTable5[i].unit
                 local garroteRemain = debuff.garrote.remain(thisUnit)
                 if debuff.garrote.exists(thisUnit) and garroteRemain <= 10 and (enemyTable5[i].ttd - garroteRemain) > 2 then
+                    if cast.pool.garrote() then return true end
                     if cast.garrote(thisUnit) then return true end
                 end
             end
         end
         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
-        -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking
-        if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") then
+        -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking&variable.single_target 
+        if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") and #enemies.yards30 == 1 then
             if cast.rupture("target") then return true end
         end
         -- # Subterfuge w/ Shrouded Suffocation: Reapply for bonus CP and extended snapshot duration
-        -- actions.stealthed+=/garrote,cycle_targets=1,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&combo_points.deficit>1
-        if talent.subterfuge and trait.shroudedSuffocation.active and comboDeficit > 1 then
+        -- actions.stealthed+=/garrote,target_if=min:remains,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&target.time_to_die>remains&(remains<18|!ss_buffed)
+        if talent.subterfuge and trait.shroudedSuffocation.active then
+            local garroteTable = {}
+            local addUnit = {}
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
-                if enemyTable5[i].ttd > debuff.garrote.remain(thisUnit) then
-                    if cast.garrote(thisUnit) then return true end
+                local garroteRemain = debuff.garrote.remain(thisUnit)
+                if enemyTable5[i].ttd > garroteRemain and (garroteRemain < 18 or debuff.garrote.applied(thisUnit) <= 1) then
+                    addUnit.garroteRemain = garroteRemain
+                    addUnit.unit = thisUnit
+                    tinsert(garroteTable, addUnit)
+                end
+            end
+            if #garroteTable > 0 then 
+                if cast.pool.garrote() then return true end
+                if #garroteTable > 1 then
+                    table.sort(garroteTable, function(x,y)
+                        return x.garroteRemain < y.garroteRemain
+                    end)
+                    for i = 1, #garroteTable do
+                        if cast.garrote(garroteTable[i].unit) then return true end                        
+                    end
+                else
+                    if cast.garrote(garroteTable[1].unit) then return true end
                 end
             end
         end
@@ -856,7 +977,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations --- 
 -----------------------------
-        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or (validTarget and targetDistance < 5)))) and opener == true then
+        if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
             if actionList_Defensive() then return true end
             if actionList_Interrupts() then return true end
@@ -873,7 +994,7 @@ local function runRotation()
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
             -- actions=stealth
-            if IsUsableSpell(spell.stealth) and not cast.last.vanish() then
+            if IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() then
                 cast.stealth("player")
             end
             -- actions+=/call_action_list,name=stealthed,if=stealthed.rogue

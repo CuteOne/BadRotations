@@ -7,7 +7,7 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multiShot },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
     };
@@ -31,18 +31,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.counterShot }
     };
     CreateButton("Interrupt",4,0)
--- Explosive Shot Button
-    ExplosiveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Explosive Shot Enabled", tip = "Will use Explosive Shot.", highlight = 1, icon = br.player.spell.explosiveShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Explosive Shot Disabled", tip = "Explosive Shot will not be used.", highlight = 0, icon = br.player.spell.explosiveShot }
-    };
-    CreateButton("Explosive",5,0)
--- Piercing Shot Button
-    PiercingModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Piercing Shot Enabled", tip = "Will use Piercing Shot.", highlight = 1, icon = br.player.spell.piercingShot },
-        [2] = { mode = "Off", value = 2 , overlay = "Piercing Shot Disabled", tip = "Piercing Shot will not be used.", highlight = 0, icon = br.player.spell.piercingShot }
-    };
-    CreateButton("Piercing",6,0)
 -- MD Button
     MisdirectionModes = {
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
@@ -96,8 +84,20 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- A Murder of Crows
+            br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+        -- Barrage 
+            br.ui:createDropdownWithout(section,"Barrage", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+        -- Double Tap
+            br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+        -- Explosive Shot 
+            br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+        -- Piercing Shot 
+            br.ui:createDropdownWithout(section,"Piercing Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
+        -- Rapid Fire 
+            br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         -- Trueshot
-            br.ui:createCheckbox(section,"Trueshot")
+            br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -166,72 +166,46 @@ local function runRotation()
         UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Explosive",0.25)
-        br.player.mode.explosive = br.data.settings[br.selectedSpec].toggles["Explosive"]
-        UpdateToggle("Piercing",0.25)
-        br.player.mode.piercing = br.data.settings[br.selectedSpec].toggles["Piercing"]
         UpdateToggle("Misdirection",0.25)
         br.player.mode.misdirection = br.data.settings[br.selectedSpec].toggles["Misdirection"]
 
 --------------
 --- Locals ---
 --------------
-        local addsExist                                     = false
-        local addsIn                                        = 999
-        local animality                                     = false
-        local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
         local charges                                       = br.player.charges
-        local deadMouse                                     = UnitIsDeadOrGhost("mouseover")
-        local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
         local enemies                                       = br.player.enemies
-        local explosiveTarget                               = explosiveTarget
-        local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
-        local fatality                                      = false
-        local flaskBuff                                     = getBuffRemain("player",br.player.flask.wod.buff.agilityBig)
-        local friendly                                      = friendly or GetUnitIsFriend("target", "player")
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
-        local hasMouse                                      = GetObjectExists("mouseover")
         local healPot                                       = getHealthPot()
         local inCombat                                      = UnitAffectingCombat("player") --br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
         local item                                          = br.player.spell.items
         local level                                         = br.player.level
-        local lootDelay                                     = getOptionValue("LootDelay")
-        local lowestHP                                      = br.friend[1].unit
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3
-        local perk                                          = br.player.perk
         local php                                           = br.player.health
-        local playerMouse                                   = UnitIsPlayer("mouseover")
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
         local pullTimer                                     = br.DBM:getPulltimer()
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
-        local friendsInRange                                = friendsInRange
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-        local trinketProc                                   = false
         local ttd                                           = getTTD
         local ttm                                           = br.player.power.focus.ttm()
+        local traits                                        = br.player.traits
         local units                                         = br.player.units
         local use                                           = br.player.use
 
-        units.get(5)
-        units.get(38)
         units.get(40)
         enemies.get(8)
-        enemies.get(8,"target")
-        enemies.get(40)
-        enemies.yards40r = getEnemiesInRect(10,38,false) or 0
+        enemies.get(40,"player",false,true)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -240,78 +214,13 @@ local function runRotation()
 -----------------
 --- Varaibles ---
 -----------------
+        local caExecute = talent.carefulAim and (getHP(units.dyn40) > 80 or getHP(units.dyn40) < 20)
 
-        if lowestVuln == nil then lowestVuln = 100 end
-        for i=1,#enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-            if debuff.vulnerable.remain(thisUnit) < lowestVuln and debuff.vulnerable.remain(thisUnit) > 0 then
-                lowestVuln = debuff.vulnerable.remain(thisUnit)
-            end
-        end
-        -- if lowestVuln == nil or lowestVuln == 100 then lowestVuln = 0 end
-
-        local attackHaste = 1 / (1 + (UnitSpellHaste("player")/100))
-
-        -- Pool for Piercing Shot
-        -- pooling_for_piercing,value=talent.piercing_shot.enabled&cooldown.piercing_shot.remains<5&lowest_vuln_within.5>0&lowest_vuln_within.5>cooldown.piercing_shot.remains&(buff.trueshot.down|spell_targets=1)
-        local poolForPiercing = mode.piercing == 1 and talent.piercingShot and cd.piercingShot.remain() < 5 and lowestVuln > 0 and lowestVuln > cd.piercingShot.remain() and (not buff.trueshot.exists() or enemies.yards40r >= getOptionValue("Piercing Shot Units"))
-
-        -- Trueshot Cooldown
-        -- variable,name=trueshot_cooldown,op=set,value=time*1.1,if=time>15&cooldown.trueshot.up&variable.trueshot_cooldown=0
-        if not trueshotCD then trueshotCD = 0 end
-        if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then
-            trueshotCD = combatTime * 1.1
-        -- else
-        --     trueshotCD = 0
-        end
-
-        -- Wait for Sentinel
-        -- waiting_for_sentinel,value=talent.sentinel.enabled&(buff.marking_targets.up|buff.trueshot.up)&action.sentinel.marks_next_gcd
-        local waitForSentinel = talent.sentinel and (buff.markingTargets.exists() or buff.trueshot.exists()) and cd.sentinel.remain() == 0
-
-        -- Vulnerable Window
-        if not vulnWindow then vulnWindow = debuff.vulnerable.remain(units.dyn40) end
-        -- vuln_window,op=setif,value=cooldown.sidewinders.full_recharge_time,value_else=debuff.vulnerability.remains,condition=talent.sidewinders.enabled&cooldown.sidewinders.full_recharge_time<variable.vuln_window
-        if talent.sidewinders and charges.sidewinders.timeTillFull() < vulnWindow then
-            vulnWindow = charges.sidewinders.timeTillFull()
-        else
-            vulnWindow = debuff.vulnerable.remain(units.dyn40)
-        end
-
-        -- Vulnerable Aim Casts
-        if not vulnAimCast then vulnAimCast = 0 end
-        local aimedExecute = math.max(cast.time.aimedShot(),gcdMax)
-        -- vuln_aim_casts,op=set,value=floor(variable.vuln_window%action.aimed_shot.execute_time)
-        vulnAimCast = math.floor(vulnWindow / aimedExecute)
-        -- vuln_aim_casts,op=set,value=floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost),if=variable.vuln_aim_casts>0&variable.vuln_aim_casts>floor((focus+action.aimed_shot.cast_regen*(variable.vuln_aim_casts-1))%action.aimed_shot.cost)
-        if vulnAimCast > 0 and vulnAimCast > math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot()) then --select(1,getSpellCost(spell.aimedShot))) then
-            vulnAimCast = math.floor((power + cast.regen.aimedShot() * (vulnAimCast - 1)) / cast.cost.aimedShot())
-        end
-
-        -- Can GCD
-        -- can_gcd,value=variable.vuln_window<action.aimed_shot.cast_time|variable.vuln_window>variable.vuln_aim_casts*action.aimed_shot.execute_time+gcd.max+0.1
-        local canGCD = vulnWindow < cast.time.aimedShot() or vulnWindow > vulnAimCast * aimedExecute + gcdMax + 0.1
-
-        function br.player.getDebuffsCount()
-            local UnitDebuffID = UnitDebuffID
-            local huntersMarkCount = 0
-            local vulnerableCount = 0
-
-            if not br.player.debuffcount then br.player.debuffcount = {} end
-            if huntersMarkCount>0 and not inCombat then huntersMarkCount = 0 end
-            if vulnerableCount>0 and not inCombat then vulnerableCount = 0 end
-
-            for i=1,#enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if UnitDebuffID(thisUnit,185365,"player") then
-                    huntersMarkCount = huntersMarkCount+1
-                end
-                if UnitDebuffID(thisUnit,187131,"player") then
-                    vulnerableCount = vulnerableCount+1
-                end
-            end
-            br.player.debuffcount.huntersMark       = huntersMarkCount or 0
-            br.player.debuffcount.vulnerable        = vulnerableCount or 0
+        local function opUseCD(option)
+            if option == nil then opValue = 1 else opValue = getOptionValue(option) end
+            if opValue == 3 then return false end
+            if (opValue == 1 or (opValue == 2 and useCDs())) then return true end
+            return false
         end
 
         -- Explosions Gotta Have More Explosions!
@@ -494,8 +403,8 @@ local function runRotation()
     -- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
-                for i=1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
+                for i=1, #enemies.yards40f do
+                    thisUnit = enemies.yards40f[i]
                     distance = getDistance(thisUnit)
                     if canInterrupt(thisUnit,getOptionValue("Interrupts")) then
                         if distance < 50 then
@@ -510,366 +419,185 @@ local function runRotation()
         end -- End Action List - Interrupts
     -- Action List - Cooldowns
         local function actionList_Cooldowns()
-            rotationDebug = "Cooldowns"
-            if useCDs() then
         -- Trinkets
-                if isChecked("Trinkets") then
-                    -- use_item,name=tarnished_sentinel_medallion,if=((cooldown.trueshot.remains<6|cooldown.trueshot.remains>45)&(target.time_to_die>cooldown+duration))|target.time_to_die<25|buff.bullseye.react=30
-                    if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 45) and (ttd(units.dyn40) > 120 + 20 or isDummy("target")))
-                        or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30))
-                    then
-                        useItem(147017)
-                    end
-                    if canUse(13) and not hasEquiped(147017,13) then
-                        useItem(13)
-                    end
-                    if canUse(14) and not hasEquiped(147017,14) then
-                        useItem(14)
-                    end
+            -- use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
+            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
+                if canUse(13) then
+                    useItem(13)
                 end
+                if canUse(14) then
+                    useItem(14)
+                end
+            end
+        -- Hunter's Mark
+            -- hunters_mark,if=debuff.hunters_mark.down&!buff.trueshot.up
+            if cast.able.huntersMark() and talent.huntersMark 
+                and not debuff.huntersMark.exists(units.dyn40) and not buff.trueshot.exists() 
+            then
+                if cast.huntersMark() then return end
+            end
+        -- Double Tap 
+            -- double_tap,if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20
+            if opUseCD("Double Tap") and cast.able.doubleTap() and talent.doubleTap 
+                and (cd.rapidFire.remain() < gcd or cd.rapidFire.remain() < cd.aimedShot.remain() or ttd(units.dyn40) < 20) 
+            then
+                if cast.doubleTap() then return end 
+            end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-                -- arcane_torrent,if=focus.deficit>=30&(!talent.sidewinders.enabled|cooldown.sidewinders.charges<2)
-                -- berserking,if=buff.trueshot.up
-                -- blood_fury,if=buff.trueshot.up
-                if isChecked("Racial") and getSpellCD(racial) == 0
-                    and ((buff.trueshot.exists() and (br.player.race == "Orc" or br.player.race == "Troll"))
-                        or (powerDeficit >= 30 and (not talent.sidewinders or charges.sidewinders.count() < 2) and br.player.race == "BloodElf"))
-                then
-                     if castSpell("player",racial,false,false,false) then return end
+            if useCDs() and isChecked("Racial") then 
+                -- berserking,if=buff.trueshot.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<13
+                -- blood_fury,if=buff.trueshot.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<16
+                -- ancestral_call,if=buff.trueshot.up&(target.time_to_die>cooldown.ancestral_call.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<16
+                -- fireblood,if=buff.trueshot.up&(target.time_to_die>cooldown.fireblood.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<9
+                if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf")
+                    and buff.trueshot.exists() and not talent.carefulAim
+                then 
+                    if cast.racial() then return end 
+                end 
+                -- lights_judgment
+                if race == "LightforgedDraenei" then
+                    if cast.racial("target","ground") then return true end
                 end
+            end
         -- Potion
-                -- potion,if=(buff.trueshot.react&buff.bloodlust.react)|buff.bullseye.react>=23|((consumable.prolonged_power&target.time_to_die<62)|target.time_to_die<31)
-                if isChecked("Potion") and canUse(142117) and inRaid then
-                    if (buff.trueshot.exists() and hasBloodLust()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 31 then
-                        useItem(142117)
-                    end
+            -- potion,if=buff.trueshot.react&buff.bloodlust.react|buff.trueshot.up&ca_execute|target.time_to_die<25
+            if useCDs() and isChecked("Potion") and canUse(142117) and inRaid then
+                if buff.trueshot.exists() and (buff.bloodLust.exists() or caExecute or buff.trueshot.exists or ttd(units.dyn40) < 25) then
+                    useItem(142117)
                 end
+            end
         -- Trueshot
-                -- variable,name=trueshot_cooldown,op=set,value=time*1.1,if=time>15&cooldown.trueshot.up&variable.trueshot_cooldown=0
-                -- trueshot,if=variable.trueshot_cooldown=0|buff.bloodlust.up|(variable.trueshot_cooldown>0&target.time_to_die>(variable.trueshot_cooldown+duration))|buff.bullseye.react>25|target.time_to_die<16
-                if isChecked("Trueshot") then
-                    -- local trueshotCD = trueshotCD or 0
-                    -- if combatTime > 15 and cd.trueshot.remain() == 0 and trueshotCD == 0 then trueshotCD = combatTime * 1.1 else trueshotCD = 0 end
-                    if trueshotCD == 0 or hasBloodLust() or (trueshotCD > 0 and ttd(units.dyn40) > (trueshotCD + buff.trueshot.duration())) or buff.bullseye.stack() > 25 or ttd(units.dyn40) < 16 then
-                        if cast.trueshot("player") then return end
-                    end
+            -- trueshot,if=focus>60&(buff.precise_shots.down&cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15
+            if opUseCD("Trueshot") and cast.able.trueshot() then
+                if power > 60 and ((not buff.preciseShots.exists() and cd.rapidFire.remain() > 0 
+                    and (ttd(units.dyn40) > 15 or getHP(units.dyn40) < 20 or not talent.carefulAim)) or ttd(units.dyn40) < 15)
+                then
+                    if cast.trueshot("player") then return end
                 end
-            end -- End useCooldowns check
+            end
         end -- End Action List - Cooldowns
-    -- Action List - Target Die
-        local function actionList_TargetDie()
-            rotationDebug = "Target Die"
-        -- Piercing Shot
-            -- piercing_shot,if=debuff.vulnerability.up
-            if mode.piercing == 1 and debuff.vulnerable.exists(units.dyn40) and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
-                if cast.piercingShot(units.dyn38) then return end
-            end
-        -- Windburst
-            -- windburst
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if cast.windburst() then return end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=debuff.vulnerability.remains>cast_time&target.time_to_die>cast_time
-            if debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() and ttd(units.dyn40) > cast.time.aimedShot() then
-                if cast.aimedShot() then return end
-            end
-        -- Marked Shot
-            -- marked_shot
-            if cast.markedShot() then return end
-        -- Cobra Shot
-            if level < 12 and power > 90 then
-                if cast.cobraShot() then return end
-            end
-        -- Arcane Shot
-            -- arcane_shot
-            if cast.arcaneShot() then return end
-        -- Sidewinders
-            -- sidewinders
-            if cast.sidewinders() then return end
-        end -- End Action List - Target Die
-    -- Action List - Non Patient Sniper
-        local function actionList_NonPatientSniper()
-            rotationDebug = "Non-Patient Sniper"
-        -- -- Bursting Shot
-        --     if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
-        --         if cast.burstingShot() then return end
-        --     end
+    -- Action List - Trick Shots
+        local function actionList_TrickShots()
+        -- Barrage
+            -- barrage
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage then 
+                if cast.barrage() then return end 
+            end 
         -- Explosive Shot
             -- explosive_shot
-            if mode.explosive == 1 then
-                -- if cast.explosiveShot(units.dyn40) then explosiveTarget = units.dyn40; return end
-                if cast.explosiveShot(nil,"rect",1,5) then return end
+            if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
+                if cast.explosiveShot() then return end 
             end
-        -- Piercing Shot
-            -- piercing_shot,if=lowest_vuln_within.5>0&focus>100
-            if mode.piercing == 1 and lowestVuln > 0 and power > 100 and enemies.yards40r >= getOptionValue("Piercing Shot Units") then
-                if cast.piercingShot(units.dyn38) then return end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&(talent.trick_shot.enabled|buff.lock_and_load.up)&buff.sentinels_sight.stack=20
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot)
-                and (talent.trickShot or buff.lockAndLoad.exists()) and buff.sentinelsSight.stack() == 20
+        -- Aimed Shot 
+            -- aimed_shot,if=buff.trick_shots.up&ca_execute&buff.double_tap.up
+            if cast.able.aimedShot() and buff.trickShots.exists() and caExecute and buff.doubleTap.exists() then 
+                if cast.aimedShot() then return end 
+            end 
+        -- Rapid Fire 
+            -- rapid_fire,if=buff.trick_shots.up&(azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1|azerite.surging_shots.enabled|talent.streamline.enabled)
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() 
+                and (traits.focusedFire.active or traits.inTheRhythm.rank > 1 or traits.surgingShots.active or talent.streamline) 
             then
-                if cast.aimedShot() then return end
+                if cast.rapidFire() then return end 
             end
-            -- aimed_shot,if=spell_targets>1&debuff.vulnerability.remains>cast_time&talent.trick_shot.enabled&set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --getCastTime(spell.aimedShot)
-                and talent.trickShot and t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot()
+        -- Aimed Shot 
+            -- aimed_shot,if=buff.trick_shots.up&(buff.precise_shots.down|cooldown.aimed_shot.full_recharge_time<action.aimed_shot.cast_time|buff.trueshot.up)
+            if cast.able.aimedShot() and buff.trickShots.exists() 
+                and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() or buff.trueshot.exists()) 
             then
-                if cast.aimedShot() then return end
+                if cast.aimedShot() then return end 
             end
-        -- Marked Shot
-            -- marked_shot,if=spell_targets>1
-            if debuff.huntersMark.count() > 1 then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.huntersMark.exists(thisUnit) then
-                        if cast.markedShot(thisUnit) then return end
-                    end
-                end
+        -- Rapid Fire 
+            -- rapid_fire,if=buff.trick_shots.up
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() then 
+                if cast.rapidFire() then return end 
             end
-        -- Multi-Shot
-            -- multishot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2)
-                and (buff.markingTargets.exists() or buff.trueshot.exists())
-            then
-                if cast.multiShot() then return end
+        -- multishot 
+            -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
+            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
+                if cast.multishot() then return end 
             end
-        -- Sentinel
-            -- sentinel,if=!debuff.hunters_mark.up
-            if not debuff.huntersMark.exists(units.dyn40) then
-                if cast.sentinel() then return end
+        -- Piercing Shot 
+            -- piercing_shot
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
+                if cast.piercingShot() then return end 
+            end 
+        -- A Murder of Crows 
+            -- a_murder_of_crows
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
+                if cast.aMurderOfCrows() then return end 
             end
-        -- Black Arrow
-            -- black_arrow,if=talent.sidewinders.enabled|spell_targets.multishot<6
-            if talent.sidewinders or ((mode.rotation == 1 and #enemies.yards8t < 6) or mode.rotation == 1) then
-                if cast.blackArrow() then return end
+        -- Serpent Sting 
+            -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
+                if cast.serpentSting() then return end 
             end
-        -- A Murder of Crows
-            -- a_murder_of_crows,if=target.time_to_die>=cooldown+duration|target.health.pct<20
-            if ttd(units.dyn40) >= 60 + 15 or getHP(units.dyn40) < 20 or isDummy("target") then
-                if cast.aMurderOfCrows() then return end
+        -- Steady Shot 
+            -- steady_shot 
+            if cast.able.steadyShot() then 
+                if cast.steadyShot() then return end 
             end
-        -- Windburst
-            -- windburst
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if cast.windburst() then return end
+        end -- End Action List - Trick Shots
+    -- Action List - Single Target
+        local function actionList_SingleTarget()
+        -- Explosive Shot 
+            -- explosive_shot
+            if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
+                if cast.explosiveShot() then return end 
             end
         -- Barrage
-            -- barrage,if=spell_targets>2|(target.health.pct<20&buff.bullseye.stack<25)
-            if isChecked("Barrage") then
-                if ((mode.rotation == 1 and #enemies.yards40 > 2) or mode.rotation == 2) or (getHP(units.dyn40) < 20 and buff.bullseye.stack() < 25) then
-                    if cast.barrage() then return end
-                end
+            -- barrage,if=active_enemies>1
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage 
+                and ((mode.rotation == 1 and #enemies.yards40f > 1) or (mode.rotation == 2 and #enemies.yards40f > 0)) 
+            then 
+                if cast.barrage() then return end 
+            end 
+        -- A Murder of Crows 
+            -- a_murder_of_crows
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
+                if cast.aMurderOfCrows() then return end 
             end
-        -- Marked Shot
-            -- marked_shot,if=buff.marking_targets.up|buff.trueshot.up
-            if buff.markingTargets.exists() or buff.trueshot.exists() then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.huntersMark.exists(thisUnit) then
-                        if cast.markedShot(thisUnit) then return end
-                    end
-                end
+        -- Serpent Sting 
+            -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
+                if cast.serpentSting() then return end 
             end
-        -- Sidewinders
-            -- sidewinders,if=!variable.waiting_for_sentinel&(debuff.hunters_mark.down|(buff.trueshot.down&buff.marking_targets.down))&((buff.marking_targets.up|buff.trueshot.up)|charges_fractional>1.8)&(focus.deficit>cast_regen)
-            if not waitForSentinel and (not debuff.huntersMark.exists(units.dyn40) or (not buff.trueshot.exists() and not buff.markingTargets.exists()))
-                and ((buff.markingTargets.exists() or buff.trueshot.exists()) or charges.sidewinders.frac() > 1.8) and (powerDeficit > cast.regen.sidewinders()) --getCastingRegen(spell.sidewinders))
-            then
-                if cast.sidewinders() then return end
+        -- Rapid Fire 
+            -- rapid_fire,if=buff.trueshot.down|focus<70
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and (not buff.trueshot.exists() or power < 70) then 
+                if cast.rapidFire() then return end 
             end
-        -- Aimed Shot
-            -- aimed_shot,if=talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time
-            if talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() then --getCastTime(spell.aimedShot) then
-                if cast.aimedShot() then return end
-            end
-            -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|(buff.lock_and_load.up&lowest_vuln_within.5>gcd.max))&(talent.trick_shot.enabled|buff.sentinels_sight.stack=20)
-            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() --[[getCastTime(spell.aimedShot)--]] and (not poolForPiercing or (buff.lockAndLoad.exists() and lowestVuln > gcd))
-                and (talent.trickShot or buff.sentinelsSight.stack() == 20)
-            then
-                if cast.aimedShot() then return end
-            end
-        -- Marked Shot
-            -- marked_shot
-            for i = 1, #enemies.yards40 do
-                local thisUnit = enemies.yards40[i]
-                if debuff.huntersMark.exists(thisUnit) then
-                    if cast.markedShot(thisUnit) then return end
-                end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
-            if power + cast.regen.aimedShot() --[[getCastingRegen(spell.aimedShot)--]] > powerMax and not buff.sentinelsSight.exists() then
-                if cast.aimedShot() then return end
-            end
-        -- Cobra Shot
-            if level < 12 and power + cast.regen.cobraShot() --[[getCastingRegen(spell.cobraShot)--]] > powerMax then
-                if cast.cobraShot() then return end
-            end
-        -- Multi-Shot
-            -- Multi-Shot,if=spell_targets.multi_shot>1&!variable.waiting_for_sentinel
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and not waitForSentinel then
-                if cast.multiShot() then return end
-            end
-        -- Arcane Shot
-            -- arcane_shot,if=spell_targets.multishot=1&!variable.waiting_for_sentinel
-            if ((mode.rotation == 1 and (#enemies.yards8t == 1 or level < 16)) or (mode.rotation == 2 and level < 16) or mode.rotation == 3) and not waitForSentinel then
-                if cast.arcaneShot() then return end
-            end
-        end -- End Action List - Non Patient Sniper
-    -- Action List - Patient Sniper
-        local function actionList_PatientSniper()
-            rotationDebug = "Patient Sniper"
-        -- Call Action List - Target Die
-            -- call_action_list,name=targetdie,if=target.time_to_die<variable.vuln_window&spell_targets.multishot=1
-            if ttd(units.dyn40) < vulnWindow and #enemies.yards8t == 1 and not isDummy(units.dyn40) then
-                if actionList_TargetDie() then return end
-            end
-        -- -- Bursting Shot
-        --     if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and hasEquiped(141353) and not debuff.vulnerable.exists(units.dyn40) then
-        --         if cast.burstingShot() then return end
-        --     end
-        -- Piercing Shot
-            -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets=1&lowest_vuln_within.5>0&lowest_vuln_within.5<1
-            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0 and lowestVuln < 1 then
-                if cast.piercingShot(units.dyn38) then return end
-            end
-            -- piercing_shot,if=cooldown.piercing_shot.up&spell_targets>1&lowest_vuln_within.5>0&((!buff.trueshot.up&focus>80&(lowest_vuln_within.5<1|debuff.hunters_mark.up))|(buff.trueshot.up&focus>105&lowest_vuln_within.5<6))
-            if mode.piercing == 1 and cd.piercingShot.remain() == 0 and enemies.yards40r >= getOptionValue("Piercing Shot Units") and lowestVuln > 0
-                and ((not buff.trueshot.exists() and power > 80 and (lowestVuln < 1 or debuff.huntersMark.exists(units.dyn40))) or (buff.trueshot.exists() and power > 105 and lowestVuln < 6))
-            then
-                if cast.piercingShot(units.dyn38) then return end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=spell_targets>1&talent.trick_shot.enabled&debuff.vulnerability.remains>cast_time&(buff.sentinels_sight.stack>=spell_targets.multishot*5|buff.sentinels_sight.stack+(spell_targets.multishot%2)>20|buff.lock_and_load.up|(set_bonus.tier20_2pc&!buff.t20_2p_critical_aimed_damage.up&action.aimed_shot.in_flight))
-            if ((mode.rotation == 1 and #enemies.yards40 > 1) or mode.rotation == 2) and talent.trickShot and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot()
-                and (buff.sentinelsSight.stack() >= #enemies.yards8t * 5 or buff.sentinelsSight.stack() + (#enemies.yards8t / 2) > 20 or buff.lockAndLoad.exists()
-                    or (t20_2pc and not buff.t20_2pc_critical_aimed.exists() and cast.last.aimedShot()))
-            then
-                if cast.aimedShot() then return end
-            end
-        -- Marked Shot
-            -- marked_shot,if=spell_targets>1
-            if ((mode.rotation == 1 and debuff.huntersMark.count() > 1) or mode.rotation == 2) then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.huntersMark.exists(thisUnit) then
-                        if cast.markedShot(thisUnit) then return end
-                    end
-                end
-            end
-        -- Multi-Shot
-            -- multishot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
-                if cast.multiShot() then return end
-            end
-        -- Windburst
-            -- windburst,if=variable.vuln_aim_casts<1&!variable.pooling_for_piercing
-            if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                if vulnAimCast < 1 and not poolForPiercing then
-                    if cast.windburst() then return end
-                end
-            end
-        -- Black Arrow
-            -- black_arrow,if=variable.can_gcd&(!variable.pooling_for_piercing|(lowest_vuln_within.5>gcd.max&focus>85))
-            if canGCD and (not poolForPiercing or (lowestVuln > gcdMax and power > 85)) then
-                if cast.blackArrow() then return end
-            end
-        -- A Murder of Crows
-            -- a_murder_of_crows,if=(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)&(target.time_to_die>=cooldown+duration|target.health.pct<20|target.time_to_die<16)&variable.vuln_aim_casts=0
-            if (not poolForPiercing or lowestVuln > gcdMax) and (ttd(units.dyn40) >= 60 + 15 or getHP(units.dyn40) < 20 or ttd(units.dyn40) < 16) and vulnAimCast == 0 then
-                if cast.aMurderOfCrows() then return end
-            end
-        -- Barrage
-            -- barrage,if=spell_targets>2|(target.health.pct<20&buff.bullseye.stack<25)
-            if ((mode.rotation == 1 and #enemies.yards40 > 2) or mode.rotation == 2) or (getHP(units.dyn40) < 20 and buff.bullseye.stack() < 25) then
-                if cast.barrage() then return end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=action.windburst.in_flight&focus+action.arcane_shot.cast_regen+cast_regen>focus.max
-            if cast.last.windburst() and power + cast.regen.arcaneShot() + cast.regen.aimedShot() > powerMax then
-                if cast.aimedShot() then return end
-            end
-            -- aimed_shot,if=debuff.vulnerability.up&buff.lock_and_load.up&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if debuff.vulnerable.exists(units.dyn40) and buff.lockAndLoad.exists() and (not poolForPiercing or lowestVuln > gcdMax) then
-                if cast.aimedShot() then return end
-            end
-            -- aimed_shot,if=spell_targets.multishot>1&debuff.vulnerability.remains>execute_time&(!variable.pooling_for_piercing|(focus>100&lowest_vuln_within.5>(execute_time+gcd.max)))
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and debuff.vulnerable.remain(units.dyn40) > aimedExecute
-                and (not poolForPiercing or (power > 100 and lowestVuln > (aimedExecute + gcdMax)))
-            then
-                if cast.aimedShot() then return end
-            end
-        -- Multi-Shot
-            -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and canGCD and power + cast.regen.multiShot() + cast.regen.aimedShot() < powerMax
-                and (not poolForPiercing or lowestVuln > gcdMax)
-            then
-                if cast.multiShot() then return end
-            end
-        -- Arcane Shot
-            -- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd)
-            if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not t20_2pc or cast.last.aimedShot() or buff.t20_2pc_critical_aimed.remain() > aimedExecute + gcd)
-                and vulnAimCast > 0 and canGCD and power + cast.regen.arcaneShot() + cast.regen.aimedShot() < powerMax and (not poolForPiercing or lowestVuln > gcd)
-            then
+        -- Arcane Shot 
+            -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up
+            if cast.able.arcaneShot() and buff.trueshot.exists() and buff.masterMarksman.exists() then 
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
-            -- aimed_shot,if=talent.sidewinders.enabled&(debuff.vulnerability.remains>cast_time|(buff.lock_and_load.down&action.windburst.in_flight))&(variable.vuln_window-(execute_time*variable.vuln_aim_casts)<1|focus.deficit<25|buff.trueshot.up)&(spell_targets.multishot=1|focus>100)
-            if talent.sidewinders and (debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() or (not buff.lockAndLoad.exists() and cast.last.windburst()))
-                and (vulnWindow - (aimedExecute * vulnAimCast) < 1 or powerDeficit < 25 or buff.trueshot.exists())
-                and (((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) or power > 100)
+            -- aimed_shot,if=buff.trueshot.up|(buff.double_tap.down|ca_execute)&buff.precise_shots.down|full_recharge_time<cast_time
+            if cast.able.aimedShot() and (buff.trueshot.exists() or (not buff.doubleTap.exists() or caExecute))
+                and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot())
             then
-                if cast.aimedShot() then return end
+                if cast.aimedShot() then return end 
             end
-            -- aimed_shot,if=!talent.sidewinders.enabled&debuff.vulnerability.remains>cast_time&(!variable.pooling_for_piercing|lowest_vuln_within.5>execute_time+gcd.max)
-            if not talent.sidewinders and debuff.vulnerable.remain(units.dyn40) > cast.time.aimedShot() and (not poolForPiercing or lowestVuln > aimedExecute + gcdMax) then
-                if cast.aimedShot() then return end
+        -- Piercing Shot 
+            -- piercing_shot
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
+                if cast.piercingShot() then return end 
             end
-        -- Marked Shot
-            -- marked_shot,if=!talent.sidewinders.enabled&!variable.pooling_for_piercing&!action.windburst.in_flight&(focus>65|buff.trueshot.up|(1%attack_haste)>1.171)
-            if not talent.sidewinders and not poolForPiercing and not cast.last.windburst() and (power > 65 or buff.trueshot.exists() or (1 / attackHaste) > 1.171) then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.huntersMark.exists(thisUnit) then
-                        if cast.markedShot(thisUnit) then return end
-                    end
-                end
-            end
-            -- marked_shot,if=talent.sidewinders.enabled&(variable.vuln_aim_casts<1|buff.trueshot.up|variable.vuln_window<action.aimed_shot.cast_time)
-            if talent.sidewinders and (vulnAimCast < 1 or buff.trueshot.exists() or vulnWindow < cast.time.aimedShot()) then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.huntersMark.exists(thisUnit) then
-                        if cast.markedShot(thisUnit) then return end
-                    end
-                end
-            end
-        -- Aimed Shot
-            -- aimed_shot,if=focus+cast_regen>focus.max&!buff.sentinels_sight.up
-            if power + cast.regen.aimedShot() > powerMax and not buff.sentinelsSight.exists() then
-                if cast.aimedShot() then return end
-            end
-        -- Sidewinders
-            -- sidewinders,if=(!debuff.hunters_mark.up|(!buff.marking_targets.up&!buff.trueshot.up))&((buff.marking_targets.up&variable.vuln_aim_casts<1)|buff.trueshot.up|charges_fractional>1.9)
-            if (not debuff.huntersMark.exists(units.dyn40) or (not buff.markingTargets.exists() and not buff.trueshot.exists()))
-                and ((buff.markingTargets.exists() and vulnAimCast < 1) or buff.trueshot.exists() or charges.sidewinders.frac() > 1.9)
+        -- Arcane Shot 
+            -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)
+            if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists() 
+                and (power > 41 or buff.masterMarksman.exists) or ((power > 50 and traits.focusedFire.active) or power > 75) 
+                and (cd.trueshot.remain() > 5 or power > 80) or ttd(units.dyn40) < 5)
             then
-                if cast.sidewinders() then return end
+                if cast.arcaneShot() then return end 
+            end 
+        -- Steady Shot 
+            -- steady_shot
+            if cast.able.steadyShot() then 
+                if cast.steadyShot() then return end 
             end
-        -- Arcane Shot
-            -- arcane_shot,if=spell_targets.multishot=1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t == 1) or mode.rotation == 3) and (not poolForPiercing or lowestVuln > gcdMax) then
-                if cast.arcaneShot() then return end
-            end
-        -- Multi-Shot
-            -- multishot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and #enemies.yards8t > 1) or mode.rotation == 2) and (not poolForPiercing or lowestVuln > gcdMax) then
-                if cast.multiShot() then return end
-            end
-        end -- End Action List - Patient Sniper
+        end -- End Action List - Single Target
     -- Action List - Pre-Combat
         local function actionList_PreCombat()
             rotationDebug = "Pre-Combat"
@@ -895,22 +623,19 @@ local function runRotation()
                 -- summon_pet
                 if actionList_PetManagement() then return end
                 if isValidUnit("target") and getDistance("target") < 40 then
-            -- Windburst
-                    -- windburst
-                    if (getOptionValue("Artifact") == 1 or (getOptionValue("Artifact") == 2 and useCDs())) then
-                        if cast.windburst() then return end
+            -- Hunter's Mark
+                    -- hunters_mark 
+                    if cast.able.huntersMark() then 
+                        if cast.huntersMark() then return end 
                     end
+            -- Double Tap 
+                    -- double_tap,precast_time=10
+            -- Trueshot 
+                    -- trueshot,precast_time=1.5,if=active_enemies>2
             -- Aimed Shot
-                    if (getCastTime(spell.aimedShot) < ttd("target") or isDummy("target")) and power > 75 then
+                    -- aimed_shot,if=active_enemies<3
+                    if cast.able.aimedShot() and ((mode.rotation == 1 and #enemies.yards40f < 3) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
                         if cast.aimedShot("target") then return end
-                    end
-            -- Cobra Shot
-                    if power > 75 and level < 12 then
-                        if cast.cobraShot("target") then return end
-                    end
-            -- Arcane Shot
-                    if power <= 75 then
-                        if cast.arcaneShot("target") then return end
                     end
             -- Auto Shot
                     StartAttack()
@@ -931,7 +656,6 @@ local function runRotation()
             StopAttack()
             return true
         else
-            br.player.getDebuffsCount()
 -----------------------
 --- Extras Rotation ---
 -----------------------
@@ -953,8 +677,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop == false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and isCastingSpell(spell.barrage) == false then
-                rotationDebug = "In Combat"
+            if inCombat and profileStop == false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not cast.current.barrage() then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
@@ -963,29 +686,23 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
                 if getOptionValue("APL Mode") == 1 then
-                    rotationDebug = "Cycling Rotation"
                 -- Auto Shot
                     -- auto_shot
                     if getDistance(units.dyn40) < 40 then
                         StartAttack()
                     end
-                -- Volley
-                    -- volley,toggle=on
-                    if not buff.volley.exists() then
-                        if cast.volley(units.dyn40) then return end
-                    end
                 -- Call Action List - Cooldowns
                     -- call_action_list,name=cooldowns
                     if actionList_Cooldowns() then return end
-                -- Call Action List - Patient Sniper
-                    -- call_action_list,name=patient_sniper,if=talent.patient_sniper.enabled
-                    if talent.patientSniper then
-                        if actionList_PatientSniper() then return end
+                -- Call Action List - Single Target
+                    -- call_action_list,name=st,if=active_enemies<3
+                    if ((mode.rotation == 1 and #enemies.yards40f < 3) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
+                        if actionList_SingleTarget() then return end
                     end
-                -- Call Action List - Non-Patient Sniper
-                    -- call_action_list,name=non_patient_sniper,if=!talent.patient_sniper.enabled
-                    if not talent.patientSniper then
-                        if actionList_NonPatientSniper() then return end
+                -- Call Action List - Trick Shots
+                    -- call_action_list,name=trickshots,if=active_enemies>2
+                    if ((mode.rotation == 1 and #enemies.yards40f > 2) or (mode.rotation == 2 and #enemies.yards40f > 0)) then
+                        if actionList_TrickShots() then return end
                     end
                 end -- End SimC APL
     ------------------------
@@ -998,8 +715,7 @@ local function runRotation()
         end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
---local id = 254
-local id = 0
+local id = 254
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

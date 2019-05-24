@@ -7,7 +7,7 @@ local function createToggles()
 -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.aimedShot },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multiShot },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.multishot },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.arcaneShot },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.aspectOfTheCheetah}
     };
@@ -652,7 +652,7 @@ local function runRotation()
             -- Multi-Shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
             if ((mode.rotation == 1 and (#enemies.yards8t > 2 )) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) 
             then
-                if cast.multiShot(units.dyn40) then return end
+                if cast.multishot(units.dyn40) then return end
             end
         -- Sentinel
             -- sentinel,if=!debuff.hunters_mark.up
@@ -725,7 +725,7 @@ local function runRotation()
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets.multi_shot>1&!variable.waiting_for_sentinel
             if ((mode.rotation == 1 and #enemies.yards8t > 1)  or mode.rotation == 2) and not waitForSentinel then
-                if cast.multiShot(units.dyn40) then return end
+                if cast.multishot(units.dyn40) then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=spell_targets.multi_shot<2&!variable.waiting_for_sentinel
@@ -771,7 +771,7 @@ local function runRotation()
         -- Multi-Shot
             -- multi-shot,if=spell_targets>1&(buff.marking_targets.up|buff.trueshot.up)
             if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and (buff.markingTargets.exists() or buff.trueshot.exists()) then
-                if cast.multiShot(units.dyn40) then return end
+                if cast.multishot(units.dyn40) then return end
             end
         -- Windburst
             -- windburst,if=variable.vuln_aim_casts<1&!variable.pooling_for_piercing
@@ -811,8 +811,8 @@ local function runRotation()
             end
         -- Multi-Shot
             -- multishot,if=spell_targets>1&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
-            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and canGCD and power + (getCastRegen(spell.multiShot) + getCastRegen(spell.aimedShot)) < powerMax and (not poolForPiercing or lowestVuln > gcdMax) then
-                if cast.multiShot(units.dyn40) then return end
+            if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and canGCD and power + (getCastRegen(spell.multishot) + getCastRegen(spell.aimedShot)) < powerMax and (not poolForPiercing or lowestVuln > gcdMax) then
+                if cast.multishot(units.dyn40) then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=spell_targets.multishot=1&(!set_bonus.tier20_2pc|!action.aimed_shot.in_flight|buff.t20_2p_critical_aimed_damage.remains>action.aimed_shot.execute_time+gcd)&variable.vuln_aim_casts>0&variable.can_gcd&focus+cast_regen+action.aimed_shot.cast_regen<focus.max&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd)
@@ -881,7 +881,7 @@ local function runRotation()
         -- Multi-Shot
             -- Multi-Shot,if=spell_targets>1&(!variable.pooling_for_piercing|lowest_vuln_within.5>gcd.max)
             if ((mode.rotation == 1 and (#enemies.yards8t > 2 or (debuff.huntersMark.exists(units.dyn40) and #enemies.yards8t > 1))) or mode.rotation == 2) and (not poolForPiercing or lowestVuln > gcdMax) then
-                if cast.multiShot(units.dyn40) then return end
+                if cast.multishot(units.dyn40) then return end
             end            
         end -- End Action List - Patient Sniper
     
@@ -1022,7 +1022,7 @@ local function runRotation()
                         end
                         if ((((mode.rotation == 1 and #enemies.yards8t >= 3) and not hasEquiped(137081)) or ((mode.rotation == 1 and #enemies.yards8t >= 2) and hasEquiped(137081)) or mode.rotation == 3) and power < 90 and not debuff.vulnerable.exists(units.dyn40)) or  
                             ((((mode.rotation == 1 and #enemies.yards8t >= 3) and not hasEquiped(137081)) or ((mode.rotation == 1 and #enemies.yards8t >= 2) and hasEquiped(137081)) or mode.rotation == 3) and power <= 70 and debuff.vulnerable.exists(units.dyn40)) then
-                            if cast.multiShot(units.dyn40) then return end
+                            if cast.multishot(units.dyn40) then return end
                         end
                     else
                         actionList_NonPatientSniper()

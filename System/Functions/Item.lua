@@ -11,29 +11,29 @@ function canUse(itemID)
 	if itemID == 0 or getHP("player") == 0 then
 		return false
 	end
-	if (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID) or itemID <= 19) and
-		(IsEquippedItem(itemID) or (not IsEquippableItem(itemID) and (hasItem(itemID) or itemID <= 19)))
-	 then
-		if itemID <= 19 then
-			local slotItemID = GetInventoryItemID("player", itemID)
-			if GetItemSpell(slotItemID) ~= nil then
-				if GetItemCooldown(slotItemID) == 0 then
-					return true
-				end
+	if itemID <= 19 then
+		local slotItemID = GetInventoryItemID("player", itemID)
+		if GetItemSpell(slotItemID) ~= nil then
+			if GetItemCooldown(slotItemID) == 0 then
+				return true
 			end
-		elseif itemID > 19 and GetItemCooldown(itemID) == 0 then
-			return true
 		end
-	end
+	elseif (GetItemCount(itemID, false, false) > 0 or PlayerHasToy(itemID)) and
+	((IsEquippableItem(itemID) and IsEquippedItem(itemID)) or (not IsEquippableItem(itemID) and hasItem(itemID)))
+	then 
+		if itemID > 19 and GetItemCooldown(itemID) == 0 then
+			return true
+			end
+		end
 	return false
 end
 -- if canTrinket(13) then
 function canTrinket(trinketSlot)
 	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and GetInventoryItemCooldown("player", 13) == 0 then
+		if trinketSlot == 13 and select(3,GetInventoryItemCooldown("player",13)) == 1 and GetInventoryItemCooldown("player", 13) == 0 then
 			return true
 		end
-		if trinketSlot == 14 and GetInventoryItemCooldown("player", 14) == 0 then
+		if trinketSlot == 14 and select(3,GetInventoryItemCooldown("player",14)) == 1 and GetInventoryItemCooldown("player", 14) == 0 then
 			return true
 		end
 	else

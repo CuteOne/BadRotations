@@ -230,6 +230,7 @@ interruptWhitelist = {
 	-- Battle of Dazarlor start
 	[283628] = true, -- Heal of the forces of the crusade, champion of the light encounter
 	[282243] = true, -- Apetagonize, Grong encounter
+	[289596] = true, -- For the King, 7th Legion Cavalier
 	[286379] = true, -- Pyroblast, Jade Masters encounter
 	[286563] = true, -- Tidal Empowerment, Brother Joseph , Stormwall Blockade encounter
 	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
@@ -356,10 +357,14 @@ validUnitBypassList = {
 	[147376] = "Barrier", --Jadefire Masters
     [147374] = "Barrier", --Jadefire Masters
     [147375] = "Barrier", --Jadefire Masters
-    [146756] = "Energized Storm", --Jadefire Masters
+	[146756] = "Energized Storm", --Jadefire Masters
+	[146107] = "Living Bomb", -- Jadefire Masters
 	[148522] = "Ice Block", --Jaina
 	[148907] = "Prismatic Image", --Jaina
     [148716] = "Risen Soul", --M+ Reaping
     [148893] = "Tormented Soul", --M+ Reaping
-    [148894] = "Lost Soul" --M+ Reaping
+	[148894] = "Lost Soul", --M+ Reaping
+	[120651] = "Explosive", -- Explosive
+	[136330] = "Soul Thorns", -- Soul Thorns Waycrest Manor
+	[134388] = "A Knot of Snakes" -- A Knot of Snakes ToS
 }

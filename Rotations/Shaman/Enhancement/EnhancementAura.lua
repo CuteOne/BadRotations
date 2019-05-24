@@ -127,7 +127,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
             -- Purge
-            br.ui:createCheckbox(section,"Purge")
+            br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -196,6 +196,7 @@ local function runRotation()
         local enemies                                       = br.player.enemies
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
+        local gcdMax                                        = br.player.gcdMax
         local healPot                                       = getHealthPot()
         local hastar                                        = GetObjectExists("target")
         local inCombat                                      = br.player.inCombat
@@ -224,6 +225,7 @@ local function runRotation()
         enemies.get(20)
         enemies.get(30)
         enemies.get(8,"target") -- enemies.yards8t
+        
         
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -348,8 +350,20 @@ local function runRotation()
                     if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then return true end
                 end
                 -- Purge
-                if isChecked("Purge") and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
-                    if cast.purge() then return true end
+                if isChecked("Purge") then
+                    if getOptionValue("Purge") == 1 then
+                        if canDispel("target",spell.purge) and GetObjectExists("target") then
+                            if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                        end
+                        if getOptionValue("Purge") == 2 then
+                            for i = 1, #enemies.yards30 do
+                                local thisUnit = enemies.yards30[i]
+                                if canDispel(thisUnit,spell.purge) then
+                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                                end
+                            end
+                        end
+                    end
                 end
             end -- End Defensive Toggle
         end -- End Action List - Defensive
@@ -660,10 +674,10 @@ local function runRotation()
             end
             -- Trinkets
             if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards8t >= 3 ) then
-                if canUse(13) then
+                if canTrinket(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canTrinket(14) then
                     useItem(14)
                 end
             end
@@ -769,7 +783,7 @@ local function runRotation()
         if ghostWolf() then
             return true
         end
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 2 then
             return true
         else    
 ---------------------------------
@@ -807,14 +821,14 @@ local function runRotation()
                         if actionList_Ascendance() then return true end
                     end
                     if actionList_PriorityBuffs() then return true end
-                    if #enemies.yards10 < 3 then
+                    if #enemies.yards8t < 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if useCDs() then
                         if actionList_CD() then return true end
                     end
                     if actionList_Core() then return true end
-                    if #enemies.yards10 >= 3 then
+                    if #enemies.yards8t >= 3 then
                         if actionList_Maintenance() then return true end
                     end
                     if actionList_Filler() then return true end

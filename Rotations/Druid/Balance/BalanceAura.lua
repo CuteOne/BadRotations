@@ -227,7 +227,7 @@ local function runRotation()
         CA = CA or false
 
         if (not inCombat and not GetObjectExists("target")) or (isChecked("Opener Reset Key") and SpecificToggle("Opener Reset Key")) then
-          --  br.Debug("Opener Reset")
+          --  br.addonDebug("Opener Reset")
             ABOpener = false
             SW1 = false
             SW2 = false
@@ -322,7 +322,7 @@ local function runRotation()
                         if cast.catForm("player") then return true end
                     end
                     -- Cat Form - Less Fall Damage
-                    if (not canFly() or inCombat or level < 58 or not IsOutdoors()) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
+                    if (not canFly() or inCombat or level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then return true end
                     end
                 end
@@ -366,14 +366,14 @@ local function runRotation()
                     end
                 elseif getOptionValue("Rebirth") == 2 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
                     end
                 elseif getOptionValue("Rebirth") == 3 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
@@ -384,7 +384,7 @@ local function runRotation()
                     end
                 elseif getOptionValue("Rebirth") == 5 then
                     for i = 1, #br.friend do
-                        local thisUnit = br.friend[i]
+                        local thisUnit = br.friend[i].unit
                         if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
                             if cast.rebirth(thisUnit,"dead") then return true end
                         end
@@ -473,10 +473,10 @@ local function runRotation()
             end
             -- Trinkets
             if useCDs() and isChecked("Trinkets") and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
-                if canUse(13) then
+                if canTrinket(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canTrinket(14) then
                     useItem(14)
                 end
             end
@@ -646,63 +646,63 @@ local function runRotation()
                 if not SW1 then
                     if cast.solarWrath() then 
                         SW1 = true
-                       -- br.Debug("Opener: Solar Wrath 1 cast")
+                        br.addonDebug("Opener: Solar Wrath 1 cast")
                         return
                     end
                 elseif SW1 and not SW2 then
                     if cast.solarWrath() then
                         SW2 = true
-                      --  br.Debug("Opener: Solar Wrath 2 cast")
+                        br.addonDebug("Opener: Solar Wrath 2 cast")
                         return
                     end
                 elseif SW2 and not MF then
                     if cast.moonfire() then
                         MF = true
-                      --  br.Debug("Opener: Moonfire cast")
+                        br.addonDebug("Opener: Moonfire cast")
                         return
                     end
                 elseif MF and not SF then
                     if cast.sunfire() then
                         SF = true
-                      --  br.Debug("Opener: Sunfire cast")
+                        br.addonDebug("Opener: Sunfire cast")
                         return
                     end
                 elseif SF and not StF then
                     if talent.stellarFlare then
                         if cast.stellarFlare() then 
                             StF = true
-                          --  br.Debug("Opener: Stellar Flare cast")
+                            br.addonDebug("Opener: Stellar Flare cast")
                             return
                         end
                     else
                         StF = true
-                      --  br.Debug("Opener: Stellar Flare not talented, bypassing")
+                        br.addonDebug("Opener: Stellar Flare not talented, bypassing")
                         return
                     end
                 elseif StF and not CA and power < 40 then
                     if cast.solarWrath() then
-                       -- br.Debug("Opener: Building Up AP") 
+                        br.addonDebug("Opener: Building Up AP") 
                         return 
                     end
                 elseif StF and not CA and power >= 40 then
                     if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remains() <= 3 then
                         if cast.incarnationChoseOfElune("player") then
-                         --   br.Debug("Opener: Inc cast")
+                            br.addonDebug("Opener: Inc cast")
                             CA = true
                         end
                     elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remains() <= 3 then
                         if cast.celestialAlignment("player") then 
-                         --   br.Debug("Opener: CA cast")
+                            br.addonDebug("Opener: CA cast")
                             CA = true
                         end
                     else
-                     --   br.Debug("Opener: CA/Inc On CD, Bypassing")
+                        br.addonDebug("Opener: CA/Inc On CD, Bypassing")
                         CA = true
                     end
                     return
                 elseif CA then
                     ABOpener = true
-                  --  br.Debug("Opener Complete")
+                    br.addonDebug("Opener Complete")
                 end
             end
         end
@@ -712,7 +712,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and (UnitIsDeadOrGhost("target") or not UnitCanAttack("target", "player"))) or mode.rotation == 4 then
+        if pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 2 then
             return true
         else
 ---------------------------------
