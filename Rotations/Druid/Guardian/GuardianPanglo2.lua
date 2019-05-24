@@ -208,6 +208,7 @@ local function createOptions()
         --- Cooldown Options---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+		
         br.ui:createDropdownWithout(
             section,
             "Trinkets",
@@ -657,7 +658,7 @@ local function runRotation()
 
     local function List_Cooldowns()
         if useCDs() and getDistance(units.dyn5) < 5 then
-            if isChecked("Trinkets") and getOptionValue("Trinkets") == 2 then
+            if getOptionValue("Trinkets") == 2 then
                 if canUse(13) then
                     useItem(13)
                 end
@@ -684,7 +685,7 @@ local function runRotation()
     end
 
     local function List_Bearmode()
-        if br.player.mode.ironfur == 1 and (hasAggro >= 2) then
+        if br.player.mode.ironfur == 1 and (hasAggro >= 2 and bear) then
             if
                 (traits.layeredMane.active and rage >= 50) or not buff.ironfur.exists() or buff.goryFur.exists() or
                     rage >= 65 or
@@ -696,7 +697,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Trinkets") and getOptionValue("Trinkets") == 1 then
+        if getOptionValue("Trinkets") == 1 then
             if canUse(13) then
                 useItem(13)
             end
