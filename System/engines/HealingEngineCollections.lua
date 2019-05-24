@@ -34,12 +34,68 @@ novaEngineTables.DispelID = {
 	[287167] = {stacks = 0}, -- https://www.wowhead.com/spell=287167/discombobulation
 	-- Jaina Proudmoore
 	[287626] = {stacks = 0}, -- https://www.wowhead.com/spell=287626/grasp-of-frost
-	-- SoB
-	[275014] = {stacks = 0, range = 3}, --https://www.wowhead.com/spell=274991/putrid-waters
+	-- Siege of Boralis
+	[275014] = { stacks = 0, range = 3 }, --https://www.wowhead.com/spell=274991/putrid-waters
+	[257168] = { stacks = 0 }, --https://www.wowhead.com/spell=257168/cursed-slash
+	[272571] = { stacks = 0 }, --https://www.wowhead.com/spell=272571/choking-waters
+	[275835] = { stacks = 0 }, --https://www.wowhead.com/spell=275835/stinging-venom-coating
 	-- Waycrest Manor
-	[261440] = {stacks = 0, range = 6}, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	[261440] = { stacks = 0, range = 6 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	[264378] = { stacks = 0 }, --https://www.wowhead.com/spell=264378/fragment-soul
+	[263891] = { stacks = 0 }, --https://www.wowhead.com/spell=263891/grasping-thorns
+	[265352] = { stacks = 0 }, --https://www.wowhead.com/spell=265352/toad-blight
+	-- Temple of Sethraliss
+	[268008] = { stacks = 0 }, --https://www.wowhead.com/spell=268008/snake-charm
+	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
+	[268013] = { stacks = 0 }, --https://www.wowhead.com/spell=268013/flame-shock
+	[273563] = { stacks = 0 }, --https://www.wowhead.com/spell=273563/neurotoxin
+	[272657] = { stacks = 0 }, --https://www.wowhead.com/spell=272657/noxious-breath
+	[267027] = { stacks = 0 }, --https://www.wowhead.com/spell=267027/cytotoxin
+	[272699] = { stacks = 0 }, --https://www.wowhead.com/spell=272699/venomous-spit
+  
+	-- Tol Dagor
+	[258128] = { stacks = 0 }, --https://www.wowhead.com/spell=258128/debilitating-shout
+	[265889] = { stacks = 0 }, --https://www.wowhead.com/spell=265889/torch-strike
+	[258864] = { stacks = 0 }, --https://www.wowhead.com/spell=258864/suppression-fire
+	[257028] = { stacks = 0 }, --https://www.wowhead.com/spell=257028/fuselighter
+	[257777] = { stacks = 0 }, --https://www.wowhead.com/spell=257777/crippling-shiv
+	-- The Motherloads
+	[280605] = { stacks = 0 }, --https://www.wowhead.com/spell=280605/brain-freeze
+	[262268] = { stacks = 0 }, --https://www.wowhead.com/spell=262268/caustic-compound
+	[268797] = { stacks = 0 }, --https://www.wowhead.com/spell=268797/transmute-enemy-to-goo
+	[259856] = { stacks = 0 }, --https://www.wowhead.com/spell=259856/chemical-burn
+	[269298] = { stacks = 0 }, --https://www.wowhead.com/spell=269298/widowmaker-toxin
 	-- Atal'Dazar
-	[252781] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=252781/unstable-hex
+	[252781] = { stacks = 0, range = 8 }, -- https://www.wowhead.com/spell=252781/unstable-hex
+	[250096] = { stacks = 0 }, -- https://www.wowhead.com/spell=250096/wracking-pain
+	[253562] = { stacks = 0 }, -- https://www.wowhead.com/spell=253562/wildfire
+	[255582] = { stacks = 0 }, -- https://www.wowhead.com/spell=255582/molten-gold
+	[255041] = { stacks = 0 }, -- https://www.wowhead.com/spell=255041/terrifying-screech
+	[255371] = { stacks = 0 }, -- https://www.wowhead.com/spell=255371/terrifying-visage
+	[255371] = { stacks = 2 }, --https://www.wowhead.com/spell=250372/lingering-nausea
+	-- Freehold
+	[257908] = { stacks = 0 }, -- https://www.wowhead.com/spell=257908/oiled-blade
+	[257436] = { stacks = 0 }, -- https://www.wowhead.com/spell=257436/poisoning-strike
+	-- Shrine of the storm
+	[264560] = { stacks = 0 }, -- https://www.wowhead.com/spell=264560/choking-brine
+	[268233] = { stacks = 0 }, -- https://www.wowhead.com/spell=268233/electrifying-shock
+	[268322] = { stacks = 0 }, -- https://www.wowhead.com/spell=268322/touch-of-the-drowned
+	[268391] = { stacks = 0 }, -- https://www.wowhead.com/spell=268391/mental-assault
+	[268896] = { stacks = 0 }, -- https://www.wowhead.com/spell=268896/mind-rend
+	[269104] = { stacks = 0 }, --https://www.wowhead.com/spell=269104/explosive-void
+	-- Kings Rest
+	[276031] = { stacks = 0 }, -- https://www.wowhead.com/spell=276031/pit-of-despair
+	[270492] = { stacks = 0 }, -- https://www.wowhead.com/spell=270492/hex
+	[270499] = { stacks = 0 }, -- https://www.wowhead.com/spell=270499/frost-shock
+	[270865] = { stacks = 0 }, --https://www.wowhead.com/spell=270865/hidden-blade
+	[271563] = { stacks = 0 }, -- https://www.wowhead.com/spell=271563/embalming-fluid
+	[270507] = { stacks = 0 }, -- https://www.wowhead.com/spell=270507/poison-barrage
+	-- Underrot
+	[276031] = { stacks = 2 }, -- https://www.wowhead.com/spell=265468/withering-curse
+	[266209] = { stacks = 0 }, -- https://www.wowhead.com/spell=266209/wicked-frenzy
+	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
+	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
+	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
 }
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
