@@ -293,8 +293,8 @@ local function runRotation()
             end
             local px,py,pz = ObjectPosition("player")
             local x,y,z = GetPositionBetweenObjects(unit, "player", combatRange)
-            z = select(3,TraceLine(x, y, z+10, x, y, z-10, 0x110)) -- Raytrace correct z, Terrain and WMO hit
-            if z ~= nil and TraceLine(px, py, pz+2, x, y, z+1, 0x100011) == nil then -- Check z and LoS, ignore terrain colissions
+            z = select(3,TraceLine(x, y, z+5, x, y, z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+            if z ~= nil and TraceLine(px, py, pz+2, x, y, z+1, 0x100010) == nil and TraceLine(x, y, z+4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
                 if IsMouselooking() then
                     wasMouseLooking = true
                     MouselookStop()
