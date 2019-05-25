@@ -485,10 +485,12 @@ local function runRotation()
     end
 
     -- Pet Data
-    if summonPet == 1 then summonId = 416 end
-    if summonPet == 2 then summonId = 1860 end
-    if summonPet == 3 then summonId = 417 end
-    if summonPet == 4 then summonId = 1863 end
+    if summonPet == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
+    elseif summonPet == 1 then summonId = 416
+    elseif summonPet == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
+    elseif summonPet == 2 then summonId = 1860
+    elseif summonPet == 3 then summonId = 417
+    elseif summonPet == 4 then summonId = 1863 end
 
     local creepingDeathValue = 0
     if talent.creepingDeath then creepingDeathValue = 1 end
@@ -1021,23 +1023,15 @@ local function runRotation()
         if talent.grimoireOfSacrifice then petPadding = 5 end
         if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + petPadding) and not moving then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
-            if summonPet == 1 then
-                if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
-                    if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
-                elseif lastSpell ~= spell.summonImp then
-                    if cast.summonImp("player") then castSummonId = spell.summonImp; return end
+                if summonPet == 1 and (lastSpell ~= spell.summonImp or activePetId == 0) then
+                    if cast.summonImp("player") then castSummonId = spell.summonImp return end
+                elseif summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return end
+                elseif summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return end
+                elseif summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return end
                 end
-            end
-            if summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
-                if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
-            end
-            if summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
-                if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
-            end
-            if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
-                if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
-            end
-            if summonPet == 5 then return end
             end
         end
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled

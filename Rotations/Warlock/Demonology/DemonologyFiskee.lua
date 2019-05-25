@@ -692,8 +692,12 @@ local function runRotation()
     -- Pet Data
     if summonPet == 1 then
         summonId = 17252
+    elseif summonPet == 2 and HasAttachedGlyph(spell.summonImp) then 
+        summonId = 58959
     elseif summonPet == 2 then
         summonId = 416
+    elseif summonPet == 3 and HasAttachedGlyph(spell.summonVoidwalker) then 
+        summonId = 58960
     elseif summonPet == 3 then
         summonId = 1860
     elseif summonPet == 4 then
@@ -1484,17 +1488,10 @@ local function runRotation()
                         castSummonId = spell.summonFelguard
                         return
                     end
-                elseif summonPet == 2 then
-                    if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
-                        if cast.summonFelImp("player") then
-                            castSummonId = spell.summonFelImp
-                            return
-                        end
-                    elseif lastSpell ~= spell.summonImp then
-                        if cast.summonImp("player") then
-                            castSummonId = spell.summonImp
-                            return
-                        end
+                elseif summonPet == 2 and (lastSpell ~= spell.summonImp or activePetId == 0) then
+                    if cast.summonImp("player") then
+                        castSummonId = spell.summonImp
+                        return
                     end
                 elseif summonPet == 3 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
                     if cast.summonVoidwalker("player") then
