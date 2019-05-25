@@ -457,8 +457,8 @@ local function runRotation()
 
         -- Siegebreaker
         if
-            buff.recklessness.exists() or cd.recklessness.remain() > 25 or
-                (getOptionValue("Recklessness") == 2 and not useCDs())
+            (buff.recklessness.exists() or cd.recklessness.remain() > 25 or
+                (getOptionValue("Recklessness") == 2 and not useCDs())) or (br.player.mode.holdcd == 1 and cd.recklessness.remain() > 20)
          then
             if cast.siegebreaker() then
                 return
@@ -590,8 +590,8 @@ local function runRotation()
         -- Siegebreaker
         if
             buff.whirlwind.exists() and
-                (buff.recklessness.exists() or cd.recklessness.remain() > 25 or
-                    (getOptionValue("Recklessness") == 2 and not useCDs()))
+                ((buff.recklessness.exists() or cd.recklessness.remain() > 25 or
+                    (getOptionValue("Recklessness") == 2 and not useCDs())) or (br.player.mode.holdcd == 1 and cd.recklessness.remain() > 20))
          then
             if cast.siegebreaker() then
                 return
