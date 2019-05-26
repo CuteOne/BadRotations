@@ -358,7 +358,7 @@ actionList.PetManagement = function()
             if cast.able.growl() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not isTanking(thisUnit) then
+                    if isTanking(thisUnit) then
                         if cast.growl(thisUnit) then return end
                     end
                 end
@@ -405,21 +405,24 @@ actionList.Extras = function()
     -- Misdirection
     if mode.misdirection == 1 then
         if isValidUnit("target") then
+            local misdirectUnit = "pet"
             if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
                 for i = 1, #br.friend do
                     local thisFriend = br.friend[i].unit
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
-                        and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
+                        and UnitAffectingCombat(thisFriend)
                     then
-                        if cast.misdirection(thisFriend) then return end
+                        misdirectUnit = thisFriend
+                        break
                     end
                 end
-            elseif getOptionValue("Misdirection") == 2 and GetUnitExists("focus")
-                and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player")
+            elseif getOptionValue("Misdirection") == 2 then
+                misdirectUnit = "focus"
+            end
+            if GetUnitExists(misdirectUnit) and UnitAffectingCombat(misdirectUnit)
+                and not UnitIsDeadOrGhost(misdirectUnit) and GetUnitIsFriend(misdirectUnit,"player")
             then
-                if cast.misdirection("focus") then return end
-            elseif getOptionValue("Misdirection") == 3 and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") then
-                if cast.misdirection("pet") then return end
+                if cast.misdirection(misdirectUnit) then return end
             end
         end
     end
