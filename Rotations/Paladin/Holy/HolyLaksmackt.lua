@@ -608,7 +608,7 @@ local function runRotation()
       end
     end
     -- Unstable Temporal Time Shifter
-    if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not moving and inCombat then
+    if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not moving and inCombat then
       if getOptionValue("Unstable Temporal Time Shifter") == 1
               and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
         UseItemByName(158379, "target")
@@ -640,7 +640,7 @@ local function runRotation()
     --166798 --"Crackling Tourmaline"
     --166801 -- "Saphire of Brilliance"  buff 290365
 
-    if hasItem(166798) and canUse(166798) and not buff.cracklingTourmaline.exists("player") then
+    if hasItem(166798) and canUseItem(166798) and not buff.cracklingTourmaline.exists("player") then
       useItem(166798);
       return true
     end
@@ -651,7 +651,7 @@ local function runRotation()
     -- Pre-Pull Timer
     if isChecked("Pre-Pull Timer") then
       if pullTimer <= getOptionValue("Pre-Pull Timer") then
-        if canUse(142117) and not buff.prolongedPower.exists() then
+        if canUseItem(142117) and not buff.prolongedPower.exists() then
           useItem(142117);
           return true
         end
@@ -665,19 +665,19 @@ local function runRotation()
     if useDefensive() then
 
       --engineering belt / plate pants
-      if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUse(6) then
+      if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
         useItem(6)
       end
 
       --Healthstone / Heathpots :  156634 == Silas Vial of Continuous curing / 5512 == warlock health stones
       if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512) or hasItem(156634)) then
-        if canUse(166799) then
+        if canUseItem(166799) then
           useItem(166799)
-        elseif canUse(5512) then
+        elseif canUseItem(5512) then
           useItem(5512)
-        elseif canUse(156634) then
+        elseif canUseItem(156634) then
           useItem(156634)
-        elseif canUse(getHealthPot()) then
+        elseif canUseItem(getHealthPot()) then
           useItem(getHealthPot())
         end
       end
@@ -964,7 +964,7 @@ local function runRotation()
     end
 
     --stat gem from crown
-    if hasItem(166801) and canUse(166801) and not buff.saphireofBrilliance.exists("player") then
+    if hasItem(166801) and canUseItem(166801) and not buff.saphireofBrilliance.exists("player") then
       useItem(166801)
       return true
     end
@@ -1078,7 +1078,7 @@ local function runRotation()
       end
     end
     -- Trinkets
-    if isChecked("Trinket 1") and canUse(13) then
+    if isChecked("Trinket 1") and canUseItem(13) then
       if getOptionValue("Trinket 1 Mode") == 1 then
         if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
           useItem(13)
@@ -1122,7 +1122,7 @@ local function runRotation()
         end
       end
     end
-    if isChecked("Trinket 2") and canUse(14) then
+    if isChecked("Trinket 2") and canUseItem(14) then
       if getOptionValue("Trinket 2 Mode") == 1 then
         if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
           useItem(14)
@@ -1482,7 +1482,7 @@ local function runRotation()
     if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike()
             and lowest.hp > getValue("Critical HP")
             and getFacing("player", units.dyn5) then
-      if (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) then
+      if (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) or (charges.crusaderStrike.frac() >= 1.75 and (getSpellCD(20473) > gcd or getSpellCD(85222) > gcd)) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
@@ -1572,14 +1572,13 @@ local function runRotation()
           end
         end
       end
-      if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) and getFacing("player", units.dyn5) then
+      if talent.crusadersMight and lowest.hp > getValue("Critical HP") and (getSpellCD(20473) > (gcd + 1.5) or getSpellCD(85222) > (gcd + 1.5)) or (charges.crusaderStrike.frac() >= 1.75 and (getSpellCD(20473) > gcd or getSpellCD(85222) > gcd)) and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
       end
     end
   end
-
   local function SingleTarget()
     local holyshocktarget = nil
     local folTarget = nil
