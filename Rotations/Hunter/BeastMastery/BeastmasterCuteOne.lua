@@ -410,13 +410,16 @@ actionList.Extras = function()
                 for i = 1, #br.friend do
                     local thisFriend = br.friend[i].unit
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
-                        and UnitAffectingCombat(thisFriend)
+                        and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
                     then
                         misdirectUnit = thisFriend
                         break
                     end
                 end
-            elseif getOptionValue("Misdirection") == 2 then
+            end
+            if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus")
+                and GetUnitIsFriend("focus","player")
+            then
                 misdirectUnit = "focus"
             end
             if GetUnitExists(misdirectUnit) and UnitAffectingCombat(misdirectUnit)
