@@ -201,7 +201,7 @@ local function runRotation()
         local deadtar                                       = UnitIsDeadOrGhost("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
-        local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUse(br.player.flask.wod.agilityBig)
+        local flaskBuff, canFlask                           = getBuffRemain("player",br.player.flask.wod.buff.agilityBig), canUseItem(br.player.flask.wod.agilityBig)
         local gcd                                           = br.player.gcd
         local gcd                                           = br.player.gcdMax
         local glyph                                         = br.player.glyph
@@ -363,9 +363,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -442,23 +442,23 @@ local function runRotation()
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|buff.adrenaline_rush.up
                 if isChecked("Potion") and inRaid then
                     if buff.blunderbuss.exists() or ttd(units.dyn5) <= 60 or buff.adrenalineRush.exists() then
-                        if canUse(142117) then
+                        if canUseItem(142117) then
                             useItem(142117)
                         end
                     end
                 end
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) and not hasEquiped(151190, 13) then
+                    if canUseItem(13) and not hasEquiped(151190, 13) then
                         useItem(13)
                     end
-                    if canUse(14) and not hasEquiped(151190, 14) then
+                    if canUseItem(14) and not hasEquiped(151190, 14) then
                         useItem(14)
                     end
                 end
         -- Specter of Betrayal
                 -- use_item,name=specter_of_betrayal,if=(mantle_duration>0|buff.curse_of_the_dreadblades.up|(cooldown.vanish.remains>11&cooldown.curse_of_the_dreadblades.remains>11))
-                if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
+                if isChecked("Trinkets") and hasEquiped(151190) and canUseItem(151190) then
                     if buff.masterAssassinsInitiative.remain() > 0 or debuff.curseOfTheDreadblades.exists("player") or (cd.vanish.remain() > 11 and cd.curseOfTheDreadblades.remain() > 11) then
                         useItem(151190)
                     end

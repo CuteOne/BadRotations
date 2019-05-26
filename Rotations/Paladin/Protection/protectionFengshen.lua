@@ -491,9 +491,9 @@ local function runRotation()
 				-- Pot/Stoned
 				if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 					and inCombat and (hasHealthPot() or hasItem(5512))then
-					if canUse(5512) then
+					if canUseItem(5512) then
 						useItem(5512)
-					elseif canUse(healPot) then
+					elseif canUseItem(healPot) then
 						useItem(healPot)
 					end
 				end
@@ -723,7 +723,7 @@ local function runRotation()
 					end
 				end
 				-- Unstable Temporal Time Shifter
-				if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not isMoving("player") and inCombat then
+				if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
 					if getOptionValue("Unstable Temporal Time Shifter") == 1
 						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						UseItemByName(158379,"target")
@@ -746,7 +746,7 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() or burst then
 				-- Trinkets
-				if isChecked("Trinkets 1") and canUse(13) then
+				if isChecked("Trinkets 1") and canUseItem(13) then
 					if getOptionValue("Trinkets 1 Mode") == 1 then
 						if php <= getOptionValue("Trinkets 1") then
 							useItem(13)
@@ -756,7 +756,7 @@ local function runRotation()
 						if useItemGround("target",13,40,0,nil) then return true end
 					end
 				end
-				if isChecked("Trinkets 2") and canUse(14) then
+				if isChecked("Trinkets 2") and canUseItem(14) then
 					if getOptionValue("Trinkets 2 Mode") == 1 then
 						if php <= getOptionValue("Trinkets 2") then
 							useItem(14)

@@ -254,11 +254,11 @@ actionList.Defensive = function()
         if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
             and inCombat and (hasHealthPot() or hasItem(5512))
         then
-            if canUse(5512) then
+            if canUseItem(5512) then
                 useItem(5512)
-            elseif canUse(129196) then --Legion Healthstone
+            elseif canUseItem(129196) then --Legion Healthstone
                 useItem(129196)
-            elseif canUse(healPot) then
+            elseif canUseItem(healPot) then
                 useItem(healPot)
             end
         end
@@ -372,15 +372,15 @@ actionList.Cooldowns = function()
         -- Trinkets
         -- use_item,slot=trinket2,if=!buff.metamorphosis.up&(!talent.first_blood.enabled|!cooldown.blade_dance.ready)&(!talent.nemesis.enabled|cooldown.nemesis.remains>30|target.time_to_die<cooldown.nemesis.remains+3)
             -- if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
-        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
             useItem(13)
         end
-        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
             useItem(14)
         end
         -- Potion
         -- potion,if=buff.metamorphosis.remains>25|target.time_to_die<60
-        if isChecked("Potion") and canUse(127844) and inRaid then
+        if isChecked("Potion") and canUseItem(127844) and inRaid then
             if buff.metamorphosis.remain() > 25 and ttd(units.dyn5) >= 60 then
                 useItem(127844)
             end
@@ -632,25 +632,25 @@ actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
         -- Flask / Crystal
         -- flask,type=flask_of_the_seventh_demon
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
             if use.flaskOfTheSeventhDemon() then return end
         end
-        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
             if use.repurposedFelFocuser() then return end
         end
-        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if buff.gazeOfTheLegion.exists() then buff.gazeOfTheLegion.cancel() end
             if use.oraliusWhisperingCrystal() then return end
         end
-        if getOptionValue("Elixir") == 4 and not buff.gazeOfTheLegion.exists() and canUse(item.inquisitorsMenacingEye) then
+        if getOptionValue("Elixir") == 4 and not buff.gazeOfTheLegion.exists() and canUseItem(item.inquisitorsMenacingEye) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end

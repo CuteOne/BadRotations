@@ -473,7 +473,7 @@ local function runRotation()
 			-- Pre-Pull Timer
 			if isChecked("Pre-Pull Timer") then
 				if pullTimer <= getOptionValue("Pre-Pull Timer") then
-					if canUse(142117) and not buff.prolongedPower.exists() then
+					if canUseItem(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						return true
 					end
@@ -486,9 +486,9 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 				if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and (hasHealthPot() or hasItem(5512)) then
-					if canUse(5512) then
+					if canUseItem(5512) then
 						useItem(5512)
-					elseif canUse(getHealthPot()) then
+					elseif canUseItem(getHealthPot()) then
 						useItem(getHealthPot())
 					end
 				end
@@ -515,7 +515,7 @@ local function runRotation()
 					if cast.blessingOfFreedom("player") then return true end
 				end
 				-- Unstable Temporal Time Shifter
-				if isChecked("Unstable Temporal Time Shifter") and canUse(158379) and not moving then
+				if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not moving then
 					if getOptionValue("Unstable Temporal Time Shifter") == 1
 						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
 						UseItemByName(158379,"target")
@@ -783,7 +783,7 @@ local function runRotation()
 				end
 			end
 			-- Trinkets
-			if isChecked("Trinket 1") and canUse(13) then
+			if isChecked("Trinket 1") and canUseItem(13) then
 				if getOptionValue("Trinket 1 Mode") == 1 then
 					if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
 						useItem(13)
@@ -798,7 +798,7 @@ local function runRotation()
 					end
 				end
 			end
-			if isChecked("Trinket 2") and canUse(14) then
+			if isChecked("Trinket 2") and canUseItem(14) then
 				if getOptionValue("Trinket 2 Mode") == 1 then
 					if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
 						useItem(14)

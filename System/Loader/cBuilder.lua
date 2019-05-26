@@ -566,13 +566,13 @@ function br.loader:new(spec,specName)
 
             self.use[k] = function(slotID)
                 if slotID == nil then
-                    if canUse(v) then return useItem(v) else return end
+                    if canUseItem(v) then return useItem(v) else return end
                 else
-                    if canUse(slotID) then return useItem(slotID) else return end
+                    if canUseItem(slotID) then return useItem(slotID) else return end
                 end
             end
             self.use.able[k] = function(slotID)
-                if slotID == nil then return canUse(v) else return canUse(slotID) end
+                if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
             end
 
             self.equiped[k] = function(slotID)
@@ -589,10 +589,10 @@ function br.loader:new(spec,specName)
         end
 
         self.use.slot = function(slotID)
-            if canUse(slotID) then return useItem(slotID) else return end
+            if canUseItem(slotID) then return useItem(slotID) else return end
         end
         self.use.able.slot = function(slotID)
-            return canUse(slotID)
+            return canUseItem(slotID)
         end
 
         -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end

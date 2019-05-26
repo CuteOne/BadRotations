@@ -491,10 +491,10 @@ local function runRotation()
 			end
 			for i = 1, #br.friend do
 				if isChecked("Use Trinkets With Values below") then
-					if br.friend[1].hp < getValue("Use Trinket 1") and canUse(13) then
+					if br.friend[1].hp < getValue("Use Trinket 1") and canUseItem(13) then
 						useItem(13) return
 					end
-					if br.friend[1].hp < getValue("Use Trinket 2") and canUse(14) then
+					if br.friend[1].hp < getValue("Use Trinket 2") and canUseItem(14) then
 						useItem(14) return
 					end
 				end
@@ -511,7 +511,7 @@ local function runRotation()
 					end
 				end
 				if isChecked("Revitalizing Voodoo Totem") and #tanks > 0 and tanks[1].hp <= getValue("Revitalizing Voodoo Totem") then 
-					if hasEquiped(158320) and canUse(158320) then
+					if hasEquiped(158320) and canUseItem(158320) then
 						UseItemByName(158320,tanks[1].unit)
 					end
 				end
@@ -801,9 +801,9 @@ local function runRotation()
 				end
 				--Healthstone
 				if isChecked("Healthstone") and php <= getValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-					if canUse(5512) then
+					if canUseItem(5512) then
 						useItem(5512) return true
-					elseif canUse(healPot) then
+					elseif canUseItem(healPot) then
 						useItem(healPot) return true end
 				end
 			end--End defensive check

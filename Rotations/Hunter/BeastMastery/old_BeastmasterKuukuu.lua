@@ -168,7 +168,7 @@ local function runRotation()
         local animality                                     = false
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local combo                                         = br.player.comboPoints
@@ -335,9 +335,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -351,7 +351,7 @@ local function runRotation()
                 end
         -- Engineering: Shield-o-tronic
                 if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
-                    and inCombat and canUse(118006)
+                    and inCombat and canUseItem(118006)
                 then
                     useItem(118006)
                 end
@@ -504,7 +504,7 @@ local function runRotation()
                     if actionList_Interrupts() then return end
 
                     if isChecked("Agi-Pot") and useCDs() then
-                        if canUse(142117) then
+                        if canUseItem(142117) then
                             useItem(142117)
                         end
                     end
@@ -531,10 +531,10 @@ local function runRotation()
                         end
                     -- Trinkets
                          if useCDs() and getOptionValue("Trinkets") ~= 4 then
-                            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                                 useItem(13)
                             end
-                            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                                 useItem(14)
                             end
                         end
@@ -545,7 +545,7 @@ local function runRotation()
                     -- Ring of Collapsing Futures
                         -- use_item,slot=finger1,if=buff.temptation.down
                         if isChecked("Ring of Collapsing Futures") then
-                            if hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
+                            if hasEquiped(142173) and canUseItem(142173) and not debuff.temptation.exists("player") then
                                 useItem(142173)
                             end
                         end

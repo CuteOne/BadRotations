@@ -315,16 +315,16 @@ local function runRotation()
             if useDefensive() then
             -- Healthstone/Health Potion
                 if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(getHealthPot()) then
+                    elseif canUseItem(getHealthPot()) then
                         useItem(getHealthPot())
                     end
                 end
             -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                     if hasEquiped(heirloomNeck) then
-                        if canUse(heirloomNeck) then
+                        if canUseItem(heirloomNeck) then
                             useItem(heirloomNeck)
                         end
                     end
@@ -400,10 +400,10 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
                 if useCDs() and isChecked("Potion") and inRaid then
                     if ((not talent.avatar or buff.avatar.exists()) and buff.battleCry.exists() and debuff.colossusSmash.exists(units.dyn5)) or ttd(units.dyn5) <= 26 then
-                        if canUse(13) then
+                        if canUseItem(13) then
                             useItem(13)
                         end
-                        if canUse(14) then
+                        if canUseItem(14) then
                             useItem(14)
                         end
                     end
@@ -436,7 +436,7 @@ local function runRotation()
                 
             -- Ring of Collapsing Futures
                 -- ring_of_collapsing_futures,if=buff.battle_cry.up&debuff.colossus_smash.up&!buff.temptation.up
-                if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and select(2,IsInInstance()) ~= "pvp"  then
+                if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUseItem(142173) and select(2,IsInInstance()) ~= "pvp"  then
                     if (buff.battleCry.exists() or ignoreBattleCry) and debuff.colossusSmash.exists(units.dyn5) and not debuff.temptation.exists() then
                         useItem(142173)
                         return true
@@ -460,10 +460,10 @@ local function runRotation()
                 
             -- Trinkets
                 if useCDs() and getOptionValue("Trinkets") ~= 4 then
-                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                         useItem(13)
                     end
-                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -486,7 +486,7 @@ local function runRotation()
             -- snapshot_stats
             -- potion,name=draenic_strength
             -- if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-            --     if canUse(109219) then
+            --     if canUseItem(109219) then
             --         useItem(109219)
             --     end
             -- end

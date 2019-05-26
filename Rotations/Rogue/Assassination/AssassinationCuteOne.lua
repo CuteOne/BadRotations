@@ -356,9 +356,9 @@ local function runRotation()
                 end
             -- Pot/Stoned
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -405,7 +405,7 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
-                if isChecked("Potion") and (useCDs() or burst) and canUse(142117) then
+                if isChecked("Potion") and (useCDs() or burst) and canUseItem(142117) then
                     if hasBloodLust() or ttd("target") <= 60 or debuff.vendetta.exists("target") and cd.vanish.remain() < 5 then
                         useItem(142117)
                     end
@@ -416,10 +416,10 @@ local function runRotation()
                     if (cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied(units.dyn5) > 1)) or cd.vendetta.remain() > 45 then
                         -- Use Gale Caller's Boon
                     end
-                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) and not hasEquiped(140808, 13) then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) and not hasEquiped(140808, 13) then
                         useItem(13)
                     end
-                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) and not hasEquiped(140808, 14) then
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) and not hasEquiped(140808, 14) then
                         useItem(14)
                     end
                 end

@@ -312,9 +312,9 @@ local function runRotation()
                 isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
                     (hasItem(152494) or hasItem(5512))
              then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end
@@ -457,8 +457,8 @@ local function runRotation()
 
         -- Siegebreaker
         if
-            buff.recklessness.exists() or cd.recklessness.remain() > 25 or
-                (getOptionValue("Recklessness") == 2 and not useCDs())
+            (buff.recklessness.exists() or cd.recklessness.remain() > 25 or
+                (getOptionValue("Recklessness") == 2 and not useCDs())) or (br.player.mode.holdcd == 1 and cd.recklessness.remain() > 20)
          then
             if cast.siegebreaker() then
                 return
@@ -590,8 +590,8 @@ local function runRotation()
         -- Siegebreaker
         if
             buff.whirlwind.exists() and
-                (buff.recklessness.exists() or cd.recklessness.remain() > 25 or
-                    (getOptionValue("Recklessness") == 2 and not useCDs()))
+                ((buff.recklessness.exists() or cd.recklessness.remain() > 25 or
+                    (getOptionValue("Recklessness") == 2 and not useCDs())) or (br.player.mode.holdcd == 1 and cd.recklessness.remain() > 20))
          then
             if cast.siegebreaker() then
                 return

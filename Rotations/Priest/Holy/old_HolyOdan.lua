@@ -263,7 +263,7 @@ local function runRotation()
 		-- Pre-Pot Timer
 			if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
 				if pullTimer <= getOptionValue("Pre-Pot Timer") then
-					if canUse(142117) and not buff.prolongedPower.exists() then
+					if canUseItem(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						return true
 					end
@@ -332,7 +332,7 @@ local function runRotation()
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
                     and inCombat and  hasItem(5512)
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                     end
                 end
@@ -371,7 +371,7 @@ local function runRotation()
 		-- The Deceiver's Grand Design
     		if isChecked("The Deceiver's Grand Design") then
     			for i = 1, #br.friend do
-    				if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+    				if hasEquiped(147007) and canUseItem(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
     					UseItemByName(147007,br.friend[i].unit)
     				end
     			end
@@ -404,16 +404,16 @@ local function runRotation()
                 end
             -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(11) then
+                    if canUseItem(11) then
                         useItem(11)
                     end
-                    if canUse(12) then
+                    if canUseItem(12) then
                         useItem(12)
                     end
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end

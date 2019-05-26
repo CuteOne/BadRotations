@@ -376,9 +376,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -487,16 +487,16 @@ local function runRotation()
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
             -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) and not hasEquiped(151190, 13) then
+                    if canUseItem(13) and not hasEquiped(151190, 13) then
                         useItem(13)
                     end
-                    if canUse(14) and not hasEquiped(151190, 14) then
+                    if canUseItem(14) and not hasEquiped(151190, 14) then
                         useItem(14)
                     end
                 end
             -- Potion
                 -- potion,name=old_war,if=(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25|target.time_to_die<=40)
-                if isChecked("Potion") and canUse(127844) and inRaid then
+                if isChecked("Potion") and canUseItem(127844) and inRaid then
                     if (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25) or ttd(units.dyn5) <= 40) then
                         useItem(127844)
                     end
@@ -536,17 +536,17 @@ local function runRotation()
             if not inCombat and not (IsFlying() or IsMounted()) then
         -- Flask
                 -- flask,type=flask_of_the_countless_armies
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() and canUse(item.flaskOfTheCountlessArmies) then
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCountlessArmies.exists() and canUseItem(item.flaskOfTheCountlessArmies) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.flaskOfTheCountlessArmies() then return end
                 end
-                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
                     if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if use.repurposedFelFocuser() then return end
                 end
-                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
                     if buff.flaskOfTheCountlessArmies.exists() then buff.flaskOfTheCountlessArmies.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.oraliusWhisperingCrystal() then return end
@@ -557,7 +557,7 @@ local function runRotation()
                 -- augmentation,type=defiled
         -- Potion
                 -- potion,name=old_war
-                -- if isChecked("Potion") and canUse(127844) and inRaid then
+                -- if isChecked("Potion") and canUseItem(127844) and inRaid then
                 --     useItem(127844)
                 -- end
                 if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then

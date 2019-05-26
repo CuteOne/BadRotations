@@ -4,7 +4,7 @@ local rotationName = "CuteOne" -- Change to name of profile listed in options dr
 --- Toggles ---
 ---------------
 local function createToggles()
--- Rotation Button
+    -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.serpentSting },
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.carve },
@@ -12,31 +12,41 @@ local function createToggles()
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.exhilaration}
     };
     CreateButton("Rotation",1,0)
--- Cooldown Button
+    -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.aspectOfTheEagle },
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.aspectOfTheEagle },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.aspectOfTheEagle }
     };
     CreateButton("Cooldown",2,0)
--- Defensive Button
+    -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.aspectOfTheTurtle },
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.aspectOfTheTurtle }
     };
     CreateButton("Defensive",3,0)
--- Interrupt Button
+    -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.muzzle },
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.muzzle }
     };
     CreateButton("Interrupt",4,0)
--- Harpoon Button 
+    -- Harpoon Button 
     HarpoonModes = {
         [1] = { mode = "On", value = 1 , overlay = "Harpoon Enabled", tip = "Will cast Harpoon.", highlight = 1, icon = br.player.spell.harpoon },
         [2] = { mode = "Off", value = 2 , overlay = "Harpoon Disabled", tip = "Will NOT cat Harpoon.", highlight = 0, icon = br.player.spell.harpoon }
     };
     CreateButton("Harpoon",5,0)
+    --Pet summon
+    PetSummonModes = {
+        [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
+        [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
+        [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
+        [4] = { mode = "4", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
+        [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
+        [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+    };
+    CreateButton("PetSummon",6,0)
 end
 
 ---------------
@@ -61,7 +71,8 @@ local function createOptions()
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+            -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
         -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
@@ -204,7 +215,7 @@ local function runRotation()
         local lowestBloodseeker = debuff.bloodseeker.lowest(40,"remain")
         local lowestSerpentSting = debuff.serpentSting.lowest(40,"remain")
         if buff.aspectOfTheEagle.exists() then range = 40 else range = 5 end
-        local lowestInternalBleeding = debuff.bloodseeker.lowest(range,"stack")
+        local lowestInternalBleeding = debuff.internalBleeding.lowest(range,"stack")
         local maxLatentPoison = debuff.latentPoison.max(range,"stack")
 
         -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5
@@ -284,20 +295,24 @@ local function runRotation()
 --------------------
     -- Action List - Pet Management
         local function actionList_PetManagement()
-            if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
-            if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
+            local petActive = IsPetActive()
+            local petExists = UnitExists("pet")
+            local petDead = UnitIsDeadOrGhost("pet")
+            local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
+
+            if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                 waitForPetToAppear = GetTime()
-            elseif isChecked("Auto Summon") then
-                local callPet = spell["callPet"..getValue("Auto Summon")]
+            elseif mode.petSummon ~= 6 then
+                local callPet = spell["callPet"..mode.petSummon]
                 if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                    if cast.able.dismissPet() and UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                    if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                         if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
                     elseif callPet ~= nil then
-                        if UnitIsDeadOrGhost("pet") or deadPet then
+                        if petDead then
                             if cast.able.revivePet() then
                                 if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                             end
-                        elseif not deadPet and not (IsPetActive() or UnitExists("pet")) and not buff.playDead.exists("pet") then
+                        elseif not petDead and not (petActive or petExists) and not buff.playDead.exists("pet") then
                             if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                         end
                     end
@@ -326,37 +341,32 @@ local function runRotation()
                     petMode = "Passive"
                 end
                 -- Pet Attack / retreat
-                if (not UnitExists("pettarget") or not isValidUnit("pettarget")) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
-                    for i=1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if isValidUnit(thisUnit) or isDummy() then
-                            PetAttack(thisUnit)
-                            break
+                if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+                    if getOptionValue("Pet Target") == 1 then
+                        PetAttack(units.dyn40)
+                    elseif getOptionValue("Pet Target") == 2 then
+                        PetAttack("target")
+                    elseif getOptionValue("Pet Target") == 3 then
+                        for i=1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                         end
                     end
-                elseif (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                elseif (not inCombat or (inCombat and not validTarget and not isDummy())) and IsPetAttackActive() then
                     PetStopAttack()
                     PetFollow()
                 end
-                -- if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not GetUnitIsUnit("target","pettarget") then
-                --     -- Print("Pet is switching to your target.")
-                --     PetAttack()
-                -- end
-                -- if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
-                --     PetStopAttack()
-                --     PetFollow()
-                -- end
             end
             -- Cat-like Refelexes
             if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
                 if cast.catlikeReflexes() then return end
             end
             -- Claw
-            if isChecked("Claw") and cast.able.claw("pettarget") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
+            if isChecked("Claw") and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
                 if cast.claw("pettarget","pet") then return end
             end
             -- Dash
-            if isChecked("Dash") and cast.able.dash() and isValidUnit("pettarget") and getDistance("pettarget","pet") > 10 then
+            if isChecked("Dash") and cast.able.dash() and validTarget and getDistance("pettarget","pet") > 10 then
                 if cast.dash(nil,"pet") then return end
             end
             -- Growl
@@ -364,14 +374,14 @@ local function runRotation()
                 local _, autoCastEnabled = GetSpellAutocast(spell.growl)
                 if autoCastEnabled then DisableSpellAutocast(spell.growl) end
                 if not isTankInRange() and not buff.prowl.exists("pet") then
-                    if cast.able.misdirection("pet") and #enemies.yards5 > 1 then
+                    if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
                         if cast.misdirection("pet") then return end
                     end
                     if cast.able.growl() then
-                        for i = 1, #enemies.yards30 do
-                            local thisUnit = enemies.yards30[i]
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
                             if not isTanking(thisUnit) then
-                                if cast.growl(thisUnit) then return end
+                                if cast.growl(thisUnit,"pet") then return end
                             end
                         end
                     end
@@ -389,8 +399,8 @@ local function runRotation()
                 if cast.prowl() then return end
             end
             -- Mend Pet
-            if isChecked("Mend Pet") and cast.able.mendPet() and UnitExists("pet") and not UnitIsDeadOrGhost("pet")
-                and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+            if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead
+                and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
             then
                 if cast.mendPet() then return end
             end
@@ -413,12 +423,12 @@ local function runRotation()
         local function actionList_Defensive()
             if useDefensive() then
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and (use.able.healthstone() or canUse(healPot))
+                if isChecked("Pot/Stoned") and (use.able.healthstone() or canUseItem(healPot))
                     and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone())
                 then
                     if use.able.healthstone() then
                         use.healthstone()
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -486,10 +496,10 @@ local function runRotation()
             if useCDs() and getDistance(units.dyn5) < 5 then
             -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -977,17 +987,17 @@ local function runRotation()
         local function actionList_PreCombat()
         -- Flask / Crystal
             -- flask,type=flask_of_the_seventh_demon
-            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.flaskOfTheSeventhDemon() then return true end
             end
-            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
                 if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if use.repurposedFelFocuser() then return true end
             end
-            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
                 if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.oraliusWhisperingCrystal() then return true end

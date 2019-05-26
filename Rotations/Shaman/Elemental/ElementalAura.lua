@@ -378,10 +378,10 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                         br.addonDebug("Using Healthstone")
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                         br.addonDebug("Using Heal Pot")
                     end
@@ -1121,11 +1121,11 @@ local function runRotation()
                         end
                         --Trinkets
                         if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                                 br.addonDebug("Using Trinket 1")
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                                 br.addonDebug("Using Trinket 2")
                             end

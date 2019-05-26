@@ -6,8 +6,8 @@ function itemCharges(itemID)
 	end
 	return charges
 end
--- if canUse(1710) then
-function canUse(itemID)
+-- if canUseItem(1710) then
+function canUseItem(itemID)
 	if itemID == 0 or getHP("player") == 0 then
 		return false
 	end

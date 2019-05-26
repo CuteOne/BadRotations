@@ -275,9 +275,9 @@ local function runRotation()
             if useDefensive() and not IsMounted() then
         -- Healthstone
                 if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -751,7 +751,7 @@ local function runRotation()
             -- flask,name=countless_armies
             if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
                 if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
-                    if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
+                    if not UnitBuffID("player",176151) and canUseItem(118922) then --Draenor Insanity Crystal
                         if br.player.useCrystal() then return true end
                     end
                 end

@@ -380,7 +380,7 @@ local function runRotation()
                     and inCombat 
                     and hasItem(5512)
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                     end
                 end
@@ -512,10 +512,10 @@ local function runRotation()
             if (useCDs() or playertar) and getDistance("target") < 5 then
             -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -531,11 +531,11 @@ local function runRotation()
             -- Potion
                 if useCDs() and isChecked("Potion") and getDistance("target") < 15 and not isDummy() and not playertar then
                     --Old War
-                    if hasItem(127844) and canUse(127844) then
+                    if hasItem(127844) and canUseItem(127844) then
                         useItem(127844)
                     end
                     --Prolongued Power
-                    if hasItem(142117) and canUse(142117) then
+                    if hasItem(142117) and canUseItem(142117) then
                         useItem(142117)
                     end
                 end
@@ -550,7 +550,7 @@ local function runRotation()
             -- flask,name=countless_armies
             if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
                 if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
-                    if not UnitBuffID("player",176151) and canUse(118922) then --Draenor Insanity Crystal
+                    if not UnitBuffID("player",176151) and canUseItem(118922) then --Draenor Insanity Crystal
                         if br.player.useCrystal() then return end
                     end
                 end

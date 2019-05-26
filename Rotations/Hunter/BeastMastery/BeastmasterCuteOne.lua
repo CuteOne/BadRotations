@@ -429,12 +429,12 @@ end -- End Action List - Extras
 actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
-        if isChecked("Pot/Stoned") and (use.able.healthstone() or canUse(healPot))
+        if isChecked("Pot/Stoned") and (use.able.healthstone() or canUseItem(healPot))
             and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or has.healthstone())
         then
             if use.able.healthstone() then
                 use.healthstone()
-            elseif canUse(healPot) then
+            elseif canUseItem(healPot) then
                 useItem(healPot)
             end
         end
@@ -506,10 +506,10 @@ actionList.Cooldowns = function()
     if useCDs() then
         -- Trinkets
         if buff.aspectOfTheWild.exists() then 
-            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                 useItem(13)
             end
-            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                 useItem(14)
             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -907,17 +907,17 @@ actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
         -- Flask / Crystal
         -- flask,type=flask_of_the_seventh_demon
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.flaskOfTheSeventhDemon() then return true end
         end
-        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if use.repurposedFelFocuser() then return true end
         end
-        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.oraliusWhisperingCrystal() then return true end

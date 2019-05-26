@@ -515,9 +515,9 @@ local function runRotation()
             end
         -- Pot/Stoned
             if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -561,14 +561,14 @@ local function runRotation()
     
     local function actionList_Cooldowns()
         --actions.cds=potion,if=buff.bloodlust.react|target.time_to_die<=60|debuff.vendetta.up&cooldown.vanish.remains<5
-        if isChecked("Potion") and canUse(142117) then
+        if isChecked("Potion") and canUseItem(142117) then
             if hasBloodLust() or getTTD("target") <= 25 or debuff.vendetta.exists("target") and cd.vanish.remain() < 5 then
                 useItem(142117)
             end
         end
         --actions.cds+=/use_item,name=draught_of_souls,if=energy.deficit>=35+variable.energy_regen_combined*2&(!equipped.mantle_of_the_master_assassin|cooldown.vanish.remains>8)
         if powerDeficit >= 35 + energyRegenCombined*2 and (not hasEquiped(137049) or cd.vanish.remain() > 8) then
-            if hasEquiped(140808) and canUse(140808) then
+            if hasEquiped(140808) and canUseItem(140808) then
                 useItem(140808)
             end
         end
@@ -577,7 +577,7 @@ local function runRotation()
             useItem(140808)
         end
         --actions.cds+=/use_item,name=specter_of_betrayal,if=buff.bloodlust.react|target.time_to_die<=20|debuff.vendetta.up
-        if hasEquiped(151190) and canUse(151190) then
+        if hasEquiped(151190) and canUseItem(151190) then
             if hasBloodLust() or getTTD("target") <= 20 or debuff.vendetta.exists("target") then
                 useItem(151190)
             end
@@ -834,29 +834,29 @@ local function runRotation()
                     
                     
                     if getOptionValue("Trinket 1 Condition") == 1 then 
-                        if isChecked("Trinket 1") and inCombat and canUse(13) then
+                        if isChecked("Trinket 1") and inCombat and canUseItem(13) then
                             useItem(13)
                         end
                     elseif getOptionValue("Trinket 1 Condition") == 2 then
-                        if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUse(13) and isBoss("target") then
+                        if isChecked("Trinket 1") and inCombat and getHP("target") <= getValue("Trinket 1") and canUseItem(13) and isBoss("target") then
                             useItem(13)
                         end
                     elseif getOptionValue("Trinket 1 Condition") == 3 then
-                        if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
+                        if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUseItem(13) then
                             useItem(13)
                         end
                     end
                     
                     if getOptionValue("Trinket 2 Condition") == 1 then 
-                        if isChecked("Trinket 2") and inCombat and canUse(14) then
+                        if isChecked("Trinket 2") and inCombat and canUseItem(14) then
                             useItem(14)
                         end
                     elseif getOptionValue("Trinket 2 Condition") == 2 then
-                        if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUse(14) and isBoss("target") then
+                        if isChecked("Trinket 2") and inCombat and getHP("target") <= getValue("Trinket 2") and canUseItem(14) and isBoss("target") then
                             useItem(14)
                         end
                     elseif getOptionValue("Trinket 2 Condition") == 3 then
-                        if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
+                        if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUseItem(14) then
                             useItem(14)
                         end
                     end

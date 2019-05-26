@@ -414,9 +414,9 @@ local function runRotation()
 			end
 			--Healthstone
 			if isChecked(colorwarrior.."Healthstone") and php <= getValue(colorwarrior.."Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-				if canUse(5512) then
+				if canUseItem(5512) then
 					useItem(5512) return true
-				elseif canUse(healPot) then
+				elseif canUseItem(healPot) then
 					useItem(healPot) return true end
 			end
 			-- Arcane Torrent
@@ -427,7 +427,7 @@ local function runRotation()
 			if isChecked("Revitalizing Voodoo Totem") then
 				for i = 1, #br.friend do
 					if br.friend[i].hp <= getValue("Revitalizing Voodoo Totem") then
-						if hasEquiped(158320) and canUse(158320) and getBuffRemain(br.friend[i].unit,266018) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+						if hasEquiped(158320) and canUseItem(158320) and getBuffRemain(br.friend[i].unit,266018) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
 							UseItemByName(158320,br.friend[i].unit)
 						end
 					end

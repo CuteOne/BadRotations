@@ -177,7 +177,7 @@ local function runRotation()
         local baseAgility       = 0
         local baseMultistrike   = 0
         local buff              = br.player.buff
-        local canFlask          = canUse(br.player.flask.wod.agilityBig)
+        local canFlask          = canUseItem(br.player.flask.wod.agilityBig)
         local cast              = br.player.cast
         local castable          = br.player.cast.debug
         local cd                = br.player.cd
@@ -308,9 +308,9 @@ local function runRotation()
                 end
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healthPot) then
+                    elseif canUseItem(healthPot) then
                         useItem(healthPot)
                     end
                 end
@@ -400,12 +400,12 @@ local function runRotation()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinket 1") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
                 end
                 if isChecked("Trinket 2") then
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -657,7 +657,7 @@ local function runRotation()
                         return true
                     end
                     if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                        if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                             useItem(118922)
                             return true
                         end
@@ -750,7 +750,7 @@ local function runRotation()
                         if cast.ironskinBrew() then return end
                     end
                 -- Potion
-                    if canUse(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
+                    if canUseItem(127844) and inRaid and isChecked("Potion") and getDistance("target") < 5 then
                         useItem(127844)
                     end
                     --[[if ((mode.rotation == 1 and #enemies.yards8 >= 3) or mode.rotation == 2) then

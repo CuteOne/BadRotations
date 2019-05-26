@@ -130,7 +130,7 @@ local function runRotation()
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
@@ -203,11 +203,11 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(129196) then --Legion Healthstone
+                    elseif canUseItem(129196) then --Legion Healthstone
                         useItem(129196)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -252,11 +252,11 @@ local function runRotation()
         local function actionList_Cooldowns()
 			if getDistance(units.dyn5) < 5 then
 		-- Archimonde's Hatred Reborn
-                if isChecked("Archimonde's Hatred Reborn") and useCDs() and hasEquiped(144249) and canUse(144249) and buff.metamorphosis.exists() or getSpellCD(187827) > GetItemCooldown(144249) then
+                if isChecked("Archimonde's Hatred Reborn") and useCDs() and hasEquiped(144249) and canUseItem(144249) and buff.metamorphosis.exists() or getSpellCD(187827) > GetItemCooldown(144249) then
                     useItem(144249)
                 end
 		-- Kil'jaeden's Burning Wish
-                if isChecked("Kil'jaeden's Burning Wish") and useCDs() and hasEquiped(144259) and canUse(144259) and #getEnemies("player",8) >= 3 then
+                if isChecked("Kil'jaeden's Burning Wish") and useCDs() and hasEquiped(144259) and canUseItem(144259) and #getEnemies("player",8) >= 3 then
                     useItem(144259)
                 end
             end -- End useCooldowns check

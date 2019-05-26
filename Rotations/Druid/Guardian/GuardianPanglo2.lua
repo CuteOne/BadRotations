@@ -179,6 +179,26 @@ local function createToggles()
         }
     }
     CreateButton("Kitty", 4, -1)
+
+    WildChargeModes = {
+        [1] = {
+            mode = "On",
+            value = 1,
+            overlay = "Wild Charge",
+            tip = "Will use Charge",
+            highlight = 1,
+            icon = br.player.spell.wildCharge
+        },
+        [2] = {
+            mode = "Off",
+            value = 2,
+            overlay = "Wild Charge",
+            tip = "Will not use wild charge",
+            highlight = 0,
+            icon = br.player.spell.wildCharge
+        }
+    }
+    CreateButton("WildCharge", 0, -1)
 end
 
 ---------------
@@ -200,6 +220,7 @@ local function createOptions()
             "Auto Shapeshifts",
             "|cffD60000IF THIS OPTION DOESNT AUTO SHIFT... HEARTH TO DALARAN... BECAUSE REASONS..."
         )
+        br.ui:createCheckbox(section, "Travel Form Auto Shift")
         -- Displacer Beast / Wild Charge
         br.ui:createCheckbox(section, "Wild Charge", "Enables/Disables Auto Charge usage.")
         br.ui:createCheckbox(section, "Auto Maul")
@@ -298,6 +319,7 @@ local function runRotation()
     br.player.mode.ironfur = br.data.settings[br.selectedSpec].toggles["Ironfur"]
     br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
     br.player.mode.kitty = br.data.settings[br.selectedSpec].toggles["Kitty"]
+    br.player.mode.wildCharge = br.data.settings[br.selectedSpec].toggles["WildCharge"]
 
     local buff = br.player.buff
     local cast = br.player.cast
@@ -451,14 +473,14 @@ local function runRotation()
             if
                 IsFlyableArea() and ((not (isInDraenor() or isInLegion())) or isKnown(191633)) and not swimming and
                     falling > 1 and
-                    level >= 58
+                    level >= 58 and isChecked("Travel Form Auto Shift")
              then
                 if cast.travelForm("player") then
                     return
                 end
             end
             -- Aquatic Form
-            if swimming and not travel and not hastar and not deadtar then
+            if swimming and not travel and not hastar and not deadtar and isChecked("Travel Form Auto Shift") then
                 if cast.travelForm("player") then
                     return
                 end
@@ -474,7 +496,7 @@ local function runRotation()
                             return
                         end
                     end
-                elseif not travel and not IsIndoors() and moving and GetTime() - isMovingStartTime > 2 then
+                elseif not travel and not IsIndoors() and moving and GetTime() - isMovingStartTime > 2 and isChecked("Travel Form Auto Shift") then
                     if cast.travelForm("player") then
                         return
                     end
@@ -519,7 +541,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Wild Charge") then
+        if isChecked("Wild Charge") and br.player.mode.wildCharge == 1 then
             if getDistance("target") > 9 and cast.able.wildCharge() and inCombat and bear then
                 if cast.wildCharge("target") then
                     return
@@ -534,9 +556,9 @@ local function runRotation()
                 isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
                     (hasItem(152494) or hasItem(5512))
              then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end
@@ -595,7 +617,7 @@ local function runRotation()
                     getOptionValue("Rebirth - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and
                         GetUnitIsFriend("target", "player")
                  then
-                    if cast.rebirth("target", "dead") then
+                    if cast.rebirth("target") then
                         return
                     end
                 end
@@ -604,7 +626,7 @@ local function runRotation()
                         UnitIsDeadOrGhost("mouseover") and
                         GetUnitIsFriend("mouseover", "player")
                  then
-                    if cast.rebirth("mouseover", "dead") then
+                    if cast.rebirth("mouseover") then
                         return
                     end
                 end
@@ -657,11 +679,11 @@ local function runRotation()
 
     local function List_Cooldowns()
         if useCDs() and getDistance(units.dyn5) < 5 then
-            if isChecked("Trinkets") and getOptionValue("Trinkets") == 2 then
-                if canUse(13) then
+            if getOptionValue("Trinkets") == 2 and inCombat then
+                if canUseItem(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                 end
             end
@@ -684,7 +706,7 @@ local function runRotation()
     end
 
     local function List_Bearmode()
-        if br.player.mode.ironfur == 1 and (hasAggro >= 2) then
+        if br.player.mode.ironfur == 1 and (hasAggro >= 2) and bear then
             if
                 (traits.layeredMane.active and rage >= 50) or not buff.ironfur.exists() or buff.goryFur.exists() or
                     rage >= 65 or
@@ -696,11 +718,11 @@ local function runRotation()
             end
         end
 
-        if isChecked("Trinkets") and getOptionValue("Trinkets") == 1 then
-            if canUse(13) then
+        if getOptionValue("Trinkets") == 1 and inCombat then
+            if canUseItem(13) then
                 useItem(13)
             end
-            if canUse(14) then
+            if canUseItem(14) then
                 useItem(14)
             end
         end
@@ -715,17 +737,17 @@ local function runRotation()
             return
         end
 
-        if #enemies.yards40 < 5 then
-            if cast.mangle() then
-                return
-            end
-        end
-
         if
             #enemies.yards8 >= 1 and not buff.incarnationGuardianOfUrsoc.exists() or
                 (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6)
          then
             if cast.thrashBear() then
+                return
+            end
+        end
+
+        if #enemies.yards40 < 5 then
+            if cast.mangle() then
                 return
             end
         end
@@ -748,17 +770,15 @@ local function runRotation()
 
         if #enemies.yards8 < 5 and inCombat then
             if debuff.moonfire.count() < 3 or buff.galacticGuardian.exists() then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if isValidUnit(thisUnit) then
-                        if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
-                            if cast.moonfire(thisUnit) then
-                                return
-                            end
+                for i = 1, #enemies.yards8 do
+                local thisUnit = enemies.yards8[i]
+                    if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
+                        if cast.moonfire(thisUnit) then
+                            return
                         end
-                        if buff.galacticGuardian.exists() then
-                            if cast.moonfire(thisUnit) then return end
-                        end
+                    end
+                    if buff.galacticGuardian.exists() then
+                        if cast.moonfire(thisUnit) then return end
                     end
                 end
             end
@@ -801,8 +821,10 @@ local function runRotation()
             if List_Cooldowns() then
                 return
             end
-            if List_Bearmode() then
-                return
+            if inCombat then
+                if List_Bearmode() then
+                    return
+                end
             end
         end
     end

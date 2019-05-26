@@ -396,7 +396,7 @@ local function runRotation()
 	-- Velen's Future Sight
     local function actionList_CheckVelen()
         if isChecked(colorshaman.."Velen's Future Sight") then
-            if hasEquiped(144258) and canUse(144258) then
+            if hasEquiped(144258) and canUseItem(144258) then
             -- Automatic
                 if getOptionValue(colorshaman.."Velen's Future Sight logic") == 1 then
                     useItem(144258)
@@ -423,10 +423,10 @@ local function runRotation()
                 if cast.fortifyingBrew() then return true end
             end
             if isChecked(colorwarrior.."Healthstone") and php <= getValue(colorwarrior.."Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
                     return true
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                     return true
                 end
@@ -439,7 +439,7 @@ local function runRotation()
 	-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
             if pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(142117) and not buff.prolongedPower.exists() and inRaid then
+                if canUseItem(142117) and not buff.prolongedPower.exists() and inRaid then
                     useItem(142117);
                         return true
                     end
@@ -521,7 +521,7 @@ local function runRotation()
         -- The Deceiver's Grand Design
 			if isChecked(colorshaman.."The Deceiver's Grand Design") then
 				for i = 1, #br.friend do
-					if hasEquiped(147007) and canUse(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+					if hasEquiped(147007) and canUseItem(147007) and getBuffRemain(br.friend[i].unit,242622) == 0 and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
 						UseItemByName(147007,br.friend[i].unit)
 					end
 				end
@@ -529,21 +529,21 @@ local function runRotation()
     	-- Archive of Faith
     		if isChecked(colorshaman.."Archive of Faith") then
     			for i = 1, #br.friend do
-    				if hasEquiped(147006) and canUse(147006) and br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
+    				if hasEquiped(147006) and canUseItem(147006) and br.friend[i].hp <= getValue ("Archive of Faith") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" and UnitInRange(br.friend[i].unit) and not UnitIsDeadOrGhost(br.friend[i].unit) then
     					UseItemByName(147006,br.friend[i].unit)
     				end
     			end
     		end
 		-- Trinket 1
             if isChecked(colorshaman.."Trinket 1") and getLowAllies(getValue(colorshaman.."Trinket 1")) >= getValue(colorshaman.."Min Trinket 1 Targets") and mana > 1 then
-                if canUse(13) then
+                if canUseItem(13) then
                     useItem(13)
                     return true
                 end
             end
 		-- Trinket 2
             if isChecked(colorshaman.."Trinket 2") and getLowAllies(getValue(colorshaman.."Trinket 2")) >= getValue(colorshaman.."Min Trinket 2 Targets") and mana > 1 then
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                     return true
                 end
@@ -552,14 +552,14 @@ local function runRotation()
             if actionList_CheckVelen() then return true end
 		-- Gnawed Thumb Ring
             if isChecked(colorshaman.."Gnawed Thumb Ring") and getLowAllies(getValue(colorshaman.."Gnawed Thumb Ring")) >= getValue(colorshaman.."Min Gnawed Thumb Ring Targets") and mana > 2 then
-                if hasEquiped(134526) and canUse(134526) and select(2,IsInInstance()) ~= "pvp" then
+                if hasEquiped(134526) and canUseItem(134526) and select(2,IsInInstance()) ~= "pvp" then
                     useItem(134526)
                     return true
                 end
             end
 		-- Mana potion
             if isChecked(colorshaman.."Mana Potion") and mana <= getValue(colorshaman.."Mana Potion") then
-                if hasItem(127835) and canUse(127835) then
+                if hasItem(127835) and canUseItem(127835) then
                     useItem(127835)
                     return true
                 end

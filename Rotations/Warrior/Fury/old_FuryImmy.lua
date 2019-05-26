@@ -249,7 +249,7 @@ local function runRotation()
         enemies.yards30 = br.player.enemies(30)        
         enemies.yards40 = br.player.enemies(40)
         if hasEquiped(140806) then convergingFate = 1 else convergingFate = 0 end
-        if canUse(140808) and cd.bloodthirst.remain() == 0 and thp < 20 and mode.exec == 1 then delaybc = true else delaybc = false end
+        if canUseItem(140808) and cd.bloodthirst.remain() == 0 and thp < 20 and mode.exec == 1 then delaybc = true else delaybc = false end
         if buff.battleCry.exists() and buff.battleCry.remain() <= gcd then mode.dos = 2 end
 
 
@@ -303,16 +303,16 @@ local function runRotation()
                 if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(getHealthPot()) then
+                    elseif canUseItem(getHealthPot()) then
                         useItem(getHealthPot())
                     end
                 end
             -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                     if hasEquiped(heirloomNeck) then
-                        if canUse(heirloomNeck) then
+                        if canUseItem(heirloomNeck) then
                             useItem(heirloomNeck)
                         end
                     end
@@ -377,14 +377,14 @@ local function runRotation()
         -- Potions
                 -- potion,name=old_war,if=(target.health.pct<20&buff.battle_cry.up)|target.time_to_die<30
                 if inRaid and isChecked("Potion") and ((thp < 20 and buff.battleCry.exists()) or ttd(units.dyn5) < 30) then
-                    if canUse(127844) then
+                    if canUseItem(127844) then
                         useItem(127844)
                     end
                 end
         -- Ring of Collapsing Futures
                 -- use_item,name=ring_of_collapsing_futures,if=equipped.ring_of_collapsing_futures&buff.battle_cry.up&buff.enrage.up&!buff.temptation.up
                 if hasEquiped(142173) and buff.battleCry.exists() and buff.enrage.exists() and not debuff.temptation.exists("player") then
-                    if canUse(142173) then
+                    if canUseItem(142173) then
                         useItem(142173)
                     end
                 end
@@ -413,10 +413,10 @@ local function runRotation()
         -- Trinkets
                 -- use_item,slot=trinket1,if=buff.battle_cry.up&buff.enrage.up
                 if isChecked("Trinkets") and buff.battleCry.exists() and buff.enrage.exists() then
-                    if canUse(13) and not hasEquiped(140808) then
+                    if canUseItem(13) and not hasEquiped(140808) then
                         useItem(13)
                     end
-                    if canUse(14) and not hasEquiped(140808) then
+                    if canUseItem(14) and not hasEquiped(140808) then
                         useItem(14)
                     end
                 end
@@ -462,7 +462,7 @@ local function runRotation()
             -- snapshot_stats
             -- potion,name=old_war
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(127844) then
+                if canUseItem(127844) then
                     useItem(127844)
                 end
             end
@@ -504,7 +504,7 @@ local function runRotation()
                 if cast.rampage() then end
             end
         -- Draught of Souls           
-            if canUse(140808) then
+            if canUseItem(140808) then
                 useItem(140808)
                 toggle("Draught",2)
                 return true
@@ -545,7 +545,7 @@ local function runRotation()
         -- Draught of Souls
            -- print("bc execute")
             if buff.enrage.remain() >= 3 and buff.juggernaut.remain() >= 3.5 then
-                if canUse(140808) then 
+                if canUseItem(140808) then 
                     useItem(140808)
                     toggle("Draught",2)
 
@@ -826,16 +826,16 @@ local function runRotation()
                 if actionList_Cooldowns() then return end
             -- Action List - Battle Cry Window
                 -- call_action_list,name=cooldowns,if=buff.battle_cry.up
-                if buff.battleCry.exists() and thp < 20 and (mode.exec == 1 or mode.exec == 3) and canUse(140808) and mode.dos == 1 then
+                if buff.battleCry.exists() and thp < 20 and (mode.exec == 1 or mode.exec == 3) and canUseItem(140808) and mode.dos == 1 then
                     if actionList_BCExecutedos() then return end
                 end
-                if buff.battleCry.exists() and thp < 20 and mode.exec == 1 and (not canUse(140808) or mode.dos == 2) then
+                if buff.battleCry.exists() and thp < 20 and mode.exec == 1 and (not canUseItem(140808) or mode.dos == 2) then
                     if actionList_BCExecute() then return end
                 end
-                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and (mode.exec == 1 or mode.exec == 3))) and canUse(140808) and mode.dos == 1 then
+                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and (mode.exec == 1 or mode.exec == 3))) and canUseItem(140808) and mode.dos == 1 then
                     if actionList_BattleCryWindow4pcdos() then return end
                 end
-                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and (mode.exec == 1 or mode.exec == 3))) and (not canUse(140808) or mode.dos == 2) then
+                if buff.battleCry.exists() and (mode.exec == 2 or (thp >= 20 and (mode.exec == 1 or mode.exec == 3))) and (not canUseItem(140808) or mode.dos == 2) then
                     if actionList_BattleCryWindow() then return end
                 end
             -- Action List - 8+ Targets

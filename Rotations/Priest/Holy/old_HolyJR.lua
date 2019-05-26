@@ -287,17 +287,17 @@ local function runRotation()
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
         if isChecked("Elixir") then
-            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUse(item.flaskOfTheWhisperedPact) then
+            if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheWhisperedPact.exists() and canUseItem(item.flaskOfTheWhisperedPact) then
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.flaskOfTheWhisperedPact() then return end
             end
-            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
                 if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if use.repurposedFelFocuser() then return end
             end
-            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
                 if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.oraliusWhisperingCrystal() then return end
@@ -306,7 +306,7 @@ local function runRotation()
     -- Pre-Pot Timer
         if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
             if pullTimer <= getOptionValue("Pre-Pot Timer") then
-                if canUse(142117) and not buff.prolongedPower.exists() then
+                if canUseItem(142117) and not buff.prolongedPower.exists() then
                     useItem(142117)
                     return true
                 end
@@ -373,7 +373,7 @@ local function runRotation()
             end
         end
     -- The Deceiver's Grand Design
-        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUse(147007) then
+        if isChecked("The Deceivers Grand Design") and hasEquiped(147007) and canUseItem(147007) then
             local localizedName = select(1,GetItemInfo(147007))
             for i=1, #tanks do
                 thisTank = tanks[i]
@@ -393,9 +393,9 @@ local function runRotation()
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                 and inCombat and (hasHealthPot() or hasItem(5512))
             then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -531,10 +531,10 @@ local function runRotation()
             if loc ~= nil then
                 -- Lots of people need heals. Good a time as any to use trinkets...
                 -- If you can think of a better time to use them, feel free to modify
-                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                     useItem(13)
                 end
-                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                     useItem(14)
                 end
                 -- Velens

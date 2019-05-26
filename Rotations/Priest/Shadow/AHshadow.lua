@@ -153,7 +153,7 @@ local function runRotation()
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
@@ -334,9 +334,9 @@ local function runRotation()
                 -- Healthstones
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -414,11 +414,11 @@ local function runRotation()
 
                 -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
 
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end

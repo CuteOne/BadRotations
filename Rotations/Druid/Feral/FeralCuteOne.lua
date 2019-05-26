@@ -497,12 +497,12 @@ actionList.Defensive = function()
             end
         end
         -- Pot/Stoned
-        if isChecked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUse(healPot))
+        if isChecked("Pot/Stoned") and inCombat and (use.able.healthstone() or canUseItem(healPot))
             and (hasHealthPot() or has.healthstone()) and php <= getOptionValue("Pot/Stoned")
         then
             if use.able.healthstone() then
                 if use.healthstone() then return true end
-            elseif canUse(healPot) then
+            elseif canUseItem(healPot) then
                 useItem(healPot)
             end
         end

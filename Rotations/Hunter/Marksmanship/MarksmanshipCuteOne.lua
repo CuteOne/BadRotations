@@ -354,9 +354,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -370,7 +370,7 @@ local function runRotation()
                 end
         -- Engineering: Shield-o-tronic
                 if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
-                    and inCombat and canUse(118006)
+                    and inCombat and canUseItem(118006)
                 then
                     useItem(118006)
                 end
@@ -422,10 +422,10 @@ local function runRotation()
         -- Trinkets
             -- use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
             if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
-                if canUse(13) then
+                if canUseItem(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                 end
             end
@@ -461,7 +461,7 @@ local function runRotation()
             end
         -- Potion
             -- potion,if=buff.trueshot.react&buff.bloodlust.react|buff.trueshot.up&ca_execute|target.time_to_die<25
-            if useCDs() and isChecked("Potion") and canUse(142117) and inRaid then
+            if useCDs() and isChecked("Potion") and canUseItem(142117) and inRaid then
                 if buff.trueshot.exists() and (buff.bloodLust.exists() or caExecute or buff.trueshot.exists or ttd(units.dyn40) < 25) then
                     useItem(142117)
                 end
@@ -604,17 +604,17 @@ local function runRotation()
             if not inCombat and not buff.feignDeath.exists() then
             -- Flask / Crystal
                 -- flask,type=flask_of_the_seventh_demon
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.flaskOfTheSeventhDemon() then return end
                 end
-                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if use.repurposedFelFocuser() then return end
                 end
-                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
                     if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
                     if use.oraliusWhisperingCrystal() then return end

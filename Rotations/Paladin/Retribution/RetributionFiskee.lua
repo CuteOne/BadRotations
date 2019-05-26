@@ -569,9 +569,9 @@ local function runRotation()
 			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 				and inCombat and (hasHealthPot() or hasItem(5512))
 				then
-				if canUse(5512) then
+				if canUseItem(5512) then
 					useItem(5512)
-				elseif canUse(healPot) then
+				elseif canUseItem(healPot) then
 					useItem(healPot)
 				end
 			end
@@ -679,23 +679,23 @@ local function runRotation()
 		if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
 			-- Trinkets
 			if isChecked("Trinkets") then
-				if canUse(13) and not hasEquiped(151190, 13) then
+				if canUseItem(13) and not hasEquiped(151190, 13) then
 					useItem(13)
 				end
-				if canUse(14) and not hasEquiped(151190, 14) then
+				if canUseItem(14) and not hasEquiped(151190, 14) then
 					useItem(14)
 				end
 			end
 			-- Specter of Betrayal
 			-- use_item,name=specter_of_betrayal,if=(buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>gcd*2)|(buff.avenging_wrath.up|cooldown.avenging_wrath.remains>gcd*2)
-			if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
+			if isChecked("Trinkets") and hasEquiped(151190) and canUseItem(151190) then
 				if ((buff.crusade.exists() and buff.crusade.stack() >= 15) or cd.crusade.remain() > gcd * 2) or (buff.avengingWrath.exists() or cd.avengingWrath.remain() > gcd * 2) then
 					useItem(151190)
 				end
 			end
 			-- Potion
 			-- potion,name=old_war,if=(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25|target.time_to_die<=40)
-			if isChecked("Potion") and canUse(127844) and inRaid then
+			if isChecked("Potion") and canUseItem(127844) and inRaid then
 				if (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25) or ttd(units.dyn5) <= 40) then
 					useItem(127844)
 				end
@@ -737,7 +737,7 @@ local function runRotation()
 		if not inCombat and not (IsFlying() or IsMounted()) then
 			-- Flask
 			-- flask,type=flask_of_the_countless_armies
-			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheUndertow.exists() and canUse(item.flaskOfTheUndertow) then
+			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheUndertow.exists() and canUseItem(item.flaskOfTheUndertow) then
 				if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
 				if buff.felFocus.exists() then buff.felFocus.cancel() end
 				if use.flaskOfTheUndertow() then return end

@@ -322,9 +322,9 @@ actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
         if isChecked("Healthstone") and getHP("player") <= getOptionValue("Healthstone") and inCombat then
-            if canUse(5512) then
+            if canUseItem(5512) then
                 useItem(5512)
-            elseif canUse(healthPot) then
+            elseif canUseItem(healthPot) then
                 useItem(healthPot)
             end
         end
@@ -408,7 +408,7 @@ actionList.Cooldowns = function()
         for i = 13, 14 do 
             if i == 13 then thisTrinket = "Trinket 1" else thisTrinket = "Trinket 2" end
             local opValue = getOptionValue(thisTrinket)
-            if (opValue == 1 or (opValue == 2 and useCDs())) and canUse(i) then
+            if (opValue == 1 or (opValue == 2 and useCDs())) and canUseItem(i) then
                 useItem(i)
             end
         end
@@ -712,10 +712,10 @@ actionList.Opener = function()
             -- Agility Proc
             if inRaid and isChecked("Potion") and useCDs() then
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                    if canUse(127844) and talent.serenity then
+                    if canUseItem(127844) and talent.serenity then
                         useItem(127844)
                     end
-                    if canUse(142117) and talent.whirlingDragonPunch then
+                    if canUseItem(142117) and talent.whirlingDragonPunch then
                         useItem(142117)
                     end
                 end
@@ -737,9 +737,9 @@ actionList.Opener = function()
                 return
             -- Trinkets 
             elseif opener.XUEN and not opener.TRNK1 then 
-                if not canUse(13) or getOptionValue("Trinkets") == 3 then 
+                if not canUseItem(13) or getOptionValue("Trinkets") == 3 then 
                     Print(opener.count..": Trinket 1 (Uncastable)") 
-                elseif canUse(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
+                elseif canUseItem(13) and not (hasEquiped(151190,13) or hasEquiped(147011,13)) then
                     useItem(13)
                     Print(opener.count..": Trinket 1")
                 end 
@@ -747,9 +747,9 @@ actionList.Opener = function()
                 opener.TRNK1 = true
                 return
             elseif opener.TRNK1 and not opener.TRNK2 then 
-                if not canUse(14) or getOptionValue("Trinkets") == 3 then 
+                if not canUseItem(14) or getOptionValue("Trinkets") == 3 then 
                     Print(opener.count..": Trinket 2 (Uncastable)") 
-                elseif canUse(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
+                elseif canUseItem(14) and not (hasEquiped(151190,14) or hasEquiped(147011,14)) then
                     useItem(14)
                     Print(opener.count..": Trinket 2")
                 end
@@ -1107,10 +1107,10 @@ local function runRotation()
                 -- potion,if=buff.serenity.up|buff.storm_earth_and_fire.up|(!talent.serenity.enabled&trinket.proc.agility.react)|buff.bloodlust.react|target.time_to_die<=60
                 if inRaid and isChecked("Potion") and useCDs() and getDistance("target") < 5 then
                     if buff.serenity.exists() or buff.stormEarthAndFire.exists() or talent.serenity or buff.bloodLust.exists() or ttd <= 60 then
-                        if canUse(127844) then
+                        if canUseItem(127844) then
                             useItem(127844)
                         end
-                        if canUse(142117) then
+                        if canUseItem(142117) then
                             useItem(142117)
                         end
                     end

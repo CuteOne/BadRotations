@@ -225,9 +225,9 @@ local function runRotation()
             if useDefensive() then
                 if isChecked("Pot/Stoned") and php <= getValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(getHealthPot()) then
+                    elseif canUseItem(getHealthPot()) then
                         useItem(getHealthPot())
                     end
                 end

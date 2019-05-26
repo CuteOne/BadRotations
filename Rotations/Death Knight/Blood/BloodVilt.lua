@@ -188,7 +188,7 @@ local function runRotation()
         local addsIn                                        = 999
         --local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.staminaBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.staminaBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
@@ -362,9 +362,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -438,10 +438,10 @@ local function runRotation()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -468,7 +468,7 @@ local function runRotation()
                             return true
                         end
                         if flaskBuff==0 then
-                            if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                            if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                                 useItem(118922)
                                 return true
                             end
