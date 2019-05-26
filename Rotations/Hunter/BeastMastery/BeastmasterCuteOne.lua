@@ -188,7 +188,7 @@ local item
 local level
 local lowestHP
 local mode
---local opener
+local opener
 local php
 local potion
 local race
@@ -199,8 +199,8 @@ local traits
 local ttm
 local units
 local use
-
 -- General Locals
+local actionList
 local critChance
 local flying
 local hastar
@@ -233,7 +233,7 @@ end
 --------------------
 --- Action Lists ---
 --------------------
-local actionList = {}
+actionList = {}
 -- Action List - Pet Management
 actionList.PetManagement = function()
     local petActive = IsPetActive()
