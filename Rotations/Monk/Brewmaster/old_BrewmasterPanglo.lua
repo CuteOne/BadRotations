@@ -118,7 +118,7 @@ local function runRotation()
         local baseAgility       = 0
         local baseMultistrike   = 0
         local buff              = br.player.buff
-        local canFlask          = canUse(br.player.flask.wod.agilityBig)
+        local canFlask          = canUseItem(br.player.flask.wod.agilityBig)
         local cast              = br.player.cast
         local castable          = br.player.cast.debug
         local cd                = br.player.cd
@@ -204,9 +204,9 @@ local function runRotation()
                 end
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healthPot) then
+                    elseif canUseItem(healthPot) then
                         useItem(healthPot)
                     end
                 end

@@ -555,10 +555,10 @@ local function runRotation()
         -- Trinkets
             if isChecked("Trinkets") then
                 if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end

@@ -99,7 +99,7 @@ local function runRotation()
   local animality                                     = false
   local artifact                                      = br.player.artifact
   local buff                                          = br.player.buff
-  local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+  local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
   local cast                                          = br.player.cast
   local combatTime                                    = getCombatTime()
   local cd                                            = br.player.cd
@@ -194,9 +194,9 @@ local function runRotation()
       if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
       and inCombat and (hasHealthPot() or hasItem(5512))
       then
-        if canUse(5512) then
+        if canUseItem(5512) then
           useItem(5512)
-        elseif canUse(healPot) then
+        elseif canUseItem(healPot) then
           useItem(healPot)
         end
       end
@@ -259,7 +259,7 @@ local function runRotation()
       end
       -- Potion
       -- potion,if=(buff.trueshot.react&buff.bloodlust.react)|buff.bullseye.react>=23|((consumable.prolonged_power&target.time_to_die<62)|target.time_to_die<31)
-      if isChecked("Potion") and canUse(142117) and inRaid then
+      if isChecked("Potion") and canUseItem(142117) and inRaid then
         if (buff.trueshot.exists() and hasBloodLust()) or buff.bullseye.stack() >= 23 or ttd("target") < 62 then
           useItem(142117)
         end

@@ -252,7 +252,7 @@ local function runRotation()
                 and php <= getOptionValue("Healthstone")     
                 and hasItem(5512)
             then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
                 end
             end
@@ -656,11 +656,11 @@ local function runRotation()
     local function actionList_PRECOMBAT()
         if not IsMounted() then
             if isChecked("Flask / Crystal") then
-                if inRaid and canUse(br.player.flask.wod.intellectBig) and not UnitBuffID("player",br.player.flask.wod.intellectBig) then
+                if inRaid and canUseItem(br.player.flask.wod.intellectBig) and not UnitBuffID("player",br.player.flask.wod.intellectBig) then
                     useItem(br.player.flask.wod.intellectBig)
                     return true
                 end
-                if not UnitBuffID("player",br.player.flask.wod.intellectBig) and canUse(118922) then --Draenor Insanity Crystal
+                if not UnitBuffID("player",br.player.flask.wod.intellectBig) and canUseItem(118922) then --Draenor Insanity Crystal
                     useItem(118922)
                     return true
                 end
@@ -748,7 +748,7 @@ local function runRotation()
             --actions+=/use_items
             
             if getOptionValue("Trinket 1 Condition") == 1 then 
-                if isChecked("Trinket 1") and inCombat and canUse(13) then
+                if isChecked("Trinket 1") and inCombat and canUseItem(13) then
                     if useItem(13) then return end
                 end
             end
@@ -758,7 +758,7 @@ local function runRotation()
                 if isChecked("Trinket 1") and inCombat then 
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(13) then
+                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUseItem(13) then
                             if useItem(13) then return end
                         end
                     end
@@ -766,13 +766,13 @@ local function runRotation()
             end
 
             if getOptionValue("Trinket 1 Condition") == 3 then
-                if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
+                if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUseItem(13) then
                     if useItem(13) then return end
                 end
             end
             
             if getOptionValue("Trinket 2 Condition") == 1 then 
-                if isChecked("Trinket 2") and inCombat and canUse(14) then
+                if isChecked("Trinket 2") and inCombat and canUseItem(14) then
                     if useItem(14) then return end
                 end
             end
@@ -781,7 +781,7 @@ local function runRotation()
                 if isChecked("Trinket 1") and inCombat then 
                     for i = 1, #enemies.yards40 do
                         local thisUnit = enemies.yards40[i]
-                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(14) then
+                        if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUseItem(14) then
                             if useItem(14) then return end
                         end
                     end
@@ -789,20 +789,20 @@ local function runRotation()
             end
 
             if getOptionValue("Trinket 2 Condition") == 3 then
-                if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
+                if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUseItem(14) then
                     if useItem(14) then return end
                 end
             end
             
             --actions+=/use_item,name=ring_of_collapsing_futures,if=(buff.temptation.stack=0&target.time_to_die>60)|target.time_to_die<60
-            if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUse(142173) and not debuff.temptation.exists("player") then
+            if isChecked("Ring of Collapsing Futures") and hasEquiped(142173) and canUseItem(142173) and not debuff.temptation.exists("player") then
                 useItem(142173)
             end
             
             --actions+=/potion,if=buff.unholy_strength.react
             if useCDs() and isChecked("Potion") and inRaid then
                 if buff.unholyStrength.exists() then
-                    if canUse(142117) then
+                    if canUseItem(142117) then
                         if useItem(142117) then return end
                     end
                 end

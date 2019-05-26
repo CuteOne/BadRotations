@@ -334,11 +334,11 @@ local function runRotation()
                 if actionList_AOE() then return end
             end
 			--trinket
-			if isChecked("Trinket 1") and canUse(13) then
+			if isChecked("Trinket 1") and canUseItem(13) then
                         useItem(13)
                         return true
             end
-            if isChecked("Trinket 2") and canUse(14) then
+            if isChecked("Trinket 2") and canUseItem(14) then
                         useItem(14)
                         return true
             end

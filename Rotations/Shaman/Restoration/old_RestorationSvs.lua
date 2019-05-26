@@ -309,7 +309,7 @@ local function runRotation()
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
                     and inCombat and  hasItem(5512)
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                     end
                 end
@@ -422,10 +422,10 @@ local function runRotation()
             -- Ancestral Protection Totem
                 if castWiseAoEHeal(br.friend,spell.ancestralProtectionTotem,20,getValue("Ancestral Protection Totem"),getValue("Ancestral Protection Totem Targets"),10,false,false) then return end
             -- Trinkets
-                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                     useItem(13)
                 end
-                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                     useItem(14)
                 end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -665,7 +665,7 @@ local function runRotation()
         -- Single Target
         function actionList_SingleTarget()
         -- The Deceiver's Grand Design
-            if hasEquiped(147007) and canUse(147007) then
+            if hasEquiped(147007) and canUseItem(147007) then
                 if isChecked("The Deceivers Grand Design") then
                     local localizedName = select(1,GetItemInfo(147007))
                     for i=1, #tanks do

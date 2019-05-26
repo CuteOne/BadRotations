@@ -330,11 +330,11 @@ local function runRotation()
         --Potion
             if useCDs() and isChecked("Potion") and getDistance("target") < 15 and not isDummy() and not playertar then
                 --Old War
-                if hasItem(127844) and canUse(127844) then
+                if hasItem(127844) and canUseItem(127844) then
                     useItem(127844)
                 end
                 --Prolongued Power
-                if hasItem(142117) and canUse(142117) then
+                if hasItem(142117) and canUseItem(142117) then
                     useItem(142117)
                 end
             end
@@ -374,7 +374,7 @@ local function runRotation()
                     and php <= getOptionValue("Healthstone")     
                     and hasItem(5512)
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                     end
                 end

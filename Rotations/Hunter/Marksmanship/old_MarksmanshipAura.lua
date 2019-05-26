@@ -164,7 +164,7 @@ local function runRotation()
         local animality                                     = false
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
@@ -481,9 +481,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -497,7 +497,7 @@ local function runRotation()
                 end
         -- Engineering: Shield-o-tronic
                 if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
-                    and inCombat and canUse(118006)
+                    and inCombat and canUseItem(118006)
                 then
                     useItem(118006)
                 end
@@ -536,16 +536,16 @@ local function runRotation()
                     if hasEquiped(147017) and (((cd.trueshot.remain() < 6 or cd.trueshot.remain() > 30) and (ttd(units.dyn40) > 120+ 20)) or (ttd(units.dyn40) < 25 or buff.bullseye.stack() == 30)) then
                         useItem(147017)
                     end
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
         -- Agi-Pot
                 if isChecked("Agi-Pot") then
-                    if canUse(142117) and (buff.trueshot.exists() and buff.bloodlust.exists()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 31 then
+                    if canUseItem(142117) and (buff.trueshot.exists() and buff.bloodlust.exists()) or buff.bullseye.stack() >= 23 or ttd(units.dyn40) < 31 then
                         useItem(142117)
                     end
                 end
@@ -897,7 +897,7 @@ local function runRotation()
                         return true
                     end
                     if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                        if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                             useItem(118922)
                             return true
                         end

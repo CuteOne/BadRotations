@@ -332,9 +332,9 @@ local function runRotation()
         local function actionList_Defensive()
             --Potion or Stone
             if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(getHealthPot()) then
+                elseif canUseItem(getHealthPot()) then
                     useItem(getHealthPot())
                 end
             end
@@ -459,7 +459,7 @@ local function runRotation()
                 if cast.innervate() then return true end
             end
             --Potion (To Do)
-            if isChecked("Int Pot") and canUse(163222) and not solo and useCDs() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
+            if isChecked("Int Pot") and canUseItem(163222) and not solo and useCDs() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
                 useItem(163222)
             end
             -- Racial

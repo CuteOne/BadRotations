@@ -236,7 +236,7 @@ local function runRotation()
                   and php <= getOptionValue("Healthstone")     
                   and hasItem(5512)
               then
-                  if canUse(5512) then
+                  if canUseItem(5512) then
                       useItem(5512)
                   end
               end

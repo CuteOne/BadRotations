@@ -553,9 +553,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -592,7 +592,7 @@ local function runRotation()
                         if br.player.castRacial() then return end
                     end
                     --potion,name=prolonged_power
-                    if isChecked("Prolonged Pot") and canUse(142117) and not solo then
+                    if isChecked("Prolonged Pot") and canUseItem(142117) and not solo then
                         if getLowAllies(getValue("Prolonged Pot")) >= getValue("Pro Pot Targets") then
                             useItem(142117)
                         end
@@ -613,11 +613,11 @@ local function runRotation()
                         end
                     end
                     --Trinkets
-                    if isChecked("Trinket 1") and canUse(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
+                    if isChecked("Trinket 1") and canUseItem(13) and getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") then
                         useItem(13)
                         return true
                     end
-                    if isChecked("Trinket 2") and canUse(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
+                    if isChecked("Trinket 2") and canUseItem(14) and getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") then
                         useItem(14)
                         return true
                     end
@@ -664,7 +664,7 @@ local function runRotation()
         -- Action List - Pre-Combat
         function actionList_PreCombat()
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
-            if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUse(142117) and not solo then
+            if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUseItem(142117) and not solo then
                 useItem(142117)
             end
              -- Pre-pull Opener
@@ -685,7 +685,7 @@ local function runRotation()
                     useItem(138292)
                 end
             end
-            if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUse(138292) then
+            if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUseItem(138292) then
                 useItem(138292)
             end
         end  -- End Action List - Pre-Combat

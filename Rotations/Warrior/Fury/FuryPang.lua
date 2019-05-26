@@ -312,9 +312,9 @@ local function runRotation()
                 isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
                     (hasItem(152494) or hasItem(5512))
              then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end

@@ -315,7 +315,7 @@ function cCharacter:new(class)
 
 -- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
 	function self.useCrystal()
-		if self.options.useCrystal and getBuffRemain("player",176151) < 600 and not hasBuff(242551) and not canUse(147707) and not IsMounted() and not UnitIsDeadOrGhost("player") then
+		if self.options.useCrystal and getBuffRemain("player",176151) < 600 and not hasBuff(242551) and not canUseItem(147707) and not IsMounted() and not UnitIsDeadOrGhost("player") then
      	-- Check if other flask is present, if so abort here
       for _,flaskID in pairs(self.flask.wod.buff) do
       	if hasBuff(flaskID) then return end
@@ -326,7 +326,7 @@ function cCharacter:new(class)
 
 -- Use Fel Focuser +500 to all Stat - ID: 147707, Buff: 242551 (Fel Focus)
 	function self.useFelFocuser()
-		if canUse(147707) and not IsMounted() then cancelBuff(176151) end
+		if canUseItem(147707) and not IsMounted() then cancelBuff(176151) end
 
 		if self.options.useFelFocuser and getBuffRemain("player",242551) < 600 and not hasBuff(176151) and not IsMounted() and not UnitIsDeadOrGhost("player") then
       -- Check if other flask is present, if so abort here

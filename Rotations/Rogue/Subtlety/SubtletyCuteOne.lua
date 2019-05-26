@@ -381,12 +381,12 @@ local function runRotation()
                     end
                 end
         -- Pot/Stone
-                if isChecked("Pot/Stone") and (use.able.healthstone() or canUse(healPot))
+                if isChecked("Pot/Stone") and (use.able.healthstone() or canUseItem(healPot))
                     and php <= getOptionValue("Pot/Stone") and inCombat and (hasHealthPot() or has.healthstone())
                 then
                     if use.able.healthstone() then
                         use.healthstone()
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -444,17 +444,17 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 then
         -- Potion
                 -- potion,if=buff.bloodlust.react|target.time_to_die<=60|buff.symbols_of_death.up&(buff.shadow_blades.up|cooldown.shadow_blades.remains<=10)
-                if useCDs() and isChecked("Agi-Pot") and canUse(163223) and inRaid then
+                if useCDs() and isChecked("Agi-Pot") and canUseItem(163223) and inRaid then
                     if hasBloodLust() or ttd(units.dyn5) <= 25 or (buff.symbolsOfDeath.exists() and (buff.shadowBlades.exists() or cd.shadowBlades.remain() <= 10)) then
                         useItem(163223)
                     end
                 end
         -- Trinkets
                 if useCDs() and isChecked("Trinkets") and (buff.shadowDance.exists() or buff.symbolsOfDeath.exists()) then
-                    if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
+                    if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                         useItem(13)
                     end
-                    if canUse(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
+                    if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
                         useItem(14)
                     end
                 end
@@ -689,9 +689,9 @@ local function runRotation()
                     -- potion
                     if stealth then
                         if useCDs() and isChecked("Potion") and inRaid then
-                            if canUse(127844) then
+                            if canUseItem(127844) then
                                 useItem(127844)
-                            elseif canUse(142117) then
+                            elseif canUseItem(142117) then
                                 useItem(142117)
                             end
                         end

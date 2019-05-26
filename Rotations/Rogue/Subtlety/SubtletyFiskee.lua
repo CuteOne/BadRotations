@@ -454,12 +454,12 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(healPot))
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(healPot))
                 and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasHealthPot() or has.healthstone())
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -554,10 +554,10 @@ local function runRotation()
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=buff.symbols_of_death.up|target.time_to_die<20
         if cdUsage and isChecked("Trinkets") and (buff.symbolsOfDeath.exists() or not isChecked("Symbols of Death")) and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
+            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
-            if canUse(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
+            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
                 useItem(14)
             end
         end

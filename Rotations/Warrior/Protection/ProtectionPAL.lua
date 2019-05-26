@@ -265,7 +265,7 @@ local function runRotation()
 
         --Healthston
         if isChecked("Healthstone") and getHP("player") <= getValue("Healthstone") and inCombat then
-          if canUse(5512) then
+          if canUseItem(5512) then
             useItem(5512)
           end
         end

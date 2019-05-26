@@ -165,7 +165,7 @@ local function runRotation()
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
@@ -276,9 +276,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -393,23 +393,23 @@ local function runRotation()
 			if useCDs() and getDistance(units.dyn40) < 40 then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(11) then
+                    if canUseItem(11) then
                         useItem(11)
                     end
-                    if canUse(12) then
+                    if canUseItem(12) then
                         useItem(12)
                     end
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
         -- Legendary Ring
                 -- use_item,slot=finger1
                 if isChecked("Legendary Ring") then
-                    if hasEquiped(124636) and canUse(124636) then
+                    if hasEquiped(124636) and canUseItem(124636) then
                         useItem(124636)
                     end
                 end
@@ -426,7 +426,7 @@ local function runRotation()
                 end
         -- Agi-Pot
                 -- potion,name=deadly_grace,if=buff.metamorphosis.remain()s>25
-                if isChecked("Agi-Pot") and canUse(109217) and inRaid then
+                if isChecked("Agi-Pot") and canUseItem(109217) and inRaid then
                     -- if buff.remain().metamorphosis > 25 then
                         useItem(109217)
                     -- end
@@ -444,7 +444,7 @@ local function runRotation()
                         return true
                     end
                     if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                        if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                             useItem(118922)
                             return true
                         end
@@ -938,17 +938,17 @@ local function runRotation()
                         end
             -- Trinkets
                         if isChecked("Trinkets") then
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                             end
                         end
         -- Legendary Ring
                         -- use_item,slot=finger1
                         if isChecked("Legendary Ring") then
-                            if hasEquiped(124636) and canUse(124636) then
+                            if hasEquiped(124636) and canUseItem(124636) then
                                 useItem(124636)
                             end
                         end

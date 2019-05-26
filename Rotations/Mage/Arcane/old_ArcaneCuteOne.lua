@@ -276,9 +276,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -344,7 +344,7 @@ local function runRotation()
                 end
             -- Potion
                 -- potion,if=buff.arcane_power.up&(buff.berserking.up|buff.blood_fury.up|!(race.troll|race.orc))
-                if isChecked("Potion") and canUse(127843) and inRaid then
+                if isChecked("Potion") and canUseItem(127843) and inRaid then
                     if buff.arcanePower.exists() and (buff.berserking.exists() or buff.bloodFury.exists() or not (br.player.race == "Troll" or br.player.race == "Orc")) then
                         if useItem(127843) then return end
                     end
@@ -352,10 +352,10 @@ local function runRotation()
             -- Trinkets
                 -- use_items,if=buff.arcane_power.up|target.time_to_die<cooldown.arcane_power.remains
                 if isChecked("Trinkets") and (buff.arcanePower.exists() or ttd("target") < cd.arcanePower.remain()) then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end

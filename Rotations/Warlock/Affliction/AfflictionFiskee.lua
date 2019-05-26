@@ -604,9 +604,9 @@ local function runRotation()
         -- Pot/Stoned
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
             then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -695,10 +695,10 @@ local function runRotation()
             end
         end
         if isChecked("Trinkets") then
-            if canUse(13) then
+            if canUseItem(13) then
                 useItem(13)
             end
-            if canUse(14) then
+            if canUseItem(14) then
                 useItem(14)
             end
         end
@@ -1046,7 +1046,7 @@ local function runRotation()
             if (not isChecked("Opener") or opener == true) then
                 if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
                     if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
-                        if canUse(142117) and not buff.prolongedPower.exists() then
+                        if canUseItem(142117) and not buff.prolongedPower.exists() then
                             useItem(142117);
                             return true
                         end

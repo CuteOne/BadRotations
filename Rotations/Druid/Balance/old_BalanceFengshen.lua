@@ -283,9 +283,9 @@ local function actionList_main()
 	if useDefensive() then
 		--Potion or Stone
 		if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
-			if canUse(5512) then
+			if canUseItem(5512) then
 				useItem(5512)
-			elseif canUse(getHealthPot()) then
+			elseif canUseItem(getHealthPot()) then
 				useItem(getHealthPot())
 			end
 		end
@@ -358,14 +358,14 @@ local function actionList_main()
 	-- Cooldowns
 	if useCDs() then
 		-- Trinkets
-		if isChecked("Trinkets 1") and canUse(13) then
+		if isChecked("Trinkets 1") and canUseItem(13) then
 			if getOptionValue("Trinkets 1") == 1 then
 				if useItem(13) then return true end
 			elseif getOptionValue("Trinkets 1") == 2 then
 				if useItemGround("target",13,40,0,nil) then return true end
 			end
 		end
-		if isChecked("Trinkets 2") and canUse(14) then
+		if isChecked("Trinkets 2") and canUseItem(14) then
 			if getOptionValue("Trinkets 2") == 1 then
 				if useItem(14) then return true end
 			elseif getOptionValue("Trinkets 2") == 2 then

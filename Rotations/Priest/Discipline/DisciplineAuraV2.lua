@@ -427,9 +427,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -479,7 +479,7 @@ local function runRotation()
                         end
                     end
                     --potion,name=Int_power
-                    if isChecked("Int Pot") and canUse(163222) and not solo then
+                    if isChecked("Int Pot") and canUseItem(163222) and not solo then
                         if getLowAllies(getValue("Int Pot")) >= getValue("Int Pot Targets") then
                             useItem(163222)
                         end
@@ -599,7 +599,7 @@ local function runRotation()
         -- Action List - Pre-Combat
         local function actionList_PreCombat()
             local prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
-            if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUse(163222) and not solo then
+            if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUseItem(163222) and not solo then
                 useItem(163222)
             end
              -- Pre-pull Opener
@@ -610,7 +610,7 @@ local function runRotation()
                     end
                 end
             end
-            if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUse(159868) then
+            if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUseItem(159868) then
                 useItem(159868)
             end
         end  -- End Action List - Pre-Combat
@@ -883,7 +883,7 @@ local function runRotation()
 				end
 			end
 			--Pillar of the Drowned Cabal
-			if hasEquiped(167863) and canUse(16) then
+			if hasEquiped(167863) and canUseItem(16) then
 				for i = 1, #br.friend do
 					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
 						UseItemByName(167863,br.friend[i].unit)

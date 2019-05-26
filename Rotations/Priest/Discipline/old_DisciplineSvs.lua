@@ -166,16 +166,16 @@ local function runRotation()
         function actionList_SingleTarget()
             -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(11) then
+                    if canUseItem(11) then
                         useItem(11)
                     end
-                    if canUse(12) then
+                    if canUseItem(12) then
                         useItem(12)
                     end
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end

@@ -556,9 +556,9 @@ local function runRotation()
                 isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
                     (hasItem(152494) or hasItem(5512))
              then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end
@@ -680,10 +680,10 @@ local function runRotation()
     local function List_Cooldowns()
         if useCDs() and getDistance(units.dyn5) < 5 then
             if getOptionValue("Trinkets") == 2 and inCombat then
-                if canUse(13) then
+                if canUseItem(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                 end
             end
@@ -719,10 +719,10 @@ local function runRotation()
         end
 
         if getOptionValue("Trinkets") == 1 and inCombat then
-            if canUse(13) then
+            if canUseItem(13) then
                 useItem(13)
             end
-            if canUse(14) then
+            if canUseItem(14) then
                 useItem(14)
             end
         end

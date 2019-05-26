@@ -365,9 +365,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -422,10 +422,10 @@ local function runRotation()
         -- Trinkets
                 -- use_items
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -529,7 +529,7 @@ local function runRotation()
                         castOpener("demonicEmpowerment","DE1",1)
                 -- Potion
                     -- potion
-                    elseif useCDs() and canUse(142117) and isChecked("Potion") and getDistance("target") < 15 then
+                    elseif useCDs() and canUseItem(142117) and isChecked("Potion") and getDistance("target") < 15 then
                         Print("Potion Used!");
                         useItem(142117)
                 -- Demonbolt/Shadowbolt

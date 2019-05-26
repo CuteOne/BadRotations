@@ -298,9 +298,9 @@ local function runRotation()
         if useDefensive() then
             -- Pot/Stoned
             if isChecked("Pot/Stoned") and health <= getValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(getHealthPot()) then
+                elseif canUseItem(getHealthPot()) then
                     useItem(getHealthPot())
                 end
             end
@@ -315,7 +315,7 @@ local function runRotation()
             end
 
             -- Engineering: Shield-o-tronic
-            if isChecked("Shield-o-tronic") and health <= getValue("Shield-o-tronic") and inCombat and canUse(118006) then
+            if isChecked("Shield-o-tronic") and health <= getValue("Shield-o-tronic") and inCombat and canUseItem(118006) then
                 useItem(118006)
             end
             
@@ -354,11 +354,11 @@ local function runRotation()
                 elseif POT then
                     if isChecked("Potion") then
                         --potion
-                        if canUse(127843) then
+                        if canUseItem(127843) then
                             seq = seq + 1
                             useItem(127843)
                             Print(seq..": Potion Used!")
-                        elseif canUse(142117) then
+                        elseif canUseItem(142117) then
                             seq = seq + 1
                             useItem(142117)
                             Print(seq..": Potion Used!")
@@ -388,11 +388,11 @@ local function runRotation()
                 if isChecked("Potion") then
                     if not POT then
                         --potion
-                        if canUse(127843) then
+                        if canUseItem(127843) then
                             seq = seq + 1
                             useItem(127843)
                             Print(seq..": Potion Used!")
-                        elseif canUse(142117) then
+                        elseif canUseItem(142117) then
                             seq = seq + 1
                             useItem(142117)
                             Print(seq..": Potion Used!")
@@ -496,11 +496,11 @@ local function runRotation()
                 if isChecked("Potion") then
                     if not POT then
                         --potion
-                        if canUse(127843) then
+                        if canUseItem(127843) then
                             seq = seq + 1
                             useItem(127843)
                             Print(seq..": Potion Used!")
-                        elseif canUse(142117) then
+                        elseif canUseItem(142117) then
                             seq = seq + 1
                             useItem(142117)
                             Print(seq..": Potion Used!")
@@ -581,11 +581,11 @@ local function runRotation()
     local function actionList_PRECOMBAT()
         --actions.precombat=flask
         if isChecked("Flask / Crystal") then
-            if inRaid and canUse(br.player.flask.wod.intellectBig) and not UnitBuffID("player",br.player.flask.wod.intellectBig) then
+            if inRaid and canUseItem(br.player.flask.wod.intellectBig) and not UnitBuffID("player",br.player.flask.wod.intellectBig) then
                 useItem(br.player.flask.wod.intellectBig)
                 return true
             end
-            if not UnitBuffID("player",br.player.flask.wod.intellectBig) and canUse(118922) then --Draenor Insanity Crystal
+            if not UnitBuffID("player",br.player.flask.wod.intellectBig) and canUseItem(118922) then --Draenor Insanity Crystal
                 useItem(118922)
                 return true
             end
@@ -617,9 +617,9 @@ local function runRotation()
                 if isChecked("Potion") then
                     --actions.cooldowns+=/potion,if=cooldown.icy_veins.remains<1
                     if cd.icyVeins.remain() < 1 then
-                        if canUse(127843) then
+                        if canUseItem(127843) then
                             if useItem(127843) then return true end
-                        elseif canUse(142117) then
+                        elseif canUseItem(142117) then
                             if useItem(142117) then return true end
                         end
                     end
@@ -649,7 +649,7 @@ local function runRotation()
                 --actions.cooldowns+=/use_item
                 
                 if getOptionValue("Trinket 1 Condition") == 1 then 
-                    if isChecked("Trinket 1") and inCombat and canUse(13) then
+                    if isChecked("Trinket 1") and inCombat and canUseItem(13) then
                         if useItem(13) then return true end
                     end
                 end
@@ -659,7 +659,7 @@ local function runRotation()
                     if isChecked("Trinket 1") and inCombat then 
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(13) then
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUseItem(13) then
                                 if useItem(13) then return true end
                             end
                         end
@@ -667,13 +667,13 @@ local function runRotation()
                 end
 
                 if getOptionValue("Trinket 1 Condition") == 3 then
-                    if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUse(13) then
+                    if isChecked("Trinket 1") and inCombat and health <= getValue("Trinket 1") and canUseItem(13) then
                         if useItem(13) then return true end
                     end
                 end
                 
                 if getOptionValue("Trinket 2 Condition") == 1 then 
-                    if isChecked("Trinket 2") and inCombat and canUse(14) then
+                    if isChecked("Trinket 2") and inCombat and canUseItem(14) then
                         if useItem(14) then return true end
                     end
                 end
@@ -682,7 +682,7 @@ local function runRotation()
                     if isChecked("Trinket 1") and inCombat then 
                         for i = 1, #enemies.yards40 do
                             local thisUnit = enemies.yards40[i]
-                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUse(14) then
+                            if isBoss(thisUnit) and getHP(thisUnit) <= getValue("Trinket 1") and canUseItem(14) then
                                 if useItem(14) then return true end
                             end
                         end
@@ -690,7 +690,7 @@ local function runRotation()
                 end
 
                 if getOptionValue("Trinket 2 Condition") == 3 then
-                    if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUse(14) then
+                    if isChecked("Trinket 2") and inCombat and health <= getValue("Trinket 2") and canUseItem(14) then
                         if useItem(14) then return true end
                     end
                 end

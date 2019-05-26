@@ -415,7 +415,7 @@ local function runRotation()
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
                     and inCombat and  hasItem(5512)
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
                         br.addonDebug("Using Healthstone")
                         return
@@ -695,7 +695,7 @@ local function runRotation()
 				end
 			end
 			--Pillar of the Drowned Cabal
-			if hasEquiped(167863) and canUse(16) then
+			if hasEquiped(167863) and canUseItem(16) then
 				for i = 1, #br.friend do
 					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
 						UseItemByName(167863,br.friend[i].unit)

@@ -142,7 +142,7 @@ local function runRotation()
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local castable                                      = br.player.cast.debug
         local combatTime                                    = getCombatTime()
@@ -214,11 +214,11 @@ local function runRotation()
 	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
 	            	and inCombat and (hasHealthPot() or hasItem(5512)) 
 	            then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(129196) then --Legion Healthstone
+                    elseif canUseItem(129196) then --Legion Healthstone
                         useItem(129196)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
 	            end
@@ -286,11 +286,11 @@ local function runRotation()
                         return true
                     end
                     if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                        if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                             useItem(118922)
                             return true
                         end
-                        if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUse(129192) then -- Gaze of the Legion
+                        if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUseItem(129192) then -- Gaze of the Legion
                             useItem(129192)
                             return true
                         end
@@ -344,10 +344,10 @@ local function runRotation()
                     StartAttack()
                 end
                 if isChecked("Trinkets") and getDistance("target") < 5 then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) and getNumEnemies("player",12) >= 1 then
+                    if canUseItem(14) and getNumEnemies("player",12) >= 1 then
                         useItem(14)
                     end                            
                 end

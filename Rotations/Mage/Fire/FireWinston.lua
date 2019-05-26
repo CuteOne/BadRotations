@@ -246,9 +246,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") 
                     and inCombat and (hasHealthPot() or hasItem(5512)) 
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -294,19 +294,19 @@ local function runRotation()
                 -- use_item,slot=trinket2,if=buff.chaos_blades.up|!talent.chaos_blades.enabled 
                 --if isChecked("Trinkets") then
                 --    -- if buff.chaosBlades or not talent.chaosBlades then 
-                --        if canUse(13) then
+                --        if canUseItem(13) then
                 --            useItem(13)
                 --        end
-                --        if canUse(14) then
+                --        if canUseItem(14) then
                 --            useItem(14)
                 --        end
                 --    -- end
                 --end
-                if isChecked("Trinket 1") and canUse(13) then
+                if isChecked("Trinket 1") and canUseItem(13) then
                         useItem(13)
                         return true
                 end
-                if isChecked("Trinket 2") and canUse(14) then
+                if isChecked("Trinket 2") and canUseItem(14) then
                         useItem(14)
                         return true
                 end

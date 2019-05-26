@@ -426,9 +426,9 @@ local function runRotation()
                 if isChecked("Healthstone") and php <= getOptionValue("Healthstone") 
                     and inCombat and (hasHealthPot() or hasItem(5512)) 
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -674,24 +674,24 @@ local function runRotation()
             end
         -- Trinkets
             --if isChecked("Trinkets") then
-            --    if canUse(11) then
+            --    if canUseItem(11) then
             --        useItem(11)
             --    end
-            --    if canUse(12) then
+            --    if canUseItem(12) then
             --        useItem(12)
             --    end
-            --    if canUse(13) then
+            --    if canUseItem(13) then
             --        useItem(13)
             --    end
-            --    if canUse(14) then
+            --    if canUseItem(14) then
             --        useItem(14)
             --    end
             --end
-            if isChecked("Trinket 1") and canUse(13) then
+            if isChecked("Trinket 1") and canUseItem(13) then
                 useItem(13)
                 return true
             end
-            if isChecked("Trinket 2") and canUse(14) then
+            if isChecked("Trinket 2") and canUseItem(14) then
                 useItem(14)
                 return true
             end
@@ -722,17 +722,17 @@ local function runRotation()
     -- Flask/Elixir
         -- flask,type=flask_of_the_whispered_pact
           -- Endless Fathoms Flask
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUse(item.flaskOfEndlessFathoms) then
+        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.flaskOfEndlessFathoms() then return end
         end
-        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if use.repurposedFelFocuser() then return end
         end
-        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.oraliusWhisperingCrystal() then return end

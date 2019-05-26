@@ -279,13 +279,13 @@ local function runRotation()
         local function actionsPrecombat()
             --# Executed before combat begins. Accepts non-harmful actions only.
             --actions.precombat=flask
-            if not UnitBuffID("player",flaskBuff) and canUse(flask) and useCDs() and isChecked(colorBlue.."Flask") then
+            if not UnitBuffID("player",flaskBuff) and canUseItem(flask) and useCDs() and isChecked(colorBlue.."Flask") then
                 if useItem(flask) then return true end
             end
             --TODO:actions.precombat+=/food
 
             --actions.precombat+=/augmentation
-            if not UnitBuffID("player",augumentationBuff) and canUse(augumentation) and useCDs() and isChecked(colorBlue.."Augment Rune") then
+            if not UnitBuffID("player",augumentationBuff) and canUseItem(augumentation) and useCDs() and isChecked(colorBlue.."Augment Rune") then
                 if useItem(augumentation) then return true end
             end
             ----actions.precombat+=/moonkin_form
@@ -293,7 +293,7 @@ local function runRotation()
             --# Snapshot raid buffed stats before combat begins and pre-potting is done.
             if isChecked("Pre-Pull Timer") and pullTimer <= castTimeMoon() and not inCombat then
                 --actions.precombat+=/potion
-                if not UnitBuffID("player",potionBuff) and canUse(potion) and useCDs() and isChecked(colorBlue.."Potion") then
+                if not UnitBuffID("player",potionBuff) and canUseItem(potion) and useCDs() and isChecked(colorBlue.."Potion") then
                     if useItem(potion) then Print("Pre-Potion Used!") return true end
                 end
                 --actions.precombat+=/new_moon
@@ -483,7 +483,7 @@ local function runRotation()
             --# Executed every time the actor is available.
             --actions=potion,name=potion_of_prolonged_power,if=buff.celestial_alignment.up|buff.incarnation.up
             if (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) and useCDs() and isChecked(colorBlue.."Potion") then
-                if not UnitBuffID("player",potionBuff) and canUse(potion) then
+                if not UnitBuffID("player",potionBuff) and canUseItem(potion) then
                     if useItem(potion) then return true end
                 end
             end
@@ -510,10 +510,10 @@ local function runRotation()
             end
             --actions+=/use_item,slot=trinket1&trinket2
             if buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists() then
-                if canUse(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
+                if canUseItem(13) and useCDs() and isChecked(colorBlue.."Trinket 1") then
                     if useItem(13) then return true end
                 end
-                if canUse(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
+                if canUseItem(14) and useCDs() and isChecked(colorBlue.."Trinket 2") then
                     if useItem(14) then return true end
                 end
             end
@@ -654,9 +654,9 @@ local function runRotation()
             end
             --Potion or Stone
             if isChecked(colorGreen.."Potion/Healthstone") and health <= getValue(colorGreen.."Potion/Healthstone") then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(getHealthPot()) then
+                elseif canUseItem(getHealthPot()) then
                     useItem(getHealthPot())
                 end
             end

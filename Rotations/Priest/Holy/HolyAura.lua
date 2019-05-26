@@ -357,7 +357,7 @@ local function runRotation()
 			-- Pre-Pot Timer
 			if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
 				if pullTimer <= getOptionValue("Pre-Pot Timer") then
-					if canUse(142117) and not buff.prolongedPower.exists() then
+					if canUseItem(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						br.addonDebug("Using Prolonged Power")
 						return
@@ -429,7 +429,7 @@ local function runRotation()
 				if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
 					and inCombat and  hasItem(5512)
 				then
-					if canUse(5512) then
+					if canUseItem(5512) then
 						br.addonDebug("Using Healthstone")
 						useItem(5512)
 					end
@@ -532,7 +532,7 @@ local function runRotation()
 					end
 				end
 				--Pillar of the Drowned Cabal
-				if hasEquiped(167863) and canUse(16) then
+				if hasEquiped(167863) and canUseItem(16) then
 					for i = 1, #br.friend do
 						if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
 							UseItemByName(167863,br.friend[i].unit)

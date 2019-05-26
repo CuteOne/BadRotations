@@ -571,12 +571,12 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUse(152494))
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(152494))
             and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end
@@ -707,10 +707,10 @@ local function runRotation()
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUse(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
+            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
                 useItem(13)
             end
-            if canUse(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
+            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
                 useItem(14)
             end
         end

@@ -298,9 +298,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -431,24 +431,24 @@ local function runRotation()
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
                         -- Flask / Crystal
                     -- flask,type=flask_of_the_seventh_demon
-                    if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUse(item.flaskOfTheSeventhDemon) then
+                    if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
                         if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                         if buff.felFocus.exists() then buff.felFocus.cancel() end
                         if use.flaskOfTheSeventhDemon() then return true end
                     end
-                    if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUse(item.repurposedFelFocuser) then
+                    if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
                         if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                         if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                         if use.repurposedFelFocuser() then return true end
                     end
-                    if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUse(item.oraliusWhisperingCrystal) then
+                    if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
                         if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
                         if buff.felFocus.exists() then buff.felFocus.cancel() end
                         if use.oraliusWhisperingCrystal() then return true end
                     end
             -- Potion
                     -- potion,name=prolonged_power,if=feral_spirit.remain()s>5
-                    if isChecked("Potion") and canUse(142117) and inRaid then
+                    if isChecked("Potion") and canUseItem(142117) and inRaid then
                         if feralSpiritRemain > 5 and not buff.prolongedPower.exists() then
                             useItem(142117)
                         end
@@ -558,7 +558,7 @@ local function runRotation()
             end
             -- Potion
             -- potion,if=buff.ascendance.up|!talent.ascendance.enabled&feral_spirit.remains>5|target.time_to_die<=60
-            if isChecked("Potion") and canUse(142117) and inRaid and not buff.prolongedPower.exists() then
+            if isChecked("Potion") and canUseItem(142117) and inRaid and not buff.prolongedPower.exists() then
                 if (hasBloodLust() and (buff.ascendance.exists() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60)) then
                     useItem(142117)
                 end
@@ -577,10 +577,10 @@ local function runRotation()
             end
             -- Trinkets
             if isChecked("Trinkets") and (buff.ascendance.exists("player") or #enemies.yards8t >= 3 ) then
-                if canUse(13) then
+                if canUseItem(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                 end
             end
@@ -682,7 +682,7 @@ local function runRotation()
                 end
             end
             -- Potion
-            if isChecked("Potion") and canUse(142117) and inRaid and not buff.prolongedPower.exists() then
+            if isChecked("Potion") and canUseItem(142117) and inRaid and not buff.prolongedPower.exists() then
                 if (hasBloodLust() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60) then
                     useItem(142117)
                 end

@@ -770,9 +770,9 @@ local function runRotation()
                 if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -1126,10 +1126,10 @@ local function runRotation()
 
         if not br.player.moving and isChecked("Galecaller") then
             -- use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-            if canUse(13) and hasEquiped(159614, 13) then
+            if canUseItem(13) and hasEquiped(159614, 13) then
                 useItem(13)
             end
-            if canUse(14) and hasEquiped(159614, 14) then
+            if canUseItem(14) and hasEquiped(159614, 14) then
                 useItem(14)
             end
         end
@@ -1170,10 +1170,10 @@ local function runRotation()
                                     if cast.racial("player") then end
                                 end
                             end
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                             end
                             if cast.vendetta("target") then VEN1 = true; end
@@ -1202,10 +1202,10 @@ local function runRotation()
                                     if cast.racial("player") then end
                                 end
                             end
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                             end
                             if cast.vendetta() then VEN1 = true; end
@@ -1235,10 +1235,10 @@ local function runRotation()
                                     if cast.racial("player") then end
                                 end
                             end
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                             end
                             if cast.vendetta() then VEN1 = true; end
@@ -1271,10 +1271,10 @@ local function runRotation()
                                     if cast.racial("player") then end
                                 end
                             end
-                            if canUse(13) then
+                            if canUseItem(13) then
                                 useItem(13)
                             end
-                            if canUse(14) then
+                            if canUseItem(14) then
                                 useItem(14)
                             end
                             if cast.vendetta() then VEN1 = true; end
@@ -1302,10 +1302,10 @@ local function runRotation()
                         if cast.racial("player") then end
                     end
                 end
-                if canUse(13) then
+                if canUseItem(13) then
                     useItem(13)
                 end
-                if canUse(14) then
+                if canUseItem(14) then
                     useItem(14)
                 end
                 if cast.vendetta("target") then VEN1 = true; end
@@ -1355,10 +1355,10 @@ local function runRotation()
 
                         if power <= 30 and cast.able.vendetta("target") then
                                 if isChecked("Trinkets") then
-                                    if canUse(13) then
+                                    if canUseItem(13) then
                                         useItem(13)
                                     end
-                                    if canUse(14) then
+                                    if canUseItem(14) then
                                         useItem(14)
                                     end
                                 end                  
@@ -1378,10 +1378,10 @@ local function runRotation()
                         if debuff.garrote.remain() >= 5.4 and debuff.rupture.remain() >= 4 + (4 * comboMax) and (debuff.vendetta.exists() or cd.vendetta.remain() >=5) then
                                 if isChecked("Galecaller") then
                                     -- use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
-                                    if canUse(13) and hasEquiped(159614, 13) then
+                                    if canUseItem(13) and hasEquiped(159614, 13) then
                                         useItem(13)
                                     end
-                                    if canUse(14) and hasEquiped(159614, 14) then
+                                    if canUseItem(14) and hasEquiped(159614, 14) then
                                         useItem(14)
                                     end
                                 end
@@ -1392,10 +1392,10 @@ local function runRotation()
 
                         if cast.able.vendetta("target") then
                                 if isChecked("Trinkets") then
-                                    if canUse(13) then
+                                    if canUseItem(13) then
                                         useItem(13)
                                     end
-                                    if canUse(14) then
+                                    if canUseItem(14) then
                                         useItem(14)
                                     end
                                 end
@@ -1413,10 +1413,10 @@ local function runRotation()
 
                         if cast.able.vendetta() then
                                 if isChecked("Trinkets") then
-                                    if canUse(13) then
+                                    if canUseItem(13) then
                                         useItem(13)
                                     end
-                                    if canUse(14) then
+                                    if canUseItem(14) then
                                         useItem(14)
                                     end
                                 end

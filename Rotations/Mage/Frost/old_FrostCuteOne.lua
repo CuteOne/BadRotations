@@ -227,9 +227,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -287,10 +287,10 @@ local function runRotation()
                 -- TODO
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -310,7 +310,7 @@ local function runRotation()
                 if not buff.icyVeins.exists() then
                     if cast.icyVeins() then return end
                 end
-        -- Cooldowns Spell RuneOfPower if ChargesRemaining(RuneOfPower) = SpellCharges(RuneOfPower) and (CanUse(GlacialSpike) or not HasTalent(GlacialSpike))
+        -- Cooldowns Spell RuneOfPower if ChargesRemaining(RuneOfPower) = SpellCharges(RuneOfPower) and (canUseItem(GlacialSpike) or not HasTalent(GlacialSpike))
                 if charges.runeOfPower.count() == 2 and (canCast(199786,false,true) or not talent.glacialSpike) then
                     if cast.runeOfPower() then return end
                 end

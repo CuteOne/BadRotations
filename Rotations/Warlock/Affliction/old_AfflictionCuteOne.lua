@@ -388,9 +388,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -540,10 +540,10 @@ local function runRotation()
                 -- use_item,slot=trinket1
                 -- use_item,slot=trinket2
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -552,13 +552,13 @@ local function runRotation()
                     if talent.haunt then
                         -- potion,if=!talent.soul_harvest.enabled&(trinket.proc.any.react|trinket.stack_proc.any.react|target.time_to_die<=70|buff.active_uas.stack>2)
                         if not talent.soulHarvest and (ttd(units.dyn40) <= 70 or debuff.unstableAffliction.stack(units.dyn40) > 2) then
-                            if canUse(142117) then
+                            if canUseItem(142117) then
                                 useItem(142117)
                             end
                         end
                         -- potion,if=talent.soul_harvest.enabled&buff.soul_harvest.remains&(trinket.proc.any.react|trinket.stack_proc.any.react|target.time_to_die<=70|!cooldown.haunt.remains|buff.active_uas.stack>2)
                         if talent.soulHarvest and buff.soulHarvest.exists() and (ttd(units.dyn40) <= 70 or not cd.haunt.exists() or debuff.unstableAffliction.stack(units.dyn40) > 2) then
-                            if canUse(142117) then
+                            if canUseItem(142117) then
                                 useItem(142117)
                             end
                         end
@@ -566,13 +566,13 @@ local function runRotation()
                     if not talent.haunt then
                         -- potion,if=target.time_to_die<=70
                         if ttd(units.dyn40) <= 70 then
-                            if canUse(142117) then
+                            if canUseItem(142117) then
                                 useItem(142117)
                             end
                         end
                         -- potion,if=(!talent.soul_harvest.enabled|buff.soul_harvest.remains>12)&buff.active_uas.stack>=2
                         if (not talent.soulHarvest or buff.soulHarvest.remain() > 12) and debuff.unstableAffliction.stack(units.dyn40) >= 2 then
-                            if canUse(142117) then
+                            if canUseItem(142117) then
                                 useItem(142117)
                             end
                         end
@@ -1525,7 +1525,7 @@ local function runRotation()
                     end
                     if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
                         if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
-                            if canUse(142117) and not buff.prolongedPower.exists() then
+                            if canUseItem(142117) and not buff.prolongedPower.exists() then
                                 useItem(142117);
                                 return true
                             end

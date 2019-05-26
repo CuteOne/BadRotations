@@ -337,9 +337,9 @@ local function runRotation()
                 if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -398,10 +398,10 @@ local function runRotation()
         -- Trinkets
             if isChecked("Trinkets") then
                 if hasBloodLust() or ttdtarget <= 20 or comboDeficit <= 2 then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -409,11 +409,11 @@ local function runRotation()
     -- Pots
             if isChecked("Agi-Pot") then
                 if ttdtarget <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then
-                    if canUse(127844) and inRaid then
+                    if canUseItem(127844) and inRaid then
                         useItem(127844)
                     end
                     else
-                    if canUse(142117) and inRaid then
+                    if canUseItem(142117) and inRaid then
                         useItem(142117)
                     end
                 end
