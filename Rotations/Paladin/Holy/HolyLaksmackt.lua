@@ -833,7 +833,7 @@ local function runRotation()
             return true
           end
         end
-        if isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) < 0 then
+        if isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) > 0 then
           if cast.cleanse("player") then
             return true
           end
