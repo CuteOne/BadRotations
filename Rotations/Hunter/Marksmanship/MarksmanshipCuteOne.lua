@@ -257,7 +257,7 @@ local function runRotation()
             if not talent.loneWolf then
                 local petActive = IsPetActive()
                 local petExists = UnitExists("pet")
-                local petDead = UnitIsDeadOrGhost("pet")
+                local petDead = UnitIsDeadOrGhost("pet") or deadPet
                 local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
 
                 if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
@@ -574,7 +574,7 @@ local function runRotation()
             if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() then 
                 if cast.rapidFire() then return end 
             end
-        -- multishot 
+        -- Multishot 
             -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
             if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
                 if cast.multishot() then return end 
@@ -649,7 +649,7 @@ local function runRotation()
         -- Arcane Shot 
             -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)
             if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists() 
-                and (power > 41 or buff.masterMarksman.exists) or ((power > 50 and traits.focusedFire.active) or power > 75) 
+                and (power > 41 or buff.masterMarksman.exists()) or ((power > 50 and traits.focusedFire.active) or power > 75) 
                 and (cd.trueshot.remain() > 5 or power > 80) or ttd(units.dyn40) < 5)
             then
                 if cast.arcaneShot() then return end 
