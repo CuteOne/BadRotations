@@ -36,7 +36,17 @@ local function createToggles()
         [1] = { mode = "On", value = 1 , overlay = "Misdirection Enabled", tip = "Misdirection Enabled", highlight = 1, icon = br.player.spell.misdirection },
         [2] = { mode = "Off", value = 2 , overlay = "Misdirection Disabled", tip = "Misdirection Disabled", highlight = 0, icon = br.player.spell.misdirection }
     };
-    CreateButton("Misdirection",7,0)
+    CreateButton("Misdirection",5,0)
+--Pet summon
+    PetSummonModes = {
+        [1] = { mode = "1", value = 1 , overlay = "Summon Pet 1", tip = "Summon Pet 1", highlight = 1, icon = br.player.spell.callPet1 },
+        [2] = { mode = "2", value = 2 , overlay = "Summon Pet 2", tip = "Summon Pet 2", highlight = 1, icon = br.player.spell.callPet2 },
+        [3] = { mode = "3", value = 3 , overlay = "Summon Pet 3", tip = "Summon Pet 3", highlight = 1, icon = br.player.spell.callPet3 },
+        [4] = { mode = "4", value = 4 , overlay = "Summon Pet 4", tip = "Summon Pet 4", highlight = 1, icon = br.player.spell.callPet4 },
+        [5] = { mode = "5", value = 5 , overlay = "Summon Pet 5", tip = "Summon Pet 5", highlight = 1, icon = br.player.spell.callPet5 },
+        [6] = { mode = "None", value = 6 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.callPet }
+    };
+    CreateButton("PetSummon",6,0)
 end
 
 ---------------
@@ -57,16 +67,17 @@ local function createOptions()
             br.ui:createCheckbox(section, "Barrage")
         -- Explosive Shot
             -- br.ui:createCheckbox(section, "Explosive Shot")
+        -- Misdirection
+            br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Piercing Shot
             -- br.ui:createCheckbox(section, "Piercing Shot")
             br.ui:createSpinnerWithout(section, "Piercing Shot Units", 3, 1, 5, 1, "|cffFFFFFFSet to desired units to cast Piercing Shot")
-        -- Artifact
-            br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
         -- Auto Summon
-            br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+            -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
         -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
         -- Auto Growl
@@ -192,7 +203,7 @@ local function runRotation()
         local php                                           = br.player.health
         local potion                                        = br.player.potion
         local power, powerMax, powerRegen, powerDeficit     = br.player.power.focus.amount(), br.player.power.focus.max(), br.player.power.focus.regen(), br.player.power.focus.deficit()
-        local pullTimer                                     = br.DBM:getPulltimer()
+        local pullTimer                                     = PullTimerRemain()
         local racial                                        = br.player.getRacial()
         local solo                                          = #br.friend < 2
         local spell                                         = br.player.spell
@@ -205,6 +216,7 @@ local function runRotation()
 
         units.get(40)
         enemies.get(8)
+        enemies.get(8,"pet")
         enemies.get(40,"player",false,true)
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -243,24 +255,24 @@ local function runRotation()
     -- Action List - Pet Management
         local function actionList_PetManagement()
             if not talent.loneWolf then
-                if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
+                local petActive = IsPetActive()
+                local petExists = UnitExists("pet")
+                local petDead = UnitIsDeadOrGhost("pet")
+                local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
+
+                if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                     waitForPetToAppear = GetTime()
-                elseif isChecked("Auto Summon") then
-                    local callPet = nil
-                    for i = 1, 5 do
-                        if getValue("Auto Summon") == i then callPet = spell["callPet"..i] end
-                    end
+                elseif mode.petSummon ~= 6 then
+                    local callPet = spell["callPet"..mode.petSummon]
                     if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                        if UnitExists("pet") and IsPetActive() and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
+                        if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                             if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
                         elseif callPet ~= nil then
-                            if UnitIsDeadOrGhost("pet") or deadPet then
-                                if cast.able.heartOfThePhoenix() and inCombat then
-                                    if cast.heartOfThePhoenix() then waitForPetToAppear = GetTime(); return true end
-                                else
+                            if petDead then
+                                if cast.able.revivePet() then
                                     if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                                 end
-                            elseif not deadPet and not (IsPetActive() or UnitExists("pet")) then
+                            elseif not petDead and not (petActive or petExists) and not buff.playDead.exists("pet") then
                                 if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                             end
                         end
@@ -289,26 +301,67 @@ local function runRotation()
                         petMode = "Passive"
                     end
                     -- Pet Attack / retreat
-                    if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not GetUnitIsUnit("target","pettarget") then
-                        -- Print("Pet is switching to your target.")
-                        PetAttack()
-                    end
-                    if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+                    if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+                        if getOptionValue("Pet Target") == 1 then
+                            PetAttack(units.dyn40)
+                        elseif getOptionValue("Pet Target") == 2 then
+                            PetAttack("target")
+                        elseif getOptionValue("Pet Target") == 3 then
+                            for i=1, #enemies.yards40 do
+                                local thisUnit = enemies.yards40[i]
+                                if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
+                            end
+                        end
+                    elseif (not inCombat or (inCombat and not validTarget and not isDummy())) and IsPetAttackActive() then
                         PetStopAttack()
                         PetFollow()
                     end
                 end
+                -- Cat-like Refelexes
+                if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
+                    if cast.catlikeReflexes() then return end
+                end
+                -- Claw
+                if isChecked("Claw") and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
+                    if cast.claw("pettarget","pet") then return end
+                end
+                -- Dash
+                if isChecked("Dash") and cast.able.dash() and validTarget and getDistance("pettarget","pet") > 10 then
+                    if cast.dash(nil,"pet") then return end
+                end
                 -- Growl
                 if isChecked("Auto Growl") then
-                    local petGrowl = GetSpellInfo(2649)
-                    if isTankInRange() then
-                        DisableSpellAutocast(petGrowl)
-                    else
-                        EnableSpellAutocast(petGrowl)
+                    local _, autoCastEnabled = GetSpellAutocast(spell.growl)
+                    if autoCastEnabled then DisableSpellAutocast(spell.growl) end
+                    if not isTankInRange() and not buff.prowl.exists("pet") then
+                        if getOptionValue("Misdirection") == 3 and cast.able.misdirection("pet") and #enemies.yards8p > 1 then
+                            if cast.misdirection("pet") then return end
+                        end
+                        if cast.able.growl() then
+                            for i = 1, #enemies.yards40 do
+                                local thisUnit = enemies.yards40[i]
+                                if isTanking(thisUnit) then
+                                    if cast.growl(thisUnit,"pet") then return end
+                                end
+                            end
+                        end
                     end
                 end
+                -- Play Dead / Wake Up
+                if cast.able.playDead() and not buff.playDead.exists("pet") and getHP("pet") < 20 then
+                    if cast.playDead() then return end
+                end
+                if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() and getHP("pet") >= 20 then
+                    if cast.wakeUp() then return end
+                end
+                -- Prowl
+                if isChecked("Prowl") and not inCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
+                    if cast.prowl() then return end
+                end
                 -- Mend Pet
-                if isChecked("Mend Pet") and UnitExists("pet") and not UnitIsDeadOrGhost("pet") and not deadPet and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet") then
+                if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead
+                    and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+                then
                     if cast.mendPet() then return end
                 end
             end
@@ -330,19 +383,28 @@ local function runRotation()
             end -- End Dummy Test
         -- Misdirection
             if mode.misdirection == 1 then
-                if cd.misdirection.remain() <= 0.1 then
-                    if isValidUnit("target") then
-                        if inInstance or inRaid then
-                            for i = 1, #br.friend do
-                                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and UnitAffectingCombat(br.friend[i].unit) then
-                                    if cast.misdirection(br.friend[i].unit) then return end
-                                end
-                            end
-                        else
-                            if GetUnitExists("pet") then
-                                if cast.misdirection("pet") then return end
+                if isValidUnit("target") then
+                    local misdirectUnit = "pet"
+                    if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
+                        for i = 1, #br.friend do
+                            local thisFriend = br.friend[i].unit
+                            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
+                                and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
+                            then
+                                misdirectUnit = thisFriend
+                                break
                             end
                         end
+                    end
+                    if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus")
+                        and GetUnitIsFriend("focus","player")
+                    then
+                        misdirectUnit = "focus"
+                    end
+                    if GetUnitExists(misdirectUnit) and UnitAffectingCombat(misdirectUnit)
+                        and not UnitIsDeadOrGhost(misdirectUnit) and GetUnitIsFriend(misdirectUnit,"player")
+                    then
+                        if cast.misdirection(misdirectUnit) then return end
                     end
                 end
             end
@@ -630,11 +692,14 @@ local function runRotation()
                     end
             -- Double Tap 
                     -- double_tap,precast_time=10
+                    if cast.able.doubleTap() and pullTimer <= 10 then 
+                        if cast.doubleTap() then return end
+                    end
             -- Trueshot 
                     -- trueshot,precast_time=1.5,if=active_enemies>2
             -- Aimed Shot
                     -- aimed_shot,if=active_enemies<3
-                    if cast.able.aimedShot() and ((mode.rotation == 1 and #enemies.yards40f < 3) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
+                    if cast.able.aimedShot() and pullTimer <= 2 then --and ((mode.rotation == 1 and #enemies.yards40f < 3) or (mode.rotation == 3 and #enemies.yards40f > 0)) then
                         if cast.aimedShot("target") then return end
                     end
             -- Auto Shot
