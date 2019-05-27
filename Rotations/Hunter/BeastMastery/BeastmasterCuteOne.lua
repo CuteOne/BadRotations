@@ -249,11 +249,11 @@ actionList.PetManagement = function()
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
-                if petDead then
+                if petDead or deadPet then
                     if cast.able.revivePet() then
                         if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                     end
-                elseif not petDead and not (petActive or petExists) and not buff.playDead.exists("pet") then
+                elseif (not petDead and not deadPet) and not (petActive or petExists) and not buff.playDead.exists("pet") then
                     if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
@@ -311,7 +311,7 @@ actionList.PetManagement = function()
         if cast.dash(nil,"pet") then return end
     end
     -- Spirit Mend
-    if isChecked("Spirit Mend") and petExists and not petDead and not petDead and lowestHP < getOptionValue("Spirit Mend") then
+    if isChecked("Spirit Mend") and petExists and not petDead and lowestHP < getOptionValue("Spirit Mend") then
         local thisUnit = br.friend[1].unit
         if cast.spiritmend(thisUnit) then return end
     end
@@ -378,12 +378,12 @@ actionList.PetManagement = function()
     end
     -- Mend Pet
     if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead
-        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+        and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
     then
         if cast.mendPet() then return end
     end
     -- Spirit Mend
-    if isChecked("Spirit Mend") and petExists and not petDead and not petDeads and lowestHP < getOptionValue("Spirit Mend") then
+    if isChecked("Spirit Mend") and petExists and not petDead and lowestHP < getOptionValue("Spirit Mend") then
         local thisUnit = br.friend[1]
         if cast.spiritmend(thisUnit) then return end
     end
@@ -496,7 +496,7 @@ actionList.Interrupts = function()
             end
         end
         -- Intimidation
-        if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and not deadPets then
+        if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and UnitExists("pet") then
             for i=1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
