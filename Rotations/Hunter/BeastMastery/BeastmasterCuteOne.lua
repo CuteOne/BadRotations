@@ -188,7 +188,7 @@ local item
 local level
 local lowestHP
 local mode
---local opener
+local opener
 local php
 local potion
 local race
@@ -199,8 +199,8 @@ local traits
 local ttm
 local units
 local use
-
 -- General Locals
+local actionList
 local critChance
 local flying
 local hastar
@@ -233,7 +233,7 @@ end
 --------------------
 --- Action Lists ---
 --------------------
-local actionList = {}
+actionList = {}
 -- Action List - Pet Management
 actionList.PetManagement = function()
     local petActive = IsPetActive()
@@ -249,11 +249,11 @@ actionList.PetManagement = function()
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
-                if petDead then
+                if petDead or deadPet then
                     if cast.able.revivePet() then
                         if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
                     end
-                elseif not petDead and not (petActive or petExists) and not buff.playDead.exists("pet") then
+                elseif (not petDead and not deadPet) and not (petActive or petExists) and not buff.playDead.exists("pet") then
                     if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
@@ -311,7 +311,7 @@ actionList.PetManagement = function()
         if cast.dash(nil,"pet") then return end
     end
     -- Spirit Mend
-    if isChecked("Spirit Mend") and petExists and not petDead and not petDead and lowestHP < getOptionValue("Spirit Mend") then
+    if isChecked("Spirit Mend") and petExists and not petDead and lowestHP < getOptionValue("Spirit Mend") then
         local thisUnit = br.friend[1].unit
         if cast.spiritmend(thisUnit) then return end
     end
@@ -358,7 +358,7 @@ actionList.PetManagement = function()
             if cast.able.growl() then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not isTanking(thisUnit) then
+                    if isTanking(thisUnit) then
                         if cast.growl(thisUnit) then return end
                     end
                 end
@@ -378,12 +378,12 @@ actionList.PetManagement = function()
     end
     -- Mend Pet
     if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead
-        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+        and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
     then
         if cast.mendPet() then return end
     end
     -- Spirit Mend
-    if isChecked("Spirit Mend") and petExists and not petDead and not petDeads and lowestHP < getOptionValue("Spirit Mend") then
+    if isChecked("Spirit Mend") and petExists and not petDead and lowestHP < getOptionValue("Spirit Mend") then
         local thisUnit = br.friend[1]
         if cast.spiritmend(thisUnit) then return end
     end
@@ -405,21 +405,27 @@ actionList.Extras = function()
     -- Misdirection
     if mode.misdirection == 1 then
         if isValidUnit("target") then
+            local misdirectUnit = "pet"
             if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
                 for i = 1, #br.friend do
                     local thisFriend = br.friend[i].unit
                     if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
                         and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
                     then
-                        if cast.misdirection(thisFriend) then return end
+                        misdirectUnit = thisFriend
+                        break
                     end
                 end
-            elseif getOptionValue("Misdirection") == 2 and GetUnitExists("focus")
-                and not UnitIsDeadOrGhost("focus") and GetUnitIsFriend("focus","player")
+            end
+            if getOptionValue("Misdirection") == 2 and not UnitIsDeadOrGhost("focus")
+                and GetUnitIsFriend("focus","player")
             then
-                if cast.misdirection("focus") then return end
-            elseif getOptionValue("Misdirection") == 3 and GetUnitExists("pet") and not UnitIsDeadOrGhost("pet") then
-                if cast.misdirection("pet") then return end
+                misdirectUnit = "focus"
+            end
+            if GetUnitExists(misdirectUnit) and UnitAffectingCombat(misdirectUnit)
+                and not UnitIsDeadOrGhost(misdirectUnit) and GetUnitIsFriend(misdirectUnit,"player")
+            then
+                if cast.misdirection(misdirectUnit) then return end
             end
         end
     end
@@ -490,7 +496,7 @@ actionList.Interrupts = function()
             end
         end
         -- Intimidation
-        if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and not deadPets then
+        if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and UnitExists("pet") then
             for i=1, #enemies.yards40 do
                 thisUnit = enemies.yards40[i]
                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then

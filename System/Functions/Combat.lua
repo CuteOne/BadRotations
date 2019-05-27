@@ -241,7 +241,7 @@ function hasThreat(unit,playerUnit)
 	end
 end
 function isTanking(unit)
-	return UnitDetailedThreatSituation("player",unit) ~= nil
+	return UnitThreatSituation("player", unit) ~= nil and UnitThreatSituation("player", unit) >= 2
 end
 -- if isAggroed("target") then
 function isAggroed(unit)
