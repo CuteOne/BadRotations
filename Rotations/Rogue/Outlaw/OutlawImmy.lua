@@ -1,9 +1,15 @@
-local rotationName = "immy"
+local rotationName = "immy1 "
 local br = br
 br.rogueTables = {}
 local rogueTables = br.rogueTables
-rogueTables.enemyTable5, rogueTables.enemyTable20, rogueTables.enemyTable30 = {}, {}, {}
-local enemyTable5, enemyTable20, enemyTable30 = rogueTables.enemyTable5, rogueTables.enemyTable20, rogueTables.enemyTable30
+rogueTables.enemyTable5, rogueTables.enemyTable15, rogueTables.enemyTable20, rogueTables.burnTable20, rogueTables.burnTable5 = {}, {}, {}, {}, {}
+local enemyTable5, enemyTable15, enemyTable20, burnTable20, burnTable5 = rogueTables.enemyTable5, rogueTables.enemyTable15, rogueTables.enemyTable20, rogueTables.burnTable20, rogueTables.burnTable5
+local forcekill = {
+            [120651]=true, -- Explosive
+            [136330]=true, -- Soul Thorns Waycrest Manor
+            [134388]=true -- A Knot of Snakes ToS
+            }
+
 ---------------
 --- Toggles ---
 ---------------
@@ -21,8 +27,9 @@ local function createToggles()
     };
     CreateButton("BladeFlurry",2,0)
     NoBTEModes = {
-        [1] = { mode = "", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
-        [2] = { mode = "", value = 2 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.betweenTheEyes}
+        [1] = { mode = "best", value = 1 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
+        [2] = { mode = "target", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.betweenTheEyes},
+        [3] = { mode = "off", value = 3 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.betweenTheEyes}
     };
     CreateButton("NoBTE",2,1)    
 -- Defensive Button
@@ -61,6 +68,10 @@ local function createToggles()
     CreateButton("Rollforone",5,1)    
 end
 
+forpro = false
+
+
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -72,9 +83,10 @@ local function createOptions()
         --- GENERAL OPTIONS ---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
-            br.ui:createCheckbox(section, "Opener")
-            br.ui:createCheckbox(section, "RTB Prepull")
+            -- br.ui:createCheckbox(section, "Opener")
+            -- br.ui:createCheckbox(section, "RTB Prepull")
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
+
         br.ui:checkSectionState(section)
         ------------------------
         --- OFFENSIVE OPTIONS ---
@@ -85,16 +97,20 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             br.ui:createSpinnerWithout(section, "BF HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *10k hp for Blade FLurry to be used")
             br.ui:createSpinner(section, "Pistol Shot out of range", 85,  5,  100,  5,  "|cffFFFFFFCheck to use Pistol Shot out of range and energy to use at.")
-            br.ui:createSpinnerWithout(section, "MFD Sniping",  1,  0.5,  3,  0.1,  "|cffFFBB00Increase to have BR cast MFD on dying units quicker, too high might cause suboptimal casts")
+            -- br.ui:createSpinnerWithout(section, "MFD Sniping",  1,  0.5,  3,  0.1,  "|cffFFBB00Increase to have BR cast MFD on dying units quicker, too high might cause suboptimal casts")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Special")
             br.ui:createCheckbox(section, "AutoBtE", "|cffFFFFFF Auto BtE dangerous casts")
             br.ui:createCheckbox(section, "AutoGouge", "|cffFFFFFF Auto Gouge dangerous casts")
             br.ui:createCheckbox(section, "AutoBlind", "|cffFFFFFF Auto Blind dangerous casts")
-            br.ui:createCheckbox(section, "|cffFF0000Force Burn Stuff", "Ghuunies/explosives orb = rip")
+            br.ui:createCheckbox(section, "AutoKick", "|cffFFFFFF Auto Kick dangerous casts")
+            br.ui:createCheckbox(section, "Any Cast", "|cffFFFFFF Auto CC any cast")
+            br.ui:createCheckbox(section, "|cffFF0000Force Burn Stuff", "Ghuunies/explosives orb = rip or hold shift")
+            br.ui:createCheckbox(section, "DontWasteDeadShotOnOrbs")
             br.ui:createCheckbox(section, "|cffFFBB00Encounter Logic", "Use PvE Logic")
             br.ui:createCheckbox(section, "Ambush Opener", "Will use ambush as soon as target is in range")
+            br.ui:createCheckbox(section, "PickPocket", "Will PickPocket before ambush ^^ for tmog")
         br.ui:checkSectionState(section)
          -------------------------
         --- INTERRUPT OPTIONS ---
@@ -111,6 +127,18 @@ local function createOptions()
             -- Interrupt Percentage
             br.ui:createSpinner(section,  "Interrupt At",  0,  0,  100,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
+
+            -------------------------
+            --- DEFENSIVE OPTIONS ---
+            -------------------------
+            section = br.ui:createSection(br.ui.window.profile, "Defensive")
+            br.ui:createSpinner(section, "Healing Potion/Healthstone", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Crimson Vial", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Feint", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Riposte", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Engineer's' Belt", 10, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:checkSectionState(section)
+
         ----------------------
         --- TOGGLE OPTIONS ---
         ----------------------
@@ -145,6 +173,11 @@ end
 local function runRotation()
     local profile = br.debug.cpu.rotation.profile
     local startTime = debugprofilestop()
+
+    -- WriteFile("countvisible.txt", countvisible .. "\n", true)
+    -- print(countvisible)
+    -- countvisible = 0
+
         --Print("Running: "..rotationName)
 
 ---------------
@@ -163,6 +196,10 @@ local function runRotation()
 --------------
 --- Locals ---
 --------------
+        -- print(br.DBM:getTimer(13892))
+        -- print(IsItemInRange(44915)) --20
+        -- print(tostring(br.BossMods:getPulltimer()))
+        ---------------------------------------------------------
         if profileStop == nil then profileStop = false end
         local attacktar                                     = UnitCanAttack("target","player")
         local charges                                       = br.player.charges
@@ -170,13 +207,13 @@ local function runRotation()
         local cast                                          = br.player.cast
         local cd                                            = br.player.cd
         local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
-        local combospend                                    = ComboMaxSpend()
-        local cTime                                         = getCombatTime()
         local debuff                                        = br.player.debuff
+        -- local pullTimer                                     = br.BossMods:getPulltimer()
         local enemies                                       = br.player.enemies
         local gcd                                           = getSpellCD(61304)
         local gcdMax                                        = br.player.gcdMax
         local hastar                                        = GetObjectExists("target")
+        local has                                           = br.player.has
         local healPot                                       = getHealthPot()
         local inCombat                                      = isInCombat("player")
         local lastSpell                                     = lastSpellCast
@@ -195,20 +232,65 @@ local function runRotation()
         local traits                                        = br.player.traits
         local ttm                                           = br.player.power.energy.ttm()
         local units                                         = br.player.units
+        local use                                           = br.player.use
         local lootDelay                                     = getOptionValue("LootDelay")
+        -- ToggleToValue("BladeFlurry", 1)
+        -- print(1)
+
+    
+    
+    -- print(checkDR(199804,"target"))
+    -- print(UnitClassification("target"))
+    if not UnitAffectingCombat("player") then
+        if not talent.markedForDeath then
+            buttonMFD:Hide()
+        else
+            buttonMFD:Show()
+        end
+        if not talent.killingSpree and not talent.bladeRush then
+            ToggleToValue("Tierseven", 2)
+            buttonTierseven:Hide()
+        else
+            buttonTierseven:Show()
+        end
+    end
+
+    local spread = false
+    if GetKeyState(0x10) then
+      spread = true
+    end
 
         dotHPLimit = getOptionValue("BF HP Limit") * 10000
 
-        local forcekill = {
-                        [120651] = true -- explosive orb
-                        --[141851] = true, -- ghuunies
-                        --[144081] = true
-                        } 
+        
+
         
 --______________________________________
-    enemies.get(20)
-    enemies.get(20,"player",true)
-    enemies.get(30)
+    
+    enemies.get(20,nil,nil,nil,spell.pistolShot)
+    enemies.get(20,nil,true,nil,spell.pistolShot)
+
+    local function PickPocketable(Unit)
+        if Unit == nil then Unit = "target" end
+        local unitType = UnitCreatureType(Unit)
+        local types = {
+            "Humanoid",
+            "Humanoid",
+            "Humanoide",
+            "Humanoide",
+            "Humanoïde",
+            "Umanoide",
+            "Humanoide",
+            "Гуманоид",
+            "인간형",
+            "人型生物",
+            "人型生物"
+        }
+        for i = 1, #types do
+            if unitType == types[i] then return true end
+        end
+        return false
+    end
 
     local function ttd(unit)
         if UnitIsPlayer(unit) then return 999 end
@@ -243,139 +325,177 @@ local function runRotation()
         local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
         if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end 
         return(
-                apMod * 5 * rtcoef * auramult * dsmod * versmult
+                apMod * combo * rtcoef * auramult * dsmod * versmult
                 )
     end
 
-    local function isTotem(unit)
-        local eliteTotems = { -- totems we can dot
-            [125977] = "Reanimate Totem",
-            [127315] = "Reanimate Totem",
-            [146731] = "Zombie Dust Totem"
-        }
-        local creatureType = UnitCreatureType(unit)
-        local objectID = GetObjectID(unit)
-        if creatureType ~= nil and eliteTotems[objectID] == nil then
-            if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
-        end
-        return false
-    end
+    -- local function isTotem(unit)
+    --     local eliteTotems = { -- totems we can dot
+    --         [125977] = "Reanimate Totem",
+    --         [127315] = "Reanimate Totem",
+    --         [146731] = "Zombie Dust Totem"
+    --     }
+    --     local creatureType = UnitCreatureType(unit)
+    --     local objectID = GetObjectID(unit)
+    --     if creatureType ~= nil and eliteTotems[objectID] == nil then
+    --         if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+    --     end
+    --     return false
+    -- end
 
-    local function noDotCheck(unit)
-        if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
-        if isTotem(unit) then return true end
-        local unitCreator = UnitCreator(unit)
-        if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
-        if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
-        return false
-    end
+    -- local function noDotCheck(unit)
+    --     if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
+    --     if isTotem(unit) then return true end
+    --     local unitCreator = UnitCreator(unit)
+    --     if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
+    --     if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+    --     return false
+    -- end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+                
     local function clearTable(t)
         local count = #t
         for i=0, count do t[i]=nil end
     end
-
+    -- local sortingorbs = false
+    -- local sort5 = false
+    local bftargets = 0
+    local notargetsort = false
     clearTable(enemyTable5)
+    clearTable(enemyTable15)
     clearTable(enemyTable20)
-    clearTable(enemyTable30)
+    clearTable(burnTable20)
+    clearTable(burnTable5)
+
     -- ?? mfd nill
-    if #enemies.yards30 > 0 then
+    if #enemies.yards20 > 0 then
         local highestHP
         local lowestHP
-        for i = 1, #enemies.yards30 do
-            local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
+        
+        --------- Filling enemyTable20
+        for i = 1, #enemies.yards20 do
+            local thisUnit = enemies.yards20[i]
+            if not UnitIsDeadOrGhost(thisUnit) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
-                enemyUnit.distance = getDistance(thisUnit)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
-                enemyUnit.facing = getFacing("player",thisUnit)
-                tinsert(enemyTable30, enemyUnit)
+                enemyUnit.id = GetObjectID(enemyUnit.unit)
+                if IsSpellInRange(GetSpellInfo(1766), enemyUnit.unit) == 1 then
+                    -- sort5 = true
+                    if  enemyUnit.hpabs >= dotHPLimit and not forcekill[enemyUnit.id] then
+                        bftargets = bftargets + 1
+                    end
+                    enemyUnit.distance = 5
+                    enemyUnit.facing = getFacing(thisUnit,"player")
+                elseif IsSpellInRange(GetSpellInfo(2094), enemyUnit.unit) == 1 then
+                    enemyUnit.distance = 15
+                else
+                    enemyUnit.distance = 19
+                end
+
+                -- enemyUnit.id
+                -- if forc
+                
+                if forcekill[enemyUnit.id] then
+                    if enemyUnit.distance <= 5 then
+                        tinsert(burnTable5, enemyUnit)
+                    end
+                    tinsert(burnTable20,enemyUnit)
+                end
+                tinsert(enemyTable20, enemyUnit)
                 if highestHP == nil or highestHP < enemyUnit.hpabs then highestHP = enemyUnit.hpabs end
                 if lowestHP == nil or lowestHP > enemyUnit.hpabs then lowestHP = enemyUnit.hpabs end
-                if enemyTable30.lowestTTDUnit == nil or enemyTable30.lowestTTD > enemyUnit.ttd then
-                    enemyTable30.lowestTTDUnit = enemyUnit.unit
-                    enemyTable30.lowestTTD = enemyUnit.ttd
+                if enemyTable20.lowestTTDUnit == nil or enemyTable20.lowestTTD > enemyUnit.ttd then
+                    enemyTable20.lowestTTDUnit = enemyUnit.unit
+                    enemyTable20.lowestTTD = enemyUnit.ttd
                 end
-                if enemyUnit.hpabs <= rtdamage() then mfdtarget = thisUnit end
+                if talent.markedForDeath and enemyUnit.hpabs <= rtdamage() then mfdtarget = thisUnit end
             end
         end
-        if #enemyTable30 > 1 then
-            for i = 1, #enemyTable30 do
-                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable30[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
+        ----------------Enemy Score + Sorting
+        if #enemyTable20 > 1 then
+            for i = 1, #enemyTable20 do
+                local hpNorm = (10-1)/(highestHP-lowestHP)*(enemyTable20[i].hpabs-highestHP)+10 -- normalization of HP value, high is good
                 if hpNorm ~= hpNorm or tostring(hpNorm) == tostring(0/0) then hpNorm = 0 end -- NaN check
                 local enemyScore = hpNorm
-                if enemyTable30[i].facing then enemyScore = enemyScore + 30 end -- ??
-                if enemyTable30[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
-                if enemyTable30[i].distance <= 5 then enemyScore = enemyScore + 30 end
-                local raidTarget = GetRaidTargetIndex(enemyTable30[i].unit)
+                -- if enemyTable20[i].facing then enemyScore = enemyScore + 30 end -- ??
+                if enemyTable20[i].ttd > 1.5 then enemyScore = enemyScore + 5 end
+                if enemyTable20[i].distance <= 5 then enemyScore = enemyScore + 30 end
+                local raidTarget = GetRaidTargetIndex(enemyTable20[i].unit)
                 if raidTarget ~= nil then 
                     enemyScore = enemyScore + raidTarget * 3
                     if raidTarget == 8 then enemyScore = enemyScore + 5 end
                 end
+                if talent.preyOnTheWeak and UnitDebuffID(enemyTable20[i].unit, 255909) then
+                    notargetsort = true
+                    enemyScore = enemyScore + 50
+                end
                 --if UnitBuffID(enemyTable30[i].unit, 277242) then enemyScore = enemyScore + 50 end -- ghuun check
                 -- MfD Priority
-                if UnitBuffID(enemyTable30[i].unit, 137619) then enemyScore = enemyScore + 50 end  --vend score
-                enemyTable30[i].enemyScore = enemyScore
+                -- if UnitBuffID(enemyTable30[i].unit, 137619) then enemyScore = enemyScore + 50 end  --vend score
+                enemyTable20[i].enemyScore = enemyScore
             end
-            table.sort(enemyTable30, function(x,y)
+            table.sort(enemyTable20, function(x,y)
                 return x.enemyScore > y.enemyScore
             end)
         end
-        for i = 1, #enemyTable30 do
-            local thisUnit = enemyTable30[i]
-            local fokIgnore = {
-                [120651]=true -- Explosive
-            }
-            local objectID = GetObjectID(thisUnit.unit)
-            if thisUnit.distance <= 20 then
-                if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
-                    tinsert(enemyTable20, thisUnit)
-                    --if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
-                end
-                --if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
-                if thisUnit.distance <= 5 then
-                    tinsert(enemyTable5, thisUnit)
-                end
+        
+        ------ Filling other range tables
+        for i = 1, #enemyTable20 do
+            local thisUnit = enemyTable20[i]
+            -- local fokIgnore = {
+            --     -- [120651]=true -- Explosive
+            -- }
+            -- if thisUnit.distance <= 20 then
+            -- if fokIgnore[objectID] == nil and not isTotem(thisUnit.unit) then
+            --     tinsert(enemyTable20, thisUnit)
+            --     --if deadlyPoison10 and not debuff.deadlyPoison.exists(thisUnit.unit) then deadlyPoison10 = false end
+            -- end
+            --if debuff.garrote.remain(thisUnit.unit) > 0.5 then garroteCount = garroteCount + 1 end
+            if enemyTable20[i].distance <= 15 then
+                tinsert(enemyTable15, thisUnit)
             end
+            if enemyTable20[i].distance <= 5 then
+                -- local objectID = GetObjectID(thisUnit.unit)
+                -- local x,y,z = ObjectPosition(thisUnit.unit)
+                -- if forcekill[objectID] then sortingorbs = true end
+                -- LibDraw.Circle(x,y,z,2)
+                tinsert(enemyTable5, thisUnit)
+                -- libdra
+            end
+            -- end
         end
         if #enemyTable5 > 1 then
-            if isChecked("|cffFF0000Force Burn Stuff") then
+            if talent.markedForDeath and mode.mfd == 3 and mfdtarget ~= nil then
                 table.sort(enemyTable5, function(x)
-                    local thisUnit = enemyTable5[i]
-                    local objectID = GetObjectID(thisUnit.unit)
-                    if forcekill[objectID] ~= nil then
+                    if GetUnitIsUnit(x.unit, "mfdtarget") then
                         return true
                     else
                         return false
                     end
                 end)
             end
-            table.sort(enemyTable5, function(x)
-                if mode.mfd == 3 then
-                    if GetUnitIsUnit(x.unit, "mfdtarget") then
+            if not notargetsort then
+                table.sort(enemyTable5, function(x)
+                    if GetUnitIsUnit(x.unit, "target") then
                         return true
                     else
                         return false
                     end
-                end
-            end)
-            table.sort(enemyTable5, function(x)
-                if GetUnitIsUnit(x.unit, "target") then
-                    return true
-                else
-                    return false
-                end
-            end)
+                end)
+            end
+            
         end
-        if inCombat and #enemyTable30 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable30[1].unit, "target")) or not GetUnitExists("target")) then
-            TargetUnit(enemyTable30[1].unit)
+        if inCombat and #enemyTable5 > 0 and ((GetUnitExists("target") and UnitIsDeadOrGhost("target") and not GetUnitIsUnit(enemyTable5[1].unit, "target")) or not GetUnitExists("target")) then
+            TargetUnit(enemyTable5[1].unit)
         end
     end
     --Just nil fixes
-    if enemyTable30.lowestTTD == nil then enemyTable30.lowestTTD = 999 end
-
+    if enemyTable20.lowestTTD == nil then enemyTable20.lowestTTD = 999 end
+    -- print(bftargets)
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         
 
@@ -417,21 +537,19 @@ local function runRotation()
         --         -- end)
         --     end  
         -- end
-        
+        local function shouldFinish()
+            -- if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
+            if combo >= comboMax - ((buff.broadside.exists("player") and 1 or 0) + ((buff.opportunity.exists("player") and 1 or 0)))*(talent.quickDraw and (not talent.markedForDeath or cd.markedForDeath.remain() > 1) and 1 or 0) then
+                return true
+            else 
+                return false
+            end
+        end
         
         if leftCombat == nil then leftCombat = GetTime() end
         if vanishTime == nil then vanishTime = GetTime() end
 
-        local function viabletargetcount()
-            local counter = 0
-            for i = 1, #enemyTable5 do
-                        local thisUnit = enemyTable5[i].unit
-                        if UnitHealth(thisUnit) > dotHPLimit and GetObjectID(thisUnit) ~= 120651  then 
-                            counter = counter + 1
-                        end
-            end
-            return tonumber(counter)
-        end
+        
         --print(viabletargetcount())
 
         if buff.rollTheBones == nil then buff.rollTheBones = {} end
@@ -449,62 +567,127 @@ local function runRotation()
    
 
         local function rtbReroll()
-            if mode.rollforone == 1 then if buff.rollTheBones.count > 0 then return false end
-            elseif traits.snakeeyes.rank > 0 then
-                    if traits.snakeeyes.rank >= 2 and (buff.snakeeeyes.stack() >= 2 - (buff.broadside.exists() and 1 or 0)) then
-                        return false
+            if mode.rollforone == 1 then 
+                if buff.rollTheBones.count > 0 then return false end
+            else
+                if buff.bladeFlurry.exists("player") and bftargets >= 2 then
+                    -- print("aoe roll")
+                    return ((buff.rollTheBones.count < 2 and not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists() and not buff.broadside.exists()) or
+                        (buff.rollTheBones.count == 2 and ((buff.skullAndCrossbones.exists() and buff.trueBearing.exists()) or (buff.skullAndCrossbones.exists() and buff.buriedTreasure.exists())))) and true or false
+                elseif traits.snakeeyes.rank > 0 then
+                    if traits.snakeeyes.rank >= 2 then
+                        if (buff.snakeeeyes.stack() >= 2 - (buff.broadside.exists() and 1 or 0)) then
+                            return false
+                        else
+                            return true
+                        end
                     elseif buff.rollTheBones.count < 2 or (traits.snakeeyes.rank >= 3 and buff.rollTheBones.count < 5) then
                         return true
                     end
-            elseif traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0 then 
-                return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (buff.ruthlessPrecision.remain() <= br.player.cd.betweenTheEyes.remain()))) and true or false
-            --rtb_reroll,value=rtb_buffs<2&(buff.loaded_dice.up|!buff.grand_melee.up&!buff.ruthless_precision.up)
-            else return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists()))) and true or false
+                elseif traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0 then 
+                    -- print("123")
+                    return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (buff.ruthlessPrecision.remain() <= br.player.cd.betweenTheEyes.remain()))) and true or false
+                --rtb_reroll,value=rtb_buffs<2&(buff.loaded_dice.up|!buff.grand_melee.up&!buff.ruthless_precision.up)
+                else 
+                    -- print("123312")
+                    return (buff.rollTheBones.count < 2 and (buff.loadedDice.exists() or (not buff.grandMelee.exists() and not buff.ruthlessPrecision.exists()))) and true or false 
+                end
             end
         end
         --actions+=/variable,name=ambush_condition,value=combo_points.deficit>=2+2*(talent.ghostly_strike.enabled&cooldown.ghostly_strike.remains<1)+buff.broadside.up&energy>60&!buff.skull_and_crossbones.up
 
         local function ambushCondition()
-            if comboDeficit >= 2 + 2 * ((talent.ghostlyStrike and cd.ghostlyStrike.remain() < 1) and 1 or 0) + (buff.broadside.exists() and 1 or 0) and power > 60 and not buff.skullAndCrossbones.exists()
-                then
-            return true
-            else return false
+            if comboDeficit >= 2 + 2 * ((talent.ghostlyStrike and cd.ghostlyStrike.remain() < 1) and 1 or 0) + (buff.broadside.exists() and 1 or 0) and power > 60 and not buff.skullAndCrossbones.exists() then
+                return true
             end
+            return false
         end
 
         local function bladeFlurrySync()
-            return not mode.bladeflurry == 1 or viabletargetcount() < 2 or buff.bladeFlurry.exists()
+            return not mode.bladeflurry == 1 or bftargets < 2 or buff.bladeFlurry.exists()
         end
         -- finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
 
 -- # Finish at maximum CP. Substract one for each Broadside and Opportunity when Quick Draw is selected and MfD is not ready after the next second.
 -- actions+=/call_action_list,name=finish,if=combo_points>=cp_max_spend-(buff.broadside.up+buff.opportunity.up)*(talent.quick_draw.enabled&(!talent.marked_for_death.enabled|cooldown.marked_for_death.remains>1))
-        local function shouldFinish()
-            if talent.quickDraw then
-                if buff.broadside.exists() then
-                    combospend = combospend - 1
-                end
-                if buff.opportunity.exists() then
-                    combospend = combospend - 1
+        
+        -- print(shouldFinish())
+
+        local function cast5yards(skill,stuff)
+
+            if isChecked("|cffFF0000Force Burn Stuff") or spread then
+                for i = 1, #burnTable5 do
+                    local thisUnit = burnTable5[i].unit
+                    if stuff then
+                        if cast[skill](thisUnit) then return true end
+                    end
                 end
             end
-            if combo >= combospend  then
-                return true
-            else 
-                return false
+
+            for i = 1, #enemyTable5 do
+                local thisUnit = enemyTable5[i].unit
+                if stuff then
+                    if cast[skill](thisUnit) then return true end
+                end
             end
         end
 
-            
-        local function cast5yards(skill,stuff)
-                for i = 1, #enemyTable5 do
-                        local thisUnit = enemyTable5[i].unit
-                        if stuff then
-                            if cast[skill](thisUnit) then return true end
-                        end
+        local function cast20yards(skill,stuff)
+            if skill == "betweenTheEyes" and (mode.nobte == 3 or spread) then return end
+
+            if isChecked("|cffFF0000Force Burn Stuff") or spread then
+                for i = 1, #burnTable20 do
+                    if burnTable20[i].id == 120651 then
+                        if skill == "betweenTheEyes" then return end
+                        if isChecked("DontWasteDeadShotOnOrbs") and skill == "pistolShot" and buff.deadShot.exists("player") then return end
+                    end
+                    local thisUnit = burnTable20[i].unit
+                    if stuff then
+                        if cast[skill](thisUnit) then return true end
+                    end
                 end
+            end
+            if mode.nobte == 1 then
+                if skill == "betweenTheEyes" then
+                    for i = 1, #enemyTable20 do
+                        if enemyTable20[i].id == 120651 then return end
+                        local thisUnit = enemyTable20[i].unit 
+                        if isChecked("DRTracker") then
+                            if stuff and canCC(199804, thisUnit) and (select(5,UnitCastingInfo(unit)) ~= nil or select(5,UnitChannelInfo(unit)) ~= nil) then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        else
+                            if stuff and (select(5,UnitCastingInfo(unit)) ~= nil or select(5,UnitChannelInfo(unit)) ~= nil) then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        end
+                    end
+                    for i = 1, #enemyTable20 do
+                        if enemyTable20[i].id == 120651 then return end
+                        local thisUnit = enemyTable20[i].unit 
+                        if isChecked("DRTracker") then
+                            if stuff and canCC(199804, thisUnit) then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        else
+                            if stuff then
+                                if cast[skill](thisUnit) then return true end
+                            end
+                        end
+                    end
+                end
+            end
+            if skill == "betweenTheEyes" and mode.nobte == 2 then
+                if cast[skill]("target") then return true end
+            end
+            for i = 1, #enemyTable20 do
+                local thisUnit = enemyTable20[i].unit 
+                if stuff then
+                    if cast[skill](thisUnit) then return true end
+                end
+            end
+
         end
-        --print(rtdamage())
 --------------------
 --- Action Lists ---
 --------------------
@@ -513,37 +696,65 @@ local function runRotation()
         end -- End Action List - Extras]]
     -- Action List - DefensiveModes
         local function actionList_Defensive()
-            
+          -- SLASH_FEINT1 = "/feinterino"
+          -- SlashCmdList["FEINT"] = function(_)
+          --   if not buff.feint.exists() or (buff.feint.exists() and buff.feint.remain() <= 0.8) or isDeBuffed("player", 230139) and mode.feint == 2 then
+          --     if toggle("Feint", 1) then
+          --       return true
+          --     end
+          --   end
+          -- end
+          -- -- Feint
+          -- if mode.feint == 1 and not buff.feint.exists() then
+          --   if cast.feint() and toggle("Feint", 2) then
+          --     return true
+          --   end
+          -- end
+          
+          if not stealth then
+            -- Health Pot/Healthstone
+            if isChecked("Healing Potion/Healthstone") and (use.able.healthstone() or canUse(152494)) and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
+            then
+                if use.able.healthstone() then
+                    use.healthstone()
+                elseif canUse(152494) then
+                    useItem(152494)
+                end
+            end
+            -- Crimson Vial
+            if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
+              if cast.crimsonVial() then
+                return true
+              end
+            end
+            -- Feint
+            if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
+              if cast.feint() then
+                return true
+              end
+            end
+            -- Evasion
+            if isChecked("Riposte") and php <= getOptionValue("Riposte") and inCombat then
+              if cast.riposte() then
+                return
+              end
+            end
+            if isChecked("Engineer's Belt") and php <= getOptionValue("Engineer's Belt") and inCombat then
+                if canUse(6) then
+                    useItem(6)
+                end
+            end
+          end
         end -- End Action List - Defensive
     -- Action List - Interrupts
         local function actionList_Interrupts()
-            if useInterrupts() and not stealth then
-            for i=1, #enemies.yards20 do
-                    local thisUnit = enemies.yards20[i]
-                    local distance = getDistance(thisUnit)
+            if useInterrupts() then
+                for i=1, #enemyTable5 do
+                    local thisUnit = enemyTable5[i].unit
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and hasThreat(thisUnit) then
-                        if distance < 5 then
-                            -- kick
-                            if isChecked("Kick") then
-                                if cast.kick(thisUnit) then return true end
-                            end
-                            if cd.kick.remain() ~= 0 then
-                                if isChecked("Gouge") and getFacing(thisUnit,"player") and isChecked("AutoGouge") then
-                                    if cast.gouge(thisUnit) then return true end
-                                end
-                            end
-                        end
-                        -- Blind
-                        if (cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or (distance >= 5 and distance < 15) then
-                            if isChecked("Blind") then
-                                if cast.blind(thisUnit) then return true end
-                            end
-                        end
-                        -- Between the Eyes
-                        if (((cd.kick.remain() ~= 0 and cd.gouge.remain() ~= 0) or distance >= 5) and (cd.blind.remain() ~= 0 or level < 38 or distance >= 15)) then
-                            if isChecked("Between the Eyes") then
-                                if cast.betweenTheEyes(thisUnit) then print("543"); return true end
-                            end
+                        -- kick
+                        if isChecked("Kick") then
+                            if cast.kick(thisUnit) then end
                         end
                     end
                 end
@@ -555,10 +766,10 @@ local function runRotation()
         -- Trinkets
             if isChecked("Trinkets") then
                 if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUseItem(13) then
+                    if canUse(13) then
                         useItem(13)
                     end
-                    if canUseItem(14) then
+                    if canUse(14) then
                         useItem(14)
                     end
                 end
@@ -568,12 +779,21 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            -- if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
-            --     if castSpell("player",racial,false,false,false) then return true end
-            -- end
+            if mode.special == 1 and isChecked("Racial") and (race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "Troll") then
+                if cast.racial("player") then return true end
+            end
 
-            if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= gcd then
-                if cast.adrenalineRush("player") then return true end
+            if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
+                if cast.adrenalineRush("player") then
+                    if isChecked("Trinkets") then
+                        if canUse(13) then
+                            useItem(13)
+                        end
+                        if canUse(14) then
+                            useItem(14)
+                        end
+                    end
+                return true end
             end    
 
             if bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
@@ -603,48 +823,66 @@ local function runRotation()
     -- Action List - PreCombat
         local function actionList_PreCombat()
         -- Stealth
-            if not inCombat and not stealth then
-                if isChecked("Stealth") and (not IsResting() or isDummy("target")) then
-                    if getOptionValue("Stealth") == 1 then
-                        if cast.stealth("player") then return true end
-                    end
-                    if #enemies.yards20 > 0 and getOptionValue("Stealth") == 2 and not IsResting() and GetTime()-leftCombat > lootDelay then
-                        for i=1, #enemies.yards20 do
-                            local thisUnit = enemies.yards20[i]
-                            if UnitIsEnemy(thisUnit,"player") or isDummy("target") then
-                                if cast.stealth("player") then return true end
-                            end
-                        end
+            if not inCombat and not stealthingAll then
+                if isChecked("Stealth") then
+                    if getOptionValue("Stealth") == 1 or #enemies.yards20nc > 0 then
+                        if cast.stealth("player") then end
                     end
                 end
             end
+
+            if stealthingRogue and (br.player.instance=="party" or br.player.instance=="raid" or isDummy("target")) and isChecked("Vanish") then
+                if cast.ambush("target") then end
+            end
+
+            if isChecked("PickPocket") then
+                if #enemyTable5 > 0 and stealthingRogue then
+                    for i = 1, #enemyTable5 do
+                        local thisUnit = enemyTable5[i].unit
+                        if isChecked("PickPocket") then
+                            if PickPocketable(thisUnit) then
+                                if cast.pickPocket(thisUnit) then
+                                    CastSpellByID(8676, thisUnit)
+                                end
+                            end
+                        end
+                        
+                    end
+                    -- if GetUnitExists("target") then if cast.ambush("target") then return true end end
+                end
+            elseif isChecked("Ambush Opener") then
+                if #enemyTable5 > 0 and stealthingRogue then
+                    for i = 1, #enemyTable5 do
+                        if cast.ambush(enemyTable5[i].unit) then return true end
+                    end
+                end
+            end
+
         end -- End Action List - PreCombat
     -- Action List - Finishers
         local function actionList_Finishers() 
             local startTime = debugprofilestop()                          
 
             -- actions.finish=between_the_eyes,if=buff.ruthless_precision.up|(azerite.deadshot.rank>=2&buff.roll_the_bones.up)
-            if mode.nobte == 1 and (buff.ruthlessPrecision.exists() or ((traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) and buff.rollTheBones.count > 0)) then
+            if (buff.ruthlessPrecision.exists() or ((traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) and buff.rollTheBones.count > 0)) then
                 --print("626")
-                cast5yards("betweenTheEyes",true)
+                cast20yards("betweenTheEyes",true)
             end
-
             
-            if talent.sliceAndDice then
+
+            if not talent.sliceAndDice then
+                if buff.rollTheBones.remain < 3 or rtbReroll() then
+                    if cast.rollTheBones("player") then return true end
+                end
+            else
                 if buff.sliceAndDice.remain() < ttd("target") and buff.sliceAndDice.refresh() then
                     if cast.sliceAndDice("player") then return true end
                 end
             end
 
-            if not talent.sliceAndDice then
-                if buff.rollTheBones.remain < 3 or rtbReroll()then
-                    if cast.rollTheBones("player") then return true end
-                end
-            end
-
-            if mode.nobte == 1 and (traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) then
+            if (traits.deadshot.rank > 0 or traits.aceupyoursleeve.rank > 0) then
                 --print("643")
-                 cast5yards("betweenTheEyes",true)
+                 cast20yards("betweenTheEyes",true)
             end
 
             cast5yards("dispatch",true)
@@ -664,12 +902,15 @@ local function runRotation()
         local function actionList_Build()
             local startTime = debugprofilestop()      
 
-            if comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or buff.deadShot.exists()) then
-                cast5yards("pistolShot",true)
+            if comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or power < 45 or buff.deadShot.exists()) then
+                cast20yards("pistolShot",true)
             end
 
             cast5yards("sinisterStrike",true)
 
+            if talent.dirtyTricks then
+                cast5yards("gouge",true)
+            end
             if isChecked("Debug Timers") then
                 if profile.Builder == nil then profile.Builder = {} end
                 local section = profile.Builder
@@ -682,111 +923,325 @@ local function runRotation()
             end
         end -- End Action List - Build
 
-        local function actionList_Stun()
+        local function actionList_CC()
             local stunList = { -- Stolen from feng pala
-            [274400] = true, [274383] = true, [257756] = true, [276292] = true, [268273] = true, [256897] = true, [272542] = true, [272888] = true, [269266] = true, [258317] = true, [258864] = true,
-            [259711] = true, [258917] = true, [264038] = true, [253239] = true, [269931] = true, [270084] = true, [270482] = true, [270506] = true, [270507] = true, [267433] = true, [267354] = true,
-            [268702] = true, [268846] = true, [268865] = true, [258908] = true, [264574] = true, [272659] = true, [272655] = true, [267237] = true, [265568] = true, [277567] = true, [265540] = true
+            [274400] = true, -- Duelist Dash fh
+            [274383] = true, -- Rat Traps fh
+            [276292] = true, -- Whirling Slam SotS
+            [268273] = true, -- Deep Smash SotS
+            [256897] = true, -- Clamping Jaws SoB
+            [272542] = true, -- Ricochet SoB
+            [272888] = true, -- Ferocity SoB
+            --[269266] = true, -- Slam SoB ????????? tentacle last bos?
+            [258864] = true, -- Suppression Fire TD
+            [259711] = true, -- Lockdown TD
+            [264038] = true, -- Uproot WM
+            [253239] = true, -- Merciless Assault AD
+            [269931] = true, -- Gust Slash KR ????????
+            [270084] = true, -- Axe Barrage KR
+            [270482] = true, -- Blooded Leap KR
+            [270506] = true, -- Deadeye Shot KR
+            [270507] = true, -- Poison Barrage KR
+            -- [267433] = true, -- Activate Mech ML ????????????
+            [268702] = true, -- Furious Quake ML
+            [268846] = true, -- Echo Blade ML
+            [268865] = true, -- Force Cannon ML
+            [258908] = true, -- Blade Flurry ToS
+            [264574] = true, -- Power Shot ToS
+            [272659] = true, -- Electrified Scales ToS
+            [272655] = true, -- Scouring Sand ToS
+            -- [277567] = true, -- infest 
+            [265542] = true, -- Rotten Bile UR
+            [250096] = true,  -- Yazma AD
+            [256060] = true  -- FH Krag Channel heal
+
             }
-            for i=1, #enemies.yards20 do
-                local thisUnit = enemies.yards20[i]
-                local distance = getDistance(thisUnit)
-                if (isChecked("AutoBtE") and combo > 0) or (isChecked("AutoGouge") and getFacing(thisUnit,"player") and distance <= 5) or (isChecked("AutoBlind") and distance <= 20) then
-                    local interruptID, castStartTime
-                    if UnitCastingInfo(thisUnit) then
-                        castStartTime = select(4,UnitCastingInfo(thisUnit))
-                        interruptID = select(9,UnitCastingInfo(thisUnit))
-                    elseif UnitChannelInfo(thisUnit) then
-                        castStartTime = select(4,UnitChannelInfo(thisUnit))
-                        interruptID = select(7,GetSpellInfo(UnitChannelInfo(thisUnit)))
+            local channelAsapList = {
+            [257756] = true, -- Goin' Bananas FH
+            [258317] = true, --Riot Shield TD ???? only magic
+            [258917] = true, -- Righteous Flames TD
+            [267357] = true, -- Hail of Flechettes ML
+            [267237] = true, -- Drain ToS
+            [280604] = true, -- Iced Spritzer ML
+            [265568] = true, -- Dark Omen UR
+            [250368] = true  -- Vol’kaal AD
+            }
+            local channelLateList = {
+            [270839] = true -- test
+            }
+
+            local willkick = nil
+            LibDraw.clearCanvas()
+            function canInterruptshit(unit, hardinterrupt, forpro, gouge)
+
+                local hardinterrupt = hardinterrupt or false
+                local timeforcc = (hardinterrupt and 2) or 0.4
+                local interruptTarget = getOptionValue("Interrupt Target")
+                if interruptTarget == 2 and not GetUnitIsUnit(unit, "target") then
+                    return false
+                elseif interruptTarget == 3 and not GetUnitIsUnit(unit, "focus") then
+                    return false
+                elseif interruptTarget == 4 and getOptionValue("Interrupt Mark") ~= GetRaidTargetIndex(unit) then
+                    return false
+                end
+                local castStartTime, castEndTime, interruptID, interruptable, castLeft = 0, 0, 0, false, 999
+                if GetUnitExists(unit)
+                    and UnitCanAttack("player",unit)
+                    and not UnitIsDeadOrGhost(unit)
+                then
+                    -- Get Cast/Channel Info
+                    if select(5,UnitCastingInfo(unit)) and (not select(8,UnitCastingInfo(unit)) or hardinterrupt) then --Get spell cast time
+                        castStartTime = select(4,UnitCastingInfo(unit))
+                        castEndTime = select(5,UnitCastingInfo(unit))
+                        castLeft = castEndTime/1000 - GetTime()
+                        interruptID = select(9,UnitCastingInfo(unit))
+                        if stunList[interruptID] or isChecked("Any Cast") then interruptable = true end
+                    elseif select(5,UnitChannelInfo(unit)) and (not select(7,UnitChannelInfo(unit)) or hardinterrupt) then -- Get spell channel time
+                        castStartTime = select(4,UnitChannelInfo(unit))
+                        castEndTime = select(5,UnitChannelInfo(unit))
+                        castLeft = castEndTime/1000 - GetTime()
+                        interruptID = select(8,UnitChannelInfo(unit))
+                        if channelAsapList[interruptID] or channelLateList[interruptID] or isChecked("Any Cast") then interruptable = true end
                     end
-                    if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 and combo > 0 then
-                        if cast.betweenTheEyes(thisUnit) then print("699"); return true end
+                    if interruptable or isChecked("Any Cast") then
+                        if not cd.kick.exists() and not hardinterrupt then
+                            if willkick == nil then
+                                willkick = unit
+                                local wx,wy,wz = ObjectPosition(willkick)
+                                if getDistance(unit) > 5 then
+                                    LibDraw.SetColor(255,0,0)
+                                else
+                                    LibDraw.SetColor(0,0,0)
+                                end
+                                LibDraw.Text("KICK SHIT", "GameFontNormal", wx,wy,wz+2)
+                            end
+                        end
+                        if gouge and (willkick == nil or willkick ~= unit) then
+                            if not getFacing(unit, "player") or getDistance(unit) > 5 then
+                                LibDraw.SetColor(255,0,0)
+                            else
+                                LibDraw.SetColor(0,0,0)
+                            end
+                            local ux,uy,uz = ObjectPosition(unit)
+                            LibDraw.Text("CC SHIT", "GameFontNormal", ux,uy,uz+2)
+                        end
+                        if willkick == unit and hardinterrupt then return false end
+                        if castLeft <= timeforcc or channelAsapList[interruptID] ~= nil then
+                            -- print(forpro)
+                            if forpro or (GetTime() - castStartTime/1000) > 1  then
+                                return true
+                            end
+                        end
                     end
-                    if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 and getFacing(thisUnit,"player") then
+                    return false
+                end
+            end
+            for i = 1, #enemyTable20 do
+                local thisUnit = enemyTable20[i].unit
+                local distance = enemyTable20[i].distance
+                if isBoss(thisUnit) then return end
+                if isChecked("AutoKick") and distance <= 5 and not cd.kick.exists()  then
+                    if canInterruptshit(thisUnit, nil, forpro) then
+                        if cast.kick(thisUnit) then end
+                    end
+                end
+                if isChecked("AutoGouge") and not cd.gouge.exists() and getFacing(thisUnit, "player") then
+                    if canInterruptshit(thisUnit, true , forpro, true) then
                         if cast.gouge(thisUnit) then return true end
                     end
-                    if interruptID ~=nil and stunList[interruptID] and (GetTime()-(castStartTime/1000)) > 0.1 and (distance > 5 or cd.betweenTheEyes.remain() > 1.5) then
+                elseif isChecked("AutoBtE") and distance <= 20 and combo >= 4 and not cd.betweenTheEyes.exists() and not spread then
+                    if canInterruptshit(thisUnit, true , true) then
+                        if cast.betweenTheEyes(thisUnit) then return true end
+                    end
+                elseif isChecked("AutoBlind") and distance <= 15 and not cd.blind.exists() then
+                    if canInterruptshit(thisUnit, true , true) then
                         if cast.blind(thisUnit) then return true end
                     end
                 end
             end
+            -- if isChecked("AutoKick") and not cd.kick.exists() then
+            --     for i = 1, #enemyTable5 do
+            --         local thisUnit = enemyTable5[i].unit
+            --         if canInterruptshit(thisUnit, nil , true) then
+            --             if cast.kick(thisUnit) then end
+            --         end
+            --     end
+            -- end
+            -- if isChecked("AutoBtE") and combo > 4 and not cd.betweenTheEyes.exists() then
+            --     for i = 1, #enemyTable20 do
+            --         local thisUnit = enemyTable20[i].unit
+            --         if canInterruptshit(thisUnit, true , true) then
+            --             if cast.betweenTheEyes(thisUnit) then return true end
+            --         end
+            --     end
+            -- end
+            -- if isChecked("AutoGouge") and not cd.gouge.exists() then
+            --     for i = 1, #enemyTable5 do
+            --         local thisUnit = enemyTable5[i].unit
+            --         if canInterruptshit(thisUnit, true , true) and thisUnit.facing then
+            --             if cast.gouge(thisUnit) then return true end
+            --         end
+            --     end
+            -- end
+            -- if isChecked("AutoBtE") and combo > 0 and not cd.betweenTheEyes.exists() then
+            --     for i = 1, #enemyTable20 do
+            --         local thisUnit = enemyTable20[i].unit
+            --         if canInterruptshit(thisUnit, true , true) then
+            --             if cast.betweenTheEyes(thisUnit) then return true end
+            --         end
+            --     end
+            -- end
+            -- if isChecked("AutoBlind") and not cd.blind.exists() then
+            --     for i = 1, #enemyTable15 do
+            --         local thisUnit = enemyTable15[i].unit
+            --         if canInterruptshit(thisUnit, true , true) then
+            --             if cast.blind(thisUnit) then return true end
+            --         end
+            --     end
+            -- end
+
+            
         end
         
 
         local function actionList_Opener()                    
         end
 
-        local function MythicStuff()
+    local function MythicStuff()
+        local cloakPlayerlist = {
+        [265773] = true -- Spit Gold KR 
 
-            local cloakPlayerlist = {
-            }  
+        }
+        
+        local evasionPlayerlist = {
+        [256979] = true, -- pewpew council boss
+        [266231] = true, -- Severing Axe KR
+        [256106] = true
+        }
+        
+        local cloaklist = {
+        [119300] = true --test rfc 2
+        }
+        
+        local evasionlist = {
 
-            local evasionPlayerlist = {
-            }
+        }
+        
+        local feintlist = {
 
-            local cloaklist = {
-            }
-
-            local evasionlist = {
-            }
-
-            local feintlist = {
-            }   
-
-            if eID then
-                local bosscount = 0
-                for i = 1, 5 do
-                    if GetUnitExists("boss"..i) then
-                        bosscount = bosscount + 1
-                    end
+        }
+        
+        if eID then
+            -- print(eID)
+            local bosscount = 0
+            for i = 1, 5 do
+                if GetUnitExists("boss" .. i) then
+                  bosscount = bosscount + 1
                 end
-                for i = 1, bosscount do
-                    if UnitCastingInfo("boss"..i) then
-                        BossSpellEnd,_,_,_,BossSpell = select(5,UnitCastingInfo("boss"..i))
-                        --print(BossSpellEnd)
-                    elseif UnitChannelInfo("boss"..i) then
-                        BossSpellEnd = select(4,UnitChannelInfo("boss"..i))
-                        BossSpell = select(7,GetSpellInfo(UnitChannelInfo("boss"..i)))
-                        --print(BossSpell)
-                    end
-                    if BossSpellEnd ~= nil and BossSpellEnd/1000 <= GetTime() + 2 then
-                        if GetUnitIsUnit("player","boss"..i.."target") then
-                            if BossSpell ~= nil and cloakPlayerlist[BossSpell] then
-                                if cast.cloakOfShadows("player") then return true end
-                            elseif BossSpell ~= nil and evasionPlayerlist[BossSpell] then
-                                if cast.riposte("player") then return true end
+            end
+            for i = 1, bosscount do
+                local spellname, castEndTime,interruptID, spellnamechannel, castorchan, spellID
+                thisUnit = tostring("boss" .. i)
+                if UnitCastingInfo(thisUnit) then
+                    spellname = UnitCastingInfo(thisUnit)
+                    -- castStartTime = select(4,UnitCastingInfo(thisUnit)) / 1000
+                    castEndTime = select(5, UnitCastingInfo(thisUnit)) / 1000
+                    interruptID = select(9,UnitCastingInfo("target"))
+                    castorchan = "cast"
+                elseif UnitChannelInfo(thisUnit) then
+                    spellname = UnitChannelInfo(thisUnit)
+                    -- castStartTime = select(4,UnitChannelInfo(thisUnit)) / 1000
+                    castEndTime = select(5,UnitChannelInfo(thisUnit)) / 1000
+                    interruptID = select(8,UnitChannelInfo(thisUnit))
+                    castorchan = "channel"
+                end
+                if spellname ~= nil then
+                    local castleft = castEndTime - GetTime()
+                        -- WriteFile("encountertest.txt", tostring(ObjectName("boss"..i)) .. "," .. tostring(castleft) .. " left," .. tostring(spellname) .. ", spellid =" .. tostring(interruptID) .. "\n", true)
+                        -- print(castleft.." cast left"..spellname)
+                        -- print(castleft.." channel left"..spellname)
+                    -- if castleft <= 3 then
+                        if (select(3, UnitCastID(thisUnit)) == ObjectPointer("player") or select(4, UnitCastID(thisUnit)) == ObjectPointer("player")) and castleft <= 3 then--GetUnitIsUnit("player", "boss"..i.."target") or   then
+                            if cloakPlayerlist[interruptID] then
+                                if cast.cloakOfShadows("player") then end
+                            elseif evasionPlayerlist[interruptID] then
+                                if cast.riposte("player") then end
                             end
                         else
-                            if BossSpell ~= nil and cloaklist[BossSpell] then
-                                if cast.cloakOfShadows("player") then return true end
-                            elseif BossSpell ~= nil and evasionlist[BossSpell] then
-                                if cast.riposte("player") then return true end
-                            elseif BossSpell ~= nil and feintlist[BossSpell] then
-                                if cast.pool.feint("player") and not cd.feint.exists() then return true end
+                            if cloaklist[interruptID] then
+                                if cast.cloakOfShadows("player") then end
+                            elseif evasionlist[interruptID] then
+                                if cast.riposte("player") then end
+                            elseif feintlist[interruptID] then
+                                if cast.pool.feint("player") and cd.feint.remains() <= castleft then return true end
                                 if cast.feint("player") then return true end
                             end
                         end
-                    end
+                    -- end
                 end
             end
+            --CC units
+            -- for i=1, #enemies.yards20 do
+            --         local thisUnit = enemies.yards20[i]
+            --         local distance = getDistance(thisUnit)
+            --         if isChecked("AutoBtE") or isChecked("AutoGouge") or isChecked("AutoBlind") then
+            --             local interruptID, castStartTime, spellname, castEndTime
+            --             if UnitCastingInfo(thisUnit) then
+            --                 spellname = UnitCastingInfo(thisUnit)
+            --                 -- castStartTime = select(4,UnitCastingInfo(thisUnit)) / 1000
+            --                 castEndTime = select(5, UnitCastingInfo(thisUnit)) / 1000
+            --                 interruptID = select(9,UnitCastingInfo("player"))
+            --             elseif UnitChannelInfo(thisUnit) then
+            --                 spellname = UnitChannelInfo(thisUnit)
+            --                 -- castStartTime = select(4,UnitChannelInfo(thisUnit)) / 1000
+            --                 castEndTime = select(5,UnitChannelInfo(thisUnit)) / 1000
+            --                 interruptID = select(8,UnitChannelInfo(thisUnit))
+            --             end
+            --             if isChecked("AutoBtE") and interruptID ~= nil and combo > 0 and not spread and 
+            --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
+            --                     channelAsapList[interruptID] or
+            --                     channelLateList[interruptID] and castEndTime - GetTime() <= 2)
+            --                 then
+            --                 if cast.betweenTheEyes(thisUnit) then print("bte stun on"..spellname); return true end
+            --             end
+            --             if isChecked("AutoGouge") and interruptID ~= nil and getFacing(thisUnit,"player") and
+            --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
+            --                     channelAsapList[interruptID] or
+            --                     channelLateList[interruptID] and castEndTime - GetTime() <= 2)
+            --                 then
+            --                 if cast.gouge(thisUnit) then print("gouge on"..spellname) return true end
+            --             end
+            --             if isChecked("AutoBlind") and interruptID ~= nil and 
+            --                     ((stunList[interruptID] and castEndTime - GetTime() <= 2 ) or
+            --                     channelAsapList[interruptID] or
+            --                     (channelLateList[interruptID] and castEndTime - GetTime() <= 2)) then
+            --                 if cast.blind(thisUnit) then print("blind on "..spellname) return true end
+            --             end
+            --         end
+            --     end
         end
+    end   
         --`````````````````````````````````````````````````STARTING SHIT```````````````````````````````````````````````
-        if cast.last.vanish() and (br.player.instance=="party" or br.player.instance=="raid" or isDummy("target")) then
-            if cast.ambush("target") then return true end
-        end
+        
+        if UnitCastingInfo("player") then return true end
+        
+        -- print(UnitCastingInfo("player"))
 
         if actionList_PreCombat() then return end
 
-        if (inCombat and profileStop == true) or pause() or (IsMounted() or IsFlying()) or mode.rotation == 2 then
+        if isChecked("|cffFFBB00Encounter Logic") then 
+            if MythicStuff() then return end
+        end
+        if mode.stun == 1 then
+                if actionList_CC() then return true end
+            end
+
+        if (inCombat and profileStop == true) or not inCombat or pause() or (IsMounted() or IsFlying()) or mode.rotation == 2 or UnitCastingInfo("player") then
             return true
         else
 
-        if isChecked("Ambush") then
-            if getDistance("target") <= 5 and stealth then
-                if cast.ambush("target") then return true end
-            end
-        end
+        
+ 
             --print(rtbReroll())
             --print(br.player.power.energy.ttm())
             -- if cast.sinisterStrike() then return end
@@ -797,7 +1252,7 @@ local function runRotation()
             --RunMacroText("/cast Коварный удар")
         --if actionList_Extras() then return end
 
-        -- if actionList_Defensive() then return end
+        if actionList_Defensive() then return end
 
         -- if isValidUnit("target") and isChecked("Opener") then
         --     if actionList_Opener() then return end
@@ -813,39 +1268,36 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and viabletargetcount() >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 then
             if cast.bladeFlurry("player") then return true end
         end
 
-        if inCombat and not stealth then
 
-            if isValidUnit("target") and getDistance("target") <= 5 and getFacing("player", "target")  then
-                StartAttack()
+            if not IsCurrentSpell(6603) and inCombat and not stealth and isValidUnit("target") and getDistance("target") <= 5 and getFacing("player", "target") then
+                StartAttack("target")
             end
 
             if mode.stun == 1 then
-                if actionList_Stun() then return end
+                if actionList_CC() then return true end
             end
 
-            if mode.mfd == 3 and combo < combospend and cd.markedForDeath.remain() <= 0 then
-                    if mfdtarget ~= nil and not UnitIsDeadOrGhost(mfdtarget) then
-                        if cast.markedForDeath(mfdtarget) then end
-                    end
+            if talent.markedForDeath and mode.mfd == 3 and combo < comboMax and cd.markedForDeath.remain() <= 0 then
+                if mfdtarget ~= nil and not UnitIsDeadOrGhost(mfdtarget) then
+                    if cast.markedForDeath(mfdtarget) then end
+                end
             end
 
 
 
-            if not stealthingAll then
-                if actionList_Interrupts() then return end
-            end
+            if actionList_Interrupts() then end
 
-            if ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and mode.special == 1 and isChecked("Vanish") and (not solo or isDummy("target")) then
+            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and mode.special == 1 and (not solo or isDummy("target")) then
                 if gcd > 0.2 then return true end
                 if cast.pool.ambush() then return true end
                 if CastSpellByID(1856) then return true end
             end
 
-            if mode.special == 1 or mode.tierseven == 1 then
+            if (mode.special == 1 or mode.tierseven == 1) and #enemyTable5 >= 1 then
                 if actionList_Cooldowns() then return end
             end
 
@@ -853,15 +1305,15 @@ local function runRotation()
             --     if actionList_Stealth() then return end
             -- end
 
-                if mode.mfd == 1 and cd.markedForDeath.remain() <= 0.2 then                            
-                    if comboDeficit >= combospend - 1 then
+                if talent.markedForDeath and mode.mfd == 1 and cd.markedForDeath.remain() <= 0.2 then                            
+                    if comboDeficit >= comboMax - 1 then
                         CastSpellByID(137619,"target")
                         return true
                     end
                 end
-                if mode.mfd == 2 and cd.markedForDeath.remain() <= 0.2 then
-                        local thisUnit = enemies.yards30[i]
-                        if ttd(thisUnit) < comboDeficit * getOptionValue("MFD Sniping") then
+                if talent.markedForDeath and mode.mfd == 2 and cd.markedForDeath.remain() <= 0.2 then
+                        local thisUnit = enemies.yards20[i]
+                        if ttd(thisUnit) < comboDeficit  then
                                 if CastSpellByID(137619,thisUnit) then return true end
                         end
                 end
@@ -872,8 +1324,15 @@ local function runRotation()
             if isChecked("Pistol Shot out of range") and isValidUnit("target") and #enemyTable5 == 0 and not stealthingAll and power >= getOptionValue("Pistol Shot out of range") and (comboDeficit >= 1 or ttm <= 1.2) then
                 if cast.pistolShot("target") then return true end
             end
-
-        end
+            if mode.special == 1 and isChecked("Racial") then
+                if race == "BloodElf" and powerDeficit >= (15 + powerRegen) then
+                    if cast.racial("player") then return true end
+                elseif race == "Nightborne" then
+                    if cast.racial("player") then return true end
+                elseif race == "LightforgedDraenei" then
+                    if cast.racial("target","ground") then return true end
+                end
+            end
 
     end
 
