@@ -123,17 +123,19 @@ function br.smartQueue()
             CastSpellByName(GetSpellInfo(pendingSpell), "cursor")
             return true
         end
-        if queueSpell ~= nil then
+        if queueSpell ~= nil and not UnitCastingInfo("player") then
             if getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 2 then
                 if createCastFunction("player","debug",nil,nil,queueSpell) then
-                    CastSpellByName(GetSpellInfo(queueSpell))
-					ClickPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z)
-                    return true
+					if castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, queueSpell) then
+						ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(queueSpell))
+						return true
+					end
+					return false
                 end
             elseif getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 3 then
                 if createCastFunction("player","debug",nil,nil,queueSpell) then
 					CastSpellByName(GetSpellInfo(queueSpell))
-					ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(spellID))
+					ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(queueSpell))
                     return true
                 end
             else
