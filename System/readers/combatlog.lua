@@ -118,6 +118,10 @@ function br.read.combatLog()
                 end
             end
         end
+        --In flight
+        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+            br.InFlight.Add(spell, destination)
+        end
         -- br.tracker.handleEvent(...)
         ----------------
         --[[Item locks]]

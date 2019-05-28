@@ -605,6 +605,7 @@ function br.loader:new(spec,specName)
             if self.cast.cost       == nil then self.cast.cost          = {} end        -- Cast Spell Cost
             if self.cast.pool       == nil then self.cast.pool          = {} end        -- Cast Spell Pooling
             if self.cast.current    == nil then self.cast.current       = {} end        -- Cast Spell Current
+            if self.cast.inFlight   == nil then self.cast.inFlight      = {} end        -- Cast Spell In Flight
             if self.cast.last       == nil then self.cast.last          = {} end        -- Cast Spell Last
             if self.cast.range      == nil then self.cast.range         = {} end        -- Cast Spell Range
             if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
@@ -687,6 +688,10 @@ function br.loader:new(spec,specName)
                 if spellID == nil then spellID = v end
                 if unit == nil then unit = "player" end
                 return isCastingSpell(spellID,unit)
+            end
+
+            self.cast.inFlight[k] = function(unit)
+                return br.InFlight.Check(v, unit)
             end
 
             self.cast.last[k] = function(index)
