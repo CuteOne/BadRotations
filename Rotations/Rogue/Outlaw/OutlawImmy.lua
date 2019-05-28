@@ -713,11 +713,11 @@ local function runRotation()
           
           if not stealth then
             -- Health Pot/Healthstone
-            if isChecked("Healing Potion/Healthstone") and (use.able.healthstone() or canUse(152494)) and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
+            if isChecked("Healing Potion/Healthstone") and (use.able.healthstone() or canUseItem(152494)) and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
             then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUse(152494) then
+                elseif canUseItem(152494) then
                     useItem(152494)
                 end
             end
@@ -740,7 +740,7 @@ local function runRotation()
               end
             end
             if isChecked("Engineer's Belt") and php <= getOptionValue("Engineer's Belt") and inCombat then
-                if canUse(6) then
+                if canUseItem(6) then
                     useItem(6)
                 end
             end
@@ -766,10 +766,10 @@ local function runRotation()
         -- Trinkets
             if isChecked("Trinkets") then
                 if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -786,10 +786,10 @@ local function runRotation()
             if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
                     if isChecked("Trinkets") then
-                        if canUse(13) then
+                        if canUseItem(13) then
                             useItem(13)
                         end
-                        if canUse(14) then
+                        if canUseItem(14) then
                             useItem(14)
                         end
                     end
