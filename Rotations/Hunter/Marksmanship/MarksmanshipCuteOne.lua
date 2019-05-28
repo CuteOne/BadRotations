@@ -217,6 +217,7 @@ local function runRotation()
         units.get(40)
         enemies.get(8)
         enemies.get(8,"pet")
+        enemies.get(40)
         enemies.get(40,"player",false,true)
 
         if leftCombat == nil then leftCombat = GetTime() end
