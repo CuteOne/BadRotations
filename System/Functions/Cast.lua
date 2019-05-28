@@ -539,7 +539,7 @@ function isUnitCasting(unit)
 	end
 end
 
-function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,predict)
+function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,predict,predictPad)
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
     -- Locals
@@ -566,6 +566,9 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	end
 	--If we want to predict movement, include casttime, else 0 it
 	if predict ~= nil then castTime = castTime / 1000 else castTime = 0 end
+	if predictPad then
+		castTime = castTime + predictPad
+	end
     -- local minRange = tonumber(select(5,GetSpellInfo(spellName)))
     -- local maxRange = tonumber(select(6,GetSpellInfo(GetSpellInfo(spellID))))
     -- Nil Catches

@@ -820,10 +820,10 @@ function GetFuturePostion(unit, castTime)
         local unitTarget = UnitTarget(unit)
         local unitTargetDist = 0
         if unitTarget ~= nil then
+            local tX, tY, tZ = GetObjectPosition(unitTarget)
             --Lets get predicted position of unit target aswell
             if GetUnitSpeed(unitTarget) > 0 then
                 local tDistance = GetUnitSpeed(unitTarget) * castTime
-                local tX,tY,tZ = GetObjectPosition(unitTarget)
                 local tAngle = ObjectFacing(unitTarget)
                 tX = tX + cos(tAngle) * tDistance
                 tY = tY + sin(tAngle) * tDistance
@@ -832,6 +832,11 @@ function GetFuturePostion(unit, castTime)
             else
                 unitTargetDist = getDistance(unitTarget, unit, "dist")
                 if unitTargetDist < distance then distance = unitTargetDist end
+            end
+            -- calculate angle based on target position/future position
+            angle = rad(atan2(tY - y, tX - x))
+            if angle < 0 then
+                angle = rad(360 + atan2(tY - y, tX - x))
             end
         end
         x = x + cos(angle) * distance

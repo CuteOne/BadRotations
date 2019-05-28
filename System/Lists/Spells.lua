@@ -1291,10 +1291,12 @@ br.lists.spells = {
                 frostBomb                   = 112948,
                 frozenOrb                   = 84714,
                 iceLance                    = 30455,
+                iceNova                     = 157997,
                 icyVeins                    = 12472,
                 summonWaterElemental        = 31687,
                 rayOfFrost                  = 205021,
                 iceBarrier                  = 11426,
+                waterbolt                   = 31707,
             },
             artifacts                       = {
                -- icyHand                     = 220817,
@@ -1314,7 +1316,11 @@ br.lists.spells = {
                 frozenMass                  = 242253,
             },
             debuffs                         = {
+                chainsOfIce                 = 65173,
+                chilled                     = 205708,
                 frostBomb                   = 112948,
+                frostNova                   = 122,
+                iceNova                     = 157997,
                 wintersChill                = 228358,
             },
             glyphs                          = {

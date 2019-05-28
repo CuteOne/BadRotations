@@ -25,6 +25,7 @@ System\Functions\Aura.lua
 System\Functions\Cast.lua
 System\Functions\Combat.lua
 System\Functions\Custom.lua
+System\Functions\InFlight.lua
 System\Functions\Item.lua
 System\Functions\Misc.lua
 System\Functions\Power.lua
