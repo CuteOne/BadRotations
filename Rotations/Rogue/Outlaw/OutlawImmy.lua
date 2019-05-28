@@ -86,6 +86,7 @@ local function createOptions()
             -- br.ui:createCheckbox(section, "Opener")
             -- br.ui:createCheckbox(section, "RTB Prepull")
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
+            br.ui:createCheckbox(section, "Drawings", "Enable drawing on screen")
 
         br.ui:checkSectionState(section)
         ------------------------
@@ -234,6 +235,7 @@ local function runRotation()
         local units                                         = br.player.units
         local use                                           = br.player.use
         local lootDelay                                     = getOptionValue("LootDelay")
+        local drawing                                       = isChecked("Drawings")
         -- ToggleToValue("BladeFlurry", 1)
         -- print(1)
 
@@ -971,7 +973,9 @@ local function runRotation()
             }
 
             local willkick = nil
-            LibDraw.clearCanvas()
+            if drawing then
+                LibDraw.clearCanvas()
+            end
             function canInterruptshit(unit, hardinterrupt, forpro, gouge)
 
                 local hardinterrupt = hardinterrupt or false
@@ -1008,15 +1012,17 @@ local function runRotation()
                             if willkick == nil then
                                 willkick = unit
                                 local wx,wy,wz = ObjectPosition(willkick)
-                                if getDistance(unit) > 5 then
-                                    LibDraw.SetColor(255,0,0)
-                                else
-                                    LibDraw.SetColor(0,0,0)
+                                if drawing then
+                                    if getDistance(unit) > 5 then
+                                        LibDraw.SetColor(255,0,0)
+                                    else
+                                        LibDraw.SetColor(0,0,0)
+                                    end
+                                    LibDraw.Text("KICK SHIT", "GameFontNormal", wx,wy,wz+2)
                                 end
-                                LibDraw.Text("KICK SHIT", "GameFontNormal", wx,wy,wz+2)
                             end
                         end
-                        if gouge and (willkick == nil or willkick ~= unit) then
+                        if gouge and (willkick == nil or willkick ~= unit) and drawing then
                             if not getFacing(unit, "player") or getDistance(unit) > 5 then
                                 LibDraw.SetColor(255,0,0)
                             else
