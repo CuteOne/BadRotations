@@ -770,11 +770,11 @@ function br.DBM:getPulltimer(time, specificID)
             local isBelowTime = false
             local currentTimer = 0
             local specificID = specificID or "Pull"
-            for i = 1, #br.DBM.Timers do
+            for i = 1, #br.DBM.Timer do
                 -- Check if timer with spell id is present
-                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == specificID then
+                if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == specificID then
                     hasTimer = true
-                    currentTimer = br.DBM.Timers[i].exptime - GetTime()
+                    currentTimer = br.DBM.Timer[i].exptime - GetTime()
                     -- if a time is given set var to true
                     if time then
                         if currentTimer <= time then
@@ -849,60 +849,62 @@ end
 -- 1 - br.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
 -- 2 - br.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
     function br.DBM:getTimer(spellID, time)
-        if IsAddOnLoaded('DBM-Core') then
-            local hasTimer = false
-            local isBelowTime = false
-            local currentTimer = 0
-            for i = 1, #br.DBM.Timers do
-                -- Check if timer with spell id is present
-                if tonumber(br.DBM.Timers[i].spellid) == spellID then
-                    hasTimer = true
-                    currentTimer = br.DBM.Timers[i].timer
-                    -- if a time is given set var to true
-                    if time then
-                        if currentTimer <= time then
-                            isBelowTime = true
+        if br.DBM.Timer then
+            if IsAddOnLoaded('DBM-Core') then
+                local hasTimer = false
+                local isBelowTime = false
+                local currentTimer = 0
+                for i = 1, #br.DBM.Timer do
+                    -- Check if timer with spell id is present
+                    if tonumber(br.DBM.Timer[i].spellid) == spellID then
+                        hasTimer = true
+                        currentTimer = br.DBM.Timer[i].timer
+                        -- if a time is given set var to true
+                        if time then
+                            if currentTimer <= time then
+                                isBelowTime = true
+                            end
                         end
                     end
                 end
-            end
-            if time ~= nil then
-                if hasTimer and isBelowTime then
-                    return true
+                if time ~= nil then
+                    if hasTimer and isBelowTime then
+                        return true
+                    else
+                        return false
+                    end
                 else
-                    return false
+                    if hasTimer then
+                        return currentTimer
+                    end
                 end
-            else
-                if hasTimer then
-                    return currentTimer
-                end
-            end
-        elseif IsAddOnLoaded("BigWigs") then
-            local hasTimer = false
-            local isBelowTime = false
-            local currentTimer = 0
-            for i = 1, #br.DBM.Timers do
-                -- Check if timer with spell id is present
-                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == spellID then
-                    hasTimer = true
-                    currentTimer = br.DBM.Timers[i].exptime - GetTime()
-                    -- if a time is given set var to true
-                    if time then
-                        if currentTimer <= time then
-                            isBelowTime = true
+            elseif IsAddOnLoaded("BigWigs") then
+                local hasTimer = false
+                local isBelowTime = false
+                local currentTimer = 0
+                for i = 1, #br.DBM.Timer do
+                    -- Check if timer with spell id is present
+                    if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == spellID then
+                        hasTimer = true
+                        currentTimer = br.DBM.Timer[i].exptime - GetTime()
+                        -- if a time is given set var to true
+                        if time then
+                            if currentTimer <= time then
+                                isBelowTime = true
+                            end
                         end
                     end
                 end
-            end
-            if time ~= nil then
-                if hasTimer and isBelowTime then
-                    return true
+                if time ~= nil then
+                    if hasTimer and isBelowTime then
+                        return true
+                    else
+                        return false
+                    end
                 else
-                    return false
-                end
-            else
-                if hasTimer then
-                    return currentTimer
+                    if hasTimer then
+                        return currentTimer
+                    end
                 end
             end
         end
@@ -987,10 +989,10 @@ function BWInit()
                     return
                 end
             end
-            for i = 1, #br.DBM.Timers do
-                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == spellId then
+            for i = 1, #br.DBM.Timer do
+                if br.DBM.Timer[i] ~= nil and br.DBM.Timer[i].id == spellId then
                     clone = true
-                    br.DBM.Timers[i].exptime = GetTime() + duration
+                    br.DBM.Timer[i].exptime = GetTime() + duration
                     break
                 end
             end
@@ -998,16 +1000,16 @@ function BWInit()
                 local timer = {}
                 timer.id = spellId
                 timer.exptime = GetTime() + duration
-                tinsert(br.DBM.Timers, timer)
+                tinsert(br.DBM.Timer, timer)
                 clone = false
             end
         elseif (event == "BigWigs_StopBars"
             or event == "BigWigs_OnBossDisable"
         or event == "BigWigs_OnPluginDisable") then
-            if #br.DBM.Timers > 0 then
-                local count = #br.DBM.Timers
+            if #br.DBM.Timer > 0 then
+                local count = #br.DBM.Timer
                 for i = 0, count do
-                   br.DBM.Timers[i] = nil
+                   br.DBM.Timer[i] = nil
                 end
             end
         else
@@ -1024,11 +1026,11 @@ function BWInit()
 end
 
 function BWCheck()
-    if #br.DBM.Timers > 0 then
-        for i = 1, #br.DBM.Timers do
-            if br.DBM.Timers[i] ~= nil then
-                if br.DBM.Timers[i].exptime < GetTime() then
-                    br.DBM.Timers[i] = nil
+    if #br.DBM.Timer > 0 then
+        for i = 1, #br.DBM.Timer do
+            if br.DBM.Timer[i] ~= nil then
+                if br.DBM.Timer[i].exptime < GetTime() then
+                    br.DBM.Timer[i] = nil
                 end
             else
             end
