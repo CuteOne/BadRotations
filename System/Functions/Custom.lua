@@ -730,85 +730,187 @@ end
 -- specificID can be set if Pulltimer is NOT "Pull in"
 function br.DBM:getPulltimer(time, specificID)
     if br.DBM.Timer then
-        specificID = specificID or "Pull in"
-        local hasPulltimer = false
-        local isBelowTime = false
-        local pullTimer = 0
-        for i = 1, #br.DBM.Timer do
-            -- Check if a Pulltimer is present
-            --Print("get pull timer id="..br.DBM.Timer[i].id)
-            --Print("time="..br.DBM.Timer[i].timer)
+        if IsAddOnLoaded('DBM-Core') then
+            local specificID = specificID or "Pull in"
+            local hasPulltimer = false
+            local isBelowTime = false
+            local pullTimer = 0
+            for i = 1, #br.DBM.Timer do
+                -- Check if a Pulltimer is present
+                --Print("get pull timer id="..br.DBM.Timer[i].id)
+                --Print("time="..br.DBM.Timer[i].timer)
 
-            --if br.DBM.Timer[i].id == specificID then
-            is_find , _ = string.find(br.DBM.Timer[i].id , tostring(specificID))
-            if is_find ~= nil then
-                hasPulltimer = true
-                pullTimer = br.DBM.Timer[i].timer
+                --if br.DBM.Timer[i].id == specificID then
+                is_find , _ = string.find(br.DBM.Timer[i].id , tostring(specificID))
+                if is_find ~= nil then
+                    hasPulltimer = true
+                    pullTimer = br.DBM.Timer[i].timer
 
-                -- if a time is given set var to true
-                if time then
-                    if pullTimer <= time then
-                        isBelowTime = true
+                    -- if a time is given set var to true
+                    if time then
+                        if pullTimer <= time then
+                            isBelowTime = true
+                        end
                     end
                 end
             end
-        end
-
-        -- if a time is given return true if pulltimer and below given time
-        -- else return time
-        if time ~= nil then
-            if hasPulltimer and isBelowTime then
-                return true
+            if time ~= nil then
+                if hasPullTimer and isBelowTime then
+                    return true
+                else
+                    return false
+                end
             else
-                return false
+                if hasPullTimer then
+                    return pullTimer
+                end
             end
-        else
-            if hasPulltimer then
-                return pullTimer
+        elseif IsAddOnLoaded("BigWigs") then
+            local hasTimer = false
+            local isBelowTime = false
+            local currentTimer = 0
+            local specificID = specificID or "Pull"
+            for i = 1, #br.DBM.Timers do
+                -- Check if timer with spell id is present
+                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == specificID then
+                    hasTimer = true
+                    currentTimer = br.DBM.Timers[i].exptime - GetTime()
+                    -- if a time is given set var to true
+                    if time then
+                        if currentTimer <= time then
+                            isBelowTime = true
+                        end
+                    end
+                end
+            end
+            if time ~= nil then
+                if hasTimer and isBelowTime then
+                    return true
+                else
+                    return false
+                end
+            else
+                if hasTimer then
+                    return currentTimer
+                end
             end
         end
     end
+            -- if a time is given return true if timer and below given time
+            -- else return time
+        
     return 999 -- return number to avoid conflicts but to high so it should never trigger
 end
+-- function br.DBM:getPulltimer(time, specificID)
+--     if br.DBM.Timer then
+--         specificID = specificID or "Pull in"
+--         local hasPulltimer = false
+--         local isBelowTime = false
+--         local pullTimer = 0
+--         for i = 1, #br.DBM.Timer do
+--             -- Check if a Pulltimer is present
+--             --Print("get pull timer id="..br.DBM.Timer[i].id)
+--             --Print("time="..br.DBM.Timer[i].timer)
+
+--             --if br.DBM.Timer[i].id == specificID then
+--             is_find , _ = string.find(br.DBM.Timer[i].id , tostring(specificID))
+--             if is_find ~= nil then
+--                 hasPulltimer = true
+--                 pullTimer = br.DBM.Timer[i].timer
+
+--                 -- if a time is given set var to true
+--                 if time then
+--                     if pullTimer <= time then
+--                         isBelowTime = true
+--                     end
+--                 end
+--             end
+--         end
+
+--         -- if a time is given return true if pulltimer and below given time
+--         -- else return time
+--         if time ~= nil then
+--             if hasPulltimer and isBelowTime then
+--                 return true
+--             else
+--                 return false
+--             end
+--         else
+--             if hasPulltimer then
+--                 return pullTimer
+--             end
+--         end
+--     end
+--     return 999 -- return number to avoid conflicts but to high so it should never trigger
+-- end
 
 
 --- Usage:
 -- 1 - br.DBM:getTimer(spellID) -> return (number) the count of given spell ID timer
 -- 2 - br.DBM:getTimer(spellID, time) -> return (boolean) TRUE if spellid is below given time else FALSE
-function br.DBM:getTimer(spellID, time)
-    if br.DBM.Timer then
-        local hasTimer = false
-        local isBelowTime = false
-        local currentTimer = 0
-        for i = 1, #br.DBM.Timer do
-            -- Check if timer with spell id is present
-            if tonumber(br.DBM.Timer[i].spellid) == spellID then
-                hasTimer = true
-                currentTimer = br.DBM.Timer[i].timer
-                -- if a time is given set var to true
-                if time then
-                    if currentTimer <= time then
-                        isBelowTime = true
+    function br.DBM:getTimer(spellID, time)
+        if IsAddOnLoaded('DBM-Core') then
+            local hasTimer = false
+            local isBelowTime = false
+            local currentTimer = 0
+            for i = 1, #br.DBM.Timers do
+                -- Check if timer with spell id is present
+                if tonumber(br.DBM.Timers[i].spellid) == spellID then
+                    hasTimer = true
+                    currentTimer = br.DBM.Timers[i].timer
+                    -- if a time is given set var to true
+                    if time then
+                        if currentTimer <= time then
+                            isBelowTime = true
+                        end
                     end
                 end
             end
-        end
-        -- if a time is given return true if timer and below given time
-        -- else return time
-        if time ~= nil then
-            if hasTimer and isBelowTime then
-                return true
+            if time ~= nil then
+                if hasTimer and isBelowTime then
+                    return true
+                else
+                    return false
+                end
             else
-                return false
+                if hasTimer then
+                    return currentTimer
+                end
             end
-        else
-            if hasTimer then
-                return currentTimer
+        elseif IsAddOnLoaded("BigWigs") then
+            local hasTimer = false
+            local isBelowTime = false
+            local currentTimer = 0
+            for i = 1, #br.DBM.Timers do
+                -- Check if timer with spell id is present
+                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == spellID then
+                    hasTimer = true
+                    currentTimer = br.DBM.Timers[i].exptime - GetTime()
+                    -- if a time is given set var to true
+                    if time then
+                        if currentTimer <= time then
+                            isBelowTime = true
+                        end
+                    end
+                end
+            end
+            if time ~= nil then
+                if hasTimer and isBelowTime then
+                    return true
+                else
+                    return false
+                end
+            else
+                if hasTimer then
+                    return currentTimer
+                end
             end
         end
+            -- if a time is given return true if timer and below given time
+            -- else return time
+        
+        return 999 -- return number to avoid conflicts but to high so it should never trigger
     end
-    return 999 -- return number to avoid conflicts but to high so it should never trigger
-end
 
 -- Future position
 function GetFuturePostion(unit, castTime)
@@ -859,6 +961,77 @@ function PullTimerRemain(returnBool)
             return _brPullTimer - GetTime()
         else
             return true
+        end
+    end
+end
+
+function BWInit()
+    if br.DBM.BigWigs ~= nil then return end
+    br.DBM.BigWigs = {}
+    
+    local BigWigs = br.DBM.BigWigs
+    BigWigs.callback = {}
+    local callback = BigWigs.callback
+    BigWigs.BigwigsCallback = function(event, ...)
+        if event == "BigWigs_StartBar" then
+            local module, spellId, msg, duration, icon = ...
+            local clone = false
+            if spellId == nil then
+                if tostring(icon) == "134062" then
+                    -- print("break")
+                    spellId = "Break"
+                elseif tostring(icon) == "132337" then
+                    -- print("pull")
+                    spellId = "Pull"
+                else
+                    return
+                end
+            end
+            for i = 1, #br.DBM.Timers do
+                if br.DBM.Timers[i] ~= nil and br.DBM.Timers[i].id == spellId then
+                    clone = true
+                    br.DBM.Timers[i].exptime = GetTime() + duration
+                    break
+                end
+            end
+            if not clone then
+                local timer = {}
+                timer.id = spellId
+                timer.exptime = GetTime() + duration
+                tinsert(br.DBM.Timers, timer)
+                clone = false
+            end
+        elseif (event == "BigWigs_StopBars"
+            or event == "BigWigs_OnBossDisable"
+        or event == "BigWigs_OnPluginDisable") then
+            if #br.DBM.Timers > 0 then
+                local count = #br.DBM.Timers
+                for i = 0, count do
+                   br.DBM.Timers[i] = nil
+                end
+            end
+        else
+            -- print("lalala")
+        end
+    end
+    if BigWigsLoader then
+        BigWigs.callback = {}
+        BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", BigWigs.BigwigsCallback);
+        BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", BigWigs.BigwigsCallback);
+        BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", BigWigs.BigwigsCallback);
+        BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", BigWigs.BigwigsCallback);
+    end
+end
+
+function BWCheck()
+    if #br.DBM.Timers > 0 then
+        for i = 1, #br.DBM.Timers do
+            if br.DBM.Timers[i] ~= nil then
+                if br.DBM.Timers[i].exptime < GetTime() then
+                    br.DBM.Timers[i] = nil
+                end
+            else
+            end
         end
     end
 end

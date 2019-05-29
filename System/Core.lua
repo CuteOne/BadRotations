@@ -287,8 +287,15 @@ function BadRotationsUpdate(self)
 
 					-- get DBM Timer/Bars
 					-- global -> br.DBM.Timer
-					br.DBM:getBars()
-
+					if IsAddOnLoaded('DBM-Core') then
+						br.DBM:getBars()
+					elseif IsAddOnLoaded("BigWigs") then
+						if not br.DBM.BigWigs then
+							BWInit()
+						else
+							BWCheck()
+						end
+					end
 					-- Accept dungeon queues
 					br:AcceptQueues()
 
