@@ -133,9 +133,11 @@ novaEngineTables.BadDebuffList= {
 	[274148] = "Taint", --Avatar of Sethraliss Debuff
 	--Battle of Dazar'alor
 	[285213] = "Caress of Death", -- Caress of Death (Rastakhan)
+	[288415] = "Caress of Death", -- Caress of Death (Rastakhan)
 	[284663] = "Bwonsamdi's Wrath", --Bwonsamdi's Wrath (mythic conclave)
 	--Crucible of storms
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
+	[282738] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
 	[295271] = "Umbral Shell", -- Void Stone Trinket Debuff
 }
