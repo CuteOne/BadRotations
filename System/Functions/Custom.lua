@@ -968,9 +968,11 @@ function PullTimerRemain(returnBool)
 end
 
 function BWInit()
+    if not br.DBM.Timer then
+        br.DBM.Timer = {}
+    end
     if br.DBM.BigWigs ~= nil then return end
     br.DBM.BigWigs = {}
-    
     local BigWigs = br.DBM.BigWigs
     BigWigs.callback = {}
     local callback = BigWigs.callback
