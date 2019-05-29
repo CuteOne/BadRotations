@@ -225,12 +225,14 @@ local function runRotation()
         local thp                                           = getHP("target")
         local traits                                        = br.player.traits
         local units                                         = br.player.units
+        local ttd                                           = getTTD
 
         units.get(5)
         units.get(8)
+        units.get(8,true)
         enemies.get(8)
         enemies.get(20)
-	  enemies.yards8f   = getEnemiesInCone(180,8)
+	    enemies.yards8f   = getEnemiesInCone(180,8)
 
 
         if profileStop == nil then profileStop = false end
