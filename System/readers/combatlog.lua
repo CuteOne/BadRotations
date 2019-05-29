@@ -119,7 +119,7 @@ function br.read.combatLog()
             end
         end
         --In flight
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+        if source == br.guid and param == "SPELL_CAST_SUCCESS" and EasyWoWToolbox ~= nil then
             br.InFlight.Add(spell, destination)
         end
         -- br.tracker.handleEvent(...)
