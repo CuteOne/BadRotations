@@ -4,7 +4,8 @@ InFlight.Tracker = {}
 
 local projectileSpeed = {
     [116] = 35, --Frostbolt
-    [31707] = 16 --Waterbolt
+    [31707] = 16, --Waterbolt
+    [214634] = 30, --Ebonbolt
 }
 
 function InFlight.Hit(spellID, destinationGUID, sourceGUID)
