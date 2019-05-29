@@ -275,12 +275,6 @@ end
 actionList = {}
 -- Action List - Pet Management
 actionList.PetManagement = function()
-    local petActive = IsPetActive()
-    local petExists = UnitExists("pet")
-    local petDead = UnitIsDeadOrGhost("pet")
-    local petMode = getCurrentPetMode()
-    local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
-
     local function getCurrentPetMode()
         local petMode = "None"
         for i = 1, NUM_PET_ACTION_SLOTS do
@@ -293,6 +287,12 @@ actionList.PetManagement = function()
         end
         return petMode
     end
+
+    local petActive = IsPetActive()
+    local petExists = UnitExists("pet")
+    local petDead = UnitIsDeadOrGhost("pet")
+    local petMode = getCurrentPetMode()
+    local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
 
     if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
