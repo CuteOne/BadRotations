@@ -191,6 +191,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"PW:B/LB on Melee","Only cast on Melee")
             br.ui:createDropdown(section,"PW:B/LB Key", br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." PW:B/LB manual usage.")
             --Evangelism
+            br.ui:createDropdown(section,"Evangelism Key",br.dropOptions.Toggle, 6, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Evangelism manual usage.")
             br.ui:createSpinner(section, "Evangelism",  70,  0,  100,  1,  "|cffFFFFFFHealth Percent to Cast At. Default: 70")
             br.ui:createSpinnerWithout(section, "Evangelism Targets",  3,  0,  40,  1,  "|cffFFFFFFTarget count to Cast At. Default: 3")
             br.ui:createSpinnerWithout(section, "Atonement for Evangelism",  3,  0,  40,  1,  "|cffFFFFFFMinimum Atonement count to Cast At. Default: 3")
@@ -305,8 +306,9 @@ local function runRotation()
         enemies.get(40)
         friends.yards40 = getAllies("player",40)
 
-        atonementCount = 0
-        maxatonementCount = 0
+        local atonementCount = 0
+        local maxatonementCount = 0
+        local noAtone = {}
         for i=1, #br.friend do
             local atonementRemain = getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") or 0 -- 194384
             if atonementRemain > 0  then
@@ -315,6 +317,10 @@ local function runRotation()
                     atonementCount = atonementCount + 1
                 else
                     atonementCount = atonementCount + 1
+                end
+            else
+                if getDistance(br.friend[i].unit) < 40 then
+                    table.insert(noAtone, br.friend[i].unit)
                 end
             end
         end
@@ -347,7 +353,7 @@ local function runRotation()
 
         local DSUnits =  0
         if talent.divineStar then
-            DSUnits = (select(1,getEnemiesInRect(5,24))+select(1,getUnitsInRect(5,24,false,getOptionValue("Divine Star Healing"))))
+            DSUnits = (getEnemiesInRect(5,24)+getUnitsInRect(5,24,false,getOptionValue("Divine Star Healing")))
         end
         local DSAtone = 0
         if talent.divineStar then
@@ -499,100 +505,162 @@ local function runRotation()
                             return true
                         end
                     end
-                    if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
-                        if getOptionValue("Trinket 1 Mode") == 1 then
-                            if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
-                                useItem(13)
-                                br.addonDebug("Using Trinket 1")
-                                return true
-                            end
-                            elseif getOptionValue("Trinket 1 Mode") == 2 then
-                                for i = 1, #br.friend do
-                                    if br.friend[i].hp <= getValue("Trinket 1") or burst == true then
-                                    UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
-                                    br.addonDebug("Using Trinket 1 (Target)")
-                                    return true
-                                    end
-                                end
-                            elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
-                                for i = 1, #tanks do
-                                    -- get the tank's target
-                                    local tankTarget = UnitTarget(tanks[i].unit)
-                                    if tankTarget ~= nil then
-                                    -- get players in melee range of tank's target
-                                    local meleeFriends = getAllies(tankTarget, 5)
-                                    -- get the best ground circle to encompass the most of them
-                                    local loc = nil
-                                    if #meleeFriends < 12 then
-                                        loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-                                    else
-                                        local meleeHurt = {}
-                                        for j = 1, #meleeFriends do
-                                        if meleeFriends[j].hp < getValue("Trinket 1") then
-                                            tinsert(meleeHurt, meleeFriends[j])
-                                        end
-                                        end
-                                        if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
-                                        loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-                                        end
-                                    end
-                                    if loc ~= nil then
-                                        useItem(13)
-                                        br.addonDebug("Using Trinket 1 (Ground)")
-                                        ClickPosition(loc.x, loc.y, loc.z)
-                                        return true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
-                        if getOptionValue("Trinket 2 Mode") == 1 then
-                            if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
-                                useItem(14)
-                                br.addonDebug("Using Trinket 2")
-                                return true
-                            end
-                            elseif getOptionValue("Trinket 2 Mode") == 2 then
-                                for i = 1, #br.friend do
-                                    if br.friend[i].hp <= getValue("Trinket 2") or burst == true then
-                                    UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
-                                    br.addonDebug("Using Trinket 2 (Target)")
-                                    return true
-                                    end
-                                end
-                            elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
-                                for i = 1, #tanks do
-                                    -- get the tank's target
-                                    local tankTarget = UnitTarget(tanks[i].unit)
-                                    if tankTarget ~= nil then
-                                    -- get players in melee range of tank's target
-                                    local meleeFriends = getAllies(tankTarget, 5)
-                                    -- get the best ground circle to encompass the most of them
-                                    local loc = nil
-                                    if #meleeFriends < 12  then
-                                        loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-                                    else
-                                        local meleeHurt = {}
-                                        for j = 1, #meleeFriends do
-                                        if meleeFriends[j].hp < getValue("Trinket 2") then
-                                            tinsert(meleeHurt, meleeFriends[j])
-                                        end
-                                        end
-                                        if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
-                                        loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-                                        end
-                                    end
-                                    if loc ~= nil then
-                                        useItem(14)
-                                        br.addonDebug("Using Trinket 2 (Ground)")
-                                        ClickPosition(loc.x, loc.y, loc.z)
-                                        return true
-                                    end
-                                end
-                            end
-                        end
-                    end
+                    -- Trinkets
+				if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
+					if GetItemCooldown(158320) <= gcdMax then
+						UseItemByName(158320, lowest.unit)
+						br.addonDebug("Using Revitalizing Voodoo Totem")
+					end
+				end
+				if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
+					if GetItemCooldown(160649) <= gcdMax then
+						UseItemByName(160649, lowest.unit)
+						br.addonDebug("Using Inoculating Extract")
+					end
+				end
+				if isChecked("Ward of Envelopment") and hasEquiped(165569) and GetItemCooldown(165569) <= gcdMax then
+					-- get melee players
+					for i = 1, #tanks do
+						-- get the tank's target
+						local tankTarget = UnitTarget(tanks[i].unit)
+						if tankTarget ~= nil then
+							-- get players in melee range of tank's target
+							local meleeFriends = getAllies(tankTarget, 5)
+							-- get the best ground circle to encompass the most of them
+							local loc = nil
+							if #meleeFriends >= 8 then
+								loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+							else
+								local meleeHurt = {}
+								for j = 1, #meleeFriends do
+									if meleeFriends[j].hp < 75 then
+										tinsert(meleeHurt, meleeFriends[j])
+									end
+								end
+								if #meleeHurt >= 2 then
+									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+								end
+							end
+							if loc ~= nil then
+								useItem(165569)
+								local px,py,pz = ObjectPosition("player")
+       							loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+       							if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+									ClickPosition(loc.x, loc.y, loc.z)
+									br.addonDebug("Using Ward of Envelopment")
+									return
+								end
+							end
+						end
+					end
+				end
+				--Pillar of the Drowned Cabal
+				if hasEquiped(167863) and canUseItem(16) then
+					for i = 1, #br.friend do
+						if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
+							UseItemByName(167863,br.friend[i].unit)
+							br.addonDebug("Using Pillar of Drowned Cabal")
+						end
+					end
+				end
+				if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
+					if getOptionValue("Trinket 1 Mode") == 1 then
+						if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
+							useItem(13)
+							br.addonDebug("Using Trinket 1")
+							return true
+						end
+						elseif getOptionValue("Trinket 1 Mode") == 2 then
+							for i = 1, #br.friend do
+								if br.friend[i].hp <= getValue("Trinket 1") or burst == true then
+								UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
+								br.addonDebug("Using Trinket 1 (Target)")
+								return true
+								end
+							end
+						elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+							for i = 1, #tanks do
+								-- get the tank's target
+								local tankTarget = UnitTarget(tanks[i].unit)
+								if tankTarget ~= nil then
+								-- get players in melee range of tank's target
+								local meleeFriends = getAllies(tankTarget, 5)
+								-- get the best ground circle to encompass the most of them
+								local loc = nil
+								if #meleeFriends < 12 then
+									loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+								else
+									local meleeHurt = {}
+									for j = 1, #meleeFriends do
+									if meleeFriends[j].hp < getValue("Trinket 1") then
+										tinsert(meleeHurt, meleeFriends[j])
+									end
+									end
+									if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
+									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+									end
+								end
+								if loc ~= nil then
+									useItem(13)
+									br.addonDebug("Using Trinket 1 (Ground)")
+									local px,py,pz = ObjectPosition("player")
+            						loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+            						if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+										ClickPosition(loc.x, loc.y, loc.z)
+										return true
+									end
+								end
+							end
+						end
+					end
+				end
+				if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
+					if getOptionValue("Trinket 2 Mode") == 1 then
+						if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
+							useItem(14)
+							br.addonDebug("Using Trinket 2")
+							return true
+						end
+						elseif getOptionValue("Trinket 2 Mode") == 2 then
+							for i = 1, #br.friend do
+								if br.friend[i].hp <= getValue("Trinket 2") or burst == true then
+								UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
+								br.addonDebug("Using Trinket 2 (Target)")
+								return true
+								end
+							end
+						elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
+							for i = 1, #tanks do
+								-- get the tank's target
+								local tankTarget = UnitTarget(tanks[i].unit)
+								if tankTarget ~= nil then
+								-- get players in melee range of tank's target
+								local meleeFriends = getAllies(tankTarget, 5)
+								-- get the best ground circle to encompass the most of them
+								local loc = nil
+								if #meleeFriends < 12  then
+									loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+								else
+									local meleeHurt = {}
+									for j = 1, #meleeFriends do
+									if meleeFriends[j].hp < getValue("Trinket 2") then
+										tinsert(meleeHurt, meleeFriends[j])
+									end
+									end
+									if #meleeHurt >= getValue("Min Trinket 2 Targets") or burst == true then
+									loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+									end
+								end
+								if loc ~= nil then
+									useItem(14)
+									br.addonDebug("Using Trinket 2 (Ground)")
+									ClickPosition(loc.x, loc.y, loc.z)
+									return true
+								end
+							end
+						end
+					end
+				end
                 end
             end
         end -- End Action List - Cooldowns
@@ -717,27 +785,12 @@ local function runRotation()
         end
         
         local function actionList_AMR()
-            -- Temple of Seth
-            if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
-                for i = 1, GetObjectCount() do
-                    local thisUnit = GetObjectWithIndex(i)
-                    if GetObjectID(thisUnit) == 133392 then
-                        sethObject = thisUnit
-                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= getValue("Temple of Seth") then
-                            if cd.penance.remain() <= gcd then
-                                CastSpellByName(GetSpellInfo(spell.penance),sethObject)
-                            end
-                            CastSpellByName(GetSpellInfo(spell.shadowMend),sethObject)
-                        end
-                    end
-                end
-            end
-            -- Atonement Key
-            if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
+             -- Atonement Key
+             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
                     if cast.powerWordRadiance(lowest.unit) then end
                 else 
-                    if getSpellCD(spell.rapture) <= gcd and isChecked("Rapture") then
+                    if getSpellCD(spell.rapture) <= gcdMax and isChecked("Rapture") then
                         if cast.rapture() then end
                     end
                     if atonementCount ~= 0 or isMoving("player") then
@@ -748,8 +801,35 @@ local function runRotation()
                         end
                     end
                 end
-                if talent.evangelism and getSpellCD(spell.evangelism) <= gcd and isChecked("Evangelism") then
+                if talent.evangelism and getSpellCD(spell.evangelism) <= gcdMax and isChecked("Evangelism") then
                     if cast.evangelism() then end
+                end
+            end
+             -- Evangelism
+            if (SpecificToggle("Evangelism Key") and not GetCurrentKeyBoardFocus()) and isChecked("Evangelism Key") then
+                if cast.evangelism then return true end
+            end
+             -- Power Word: Barrier
+            if (SpecificToggle("PW:B/LB Key") and not GetCurrentKeyBoardFocus()) and isChecked("PW:B/LB Key") then
+                if not talent.luminousBarrier then
+                    if CastSpellByName(GetSpellInfo(spell.powerWordBarrier),"cursor") then return true end
+                else 
+                    if CastSpellByName(GetSpellInfo(spell.luminousBarrier),"cursor") then return true end
+                end
+            end
+            -- Temple of Seth
+            if inCombat and isChecked("Temple of Seth") and br.player.eID and br.player.eID == 2127 then
+                for i = 1, GetObjectCount() do
+                    local thisUnit = GetObjectWithIndex(i)
+                    if GetObjectID(thisUnit) == 133392 then
+                        sethObject = thisUnit
+                        if getHP(sethObject) < 100 and getBuffRemain(sethObject,274148) == 0 and lowest.hp >= getValue("Temple of Seth") then
+                            if cd.penance.remain() <= gcdMax then
+                                CastSpellByName(GetSpellInfo(spell.penance),sethObject)
+                            end
+                            CastSpellByName(GetSpellInfo(spell.shadowMend),sethObject)
+                        end
+                    end
                 end
             end
             if isMoving("player") and isChecked("Shadow Word: Pain/Purge The Wicked") and (getSpellCD(spell.penance) > gcdMax or (getSpellCD(spell.penance) <= gcdMax and debuff.purgeTheWicked.count() == 0 and debuff.shadowWordPain.count() == 0)) then
@@ -793,14 +873,6 @@ local function runRotation()
                     end
                 end
             end
-            -- Power Word: Barrier
-            if (SpecificToggle("PW:B/LB Key") and not GetCurrentKeyBoardFocus()) and isChecked("PW:B/LB Key") and useCDs then
-                if not talent.luminousBarrier then
-                    if CastSpellByName(GetSpellInfo(spell.powerWordBarrier),"cursor") then return true end
-                else 
-                    if CastSpellByName(GetSpellInfo(spell.luminousBarrier),"cursor") then return true end
-                end
-            end
             if isChecked("PW:B/LB") then
                 if isChecked("PW:B/LB on Melee") then
                     -- get melee players
@@ -838,59 +910,6 @@ local function runRotation()
                     end
                 end
             end
-            -- Trinkets
-			if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
-				if GetItemCooldown(158320) <= gcdMax then
-					UseItemByName(158320, lowest.unit)
-					br.addonDebug("Using Revitalizing Voodoo Totem")
-				end
-			end
-			if isChecked("Inoculating Extract") and hasEquiped(160649) and lowest.hp < getValue("Inoculating Extract") then
-				if GetItemCooldown(160649) <= gcdMax then
-					UseItemByName(160649, lowest.unit)
-					br.addonDebug("Using Inoculating Extract")
-				end
-			end
-			if isChecked("Ward of Envelopment") and hasEquiped(165569) and GetItemCooldown(165569) <= gcdMax then
-				-- get melee players
-				for i = 1, #tanks do
-					-- get the tank's target
-					local tankTarget = UnitTarget(tanks[i].unit)
-					if tankTarget ~= nil then
-					-- get players in melee range of tank's target
-					local meleeFriends = getAllies(tankTarget, 5)
-					-- get the best ground circle to encompass the most of them
-					local loc = nil
-					if #meleeFriends >= 8 then
-						loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-					else
-						local meleeHurt = {}
-						for j = 1, #meleeFriends do
-						if meleeFriends[j].hp < 75 then
-							tinsert(meleeHurt, meleeFriends[j])
-						end
-						end
-						if #meleeHurt >= 2 then
-						loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-						end
-					end
-					if loc ~= nil then
-						useItem(165569)
-						ClickPosition(loc.x, loc.y, loc.z)
-						return true
-					end
-					end
-				end
-			end
-			--Pillar of the Drowned Cabal
-			if hasEquiped(167863) and canUseItem(16) then
-				for i = 1, #br.friend do
-					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
-						UseItemByName(167863,br.friend[i].unit)
-						br.addonDebug("Using Pillar of Drowned Cabal")
-					end
-				end
-			end
             -- Rapture when getting Innervate/Symbol
             if isChecked("Rapture when get Innervate") and freeMana then
                 if cast.rapture() then return true end
@@ -913,6 +932,13 @@ local function runRotation()
             -- Power Word: Shield with Rapture
             if buff.rapture.exists("player") then
                 if isChecked("Obey Atonement Limits") then
+                    for i = 1, #noAtone do
+                        if maxatonementCount < getValue("Max Atonements") then
+                            if getBuffRemain(noAtone[i].unit,spell.buffs.powerWordShield,"player") < 1 then
+                                if cast.powerWordShield(noAtone[i].unit) then return true end
+                            end
+                        end
+                    end
                     for i = 1, #br.friend do
                         if maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
                             if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
@@ -921,6 +947,11 @@ local function runRotation()
                         end
                     end
                 else
+                    for i = 1, #noAtone do
+                        if getBuffRemain(noAtone[i].unit,spell.buffs.powerWordShield,"player") < 1 then
+                            if cast.powerWordShield(noAtone[i].unit) then return true end
+                        end
+                    end
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return true end
@@ -964,7 +995,7 @@ local function runRotation()
             end
             -- Power Word Radiance
             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then                
-                if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() then
+                if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() and atonementCount < 10 then
                     if charges.powerWordRadiance.count() >= 1 then
                         if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
                             for i = 1, #br.friend do
@@ -984,7 +1015,7 @@ local function runRotation()
                 if cast.penance(lowest.unit) then return true end
             end
             -- Schism (2+ Atonement)
-            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcd and norganBuff and ttd(units.dyn40) > 9 then
+            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcdMax and norganBuff and ttd(units.dyn40) > 9 then
                 if cast.schism(units.dyn40) then
                     schismBuff = (units.dyn40)
                 end
