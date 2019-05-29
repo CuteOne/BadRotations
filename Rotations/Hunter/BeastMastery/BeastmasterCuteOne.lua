@@ -86,17 +86,25 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Pet")
             -- Auto Summon
             -- br.ui:createDropdown(section, "Auto Summon", {"Pet 1","Pet 2","Pet 3","Pet 4","Pet 5","No Pet"}, 1, "Select the pet you want to use")
+            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
             -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
-            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
             -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
+            -- Cat-like Reflexes
+            br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
+            -- Claw
+            br.ui:createCheckbox(section, "Claw")
+            -- Dash
+            br.ui:createCheckbox(section, "Dash")
+            -- Prowl
+            br.ui:createCheckbox(section, "Prowl")
             -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-            -- Spirit Mend
-            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             -- Purge
             br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
+            -- Spirit Mend
+            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -239,7 +247,21 @@ actionList.PetManagement = function()
     local petActive = IsPetActive()
     local petExists = UnitExists("pet")
     local petDead = UnitIsDeadOrGhost("pet")
+    local petMode = getCurrentPetMode()
     local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
+
+    local function getCurrentPetMode()
+        local petMode = "None"
+        for i = 1, NUM_PET_ACTION_SLOTS do
+            local name, _, _, _, isActive = GetPetActionInfo(i)
+            if isActive then
+                if name == "PET_MODE_ASSIST" then petMode = "Assist" end
+                if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
+                if name == "PET_MODE_PASSIVE" then petMode = "Passive" end
+            end
+        end
+        return petMode
+    end
 
     if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -264,22 +286,10 @@ actionList.PetManagement = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if petMode == nil then petMode = "None" end
-        if not inCombat then
-            if petMode == "Passive" then
-                if petMode == "Assist" then PetAssistMode() end
-                if petMode == "Defensive" then PetDefensiveMode() end
-            end
-            for i = 1, NUM_PET_ACTION_SLOTS do
-                local name, _, _, _, isActive = GetPetActionInfo(i)
-                if isActive then
-                    if name == "PET_MODE_ASSIST" then petMode = "Assist" end
-                    if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
-                end
-            end
+        if not inCombat and petMode == "Passive" then
+            PetAssistMode()
         elseif inCombat and petMode ~= "Passive" then
             PetPassiveMode()
-            petMode = "Passive"
         end
         -- Pet Attack / retreat
         if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
@@ -310,12 +320,6 @@ actionList.PetManagement = function()
     if isChecked("Dash") and cast.able.dash() and validTarget and getDistance("pettarget","pet") > 10 then
         if cast.dash(nil,"pet") then return end
     end
-    -- Spirit Mend
-    if isChecked("Spirit Mend") and petExists and not petDead and lowestHP < getOptionValue("Spirit Mend") then
-        local thisUnit = br.friend[1].unit
-        if cast.spiritmend(thisUnit) then return end
-    end
-
     -- Purge
     if isChecked("Purge") then
         if #enemies.yards5p > 0 then
@@ -346,7 +350,6 @@ actionList.PetManagement = function()
             if dispelled then Print("Casting dispel on ".. UnitName(dispelledUnit)); return end
         end
     end
-
     -- Growl
     if isChecked("Auto Growl") then
         local _, autoCastEnabled = GetSpellAutocast(spell.growl)
@@ -377,7 +380,7 @@ actionList.PetManagement = function()
         if cast.prowl() then return end
     end
     -- Mend Pet
-    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead
+    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not petDead and not deadPet
         and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
     then
         if cast.mendPet() then return end
