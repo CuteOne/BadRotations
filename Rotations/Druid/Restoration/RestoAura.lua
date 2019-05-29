@@ -886,28 +886,33 @@ local function runRotation()
 					-- get the tank's target
 					local tankTarget = UnitTarget(tanks[i].unit)
 					if tankTarget ~= nil then
-					-- get players in melee range of tank's target
-					local meleeFriends = getAllies(tankTarget, 5)
-					-- get the best ground circle to encompass the most of them
-					local loc = nil
-					if #meleeFriends >= 8 then
-						loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
-					else
-						local meleeHurt = {}
-						for j = 1, #meleeFriends do
-						if meleeFriends[j].hp < 75 then
-							tinsert(meleeHurt, meleeFriends[j])
+						-- get players in melee range of tank's target
+						local meleeFriends = getAllies(tankTarget, 5)
+						-- get the best ground circle to encompass the most of them
+						local loc = nil
+						if #meleeFriends >= 8 then
+							loc = getBestGroundCircleLocation(meleeFriends, 4, 6, 10)
+						else
+							local meleeHurt = {}
+							for j = 1, #meleeFriends do
+								if meleeFriends[j].hp < 75 then
+									tinsert(meleeHurt, meleeFriends[j])
+								end
+							end
+							if #meleeHurt >= 2 then
+								loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+							end
 						end
+						if loc ~= nil then
+							useItem(165569)
+							local px,py,pz = ObjectPosition("player")
+							   loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+							   if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 collisions 
+								ClickPosition(loc.x, loc.y, loc.z)
+								br.addonDebug("Using Ward of Envelopment")
+								return
+							end
 						end
-						if #meleeHurt >= 2 then
-						loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
-						end
-					end
-					if loc ~= nil then
-						useItem(165569)
-						ClickPosition(loc.x, loc.y, loc.z)
-						return true
-					end
 					end
 				end
 			end
@@ -960,8 +965,12 @@ local function runRotation()
 							if loc ~= nil then
 								useItem(13)
 								br.addonDebug("Using Trinket 1 (Ground)")
-								ClickPosition(loc.x, loc.y, loc.z)
-								return true
+								local px,py,pz = ObjectPosition("player")
+								loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+								if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 collisions
+									ClickPosition(loc.x, loc.y, loc.z)
+									return true
+								end
 							end
 						end
 					end
