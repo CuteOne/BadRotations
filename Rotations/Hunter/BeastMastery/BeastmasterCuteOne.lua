@@ -648,7 +648,7 @@ actionList.Opener = function()
                 return
             -- A Murder of Crows
             elseif opener.AOW2 and not opener.MOC1 then 
-                if cd.aMurderOfCrows.remain() > gcd then
+                if not talent.murderOfCrows or cd.aMurderOfCrows.remain() > gcd then
                     castOpenerFail("aMurderOfCrows","MOC1",opener.count)
                 elseif cast.able.aMurderOfCrows() then 
                     castOpener("aMurderOfCrows","MOC1",opener.count)
