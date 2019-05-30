@@ -508,14 +508,14 @@ local function runRotation()
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
             if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-                and (ttd(units.dyn5) > 5 or isBoss(units.dyn5))
+                and (ttd(units.dyn5) > 5 or useCDs())
             then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or isBoss(units.dyn8AoE))
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -592,14 +592,14 @@ local function runRotation()
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
             if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-                and (ttd(units.dyn5) > 5 or isBoss(units.dyn5))
+                and (ttd(units.dyn5) > 5 or useCDs())
             then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or isBoss(units.dyn8AoE))
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -686,21 +686,21 @@ local function runRotation()
         -- Colossus Smash
             -- colossus_smash,if=debuff.colossus_smash.down
             if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-                and (ttd(units.dyn5) > 5 or isBoss(units.dyn5))
+                and (ttd(units.dyn5) > 5 or useCDs())
             then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or isBoss(units.dyn8AoE))
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
         -- Bladestorm
             -- bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if mode.bladestorm == 1
-                and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and (#enemies.yards8 >= getOptionValue("Bladestorm") or isBoss(units.dyn5))) 
+                and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and (#enemies.yards8 >= getOptionValue("Bladestorm") or useCDs())) 
                 and not talent.ravager and (not buff.sweepingStrikes.exists() and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) 
                 and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) or buff.testOfMight.exists()))
             then
@@ -787,14 +787,14 @@ local function runRotation()
         -- Colossus Smash 
             -- colossus_smash,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
             if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-                and (ttd(units.dyn5) > 5 or isBoss(units.dyn5))
+                and (ttd(units.dyn5) > 5 or useCDs())
             then
                 if cast.colossusSmash() then return end
             end
         -- Warbreaker
             -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or isBoss(units.dyn8AoE))
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -803,7 +803,7 @@ local function runRotation()
             if mode.bladestorm == 1
 			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm")  
                 and not talent.ravager and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) 
-                and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())                
+                and not buff.sweepingStrikes.exists() or buff.testOfMight.exists())
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
