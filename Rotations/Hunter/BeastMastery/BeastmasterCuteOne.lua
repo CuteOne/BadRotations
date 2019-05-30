@@ -220,6 +220,8 @@ local profileStop
 local pullTimer
 local thp
 local ttd
+-- Profile Specific Locals
+local lowestBarbedShot
 
 -----------------
 --- Functions ---
@@ -482,8 +484,8 @@ actionList.Interrupts = function()
         local thisUnit
         -- Counter Shot
         if isChecked("Counter Shot") then
-            for i=1, #enemies.yards40 do
-            thisUnit = enemies.yards40[i]
+            for i=1, #enemies.yards40f do
+            thisUnit = enemies.yards40f[i]
                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                     if cast.counterShot(thisUnit) then return end
                 end
@@ -491,8 +493,8 @@ actionList.Interrupts = function()
         end
         -- Freezing Trap
         if isChecked("Freezing Trap") and cast.able.freezingTrap() then
-            for i = 1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
+            for i = 1, #enemies.yards40f do
+                thisUnit = enemies.yards40f[i]
                 if getDistance(thisUnit) > 8 and getCastTimeRemain(thisUnit) > 3 then
                     if cast.freezingTrap(thisUnit,"ground") then return true end
                 end
@@ -500,8 +502,8 @@ actionList.Interrupts = function()
         end
         -- Intimidation
         if isChecked("Intimidation") and not UnitIsDeadOrGhost("pet") and UnitExists("pet") then
-            for i=1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
+            for i=1, #enemies.yards40f do
+                thisUnit = enemies.yards40f[i]
                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                     if cast.intimidation(thisUnit) then return end
                 end
@@ -648,7 +650,7 @@ actionList.Opener = function()
                 return
             -- A Murder of Crows
             elseif opener.AOW2 and not opener.MOC1 then 
-                if not talent.murderOfCrows or cd.aMurderOfCrows.remain() > gcd then
+                if not talent.aMurderOfCrows or cd.aMurderOfCrows.remain() > gcd then
                     castOpenerFail("aMurderOfCrows","MOC1",opener.count)
                 elseif cast.able.aMurderOfCrows() then 
                     castOpener("aMurderOfCrows","MOC1",opener.count)
@@ -669,7 +671,7 @@ actionList.Opener = function()
                 return
             -- Chimaera Shot 
             elseif opener.KC2 and not opener.CHS1 then 
-                if cd.chimaeraShot.remain() > gcd then
+                if not talent.chimaeraShot or cd.chimaeraShot.remain() > gcd then
                     castOpenerFail("chimaeraShot","CHS1",opener.count)
                 elseif cast.able.chimaeraShot() then 
                     castOpener("chimaeraShot","CHS1",opener.count)
@@ -826,8 +828,8 @@ end -- End Action List - Single Target
 actionList.Cleave = function()
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max
-    if cast.able.barbedShot() and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) then
-        if cast.barbedShot() then return end
+    if cast.able.barbedShot(lowestBarbedShot) and (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax) then
+        if cast.barbedShot(lowestBarbedShot) then return end
     end
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
@@ -837,8 +839,8 @@ actionList.Cleave = function()
     end
     -- Barbeb Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=full_recharge_time<gcd.max&cooldown.bestial_wrath.remains
-    if cast.able.barbedShot() and (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax) then
-        if cast.barbedShot() then return end
+    if cast.able.barbedShot(lowestBarbedShot) and (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax) then
+        if cast.barbedShot(lowestBarbedShot) then return end
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
@@ -888,11 +890,11 @@ actionList.Cleave = function()
     end
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|charges_fractional>1.4|target.time_to_die<9
-    if cast.able.barbedShot() and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())
+    if cast.able.barbedShot(lowestBarbedShot) and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())
         or cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active 
         or charges.barbedShot.frac() > 1.4 or ttd(units.dyn40) < 9)
     then
-        if cast.barbedShot() then return end
+        if cast.barbedShot(lowestBarbedShot) then return end
     end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
@@ -998,6 +1000,7 @@ local function runRotation()
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(8,"target")
     enemies.get(40)
+    enemies.get(40,"player",false,true)
     enemies.get(5,"pet")
     enemies.get(8,"pet")
     enemies.get(20,"pet")
@@ -1008,6 +1011,9 @@ local function runRotation()
     if profileStop == nil or (not inCombat and not UnitExists("target") and profileStop == true) then
         profileStop = false
     end
+
+    -- Profile Specific Vars
+    lowestBarbedShot = debuff.barbedShot.lowest(40,"remain")
 
     -- Opener Reset
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then

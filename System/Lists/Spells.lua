@@ -897,7 +897,7 @@ br.lists.spells = {
                 volley                      = 194386
             },
             debuffs                         = {
-
+                barbedShot                  = 217200,
             },
             glyphs                          = {
 
