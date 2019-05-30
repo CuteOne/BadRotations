@@ -225,6 +225,7 @@ local function runRotation()
         local use                                           = br.player.use
 
         units.get(40)
+        enemies.get(5,"pet")
         enemies.get(8)
         enemies.get(8,"pet")
         enemies.get(40)
