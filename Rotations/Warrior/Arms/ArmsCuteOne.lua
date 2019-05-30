@@ -515,7 +515,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AOE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -599,7 +599,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AOE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -650,14 +650,14 @@ local function runRotation()
         -- Whirlwind
             -- whirlwind,if=talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up)
             if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle 
-                and (not traits.testOfMight.active or debuff.colossusSmash.exists(units.dyn5))) 
+                and (not traits.testOfMight.active or debuff.colossusSmash.exists(units.dyn8AOE) or ttd(units.dyn8AOE) <= 5)) 
             then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         -- Slam
             -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up|buff.deadly_calm.up|rage>=60)
             if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active 
-                or debuff.colossusSmash.exists() or buff.deadlyCalm.exists() or rage >= 60)) 
+                or debuff.colossusSmash.exists(units.dyn5) or buff.deadlyCalm.exists() or rage >= 60 or ttd(units.dyn5) <= 5)) 
             then
                 if cast.slam() then return end
             end
@@ -693,7 +693,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=debuff.colossus_smash.down
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AOE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
@@ -732,7 +732,9 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind,if=debuff.colossus_smash.up|(buff.crushing_assault.up&talent.fervor_of_battle.enabled)
-            if cast.able.whirlwind(nil,"aoe") and (debuff.colossusSmash.exists(units.dyn5) or (buff.crushingAssasult.exists() and talent.fervorOfBattle)) then
+            if cast.able.whirlwind(nil,"aoe") and (debuff.colossusSmash.exists(units.dyn8AOE) 
+                or (buff.crushingAssasult.exists() and talent.fervorOfBattle) or ttd(units.dyn8AOE) <= 5)
+            then
                 if cast.whirlwind(nil,"aoe") then return end
             end
             -- whirlwind,if=buff.deadly_calm.up|rage>60
@@ -794,7 +796,7 @@ local function runRotation()
         -- Warbreaker
             -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
             if isChecked("Warbreaker") and cast.able.warbreaker() and talent.warbreaker and (not debuff.colossusSmash.exists(units.dyn5))
-                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AoE) > 5 or useCDs())
+                and #enemies.yards8 >= getOptionValue("Warbreaker") and (ttd(units.dyn8AOE) > 5 or useCDs())
             then
                 if cast.warbreaker() then return end
             end
