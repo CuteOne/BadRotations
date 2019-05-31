@@ -140,7 +140,7 @@ local function createOptions()
             -- Pummel
             br.ui:createCheckbox(section,"Pummel")
             -- Intimidating Shout
-            br.ui:createCheckbox(section,"Intimidating Shoult - Int")
+            br.ui:createCheckbox(section,"Intimidating Shout - Int")
             -- Storm Bolt
             br.ui:createCheckbox(section,"Storm Bolt - Int")
             -- Interrupt Percentage
