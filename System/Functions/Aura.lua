@@ -458,6 +458,13 @@ function getBuffCount(spellID)
 	end
 	return tonumber(counter)
 end
+function getBuffReact(Unit, BuffID, Source)
+	local _, _, _, _, duration, expire = UnitBuffID(Unit, BuffID, Source)
+	if duration ~= nil then
+		return (br.time - (expire - duration)) > 0.5
+	end
+	return false
+end
 -- if getDisease(30,true,min) < 2 then
 function getDisease(range, aoe, mod)
 	if mod == nil then

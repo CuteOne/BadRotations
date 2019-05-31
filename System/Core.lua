@@ -78,7 +78,7 @@ local function testKeys(self, key)
             if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
                 buttonName = GetBindingAction(actionBarKeys[i])
                 local slot = buttonName:match("ACTIONBUTTON(%d+)") or buttonName:match("BT4Button(%d+)")
-                if HasAction(slot) then       
+                if slot and HasAction(slot) then       
                     local actionType, id = GetActionInfo(slot)
                     if actionType == "spell" then
                         pauseSpellId = id

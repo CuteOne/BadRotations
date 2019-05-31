@@ -27,6 +27,7 @@ System\Functions\Combat.lua
 System\Functions\Custom.lua
 System\Functions\InFlight.lua
 System\Functions\Item.lua
+System\Functions\LastCast.lua
 System\Functions\Misc.lua
 System\Functions\Power.lua
 System\Functions\Range.lua

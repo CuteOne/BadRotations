@@ -336,6 +336,12 @@ function br.loader:new(spec,specName)
                 buff.count = function()
                     return tonumber(getBuffCount(v))
                 end
+                -- br.player.buff.spell.react(), buff detection with small reaction delay
+                buff.react = function(thisUnit, sourceUnit)
+                    thisUnit = thisUnit or "player"
+                    sourceUnit = sourceUnit or "player"
+                    return getBuffReact(thisUnit, v, sourceUnit)
+                end
             end
         end
         -- Build Debuff Info
@@ -695,13 +701,9 @@ function br.loader:new(spec,specName)
             end
 
             self.cast.last[k] = function(index)
-                if index == nil then index = 1 end
-                if index == 1 then return lastCast == v end
-                if index == 2 then return lastCast2 == v end
-                if index == 3 then return lastCast3 == v end
-                if index == 4 then return lastCast4 == v end
-                if index == 5 then return lastCast5 == v end
-                return false
+                local tracker = br.lastCast.tracker
+                index = index or 1
+                return tracker[index] and tracker[index] == v
             end
 
             self.cast.range[k] = function()

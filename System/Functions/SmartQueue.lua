@@ -1,5 +1,4 @@
-br.queueSpell = nil
-local queueSpell = br.queueSpell
+br.queueSpell = false
 local queueSpellTime
 local queueSpellPos = {x = 0, y = 0, z = 0}
 local queueSpellTarget
@@ -20,18 +19,18 @@ local function checkKeys(self, key)
 		local spell = br.player.spell.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = getSpellCD(spell)
-			if IsSpellKnown(spell) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false) then
-				queueSpell = spell
+			if IsSpellKnown(spell) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
+				br.queueSpell = spell
 				queueSpellTime = GetTime()
-				if getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 2 then
+				if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
 					local x, y = GetMousePosition() 
 					queueSpellPos.x, queueSpellPos.y, queueSpellPos.z = ScreenToWorld(x, y)
-				elseif getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 4 and UnitIsVisible("mouseover") then
+				elseif getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 4 and UnitIsVisible("mouseover") then
 					queueSpellTarget = ObjectPointer("mouseover")
 				else
 					queueSpellTarget = "target"
 				end
-				ChatOverlay("Queued: " .. GetSpellInfo(queueSpell))
+				ChatOverlay("Queued: " .. GetSpellInfo(br.queueSpell))
 			end
 		end
 	end
@@ -84,9 +83,9 @@ local function spellSuccess(self, event, ...)
 		local sourceUnit = select(1, ...)
 		local spellID = select(3, ...)
 		if sourceUnit == "player" then
-			if spellID == queueSpell then
+			if spellID == br.queueSpell then
 				ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(spellID))
-				queueSpell = nil
+				br.queueSpell = false
 			end
 		end
 	end
@@ -95,7 +94,7 @@ end
 function br.smartQueue()
     if smartQueueFrame == nil then
         smartQueueFrame = CreateFrame("Frame")
-        smartQueueFrame:SetPropagateKeyboardInput(true)
+		smartQueueFrame:SetPropagateKeyboardInput(true)
 		smartQueueFrame:SetScript("OnKeyDown", checkKeys)
 		smartQueueFrame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 		smartQueueFrame:SetScript("OnEvent", spellSuccess)
@@ -111,40 +110,39 @@ function br.smartQueue()
         end
     end
     
-    if queueSpell ~= nil and (GetTime() - queueSpellTime) > getOptionValue("Smart Queue") then
-        queueSpell = nil
+    if br.queueSpell and (GetTime() - queueSpellTime) > getOptionValue("Smart Queue") then
+        br.queueSpell = false
     end
 
-    if ((queueSpell ~= nil and isChecked("Smart Queue") and (GetTime() - queueSpellTime) <= getOptionValue("Smart Queue") and not UnitChannelInfo("player") and UnitIsVisible("target") and UnitAffectingCombat("player")) or
-    (IsAoEPending() and isChecked("Smart Queue") and isChecked(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") and UnitAffectingCombat("player"))) and (queueSpell ~= 1776 or getFacing("target", "player")) then
-        if IsAoEPending() and getOptionValue(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") ~= 3 then
+    if ((br.queueSpell and isChecked("Smart Queue") and (GetTime() - queueSpellTime) <= getOptionValue("Smart Queue") and not UnitChannelInfo("player") and (UnitIsVisible(queueSpellTarget) or getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2) and UnitAffectingCombat("player")) or
+    (IsAoEPending() and isChecked("Smart Queue") and isChecked(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") and UnitAffectingCombat("player"))) and (br.queueSpell ~= 1776 or getFacing("target", "player")) then
+		if IsAoEPending() and getOptionValue(GetSpellInfo(GetTargetingSpell()) .. " (Queue)") ~= 3 then
             local pendingSpell = GetTargetingSpell()
             CancelPendingSpell()
             CastSpellByName(GetSpellInfo(pendingSpell), "cursor")
             return true
         end
-        if queueSpell ~= nil and not UnitCastingInfo("player") then
-            if getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 2 then
-                if createCastFunction("player","debug",nil,nil,queueSpell) then
-					if castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, queueSpell) then
-						ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(queueSpell))
+        if br.queueSpell and not UnitCastingInfo("player") then
+            if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
+                if createCastFunction("player","debug",nil,nil,br.queueSpell) then
+					if castAtPosition(queueSpellPos.x, queueSpellPos.y, queueSpellPos.z, br.queueSpell) then
+						ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
 						return true
 					end
-					return false
                 end
-            elseif getOptionValue(GetSpellInfo(queueSpell) .. " (Queue)") == 3 then
-                if createCastFunction("player","debug",nil,nil,queueSpell) then
-					CastSpellByName(GetSpellInfo(queueSpell))
-					ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(queueSpell))
+            elseif getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 3 then
+                if createCastFunction("player","debug",nil,nil,br.queueSpell) then
+					CastSpellByName(GetSpellInfo(br.queueSpell))
+					ChatOverlay("Casted Queued Spell: " .. GetSpellInfo(br.queueSpell))
                     return true
                 end
             else
-                if IsSpellInRange(GetSpellInfo(queueSpell), queueSpellTarget) ~= nil then
-					if createCastFunction(queueSpellTarget,nil,nil,nil,queueSpell) then
+                if IsSpellInRange(GetSpellInfo(br.queueSpell), queueSpellTarget) ~= nil then
+					if createCastFunction(queueSpellTarget,nil,nil,nil,br.queueSpell) then
                         return true 
                     end
                 else
-					if createCastFunction("player",nil,nil,nil,queueSpell) then
+					if createCastFunction("player",nil,nil,nil,br.queueSpell) then
                         return true 
                     end
                 end
