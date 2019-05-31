@@ -7,6 +7,7 @@ local lastCastFrame = CreateFrame("Frame")
 local ignoreList = {
     [2139] = "Counterspell",
     [11426] = "Ice Barrier",
+    [212653] = "Shimmer",
 }
 
 local function addSpell(spellID)

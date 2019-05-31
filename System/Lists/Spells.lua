@@ -1290,6 +1290,7 @@ br.lists.spells = {
                 frozenTouch                 = 205030,
                 frostBomb                   = 112948,
                 frozenOrb                   = 84714,
+                iceFloes                    = 108839,
                 iceLance                    = 30455,
                 iceNova                     = 157997,
                 icyVeins                    = 12472,
