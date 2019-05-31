@@ -4,6 +4,11 @@ local tracker = br.lastCast.tracker
 local waitForSuccess
 local lastCastFrame = CreateFrame("Frame")
 
+local ignoreList = {
+    [2139] = "Counterspell",
+    [11426] = "Ice Barrier",
+}
+
 local function addSpell(spellID)
     for k, v in pairs(br.player.spell.abilities) do
         if v == spellID then
@@ -19,7 +24,7 @@ end
 local function eventTracker(self, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = select(3, ...)
-    if sourceUnit == "player" and br.player then
+    if sourceUnit == "player" and br.player and not ignoreList[spellID] then
         if event == "UNIT_SPELLCAST_START" then
             waitForSuccess = spellID
             addSpell(spellID)
