@@ -828,13 +828,10 @@ local function runRotation()
           end
         end]]
 
-        if canDispel(br.friend[i].unit, spell.cleanse) then
+        if canDispel(br.friend[i].unit, spell.cleanse)
+                and (GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power")
+                or not GetMinimapZoneText() == "Shrine of Shadows") then
           if cast.cleanse(br.friend[i].unit) then
-            return true
-          end
-        end
-        if isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) > 0 then
-          if cast.cleanse("player") then
             return true
           end
         end
@@ -1464,7 +1461,7 @@ local function runRotation()
 
 
     --Wings, burst mode
-    if mode.DPS == 3 and buff.avengingWrath.exists() and getFacing("player", "target") then
+    if (mode.DPS == 3 and buff.avengingWrath.exists() or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) and getFacing("player", "target") then
       if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
         if cast.holyShock(units.dyn30) then
