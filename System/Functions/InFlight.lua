@@ -4,6 +4,8 @@ InFlight.Tracker = {}
 
 local projectileSpeed = {
     [116] = 35, --Frostbolt
+    [133] = 45, --Fireball
+    [11366] = 35, --Pyroblast
     [31707] = 16, --Waterbolt
     [214634] = 30, --Ebonbolt
 }
@@ -17,6 +19,9 @@ function InFlight.Hit(spellID, destinationGUID, sourceGUID)
     end
     if spellID == 44614 then --override for flurry
         return 1
+    end
+    if spellID == 153561 then --override for meteor
+        return 3
     end
     if destinationGUID == nil or projectileSpeed[spellID] == nil then
         return 0
