@@ -90,6 +90,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Dash")
             -- Prowl
             br.ui:createCheckbox(section, "Prowl")
+            -- Play Dead / Wake Up
+            br.ui:createSpinner(section, "Play Dead / Wave Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Purge
@@ -228,6 +230,7 @@ local function runRotation()
         enemies.get(5,"pet")
         enemies.get(8)
         enemies.get(8,"pet")
+        enemies.get(30,"pet")
         enemies.get(40)
         enemies.get(40,"player",false,true)
 
@@ -282,6 +285,7 @@ local function runRotation()
 
                 local petActive = IsPetActive()
                 local petExists = UnitExists("pet")
+                local petCombat = UnitAffectingCombat("pet")
                 local petDead = UnitIsDeadOrGhost("pet")
                 local petMode = getCurrentPetMode()
                 local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
@@ -296,7 +300,7 @@ local function runRotation()
                         elseif callPet ~= nil then
                             if petDead or deadPet then
                                 if cast.able.revivePet() then
-                                    if cast.revivePet() then waitForPetToAppear = GetTime(); return true end
+                                    if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
                                 end
                             elseif (not petDead and not deadPet) and not (petActive or petExists) and not buff.playDead.exists("pet") then
                                 if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
@@ -331,12 +335,13 @@ local function runRotation()
                         PetFollow()
                     end
                 end
+                -- Manage Pet Abilities
                 -- Cat-like Refelexes
-                if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and inCombat and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
+                if isChecked("Cat-like Reflexes") and petCombat and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
                     if cast.catlikeReflexes() then return end
                 end
                 -- Claw
-                if isChecked("Claw") and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
+                if isChecked("Claw") and petCombat and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
                     if cast.claw("pettarget","pet") then return end
                 end
                 -- Dash
@@ -344,7 +349,7 @@ local function runRotation()
                     if cast.dash(nil,"pet") then return end
                 end
                 -- Purge
-                if isChecked("Purge") then
+                if isChecked("Purge") and inCombat then
                     if #enemies.yards5p > 0 then
                         local dispelled = false
                         local dispelledUnit = "player"
@@ -374,7 +379,7 @@ local function runRotation()
                     end
                 end
                 -- Growl
-                if isChecked("Auto Growl") then
+                if isChecked("Auto Growl") and inCombat then
                     local _, autoCastEnabled = GetSpellAutocast(spell.growl)
                     if autoCastEnabled then DisableSpellAutocast(spell.growl) end
                     if not isTankInRange() and not buff.prowl.exists("pet") then
@@ -382,8 +387,8 @@ local function runRotation()
                             if cast.misdirection("pet") then return end
                         end
                         if cast.able.growl() then
-                            for i = 1, #enemies.yards40 do
-                                local thisUnit = enemies.yards40[i]
+                            for i = 1, #enemies.yards30p do
+                                local thisUnit = enemies.yards30p[i]
                                 if isTanking(thisUnit) then
                                     if cast.growl(thisUnit,"pet") then return end
                                 end
@@ -392,14 +397,20 @@ local function runRotation()
                     end
                 end
                 -- Play Dead / Wake Up
-                if cast.able.playDead() and not buff.playDead.exists("pet") and getHP("pet") < 20 then
-                    if cast.playDead() then return end
-                end
-                if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() and getHP("pet") >= 20 then
-                    if cast.wakeUp() then return end
+                if isChecked("Play Dead / Wake Up") and not deadPet and petCombat then
+                    if cast.able.playDead() and not buff.playDead.exists("pet") 
+                        and getHP("pet") < getOptionValue("Play Dead / Wave Up")
+                    then
+                        if cast.playDead() then return end
+                    end
+                    if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() 
+                        and getHP("pet") >= getOptionValue("Play Dead / Wave Up") 
+                    then
+                        if cast.wakeUp() then return end
+                    end
                 end
                 -- Prowl
-                if isChecked("Prowl") and not inCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
+                if isChecked("Prowl") and not petCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
                     if cast.prowl() then return end
                 end
                 -- Mend Pet

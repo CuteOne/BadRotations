@@ -544,6 +544,8 @@ function cl:Hunter(...)
             br.data.settings[br.selectedSpec]["1stFocus"] = false
         end
     end
+    --[[ Dead Pet Reset ]]
+    if deadPet and UnitHealth("pet") > 0 then deadPet = false end
 end
 function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
