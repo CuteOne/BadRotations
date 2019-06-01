@@ -280,7 +280,7 @@ actionList.PetManagement = function()
     local function getCurrentPetMode()
         local petMode = "None"
         for i = 1, NUM_PET_ACTION_SLOTS do
-            local name, _, _, _, isActive = GetPetActionInfo(i)
+            local name, _, _, isActive = GetPetActionInfo(i)
             if isActive then
                 if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                 if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
