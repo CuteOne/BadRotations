@@ -402,8 +402,8 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    if useCDs() and getDistance(units.dyn5) < 5 then
-        -- Trinkets        
+    -- Trinkets
+    if getDistance(units.dyn5) < 5  then
         local thisTrinket
         for i = 13, 14 do 
             if i == 13 then thisTrinket = "Trinket 1" else thisTrinket = "Trinket 2" end
@@ -412,6 +412,8 @@ actionList.Cooldowns = function()
                 useItem(i)
             end
         end
+    end
+    if useCDs() and getDistance(units.dyn5) < 5 then
         -- Invoke Xuen
         -- invoke_xuen_the_white_tiger
         if isChecked("Xuen") and cast.able.invokeXuenTheWhiteTiger() then
@@ -425,11 +427,14 @@ actionList.Cooldowns = function()
         -- fireblood
         -- ancestral_call
         if isChecked("Racial") and cast.able.racial() then
-            if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5) or race == "Orc" or race == "Troll" or race == "LightforgedDraenei" or race == "DarkIronDwarf" or race == "MagharOrc" then
+            if (race == "BloodElf" and chiMax - chi >= 1 and ttm >= 0.5)
+                or race == "Orc" or race == "Troll" or race == "LightforgedDraenei"
+                or race == "DarkIronDwarf" or race == "MagharOrc"
+            then
                 if race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
                 else
-                    if cast.racial("player") then return true end
+                    if cast.racial() then return true end
                 end
             end
         end

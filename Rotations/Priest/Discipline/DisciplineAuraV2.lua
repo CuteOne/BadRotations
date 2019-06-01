@@ -319,8 +319,8 @@ local function runRotation()
                     atonementCount = atonementCount + 1
                 end
             else
-                if getDistance(br.friend[i].unit) < 40 then
-                    table.insert(noAtone, br.friend[i].unit)
+                if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 and getDistance(br.friend[i].unit) < 40 and br.friend[i].hp ~= 250 then
+                    table.insert(noAtone,br.friend[i].unit)
                 end
             end
         end
@@ -934,9 +934,7 @@ local function runRotation()
                 if isChecked("Obey Atonement Limits") then
                     for i = 1, #noAtone do
                         if maxatonementCount < getValue("Max Atonements") then
-                            if getBuffRemain(noAtone[i].unit,spell.buffs.powerWordShield,"player") < 1 then
-                                if cast.powerWordShield(noAtone[i].unit) then return true end
-                            end
+                            if cast.powerWordShield(br.friend[i].unit) then return true end
                         end
                     end
                     for i = 1, #br.friend do
@@ -948,9 +946,7 @@ local function runRotation()
                     end
                 else
                     for i = 1, #noAtone do
-                        if getBuffRemain(noAtone[i].unit,spell.buffs.powerWordShield,"player") < 1 then
-                            if cast.powerWordShield(noAtone[i].unit) then return true end
-                        end
+                        if cast.powerWordShield(br.friend[i].unit) then return true end
                     end
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
