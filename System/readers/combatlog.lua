@@ -193,6 +193,7 @@ function br.read.combatLog()
             end
             ------------------
             --[[Queue Casted]]
+            local castTime = select(4, GetSpellInfo(spell))
             if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") or spell == lastCast then
                 if botCast == true then
                     botCast = false
