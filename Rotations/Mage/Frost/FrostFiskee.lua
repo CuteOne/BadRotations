@@ -1096,7 +1096,7 @@ local function runRotation()
                 return true 
             end
             if not pause(true) and targetUnit.calcHP > 0 and (targetUnit.facing or isChecked("Auto Facing")) then
-                if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target") and targetUnit and (not UnitCastingInfo("pet") or ((select(5, UnitCastingInfo("pet")) / 1000) - GetTime()) > 1.5) then
+                if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target") and targetUnit then
                     PetAttack()
                 end
                 if getOptionValue("APL Mode") == 1 then

@@ -802,7 +802,7 @@ local function runRotation()
   local function Cleanse()
     -- Cleanse
     if br.player.mode.cleanse == 1 and cast.able.cleanse() and not cast.last.cleanse() then
-      for i = 1, #friends.yards40 do
+      for i = 1, #br.friend do
 
         --[[ DEBUG
         if getDebuffStacks(br.friend[i].unit, 288388) > 0 then
@@ -828,9 +828,9 @@ local function runRotation()
           end
         end]]
 
-        if canDispel(br.friend[i].unit, spell.cleanse)
-                and ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
-                or not GetMinimapZoneText() == "Shrine of Shadows") then
+        if canDispel(br.friend[i].unit, spell.cleanse) and 
+          ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
+                or GetMinimapZoneText() ~= "Shrine of Shadows") then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
