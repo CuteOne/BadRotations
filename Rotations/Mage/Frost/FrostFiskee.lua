@@ -551,7 +551,7 @@ local function runRotation()
             thisUnit = enemiesTable[i]
             local uX, uY, uZ = ObjectPosition(thisUnit)
             if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
                     unitsInRect = 0
                     break
                 end            
@@ -567,7 +567,7 @@ local function runRotation()
             return false
         end
     end
-    
+
     --Clear last cast table ooc to avoid strange casts
     if not inCombat and #br.lastCast.tracker > 0 then
         wipe(br.lastCast.tracker)
