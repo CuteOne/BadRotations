@@ -809,7 +809,7 @@ local function runRotation()
         end
         -- # Without GS, Ebonbolt is always shattered. With GS, Ebonbolt is shattered if it would waste Brain Freeze charge (i.e. when the mage starts casting Ebonbolt with Brain Freeze active) or when below 4 Icicles (if Ebonbolt is cast when the mage has 4-5 Icicles, it's better to use the Brain Freeze from it on Glacial Spike).
         -- actions.single+=/flurry,if=talent.ebonbolt.enabled&prev_gcd.1.ebonbolt&(!talent.glacial_spike.enabled|buff.icicles.stack<4|buff.brain_freeze.react)
-        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4) then
+        if talent.ebonbolt and cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 4) then
             if cast.flurry("target") then return true end
         end
         -- # Glacial Spike is always shattered.
@@ -819,7 +819,7 @@ local function runRotation()
         end
         -- # Without GS, the mage just tries to shatter as many Frostbolts as possible. With GS, the mage only shatters Frostbolt that would put them at 1-3 Icicle stacks. Difference between shattering Frostbolt with 1-3 Icicles and 1-4 Icicles is small, but 1-3 tends to be better in more situations (the higher GS damage is, the more it leans towards 1-3). Forcing shatter on Frostbolt is still a small gain, so is not caring about FoF. Ice Lance is too weak to warrant delaying Brain Freeze Flurry.
         -- actions.single+=/flurry,if=prev_gcd.1.frostbolt&buff.brain_freeze.react&(!talent.glacial_spike.enabled|buff.icicles.stack<4)
-        if cast.last.frostbolt() and bfExists and (not talent.glacialSpike or iciclesStack < 4) then
+        if cast.last.frostbolt() and bfExists and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 4) then
             if cast.flurry("target") then return true end
         end
         -- actions.single+=/frozen_orb
@@ -894,7 +894,7 @@ local function runRotation()
         end
         -- actions.single+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.single+=/frostbolt
-        if not moving and (targetUnit.ttd > 2 or solo) and targetUnit.facing then
+        if not moving and targetUnit.facing then
             if cast.frostbolt("target") then return true end
         end
         -- actions.single+=/call_action_list,name=movement
@@ -947,7 +947,7 @@ local function runRotation()
         end
         -- # Simplified Flurry conditions from the ST action list. Since the mage is generating far less Brain Freeze charges, the exact condition here isn't all that important.
         -- actions.aoe+=/flurry,if=prev_gcd.1.ebonbolt|buff.brain_freeze.react&(prev_gcd.1.frostbolt&(buff.icicles.stack<4|!talent.glacial_spike.enabled)|prev_gcd.1.glacial_spike)
-        if (cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4)) or (buff.brainFreeze.exists() and ((cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike)) or cast.last.glacialSpike())) then
+        if (cast.last.ebonbolt() and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 4)) or (buff.brainFreeze.exists() and ((cast.last.frostbolt() and (iciclesStack < 4 or not talent.glacialSpike or targetUnit.ttd < 4)) or cast.last.glacialSpike())) then
             if cast.flurry("target") then return true end
         end
         -- actions.aoe+=/ice_lance,if=buff.fingers_of_frost.react
@@ -976,7 +976,7 @@ local function runRotation()
         end
         -- actions.aoe+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.aoe+=/frostbolt
-        if not moving and (targetUnit.ttd > 2 or solo) and targetUnit.facing then
+        if not moving and targetUnit.facing then
             if cast.frostbolt("target") then return true end
         end
         -- actions.aoe+=/call_action_list,name=movement
