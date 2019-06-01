@@ -567,6 +567,11 @@ local function runRotation()
             return false
         end
     end
+    
+    --Clear last cast table ooc to avoid strange casts
+    if not inCombat and #br.lastCast.tracker > 0 then
+        wipe(br.lastCast.tracker)
+    end
 
     ---Target move timer
     if lastTargetX == nil then
