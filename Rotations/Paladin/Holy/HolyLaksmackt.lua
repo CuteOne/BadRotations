@@ -829,7 +829,7 @@ local function runRotation()
         end]]
 
         if canDispel(br.friend[i].unit, spell.cleanse)
-                and (GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power")
+                and ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
                 or not GetMinimapZoneText() == "Shrine of Shadows") then
           if cast.cleanse(br.friend[i].unit) then
             return true
