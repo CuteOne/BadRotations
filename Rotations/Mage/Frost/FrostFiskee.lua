@@ -641,7 +641,7 @@ local function runRotation()
             end
         end
         --Pet assist
-        if UnitIsVisible("pet") and not petFollowActive() and (not inCombat or getDistance("target", "pet") > 40 or (cd.cometStorm.remain() > 20 and cd.cometStorm.remain() < 27)) then
+        if isChecked("Pet Management") and UnitIsVisible("pet") and not petFollowActive() and (not inCombat or getDistance("target", "pet") > 40) then
             PetFollow()
         end
         --Burn Units
@@ -870,20 +870,14 @@ local function runRotation()
         end
         -- actions.single+=/comet_storm
         if talent.cometStorm and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not isChecked("Obey AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
-            if cd.cometStorm.remain() < 4 and UnitIsVisible("pet") and getDistance("pet", "target") >= 8 then
-                if not isMoving("pet") then
-                    local x,y,z = ObjectPosition("target")
-                    PetMoveTo()
-                    ClickPosition(x,y,z)
+            if cast.cometStorm("target") then
+                if UnitIsVisible("pet") then
+                    C_Timer.After(0.1, function()
+                        local x,y,z = ObjectPosition("target")
+                        castAtPosition(x,y,z, spell.petFreeze)
+                    end)
                 end
-            elseif not playerCasting then
-                if cast.cometStorm("target") then
-                    if UnitIsVisible("pet") then
-                        cast.petFreeze("pet")
-                        PetFollow()
-                    end
-                    return true 
-                end
+                return true 
             end
         end
         -- actions.single+=/ebonbolt
@@ -977,23 +971,15 @@ local function runRotation()
             end
         end
         -- actions.aoe+=/comet_storm
-        if talent.cometStorm and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
-            if cd.cometStorm.remain() < 4 and UnitIsVisible("pet") and getDistance("pet", "target") >= 8 then
-                if not isMoving("pet") then
-                    local x,y,z = ObjectPosition("target")
-                    PetMoveTo()
-                    ClickPosition(x,y,z)
+        if mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
+            if cast.cometStorm("target") then
+                if UnitIsVisible("pet") then
+                    C_Timer.After(0.1, function()
+                        local x,y,z = ObjectPosition("target")
+                        castAtPosition(x,y,z, spell.petFreeze)
+                    end)
                 end
-            elseif not playerCasting then
-                if cast.cometStorm("target") then
-                    if UnitIsVisible("pet") then
-                        C_Timer.After(0.2, function()
-                            cast.petFreeze("pet")
-                            PetFollow()
-                        end)
-                    end
-                    return true 
-                end
+                return true 
             end
         end
         -- actions.aoe+=/ice_nova
