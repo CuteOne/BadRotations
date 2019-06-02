@@ -248,6 +248,12 @@ local function runRotation()
         return false
     end
 
+    --Player cast remain
+    local playerCastRemain = 0
+    if UnitCastingInfo("player") then
+        playerCastRemain = (select(5, UnitCastingInfo("player")) / 1000) - GetTime()
+    end
+
     -- Pet Stance
     local function petFollowActive()
         for i = 1, NUM_PET_ACTION_SLOTS do
@@ -871,10 +877,12 @@ local function runRotation()
         -- actions.single+=/comet_storm
         if talent.cometStorm and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not isChecked("Obey AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
-                if UnitIsVisible("pet") then
-                    C_Timer.After(0.1, function()
-                        local x,y,z = ObjectPosition("target")
-                        castAtPosition(x,y,z, spell.petFreeze)
+                if UnitIsVisible("pet") and not isBoss("target") then
+                    C_Timer.After(playerCastRemain + 0.4, function()
+                        if UnitIsVisible("target") then
+                            local x,y,z = ObjectPosition("target")
+                            castAtPosition(x,y,z, spell.petFreeze)
+                        end
                     end)
                 end
                 return true 
@@ -973,11 +981,15 @@ local function runRotation()
         -- actions.aoe+=/comet_storm
         if mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
-                if UnitIsVisible("pet") then
-                    C_Timer.After(0.1, function()
-                        local x,y,z = ObjectPosition("target")
-                        castAtPosition(x,y,z, spell.petFreeze)
-                    end)
+                if UnitIsVisible("pet") and not isBoss("target") then
+                    if UnitIsVisible("pet") and not isBoss("target") then
+                        C_Timer.After(playerCastRemain + 0.4, function()
+                            if UnitIsVisible("target") then
+                                local x,y,z = ObjectPosition("target")
+                                castAtPosition(x,y,z, spell.petFreeze)
+                            end
+                        end)
+                    end
                 end
                 return true 
             end
