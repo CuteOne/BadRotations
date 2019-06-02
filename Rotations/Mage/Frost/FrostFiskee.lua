@@ -677,7 +677,7 @@ local function runRotation()
 
     local function actionList_Defensive()
         if useDefensive() then
-            if isChecked("Ice Block") and php <= getOptionValue("Ice Block") then
+            if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and cd.iceBlock.remain() <= gcd then
                 if UnitCastingInfo("player") then
                     SpellStopCasting()
                 end
@@ -936,7 +936,7 @@ local function runRotation()
         end
         -- actions.single+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.single+=/frostbolt
-        if not moving and targetUnit.facing then
+        if not moving and targetUnit.facing and not fofExists then
             if cast.frostbolt("target") then return true end
         end
         -- actions.single+=/call_action_list,name=movement
@@ -985,14 +985,12 @@ local function runRotation()
         if mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
                 if UnitIsVisible("pet") and not isBoss("target") then
-                    if UnitIsVisible("pet") and not isBoss("target") then
-                        C_Timer.After(playerCastRemain + 0.4, function()
-                            if UnitIsVisible("target") then
-                                local x,y,z = ObjectPosition("target")
-                                castAtPosition(x,y,z, spell.petFreeze)
-                            end
-                        end)
-                    end
+                    C_Timer.After(playerCastRemain + 0.4, function()
+                        if UnitIsVisible("target") then
+                            local x,y,z = ObjectPosition("target")
+                            castAtPosition(x,y,z, spell.petFreeze)
+                        end
+                    end)
                 end
                 return true 
             end
@@ -1032,7 +1030,7 @@ local function runRotation()
         end
         -- actions.aoe+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.aoe+=/frostbolt
-        if not moving and targetUnit.facing then
+        if not moving and targetUnit.facing and not fofExists then
             if cast.frostbolt("target") then return true end
         end
         -- actions.aoe+=/call_action_list,name=movement
