@@ -378,13 +378,16 @@ local function runRotation()
 
     --Spell steal
     local doNotSteal = {
-        [1] = "test"
+        [273432] = "Bound By Shadow(Uldir)",
+        [269935] = "Bound By Shadow(KR)"
     }
     local function spellstealCheck(unit)
         local i = 1
         local buffName, _, _, _, duration, expirationTime, _, isStealable, _, spellId = UnitBuff(unit, i)
         while buffName do
-            if isStealable and (GetTime() - (expirationTime - duration)) > dispelDelay and not doNotSteal[spellId] then
+            if doNotSteal[spellId] then
+                return false
+            elseif isStealable and (GetTime() - (expirationTime - duration)) > dispelDelay then
                 return true
             end
             i = i + 1
