@@ -918,11 +918,9 @@ local function runRotation()
 			end
 			--Pillar of the Drowned Cabal
 			if hasEquiped(167863) and canUseItem(16) then
-				for i = 1, #br.friend do
-					if not UnitBuffID(br.friend[i].unit,295411) and br.friend[i].hp < 75 then
-						UseItemByName(167863,br.friend[i].unit)
-						br.addonDebug("Using Pillar of Drowned Cabal")
-					end
+				if not UnitBuffID(lowest.unit,295411) and lowest.hp < 75 then
+					UseItemByName(167863,lowest.unit)
+					br.addonDebug("Using Pillar of Drowned Cabal")
 				end
 			end
 			if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
@@ -933,12 +931,10 @@ local function runRotation()
 						return true
 					end
 					elseif getOptionValue("Trinket 1 Mode") == 2 then
-						for i = 1, #br.friend do
-							if br.friend[i].hp <= getValue("Trinket 1") or burst == true then
-							UseItemByName(select(1, GetInventoryItemID("player", 13)), br.friend[i].unit)
-							br.addonDebug("Using Trinket 1 (Target)")
-							return true
-							end
+						if (lowest.hp <= getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+						UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
+						br.addonDebug("Using Trinket 1 (Target)")
+						return true
 						end
 					elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
 						for i = 1, #tanks do
@@ -984,12 +980,10 @@ local function runRotation()
 						return true
 					end
 					elseif getOptionValue("Trinket 2 Mode") == 2 then
-						for i = 1, #br.friend do
-							if br.friend[i].hp <= getValue("Trinket 2") or burst == true then
-							UseItemByName(select(1, GetInventoryItemID("player", 14)), br.friend[i].unit)
-							br.addonDebug("Using Trinket 2 (Target)")
-							return true
-							end
+						if (lowest.hp <= getValue("Trinket 2") or burst == true) and lowest.hp ~= 250 then
+						UseItemByName(GetInventoryItemID("player", 14), lowest.unit)
+						br.addonDebug("Using Trinket 2 (Target)")
+						return true
 						end
 					elseif getOptionValue("Trinket 2 Mode") == 3 and #tanks > 0 then
 						for i = 1, #tanks do
@@ -2228,7 +2222,7 @@ local function runRotation()
 				end
 				-- Lunar Strike 3 charges
 				if moonkin and buff.lunarEmpowerment.stack() == 3 then
-					if cast.lunarStrike() then
+					if cast.lunarStrikeAff() then
 						br.addonDebug("Casting Lunar Strike")
 						return true
 					end
@@ -2266,7 +2260,7 @@ local function runRotation()
 				end
 				-- Lunar Strike charged
 				if moonkin and buff.lunarEmpowerment.exists() then
-					if cast.lunarStrike() then
+					if cast.lunarStrikeAff() then
 						br.addonDebug("Casting Lunar Strike")
 						return true
 					end
@@ -2287,7 +2281,7 @@ local function runRotation()
 				end
 				-- Lunar Strike uncharged
 				if moonkin then
-					if cast.lunarStrike() then
+					if cast.lunarStrikeAff() then
 						br.addonDebug("Casting Lunar Strike")
 						return true
 					end
