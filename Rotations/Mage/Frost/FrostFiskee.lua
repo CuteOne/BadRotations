@@ -821,7 +821,7 @@ local function runRotation()
         end
         -- # Glacial Spike is always shattered.
         -- actions.single+=/flurry,if=talent.glacial_spike.enabled&prev_gcd.1.glacial_spike&buff.brain_freeze.react
-        if talent.glacialSpike and bfExists and not playerCasting and (cast.last.glacialSpike() or targetUnit.ttd < 3) then
+        if talent.glacialSpike and bfExists and (cast.last.glacialSpike() or targetUnit.ttd < 3) then
             if cast.flurry("target") then return true end
         end
         -- # Without GS, the mage just tries to shatter as many Frostbolts as possible. With GS, the mage only shatters Frostbolt that would put them at 1-3 Icicle stacks. Difference between shattering Frostbolt with 1-3 Icicles and 1-4 Icicles is small, but 1-3 tends to be better in more situations (the higher GS damage is, the more it leans towards 1-3). Forcing shatter on Frostbolt is still a small gain, so is not caring about FoF. Ice Lance is too weak to warrant delaying Brain Freeze Flurry.
