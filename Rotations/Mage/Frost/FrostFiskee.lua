@@ -686,9 +686,9 @@ local function runRotation()
                 end
             end
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512)) then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -878,7 +878,7 @@ local function runRotation()
             if cast.iceLance("target") then return true end
         end
         -- actions.single+=/comet_storm
-        if talent.cometStorm and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not isChecked("Obey AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
+        if talent.cometStorm and not moving and mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((not isChecked("Obey AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
                 if UnitIsVisible("pet") and not isBoss("target") then
                     C_Timer.After(playerCastRemain + 0.4, function()
@@ -982,7 +982,7 @@ local function runRotation()
             end
         end
         -- actions.aoe+=/comet_storm
-        if mode.cometStorm == 1 and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
+        if mode.cometStorm == 1 and not moving and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
                 if UnitIsVisible("pet") and not isBoss("target") then
                     C_Timer.After(playerCastRemain + 0.4, function()
