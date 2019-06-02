@@ -193,14 +193,13 @@ function br.read.combatLog()
             end
             ------------------
             --[[Queue Casted]]
-            local castTime = select(4, GetSpellInfo(spell))
-            if castTime == nil then castTime = 0 end
-            if (castTime == 0 and param == "SPELL_CAST_SUCCESS") or (castTime > 0 and param == "SPELL_CAST_START") or spell == lastCast then
-                if botCast == true then
-                    botCast = false
-                end
-                if sourceName ~= nil then
-                    if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+            if sourceName ~= nil then
+                if isInCombat("player") and GetUnitIsUnit(sourceName, "player") then
+                    local castTime = select(4, GetSpellInfo(spell)) or 0
+                    if (param == "SPELL_CAST_SUCCESS" and castTime == 0) or (param == "SPELL_CAST_START" and castTime > 0) or spell == lastCast then
+                        if botCast == true then
+                            botCast = false
+                        end
                         if br.player ~= nil and br.player.queue ~= nil and #br.player.queue ~= 0 then
                             for i = 1, #br.player.queue do
                                 if spell == br.player.queue[i].id then
