@@ -569,7 +569,7 @@ local function runRotation()
                                 return true
                             end
                             elseif getOptionValue("Trinket 1 Mode") == 2 then
-                                if lowest.hp <= getValue("Trinket 2") or (burst == true and lowest.hp ~= 250) then
+                                if lowest.hp <= getValue("Trinket 1") or (burst == true and lowest.hp ~= 250) then
                                 UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
                                 br.addonDebug("Using Trinket 1 (Target)")
                                 return true
