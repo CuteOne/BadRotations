@@ -669,7 +669,7 @@ local function runRotation()
             end
         end
         if isChecked("Arcane Intellect") then
-            if buff.arcaneIntellect.remain() < 600 then
+            if buff.arcaneIntellect.remain("player", "any") < 600 then
                 if cast.arcaneIntellect("player") then return true end
             end
         end
@@ -1042,7 +1042,7 @@ local function runRotation()
     end
 
     local function actionList_Rotation()
-        if ((fofExists or (bfExists and (iciclesStack > 5 or cast.last.ebonbolt(2) or cast.last.glacialSpike(2)))) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if ((fofExists or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
