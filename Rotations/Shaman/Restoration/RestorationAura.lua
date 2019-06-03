@@ -252,6 +252,7 @@ local function runRotation()
         local debuff                                        = br.player.debuff
         local drinking                                      = UnitBuff("player",192001) ~= nil or UnitBuff("player",225737) ~= nil
         local gcd                                           = br.player.gcd
+        local gcdMax                                           = br.player.gcdMax
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"

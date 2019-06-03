@@ -23,16 +23,11 @@ function ToggleToValue(toggleValue,index)
 	if index > modesCount then
 		Print("Invalid Toggle Index for |cffFFDD11"..toggleValue..": |cFFFF0000 Index ( |r"..index.."|cFFFF0000) exceeds Max ( |r".. modesCount .."|cFFFF0000)|r.")
 	else
-		for i = 1,modesCount do
-			if i == index then
-				specialToggleCodes(toggleValue,index)
-				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = index
-				changeButton(toggleValue,index)
-				-- We reset the tip
-				ResetTip(toggleValue,index)
-				break
-			end
-		end
+		specialToggleCodes(toggleValue,index)
+		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = index
+		changeButton(toggleValue,index)
+		-- We reset the tip
+		ResetTip(toggleValue,index)
 	end
 end
 
