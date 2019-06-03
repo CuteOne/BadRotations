@@ -1,5 +1,120 @@
-function getRacial()
+local function flipRace()
     local race = select(2,UnitRace("player"))
+    local class = select(3,UnitClass("player"))
+    if UnitBuffID("player",193863) then
+        if race == "Orc" then
+            return "Dwarf"
+        elseif race == "Undead" then
+            return "Human"
+        elseif race == "Troll" then
+            if class == 7 then
+                return "Draenei" 
+            elseif class == 9 then
+                return "Human"
+            else
+                return "NightElf"
+            end
+        elseif race == "Tauren" then
+            if class == 11 then
+                return "NightElf"
+            else
+                return "Draenei"
+            end
+        elseif race == "BloodElf" then
+            if class == 12 then
+                return "NightElf"
+            else
+                return "Human"
+            end
+        elseif race == "Goblin" then
+            if class == 3 or class == 7 then
+                return "Dwarf"
+            else
+                return "Gnome"
+            end
+        elseif race == "Pandaren" then
+            return "Pandaren"
+        elseif race == "HighmountainTauren" then
+            if class == 11 then
+                return "NightElf"
+            else
+                return "Draenei"
+            end
+        elseif race == "Nightborne" then
+            if class == 9 then
+                return "Human"
+            else
+                return "NightElf"
+            end
+        elseif race == "MagharOrc" then
+            return "DarkIronDwarf"
+        end
+    elseif UnitBuffID("player", 193864) then
+        if race == "Worgen" then
+            return "Troll"
+        elseif race == "DarkIronDwarf" then
+            return "MagharOrc"
+        elseif race == "Human" then
+            if class == 2 then
+                return "BloodElf" 
+            else
+                return "Undead"
+            end
+        elseif race == "NightElf" then
+            if class == 12 then
+                return "BloodElf"
+            else
+                return "Troll"
+            end
+        elseif race == "Dwarf" then
+            if class == 2 then
+                return "Tauren"
+            elseif class == 5 then
+                return "Undead"
+            else
+                return "Orc"
+            end
+        elseif race == "Draenei" then
+            if class == 8 then
+                return "Orc"
+            else
+                return "Tauren"
+            end
+        elseif race == "Pandaren" then
+            return "Pandaren"
+        elseif race == "Gnome" then
+            if class == 10 then
+                return "BloodElf"
+            else
+                return "Goblin"
+            end
+        elseif race == "VoidElf" then
+            if class == 3 or class == 5 or class == 1 then
+                return "BloodElf"
+            else
+                return "Troll"
+            end
+        elseif race == "LightforgedDraenei" then
+            if class == 8 then
+                return "Orc"
+            else
+                return "Tauren"
+            end
+        end
+    end
+end
+
+        
+
+        
+
+function getRacial()
+    local forTheAlliance = UnitBuffID("player",193863) or false
+    local forTheHorde = UnitBuffID("player", 193864) or false
+    local race = select(2,UnitRace("player"))
+    if forTheAlliance or forTheHorde then
+        race = flipRace()
+    end
     local BloodElfRacial
     local DraeneiRacial
     local OrcRacial
@@ -40,15 +155,7 @@ function getRacial()
         ZandalariTroll      = 291944, -- Regeneratin'
         KulTiran            = 287712, -- Haymaker
     }
-    local trueRace = nil
-    local forTheAlliance = UnitBuffID("player",193863) or false
-    local forTheHorde = UnitBuffID("player", 193864) or false
-    if not forTheAlliance or not forTheHorde then trueRace = racialSpells[race] end
-    if trueRace ~= nil then
-        return trueRace
-    else
-        return racialSpells[race]
-    end
+    return racialSpells[race]
     -- return racialSpells[race]
 end
 function getHeirloomNeck()
