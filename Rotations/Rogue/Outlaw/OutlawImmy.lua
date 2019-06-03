@@ -245,15 +245,16 @@ local function runRotation()
     -- print(UnitClassification("target"))
     if not UnitAffectingCombat("player") then
         if not talent.markedForDeath then
-            buttonMFD:Hide()
+            if mode.mfd ~= 4 then ToggleToValue("MFD", 4) end -- turn MFD off
+            if buttonMFD:IsShown() then buttonMFD:Hide() end
         else
-            buttonMFD:Show()
+            if not buttonMFD:IsShown() then buttonMFD:Show() end
         end
-        if not talent.killingSpree and not talent.bladeRush and mode.tierseven ~= 2 then
-            ToggleToValue("Tierseven", 2)
-            buttonTierseven:Hide()
+        if not talent.killingSpree and not talent.bladeRush then
+            if mode.tierseven ~= 2 then ToggleToValue("Tierseven", 2) end -- turn Tierseven off
+            if buttonTierseven:IsShown() then buttonTierseven:Hide() end
         else
-            buttonTierseven:Show()
+            if not buttonTierseven:IsShown() then buttonTierseven:Show() end
         end
     end
 
