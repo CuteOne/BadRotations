@@ -249,7 +249,7 @@ local function runRotation()
         else
             buttonMFD:Show()
         end
-        if not talent.killingSpree and not talent.bladeRush then
+        if not talent.killingSpree and not talent.bladeRush and mode.tierseven ~= 2 then
             ToggleToValue("Tierseven", 2)
             buttonTierseven:Hide()
         else
