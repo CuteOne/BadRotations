@@ -1012,7 +1012,7 @@ local function runRotation()
 								br.addonDebug("Using Trinket 2 (Ground)")
 								ClickPosition(loc.x, loc.y, loc.z)
 								return true
-							ends
+							end
 						end
 					end
 				end
