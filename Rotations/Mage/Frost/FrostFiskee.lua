@@ -9,8 +9,7 @@ local function createToggles()
     -- Rotation Button
     RotationModes = {
         [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.frozenOrb},
-        [2] = {mode = "Mult", value = 2, overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.blizzard},
-        [3] = {mode = "Sing", value = 3, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostbolt},
+        [2] = {mode = "Sing", value = 2, overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.frostbolt},
     }
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
@@ -475,7 +474,7 @@ local function runRotation()
         local distance20Min
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or GetUnitIsUnit(thisUnit, "target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -793,10 +792,22 @@ local function runRotation()
             -- actions.cooldowns+=/use_items
             if isChecked("Trinkets") then
                 if canUseItem(13) then
-                    useItem(13)
+                    if hasEquiped(165576, 13) then -- tidestorm codex
+                        if not buff.icyVeins.exists() and not buff.runeOfPower.exists() then
+                            useItem(13)
+                        end
+                    else
+                        useItem(13)
+                    end
                 end
                 if canUseItem(14) then
-                    useItem(14)
+                    if hasEquiped(165576, 14) then -- tidestorm codex
+                        if not buff.icyVeins.exists() and not buff.runeOfPower.exists() then
+                            useItem(14)
+                        end
+                    else
+                        useItem(14)
+                    end
                 end
             end
             --racials
