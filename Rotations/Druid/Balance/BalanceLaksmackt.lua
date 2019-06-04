@@ -274,9 +274,12 @@ local function runRotation()
     end
 
     -- Innverate
+   --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
+
     if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 then
       for i = 1, #br.friend do
-        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not isDeadOrGhost(br.friend[i].unit) then
+         Print("Healer is: ".. br.friend[i].unit)
           if cast.innervate(br.friend[i].unit) then
             return true
           end
@@ -289,7 +292,7 @@ local function runRotation()
 
     -- Incarnation  ap_check&!buff.ca_inc.up
     if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
-            debuff.sunfire.remain("target") > 8 and debuff.moonfire.remain("target") > 12 and
+            debuff.sunfire.remain("target") > 8 and debuff.moonfire.remain("target") > 12 and not pewbuff and
             (debuff.stellarFlare.remain("target") > 6 or not talent.stellarFlare) and power >= 40 and getTTD("target") >= 30 or hasBloodLust() then
       if cast.incarnationChoseOfElune("player") then
         return true
@@ -297,7 +300,7 @@ local function runRotation()
     end
 
     if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
-            power >= 40 and getTTD("target") >= 20 and
+            power >= 40 and getTTD("target") >= 20 and not pewbuff and
             (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remain() >= 30)) and
             debuff.sunfire.remain("target") > 2 and debuff.moonfire.remain("target") > 2 and
             (debuff.stellarFlare.remain("target") > 1 or not talent.stellarFlare) or
