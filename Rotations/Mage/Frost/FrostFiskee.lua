@@ -234,6 +234,17 @@ local function runRotation()
             buttonEbonbolt:Show()
         end
     end
+    -- spellqueue ready
+    local function spellQueueReady()
+        --Check if we can queue cast
+        local castingInfo = {UnitCastingInfo("player")}
+        if castingInfo[5] then
+            if (GetTime() - ((castingInfo[5] - tonumber(C_CVar.GetCVar("SpellQueueWindow")))/1000)) < 0 then
+                return false
+            end
+        end
+        return true
+    end
 
     --cast time
     local function interruptCast(spellID)
@@ -1076,20 +1087,22 @@ local function runRotation()
             SpellStopCasting()
             return true
         end
-        -- # If the mage has FoF after casting instant Flurry, we can delay the Ice Lance and use other high priority action, if available.
-        -- actions+=/ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
-        if cast.last.flurry() and not fofExists then
-            if cast.iceLance("target") then return true end
+        if spellQueueReady() then
+            -- # If the mage has FoF after casting instant Flurry, we can delay the Ice Lance and use other high priority action, if available.
+            -- actions+=/ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
+            if cast.last.flurry() and not fofExists then
+                if cast.iceLance("target") then return true end
+            end
+            -- actions+=/call_action_list,name=cooldowns
+            if actionList_Cooldowns() then return true end
+            -- # The target threshold isn't exact. Between 3-5 targets, the differences between the ST and AoE action lists are rather small. However, Freezing Rain prefers using AoE action list sooner as it benefits greatly from the high priority Blizzard action.
+            -- actions+=/call_action_list,name=aoe,if=active_enemies>3&talent.freezing_rain.enabled|active_enemies>4
+            if ((blizzardUnits > 3 and talent.freezingRain) or blizzardUnits > 4) and (not inInstance or targetMoveCheck) then
+                if actionList_AoE() then return true end
+            end
+            -- actions+=/call_action_list,name=single
+            if actionList_ST() then return true end
         end
-        -- actions+=/call_action_list,name=cooldowns
-        if actionList_Cooldowns() then return true end
-        -- # The target threshold isn't exact. Between 3-5 targets, the differences between the ST and AoE action lists are rather small. However, Freezing Rain prefers using AoE action list sooner as it benefits greatly from the high priority Blizzard action.
-        -- actions+=/call_action_list,name=aoe,if=active_enemies>3&talent.freezing_rain.enabled|active_enemies>4
-        if ((blizzardUnits > 3 and talent.freezingRain) or blizzardUnits > 4) and (not inInstance or targetMoveCheck) then
-            if actionList_AoE() then return true end
-        end
-        -- actions+=/call_action_list,name=single
-        if actionList_ST() then return true end
     end
 
     local function actionList_Opener()
