@@ -1404,6 +1404,7 @@ br.lists.spells = {
                 icyVeins                    = 12472,
                 petFreeze                   = 33395,
                 rayOfFrost                  = 205021,
+                removeCurse                 = 475,
                 summonWaterElemental        = 31687,
                 waterbolt                   = 31707,
             },

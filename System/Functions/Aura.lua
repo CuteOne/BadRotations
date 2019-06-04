@@ -168,7 +168,8 @@ function canDispel(Unit, spellID)
 		if spellID == 370 then typesList = {"Magic"} end
 	end
 	if ClassNum == 8 then --Mage
-		typesList = {}
+		-- Remove Curse
+		if spellID == 475 then typesList = {"Curse"} end
 	end
 	if ClassNum == 9 then --Warlock
 		typesList = {}

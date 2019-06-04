@@ -85,6 +85,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
         -- Spellsteal
         br.ui:createCheckbox(section, "Spellsteal", "|cffFFFFFF Will use Spellsteal, delay can be changed using dispel delay in healing engine")
+        -- Remove Curse
+        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFFFFFPlayer/Target","|cffFF0000Mouseover","|cffFFFFFFAny"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
         -- Arcane Intellect
         br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFFFFF Will use Arcane Intellect")
         -- Casting Interrupt Delay
@@ -709,6 +711,34 @@ local function runRotation()
                     return
                 end
             end
+            --Remove Curse, Yoinked from Aura balance
+            if isChecked("Remove Curse") then
+                if getOptionValue("Remove Curse") == 1 then
+                    if canDispel("player",spell.removeCurse) then
+                        if cast.removeCurse("player") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 2 then
+                    if canDispel("target",spell.removeCurse) then
+                        if cast.removeCurse("target") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 3 then
+                    if canDispel("player",spell.removeCurse) then
+                        if cast.removeCurse("player") then return true end
+                    elseif canDispel("target",spell.removeCurse) then
+                        if cast.removeCurse("target") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 4 then
+                    if canDispel("mouseover",spell.removeCurse) then
+                        if cast.removeCurse("mouseover") then return true end
+                    end
+                elseif getOptionValue("Remove Curse") == 5 then
+                    for i = 1, #br.friend do
+                        if canDispel(br.friend[i].unit,spell.removeCurse) then
+                            if cast.removeCurse(br.friend[i].unit) then return true end
+                        end
+                    end
+                end
+            end
         end
     end
 
@@ -927,7 +957,7 @@ local function runRotation()
         end
         -- # Glacial Spike is used when there's a Brain Freeze proc active (i.e. only when it can be shattered). This is a small to medium gain in most situations. Low mastery leans towards using it when available. When using Splitting Ice and having another target nearby, it's slightly better to use GS when available, as the second target doesn't benefit from shattering the main target.
         -- actions.single+=/glacial_spike,if=buff.brain_freeze.react|prev_gcd.1.ebonbolt|active_enemies>1&talent.splitting_ice.enabled
-        if (bfExists or cast.last.ebonbolt() or (blizzardUnits > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
+        if (bfExists or cast.last.ebonbolt() or (#getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
             if cast.glacialSpike("target") then return true end
         end
         -- actions.single+=/ice_nova
