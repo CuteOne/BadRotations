@@ -591,7 +591,7 @@ actionList.AoE = function()
     -- Chi Burst
     -- chi_burst,if=chi<=3
     if cast.able.chiBurst() and chi <= 3
-        and ((mode.rotaion == 1 and enemies.yards40r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards40r > 0)) 
+        and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards40r > 0)) 
     then
         if cast.chiBurst(nil,"rect",1,12) then return true end
     end
@@ -677,7 +677,7 @@ actionList.PreCombat = function()
     -- -- Chi Burst
     --         -- chi_burst,if=(!talent.serenity.enabled|!talent.fist_of_the_white_tiger.enabled)
     --             if cast.able.chiBurst() and (not talent.serenity or not talent.fistOfTheWhiteTiger) 
-    --                 and ((mode.rotaion == 1 and enemies.yards40r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards40r > 0)) 
+    --                 and ((mode.rotation == 1 and enemies.yards40r >= getOptionValue("Chi Burst Min Units")) or (mode.rotation == 2 and enemies.yards40r > 0)) 
     --             then
     --                 if cast.chiBurst(nil,"rect",1,12) then return true end
     --             end
