@@ -129,16 +129,6 @@ end
 local function runRotation()
     if br.timer:useTimer("debugFrost", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        br.player.mode.empower = br.data.settings[br.selectedSpec].toggles["Empower"]
-        UpdateToggle("Empower",0.25)
 --------------
 --- Locals ---
 --------------
