@@ -62,7 +62,7 @@ local function createOptions()
     br.ui:createCheckbox(section, "Auto Shapeshifts")
     br.ui:createCheckbox(section, "Auto Soothe")
     br.ui:createSpinnerWithout(section, "Starsurge/Starfall Dump", 40, 40, 100, 5, "Set minimum AP value for Starsurge use. Min: 40 / Max: 100 / Interval: 5")
-    br.ui:createCheckbox(section, "Auto Engage On Target", "Check this to cast moonfire on target OOC to engage combat")
+    br.ui:createCheckbox(section, "Auto Engage On Target", "Check this to cast sunfire on target OOC to engage combat")
     br.ui:checkSectionState(section)
     section = br.ui:createSection(br.ui.window.profile, "Healing")
     br.ui:createDropdown(section, "Rebirth", { "|cff00FF00Tanks", "|cffFFFF00Healers", "|cffFFFFFFTanks and Healers", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
@@ -82,6 +82,7 @@ local function createOptions()
     br.ui:createCheckbox(section, "Incarnation/Celestial Alignment")
     br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
     br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
+    br.ui:createCheckbox(section, "Group treants with CD")
 
     br.ui:checkSectionState(section)
     -------------------------
@@ -217,6 +218,13 @@ local function runRotation()
   enemies.get(15, "target") -- enemies.yards15t
   enemies.get(12, "target") -- enemies.yards12t
   local function dps()
+
+    if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) then
+      if cast.moonkinForm() then
+        return true
+      end
+    end
+
     local aoeTarget = 0
     if getValue("Starfall Targets (0 for auto)") == 0 then
       aoeTarget = 4
@@ -324,7 +332,7 @@ local function runRotation()
     -- Force Of Nature / treants
     if talent.forceOfNature and cast.able.forceOfNature() and br.player.power.astralPower.deficit() > 20 then
       if br.player.mode.forceOfNature == 1 and getTTD("target") >= 10
-              and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)
+              and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
               and (getValue("Treant Targets") >= #enemies.yards12t or isBoss())
       then
         if cast.forceOfNature("best", nil, 1, 15, true) then
@@ -622,6 +630,11 @@ local function runRotation()
         end
       end
     end
+    if isChecked("Auto Engage On Target") then
+      if cast.sunfire() then
+        return true
+      end
+    end
   end
   local function extras()
     --Resurrection
@@ -645,8 +658,18 @@ local function runRotation()
       end
     end
     -- Shapeshift Form Management
+    local standingTime = 0
+    if DontMoveStartTime then
+      standingTime = GetTime() - DontMoveStartTime
+    end
+
     if isChecked("Auto Shapeshifts") then
-      --and br.timer:useTimer("debugShapeshift", 0.25) then
+      if travel and standingTime > 3 then
+        if cast.moonkinForm("player") then
+          return true
+        end
+      end
+
       -- Flight Form
       if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
         if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
