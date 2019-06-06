@@ -247,16 +247,6 @@ end
 local function runRotation()
     if br.timer:useTimer("debugDiscipline", 0.1) then
         --Print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Decurse",0.25)
-        UpdateToggle("Interrupt",0.25)
-        br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
-
 --------------
 --- Locals ---
 --------------
