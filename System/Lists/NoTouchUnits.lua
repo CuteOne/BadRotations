@@ -32,9 +32,9 @@ br.lists.noTouchUnits = {
     -- {unitID = 135358, buff = -260805}, -- Sister Malady (No Focusing Iris)
     -- {unitID = 135359, buff = -260805}, -- Sister Solena (No Focusing Iris)
     -- {unitID = 135360, buff = -260805}, -- Sister Briar (No Focusing Iris)
-    {unitID = 131823, buff = -260805}, -- Sister Malady (No Focusing Iris)
-    {unitID = 131824, buff = -260805}, -- Sister Solena (No Focusing Iris)
-    {unitID = 131825, buff = -260805}, -- Sister Briar (No Focusing Iris)
+    -- {unitID = 131823, buff = -260805}, -- Sister Malady (No Focusing Iris)
+    -- {unitID = 131824, buff = -260805}, -- Sister Solena (No Focusing Iris)
+    -- {unitID = 131825, buff = -260805}, -- Sister Briar (No Focusing Iris)
     
     -- Underrot
     {unitID = 137458}, -- Rotting Spore

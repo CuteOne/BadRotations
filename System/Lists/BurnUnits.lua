@@ -31,6 +31,9 @@ br.lists.burnUnits = {
 	-- [115719] = { coef = 200}, -- Imp Servents
 	-- BFA
 	[141851] = {coef = 150, name = "Spawn of G'huun", id = 141851},
+	[131823] = {coef = 150, name = "Sister Malady", buff = 260805, id = 131823}, -- Sister Malady (No Focusing Iris)
+	[131824] = {coef = 150, name = "Sister Solena", buff = 260805, id = 131824}, -- Sister Solena (No Focusing Iris)
+    [131825] = {coef = 150, name = "Sister Briar", buff = -260805, id = 131825}, -- Sister Briar (No Focusing Iris)
 	-- Uldir
 	[135016] = {coef = 200, name = "Plague Amalgam", id = 135016}
 }
