@@ -191,6 +191,7 @@ local function runRotation()
   local moving = isMoving("player")
   local ttd = getTTD
   local astralPowerDeficit = br.player.power.astralPower.deficit()
+  local travel, flight, cat = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
 
   -------------
   -- Raid
