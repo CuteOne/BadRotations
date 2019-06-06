@@ -2321,11 +2321,11 @@ local function runRotation()
 		-----------------------------
 		if inCombat then
 			if not isChecked("DPS Key") then
-				if (restoDPS and lowest.hp <= getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() or mode.dps == 1 then
+				if (restoDPS and lowest.hp <= getOptionValue("Critical Heal")) or buff.incarnationTreeOfLife.exists() or mode.dPS == 1 then
 					ChatOverlay("Healing Engaged")
 					br.addonDebug("Healing Engaged")
 					restoDPS = false
-				elseif not restoDPS and lowest.hp > getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() and mode.dps == 2 then
+				elseif not restoDPS and lowest.hp > getOptionValue("DPS") and not buff.incarnationTreeOfLife.exists() and mode.dPS == 2 then
 					ChatOverlay("DPS Engaged")
 					br.addonDebug("DPS Engaged")
 					restoDPS = true
@@ -2362,7 +2362,7 @@ local function runRotation()
 						return
 					end
 				end
-				if #enemies.yards5 < 1 and mode.dps == 2 and isChecked("DPS Key") and not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
+				if #enemies.yards5 < 1 and mode.dPS == 2 and isChecked("DPS Key") and not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
 					-- Moonfire
 					if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 						for i = 1, #enemies.yards40 do
@@ -2388,7 +2388,7 @@ local function runRotation()
 						end
 					end
 				end
-				if not isChecked("DPS Key") and mode.dps == 2 and restoDPS then
+				if not isChecked("DPS Key") and mode.dPS == 2 and restoDPS then
 					if not GetUnitExists("target") or (UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target")) and #enemies.yards40 ~= 0 and getOptionValue("Target Dynamic Target") then
 						TargetUnit(enemies.yards40[1])
 					end
@@ -2405,7 +2405,7 @@ local function runRotation()
 					if actionList_RejuvenationMode() then
 						return
 					end
-					if (isChecked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (not isChecked("DPS Key") and mode.dps == 2) then
+					if (isChecked("DPS Key") and SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (not isChecked("DPS Key") and mode.dPS == 2) then
 						if actionList_DPS() then
 							return 
 						end
