@@ -174,20 +174,6 @@ end
 local function runRotation()
     --if br.timer:useTimer("debugElemental", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        br.player.mode.ghostWolf = br.data.settings[br.selectedSpec].toggles["GhostWolf"]
-        UpdateToggle("GhostWolf",0.25)
-        br.player.mode.stormKeeper = br.data.settings[br.selectedSpec].toggles["StormKeeper"]
-        UpdateToggle("StormKeeper",0.25)
-        br.player.mode.earthShock = br.data.settings[br.selectedSpec].toggles["EarthShock"]
-        UpdateToggle("EarthShock",0.25)
 --------------
 --- Locals ---
 --------------
@@ -811,7 +797,7 @@ local function runRotation()
             end
             -- Totem Mastery            
             --actions.single_target+=/totem_mastery,if=talent.totem_mastery.enabled&(buff.resonance_totem.remains<6|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15))
-            if not cast.last.totemMastery(1) and talent.totemMastery and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and holdBreak then
+            if talent.totemMastery and not cast.last.totemMastery(1) and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and holdBreak then
                 if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
             end
             -- Frost Shock
