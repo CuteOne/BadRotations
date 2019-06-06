@@ -161,6 +161,9 @@ if not metaTable1 then
 					end
 				end
 			end
+			if UnitBuffID(o.unit,295271) then
+				return 250,250,250
+			end
 			-- Place out of range players at the end of the list -- replaced range to 40 as we should be using lib range
 			if not UnitInRange(o.unit) and getDistance(o.unit) > 40 and not GetUnitIsUnit("player", o.unit) then
 				return 250,250,250
