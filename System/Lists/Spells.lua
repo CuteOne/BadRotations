@@ -916,6 +916,7 @@ br.lists.spells = {
                 burningEssence              = 138927,
                 catForm                     = 768,
                 dash                        = 1850,
+                tigerDash                   = 252216,
                 flightForm                  = 165962,
                 frenziedRegeneration        = 22842,
                 ironfur                     = 192081,

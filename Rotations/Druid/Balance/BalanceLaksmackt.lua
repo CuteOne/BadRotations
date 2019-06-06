@@ -195,7 +195,7 @@ local function runRotation()
   local ttd = getTTD
   local astralPowerDeficit = br.player.power.astralPower.deficit()
   local travel, flight, cat = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
-
+  local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
   -------------
   -- Raid
   ------------
@@ -698,7 +698,7 @@ local function runRotation()
         end
       end
       -- Travel Form
-      if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
+      if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
         if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
           RunMacroText("/CancelForm")
           CastSpellByID(783, "player")
