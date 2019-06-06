@@ -224,21 +224,6 @@ end
 local function runRotation()
     if br.timer:useTimer("debugRestoration", 0.1) then
         --print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        UpdateToggle("Decurse",0.25)
-        UpdateToggle("DPS",0.25)
-        UpdateToggle("GhostWolf",0.25)
-        UpdateToggle("HealingR",0.25)
-        br.player.mode.decurse = br.data.settings[br.selectedSpec].toggles["Decurse"]
-        br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-        br.player.mode.ghostWolf = br.data.settings[br.selectedSpec].toggles["GhostWolf"]
-        br.player.mode.healingRain = br.data.settings[br.selectedSpec].toggles["HealingR"]
 --------------
 --- Locals ---
 --------------
@@ -845,7 +830,7 @@ local function runRotation()
             end
             -- Healing Rain
             if movingCheck and cd.healingRain.remain() <= gcd then
-                if isChecked("Healing Rain") and not buff.healingRain.exists() and mode.healingRain == 1 then
+                if isChecked("Healing Rain") and not buff.healingRain.exists() and mode.healingR == 1 then
                     if isChecked("Healing Rain on Melee") then
                         -- get melee players
                         for i=1, #tanks do
