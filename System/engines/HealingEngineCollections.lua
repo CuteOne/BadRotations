@@ -99,9 +99,27 @@ novaEngineTables.DispelID = {
 }
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
-	[282098] = true,
+	[282098] = true, -- Gift of Wind (Conclave)
 	[283619] = true, -- Wave of Light (Champion of Light)
 	[289623] = true, -- Guardian Spirit (BoD Trash)
+	[254974] = true, -- Gathered Souls (Atal'Dazar)
+	[257397] = true, -- Healing Balm (Freehold)
+	[269935] = true, -- Bound by Shadow (King's Rest)
+	[270901] = true, -- Induce Regeneration (King's Rest)
+	[268030] = true, -- Mending Rapids (Shrine of Storms)
+	[256957] = true, -- Watertight Shell (Siege of Boralus)
+	[275826] = true, -- Bolstering Shout (Siege of Boralus)
+	[269896] = true, -- Embryonic Vigor (Temple of Sethraliss)
+	[263215] = true, -- Tectonic Barrier (Motherlode)
+	[262540] = true, -- Overcharge (Motherlode)
+	[258153] = true, -- Watery Dome (Tol Dagor)
+	[265091] = true, -- Gift of G'huun (Underrot)
+	[278551] = true, -- Soul Fetish (waycrest Manor)
+	[269976] = true, -- Ancestral Fury (King's Rest)
+	[265081] = true, -- Warcry (Underrot)
+	[266209] = true, -- Wicked Frenzy (Underrot)
+	[257476] = true, -- Bestial Wrath (Freehold)
+	
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {
@@ -139,7 +157,6 @@ novaEngineTables.BadDebuffList= {
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[282738] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
-	[295271] = "Umbral Shell", -- Void Stone Trinket Debuff
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {

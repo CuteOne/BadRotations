@@ -442,12 +442,12 @@ local function runRotation()
         local function actionList_AMR()
             -- Innverate
             if useCDs() and isChecked("Lively Spirit Innervate") and traits.livelySpirit.active and ttd("target") >= 12 then
-                local mana 
+                local hMana 
                 local lowHeal
                 for i = 1, #br.friend do
                     if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
-                        if mana == nil or UnitPower(br.friend[i].unit, 0) < mana then
-                            mana = UnitPower(br.friend[i].unit,0)
+                        if hMana == nil or UnitPower(br.friend[i].unit, 0) < hMana then
+                            hMana = UnitPower(br.friend[i].unit,0)
                             lowHeal = br.friend[i].unit
                         end
                     end
