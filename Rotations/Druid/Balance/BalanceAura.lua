@@ -146,20 +146,6 @@ end
 local function runRotation()
     if br.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
-
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-        UpdateToggle("Rotation",0.25)
-        UpdateToggle("Cooldown",0.25)
-        UpdateToggle("Defensive",0.25)
-        UpdateToggle("Interrupt",0.25)
-        UpdateToggle("ForceofNature",0.25)
-        UpdateToggle("Starfall",0.25)
-        UpdateToggle("Movement",0.25)
-        br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
-        br.player.mode.starfall = br.data.settings[br.selectedSpec].toggles["Starfall"]
-        br.player.mode.movement = br.data.settings[br.selectedSpec].toggles["Movement"]
 --------------
 --- Locals ---
 --------------
@@ -455,8 +441,20 @@ local function runRotation()
 
         local function actionList_AMR()
             -- Innverate
-            if useCDs() and isChecked("Lively Spirit Innervate") and traits.livelySpirit.active then
-                if cast.innervate() then return true end
+            if useCDs() and isChecked("Lively Spirit Innervate") and traits.livelySpirit.active and ttd("target") >= 12 then
+                local mana 
+                local lowHeal
+                for i = 1, #br.friend do
+                    if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" then
+                        if mana == nil or UnitPower(br.friend[i].unit, 0) < mana then
+                            mana = UnitPower(br.friend[i].unit,0)
+                            lowHeal = br.friend[i].unit
+                        end
+                    end
+                end
+                if lowHeal ~= nil then
+                    if cast.innervate(lowHeal) then return true end
+                end
             end
             --Potion (To Do)
             if isChecked("Int Pot") and canUseItem(163222) and not solo and useCDs() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
