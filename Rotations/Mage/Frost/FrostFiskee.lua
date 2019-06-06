@@ -50,6 +50,12 @@ local function createToggles()
         [2] = {mode = "Off", value = 2, overlay = "Comet Storm Disabled", tip = "Will not use Comet Storm", highlight = 0, icon = br.player.spell.cometStorm}
     }
     CreateButton("CometStorm", 7, 0)
+    -- Comet Storm Button
+    ConeOfColdModes = {
+        [1] = {mode = "On", value = 1, overlay = "Cone Of Cold Enabled", tip = "Will use Cone Of Cold", highlight = 1, icon = br.player.spell.coneOfCold},
+        [2] = {mode = "Off", value = 2, overlay = "Cone Of Cold Disabled", tip = "Will not use Cone Of Cold", highlight = 0, icon = br.player.spell.coneOfCold}
+    }
+    CreateButton("ConeOfCold", 1, 1)
 end
 
 ---------------
@@ -90,6 +96,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFFFFF Will use Arcane Intellect")
         -- Casting Interrupt Delay
         br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFFFFFActivate to delay interrupting own casts to use procs.")
+        -- Casting Interrupt Delay
+        br.ui:createCheckbox(section, "Disable FoF Interrupts", "|cffFFFFFFDeactivate interrupting casts to use Fingers of Frost procs.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -168,6 +176,7 @@ local function runRotation()
     br.player.mode.frozenOrb = br.data.settings[br.selectedSpec].toggles["FrozenOrb"]
     br.player.mode.cometStorm = br.data.settings[br.selectedSpec].toggles["CometStorm"]
     br.player.mode.ebonbolt = br.data.settings[br.selectedSpec].toggles["Ebonbolt"]
+    br.player.mode.coc = br.data.settings[br.selectedSpec].toggles["ConeOfCold"]
     --------------
     --- Locals ---
     --------------
@@ -863,10 +872,12 @@ local function runRotation()
                 return true
             end
         end
-        if castBestConeAngle then
-            if castBestConeAngle(spell.coneOfCold,10,90,1,false) then return true end
-        elseif getEnemiesInCone(90,10) >= 1 then
-            if cast.coneOfCold("player") then return true end
+        if mode.coc == 1 then
+            if castBestConeAngle then
+                if castBestConeAngle(spell.coneOfCold,10,90,1,false) then return true end
+            elseif getEnemiesInCone(90,10) >= 1 then
+                if cast.coneOfCold("player") then return true end
+            end
         end
         if moving then
             if cast.iceLance("target") then
@@ -1075,10 +1086,12 @@ local function runRotation()
         end
         -- # Using Cone of Cold is mostly DPS neutral with the AoE target thresholds. It only becomes decent gain with roughly 7 or more targets.
         -- actions.aoe+=/cone_of_cold
-        if castBestConeAngle then
-            if castBestConeAngle(spell.coneOfCold,10,90,4,false) then return true end
-        elseif getEnemiesInCone(90,10) >= 4 then
-            if cast.coneOfCold("player") then return true end
+        if mode.coc == 1 then
+            if castBestConeAngle then
+                if castBestConeAngle(spell.coneOfCold,10,90,4,false) then return true end
+            elseif getEnemiesInCone(90,10) >= 4 then
+                if cast.coneOfCold("player") then return true end
+            end
         end
         -- actions.aoe+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.aoe+=/frostbolt
@@ -1094,7 +1107,7 @@ local function runRotation()
     end
 
     local function actionList_Rotation()
-        if ((fofExists or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if (((fofExists and not isChecked("Disable FoF Interrupts")) or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
