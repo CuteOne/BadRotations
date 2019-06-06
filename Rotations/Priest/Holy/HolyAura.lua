@@ -234,18 +234,6 @@ end
 local function runRotation()
 	if br.timer:useTimer("debugHoly", 0.1) then
 		--Print("Running: "..rotationName)
-
-		---------------
-		--- Toggles --- -- List toggles here in order to update when pressed
-		---------------
-		UpdateToggle("Rotation",0.25)
-		UpdateToggle("Cooldown",0.25)
-		UpdateToggle("Defensive",0.25)
-		UpdateToggle("Purify",0.25)
-		UpdateToggle("DPS",0.25)
-		br.player.mode.purify = br.data.settings[br.selectedSpec].toggles["Purify"]
-		br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-
 		--------------
 		--- Locals ---
 		--------------
