@@ -1004,7 +1004,7 @@ local function runRotation()
 					actionList_Emergency()
 					actionList_AOEHealing()
 					actionList_SingleTarget()
-					if br.player.mode.dps == 1 then
+					if br.player.mode.dPS == 1 then
 						actionList_DPS()
 					end
 				end
