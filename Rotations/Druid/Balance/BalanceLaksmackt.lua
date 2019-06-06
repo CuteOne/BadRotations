@@ -79,10 +79,12 @@ local function createOptions()
     br.ui:createCheckbox(section, "Use Trinkets")
     br.ui:createCheckbox(section, "Warrior Of Elune")
     br.ui:createCheckbox(section, "Fury Of Elune")
+    br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 3, 1, 10, 1, "How many baddies before using Fury?")
+    br.ui:createCheckbox(section, "Group Fury with CD")
     br.ui:createCheckbox(section, "Incarnation/Celestial Alignment")
     br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
-    br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
     br.ui:createCheckbox(section, "Group treants with CD")
+    br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
 
     br.ui:checkSectionState(section)
     -------------------------
@@ -321,7 +323,8 @@ local function runRotation()
     end
 
     --	fury_of_elune
-    if talent.furyOfElune and isChecked("Fury Of Elune") and (#enemies.yards8t >= getValue("Fury of Elune Targets") or isBoss()) and getTTD("target") >= 8 and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) then
+    if talent.furyOfElune and isChecked("Fury Of Elune") and (#enemies.yards8t >= getValue("Fury of Elune Targets") or isBoss()) and getTTD("target") >= 8
+            and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
       if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
         return true
       end
