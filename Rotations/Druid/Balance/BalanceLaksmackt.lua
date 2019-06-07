@@ -54,14 +54,12 @@ local function createOptions()
     -----------------------
     section = br.ui:createSection(br.ui.window.profile, "General")
     br.ui:createSpinner(section, "Pre-Pull Timer", 2.5, 0, 10, 0.5, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-    br.ui:createCheckbox(section, "Opener")
     if br.player.talent.restorationAffinity then
       br.ui:createSpinner(section, "OOC Regrowth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
       br.ui:createSpinner(section, "OOC Wild Growth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
     end
     br.ui:createCheckbox(section, "Auto Shapeshifts")
     br.ui:createCheckbox(section, "Auto Soothe")
-    br.ui:createSpinnerWithout(section, "Starsurge/Starfall Dump", 40, 40, 100, 5, "Set minimum AP value for Starsurge use. Min: 40 / Max: 100 / Interval: 5")
     br.ui:createCheckbox(section, "Auto Engage On Target", "Check this to cast sunfire on target OOC to engage combat")
     br.ui:checkSectionState(section)
     section = br.ui:createSection(br.ui.window.profile, "Healing")
@@ -233,7 +231,7 @@ local function runRotation()
       if traits.arcanicPulsar.active then
         aoeTarget = aoeTarget + 1
       end
-      if talent.starLord then
+      if talent.starlord then
         aoeTarget = aoeTarget + 1
       end
       if talent.twinMoons then
@@ -355,40 +353,53 @@ local function runRotation()
       return true
     end
 
-    --Starfall
-    if power >= 50 or talent.soulOfTheForest and power >= 40 then
-      if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget
-              and (talent.starLord and (buff.starLord.remain() >= 8 or buff.starLord.stack() == 3) or not talent.starLord)
-      then
-        if cast.starfall("best", false, aoeTarget, starfallRadius) then
+
+    --quickdots
+    if (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd)
+            or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd) then
+      if ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+        if cast.moonfire(units.dyn45) then
+          return true
+        end
+      else
+        if cast.sunfire(units.dyn45) then
           return true
         end
       end
     end
 
-
-    --starsurge
-    --starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
-
-
-    if (traits.streakingStars.active and pewbuff and not cast.last.starsurge(1)) or not traits.streakingStars.active or not pewbuff then
-      if talent.starlord and power >= 40 and cast.able.starsurge
-              and (buff.starLord.stack() < 3 and (buff.starLord.remain() >= 8) or not buff.starLord.exists()) then
-        if traits.arcanicPulsar.active and (buff.arcanicPulsar.stack() < 8 or (power >= 75 and buff.arcanicPulsar.stack() == 8)) or not traits.arcanicPulsar.active then
-          if cast.starsurge(units.dyn45) then
-            --Print("Stacks: " .. buff.starLord.stack() .. " Remain: " .. buff.starLord.remain() .. " pulsar: " .. buff.arcanicPulsar.stack())
+    if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
+      --Starfall
+      if power >= 50 or talent.soulOfTheForest and power >= 40 then
+        if #enemies.yards12t >= aoeTarget
+                and (talent.starlord and (buff.starLord.remain() >= 8 or buff.starLord.stack() == 3) or not talent.starlord)
+        then
+          if cast.starfall("best", false, aoeTarget, starfallRadius) then
             return true
           end
         end
-      elseif not talent.starlord and power >= 40 and cast.able.starsurge then
-        if (buff.arcanicPulsar.stack() < 8 or pewbuff) or
-                buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack() < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3 then
-          if cast.starsurge(units.dyn45) then
-            return
+      end
+    else       --starsurge
+      if (traits.streakingStars.active and pewbuff and not cast.last.starsurge(1)) or not traits.streakingStars.active or not pewbuff then
+        if talent.starlord and power >= 40 and cast.able.starsurge
+                and (buff.starLord.stack() < 3 and (buff.starLord.remain() >= 8) or not buff.starLord.exists()) then
+          if traits.arcanicPulsar.active and (buff.arcanicPulsar.stack() < 8 or (power >= 75 and buff.arcanicPulsar.stack() == 8)) or not traits.arcanicPulsar.active then
+            if cast.starsurge(units.dyn45) then
+              --Print("Stacks: " .. buff.starLord.stack() .. " Remain: " .. buff.starLord.remain() .. " pulsar: " .. buff.arcanicPulsar.stack())
+              return true
+            end
+          end
+        elseif not talent.starlord and power >= 40 and cast.able.starsurge then
+          if (buff.arcanicPulsar.stack() < 8 or pewbuff) or
+                  buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack() < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3 then
+            if cast.starsurge(units.dyn45) then
+              return
+            end
           end
         end
       end
     end
+
 
     --dots
     for i = 1, #enemies.yards45 do
@@ -667,7 +678,7 @@ local function runRotation()
     end
 
     if isChecked("Auto Shapeshifts") then
-      if travel and standingTime > 3 then
+      if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 1 then
         if cast.moonkinForm("player") then
           return true
         end
@@ -711,7 +722,7 @@ local function runRotation()
       -- Cat Form
       if not cat and not IsMounted() and not flying and IsIndoors() then
         -- Cat Form when not swimming or flying or stag and not in combat
-        if moving and not swimming and not flying and not travel then
+        if moving and IsMovingTime(3) and not swimming and not flying and not travel then
           if cast.catForm("player") then
             return true
           end
