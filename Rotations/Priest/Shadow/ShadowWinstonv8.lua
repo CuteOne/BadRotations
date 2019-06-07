@@ -452,7 +452,9 @@ local function runRotation()
              if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
                  if cast.psychicHorror("focus") then return end --Print("pH on focus") return end
              elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
-                 if cast.psychicHorror("target") then Print("pH on target") return end
+                 if cast.psychicHorror("target") then
+                    --Print("pH on target")
+                    return end
              elseif getOptionValue("Interrupt Target") == 3 and (cd.silence.exists() or not isChecked("Silence")) then
                  for i=1, #enemies.yards30 do
                      thisUnit = enemies.yards30[i]
@@ -791,7 +793,9 @@ local function runRotation()
      -- Mind Sear
         --mind_sear,if=buff.harvested_thoughts.up
         if traits.thoughtHarvester.active and buff.harvestedThoughts.exists() and not cast.current.mindSear() then
-            if cast.mindSear() then Print("Cleave TH MS") return end
+            if cast.mindSear() then
+                --Print("Cleave TH MS")
+                return end
         end
     --Void Bolt
         if buff.voidForm.exists() and cast.able.voidBolt() then
@@ -992,12 +996,14 @@ local function runRotation()
         -- mind_sear,target_if=spell_targets.mind_sear>1,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
         if #searEnemies >= getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then
             if not moving and not cast.current.mindSear() then
-                if cast.mindSear() then Print("Cleave VF MS")
+                if cast.mindSear() then
+                    --Print("Cleave VF MS")
                 return end
             end
         elseif #searEnemies >= getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then
             if not moving and not cast.current.mindSear() or (cast.active.mindSear() and mindSearRecast) then
-                if cast.mindSear() then Print("Cleave MS")
+                if cast.mindSear() then
+                    --Print("Cleave MS")
                 return end
             end
         end
