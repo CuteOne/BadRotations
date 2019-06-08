@@ -1347,6 +1347,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 blazingBarrier              = 235313,
+                blasterMaster               = 274598,
                 combustion                  = 190319,
                 heatingUp                   = 48107,
                 hotStreak                   = 48108,
