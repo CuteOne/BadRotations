@@ -1048,7 +1048,7 @@ local function runRotation()
                     actionList_Defensive()
                     actionList_Interrupts()
                     actionList_AMR()
-                    if br.player.mode.dps == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
+                    if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive(target) then
                             actionList_Explosive()
                         else
