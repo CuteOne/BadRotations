@@ -42,6 +42,13 @@ function InFlight.Check(spellID, destination)
     return false
 end
 
+function InFlight.Remain(spellID, destination)
+    if InFlight.Check(spellID, destination) then
+        return InFlight.Tracker[spellID].HitTime - GetTime()
+    end
+    return 0
+end
+
 function InFlight.Add(spellID, destinationGUID, sourceGUID)
     if InFlight.Tracker[spellID] == nil then
         InFlight.Tracker[spellID] = {}
