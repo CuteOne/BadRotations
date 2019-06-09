@@ -174,6 +174,7 @@ local function runRotation()
         local mode                                          = br.player.mode
         local moveIn                                        = 999
         local moving                                        = isMoving("player")
+        local castin                                        = UnitCastingInfo("player")
         local mrdm                                          = math.random
         local tmoving                                       = isMoving("target")
         local traits                                        = br.player.traits
@@ -218,10 +219,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         if talent.kindling then kindle = 1 else kindle = 0 end
         if not talent.kindling then notKindle = 1 else notKindle = 0 end
-        if talent.runeOfPower then powerRune = 1 else runeOfPower = 0 end
-        if firestarterActive then fireStAct = 1 else fireStAct = 0 end
-        if not firestarterActive then fireStInac = 1 else fireStInac = 0 end
-        if talent.firestarter then fireStarter = 1 else fireStarter = 0 end
+        if talent.runeOfPower then powerRune = true else runeOfPower = false end
 
         --if fBall    == nil then fBall    = GetTime() end
         --if fbOpener == nil then fbOpener = GetTime() end
@@ -282,19 +280,20 @@ local function runRotation()
             end--]]
 
         local firestarterremain = firestarterRemain("target", 90)
-        local cdMeteorDuration = 44 --select(2,GetSpellCooldown(spell.meteor))
+        local cdMeteorDuration = 45 --select(2,GetSpellCooldown(spell.meteor))
+        local fblastCDduration = select(2,GetSpellCooldown(spell.fireBlast))
 
-        if traits.blasterMaster.active then bMasterFBCD = charges.fireBlast.timeTillFull() + 8.7 else bMasterFBCD = 0 end
+        if traits.blasterMaster then bMasterFBCD = fblastCDduration else bMasterFBCD = 0 end
 
         --# This variable sets the time at which Rune of Power should start being saved for the next Combustion phase
         --actions.precombat+=/variable,name=combustion_rop_cutoff,op=set,value=60
         local combustionROPcutoff = 60
         
         --variable,name=phoenix_pooling,value=talent.rune_of_power.enabled&cooldown.rune_of_power.remains<cooldown.phoenix_flames.full_recharge_time&cooldown.combustion.remains>variable.combustion_rop_cutoff&(cooldown.rune_of_power.remains<target.time_to_die|action.rune_of_power.charges>0)|cooldown.combustion.remains<action.phoenix_flames.full_recharge_time&cooldown.combustion.remains<target.time_to_die
-        local phoenixPool = powerRune and cd.runeOfPower.remain() < charges.phoenixsFlames.timeTillFull() and cd.combustion.remain() > combustionROPcutoff and (cd.runeOfPower.remain() < ttd("target") or charges.runeOfPower.count() > 0) or cd.combustion.remain() < charges.phoenixsFlames.timeTillFull() and cd.combustion.remain() < ttd("target")
+        local phoenixPool = talent.runeOfPower and cd.runeOfPower.remain() < charges.phoenixsFlames.timeTillFull() and cd.combustion.remain() > combustionROPcutoff and (cd.runeOfPower.remain() < ttd("target") or charges.runeOfPower.count() > 0) or cd.combustion.remain() < charges.phoenixsFlames.timeTillFull() and cd.combustion.remain() < ttd("target")
 
         --variable,name=fire_blast_pooling,value=talent.rune_of_power.enabled&cooldown.rune_of_power.remains<cooldown.fire_blast.full_recharge_time&(cooldown.combustion.remains>variable.combustion_rop_cutoff|firestarter.active)&(cooldown.rune_of_power.remains<target.time_to_die|action.rune_of_power.charges>0)|cooldown.combustion.remains<action.fire_blast.full_recharge_time+cooldown.fire_blast.duration*azerite.blaster_master.enabled&!firestarter.active&cooldown.combustion.remains<target.time_to_die|talent.firestarter.enabled&firestarter.active&firestarter.remains<cooldown.fire_blast.full_recharge_time+cooldown.fire_blast.duration*azerite.blaster_master.enabled
-        local fireBlastPool = powerRune and cd.runeOfPower.remain() < charges.fireBlast.timeTillFull() and (cd.combustion.remain() > combustionROPcutoff or fireStAct) and (cd.runeOfPower.remain() < ttd("target") or charges.runeOfPower.count() > 0) or cd.combustion.remain() < bMasterFBCD and (fireStInac and cd.combustion.remain() < ttd("target")) or (fireStarter and fireStAct) and firestarterremain < bMasterFBCD --then
+        local fireBlastPool = talent.runeOfPower and cd.runeOfPower.remain() < charges.fireBlast.timeTillFull() and (cd.combustion.remain() > combustionROPcutoff or firestarterActive) and (cd.runeOfPower.remain() < ttd("target") or charges.runeOfPower.count() > 0) or cd.combustion.remain() < bMasterFBCD and (not firestarterActive and cd.combustion.remain() < ttd("target")) or talent.firestarter and firestarterActive and firestarterremain < bMasterFBCD --then
 
 
 
@@ -464,9 +463,9 @@ local function runRotation()
             -- meteor,if=buff.rune_of_power.up&(firestarter.remains>cooldown.meteor.duration|!firestarter.active)|cooldown.rune_of_power.remains>target.time_to_die&action.rune_of_power.charges<1|(cooldown.meteor.duration<cooldown.combustion.remains|cooldown.combustion.ready)&!talent.rune_of_power.enabled&(cooldown.meteor.duration<firestarter.remains|!talent.firestarter.enabled|!firestarter.active)
             if useCDs() and not firestarterActive and not tmoving then
                 if buff.runeOfPower.exists() and (firestarterremain > cdMeteorDuration or not firestarterActive) or cd.runeOfPower.remain() > ttd("target") and charges.runeOfPower.count() < 1 or (cd.combustion.remain() > cdMeteorDuration or cd.combustion.remain() == 0) and not talent.runeOfPower and (firestarterremain > cdMeteorDuration or not firestarterActive) then
-                    if cast.meteor("target",nil,1,7) then
+                    if cast.meteor("target",nil,1,8) then
                         --Print("Talents Meteor")
-                        mFlight = GetTime()
+                        --mFlight = GetTime()
                         return true end
                 end
             end
@@ -517,7 +516,7 @@ local function runRotation()
             end
         -- Call Action List - Active Talents
             -- call_action_list,name=active_talents
-            if buff.blasterMaster.stack() == 1 then
+            if traits.blasterMaster.active then
                 if actionList_ActiveTalents() then
                     --Print("BfA BM Comb Talents")
                  return end
@@ -581,7 +580,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
-            if (buff.combustion.exists() and buff.combustion.remain() > cast.time.scorch()) or not buff.combustion.exists() and cd.combustion.remain() < 110 then --and not buff.heatingUp.exists() then
+            if buff.combustion.remain() > cast.time.scorch() and buff.combustion.exists() or not buff.combustion.exists() and cd.combustion.remain() < 110 then
                 if cast.scorch() then 
                     --Print("BfA BM Co scor1") 
                     return true 
@@ -763,7 +762,7 @@ local function runRotation()
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&(!buff.heating_up.react&!buff.hot_streak.react&!prev_off_gcd.fire_blast&
             -- (action.fire_blast.charges>=2|(action.phoenix_flames.charges>=1&talent.phoenix_flames.enabled)|(talent.alexstraszas_fury.enabled&cooldown.dragons_breath.ready)|(talent.searing_touch.enabled&target.health.pct<=30)|
             -- (talent.firestarter.enabled&firestarter.active)))
-            if (cd.combustion.remain() > 0 or firestarterActive and buff.runeOfPower.exists()) and (not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.last.fireBlast() and
+            if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.last.fireBlast() and
             (charges.fireBlast.count() >= 2 or (talent.phoenixsFlames and charges.phoenixsFlames.count() >= 1) or (talent.alexstraszasFury and cd.dragonsBreath.exists()) or
             (talent.searingTouch and thp <= 30) or (talent.firestarter and firestarterActive))) then
                if cast.fireBlast() then 
@@ -784,7 +783,7 @@ local function runRotation()
             end
         -- Fire Blast
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&(buff.heating_up.react&(target.health.pct>=30|!talent.searing_touch.enabled)) 
-            if (cd.combustion.remain() > 0 or firestarterActive and buff.runeOfPower.exists()) and (buff.heatingUp.exists() and (thp >= 30 or not talent.searingTouch)) then
+            if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (buff.heatingUp.exists() and (thp >= 30 or not talent.searingTouch)) then
                 if cast.fireBlast() then 
                     --Print("BfA RoP fBlast") 
                     return true 
@@ -793,7 +792,7 @@ local function runRotation()
         -- Fire Blast
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&talent.searing_touch.enabled&target.health.pct<=30&
             -- (buff.heating_up.react&!action.scorch.executing|!buff.heating_up.react&!buff.hot_streak.react)
-            if (cd.combustion.remain() > 0 or firestarterActive and buff.runeOfPower.exists()) and (talent.searingTouch and thp <= 30) and (buff.heatingUp.exists() and not cast.current.scorch() or not buff.heatingUp.exists() and not buff.hotStreak.exists()) then
+            if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (talent.searingTouch and thp <= 30) and (buff.heatingUp.exists() and not cast.current.scorch() or not buff.heatingUp.exists() and not buff.hotStreak.exists()) then
                 if cast.fireBlast() then 
                     --Print("BfA RoP fBlast") 
                     return true 
@@ -852,7 +851,7 @@ local function runRotation()
             end
         -- AoE Meteor
             if isChecked("Meteor Targets") and ((#enemies.yards10t >= getOptionValue("Meteor Targets") and mode.rotation == 1) or mode.rotation == 2) then --and cd.combustion.remain() > cdMeteorDuration and buff.heatingUp.exists() then
-                if cast.meteor("best",nil,1,8) then
+                if createCastFunction("best", false, getOptionValue("Meteor Targets"), 8, spell.meteor, nil, false, 0) then
                     --Print("AoE Meteor")
                     return end
             end
@@ -892,9 +891,9 @@ local function runRotation()
             -- (talent.searing_touch.enabled&target.health.pct<=30&(buff.heating_up.react&!action.scorch.executing|!buff.hot_streak.react&!buff.heating_up.react&action.scorch.executing&!action.pyroblast.in_flight&!action.fireball.in_flight))|
             -- (firestarter.active&(action.pyroblast.in_flight|action.fireball.in_flight)&!buff.heating_up.react&!buff.hot_streak.react))
             --[[cast.able.fireBlast() and charges.fireBlast.frac() > 1.5 and--]] 
-            if (cd.combustion.remain() > 0 and not buff.runeOfPower.exists() or firestarterActive) and not talent.kindling and not fireBlastPool
-                and ((cast.current.fireball() or cast.current.pyroblast()) and buff.heatingUp.exists() or (firestarterActive and not buff.hotStreak.exists() and not buff.heatingUp.exists())
-                or talent.searingTouch and thp <= 30 and ((buff.heatingUp.exists() and not cast.current.scorch()) or not buff.hotStreak.exists() and not buff.heatingUp.exists() and cast.current.scorch() and not cast.inFlight.pyroblast() and not cast.inFlight.fireball())
+            if cast.able.fireBlast() and (cd.combustion.remain() >= 0 and not buff.runeOfPower.exists() or firestarterActive) and not talent.kindling and not fireBlastPool
+                and ((cast.current.fireball() or cast.current.pyroblast()) and buff.heatingUp.exists() or firestarterActive and not buff.hotStreak.exists() and not buff.heatingUp.exists())
+                or (talent.searingTouch and thp <= 30 and ((buff.heatingUp.exists() and not cast.current.scorch()) or not buff.hotStreak.exists() and not buff.heatingUp.exists() and cast.current.scorch() and not cast.inFlight.pyroblast() and not cast.inFlight.fireball())
                 or firestarterActive and (cast.inFlight.pyroblast() or cast.inFlight.fireball()) and not buff.heatingUp.exists() and not buff.hotStreak.exists())
             then
                 if cast.fireBlast() then
@@ -992,7 +991,7 @@ local function runRotation()
     --- SimC BfA APL ---
     ----------------------
                 if getOptionValue("APL Mode") == 1 then --Print("BfA ST Fblast") 
-                    --Print(cd.combustion.remain())
+                    --Print(cdMeteorDuration)
         -- Dragon's Breath
                     --if (getFacing("player",units.dyn10,30) and hasEquiped(132863) and getDistance(units.dyn25) < 25) and mode.dragonsBreath == 1 then
                     --if (getFacing("player",units.dyn10,30) and getDistance(units.dyn10) < 10) then
