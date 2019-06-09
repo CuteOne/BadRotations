@@ -944,6 +944,11 @@ actionList.PreCombat = function()
             StartAttack()
         end
     end -- End No Combat
+    -- Init Combat
+    if not inCombat and getDistance("target") < 40 and isValidUnit("target") and opener.complete then
+        -- Auto Shot
+        StartAttack()
+    end
     -- Opener
     if actionList.Opener() then return true end
 end -- End Action List - PreCombat

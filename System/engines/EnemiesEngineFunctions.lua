@@ -414,8 +414,11 @@ function dynamicTarget(range,facing)
 	local startTime = debugprofilestop()
 	local facing = facing or false
 	local bestUnit = bestUnit or nil
+	local tarDist = getDistance("target") or 99
 	if isChecked("Dynamic Targetting") then
-		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) then
+		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) 
+			or (UnitIsUnit(bestUnit,"target") and tarDist >= range) 
+		then
 			bestUnit = findBestUnit(range,facing)
 		end
 	end
