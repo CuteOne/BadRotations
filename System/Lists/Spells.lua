@@ -2586,6 +2586,7 @@ br.lists.spells = {
                 ancestralGuidance           = 108281,
                 ascendance                  = 114050,
                 chainLightning              = 188443,
+                cleanseSpirit               = 51886,
                 earthElemental              = 198103,
                 earthquake                  = 61882,
                 earthShield                 = 974,
