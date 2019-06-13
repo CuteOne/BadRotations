@@ -287,7 +287,7 @@ local function runRotation()
 
     if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 then
       for i = 1, #br.friend do
-        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not IsDeadOrGhost(br.friend[i].unit) then
+        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) then
           Print("Healer is: " .. br.friend[i].unit)
           if cast.innervate(br.friend[i].unit) then
             return true
