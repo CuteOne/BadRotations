@@ -540,7 +540,7 @@ local function runRotation()
         -- Trinkets
             -- use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
             
-            if useCDs() and getDistance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
+            if useCDs() and #enemies.yards40f >= 1 then
                 if isChecked("Power Reactor") and hasEquiped(165572) then
                     if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
                         useItem(165572)
