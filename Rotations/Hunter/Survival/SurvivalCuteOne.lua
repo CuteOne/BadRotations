@@ -320,11 +320,20 @@ actionList.PetManagement = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if not inCombat and petMode == "Passive" then
+        -- if not inCombat and petMode ~= "Passive" then 
+        --     PetPassiveMode()
+        -- end 
+        if petMode == "Passive" and isValidUnit("target") then 
             PetAssistMode()
-        elseif inCombat and petMode ~= "Passive" then
+        end 
+        if petMode ~= "Passive" and not (isValidUnit("target") or UnitExists("target")) then 
             PetPassiveMode()
         end
+        -- if not inCombat and petMode == "Passive" then
+        --     PetAssistMode()
+        -- elseif inCombat and petMode ~= "Passive" then
+        --     PetPassiveMode()
+        -- end
         -- Pet Attack / retreat
         if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
             if getOptionValue("Pet Target") == 1 then
@@ -1008,11 +1017,11 @@ actionList.Opener = function()
                 StartAttack()
                 return
             -- Coordinated Assault
-            elseif opener.OP1 and not opener.CA1 then
+            elseif opener.OPN1 and not opener.CA1 then
                 if cd.coordinatedAssault.remain() > gcd then
                     castOpenerFail("coordinatedAssault","CA1",opener.count)
                 elseif cast.able.coordinatedAssault() then 
-                    castOpener("aspectOfTheWild","CA1",opener.count)
+                    castOpener("coordinatedAssault","CA1",opener.count)
                 end 
                 opener.count = opener.count + 1
                 return
@@ -1059,7 +1068,7 @@ actionList.Opener = function()
                 opener.complete = true
             end
         end
-    elseif (UnitExists("target") and not useCDs()) or not isChecked("Opener") then
+    elseif (UnitExists("target") and (getOptionValue("Opener") == 2 and not useCDs())) or getOptionValue("Opener") == 3 then
         opener.complete = true
     end
 end -- End Action List - Opener
@@ -1164,7 +1173,7 @@ local function runRotation()
         opener.CA1 = false
         opener.SS1 = false
         opener.WB1 = false
-        opener.RS2 = false
+        opener.RS1 = false
         opener.KC1 = false
         opener.complete = false
     end

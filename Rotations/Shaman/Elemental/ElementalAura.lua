@@ -295,7 +295,7 @@ local function runRotation()
                 if cast.healingSurge() then br.addonDebug("Casting Healing Surge") return true end
             end
             -- Ancestral Spirit
-            if isChecked("Ancestral Spirit") then
+            if isChecked("Ancestral Spirit") and not isMoving("player") then
                 if getOptionValue("Ancestral Spirit")==1 and hastar and playertar and deadtar then
                     if cast.ancestralSpirit("target","dead") then br.addonDebug("Casting Ancestral Spirit") return true end
                 end
@@ -450,7 +450,7 @@ local function runRotation()
         local function actionList_AoE()
             --Storm Keeper
             --actions.aoe=stormkeeper,if=talent.stormkeeper.enabled
-            if talent.stormKeeper and #enemies.yards10t >= getValue("SK Targets") and mode.stormKeeper == 1 and holdBreak then
+            if not isMoving("player") and talent.stormKeeper and #enemies.yards10t >= getValue("SK Targets") and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then br.addonDebug("Casting Stormkeeper") return true end
             end
             -- Flame Shock
@@ -542,7 +542,7 @@ local function runRotation()
                 end
             end
             -- actions.aoe+=/icefury,if=spell_targets.chain_lightning<4&!buff.ascendance.up
-            if talent.iceFury and #enemies.yards10t < 4 and not buff.ascendance.exists() and holdBreak then
+            if not isMoving("player") and talent.iceFury and #enemies.yards10t < 4 and not buff.ascendance.exists() and holdBreak then
                 if cast.iceFury() then br.addonDebug("Casting Ice Fury") return true end
             end
             -- actions.aoe+=/frost_shock,if=spell_targets.chain_lightning<4&buff.icefury.up&!buff.ascendance.up
@@ -551,12 +551,12 @@ local function runRotation()
             end
             -- Elemental Blast
             --actions.aoe+=/elemental_blast,if=talent.elemental_blast.enabled&spell_targets.chain_lightning<4
-            if talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
+            if not isMoving("player") and talent.elementalBlast and #enemies.yards10t <= getValue("Maximum EB Targets") and (not talent.stormElemental or not stormEle) and holdBreak then
                 if cast.elementalBlast() then br.addonDebug("Casting Elemental Blast") return true end
             end
             -- Lava Beam
             --actions.aoe+=/lava_beam,if=talent.ascendance.enabled
-            if buff.ascendance.exists() and #enemies.yards10t >= getValue("Lava Beam Targets") and holdBreak then
+            if not isMoving("player") and buff.ascendance.exists() and #enemies.yards10t >= getValue("Lava Beam Targets") and holdBreak then
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
@@ -573,7 +573,7 @@ local function runRotation()
             end             
             -- Chain Lightning
             --actions.aoe+=/chain_lightning
-            if #enemies.yards10t > 2 and holdBreak then
+            if not isMoving("player") and #enemies.yards10t > 2 and holdBreak then
                 local cc = false
                 if getOptionCheck("Don't break CCs") then
                     for i = 1, #enemies.yards10t do 
@@ -638,13 +638,13 @@ local function runRotation()
             --# Don't use Elemental Blast if you could cast a Master of the Elements empowered Earth Shock instead.
             --actions.single_target+=/elemental_blast,if=talent.elemental_blast.enabled&(talent.master_of_the_elements.enabled&buff.master_of_the_elements.up&maelstrom<60|!talent.master_of_the_elements.enabled)
             --&(!(cooldown.storm_elemental.remains>120&talent.storm_elemental.enabled)|azerite.natural_harmony.rank=3&buff.wind_gust.stack<14)
-            if talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements) and ((not talent.stormElemental or not stormEle or (traits.naturalHarmony.rank == 3 and buff.windGust.stack() < 14))) and holdBreak  then
+            if not isMoving("player") and talent.elementalBlast and ((talent.masterOfTheElements and buff.masterOfTheElements.exists() and power < 60) or not talent.masterOfTheElements) and ((not talent.stormElemental or not stormEle or (traits.naturalHarmony.rank == 3 and buff.windGust.stack() < 14))) and holdBreak  then
                 if cast.elementalBlast() then br.addonDebug("Casting Elemental Blast") return true end
             end
             --Storm Keeper
             --# Keep SK for large or soon add waves.
             --actions.single_target+=/stormkeeper,if=talent.stormkeeper.enabled&(raid_event.adds.count<3|raid_event.adds.in>50)
-            if useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
+            if not isMoving("player") and useCDs() and talent.stormKeeper and (not talent.surgeOfPower or buff.surgeOfPower.exists() or power >= 44) and mode.stormKeeper == 1 and holdBreak then
                 if cast.stormKeeper() then br.addonDebug("Casting Stormkeeper") return true end
             end
             -- Liquid Magma Totem
@@ -761,7 +761,7 @@ local function runRotation()
             end
             --# Slightly game Icefury buff to hopefully buff some empowered Frost Shocks with Master of the Elements.
              --actions.single_target+=/icefury,if=talent.icefury.enabled&!(maelstrom>75&cooldown.lava_burst.remains<=0)&(!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120)
-             if talent.iceFury and (power <= 75 and cd.lavaBurst.remains() > 0) and not stormEle then
+             if not isMoving("player") and talent.iceFury and (power <= 75 and cd.lavaBurst.remains() > 0) and not stormEle then
                 if cast.iceFury() then br.addonDebug("Casting Ice Fury") return true end
              end
              -- actions.single_target+=/lava_burst,if=cooldown_react&charges>talent.echo_of_the_elements.enabled
