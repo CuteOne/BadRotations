@@ -155,7 +155,7 @@ local function createOptions()
     -- Lay on Hand
     br.ui:createSpinner(section, "Lay on Hands - min", 20, 0, 100, 5, "", "|cffFFFFFFMin Health Percent to Cast At")
     br.ui:createSpinner(section, "Lay on Hands - max", 20, 0, 100, 5, "", "|cffFFFFFFMax Health Percent to Cast At", true)
-    br.ui:createDropdownWithout(section, "Lay on Hands Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf" }, 1, "|cffFFFFFFTarget for LoH")
+    br.ui:createDropdownWithout(section, "Lay on Hands Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFSelf", "|cffFFFFFFHealer/DPS" }, 1, "|cffFFFFFFTarget for LoH")
     -- Blessing of Protection
     br.ui:createSpinner(section, "Blessing of Protection", 20, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
     br.ui:createDropdownWithout(section, "BoP Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFHealer/Damage", "|cffFFFFFFSelf" }, 3, "|cffFFFFFFTarget for BoP")
@@ -828,9 +828,9 @@ local function runRotation()
           end
         end]]
 
-        if canDispel(br.friend[i].unit, spell.cleanse) and 
-          ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
-                or GetMinimapZoneText() ~= "Shrine of Shadows") then
+        if canDispel(br.friend[i].unit, spell.cleanse) and
+                ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
+                        or GetMinimapZoneText() ~= "Shrine of Shadows") then
           if cast.cleanse(br.friend[i].unit) then
             return true
           end
@@ -1015,6 +1015,12 @@ local function runRotation()
             end
           elseif getOptionValue("Lay on Hands Target") == 3 and getDebuffRemain("player", 267037) == 0 and php <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) then
             layOnHandsTarget = "player"
+          elseif getOptionValue("Lay on Hands Target") == 4 then
+            if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or UnitGroupRolesAssigned(lowestUnit) == "DAMAGER" then
+              if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                layOnHandsTarget = br.friend[i].unit
+              end
+            end
           end
           if layOnHandsTarget ~= nil then
             if cast.layOnHands(layOnHandsTarget) then
