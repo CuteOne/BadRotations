@@ -106,6 +106,7 @@ local function createOptions()
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
+            br.ui:createCheckbox(section,"Power Reactor")
             br.ui:createCheckbox(section,"Trinkets")
         -- A Murder of Crows
             br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
@@ -538,11 +539,19 @@ local function runRotation()
         local function actionList_Cooldowns()
         -- Trinkets
             -- use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
+            
+            if useCDs() and getDistance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
+                if isChecked("Power Reactor") and hasEquiped(165572) then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
+                        useItem(165572)
+                    end
+                end
+            end
             if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
-                if canUseItem(13) then
+                if canUseItem(13) and ((isChecked("Power Reactor") and not hasEquiped(165572,13)) or not isChecked("Power Reactor")) then
                     useItem(13)
                 end
-                if canUseItem(14) then
+                if canUseItem(14) and ((isChecked("Power Reactor") and not hasEquiped(165572,14)) or not isChecked("Power Reactor")) then
                     useItem(14)
                 end
             end
