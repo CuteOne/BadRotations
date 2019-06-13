@@ -119,8 +119,8 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
-            br.ui:createCheckbox(section,"Power Reactor")
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
+            br.ui:createCheckbox(section,"Power Reactor")
             -- Bestial Wrath
             br.ui:createDropdownWithout(section,"Bestial Wrath", {"|cff00FF00Boss","|cffFFFF00Always"}, 1, "|cffFFFFFFSelect Bestial Wrath Usage.")
             -- Trueshot
@@ -301,9 +301,9 @@ actionList.PetManagement = function()
         end
         -- Pet Attack / retreat
         if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
-            if getOptionValue("Pet Target") == 1 then
+            if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                 PetAttack(units.dyn40)
-            elseif getOptionValue("Pet Target") == 2 then
+            elseif getOptionValue("Pet Target") == 2 and validTarget then
                 PetAttack("target")
             elseif getOptionValue("Pet Target") == 3 then
                 for i=1, #enemies.yards40 do
@@ -527,15 +527,21 @@ actionList.Cooldowns = function()
         if buff.aspectOfTheWild.exists() then 
             if useCDs() and #enemies.yards40f >= 1 then
                 if isChecked("Power Reactor") and hasEquiped(165572) then
-                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 
+                        and br.timer:useTimer("Vigor Engaged Delay", 6) 
+                    then
                         useItem(165572)
                     end
                 end
             end
-            if (not isChecked("Power Reactor") or (isChecked("Power Reactor") and not hasEquiped(165572,13))) and (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
+            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
+                and canUseItem(13) and not hasEquiped(165572,13)
+            then
                 useItem(13)
             end
-            if (not isChecked("Power Reactor") or (isChecked("Power Reactor") and not hasEquiped(165572,14))) and (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
+            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
+                and canUseItem(14) and not hasEquiped(165572,14)
+            then
                 useItem(14)
             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -759,9 +765,9 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max|full_recharge_time<gcd.max&cooldown.bestial_wrath.remains|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd
-    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax) 
+    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax + 0.1) 
         or (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax)
-        or (traits.primalInstincts.active and cd.aspectOfTheWild.remain() < gcdMax)) 
+        or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax)) 
     then
         if cast.barbedShot() then return end
     end
@@ -808,10 +814,10 @@ actionList.St = function()
     end
     -- Barbed Shot
     -- barbed_shot,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|azerite.dance_of_death.rank>1&buff.dance_of_death.down&crit_pct_current>40|target.time_to_die<9
-    if cast.able.barbedShot() and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 
-        or buff.bestialWrath.exists()) or cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax 
-        and traits.primalInstincts.active or traits.danceOfDeath.rank > 1 and not buff.danceOfDeath.exists() 
-        and critChance > 40 or ttd(units.dyn40) < 9) 
+    if cast.able.barbedShot() and ((not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())) 
+        or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < (buff.frenzy.remain("pet") - gcdMax))
+        or (traits.danceOfDeath.rank > 1 and not buff.danceOfDeath.exists() and critChance > 40)
+        or (useCDs() and ttd(units.dyn40) < 9)) 
     then
         if cast.barbedShot() then return end
     end
@@ -831,11 +837,6 @@ actionList.St = function()
     -- spitting_cobra
     if isChecked("Spitting Cobra") and talent.spittingCobra and cast.able.spittingCobra() then
         if cast.spittingCobra() then return end
-    end
-    -- Barbed Shot
-    -- barbed_shot,if=charges_fractional>1.4
-    if cast.able.barbedShot() and (charges.barbedShot.frac() > 1.4) then
-        if cast.barbedShot() then return end
     end
 end -- End Action List - Single Target
 
@@ -906,8 +907,8 @@ actionList.Cleave = function()
     -- Barbed Shot
     -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|charges_fractional>1.4|target.time_to_die<9
     if cast.able.barbedShot(lowestBarbedShot) and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())
-        or cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active 
-        or charges.barbedShot.frac() > 1.4 or ttd(units.dyn40) < 9)
+        or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < (buff.frenzy.remain("pet") - gcdMax))
+        or (useCDs() and ttd(units.dyn40) < 9))
     then
         if cast.barbedShot(lowestBarbedShot) then return end
     end
