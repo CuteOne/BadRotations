@@ -276,6 +276,7 @@ actionList.PetManagement = function()
     local petMode = getCurrentPetMode()
     local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
+
     if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
     elseif mode.petSummon ~= 6 then
@@ -346,7 +347,7 @@ actionList.PetManagement = function()
         end
     end
     -- Dash
-    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 then
+    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance("target") < 40 then
         if cast.dash("pet") then return end
     end
     -- Purge
