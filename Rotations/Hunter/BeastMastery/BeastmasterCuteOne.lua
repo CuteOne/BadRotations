@@ -798,7 +798,7 @@ actionList.St = function()
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and ttd(units.dyn40) > 15 then
+    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) then
         if cast.aspectOfTheWild() then return end
     end
     -- A Murder of Crows
@@ -809,7 +809,7 @@ actionList.St = function()
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15
     if isChecked("Stampede") and talent.stampede and cast.able.stampede() 
-        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and ttd(units.dyn40) > 15
+        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and (ttd(units.dyn40) > 15 or useCDs())
     then
         if cast.stampede() then return end
     end
@@ -818,7 +818,7 @@ actionList.St = function()
     if mode.bestialWrath == 1 and cast.able.bestialWrath() 
         and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
         and (not isChecked("Aspect of the Wild") or (getOptionValue("Bestial Wrath") == 2 and not useCDs()) or cd.aspectOfTheWild.remains() > 20) 
-        and ttd(units.dyn40) > 15
+        and (ttd(units.dyn40) > 15 or useCDs())
     then
         if cast.bestialWrath() then return end
     end
@@ -885,13 +885,13 @@ actionList.Cleave = function()
     end
     -- Aspect of the Wild
     -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and ttd(units.dyn40) > 15 then
+    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) then
         if cast.aspectOfTheWild() then return end
     end
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15
     if isChecked("Stampede") and talent.stampede and cast.able.stampede() 
-        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and ttd(units.dyn40) > 15 
+        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and (ttd(units.dyn40) > 15 or useCDs()) 
     then
         if cast.stampede() then return end
     end
@@ -900,7 +900,7 @@ actionList.Cleave = function()
     if mode.bestialWrath == 1 and cast.able.bestialWrath() 
         and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
         and (not isChecked("Aspect of the Wild") or (getOptionValue("Bestial Wrath") == 2 and not useCDs()) or cd.aspectOfTheWild.remains() > 20 or talent.oneWithThePack) 
-        and ttd(units.dyn40) > 15 
+        and (ttd(units.dyn40) > 15 or useCDs()) 
     then
         if cast.bestialWrath() then return end
     end
