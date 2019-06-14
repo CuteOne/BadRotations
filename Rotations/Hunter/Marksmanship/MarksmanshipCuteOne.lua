@@ -82,20 +82,24 @@ local function createOptions()
             br.ui:createCheckbox(section, "Auto Attack/Passive")
             -- Auto Growl
             br.ui:createCheckbox(section, "Auto Growl")
+            -- Bite/Claw
+            br.ui:createCheckbox(section, "Bite / Claw")
             -- Cat-like Reflexes
             br.ui:createSpinner(section, "Cat-like Reflexes", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
-            -- Claw
-            br.ui:createCheckbox(section, "Claw")
             -- Dash
             br.ui:createCheckbox(section, "Dash")
-            -- Prowl
-            br.ui:createCheckbox(section, "Prowl")
             -- Play Dead / Wake Up
             br.ui:createSpinner(section, "Play Dead / Wave Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            -- Prowl/Spirit Walk
+            br.ui:createCheckbox(section, "Prowl / Spirit Walk")
             -- Mend Pet
             br.ui:createSpinner(section, "Mend Pet",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Purge
             br.ui:createDropdown(section, "Purge", {"Every Unit","Only Target"}, 2, "Select if you want Purge only Target or every Unit arround the Pet")
+            -- Spirit Mend
+            br.ui:createSpinner(section, "Spirit Mend", 70, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            -- Survival of the Fittest
+            br.ui:createSpinner(section, "Survival of the Fittest", 40, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -233,6 +237,7 @@ local function runRotation()
         enemies.get(8,"pet")
         enemies.get(30,"pet")
         enemies.get(40)
+        enemies.get(40,"player",true)
         enemies.get(40,"player",false,true)
 
         if leftCombat == nil then leftCombat = GetTime() end
@@ -274,7 +279,7 @@ local function runRotation()
                 local function getCurrentPetMode()
                     local petMode = "None"
                     for i = 1, NUM_PET_ACTION_SLOTS do
-                        local name, _, _, isActive = GetPetActionInfo(i)
+                        local name, _, _,isActive = GetPetActionInfo(i)
                         if isActive then
                             if name == "PET_MODE_ASSIST" then petMode = "Assist" end
                             if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
@@ -284,12 +289,14 @@ local function runRotation()
                     return petMode
                 end
 
+                local friendUnit = br.friend[1].unit
                 local petActive = IsPetActive()
-                local petExists = UnitExists("pet")
                 local petCombat = UnitAffectingCombat("pet")
                 local petDead = UnitIsDeadOrGhost("pet")
+                local petDistance = getDistance("pettarget","pet") or 99
+                local petExists = UnitExists("pet")
                 local petMode = getCurrentPetMode()
-                local validTarget = isValidUnit("pettarget") or (not UnitExists("pettarget") and isValidTarget("target"))
+                local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
                 if IsMounted() or flying or UnitHasVehicleUI("player") or CanExitVehicle("player") then
                     waitForPetToAppear = GetTime()
@@ -314,16 +321,18 @@ local function runRotation()
                 end
                 if isChecked("Auto Attack/Passive") then
                     -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-                    if not inCombat and petMode == "Passive" then
+                    if (not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive")) then
                         PetAssistMode()
-                    elseif inCombat and petMode ~= "Passive" then
+                    elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then 
+                        PetDefensiveMode()
+                    elseif inCombat and petMode ~= "Passive" and #enemies.yards40 == 0 then
                         PetPassiveMode()
                     end
                     -- Pet Attack / retreat
                     if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
-                        if getOptionValue("Pet Target") == 1 then
+                        if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                             PetAttack(units.dyn40)
-                        elseif getOptionValue("Pet Target") == 2 then
+                        elseif getOptionValue("Pet Target") == 2 and validTarget then
                             PetAttack("target")
                         elseif getOptionValue("Pet Target") == 3 then
                             for i=1, #enemies.yards40 do
@@ -331,23 +340,36 @@ local function runRotation()
                                 if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                             end
                         end
-                    elseif (not inCombat or (inCombat and not validTarget and not isDummy())) and IsPetAttackActive() then
+                    elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) and IsPetAttackActive() then
                         PetStopAttack()
                         PetFollow()
                     end
                 end
                 -- Manage Pet Abilities
-                -- Cat-like Refelexes
-                if isChecked("Cat-like Reflexes") and petCombat and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
-                    if cast.catlikeReflexes() then return end
+                -- Cat-like Refelexes / Spirit Mend / Survival of the Fittest
+                if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP(friendUnit) <= getOptionValue("Spirit Mend") then
+                    if cast.spiritmend(friendUnit) then return end
                 end
-                -- Claw
-                if isChecked("Claw") and petCombat and cast.able.claw("pettarget") and validTarget and getDistance("pettarget","pet") < 5 then
-                    if cast.claw("pettarget","pet") then return end
+                if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
+                    if cast.catlikeReflexes("pet") then return end
+                end
+                if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest() 
+                    --[[and petCombat ]]and getHP("pet") <= getOptionValue("Survival of the Fittest")
+                then 
+                    if cast.survivalOfTheFittest("pet") then return end
+                end
+                -- Bite/Claw
+                if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 then
+                    if cast.able.bite() then
+                        if cast.bite("pettarget","pet") then return end
+                    end
+                    if cast.able.claw() then
+                        if cast.claw("pettarget","pet") then return end
+                    end
                 end
                 -- Dash
-                if isChecked("Dash") and cast.able.dash() and validTarget and getDistance("pettarget","pet") > 10 then
-                    if cast.dash(nil,"pet") then return end
+                if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 then
+                    if cast.dash("pet") then return end
                 end
                 -- Purge
                 if isChecked("Purge") and inCombat then
@@ -411,8 +433,15 @@ local function runRotation()
                     end
                 end
                 -- Prowl
-                if isChecked("Prowl") and not petCombat and cast.able.prowl() and #enemies.yards20p > 0 and not buff.prowl.exists("pet") and not IsResting() then
-                    if cast.prowl() then return end
+                if isChecked("Prowl / Spirit Walk") and not petCombat
+                    and (not IsResting() or isDummy()) and #enemies.yards40nc > 0
+                then
+                    if cast.able.spiritWalk() and not buff.spiritWalk.exists("pet") then
+                        if cast.spiritWalk("pet") then return end
+                    end
+                    if cast.able.prowl() and not buff.prowl.exists("pet") then
+                        if cast.prowl("pet") then return end
+                    end
                 end
                 -- Mend Pet
                 if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
@@ -439,13 +468,13 @@ local function runRotation()
             end -- End Dummy Test
         -- Misdirection
             if mode.misdirection == 1 then
-                if isValidUnit("target") then
+                if isValidUnit("target") and getDistance("target") < 40 then
                     local misdirectUnit = "pet"
                     if getOptionValue("Misdirection") == 1 and (inInstance or inRaid) then
                         for i = 1, #br.friend do
                             local thisFriend = br.friend[i].unit
                             if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(thisFriend) == "TANK")
-                                and UnitAffectingCombat(thisFriend) and not UnitIsDeadOrGhost(thisFriend)
+                                and not UnitIsDeadOrGhost(thisFriend)
                             then
                                 misdirectUnit = thisFriend
                                 break
@@ -457,9 +486,7 @@ local function runRotation()
                     then
                         misdirectUnit = "focus"
                     end
-                    if GetUnitExists(misdirectUnit) and UnitAffectingCombat(misdirectUnit)
-                        and not UnitIsDeadOrGhost(misdirectUnit) and GetUnitIsFriend(misdirectUnit,"player")
-                    then
+                    if GetUnitExists(misdirectUnit) then
                         if cast.misdirection(misdirectUnit) then return end
                     end
                 end

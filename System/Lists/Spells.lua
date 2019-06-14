@@ -1177,6 +1177,7 @@ br.lists.spells = {
                 sonicBlast                  = 264263,
                 soothingWater               = 254262,
                 sporeCloud                  = 254056,
+                survivalOfTheFittest        = 264735,
 
                 camouflage                  = 199483,
                 catlikeReflexes             = 263892,
@@ -1199,6 +1200,7 @@ br.lists.spells = {
                 revivePet                   = 982,
                 smack                       = 49966,
                 spiritmend                  = 90361,
+                spiritWalk                  = 90328,
                 tarTrap                     = 187698,
                 wakeUp                      = 210000,
             },
@@ -1211,6 +1213,7 @@ br.lists.spells = {
                 mendPet                     = 136,
                 playDead                    = 209997,
                 prowl                       = 24450,
+                spiritWalk                  = 90328,
             },
             debuffs                         = {
                 bestialFerocity             = 191413,
