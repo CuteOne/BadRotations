@@ -753,6 +753,7 @@ br.lists.spells = {
                 soulOfTheForest             = 158476,
             },
             traits                          = {
+                bloodMist                   = 279524,
                 ironJaws                    = 276021,
                 twistedClaws                = 275906,
                 wildFleshrending            = 279527,
