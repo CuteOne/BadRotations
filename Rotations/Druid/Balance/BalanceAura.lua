@@ -49,6 +49,16 @@ local function createToggles() -- Define custom toggles
     CreateButton("Movement",7,0)
 end
 
+--------------
+--- COLORS ---
+--------------
+local colorBlue = "|cff00CCFF"
+local colorGreen = "|cff00FF00"
+local colorRed = "|cffFF0000"
+local colorWhite = "|cffFFFFFF"
+local colorGold = "|cffFFDD11"
+local colorYellow = "|cffFFFF00"
+
 ---------------
 --- OPTIONS ---
 ---------------
@@ -67,7 +77,8 @@ local function createOptions()
             br.ui:createDropdown(section, "Opener Reset Key", br.dropOptions.Toggle, 6)
             br.ui:createSpinner(section, "OOC Regrowth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
             br.ui:createSpinner(section, "OOC Wild Growth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
-            br.ui:createCheckbox(section, "Auto Shapeshifts")
+            -- Travel Shapeshifts
+            br.ui:createDropdown(section,"Auto Shapeshifts",{colorGreen .. "All", colorYellow .. "Travel Only", colorYellow .. "DPS Only"},	1,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation|cffFFBB00.")
             br.ui:createCheckbox(section, "Auto Soothe")
             br.ui:createSpinnerWithout(section, "Starsurge/Starfall Dump", 40,40,100,5, "Set minimum AP value for Starsurge use. Min: 40 / Max: 100 / Interval: 5")
             br.ui:createCheckbox(section, "Auto Engage On Target", "Check this to cast moonfire on target OOC to engage combat")
@@ -270,46 +281,63 @@ local function runRotation()
             if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
                 if cast.regrowth("player") then return true end
             end
-            -- Shapeshift Form Management
-			if isChecked("Auto Shapeshifts") then --and br.timer:useTimer("debugShapeshift", 0.25) then
-            -- Flight Form
-                if not inCombat and canFly() and not swimming and br.fallDist > 90--[[falling > getOptionValue("Fall Timer")]] and level>=58 and not buff.prowl.exists() then
+            if isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 2) then --and br.timer:useTimer("debugShapeshift", 0.25) then
+                -- Flight Form
+                if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
                     if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     else
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     end
                 end
-            -- Aquatic Form
-                if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
-                        if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                -- Aquatic Form
+                if (not inCombat) --[[or getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and moving then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         -- CancelShapeshiftForm()
                         RunMacroText("/CancelForm")
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     else
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     end
                 end
-            -- Travel Form
-                if not inCombat and not swimming and level >=58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) then
+                -- Travel Form
+                if not inCombat and not swimming and level >= 58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) and br.timer:useTimer("Travel shift",3) then
                     if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                         RunMacroText("/CancelForm")
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     else
-                        CastSpellByID(783,"player") return true 
+                        CastSpellByID(783, "player")
+                        br.addonDebug("Casting Travelform")
+                        return true
                     end
                 end
-            -- Cat Form
+                -- Cat Form
                 if not cat and not IsMounted() and not flying and IsIndoors() then
                     -- Cat Form when not swimming or flying or stag and not in combat
                     if moving and not swimming and not flying and not travel then
-                        if cast.catForm("player") then return true end
+                        if cast.catForm("player") then
+                            br.addonDebug("Casting Catform")
+                            return true
+                        end
                     end
                     -- Cat Form - Less Fall Damage
                     if (not canFly() or inCombat or level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
-                        if cast.catForm("player") then return true end
+                        if cast.catForm("player") then
+                            br.addonDebug("Casting Catform")
+                            return true
+                        end
                     end
                 end
             end -- End Shapeshift Form Management
@@ -704,13 +732,11 @@ local function runRotation()
                 end
             end
         end
-        
-
 -----------------
 --- Rotations ---
 -----------------
         -- Pause
-        if pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 2 then
+        if pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 2 or (travel and isMoving("player")) then
             return true
         else
 ---------------------------------
@@ -726,7 +752,7 @@ local function runRotation()
 --- In Combat - Rotations --- 
 -----------------------------
             if inCombat then
-                if not chicken and not cast.last.moonkinForm(1) and not isMoving("player") then
+                if not chicken and not cast.last.moonkinForm(1) and not isMoving("player") and (isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) then
                     if cast.moonkinForm() then return true end
                 end
                 actionList_Interrupts()
