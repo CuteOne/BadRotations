@@ -552,23 +552,23 @@ actionList.Cooldowns = function()
         -- Trinkets
         if buff.aspectOfTheWild.exists() then 
             if useCDs() and #enemies.yards40f >= 1 then
-                if isChecked("Power Reactor") and hasEquiped(165572) then
-                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 
-                        and br.timer:useTimer("Vigor Engaged Delay", 6) 
+                if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
+                        and br.timer:useTimer("Vigor Engaged Delay", 6)
                     then
-                        useItem(165572)
+                        use.vigorTrinket()Item(165572)
                     end
                 end
             end
             if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
-                and canUseItem(13) and not hasEquiped(165572,13)
+                and use.able.slot(13) and not equiped.vigorTrinket(13)
             then
-                useItem(13)
+                use.slot(13)
             end
             if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
-                and canUseItem(14) and not hasEquiped(165572,14)
+                and use.able.slot(14) and not equiped.vigorTrinket(14)
             then
-                useItem(14)
+                use.slot(14)
             end
             -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
             if isChecked("Racial") and cast.able.racial() then --and cd.racial.remain() == 0 then

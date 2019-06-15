@@ -207,6 +207,7 @@ local function runRotation()
         local charges                                       = br.player.charges
         local debuff, debuffcount                           = br.player.debuff, br.player.debuffcount
         local enemies                                       = br.player.enemies
+        local equiped                                       = br.player.equiped
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
         local healPot                                       = getHealthPot()
@@ -566,20 +567,28 @@ local function runRotation()
         local function actionList_Cooldowns()
         -- Trinkets
             -- use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
-            
+            if useCDs() and #enemies.yards40f >= 1 then
+                if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
+                        and br.timer:useTimer("Vigor Engaged Delay", 6)
+                    then
+                        use.vigorTrinket()Item(165572)
+                    end
+                end
+            end
+            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
+                if use.able.slot(13) and not equiped.vigorTrinket(13) then
+                    use.slot(13)
+                end
+                if use.able.slot(14) and not equiped.vigorTrinket(14) then
+                    use.slot(14)
+                end
+            end
             if useCDs() and #enemies.yards40f >= 1 then
                 if isChecked("Power Reactor") and hasEquiped(165572) then
                     if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
                         useItem(165572)
                     end
-                end
-            end
-            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
-                if canUseItem(13) and ((isChecked("Power Reactor") and not hasEquiped(165572,13)) or not isChecked("Power Reactor")) then
-                    useItem(13)
-                end
-                if canUseItem(14) and ((isChecked("Power Reactor") and not hasEquiped(165572,14)) or not isChecked("Power Reactor")) then
-                    useItem(14)
                 end
             end
         -- Hunter's Mark

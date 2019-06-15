@@ -577,11 +577,11 @@ actionList.Cooldown = function()
     if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
         if isChecked("Trinkets") then
-            if canUseItem(13) then
-                useItem(13)
+            if use.able.slot(13) then
+                use.slot(13)
             end
-            if canUseItem(14) then
-                useItem(14)
+            if use.able.slot(14) then
+                use.slot(14)
             end
         end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -1144,6 +1144,7 @@ local function runRotation()
     charges                                       = br.player.charges
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
+    equiped                                       = br.player.equiped
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
     focusRegen                                    = br.player.power.focus.regen()

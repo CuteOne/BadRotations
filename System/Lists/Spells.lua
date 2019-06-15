@@ -588,7 +588,6 @@ br.lists.spells = {
             buffs                           = {
                 gazeOfTheLegion             = 193456,
                 glide                       = 131347,
-                vigorEngaged                = 287916,
             },
             debuffs                         = {
 
@@ -3445,6 +3444,7 @@ br.lists.spells = {
                 whispersOfInsanity              = 176151,
                 cracklingTourmaline             = 290372,
                 saphireofBrilliance             = 290365,
+                vigorEngaged                    = 287916,
             },
             debuffs                             = {
                 dampening                       = 110310,
@@ -3491,6 +3491,7 @@ br.lists.spells = {
                 ringOfCollapsingFutures         = 142173,
                 specterOfBetrayal               = 151190,
                 umbralMoonglaives               = 147012,
+                vigorTrinket                    = 165572,
                 vialOfCeaselessToxins           = 147011,
             },
         },
