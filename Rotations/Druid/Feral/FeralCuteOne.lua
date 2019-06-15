@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
+            -- Multi-DoT Limit
+            br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -916,7 +918,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
-    if (cast.pool.rake() or cast.able.rake()) then --and #enemies.yards5 < 4 then
+    if (cast.pool.rake() or cast.able.rake()) and #enemies.yards5 < getOptionValue("Multi-DoT Limit") then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
@@ -937,7 +939,7 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-    if cast.able.moonfireFeral() and talent.lunarInspiration and canDoT(units.dyn40) then --and #enemies.yards8 < 5 then
+    if cast.able.moonfireFeral() and talent.lunarInspiration and canDoT(units.dyn40) and #enemies.yards8 < getOptionValue("Multi-DoT Limit") then
         if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
             if cast.moonfireFeral() then return true end
         end
@@ -953,7 +955,7 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral() and talent.lunarInspiration then --and #enemies.yards8 < 5 then
+    if cast.able.moonfireFeral() and talent.lunarInspiration and #enemies.yards8 < getOptionValue("Multi-DoT Limit") then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
@@ -1249,7 +1251,7 @@ local function runRotation()
         then
             if cast.catForm("player") then return true end
         elseif inCombat and cat and profileStop==false
-            and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete
+            and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete and cd.global.remain() == 0
         then
             -- Wild Charge
             -- wild_charge
