@@ -981,7 +981,8 @@ actionList.Generator = function()
         and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3
     then
         if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
-            or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)
+            or (#enemies.yards8 > 0 and traits.wildFleshrending.active))
             or (useThrash == 1 and buff.clearcasting.exists()
                 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
         then
@@ -1005,6 +1006,7 @@ actionList.Generator = function()
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
     if cast.able.shred()
+        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or level < 32)
         and ((debuff.rake.exists(units.dyn5)
             and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)))
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() or level < 12)
