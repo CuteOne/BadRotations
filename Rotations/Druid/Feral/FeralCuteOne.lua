@@ -918,7 +918,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
-    if (cast.pool.rake() or cast.able.rake()) and #enemies.yards5f < getOptionValue("Multi-DoT Limit") then
+    if (cast.pool.rake() or cast.able.rake()) and debuff.rake.count() < getOptionValue("Multi-DoT Limit") then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
@@ -939,7 +939,9 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-    if cast.able.moonfireFeral() and talent.lunarInspiration and canDoT(units.dyn40) and #enemies.yards8 < getOptionValue("Multi-DoT Limit") then
+    if cast.able.moonfireFeral() and talent.lunarInspiration 
+        and canDoT(units.dyn40) and debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit") 
+    then
         if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
             if cast.moonfireFeral() then return true end
         end
@@ -955,7 +957,9 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral() and talent.lunarInspiration and #enemies.yards8 < getOptionValue("Multi-DoT Limit") then
+    if cast.able.moonfireFeral() and talent.lunarInspiration 
+        and debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit") 
+    then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
