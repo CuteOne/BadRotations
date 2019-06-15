@@ -918,7 +918,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
-    if (cast.pool.rake() or cast.able.rake()) and #enemies.yards5 < getOptionValue("Multi-DoT Limit") then
+    if (cast.pool.rake() or cast.able.rake()) and #enemies.yards5f < getOptionValue("Multi-DoT Limit") then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
