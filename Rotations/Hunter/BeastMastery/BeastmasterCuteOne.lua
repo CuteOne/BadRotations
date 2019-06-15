@@ -556,7 +556,7 @@ actionList.Cooldowns = function()
                     if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
                         and br.timer:useTimer("Vigor Engaged Delay", 6)
                     then
-                        use.vigorTrinket()Item(165572)
+                        use.vigorTrinket()
                     end
                 end
             end
