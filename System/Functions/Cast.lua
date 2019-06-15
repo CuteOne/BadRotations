@@ -383,10 +383,10 @@ function castOpener(spellIndex,flag,index,checkdistance)
 			-- return true
 	    else
 			if castSpell() then
-				if br.player.opener[flag] == nil then 
+				if br.player.opener[flag] == nil then
 					Print(index..": "..spellName)
-					_G[flag] = true
-				elseif br.player.opener[flag] ~= true then 
+					br.player.opener[flag] = true
+				elseif br.player.opener[flag] ~= true then
 					Print(index..": "..spellName)
 					br.player.opener[flag] = true
 				end
@@ -401,7 +401,7 @@ function castOpenerFail(spellIndex,flag,index)
 	local spellName = select(1,GetSpellInfo(spellCast))
 	if br.player.opener[flag] == nil then 
 		Print(index..": "..spellName.." (Uncastable)")
-		_G[flag] = true
+		br.player.opener[flag] = true
 	elseif br.player.opener[flag] ~= true then
 		Print(index..": "..spellName.." (Uncastable)")
 		br.player.opener[flag] = true
