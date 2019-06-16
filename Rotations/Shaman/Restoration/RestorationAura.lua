@@ -134,6 +134,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Purge
             br.ui:createDropdown(section,"Purge", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
+            br.ui:createSpinnerWithout(section,"Purge Min Mana", 50,0,100,5, "|cffFFFFFFMinimum Mana to Use Purge At")
         -- Capacitor Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
@@ -428,21 +429,6 @@ local function runRotation()
                 -- Earthen Wall Totem
                 if isChecked("Earthen Wall Totem") and talent.earthenWallTotem then
                     if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
-                end
-                -- Purge
-                if isChecked("Purge") then
-                    if getOptionValue("Purge") == 1 then
-                        if canDispel("target",spell.purge) and GetObjectExists("target") and lowest.hp > getOptionValue("DPS Threshold") then
-                            if cast.purge("target") then br.addonDebug("Casting Purge") return true end
-                        end
-                    elseif getOptionValue("Purge") == 2 then
-                        for i = 1, #enemies.yards30 do
-                            local thisUnit = enemies.yards30[i]
-                            if canDispel(thisUnit,spell.purge) and lowest.hp > getOptionValue("DPS Threshold") then
-                                if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
-                            end
-                        end
-                    end
                 end
                     -- Capacitor Totem
                 if cd.capacitorTotem.remain() <= gcd then
@@ -1048,8 +1034,23 @@ local function runRotation()
                     actionList_Defensive()
                     actionList_Interrupts()
                     actionList_AMR()
+                    -- Purge
+                    if isChecked("Purge") and lowest.hp > getOptionValue("DPS Threshold") and power >= getOptionValue("Purge Min Mana") then
+                        if getOptionValue("Purge") == 1 then
+                            if canDispel("target",spell.purge) and GetObjectExists("target") then
+                                if cast.purge("target") then br.addonDebug("Casting Purge") return true end
+                            end
+                        elseif getOptionValue("Purge") == 2 then
+                            for i = 1, #enemies.yards30 do
+                                local thisUnit = enemies.yards30[i]
+                                if canDispel(thisUnit,spell.purge) then
+                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
+                                end
+                            end
+                        end
+                    end
                     if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
-                        if isExplosive(target) then
+                        if isExplosive("target") then
                             actionList_Explosive()
                         else
                             actionList_DPS()
