@@ -2931,6 +2931,7 @@ br.lists.spells = {
                 agony                       = 980,
                 corruption                  = 146739,
                 haunt                       = 48181,
+                phantomSingularity          = 205179,
                 seedOfCorruption            = 27243,
                 shadowEmbrace               = 32388,
                 siphonLife                  = 63106,
@@ -2961,6 +2962,7 @@ br.lists.spells = {
             },
             traits                          = {
                 cascadingCalamity           = 275372,
+                pandemicInvocation          = 289364,
             }
         },
         -- Demonology

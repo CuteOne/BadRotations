@@ -712,6 +712,16 @@ function cl:Rogue(...)
             end
         end
     end
+    -- OUTLAW
+    if GetSpecialization() == 2 then
+        if source == UnitGUID("player") then
+            if spell == 287916 then
+                br.vigorstacks = getBuffStacks("player",287916) or 0
+                br.vigorupdate = GetTime()
+                --print(br.vigorstacks..", "..br.vigorupdate)
+            end
+        end
+    end
 end
 function cl:Shaman(...) -- 7
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
@@ -727,10 +737,38 @@ function cl:Shaman(...) -- 7
 end
 function cl:Warlock(...) -- 9
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-    -- last Immolate
-    if param == "SPELL_CAST_SUCCESS" and spell == 348 then
-        lastImmolateTarget = destination
-        lastImmolateTime = GetTime()
+    if GetSpecialization() == 1 then
+        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+            -- Line CD
+            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
+            if spell == 980 or spell == 172 or spell == 63106 then
+                br.lastCast.line_cd[spell] = GetTime()
+            end
+        end
+    end
+    if GetSpecialization() == 2 then
+        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+            -- Hand of Guldan
+            if spell == 105174 then
+                if not br.lastCast.hog then br.lastCast.hog = {} end
+                if br.lastCast then
+                    tinsert(br.lastCast.hog, 1, GetTime())
+                    if #br.lastCast.hog == 5 then
+                        br.lastCast.hog[5] = nil
+                    end
+                end
+            end
+            -- Line CD
+            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
+            br.lastCast.line_cd[spell] = GetTime()
+        end
+    end
+    if GetSpecialization() == 3 then
+        -- last Immolate
+        if param == "SPELL_CAST_SUCCESS" and spell == 348 then
+            lastImmolateTarget = destination
+            lastImmolateTime = GetTime()
+        end
     end
     ---------------------
     --[[ Pet Manager --]]
