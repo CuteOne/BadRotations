@@ -106,7 +106,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Lunar Strike Filler Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Lunar Strike as filler spell. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Starfall Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Starfall. Min: 1 / Max: 10 / Interval: 1" )
-        --    br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1" )
+            br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1" )
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -155,7 +155,7 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
-    if br.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
+    --if br.timer:useTimer("debugFury", 0.1) then --change "debugFury" to "debugSpec" (IE: debugFire)
         --Print("Running: "..rotationName)
 --------------
 --- Locals ---
@@ -236,6 +236,7 @@ local function runRotation()
 
         enemies.get(8,"target")  --enemies.yards8t
         enemies.get(15,"target") --enemies.yards15t
+        enemies.get(5)           --enemies.yard5
         enemies.get(45)          --enemies.yards45
 
 --------------------
@@ -283,57 +284,34 @@ local function runRotation()
             end
             if isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 2) then --and br.timer:useTimer("debugShapeshift", 0.25) then
                 -- Flight Form
-                if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        -- CancelShapeshiftForm()
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    else
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    end
+                if not inCombat and canFly() and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
+                    CastSpellByID(783, "player")
+                    br.addonDebug("Casting Travelform")
+                    return true
                 end
                 -- Aquatic Form
                 if (not inCombat) --[[or getDistance("target") >= 10--]] and swimming and not travel and not buff.prowl.exists() and moving then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        -- CancelShapeshiftForm()
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    else
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    end
+                    CastSpellByID(783, "player")
+                    br.addonDebug("Casting Travelform")
+                    return true
                 end
                 -- Travel Form
                 if not inCombat and not swimming and level >= 58 and not buff.prowl.exists() and not travel and not IsIndoors() and IsMovingTime(1) and br.timer:useTimer("Travel shift",3) then
-                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                        RunMacroText("/CancelForm")
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    else
-                        CastSpellByID(783, "player")
-                        br.addonDebug("Casting Travelform")
-                        return true
-                    end
+                    CastSpellByID(783, "player")
+                    br.addonDebug("Casting Travelform")
+                    return true
                 end
                 -- Cat Form
-                if not cat and not IsMounted() and not flying and IsIndoors() then
+                if not cat and not IsMounted() and not flying then
                     -- Cat Form when not swimming or flying or stag and not in combat
-                    if moving and not swimming and not flying and not travel then
+                    if moving and not swimming and not travel and IsIndoors() then
                         if cast.catForm("player") then
                             br.addonDebug("Casting Catform")
                             return true
                         end
                     end
                     -- Cat Form - Less Fall Damage
-                    if (not canFly() or inCombat or level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
+                    if (not canFly() or inCombat or level < 58) and br.fallDist > 90 then --falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then
                             br.addonDebug("Casting Catform")
                             return true
@@ -550,17 +528,25 @@ local function runRotation()
             if talent.forceOfNature and br.player.power.astralPower.deficit() > 20 and mode.forceOfNature == 1 then
                 if cast.forceOfNature("best",nil,1,15,true) then return true end
             end
+            -- Incarnation/Celestial Alignment
+            if isChecked("Incarnation/Celestial Alignment") and power >= 40 and useCDs() then
+                if talent.incarnationChoseOfElune and ttd("target") >= 30 then
+                    if cast.incarnationChoseOfElune("player") then return true end
+                elseif not talent.incarnationChoseOfElune and ttd("target") >= 20 then
+                    if cast.celestialAlignment("player") then return true end
+                end    
+            end
             -- Fury of Elune
-            if talent.furyOfElune and isChecked("Fury Of Elune") and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists() or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) then
-                if cast.furyOfElune() then return true end
-            end
-            -- Incarnation
-            if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and power >= 40 and ttd("target") >= 30 then
-                if cast.incarnationChoseOfElune("player") then return true end
-            end
-            -- Celestial Alignment
-            if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment")  and power >= 40 and ttd("target") >= 20 then
-                if cast.celestialAlignment("player") then return true end
+            if talent.furyOfElune and isChecked("Fury Of Elune") then
+                if isBoss("target") then
+                   if buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists() or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30 then
+                        if cast.furyOfElune() then return true end
+                   end
+                else
+                   if #enemies.yards8t +1 >= getOptionValue("Fury of Elune Targets") then
+                        if cast.furyOfElune() then return true end
+                   end
+                end
             end
             --Starfall
             if #enemies.yards15t >= starfallTargets and (power >= getOptionValue("Starsurge/Starfall Dump") or (isMoving("player") and mode.movement == 1)) then
@@ -765,7 +751,7 @@ local function runRotation()
                 actionList_AMR()
             end -- End In Combat Rotation
         end -- Pause
-    end -- End Timer
+    --end
 end -- End runRotation 
 local id = 102
 if br.rotations[id] == nil then br.rotations[id] = {} end
