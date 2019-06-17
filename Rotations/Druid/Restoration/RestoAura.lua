@@ -1887,7 +1887,7 @@ local function runRotation()
 				end
 			end
 			-- Solar Wrath
-			if not moving and GetUnitExists("target") and mana >= getOptionValue("DPS Save mana") then
+			if not moving and GetUnitExists("target") then
 				if (isChecked("Auto Shapeshifts") and (getOptionValue("Auto Shapeshifts") == 1 or getOptionValue("Auto Shapeshifts") == 3)) or isChecked("DPS Key") then
 					if getDistance("target", "player") > 5 or not bear and getFacing("player","target") then
 						if cast.solarWrath("target") then
@@ -1895,7 +1895,7 @@ local function runRotation()
 							return true
 						end
 					end
-				elseif mana >= getOptionValue("DPS Save mana")and (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and getFacing("player","target")then
+				elseif (not isChecked("Auto Shapeshifts") or (isChecked("Auto Shapeshifts") and getOptionValue("Auto Shapeshifts") == 2)) and getFacing("player","target")then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
@@ -1973,7 +1973,7 @@ local function runRotation()
 					end
 				end
 				-- Solar Wrath
-				if not moving and getFacing("player","target") and mana >= getOptionValue("DPS Save mana") then
+				if not moving and getFacing("player","target") then
 					if cast.solarWrath("target") then
 						br.addonDebug("Casting Solar Wrath")
 						return true
