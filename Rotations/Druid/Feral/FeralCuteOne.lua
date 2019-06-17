@@ -980,12 +980,16 @@ actionList.Generator = function()
     if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4
         and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3
     then
-        if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
-            or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)
-            or (#enemies.yards8 > 0 and traits.wildFleshrending.active))
-            or (useThrash == 1 and buff.clearcasting.exists()
-                and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
+        if (useThrash == 2 or (useThrash == 1 and buff.clearcasting.exists())
+            and ((not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active)
+            or (mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)))
         then
+        -- if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
+        --     or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)
+        --     or (#enemies.yards8 > 0 and traits.wildFleshrending.active))
+        --     or (useThrash == 1 and buff.clearcasting.exists()
+        --         and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
+        -- then
             if cast.pool.thrashCat() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
             if cast.able.thrashCat() or buff.clearcasting.exists() then
                 if cast.thrashCat("player","aoe",1,8) then return true end
