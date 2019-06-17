@@ -1120,10 +1120,10 @@ local function runRotation()
                             if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
                         end
                         --actions+=/fire_elemental,if=!talent.storm_elemental.enabled
-                        if isChecked("Storm Elemental/Fire Elemental") and not talent.stormElemental and useCDs() and holdBreak then
-                            if cast.fireElemental() then br.addonDebug("Casting Fire Elemental") return true end
-                        else    
-                            if isChecked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak then
+                        if isChecked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak and not earthEle then
+                            if not talent.stormElemental then
+                                if cast.fireElemental() then br.addonDebug("Casting Fire Elemental") return true end
+                            else
                                 if cast.stormElemental() then br.addonDebug("Casting Storm Elemental") return true end
                             end
                         end
