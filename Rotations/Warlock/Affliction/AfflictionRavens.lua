@@ -1020,7 +1020,7 @@ local function runRotation ()
 					-- actions+=/drain_soul,target_if=min:debuff.shadow_embrace.remains,cancel_if=ticks_remain<5,if=talent.shadow_embrace.enabled&variable.maintain_se&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=gcd*2
 					-- actions+=/shadow_bolt,target_if=min:debuff.shadow_embrace.remains,if=talent.shadow_embrace.enabled&variable.maintain_se&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=execute_time*2+travel_time&!action.shadow_bolt.in_flight
 					-- actions+=/phantom_singularity,target_if=max:target.time_to_die,if=time>35&target.time_to_die>16*spell_haste
-					if combatTime > 35 and not noDotCheck("target") and ttd("target") > 16 * spell_haste then
+					if combatTime > 35 and not noDotCheck("target") and ttd("target") > 16 * spell_haste and mode.ps == 1 then
 						if cast.able.phantomSingularity() then
 							if cast.phantomSingularity() then return true end
 						end
@@ -1045,7 +1045,7 @@ local function runRotation ()
 
 
 					-- actions+=/phantom_singularity,if=time<=35
-					if combatTime <= 35 and not noDotCheck("target") then
+					if combatTime <= 35 and not noDotCheck("target") and mode.ps == 1 then
 						if cast.able.phantomSingularity() then
 							if cast.phantomSingularity() then return true end
 						end
