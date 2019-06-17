@@ -303,7 +303,7 @@ local function runRotation()
     local raidMovementWithin15 = 0   -- trying to come up with a clever way to manage this, maybe a toggle or something. For now, just assume we always have to move soon
 
     -- searEnemmies represents the number of enemies in mind sear range of the primary target.
-    local activeEnemies = #enemies.yards40
+    local activeEnemies = #enemies.yards20t
     local dAEnemies = getEnemies(units.dyn40, 8, true)
     local dVEnemies = getEnemies(units.dyn40, 8, true)
     local searEnemies = getEnemies(units.dyn40, 8, true)
@@ -433,6 +433,7 @@ local function runRotation()
 -- Action List - Interrupts
     function actionList_Interrupts()
      -- Silence
+     if useInterrupts() then
          if isChecked("Silence") and mode.interruptToggle == 1 then
              if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
                  if cast.silence("focus") then return end
@@ -498,6 +499,7 @@ local function runRotation()
              --         end
              --     end
              -- end
+     end
     end -- End Action List - Interrupts
 -- Action List - Cooldowns
     function actionList_Cooldowns()
@@ -689,7 +691,7 @@ local function runRotation()
          end
      -- Mind Blast
          if isChecked("Pull OoC") and isValidUnit("target") then
-             if #enemies.yards20t == 1 or mode.rotation == 3 then
+             if activeEnemies == 1 or mode.rotation == 3 then
                 if not moving then
                     if not talent.shadowWordVoid and br.timer:useTimer("mbRecast", gcdMax + getSpellCD(spell.mindBlast)) then
                         if UnitExists("target") and UnitGUID("target") ~= pmbLast then
@@ -711,7 +713,7 @@ local function runRotation()
                         return end 
                     end
                 end
-             elseif #enemies.yards20t > 1 or mode.rotation == 2 then 
+             elseif activeEnemies > 1 or mode.rotation == 2 then 
                 if not moving then
                     if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() and br.timer:useTimer("vtRecast", gcdMax + getSpellCD(spell.vampiricTouch)) then
                         if UnitExists("target") and UnitGUID("target") ~= pvtLast then
@@ -855,14 +857,14 @@ local function runRotation()
                     if cast.mindBlast(units.dyn40) then cmbLast = UnitGUID(units.dyn40)
                 --if cast.mindBlast(units.dyn40) then
                     --Print("Cleave MB VF")
-                    Print(mindblastTargets)
+                    --Print(mindblastTargets)
                     return end
                 end
             elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.01 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswvLast or not cast.last.shadowWordVoid() then
                     if cast.shadowWordVoid(units.dyn40) then cswvLast = UnitGUID(units.dyn40)
                     --Print("CLeave swv VF")
-                    Print(mindblastTargets)
+                    --Print(mindblastTargets)
                     return end
                 end
             end
@@ -1355,13 +1357,13 @@ local function runRotation()
             --end
         -- Action List - Cleave
             -- run_action_list,name=cleave,if=active_enemies>1
-            if #enemies.yards20t > 1 or (mode.rotation == 2 and not mode.rotation == 3) then --Print("Cleave")
+            if activeEnemies > 1 or (mode.rotation == 2 and not mode.rotation == 3) then --Print("Cleave")
                 --Print(mindblastTargets)
                 if actionList_Cleave() then return end
             end
         -- Action List - Main
             -- run_action_list,name=single,if=active_enemies=1
-            if #enemies.yards20t == 1 or mode.rotation == 3 then --Print("Single")
+            if activeEnemies == 1 or mode.rotation == 3 then --Print("Single")
                 if actionList_Single() then return end
             end
         end -- End Combat Rotation
