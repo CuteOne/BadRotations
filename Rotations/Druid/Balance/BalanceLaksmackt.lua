@@ -66,13 +66,25 @@ local function createOptions()
     br.ui:createDropdown(section, "Rebirth", { "|cff00FF00Tanks", "|cffFFFF00Healers", "|cffFFFFFFTanks and Healers", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
     br.ui:createCheckbox(section, "Revive target")
     br.ui:createDropdown(section, "Remove Corruption", { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFFFFFFPlayer and Target", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
+    br.ui:createDropdown(section, "Off-healing", { "Nope", "always", "No-Healer" }, 1, "", "offheal")
+
     br.ui:checkSectionState(section)
+
+    ------------------------
+    --- COOLDOWN OPTIONS --- -- Define Cooldown Options
+    ------------------------
+    section = br.ui:createSection(br.ui.window.profile, "M+")
+    br.ui:createCheckbox(section, "Freehold - pig")
+    br.ui:createCheckbox(section, "Freehold - root grenadier")
+    br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
+    br.ui:checkSectionState(section)
+
     ------------------------
     --- COOLDOWN OPTIONS --- -- Define Cooldown Options
     ------------------------
     section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
     br.ui:createCheckbox(section, "Auto Innervate", "Use Innervate if you have Lively Spirit traits for DPS buff")
-    br.ui:createCheckbox(section, "Int Pot", "Use Int Pot when Incarnation/Celestial Alignment is up")
+    br.ui:createDropdown(section, "Pots", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
     br.ui:createCheckbox(section, "Racial")
     br.ui:createCheckbox(section, "Use Trinkets")
     br.ui:createCheckbox(section, "Warrior Of Elune")
@@ -83,7 +95,6 @@ local function createOptions()
     br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
     br.ui:createCheckbox(section, "Group treants with CD")
     br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
-
     br.ui:checkSectionState(section)
     -------------------------
     ---  TARGET OPTIONS   ---  -- Define Target Options
@@ -105,6 +116,7 @@ local function createOptions()
     br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 5, "Health Percent to Cast At")
     br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 5, "Health Percent to Cast At")
     br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 5, "Health Percent to Cast At")
+    br.ui:createDropdown(section, "Bear Form Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFGO BEAR GO!")
     br.ui:checkSectionState(section)
     -------------------------
     --- INTERRUPT OPTIONS --- -- Define Interrupt Options
@@ -138,8 +150,8 @@ local function createOptions()
                   } }
   return optionTable
 end
-local function runRotation()
 
+local function runRotation()
 
   ---------------
   --- Toggles --- -- List toggles here in order to update when pressed
@@ -217,583 +229,654 @@ local function runRotation()
   enemies.get(8, "target") -- enemies.yards8t
   enemies.get(15, "target") -- enemies.yards15t
   enemies.get(12, "target") -- enemies.yards12t
-  local function dps()
 
-    if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) then
-      if cast.moonkinForm() then
-        return true
+
+
+  --[134388] = "A Knot of Snakes",
+
+
+  -- track dispells in group
+ --[[ for i = 1, #br.friend do
+    if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance then
+      local healerClass = UnitClassification(br.friend[i].unit)
+      if healerClass == druid then
+        dispell_healer_list = curse, magic, poison
+      elseif healerClass == monk then
+        dispell_healer_list = disease, magic, poison
+      elseif healerClass == priest then
+        dispell_healer_list = disease, magic
+      elseif healerClass == shaman then
+        dispell_healer_list = curse, magic
+      elseif healerClass == paladin then
+        dispell_healer_list = disease, magic, poison
       end
     end
-
-    local aoeTarget = 0
-    if getValue("Starfall Targets (0 for auto)") == 0 then
-      aoeTarget = 4
-      if traits.arcanicPulsar.active then
-        aoeTarget = aoeTarget + 1
-      end
-      if talent.starlord then
-        aoeTarget = aoeTarget + 1
-      end
-      if talent.twinMoons then
-        aoeTarget = aoeTarget + 1
-      end
-      if traits.arcanicPulsar.active and br.player.traits.streakingStars.rank >= 2 then
-        aoeTarget = aoeTarget + 1
-      end
-
-      if talent.stellarDrift then
-        starfallRadius = 15
-      else
-        starfallRadius = 12
-      end
-
-      if (race == "Troll") and isChecked("Racial") and useCDs() and pewbuff and ttd("target") >= 12 then
-        cast.racial("player")
-      end
-    elseif getValue("Starfall Targets (0 for auto)") ~= 0 then
-      aoeTarget = getValue("Starfall Targets (0 for auto)")
-    end
-
-    --trinkets
-    -- pewbuff.
-    if isChecked("Use Trinkets") and pewbuff or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) then
-      if canUseItem(13) then
-        useItem(13)
-      end
-      if canUseItem(14) then
-        useItem(14)
-      end
-    end
-
-    if isChecked("Int Pot") and canUseItem(109218) and not solo and useCDs() and pewbuff then
-      useItem(109218)
-    end
-    --[[
-         if isChecked("Int Pot") and canUseItem(163222) and not solo and useCDs() and (buff.celestialAlignment.exists() or buff.incarnationChoseOfElune.exists()) then
-                    useItem(163222)
-                end
-    ]]
+]]
+    local function dps()
 
 
-    -- Warrior of Elune
-    if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
-      if cast.warriorOfElune() then
-        return true
-      end
-    end
-
-    -- Innverate
-    --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
-
-    if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 then
-      for i = 1, #br.friend do
-        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not isDeadOrGhost(br.friend[i].unit) then
-          Print("Healer is: " .. br.friend[i].unit)
-          if cast.innervate(br.friend[i].unit) then
-            return true
-          end
-        end
-      end
-    end
-
-
-
-
-    -- Incarnation  ap_check&!buff.ca_inc.up
-    if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
-            debuff.sunfire.remain("target") > 8 and debuff.moonfire.remain("target") > 12 and not pewbuff and
-            (debuff.stellarFlare.remain("target") > 6 or not talent.stellarFlare) and power >= 40 and getTTD("target") >= 30 or hasBloodLust() then
-      if cast.incarnationChoseOfElune("player") then
-        return true
-      end
-    end
-
-    if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
-            power >= 40 and getTTD("target") >= 20 and not pewbuff and
-            (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remain() >= 30)) and
-            debuff.sunfire.remain("target") > 2 and debuff.moonfire.remain("target") > 2 and
-            (debuff.stellarFlare.remain("target") > 1 or not talent.stellarFlare) or
-            hasBloodLust()
-    then
-      if cast.celestialAlignment("player") then
-        return true
-      end
-    end
-
-    --	fury_of_elune
-    if talent.furyOfElune and isChecked("Fury Of Elune") and (#enemies.yards8t >= getValue("Fury of Elune Targets") or isBoss()) and getTTD("target") >= 8
-            and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
-      if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
-        return true
-      end
-    end
-
-
-
-    -- Force Of Nature / treants
-    if talent.forceOfNature and cast.able.forceOfNature() and br.player.power.astralPower.deficit() > 20 then
-      if br.player.mode.forceOfNature == 1 and getTTD("target") >= 10
-              and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
-              and (#enemies.yards12t >= getValue("Treant Targets") or isBoss())
-      then
-        if cast.forceOfNature("best", nil, 1, 15, true) then
-          return true
-        end
-      elseif br.player.mode.forceOfNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
-        if cast.forceOfNature("best", nil, 1, 15, true) then
+      if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
+        if cast.moonkinForm() then
           return true
         end
       end
-    end
 
-    --starLord cancellation
-    if talent.starlord and power >= 87 and buff.starLord.exists() and buff.starLord.remain() < 8 then
-      RunMacroText("/cancelaura starlord")
-      --Print("Cancelling starLord at" .. buff.starLord.remain())
-      return true
-    end
-
-
-    --quickdots
-    if (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd)
-            or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd) then
-      if ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
-        if cast.moonfire(units.dyn45) then
-          return true
+      local aoeTarget = 0
+      if getValue("Starfall Targets (0 for auto)") == 0 then
+        aoeTarget = 4
+        if traits.arcanicPulsar.active then
+          aoeTarget = aoeTarget + 1
         end
-      else
-        if cast.sunfire(units.dyn45) then
+        if talent.starlord then
+          aoeTarget = aoeTarget + 1
+        end
+        if talent.twinMoons then
+          aoeTarget = aoeTarget + 1
+        end
+        if traits.arcanicPulsar.active and br.player.traits.streakingStars.rank >= 2 then
+          aoeTarget = aoeTarget + 1
+        end
+
+        if talent.stellarDrift then
+          starfallRadius = 15
+        else
+          starfallRadius = 12
+        end
+
+        if (race == "Troll") and isChecked("Racial") and useCDs() and pewbuff and ttd("target") >= 12 then
+          cast.racial("player")
+        end
+      elseif getValue("Starfall Targets (0 for auto)") ~= 0 then
+        aoeTarget = getValue("Starfall Targets (0 for auto)")
+      end
+
+      --trinkets
+      -- pewbuff.
+      if isChecked("Use Trinkets") and (pewbuff or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
+        if canUseItem(13) then
+          useItem(13)
+        end
+        if canUseItem(14) then
+          useItem(14)
+        end
+      end
+
+      --Pots
+      --{ "None", "Battle", "RisingDeath", "Draenic", "Prolonged" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+
+      if isChecked("Pots") and not getOptionValue("Pots") == 1 and not solo and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 10) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 10) then
+        if getOptionValue("Pots") == 2 and canUseItem(163222) then
+          useItem(163222)
+        elseif getOptionValue("Pots") == 3 and canUseItem(152559) then
+          useItem(152559)
+        elseif getOptionValue("Pots") == 4 and canUseItem(109218) then
+          useItem(109218)
+        elseif getOptionValue("Pots") == 5 and canUseItem(142117) then
+          useItem(142117)
+        end
+      end
+
+      -- Warrior of Elune
+      if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
+        if cast.warriorOfElune() then
           return true
         end
       end
-    end
 
-    if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
-      --Starfall
-      if power >= 50 or talent.soulOfTheForest and power >= 40 then
-        if #enemies.yards12t >= aoeTarget
-                and (talent.starlord and (buff.starLord.remain() >= 8 or buff.starLord.stack() == 3) or not talent.starlord)
-        then
-          if cast.starfall("best", false, aoeTarget, starfallRadius) then
-            return true
-          end
-        end
-      end
-    else       --starsurge
-      if (traits.streakingStars.active and pewbuff and not cast.last.starsurge(1)) or not traits.streakingStars.active or not pewbuff then
-        if talent.starlord and power >= 40 and cast.able.starsurge
-                and (buff.starLord.stack() < 3 and (buff.starLord.remain() >= 8) or not buff.starLord.exists()) then
-          if traits.arcanicPulsar.active and (buff.arcanicPulsar.stack() < 8 or (power >= 75 and buff.arcanicPulsar.stack() == 8)) or not traits.arcanicPulsar.active then
-            if cast.starsurge(units.dyn45) then
-              --Print("Stacks: " .. buff.starLord.stack() .. " Remain: " .. buff.starLord.remain() .. " pulsar: " .. buff.arcanicPulsar.stack())
+      -- Innverate
+      --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
+
+      if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 then
+        for i = 1, #br.friend do
+          if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) then
+            Print("Healer is: " .. br.friend[i].unit)
+            if cast.innervate(br.friend[i].unit) then
               return true
             end
           end
-        elseif not talent.starlord and power >= 40 and cast.able.starsurge then
-          if (buff.arcanicPulsar.stack() < 8 or pewbuff) or
-                  buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack() < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3 then
-            if cast.starsurge(units.dyn45) then
-              return
+        end
+      end
+
+      --quickdots
+      if (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd + 1)
+              or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd + 1) then
+        if traits.streakingStars.active and not cast.last.moonfire(1) then
+          if cast.moonfire(units.dyn45) then
+            return true
+          end
+        elseif traits.streakingStars.active and not cast.last.sunfire(1) then
+          if cast.sunfire(units.dyn45) then
+            return true
+          end
+        end
+      end
+
+      --if streaking stars, rotate with solar_wrath
+      if (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) then
+        if cast.solarWrath(units.dyn45) then
+          return true
+        end
+      end
+
+      -- Incarnation  ap_check&!buff.ca_inc.up
+      if talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
+              debuff.sunfire.remain("target") > 8 and debuff.moonfire.remain("target") > 12 and not pewbuff and
+              (debuff.stellarFlare.remain("target") > 6 or not talent.stellarFlare) and power >= 40 and getTTD("target") >= 30 or hasBloodLust() then
+        if cast.incarnationChoseOfElune("player") then
+          return true
+        end
+      end
+
+      if not talent.incarnationChoseOfElune and useCDs() and isChecked("Incarnation/Celestial Alignment") and
+              power >= 40 and getTTD("target") >= 20 and not pewbuff and
+              (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remain() >= 30)) and
+              debuff.sunfire.remain("target") > 2 and debuff.moonfire.remain("target") > 2 and
+              (debuff.stellarFlare.remain("target") > 1 or not talent.stellarFlare) or
+              hasBloodLust()
+      then
+        if cast.celestialAlignment("player") then
+          return true
+        end
+      end
+
+      --	fury_of_elune
+      if talent.furyOfElune and isChecked("Fury Of Elune") and (#enemies.yards8t >= getValue("Fury of Elune Targets") or isBoss()) and getTTD("target") >= 8
+              and (isChecked("Group Fury with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group Fury with CD")) then
+        if cast.furyOfElune(getBiggestUnitCluster(45, 1.25)) then
+          return true
+        end
+      end
+
+
+      -- Force Of Nature / treants
+      if talent.forceOfNature and cast.able.forceOfNature() and br.player.power.astralPower.deficit() > 20 then
+        if br.player.mode.forceOfNature == 1 and getTTD("target") >= 10
+                and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
+                and (#enemies.yards12t >= getValue("Treant Targets") or isBoss())
+        then
+          if cast.forceOfNature("best", nil, 1, 15, true) then
+            return true
+          end
+        elseif br.player.mode.forceOfNature == 2 and isChecked("Treants Key") and SpecificToggle("Treants Key") and not GetCurrentKeyBoardFocus() then
+          if cast.forceOfNature("best", nil, 1, 15, true) then
+            return true
+          end
+        end
+      end
+
+      --starLord cancellation
+      if talent.starlord and power >= 87 and buff.starLord.exists() and buff.starLord.remain() < 8 then
+        RunMacroText("/cancelaura starlord")
+        --Print("Cancelling starLord at" .. buff.starLord.remain())
+        return true
+      end
+
+      if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
+        --Starfall
+        if power >= 50 or talent.soulOfTheForest and power >= 40 then
+          if #enemies.yards12t >= aoeTarget
+                  and (talent.starlord and (buff.starLord.remain() >= 8 or buff.starLord.stack() == 3) or not talent.starlord)
+          then
+            if cast.starfall("best", false, aoeTarget, starfallRadius) then
+              return true
+            end
+          end
+        end
+      else
+        --starsurge
+        if (traits.streakingStars.active and pewbuff and not cast.last.starsurge(1)) or not traits.streakingStars.active or not pewbuff then
+          if talent.starlord and power >= 40 and cast.able.starsurge
+                  and (buff.starLord.stack() < 3 and (buff.starLord.remain() >= 8) or not buff.starLord.exists()) then
+            if traits.arcanicPulsar.active and (buff.arcanicPulsar.stack() < 8 or (power >= 75 and buff.arcanicPulsar.stack() == 8)) or not traits.arcanicPulsar.active then
+              if cast.starsurge(units.dyn45) then
+                --Print("Stacks: " .. buff.starLord.stack() .. " Remain: " .. buff.starLord.remain() .. " pulsar: " .. buff.arcanicPulsar.stack())
+                return true
+              end
+            end
+          elseif not talent.starlord and power >= 40 and cast.able.starsurge then
+            if (buff.arcanicPulsar.stack() < 8 or pewbuff) or
+                    buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack() < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3 then
+              if cast.starsurge(units.dyn45) then
+                return
+              end
             end
           end
         end
       end
-    end
 
 
-    --dots
-    for i = 1, #enemies.yards45 do
-      local thisUnit = enemies.yards45[i]
-      if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
-        if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
-          if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
-            return true
+      --dots and roots
+
+      local root_UnitList = {}
+      if isChecked("Freehold - root grenadier") then
+        root_UnitList[129758] = "Irontide Grenadier"
+      end
+      if isChecked("Atal - root Spirit of Gold") then
+        root_UnitList[131009] = "Spirit of Gold"
+      end
+
+      for i = 1, #enemies.yards45 do
+        local thisUnit = enemies.yards45[i]
+        if cast.able.entanglingRoots() then
+          for k, v in pairs(root_UnitList) do
+            if (root_UnitList[GetObjectID(thisUnit)] ~= nil or (UnitCastingInfo(thisUnit) == GetSpellInfo(v) and UnitCastingInfo(thisUnit) ~= nil) or (UnitChannelInfo(thisUnit) == GetSpellInfo(v) and UnitChannelInfo(thisUnit) ~= nil)) and getBuffRemain(thisUnit, 226510) == 0 then
+              if cast.entanglingRoots(thisUnit) then
+                return true
+              end
+            end
+          end
+        end
+
+        if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+              return true
+            end
+          end
+        end
+        if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
+              return true
+            end
+          end
+        end
+        if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
+          if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
+            if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+              return true
+            end
           end
         end
       end
-      if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
-        if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
-          if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
-            return true
-          end
-        end
-      end
-      if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
-        if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
-          if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
-            return true
-          end
-        end
-      end
-    end
 
-    --(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-    --&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|
-    --variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-    if (traits.streakingStars.active and pewbuff and not cast.last.lunarStrike(1)) or not traits.streakingStars.active or not pewbuff then
+      --(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
+      --&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|
+      --variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
+      -- if (traits.streakingStars.active and pewbuff and not cast.last.lunarStrike(1)) or not traits.streakingStars.active or not pewbuff then
       if buff.owlkinFrenzy.exists()
               or (buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() == 3)
               or buff.warriorOfElune.exists()
               or (#enemies.yards8t >= 2 and buff.lunarEmpowerment.stack() > 0)
               or buff.solarEmpowerment.stack == 0
               or (traits.streakingStars.active and pewbuff and cast.last.solarWrath(1)) then
-        if cast.lunarStrike(units.dyn45) then
+        --if cast.lunarStrike(units.dyn45) then
+        if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
           return true
         end
+        --end
       end
-    end
-    --solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
-    if ((traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff or not traits.streakingStars.active) then
-      if cast.solarWrath(units.dyn45) then
+      --solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
+      if ((traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff or not traits.streakingStars.active) then
+        if cast.solarWrath(units.dyn45) then
+        end
       end
-    end
 
-    if cast.sunfire(units.dyn45)
-    then
-      return true
-    end
-
-    --[[
-    if mode.rotation == 3 or #enemies.yards40 == 1 then
-      if single_rotation() then
+      if cast.sunfire(units.dyn45)
+      then
         return true
       end
     end
-    if mode.rotation == 2 or #enemies.yards40 > 1 then
-      if aoe_rotation() then
-        return true
-      end
-    end
-  ]]
 
-  end
+    local function defensive()
 
-  local function defensive()
-    --Potion or Stone
-    if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
-      if canUseItem(5512) then
-        useItem(5512)
-      elseif canUseItem(getHealthPot()) then
-        useItem(getHealthPot())
-      end
-    end
-    -- Renewal
-    if isChecked("Renewal") and talent.renewal and php <= getValue("Renewal") then
-      if cast.renewal("player") then
+      --Bear Form Key-br.player.buff.bearForm.exists()
+      if isChecked("Bear Form Key") and not buff.bearForm.exists("player") and SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
+        if cast.bearForm("player") then
+          return true
+        end
+      elseif isChecked("Bear Form Key") and buff.bearForm.exists("player") and SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
         return
-      end
-    end
-    -- Barkskin
-    if isChecked("Barkskin") and php <= getValue("Barkskin") then
-      if cast.barkskin() then
-        return
-      end
-    end
-    -- Swiftmend
-    if talent.restorationAffinity and isChecked("Swiftmend") and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1 then
-      if cast.swiftmend("player") then
-        return true
-      end
-    end
-    -- Regrowth
-    if isChecked("Regrowth") and not moving and php <= getValue("Regrowth") then
-      if cast.regrowth("player") then
-        return true
-      end
-    end
-    -- Rebirth
-    if isChecked("Rebirth") and cd.rebirth.remains() <= gcd and not isMoving("player") then
-      if getOptionValue("Rebirth") == 1 then
-        local tanks = getTanksTable()
-        for i = 1, #tanks do
-          local thisUnit = tanks[i].unit
-          if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
-            if cast.rebirth(thisUnit, "dead") then
-              return true
-            end
-          end
-        end
-      elseif getOptionValue("Rebirth") == 2 then
-        for i = 1, #br.friend do
-          local thisUnit = br.friend[i].unit
-          if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
-            if cast.rebirth(thisUnit, "dead") then
-              return true
-            end
-          end
-        end
-      elseif getOptionValue("Rebirth") == 3 then
-        for i = 1, #br.friend do
-          local thisUnit = br.friend[i].unit
-          if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
-            if cast.rebirth(thisUnit, "dead") then
-              return true
-            end
-          end
-        end
-      elseif getOptionValue("Rebirth") == 4 then
-        if GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
-          if cast.rebirth("mouseover", "dead") then
-            return true
-          end
-        end
-      elseif getOptionValue("Rebirth") == 5 then
-        for i = 1, #br.friend do
-          local thisUnit = br.friend[i].unit
-          if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
-            if cast.rebirth(thisUnit, "dead") then
-              return true
-            end
-          end
-        end
-      end
-    end
-
-    -- Remove Corruption
-    if isChecked("Remove Corruption") then
-      if getOptionValue("Remove Corruption") == 1 then
-        if canDispel("player", spell.removeCorruption) then
-          if cast.removeCorruption("player") then
-            return true
-          end
-        end
-      elseif getOptionValue("Remove Corruption") == 2 then
-        if canDispel("target", spell.removeCorruption) then
-          if cast.removeCorruption("target") then
-            return true
-          end
-        end
-      elseif getOptionValue("Remove Corruption") == 3 then
-        if canDispel("player", spell.removeCorruption) then
-          if cast.removeCorruption("player") then
-            return true
-          end
-        elseif canDispel("target", spell.removeCorruption) then
-          if cast.removeCorruption("target") then
-            return true
-          end
-        end
-      elseif getOptionValue("Remove Corruption") == 4 then
-        if canDispel("mouseover", spell.removeCorruption) then
-          if cast.removeCorruption("mouseover") then
-            return true
-          end
-        end
-      elseif getOptionValue("Remove Corruption") == 5 then
-        for i = 1, #br.friend do
-          if canDispel(br.friend[i].unit, spell.removeCorruption) then
-            if cast.removeCorruption(br.friend[i].unit) then
-              return true
-            end
-          end
-        end
-      end
-    end
-  end
-
-  local function interrupts()
-    if useInterrupts() then
-      for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-        if canInterrupt(thisUnit, getValue("InterruptAt")) then
-          -- Solar Beam
-          if isChecked("Solar Beam") then
-            if cast.solarBeam(thisUnit) then
-              return
-            end
-          end
-          -- Typhoon
-          if isChecked("Typhoon") and talent.typhoon and getDistance(thisUnit) <= 15 then
-            if cast.typhoon() then
-              return
-            end
-          end
-          -- Mighty Bash
-          if isChecked("Mighty Bash") and talent.mightyBash and getDistance(thisUnit) <= 10 then
-            if cast.mightyBash(thisUnit) then
-              return true
-            end
-          end
-        end
-      end
-    end
-
-    if isChecked("Auto Soothe") then
-      for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-        if canDispel(thisUnit, spell.soothe) then
-          if cast.soothe(thisUnit) then
-            return true
-          end
-        end
-      end
-    end
-  end
-
-  local function PreCombat()
-    -- Pre-Pull Timer
-    if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-      if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
-        if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
-          if cast.moonkinForm() then
-            return true
-          end
-        end
-        if cast.solarWrath() then
-          return true
-        end
-      end
-    end
-    if isChecked("Auto Engage On Target") then
-      if cast.sunfire() then
-        return true
-      end
-    end
-  end
-  local function extras()
-    --Resurrection
-    if isChecked("Revive target") and not inCombat and not isMoving("player") then
-      if UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
-        if cast.revive("target", "dead") then
-          return true
-        end
-      end
-    end
-    -- Wild Growth
-    if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
-      if cast.wildGrowth() then
-        return true
-      end
-    end
-    -- Regrowth
-    if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
-      if cast.regrowth("player") then
-        return true
-      end
-    end
-    -- Shapeshift Form Management
-    local standingTime = 0
-    if DontMoveStartTime then
-      standingTime = GetTime() - DontMoveStartTime
-    end
-
-    if isChecked("Auto Shapeshifts") then
-      if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 1 then
-        if cast.moonkinForm("player") then
-          return true
-        end
-      end
-
-      -- Flight Form
-      if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
-        if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-          -- CancelShapeshiftForm()
-          RunMacroText("/CancelForm")
-          CastSpellByID(783, "player")
-          return true
-        else
-          CastSpellByID(783, "player")
-          return true
-        end
-      end
-      -- Aquatic Form
-      if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
-        if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-          -- CancelShapeshiftForm()
-          RunMacroText("/CancelForm")
-          CastSpellByID(783, "player")
-          return true
-        else
-          CastSpellByID(783, "player")
-          return true
-        end
-      end
-      -- Travel Form
-      if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
-        if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-          RunMacroText("/CancelForm")
-          CastSpellByID(783, "player")
-          return true
-        else
-          CastSpellByID(783, "player")
-          return true
-        end
-      end
-      -- Cat Form
-      if not cat and not IsMounted() and not flying and IsIndoors() then
-        -- Cat Form when not swimming or flying or stag and not in combat
-        if moving and IsMovingTime(3) and not swimming and not flying and not travel then
-          if cast.catForm("player") then
-            return true
-          end
-        end
-        -- Cat Form - Less Fall Damage
-        if (not canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
-          --falling > getOptionValue("Fall Timer") then
-          if cast.catForm("player") then
-            return true
-          end
-        end
-      end
-    end -- End Shapeshift Form Management
-  end
-
-  -----------------
-  --- Rotations ---
-  -----------------
-  -- Pause
-  if (not IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
-    if pause() or drinking then
-      return true
-    else
-
-      ---------------------------------
-      --- Out Of Combat - Rotations ---
-      ---------------------------------
-      if not inCombat then
-        if extras() then
-          return true
-        end
-        if PreCombat() then
-          return true
-        end
-      end
-    end -- End Out of Combat Rotation
-    -----------------------------
-    --- In Combat - Rotations ---
-    -----------------------------
-    if inCombat then
-      if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+      elseif isChecked("Bear Form Key") and buff.bearForm.exists("player") and not SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
         if cast.moonkinForm() then
           return true
         end
       end
-      if useInterrupts() then
-        if interrupts() then
-          return true
-        end
-      end
-      if useDefensive() then
-        if defensive() then
-          return true
-        end
-      end
-      if mode.rotation ~= 4 then
-        if dps() then
-          return true
-        end
-      end
-    end -- End In Combat Rotation
-  end -- Pause
-end -- End runRotation
 
-local id = 102
-if br.rotations[id] == nil then
-  br.rotations[id] = {}
-end
-tinsert(br.rotations[id], {
-  name = rotationName,
-  toggles = createToggles,
-  options = createOptions,
-  run = runRotation,
-})
+
+      --Potion or Stone
+      if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
+        if canUseItem(5512) then
+          useItem(5512)
+        elseif canUseItem(getHealthPot()) then
+          useItem(getHealthPot())
+        end
+      end
+      -- Renewal
+      if isChecked("Renewal") and talent.renewal and php <= getValue("Renewal") then
+        if cast.renewal("player") then
+          return
+        end
+      end
+      -- Barkskin
+      if isChecked("Barkskin") and php <= getValue("Barkskin") then
+        if cast.barkskin() then
+          return
+        end
+      end
+      -- Swiftmend
+      if talent.restorationAffinity and isChecked("Swiftmend") and php <= getValue("Swiftmend") and charges.swiftmend.count() >= 1 then
+        if cast.swiftmend("player") then
+          return true
+        end
+      end
+      -- Regrowth
+      if isChecked("Regrowth") and not moving and php <= getValue("Regrowth") then
+        if cast.regrowth("player") then
+          return true
+        end
+      end
+      -- Rebirth
+      if isChecked("Rebirth") and cd.rebirth.remains() <= gcd and not isMoving("player") then
+        if getOptionValue("Rebirth") == 1 then
+          local tanks = getTanksTable()
+          for i = 1, #tanks do
+            local thisUnit = tanks[i].unit
+            if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
+              if cast.rebirth(thisUnit, "dead") then
+                return true
+              end
+            end
+          end
+        elseif getOptionValue("Rebirth") == 2 then
+          for i = 1, #br.friend do
+            local thisUnit = br.friend[i].unit
+            if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
+              if cast.rebirth(thisUnit, "dead") then
+                return true
+              end
+            end
+          end
+        elseif getOptionValue("Rebirth") == 3 then
+          for i = 1, #br.friend do
+            local thisUnit = br.friend[i].unit
+            if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
+              if cast.rebirth(thisUnit, "dead") then
+                return true
+              end
+            end
+          end
+        elseif getOptionValue("Rebirth") == 4 then
+          if GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+            if cast.rebirth("mouseover", "dead") then
+              return true
+            end
+          end
+        elseif getOptionValue("Rebirth") == 5 then
+          for i = 1, #br.friend do
+            local thisUnit = br.friend[i].unit
+            if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
+              if cast.rebirth(thisUnit, "dead") then
+                return true
+              end
+            end
+          end
+        end
+      end
+
+      -- offheal
+
+      local offheal = false
+      if getOptionValue("offheal") == 2 then
+        offheal = true
+      elseif getOptionValue("offheal") == 3 then
+        for i = 1, #br.friend do
+          local thisUnit = br.friend[i].unit
+          if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
+            offheal = true
+          end
+        end
+      end
+
+      -- Remove Corruption
+      if isChecked("Remove Corruption") then
+        if getOptionValue("Remove Corruption") == 1 then
+          if canDispel("player", spell.removeCorruption) then
+            if cast.removeCorruption("player") then
+              return true
+            end
+          end
+        elseif getOptionValue("Remove Corruption") == 2 then
+          if canDispel("target", spell.removeCorruption) then
+            if cast.removeCorruption("target") then
+              return true
+            end
+          end
+        elseif getOptionValue("Remove Corruption") == 3 then
+          if canDispel("player", spell.removeCorruption) then
+            if cast.removeCorruption("player") then
+              return true
+            end
+          elseif canDispel("target", spell.removeCorruption) then
+            if cast.removeCorruption("target") then
+              return true
+            end
+          end
+        elseif getOptionValue("Remove Corruption") == 4 then
+          if canDispel("mouseover", spell.removeCorruption) then
+            if cast.removeCorruption("mouseover") then
+              return true
+            end
+          end
+        elseif (getOptionValue("Remove Corruption") == 5 or offheal == true) then
+          for i = 1, #br.friend do
+            if canDispel(br.friend[i].unit, spell.removeCorruption) then
+              if cast.removeCorruption(br.friend[i].unit) then
+                return true
+              end
+            end
+          end
+        end
+      end
+    end
+
+    local function interrupts()
+      if useInterrupts() then
+        for i = 1, #enemies.yards45 do
+          local thisUnit = enemies.yards45[i]
+          if canInterrupt(thisUnit, getValue("InterruptAt")) then
+            -- Solar Beam
+            if isChecked("Solar Beam") then
+              if cast.solarBeam(thisUnit) then
+                return
+              end
+            end
+            -- Typhoon
+            if isChecked("Typhoon") and talent.typhoon and getDistance(thisUnit) <= 15 then
+              if cast.typhoon() then
+                return
+              end
+            end
+            -- Mighty Bash
+            if isChecked("Mighty Bash") and talent.mightyBash and getDistance(thisUnit) <= 10 then
+              if cast.mightyBash(thisUnit) then
+                return true
+              end
+            end
+          end
+        end
+      end
+
+      if isChecked("Auto Soothe") then
+        for i = 1, #enemies.yards45 do
+          local thisUnit = enemies.yards45[i]
+          if canDispel(thisUnit, spell.soothe) then
+            if cast.soothe(thisUnit) then
+              return true
+            end
+          end
+        end
+      end
+    end
+
+    local function PreCombat()
+      -- Pre-Pull Timer
+      if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
+        if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+          if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+            if cast.moonkinForm() then
+              return true
+            end
+          end
+          if cast.solarWrath() then
+            return true
+          end
+        end
+      end
+      if isChecked("Auto Engage On Target") then
+        if cast.sunfire() then
+          return true
+        end
+      end
+      if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
+        bossHelper()
+      end
+    end
+    local function extras()
+      --Resurrection
+      if isChecked("Revive target") and not inCombat and not isMoving("player") then
+        if UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+          if cast.revive("target", "dead") then
+            return true
+          end
+        end
+      end
+      -- Wild Growth
+      if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
+        if cast.wildGrowth() then
+          return true
+        end
+      end
+      -- Regrowth
+      if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
+        if cast.regrowth("player") then
+          return true
+        end
+      end
+      -- Shapeshift Form Management
+      local standingTime = 0
+      if DontMoveStartTime then
+        standingTime = GetTime() - DontMoveStartTime
+      end
+
+      if isChecked("Auto Shapeshifts") then
+        if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 1 then
+          if cast.moonkinForm("player") then
+            return true
+          end
+        end
+
+        -- Flight Form
+        if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
+          if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+            -- CancelShapeshiftForm()
+            RunMacroText("/CancelForm")
+            CastSpellByID(783, "player")
+            return true
+          else
+            CastSpellByID(783, "player")
+            return true
+          end
+        end
+        -- Aquatic Form
+        if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
+          if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+            -- CancelShapeshiftForm()
+            RunMacroText("/CancelForm")
+            CastSpellByID(783, "player")
+            return true
+          else
+            CastSpellByID(783, "player")
+            return true
+          end
+        end
+        -- Travel Form
+        if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
+          if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+            RunMacroText("/CancelForm")
+            CastSpellByID(783, "player")
+            return true
+          else
+            CastSpellByID(783, "player")
+            return true
+          end
+        end
+        -- Cat Form
+        if not cat and not IsMounted() and not flying and IsIndoors() then
+          -- Cat Form when not swimming or flying or stag and not in combat
+          if moving and IsMovingTime(3) and not swimming and not flying and not travel then
+            if cast.catForm("player") then
+              return true
+            end
+          end
+          -- Cat Form - Less Fall Damage
+          if (not canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
+            --falling > getOptionValue("Fall Timer") then
+            if cast.catForm("player") then
+              return true
+            end
+          end
+        end
+      end -- End Shapeshift Form Management
+    end
+
+    -----------------
+    --- Rotations ---
+    -----------------
+    -- Pause
+    if (not IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
+      if pause() or drinking then
+        return true
+      else
+
+        ---------------------------------
+        --- Out Of Combat - Rotations ---
+        ---------------------------------
+        if not inCombat and not UnitBuffID("player", 115834) then
+          if extras() then
+            return true
+          end
+          if useDefensive() then
+            if defensive() then
+              return true
+            end
+          end
+          if PreCombat() then
+            return true
+          end
+        end
+      end -- End Out of Combat Rotation
+      -----------------------------
+      --- In Combat - Rotations ---
+      -----------------------------
+      if inCombat and not UnitBuffID("player", 115834) then
+        if useInterrupts() then
+          if interrupts() then
+            return true
+          end
+        end
+        if useDefensive() then
+          if defensive() then
+            return true
+          end
+        end
+        if mode.rotation ~= 4 then
+          if dps() then
+            return true
+          end
+        end
+      end -- End In Combat Rotation
+    end -- Pause
+  end -- End runRotation
+
+  local id = 102
+  if br.rotations[id] == nil then
+    br.rotations[id] = {}
+  end
+
+  tinsert(br.rotations[id], {
+    name = rotationName,
+    toggles = createToggles,
+    options = createOptions,
+    run = runRotation,
+  })

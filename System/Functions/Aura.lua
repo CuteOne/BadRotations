@@ -72,7 +72,7 @@ end
 local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 	if not buff then
 		if buffSpellID == 288388 then
-			if stacks >= getOptionValue("Reaping") then
+			if stacks >= getOptionValue("Reaping") or not UnitAffectingCombat("player") then
 				return true
 			else 
 				return false

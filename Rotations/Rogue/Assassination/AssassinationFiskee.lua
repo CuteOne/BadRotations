@@ -56,6 +56,11 @@ local function createToggles() -- Define custom toggles
         [2] = { mode = "Off", value = 2 , overlay = "Garrote Off", tip = "Will not use Garrote outside stealth.", highlight = 0, icon = br.player.spell.garrote }
     };
     CreateButton("Garrote",7,0)
+    FocusModes = {
+        [1] = { mode = "Norm", value = 1 , overlay = "Normal", tip = "Will use normal aoe rotation", highlight = 1, icon = br.player.spell.rupture },
+        [2] = { mode = "Foc", value = 2 , overlay = "Focus", tip = "Will focus damage on target over spreading rupture.", highlight = 1, icon = 273488 }
+    };
+    CreateButton("Focus",8,0)
 end
 
 ---------------
@@ -166,6 +171,7 @@ local function runRotation()
     br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
     br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
     br.player.mode.garrote = br.data.settings[br.selectedSpec].toggles["Garrote"]
+    br.player.mode.focus = br.data.settings[br.selectedSpec].toggles["Focus"]
 --------------
 --- Locals ---
 --------------
@@ -842,7 +848,7 @@ local function runRotation()
     local function actionList_Dot()
         -- # Special Rupture setup for Exsg
         -- actions.dot=rupture,if=talent.exsanguinate.enabled&((combo_points>=cp_max_spend&cooldown.exsanguinate.remains<1)|(!ticking&(time>10|combo_points>=2)))
-        if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and ((combo>=comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
+        if mode.exsang == 1 and enemies10 < 3 and talent.exsanguinate and ((combo >= comboMax and cd.exsanguinate.remain() < 1) or (not debuff.rupture.exists("target") and (combatTime > 10 or combo >= 2))) and ttd("target") > 10 then
             if cast.rupture("target") then return true end
         end
         -- actions.dot+=/pool_resource,for_next=1
@@ -877,7 +883,7 @@ local function runRotation()
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
         -- actions.dot+=/rupture,cycle_targets=1,if=combo_points>=4&refreshable&(pmultiplier<=1|remains<=tick_time&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&(!exsanguinated|remains<=tick_time*2&spell_targets.fan_of_knives>=3+azerite.shrouded_suffocation.enabled)&target.time_to_die-remains>4
-        if combo >= 4 and getSpellCD(spell.rupture) == 0 then
+        if combo >= 4 and getSpellCD(spell.rupture) == 0 and (mode.focus == 1 or energyDeficit > (25 + energyRegenCombined)) then
             for i = 1, #enemyTable5 do
                 local thisUnit = enemyTable5[i].unit
                 local ruptureRemain = debuff.rupture.remain(thisUnit)

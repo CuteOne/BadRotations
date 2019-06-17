@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
+            -- Multi-DoT Limit
+            br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -916,7 +918,9 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
-    if (cast.pool.rake() or cast.able.rake()) then --and #enemies.yards5 < 4 then
+    if (cast.pool.rake() or cast.able.rake()) and (debuff.rake.count() < getOptionValue("Multi-DoT Limit")
+        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active)) 
+    then
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
@@ -937,7 +941,10 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-    if cast.able.moonfireFeral() and talent.lunarInspiration and canDoT(units.dyn40) then --and #enemies.yards8 < 5 then
+    if cast.able.moonfireFeral() and talent.lunarInspiration 
+        and canDoT(units.dyn40) and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit") 
+        and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
+    then
         if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
             if cast.moonfireFeral() then return true end
         end
@@ -953,7 +960,10 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral() and talent.lunarInspiration then --and #enemies.yards8 < 5 then
+    if cast.able.moonfireFeral() and talent.lunarInspiration 
+        and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit")
+        and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
+    then
         for i = 1, #enemies.yards40 do
             local thisUnit = enemies.yards40[i]
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot)) then
@@ -971,7 +981,8 @@ actionList.Generator = function()
         and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3
     then
         if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
-            or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            or ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)
+            or (#enemies.yards8 > 0 and traits.wildFleshrending.active))
             or (useThrash == 1 and buff.clearcasting.exists()
                 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
         then
@@ -995,6 +1006,7 @@ actionList.Generator = function()
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
     if cast.able.shred()
+        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or level < 32)
         and ((debuff.rake.exists(units.dyn5)
             and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)))
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() or level < 12)
@@ -1249,7 +1261,7 @@ local function runRotation()
         then
             if cast.catForm("player") then return true end
         elseif inCombat and cat and profileStop==false
-            and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete
+            and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete and cd.global.remain() == 0
         then
             -- Wild Charge
             -- wild_charge

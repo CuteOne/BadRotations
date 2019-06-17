@@ -137,6 +137,7 @@ function br.read.commonReaders()
 			Rake_sDamage = {}
 			Thrash_sDamage = {}
 			petAttacking = false
+			br.lastCast.line_cd = {}
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)
@@ -299,6 +300,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
 	superReaderFrame:RegisterEvent("ENCOUNTER_END")
 	superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
@@ -309,6 +311,10 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(self, event, ...)
+		-- Warlock Soul Shards
+		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
+			shards = WarlockPowerBar_UnitPower("player")
+		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end

@@ -1183,6 +1183,7 @@ local function runRotation()
             if not inCombat and not IsMounted() then
                 if actionList_Extras() then return true end
                 if actionList_PreCombat() then return true end
+                if actionList_Dispels() then return true end
                 if actionList_OOCHealing() then return true end
                 if GetUnitExists("target") and isValidUnit("target") and getDistance("target","player") < 40 and isChecked("Pull Spell") then
                     if cast.shadowWordPain() then return true end

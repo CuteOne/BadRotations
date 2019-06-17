@@ -985,6 +985,7 @@ local function runRotation()
 			---------------------------------
 			if not inCombat and not IsMounted() then
 				actionList_Extras()
+				actionList_Dispel()
 				if isChecked("OOC Healing") then
 					actionList_PreCombat()
 				end

@@ -345,12 +345,11 @@ local function runRotation()
                         if canDispel("target",spell.purge) and GetObjectExists("target") then
                             if cast.purge("target") then br.addonDebug("Casting Purge") return true end
                         end
-                        if getOptionValue("Purge") == 2 then
-                            for i = 1, #enemies.yards30 do
-                                local thisUnit = enemies.yards30[i]
-                                if canDispel(thisUnit,spell.purge) then
-                                    if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
-                                end
+                    elseif getOptionValue("Purge") == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if canDispel(thisUnit,spell.purge) then
+                                if cast.purge(thisUnit) then br.addonDebug("Casting Purge") return true end
                             end
                         end
                     end
