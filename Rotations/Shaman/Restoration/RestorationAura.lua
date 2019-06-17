@@ -533,6 +533,17 @@ local function runRotation()
                     if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
+            -- Healing Surge
+            if isChecked("Healing Surge") and movingCheck then
+                if lowest.hp <= 50 then
+                    if cast.healingSurge(lowest.unit) then br.addonDebug("Casting Healing Surge") return end     
+                end
+            end
+            if isChecked("Healing Wave") and movingCheck and not burst then
+                if lowest.hp <= 65 then
+                    if cast.healingWave(lowest.unit) then br.addonDebug("Casting Healing Wave") return end     
+                end
+            end
         end  -- End Action List - Pre-Combat
     -- Action List - DPS
         local function actionList_DPS()
@@ -605,7 +616,7 @@ local function runRotation()
                 if castWiseAoEHeal(br.friend,spell.earthenWallTotem,20,getValue("Earthen Wall Totem"),getValue("Earthen Wall Totem Targets"),6,false,true) then br.addonDebug("Casting Earthen Wall Totem") return end
             end
         -- Purify Spirit
-           if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+            if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
                 for i = 1, #friends.yards40 do
                     if canDispel(br.friend[i].unit,spell.purifySpirit) then
                         if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
@@ -1023,6 +1034,14 @@ local function runRotation()
                     actionList_Extras()
                     if isChecked("OOC Healing") then
                         actionList_PreCombat()
+                    end
+                    -- Purify Spirit
+                    if br.player.mode.decurse == 1 and cd.purifySpirit.remain() <= gcd then
+                        for i = 1, #friends.yards40 do
+                            if canDispel(br.friend[i].unit,spell.purifySpirit) then
+                                if cast.purifySpirit(br.friend[i].unit) then br.addonDebug("Casting Purify Spirit") return end
+                            end
+                        end
                     end
                 end
             end -- End Out of Combat Rotation
