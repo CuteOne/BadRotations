@@ -62,9 +62,9 @@ local function createOptions()
         -- Aditional Fireball Opener if no Crit
         --    br.ui:createCheckbox(section,"  No Crit-Opener", "Check if Pyroblast did not Crit.")
         -- AoE Meteor
-            br.ui:createSpinner(section, "Meteor Targets",  5,  5,  10,  1, "Max AoE Units to use Meteor on.")
+            br.ui:createSpinner(section, "Meteor Targets",  6,  6,  10,  1, "Max AoE Units to use Meteor on.")
         -- FlameStrike Targets
-            br.ui:createSpinnerWithout(section, "Flamestrike Targets",  3,  1,  10,  1, "Unit Count Limit before casting Flamestrike.")
+            br.ui:createSpinnerWithout(section, "Flamestrike Targets",  4,  4,  10,  1, "Unit Count Limit before casting Flamestrike.")
         -- Artifact 
         --    br.ui:createDropdownWithout(section,"Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         br.ui:checkSectionState(section)
@@ -229,13 +229,16 @@ local function runRotation()
         --if #enemies.yards40 == 1 then singleEnemy = 1 else singleEnemy = 0 end
         
         --local activeEnemies = #enemies.yards40
+        
 
-
-        local fSEnemies = getEnemies(units.dyn40, 8, true)
+        --local fSEnemies = getEnemies(units.dyn40, 8, true)
+        local fSEnemies = #enemies.yards8t
         local dBEnemies = getEnemies(units.dyn12, 6, true)
 
         local firestarterActive = talent.firestarter and thp > 90
         local firestarterInactive = thp < 90 or isDummy()
+
+        local nofS = fSEnemies < getOptionValue("Flamestrike Targets")
 
         --local function lastMeteor()
         --    return GetTime() - mFLight 
@@ -463,27 +466,13 @@ local function runRotation()
             -- meteor,if=buff.rune_of_power.up&(firestarter.remains>cooldown.meteor.duration|!firestarter.active)|cooldown.rune_of_power.remains>target.time_to_die&action.rune_of_power.charges<1|(cooldown.meteor.duration<cooldown.combustion.remains|cooldown.combustion.ready)&!talent.rune_of_power.enabled&(cooldown.meteor.duration<firestarter.remains|!talent.firestarter.enabled|!firestarter.active)
             if useCDs() and not firestarterActive and not tmoving then
                 if buff.runeOfPower.exists() and (firestarterremain > cdMeteorDuration or not firestarterActive) or cd.runeOfPower.remain() > ttd("target") and charges.runeOfPower.count() < 1 or (cd.combustion.remain() > cdMeteorDuration or cd.combustion.remain() == 0) and not talent.runeOfPower and (firestarterremain > cdMeteorDuration or not firestarterActive) then
-                    if cast.meteor("target",nil,1,8) then
+                    if cast.meteor("target",nil,1,8,spell.meteor) then
+                    --if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) then
                         --Print("Talents Meteor")
                         --mFlight = GetTime()
                         return true end
                 end
             end
-        -- Cinderstorm
-            -- cinderstorm,if=cooldown.combustion.remains<cast_time&(buff.rune_of_power.up|!talent.rune_on_power.enabled)|cooldown.combustion.remains>10*spell_haste&!buff.combustion.up
-            --if cd.combustion.remain() < getCastTime(spell.cinderstorm) and (buff.runeOfPower.exists() or not talent.runeOfPower) or cd.combustion.remain() > 10 * hasteAmount and not buff.combustion.exists() then
-            --    if cast.cinderstorm() then return end
-            --end
-        -- Dragon's Breath
-            -- dragons_breath,if=equipped.132863
-            --(getFacing("player",units.dyn12,10) and hasEquiped(132863) and getDistance(units.dyn12) < 12)
-            --(getFacing("player",units.dyn37,10) and talent.alexstraszasFury and not buff.hotStreak.exists() and getDistance(units.dyn37) < 37)
-            --if (getFacing("player",units.dyn25,10) and talent.alexstraszasFury and hasEquiped(132863) and getDistance(units.dyn25) < 25) and getEnemiesInCone(25,10) > 2 then
-            --    if cast.dragonsBreath(units.dyn25) then return end
-            --if (getFacing("player",units.dyn10,10) and talent.alexstraszasFury and getDistance(units.dyn10) < 10) then
-                --or (getFacing("player",units.dyn25,10) and hasEquiped(132863) and getDistance(units.dyn25) < 25) then
-            --    if cast.dragonsBreath("player","cone",1,10) then return end --Print("db1") return end
-            --end
         -- Living Bomb
             -- living_bomb,if=active_enemies>1&buff.combustion.down&(cooldown.combustion.remains>cooldown.living_bomb.duration|cooldown.combustion.ready)
            --  if ((#enemies.yards10t >= 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists() then
@@ -651,9 +640,11 @@ local function runRotation()
         -- Call Action List - Cooldowns
             if actionList_Cooldowns() then return end
         -- Flamestrike
-            -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
-            if ((talent.flamePatch and #fSEnemies >= 2 and firestarterInactive) or (#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                if cast.flamestrike("best",nil,1,8) then return end
+            -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>2)|active_enemies>6)&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
+            if ((talent.flamePatch and fSEnemies > 2) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                if cast.flamestrike("best",nil,1,8) then
+                    Print("BfA Co fStrike")
+                    return end
             --[[elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
                 if cast.flamestrike("best",nil,1,8) then return end--]]
             end
@@ -747,8 +738,10 @@ local function runRotation()
             end
         -- Flamestrike
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1)|active_enemies>4)&buff.hot_streak.react
-            if ((talent.flamePatch and #fSEnemies > 1) or (#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                if cast.flamestrike("best",nil,1,8) then return end
+            if ((talent.flamePatch and fSEnemies > 1) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                if cast.flamestrike("best",nil,1,8) then
+                    Print("BfA RoP fStrike 1")
+                    return end
             end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.react
@@ -800,7 +793,7 @@ local function runRotation()
             end
         -- Pyroblast
             -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&talent.searing_touch.enabled&target.health.pct<=30&(!talent.flame_patch.enabled|active_enemies=1)
-            if cast.last.scorch() and buff.heatingUp.exists() and talent.searingTouch and thp <= 30 and (not talent.flamePatch and #fSEnemies == 1) then
+            if cast.last.scorch() and buff.heatingUp.exists() and talent.searingTouch and thp <= 30 and (not talent.flamePatch and fSEnemies == 1) then
                 if cast.pyroblast() then 
                     --Print("BfA RoP Pyro3") 
                     return true 
@@ -830,31 +823,20 @@ local function runRotation()
             end
         -- Flamestrike
             -- flamestrike,if=(talent.flame_patch.enabled&active_enemies>2)|active_enemies>5 - #enemies.yards8t - #fSEnemies
-            if ((talent.flamePatch and #fSEnemies > 2) or (#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) then
-                if cast.flamestrike("best",nil,1,8) then return end
+            if ((talent.flamePatch and fSEnemies > 2) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                if cast.flamestrike("best",nil,1,8) then
+                    Print("BfA RoP fStrike 2")
+                    return end
             end
         -- Fireball
             -- fireball
             if cast.fireball() then 
-                --Print("BfA RoP FB") 
+                --Print("BfA RoP FB")
                 return 
             end
         end -- End ROP Phase Action List
     -- Action List - BfA Standard Rotation
         local function actionList_Standard_BfA()
-        -- Flamestrike
-            -- flamestrike,if=talent.flame_patch.enabled&active_enemies>2&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
-            if ((talent.flamePatch and #fSEnemies > 1 and firestarterInactive) or (#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
-                if cast.flamestrike("best",nil,1,8) then return end
-            --[[elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
-                if cast.flamestrike("best",nil,1,8) then return end--]]
-            end
-        -- AoE Meteor
-            if isChecked("Meteor Targets") and ((#enemies.yards10t >= getOptionValue("Meteor Targets") and mode.rotation == 1) or mode.rotation == 2) then --and cd.combustion.remain() > cdMeteorDuration and buff.heatingUp.exists() then
-                if createCastFunction("best", false, getOptionValue("Meteor Targets"), 8, spell.meteor, nil, false, 0) then
-                    --Print("AoE Meteor")
-                    return end
-            end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up&buff.hot_streak.remains<action.fireball.execute_time
             if buff.hotStreak.exists() and buff.hotStreak.remain() < cast.time.fireball() then
@@ -862,6 +844,23 @@ local function runRotation()
                     --Print("BfA ST Pyro1") 
                     return --true 
                 end
+            end
+        -- AoE Meteor
+            if isChecked("Meteor Targets") and ((#enemies.yards8t > getOptionValue("Meteor Targets") and mode.rotation == 1) or mode.rotation == 2) and not tmoving then --and cd.combustion.remain() > cdMeteorDuration and buff.heatingUp.exists() then
+                if createCastFunction("best", false, getOptionValue("Meteor Targets"), 8, spell.meteor, nil, false, 0) then
+                    --Print("AoE Meteor")
+                    return end
+            end
+        -- Flamestrike
+            -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1&!firestarter.active)|active_enemies>4)&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
+            --if ((talent.flamePatch and fSEnemies > 1 and not firestarterActive) or fSEnemies >= getOptionValue("Flamestrike Targets")) and buff.hotStreak.exists() then
+            if ((talent.flamePatch and fSEnemies > 1 and firestarterInactive) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+                if cast.flamestrike("best",nil,1,8,spell.flamestrike) then
+                --if createCastFunction("target", false, getOptionValue("Flamestrike Targets"), 8, spell.flamestrike, nil, false, 0) then
+                    --Print("BfA ST fStrike")
+                    return end
+            --[[elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
+                if cast.flamestrike("best",nil,1,8) then return end--]]
             end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
@@ -911,7 +910,7 @@ local function runRotation()
             end
         -- PyroBlast
             --pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&talent.searing_touch.enabled&target.health.pct<=30&((talent.flame_patch.enabled&active_enemies=1&!firestarter.active)|(active_enemies<4&!talent.flame_patch.enabled))
-            if (talent.searingTouch and thp <= 30) and (cast.last.scorch() and buff.hotStreak.exists()) and ((talent.flamePatch and #fSEnemies == 1 and not firestarterActive) or (#fSEnemies < 4 and not talent.flamePatch)) then
+            if (talent.searingTouch and thp <= 30) and (cast.last.scorch() and buff.hotStreak.exists()) and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
                 if cast.pyroblast() then 
                     --Print("BfA ST Pyro5") 
                     return 
