@@ -307,6 +307,18 @@ local function runRotation()
         summonTime = 0
     end
 
+    --- Get whether the unit is a boss.
+    local function isBoss_local (thisUnit)
+        if thisUnit == nil then thisUnit = "target" end
+        if isValidUnit(thisUnit) then
+            -- Check if the target is boss1 - boss5
+            if isTargetUnitEqualBossFrameUnit_local(thisUnit) then return true end
+            -- check classic isBoss()
+            if isBoss(thisUnit) then return true end
+        end
+        return false
+    end
+
     function CDOptionEnabled (OptionName)
         local OptionValue = getOptionValue(OptionName)
         -- Always				Will use the ability even if CDs are disabled.
@@ -1338,9 +1350,12 @@ local function runRotation()
         if spellID == nil then
             spellID = 0
         end
-        if spellID == spell.demonbolt and combatTime > 4 then
+        if shards >= 5 and spellID == spell.shadowBolt then
             SpellStopCasting()
-            return
+            return true
+        elseif spellID == spell.demonbolt and combatTime > 4 then
+            SpellStopCasting()
+            return true
         end
     end
 
@@ -1614,9 +1629,9 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         if inCombat and profileStop == false and isValidUnit("target") and getDistance("target") < 40 and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
-            -- if actionList_CancelCast() then
-            --     return
-            -- end
+            if actionList_CancelCast() then
+                return true
+            end
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
