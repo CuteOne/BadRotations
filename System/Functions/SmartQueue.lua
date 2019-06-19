@@ -19,7 +19,7 @@ local function checkKeys(self, key)
 		local spell = br.player.spell.bindings[pressedKey]
 		if spell ~= nil then
 			local cd = getSpellCD(spell)
-			if IsSpellKnown(spell) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
+			if GetSpellInfo(GetSpellInfo(spell)) and cd <= getOptionValue("Smart Queue") and isChecked(GetSpellInfo(spell) .. " (Queue)") and (cd > 0 or IsUsableSpell(spell) == false or UnitCastingInfo("player")) then
 				br.queueSpell = spell
 				queueSpellTime = GetTime()
 				if getOptionValue(GetSpellInfo(br.queueSpell) .. " (Queue)") == 2 then
