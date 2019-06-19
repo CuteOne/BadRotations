@@ -2977,6 +2977,7 @@ br.lists.spells = {
                 demonwrath                  = 193440,
                 doom                        = 603,
                 drainLife                   = 234153,
+                felFirebolt                 = 104318,
                 felstorm                    = 89751,
                 grimoireFelguard            = 111898,
                 handOfGuldan                = 105174,

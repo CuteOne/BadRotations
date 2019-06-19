@@ -39,7 +39,6 @@ local function createToggles () -- Define custom toggles
 end
 
 
-
 -- Colors
 local cPurple   = "|cffC942FD"
 local cBlue     = "|cff00CCFF"
@@ -228,7 +227,6 @@ local function runRotation()
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
-    local lastCast                                          = br.lastCast.tracker
     local lastSpell = lastSpellCast
     local level = br.player.level
     local lootDelay = getOptionValue("LootDelay")
@@ -241,10 +239,10 @@ local function runRotation()
     local pullTimer = PullTimerRemain()
     local race = br.player.race
     local shards											= shards or UnitPower("player", Enum.PowerType.SoulShards)
-    local spell_haste 										= 1 / (1 + (GetHaste()/100))
     local summonPet = getOptionValue("Summon Pet")
     local solo = br.player.instance == "none"
     local spell = br.player.spell
+    local spell_haste 										= 1 / (1 + (GetHaste()/100))
     local talent = br.player.talent
     local thp = getHP("target")
     local trait = br.player.traits
@@ -252,6 +250,36 @@ local function runRotation()
     local ttd                                           	= getTTD
     local units = br.player.units
     local use = br.player.use
+
+    local demonTable                  = demonTable or {}
+    demonTable.demonicBag       = demonTable.demonicBag or {}
+    demonTable.imps             = demonTable.imps or {}
+    demonTable.impsEnergy       = demonTable.impsEnergy or {}
+    local demonicBag                  = demonTable.demonicBag
+    local Imps                        = demonTable.imps
+    local ImpEnergy                   = demonTable.impsEnergy
+
+    local baselineDemons = {
+        --[demon] = duration (0 to blacklist)
+        [688] = 0,     --Imp
+        [697] = 0,     --Voidwalker
+        [691] = 0,     --Felhunter
+        [712] = 0,     --Succubus
+        [30146] = 0,   --Felguard
+        [112866] = 0,  --Fel Imp
+        [112867] = 0,  --Voidlord
+        [112869] = 0,  --Observer
+        [112868] = 0,  --Shivarra
+        [112870] = 0,  --Wrathguard
+        [240263] = 0,  --Fel Succubus
+        [240266] = 0,  --Shadow Succubus
+        [104317] = 0,  --Wild Imps, counted by other means
+        [111898] = 15, --Grimoire: Felguard
+        [193331] = 12, --Dreadstalker 1
+        [193332] = 12, --Dreadstalker 2
+        [265187] = 15, --Demonic Tyrant
+        [264119] = 15  --Vilefiend
+    }
 
     units.get(40)
     enemies.get(8, "target")
@@ -278,7 +306,7 @@ local function runRotation()
         summonTime = 0
     end
 
-    function CDOptionEnabled (OptionName)
+    local function CDOptionEnabled (OptionName)
         local OptionValue = getOptionValue(OptionName)
         -- Always				Will use the ability even if CDs are disabled.
         -- Always Boss			Will use the ability even if CDs are disabled as long as the current target is a Boss.
@@ -559,61 +587,295 @@ local function runRotation()
     end
 
     --Pet locals
-    wildImps = 0
-    local tyrantActive = false
-    local dreadstalkersRemain = 0
-    local foundDreakstalker = false
-    local felguardActive = false
-    local foundGrimoire = false
-    local grimoireRemain = 0
+    -- wildImps = 0
+    -- -- local TyrantActive = false
+    -- -- local dreadstalkersRemain = 0
+    -- -- local foundDreakstalker = false
+    -- local felguardActive = activePetId == 17252 or false
+    -- -- local foundGrimoire = false
+    -- -- local grimoireRemain = 0
 
-    if pet ~= nil then
-        for k, v in pairs(pet) do
-            local thisUnit = pet[k] or 0
-            if thisUnit.id == 135002 and not tyrantActive and not UnitIsDeadOrGhost(thisUnit.unit) then
-                tyrantActive = true
-            elseif thisUnit.id == 55659 and not UnitIsDeadOrGhost(thisUnit.unit) then
-                wildImps = wildImps + 1
-            elseif thisUnit.id == 98035 and not UnitIsDeadOrGhost(thisUnit.unit) then
-                if not dreadstalkersActive then
-                    dreadstalkersTime = GetTime()
-                end
-                foundDreakstalker = true
-                dreadstalkersActive = true
-            elseif thisUnit.id == 17252 and not UnitIsDeadOrGhost(thisUnit.unit) then
-                local grimoire = getBuffRemain(thisUnit.unit, 216187)
-                if grimoire == 0 then
-                    felguardActive = true
-                end
-                if grimoire ~= 0 then
-                    if not grimoireActive then
-                        grimoireTime = GetTime()
+    -- if pet ~= nil then
+    --     for k, v in pairs(pet) do
+    --         local thisUnit = pet[k] or 0
+    --         if thisUnit.id == 135002 and not TyrantActive and not UnitIsDeadOrGhost(thisUnit.unit) then
+    --             TyrantActive = true
+    --         elseif thisUnit.id == 55659 and not UnitIsDeadOrGhost(thisUnit.unit) then
+    --             wildImps = wildImps + 1
+    --         elseif thisUnit.id == 98035 and not UnitIsDeadOrGhost(thisUnit.unit) then
+    --             if not dreadstalkersActive then
+    --                 dreadstalkersTime = GetTime()
+    --             end
+    --             foundDreakstalker = true
+    --             dreadstalkersActive = true
+    --         elseif thisUnit.id == 17252 and not UnitIsDeadOrGhost(thisUnit.unit) then
+    --             local grimoire = getBuffRemain(thisUnit.unit, 216187)
+    --             if grimoire == 0 then
+    --                 felguardActive = true
+    --             end
+    --             if grimoire ~= 0 then
+    --                 if not grimoireActive then
+    --                     grimoireTime = GetTime()
+    --                 end
+    --                 grimoireActive = true
+    --                 foundGrimoire = true
+    --             end
+    --         end
+    --     end
+    -- end
+    -- if not foundDreakstalker then
+    --     dreadstalkersActive = false
+    -- end
+    -- if dreadstalkersActive then
+    --     dreadstalkersRemain = dreadstalkersTime - GetTime() + 12
+    -- end
+    -- if not foundGrimoire then
+    --     grimoireActive = false
+    -- end
+    -- if grimoireActive then
+    --     grimoireRemain = grimoireTime - GetTime() + 12
+    -- end
+
+
+
+    -- variables for demon manager
+    local felguardActive = activePetId == 17252 or false
+    local ImpMaxCasts = 5
+    local ImpMaxTime = 20
+    local ImpsIncoming = inCombat and ImpsIncoming >= 0 and ImpsIncoming or 0
+    local TyrantDuration = 15
+    local TyrantStart = TyrantStart or 0
+    local TyrantActive = TyrantActive or false
+    local TyrantBuffPerEnergy = 10
+    local TyrantBuffPercent = TyrantBuffPercent or 0
+    local denonCount = demonCount or 0
+    local CountOnlyImps = true
+    
+    local ImpsCasting = ImpsCasting or 0
+    -- if 105174 == select(9, UnitCastingInfo("player")) then
+    --     ImpsCasting = shards >= 3 and 3 or shards
+    -- end
+    
+    
+    --ImpsCasting = (105174 == select(9, UnitCastingInfo("player")) and (shards >= 3 and 3 or shards)
+
+    local cl = br.read
+    function cl:Warlock(...)
+        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+
+        if source == br.guid and param == "SPELL_CAST_START" and spell == 105174 then
+            shards = WarlockPowerBar_UnitPower("player")
+            ImpsCasting = shards >= 3 and 3 or shards
+        end
+        if source == br.guid and param == "SPELL_CAST_FAILED" and spell == 105174 then
+            ImpsCasting = 0
+        end
+
+        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+            -- Hand of Guldan
+            if spell == 105174 then
+                ImpsIncoming = ImpsIncoming + ImpsCasting
+                if not br.lastCast.hog then br.lastCast.hog = {} end
+                -- if br.lastCast then
+                --     tinsert(br.lastCast.hog, 1, GetTime())
+                --     if #br.lastCast.hog == 5 then
+                --         br.lastCast.hog[5] = nil
+                --     end
+                -- end
+                if br.lastCast.hog then
+                    if ImpsCasting == 1 then
+                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                    elseif ImpsCasting == 2 then
+                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                        tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                    elseif ImpsCasting == 3 then
+                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                        tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                        tinsert(br.lastCast.hog, 1, GetTime()+2.0*spell_haste)
                     end
-                    grimoireActive = true
-                    foundGrimoire = true
                 end
+            end
+            -- Line CD
+            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
+            br.lastCast.line_cd[spell] = GetTime()
+        end
+
+        -- DEMON MANAGER
+        -- Imps are summoned
+        if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
+            if br.lastCast.hog[1] then tremove(br.lastCast.hog, #br.lastCast.hog) end
+            local tyrantExtra = TyrantActive and TyrantDuration - (GetTime() - TyrantStart) or 0
+            ImpEnergy[destination] = {ImpMaxCasts, GetTime() + ImpMaxTime + tyrantExtra - 0.1}
+            C_Timer.After(ImpMaxTime + tyrantExtra, function()
+                for k in pairs(ImpEnergy) do
+                    if GetTime() > ImpEnergy[k][2] then
+                        ImpEnergy[k] = nil
+                    end
+                end
+            end)
+            -- time to imp
+            ImpsIncoming = ImpsIncoming - 1
+        end
+        -- Other Demons are summoned
+        if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
+            if baselineDemons[spell] and baselineDemons[spell] > 0 then
+                demonicBag[destination] = GetTime() + baselineDemons[spell] - 0.1
+                C_Timer.After(baselineDemons[spell], function()
+                    for k, v in pairs(demonicBag) do
+                        if GetTime() > v then
+                            demonicBag[k] = nil
+                        end
+                    end
+                end)
+                
+            elseif not baselineDemons[spell] then
+                demonicBag[destination] = GetTime() + randomDemonsDuration - 0.1
+                C_Timer.After(randomDemonsDuration, function()
+                    for k, v in pairs(demonicBag) do
+                        if GetTime() > v then
+                            demonicBag[k] = nil
+                        end
+                    end
+                end)
+            end
+        end
+        -- Dreadstalkers active
+        if param == "SPELL_SUMMON" and source == br.guid and (spell == 193331 or spell == 193332) then
+            dreadstalkersActive = true
+            C_Timer.After(12, function() dreadstalkersActive = false end)
+        end
+        -- Imps succesfully consume energy
+        if param == "SPELL_CAST_SUCCESS" and ImpEnergy[source] and not TyrantActive then
+            if ImpEnergy[source][1] == 1 then
+                ImpEnergy[source] = nil
+            else
+                ImpEnergy[source][1] = ImpEnergy[source][1] - 1
+            end
+        end
+        --Summon Demonic Tyrant
+        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 265187 then
+            print("Tyrant Power: " .. TyrantBuffPercent)
+            local remains
+            
+            TyrantActive = true
+            TyrantStart = GetTime()
+            
+            if IsPlayerSpell(267215) then
+                table.wipe(ImpEnergy)
+            end
+            C_Timer.After(TyrantDuration, function()
+                TyrantActive = false 
+                for k in pairs(ImpEnergy) do
+                    if GetTime() > ImpEnergy[k][2] then
+                        ImpEnergy[k] = nil
+                    end
+                end 
+                for k, v in pairs(demonicBag) do
+                    if GetTime() > v then
+                        demonicBag[k] = nil
+                    end
+                end
+            end)
+            for k in pairs(ImpEnergy) do
+                remains = ImpEnergy[k][2] - GetTime()
+                ImpEnergy[k][2] = ImpEnergy[k][2] + TyrantDuration - 0.1
+                C_Timer.After(TyrantDuration + remains, function()
+                    for k in pairs(ImpEnergy) do
+                        if GetTime() > ImpEnergy[k][2] then
+                            ImpEnergy[k] = nil
+                        end
+                    end      
+                end)
+            end
+            for k in pairs(demonicBag) do
+                remains = demonicBag[k] - GetTime()
+                demonicBag[k] = demonicBag[k] - 0.1
+                C_Timer.After(TyrantDuration + remains, function()
+                    for k, v in pairs(demonicBag) do
+                        if GetTime() > v then
+                            demonicBag[k] = nil
+                        end
+                    end
+                end)
+            end
+        end
+        -- Implosion
+        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 196277 then
+            table.wipe(ImpEnergy)
+            --e.UpdateBuff()
+        end
+        -- Power Siphon
+        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 264130 then
+            local oldest, oldestTime = "", 2*GetTime()
+            
+            for i = 1, 2 do
+                for name, imp in pairs(ImpEnergy) do
+                    oldestTime = math.min(imp[2], oldestTime)
+                    if imp[2] == oldestTime then
+                        oldest = name
+                    end
+                end
+                
+                oldestTime = oldestTime*2
+                ImpEnergy[oldest] = nil
+            end
+        end
+        -- Death
+        if param == "UNIT_DIED" or param == "SPELL_INSTAKILL" or param == "UNIT_DESTROYED" then
+            if ImpEnergy[destination] then
+                ImpEnergy[destination] = nil
+                
+            elseif demonicBag[destination] then      
+                demonicBag[destination] = nil
+                
+            elseif destination == br.guid then
+                table.wipe(ImpEnergy)
+                table.wipe(demonicBag)
             end
         end
     end
-    if not foundDreakstalker then
-        dreadstalkersActive = false
-    end
-    if dreadstalkersActive then
-        dreadstalkersRemain = dreadstalkersTime - GetTime() + 12
-    end
-    if not foundGrimoire then
-        grimoireActive = false
-    end
-    if grimoireActive then
-        grimoireRemain = grimoireTime - GetTime() + 12
-    end
 
-    local function Imps_spawned_during (milliseconds)
+    --local function UpdateTyrantBuffPercent ()
+        TyrantBuffPercent = 0
+        if ImpEnergy then
+            for k, v in pairs(ImpEnergy) do
+                TyrantBuffPercent = TyrantBuffPercent + v[1]*TyrantBuffPerEnergy
+            end
+        end
+    --end
+    --local function UpdateDemonCount ()
+        demonCount = 0
+        for k, v in pairs(ImpEnergy) do
+            if k and v[1] > 0 then
+                demonCount = demonCount + 1
+            end
+        end
+        wildImps = demonCount
+        if not CountOnlyImps then
+            for k in pairs(demonicBag) do
+                demonCount = demonCount + 1
+            end
+        end
+    --end
+
+    -- clean up imps incoming hog table
+    -- for i=1, #br.lastCast.hog do
+    --     if br.lastCast.hog[i] < GetTime() then
+    --         br.lastCast.hog[i] = nil
+    --     end
+    -- end
+    
+
+
+
+
+    local function Imps_spawned_during (seconds)
         local imps = 0
         if br.lastCast.hog then
             for i=1, #br.lastCast.hog do
-                if (br.lastCast.hog[i] + milliseconds/1000) >= GetTime() then
-                    imps = imps + 3
+                if GetTime() + seconds >= br.lastCast.hog[i] then
+                --if br.lastCast.hog[i] <= GetTime() + seconds then
+                    imps = imps + 1
                 end
             end
             return imps            
@@ -621,17 +883,19 @@ local function runRotation()
         return 0
     end
 
-    function Line_cd (spellid, seconds)
+    local function time_to_imps ()
+        return br.lastCast.hog[1] or 999
+    end
+
+    local function Line_cd (spellid, seconds)
         if br.lastCast.line_cd then
             if br.lastCast.line_cd[spellid] then
-                if br.lastCast.line_cd[spellid] + seconds <= GetTime() then
-                    return true
+                if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+                    return false
                 end
-            else
-                return true
             end
         end
-        return false
+        return true
     end
 
     local function castBilescourgeBombers ()
@@ -679,15 +943,15 @@ local function runRotation()
         if isChecked("Shadowfury Hotkey (hold)") and shadowfuryKey and not GetCurrentKeyBoardFocus() then
             if getOptionValue("Shadowfury Target") == 1 then
                 if cast.shadowfury("best", false, 1, 8) then
-                    return
+                    return true
                 end
             elseif getOptionValue("Shadowfury Target") == 2 then
                 if cast.shadowfury("target", "ground") then
-                    return
+                    return true
                 end
             elseif getOptionValue("Shadowfury Target") == 3 and isKnown(spell.shadowfury) and getSpellCD(spell.shadowfury) == 0 then
                 CastSpellByName(GetSpellInfo(spell.shadowfury), "cursor")
-                return
+                return true
             end
         end
         --Burn Units
@@ -705,7 +969,7 @@ local function runRotation()
         end
         if isChecked("Auto Soulstone Player") and not inInstance and not inRaid and (not buff.soulstone.exists("player") or buff.soulstone.remain("player") < 100) and not inCombat and not moving then
             if cast.soulstone("player") then
-                return
+                return true
             end
         end
     end -- End Action List - Extras
@@ -753,31 +1017,31 @@ local function runRotation()
             -- Gift of the Naaru
             if isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 and br.player.race == "Draenei" then
                 if castSpell("player", racial, false, false, false) then
-                    return
+                    return true
                 end
             end
             -- Dark Pact
             if isChecked("Dark Pact") and talent.darkPact and php <= getOptionValue("Dark Pact") then
                 if cast.darkPact() then
-                    return
+                    return true
                 end
             end
             -- Drain Life
             if isChecked("Drain Life") and php <= getOptionValue("Drain Life") and isValidTarget("target") and not moving then
                 if cast.drainLife() then
-                    return
+                    return true
                 end
             end
             -- Health Funnel
             if isChecked("Health Funnel") and getHP("pet") <= getOptionValue("Health Funnel") and GetObjectExists("pet") == true and not UnitIsDeadOrGhost("pet") and not moving then
                 if cast.healthFunnel("pet") then
-                    return
+                    return true
                 end
             end
             -- Unending Resolve
             if isChecked("Unending Resolve") and php <= getOptionValue("Unending Resolve") and inCombat then
                 if cast.unendingResolve() then
-                    return
+                    return true
                 end
             end
         end -- End Defensive Toggle
@@ -790,7 +1054,7 @@ local function runRotation()
                     local thisUnit = enemyTable40[i].unit
                     if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
                         if cast.spellLockgrimoire(thisUnit) then
-                            return
+                            return true
                         end
                     end
                 end
@@ -800,7 +1064,7 @@ local function runRotation()
                     if canInterrupt(thisUnit, getOptionValue("Interrupt At")) then
                         if activePetId == 417 then
                             if cast.spellLock(thisUnit) then
-                                return
+                                return true
                             end
                         end
                     end
@@ -809,40 +1073,40 @@ local function runRotation()
         end -- End useInterrupts check
     end -- End Action List - Interrupts
     -- Action List - Cooldowns
-    local function actionList_Cooldowns()
-        if getDistance("target") < 40 then
-            -- actions=potion,if=pet.demonic_tyrant.active|target.time_to_die<30
-            -- if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (tyrantActive or ttd("target") < 30) then
-            --     use.battlePotionOfIntellect()
-            --     return true
-            -- end
-            -- actions+=/use_items,if=pet.demonic_tyrant.active|target.time_to_die<=15
-            if tyrantActive then
-				if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
-					if useItem(13) then return true end
-				end
-				if canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
-					if useItem(14) then return true end
-				end
-			end
-            -- actions+=/berserking,if=pet.demonic_tyrant.active|target.time_to_die<=15
-            -- actions+=/blood_fury,if=pet.demonic_tyrant.active|target.time_to_die<=15
-            -- actions+=/fireblood,if=pet.demonic_tyrant.active|target.time_to_die<=15
-            if isChecked("Racial") and not moving and tyrantActive then
-                if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
-                    if race == "LightforgedDraenei" then
-                        if cast.racial("target", "ground") then
-                            return true
-                        end
-                    else
-                        if cast.racial("player") then
-                            return true
-                        end
-                    end
-                end
-            end
-        end -- End useCDs check
-    end -- End Action List - Cooldowns
+    -- local function actionList_Cooldowns()
+    --     if getDistance("target") < 40 then
+    --         -- actions=potion,if=pet.demonic_tyrant.active|target.time_to_die<30
+    --         -- if isChecked("Potion") and use.able.battlePotionOfIntellect() and not buff.battlePotionOfIntellect.exists() and (TyrantActive or ttd("target") < 30) then
+    --         --     use.battlePotionOfIntellect()
+    --         --     return true
+    --         -- end
+    --         -- actions+=/use_items,if=pet.demonic_tyrant.active|target.time_to_die<=15
+    --         if TyrantActive then
+	-- 			if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
+	-- 				if useItem(13) then return true end
+	-- 			end
+	-- 			if canUseItem(14) and CDOptionEnabled("Trinket 2") and not hasEquiped(165572, 14) then
+	-- 				if useItem(14) then return true end
+	-- 			end
+	-- 		end
+    --         -- actions+=/berserking,if=pet.demonic_tyrant.active|target.time_to_die<=15
+    --         -- actions+=/blood_fury,if=pet.demonic_tyrant.active|target.time_to_die<=15
+    --         -- actions+=/fireblood,if=pet.demonic_tyrant.active|target.time_to_die<=15
+    --         if isChecked("Racial") and not moving and TyrantActive then
+    --             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
+    --                 if race == "LightforgedDraenei" then
+    --                     if cast.racial("target", "ground") then
+    --                         return true
+    --                     end
+    --                 else
+    --                     if cast.racial("player") then
+    --                         return true
+    --                     end
+    --                 end
+    --             end
+    --         end
+    --     end -- End useCDs check
+    -- end -- End Action List - Cooldowns
 
 
 
@@ -860,16 +1124,16 @@ local function runRotation()
     
     
     local function actionList_build_a_shard ()
-        if shards < 5 then
+        if WarlockPowerBar_UnitPower("player") < 5 then
             -- actions.build_a_shard=soul_strike,if=!talent.demonic_consumption.enabled|time>15|prev_gcd.1.hand_of_guldan&!buff.bloodlust.remains
-            if felguardActive and not talent.demonicConsumption or combatTime > 15 or lastCast[1] == spell.handOfGuldan and not hasBloodLust() then
+            if felguardActive and not talent.demonicConsumption or combatTime > 15 or cast.last.handOfGuldan(1) and not hasBloodLust() then
                 if cast.able.soulStrike() then
-                    if cast.soulStrike() then return end
+                    if cast.soulStrike() then return true end
                 end
             end
             -- actions.build_a_shard+=/shadow_bolt
             if cast.able.shadowBolt() then
-                if cast.shadowBolt() then return end
+                if cast.shadowBolt() then return true end
             end
         end
     end
@@ -878,160 +1142,164 @@ local function runRotation()
         -- actions.dcon_opener=hand_of_guldan,line_cd=30,if=azerite.explosive_potential.enabled
         if Line_cd(spell.handOfGuldan, 30) and trait.explosivePotential.active then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- actions.dcon_opener+=/implosion,if=azerite.explosive_potential.enabled&buff.wild_imps.stack>2&buff.explosive_potential.down
         if trait.explosivePotential.active and wildImps > 2 and not buff.explosivePotential.exists() then
             if cast.able.implosion() then
-                if cast.implosion() then return end
+                if cast.implosion() then return true end
             end
         end
         -- actions.dcon_opener+=/doom,line_cd=30
         if Line_cd(spell.doom, 30) then
             if cast.able.doom() then
-                if cast.doom() then return end
+                if cast.doom() then return true end
             end
         end
         -- actions.dcon_opener+=/hand_of_guldan,if=prev_gcd.1.hand_of_guldan&soul_shard>0&prev_gcd.2.soul_strike
-        if lastCast[1] == spell.handOfGuldan and shards > 0 and lastCast[2] == spell.soulStrike then
+        if cast.last.handOfGuldan(1) and shards > 0 and cast.last.soulStrike(2) then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- actions.dcon_opener+=/demonic_strength,if=prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&(buff.wild_imps.stack>1&action.hand_of_guldan.in_flight)
         if felguardActive and talent.demonicStrength then
-            if lastCast[1] == spell.handOfGuldan and lastCast[2] ~= spell.handOfGuldan and (wildImps > 1 and lastCast[1] == spell.handOfGuldan) then
+            if cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and (wildImps > 1 and cast.last.handOfGuldan(1)) then
                 if cast.able.demonicStrength() then
-                    if cast.demonicStrength() then return end
+                    if cast.demonicStrength() then return true end
                 end
             end
         end
         -- actions.dcon_opener+=/bilescourge_bombers
         if talent.bilescourgeBombers then
-            if castBilescourgeBombers() then return end
+            if castBilescourgeBombers() then return true end
         end
         -- actions.dcon_opener+=/soul_strike,line_cd=30,if=!buff.bloodlust.remains|time>5&prev_gcd.1.hand_of_guldan
         if Line_cd(spell.soulStrike, 30) then
-            if felguardActive and not hasBloodLust or combatTime > 5 and lastCast[1] == spell.handOfGuldan then
+            if felguardActive and not hasBloodLust or combatTime > 5 and cast.last.handOfGuldan(1) then
                 if cast.able.soulStrike() then
-                    if cast.soulStrike() then return end
+                    if cast.soulStrike() then return true end
                 end
             end
         end
         -- actions.dcon_opener+=/summon_vilefiend,if=soul_shard=5
         if talent.summonVilefiend and shards >= 5 then
             if cast.able.summonVilefiend() then
-                if cast.summonVilefiend() then return end
+                if cast.summonVilefiend() then return true end
             end
         end
         -- actions.dcon_opener+=/grimoire_felguard,if=soul_shard=5
         if talent.grimoireFelguard and shards >= 5 then
             if cast.able.grimoireFelguard() then
-                if cast.grimoireFelguard() then return end
+                if cast.grimoireFelguard() then return true end
             end
         end
         -- actions.dcon_opener+=/call_dreadstalkers,if=soul_shard=5
         if shards >= 5 then
             if cast.able.callDreadstalkers() then
-                if cast.callDreadstalkers() then return end
+                if cast.callDreadstalkers() then return true end
             end
         end
         -- actions.dcon_opener+=/hand_of_guldan,if=soul_shard=5
         if shards >= 5 then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- actions.dcon_opener+=/hand_of_guldan,if=soul_shard>=3&prev_gcd.2.hand_of_guldan&time>5&(prev_gcd.1.soul_strike|!talent.soul_strike.enabled&prev_gcd.1.shadow_bolt)
-        if shards >= 3 and lastCast[2] == spell.handOfGuldan and combatTime > 5 and (lastCast[1] == spell.soulStrike or not talent.soulStrike and lastCast[1] == spell.shadowBolt) then
+        if shards >= 3 and cast.last.handOfGuldan(2) and combatTime > 5 and (cast.last.soulStrike(1) or not talent.soulStrike and cast.last.shadowBolt(1)) then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- # 2000%spell_haste is shorthand for the cast time of Demonic Tyrant. The intent is to only begin casting if a certain number of imps will be out by the end of the cast.
         -- actions.dcon_opener+=/summon_demonic_tyrant,if=prev_gcd.1.demonic_strength|prev_gcd.1.hand_of_guldan&prev_gcd.2.hand_of_guldan|!talent.demonic_strength.enabled&buff.wild_imps.stack+imps_spawned_during.2000%spell_haste>=6
         if CDOptionEnabled("Demonic Tyrant") then
-            if lastCast[1] == spell.demonicStrength or lastCast[1] == spell.handOfGuldan and lastCast[2] == spell.handOfGuldan or not talent.demonicStrength and wildImps + Imps_spawned_during(2000 / spell_haste) >= 6 then
+            if cast.last.demonicStrength(1) or cast.last.handOfGuldan(1) and cast.last.handOfGuldan(2) or not talent.demonicStrength and wildImps + Imps_spawned_during(2 * spell_haste) >= 6 then
                 if cast.able.summonDemonicTyrant() then
-                    if cast.summonDemonicTyrant() then return end
+                    if cast.summonDemonicTyrant() then return true end
                 end
             end
         end
         -- actions.dcon_opener+=/demonbolt,if=soul_shard<=3&buff.demonic_core.remains
         if shards <= 3 and buff.demonicCore.exists() then
             if cast.able.demonbolt() then
-                if cast.demonbolt() then return end
+                if cast.demonbolt() then return true end
             end
         end
         -- actions.dcon_opener+=/call_action_list,name=build_a_shard
-        if actionList_build_a_shard() then
-            return
+        if shards < 5 then
+            if actionList_build_a_shard() then
+                return true
+            end
         end
     end
     
     local function actionList_implosion ()
         -- actions.implosion=implosion,if=(buff.wild_imps.stack>=6&(soul_shard<3|prev_gcd.1.call_dreadstalkers|buff.wild_imps.stack>=9|prev_gcd.1.bilescourge_bombers|(!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan))&!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&buff.demonic_power.down)|(time_to_die<3&buff.wild_imps.stack>0)|(prev_gcd.2.call_dreadstalkers&buff.wild_imps.stack>2&!talent.demonic_calling.enabled)
-        if (wildImps >= 6 and (shards < 3 or lastCast[1] == spell.callDreadstalkers or wildImps >= 9 or lastCast[1] == spell.bilescourgeBombers or (not lastCast[1] == spell.handOfGuldan and not lastCast[2] == spell.handOfGuldan)) and not lastCast[1] == spell.handOfGuldan and not lastCast[2] == spell.handOfGuldan and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0) or (lastCast[2] == spell.callDreadstalkers and wildImps > 2 and not talent.demonicCalling) then
+        if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
             if cast.able.implosion() then
-                if cast.implosion() then return end
+                if cast.implosion() then return true end
             end
         end
         -- actions.implosion+=/grimoire_felguard,if=cooldown.summon_demonic_tyrant.remains<13|!equipped.132369
         if talent.grimoireFelguard and cd.summonDemonicTyrant.remain() < 13 then
             if cast.able.grimoireFelguard() then
-                if cast.grimoireFelguard() then return end
+                if cast.grimoireFelguard() then return true end
             end
         end
         -- actions.implosion+=/call_dreadstalkers,if=(cooldown.summon_demonic_tyrant.remains<9&buff.demonic_calling.remains)|(cooldown.summon_demonic_tyrant.remains<11&!buff.demonic_calling.remains)|cooldown.summon_demonic_tyrant.remains>14
         if (cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or cd.summonDemonicTyrant.remain() > 14 then
             if cast.able.callDreadstalkers() then
-                if cast.callDreadstalkers() then return end
+                if cast.callDreadstalkers() then return true end
             end
         end
         -- actions.implosion+=/summon_demonic_tyrant
         if CDOptionEnabled("Demonic Tyrant") then
             if cast.able.summonDemonicTyrant() then
-                if cast.summonDemonicTyrant() then return end
+                if cast.summonDemonicTyrant() then return true end
             end
         end
         -- actions.implosion+=/hand_of_guldan,if=soul_shard>=5
         if shards >= 5 and cast.able.handOfGuldan() then
-            if cast.handOfGuldan() then return end
+            if cast.handOfGuldan() then return true end
         end
         -- actions.implosion+=/hand_of_guldan,if=soul_shard>=3&(((prev_gcd.2.hand_of_guldan|buff.wild_imps.stack>=3)&buff.wild_imps.stack<9)|cooldown.summon_demonic_tyrant.remains<=gcd*2|buff.demonic_power.remains>gcd*2)
-        if shards >= 3 and (((lastCast[2] == spell.handOfGuldan or wildImps >= 3) and wildImps < 9) or cd.summonDemonicTyrant.remain() <= gcd * 2 or buff.demonicPower.remain() > gcd * 2) then
+        if shards >= 3 and (((cast.last.handOfGuldan(2) or wildImps >= 3) and wildImps < 9) or cd.summonDemonicTyrant.remain() <= gcd * 2 or buff.demonicPower.remain() > gcd * 2) then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- actions.implosion+=/demonbolt,if=prev_gcd.1.hand_of_guldan&soul_shard>=1&(buff.wild_imps.stack<=3|prev_gcd.3.hand_of_guldan)&soul_shard<4&buff.demonic_core.up
-        if lastCast[1] == spell.handOfGuldan and shards >= 1 and (wildImps <= 3 or lastCast[3] == spell.handOfGuldan) and shards < 4 and buff.demonicCore.exists() then
+        if cast.last.handOfGuldan(1) and shards >= 1 and (wildImps <= 3 or cast.last.handOfGuldan(3)) and shards < 4 and buff.demonicCore.exists() then
             if cast.able.demonbolt() then
-                if cast.demonbolt() then return end
+                if cast.demonbolt() then return true end
             end
         end
         -- actions.implosion+=/summon_vilefiend,if=(cooldown.summon_demonic_tyrant.remains>40&spell_targets.implosion<=2)|cooldown.summon_demonic_tyrant.remains<12
         -- actions.implosion+=/bilescourge_bombers,if=cooldown.summon_demonic_tyrant.remains>9
         if talent.bilescourgeBombers and cd.summonDemonicTyrant.remain() > 9 then
-            if castBilescourgeBombers() then return end
+            if castBilescourgeBombers() then return true end
         end
         -- actions.implosion+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
         if felguardActive and shards < 5 and buff.demonicCalling.stack() <= 2 then
             if cast.able.soulStrike() then
-                if cast.soulStrike() then return end
+                if cast.soulStrike() then return true end
             end
         end
         -- actions.implosion+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&(buff.demonic_core.stack>=3|buff.demonic_core.remains<=gcd*5.7)
         if shards <= 3 and buff.demonicCore.exists() and (buff.demonicCore.stack() >= 3 or buff.demonicCore.remain() <= gcd * 5.7) then
             if cast.able.demonbolt() then
-                if cast.demonbolt() then return end
+                if cast.demonbolt() then return true end
             end
         end
         -- actions.implosion+=/doom,cycle_targets=1,max_cycle_targets=7,if=refreshable
         -- actions.implosion+=/call_action_list,name=build_a_shard
-        if actionList_build_a_shard() then 
-            return 
+        if shards < 5 then
+            if actionList_build_a_shard() then 
+                return true
+            end
         end
     end
 
@@ -1176,7 +1444,7 @@ local function runRotation()
         -- # Executed every time the actor is available.
         -- actions=potion,if=pet.demonic_tyrant.active&(!talent.nether_portal.enabled|cooldown.nether_portal.remains>160)|target.time_to_die<30
         -- actions+=/use_items,if=pet.demonic_tyrant.active|target.time_to_die<=15
-        if tyrantActive then
+        if TyrantActive then
             if canUseItem(13) and CDOptionEnabled("Trinket 1") and not hasEquiped(165572, 13) then
                 if useItem(13) then return true end
             end
@@ -1187,70 +1455,70 @@ local function runRotation()
         -- actions+=/berserking,if=pet.demonic_tyrant.active|target.time_to_die<=15
         -- actions+=/blood_fury,if=pet.demonic_tyrant.active|target.time_to_die<=15
         -- actions+=/fireblood,if=pet.demonic_tyrant.active|target.time_to_die<=15
-        if tyrantActive then
+        if TyrantActive and CDOptionEnabled("Racial") then
             if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
                 if race == "LightforgedDraenei" then
-                    if cast.racial("target", "ground") then return end
+                    if cast.racial("target", "ground") then return true end
                 else
-                    if cast.racial("player") then return end
+                    if cast.racial("player") then return true end
                 end
             end
         end
         -- actions+=/call_action_list,name=dcon_opener,if=talent.demonic_consumption.enabled&time<30&!cooldown.summon_demonic_tyrant.remains
         if talent.demonicConsumption and combatTime < 30 and cd.summonDemonicTyrant.remain() <= 0 then
-            if actionList_dcon_opener() then return end
+            if actionList_dcon_opener() then return true end
         end
         -- actions+=/hand_of_guldan,if=azerite.explosive_potential.rank&time<5&soul_shard>2&buff.explosive_potential.down&buff.wild_imps.stack<3&!prev_gcd.1.hand_of_guldan&&!prev_gcd.2.hand_of_guldan
-        if trait.explosivePotential.active and combatTime < 5 and shards > 2 and not buff.explosivePotential.exists() and wildImps < 3 and not lastCast[1] == spell.handOfGuldan and not lastCast[2] == spell.handOfGuldan then
+        if trait.explosivePotential.active and combatTime < 5 and shards > 2 and not buff.explosivePotential.exists() and wildImps < 3 and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&buff.demonic_core.stack=4
         if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() >= 4 then
             if cast.able.demonbolt() then
-                if cast.demonbolt() then return end
+                if cast.demonbolt() then return true end
             end
         end
         -- actions+=/implosion,if=azerite.explosive_potential.rank&buff.wild_imps.stack>2&buff.explosive_potential.remains<action.shadow_bolt.execute_time&(!talent.demonic_consumption.enabled|cooldown.summon_demonic_tyrant.remains>12)
         if trait.explosivePotential.active and wildImps > 2 and buff.explosivePotential.remain() < cast.time.shadowBolt() and (not talent.demonicConsumption or cd.summonDemonicTyrant.remain() > 12) then
             if cast.able.implosion() then
-                if cast.implosion() then return end
+                if cast.implosion() then return true end
             end
         end
         -- actions+=/doom,if=!ticking&time_to_die>30&spell_targets.implosion<2
         -- actions+=/bilescourge_bombers,if=azerite.explosive_potential.rank>0&time<10&spell_targets.implosion<2&buff.dreadstalkers.remains&talent.nether_portal.enabled
-        if talent.bilescourgeBombers and trait.explosivePotential.active and combatTime < 10 and implosionTargets < 2 and dreadstalkersRemain > 0 and talent.netherPortal then
-            if castBilescourgeBombers() then return end
+        if talent.bilescourgeBombers and trait.explosivePotential.active and combatTime < 10 and implosionTargets < 2 and dreadstalkersActive and talent.netherPortal then
+            if castBilescourgeBombers() then return true end
         end
 
         -- actions+=/demonic_strength,if=(buff.wild_imps.stack<6|buff.demonic_power.up)|spell_targets.implosion<2
         if felguardActive and talent.demonicStrength and ((wildImps < 6 or buff.demonicPower.exists()) or implosionTargets < 2) then
             if cast.able.demonicStrength() then
-                if cast.demonicStrength() then return end
+                if cast.demonicStrength() then return true end
             end
         end
         -- actions+=/call_action_list,name=nether_portal,if=talent.nether_portal.enabled&spell_targets.implosion<=2
         -- actions+=/call_action_list,name=implosion,if=spell_targets.implosion>1
         if implosionTargets > 1 then
-            if actionList_implosion() then return end
+            if actionList_implosion() then return true end
         end
         -- actions+=/grimoire_felguard,if=(target.time_to_die>120|target.time_to_die<cooldown.summon_demonic_tyrant.remains+15|cooldown.summon_demonic_tyrant.remains<13)
         -- actions+=/summon_vilefiend,if=cooldown.summon_demonic_tyrant.remains>40|cooldown.summon_demonic_tyrant.remains<12
         -- actions+=/call_dreadstalkers,if=(cooldown.summon_demonic_tyrant.remains<9&buff.demonic_calling.remains)|(cooldown.summon_demonic_tyrant.remains<11&!buff.demonic_calling.remains)|cooldown.summon_demonic_tyrant.remains>14
         if (cd.summonDemonicTyrant.remain() < 9 and buff.demonicCalling.exists()) or (cd.summonDemonicTyrant.remain() < 11 and not buff.demonicCalling.exists()) or cd.summonDemonicTyrant.remain() > 14 then
             if cast.able.callDreadstalkers() then
-                if cast.callDreadstalkers() then return end
+                if cast.callDreadstalkers() then return true end
             end
         end
         -- actions+=/bilescourge_bombers
         if talent.bilescourgeBombers then
-            if castBilescourgeBombers() then return end
+            if castBilescourgeBombers() then return true end
         end
         -- actions+=/hand_of_guldan,if=(azerite.baleful_invocation.enabled|talent.demonic_consumption.enabled)&prev_gcd.1.hand_of_guldan&cooldown.summon_demonic_tyrant.remains<2
-        if (trait.balefulInvocation.active or talent.demonicConsumption) and lastCast[1] == spell.handOfGuldan and cd.summonDemonicTyrant.remain() < 2 then
+        if (trait.balefulInvocation.active or talent.demonicConsumption) and cast.last.handOfGuldan(1) and cd.summonDemonicTyrant.remain() < 2 then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan() then return end
+                if cast.handOfGuldan() then return true end
             end
         end
         --2000/(1 / (1 + (GetHaste()/100)))
@@ -1258,14 +1526,9 @@ local function runRotation()
         -- # 2000%spell_haste is shorthand for the cast time of Demonic Tyrant. The intent is to only begin casting if a certain number of imps will be out by the end of the cast.
         -- actions+=/summon_demonic_tyrant,if=soul_shard<3&(!talent.demonic_consumption.enabled|buff.wild_imps.stack+imps_spawned_during.2000%spell_haste>=6&time_to_imps.all.remains<cast_time)|target.time_to_die<20
         if CDOptionEnabled("Demonic Tyrant") then
-            -- print("============")
-            -- print(shards)
-            -- print(not talent.demonicConsumption)
-            -- print((wildImps + Imps_spawned_during(2000 / spell_haste) >= 6))
-
-            if shards < 3 and (not talent.demonicConsumption or (wildImps + Imps_spawned_during(2000 / spell_haste) >= 6) --[[ and time_to_imps.all.remains<cast_time ]]) or ttd("target") < 20 then
+            if shards < 3 and (not talent.demonicConsumption or (wildImps + Imps_spawned_during(2 * spell_haste) >= 6) and time_to_imps() < GetTime()+cast.time.summonDemonicTyrant() --[[ and time_to_imps.all.remains<cast_time ]]) or ttd("target") < 20 then
                 if cast.able.summonDemonicTyrant() then
-                    if cast.summonDemonicTyrant() then return end
+                    if cast.summonDemonicTyrant() then return true end
                 end
             end
         end
@@ -1273,7 +1536,7 @@ local function runRotation()
         if talent.powerSiphon then
             if wildImps >= 2 and buff.demonicCore.stack() <= 2 and not buff.demonicPower.exists() and implosionTargets < 2 then
                 if cast.able.powerSiphon() then
-                    if cast.powerSiphon() then return end
+                    if cast.powerSiphon() then return true end
                 end
             end
         end
@@ -1281,23 +1544,23 @@ local function runRotation()
         -- actions+=/hand_of_guldan,if=soul_shard>=5|(soul_shard>=3&cooldown.call_dreadstalkers.remains>4&(cooldown.summon_demonic_tyrant.remains>20|(cooldown.summon_demonic_tyrant.remains<gcd*2&talent.demonic_consumption.enabled|cooldown.summon_demonic_tyrant.remains<gcd*4&!talent.demonic_consumption.enabled))&(!talent.summon_vilefiend.enabled|cooldown.summon_vilefiend.remains>3))
         if shards >= 5 or (shards >= 3 and cd.callDreadstalkers.remain() > 4 and (cd.summonDemonicTyrant.remain() > 20 or (cd.summonDemonicTyrant.remain() < gcd*2 and talent.demonicConsumption or cd.summonDemonicTyrant.remain() < gcd*4 and not talent.demonicConsumption)) and (not talent.summonVilefiend or cd.summonVilefiend.remain() > 3)) then
             if cast.able.handOfGuldan() then
-                if cast.handOfGuldan()  then return end
+                if cast.handOfGuldan()  then return true end
             end
         end
         -- actions+=/soul_strike,if=soul_shard<5&buff.demonic_core.stack<=2
         if felguardActive and shards < 5 and buff.demonicCore.stack() <= 2 then
             if cast.able.soulStrike() then
-                if cast.soulStrike() then return end
+                if cast.soulStrike() then return true end
             end
         end
         -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&((cooldown.summon_demonic_tyrant.remains<6|cooldown.summon_demonic_tyrant.remains>22&!azerite.shadows_bite.enabled)|buff.demonic_core.stack>=3|buff.demonic_core.remains<5|time_to_die<25|buff.shadows_bite.remains)
         if shards <= 3 and buff.demonicCore.exists() and ((cd.summonDemonicTyrant.remain() < 6 or cd.summonDemonicTyrant.remain() > 22 and not trait.shadowsBite.active) or buff.demonicCore.stack() >= 3 or buff.demonicCore.remain() < 5 or  ttd("target") < 25 or buff.shadowsBite.exists()) then
             if cast.able.demonbolt() then
-                if cast.demonbolt() then return end
+                if cast.demonbolt() then return true end
             end
         end
         -- actions+=/call_action_list,name=build_a_shard
-        if actionList_build_a_shard() then return end
+        if actionList_build_a_shard() then return true end
     end
 
 
@@ -1321,13 +1584,13 @@ local function runRotation()
         --- Extras Rotation ---
         -----------------------
         if actionList_Extras() then
-            return
+            return true
         end
         --------------------------
         --- Defensive Rotation ---
         --------------------------
         if actionList_Defensive() then
-            return
+            return true
         end
         -- -----------------------
         -- --- Opener Rotation ---
@@ -1341,7 +1604,7 @@ local function runRotation()
         --- Pre-Combat Rotation ---
         ---------------------------
         if actionList_PreCombat() then
-            return
+            return true
         end
         --------------------------
         --- In Combat Rotation ---
@@ -1354,7 +1617,7 @@ local function runRotation()
             --- In Combat - Interrupts ---
             ------------------------------
             if actionList_Interrupts() then
-                return
+                return true
             end
             ---------------------------
             --- SimulationCraft APL ---
@@ -1366,7 +1629,7 @@ local function runRotation()
                 end
                 -- rotation
                 if actionList_rotation() then
-                    return
+                    return true
                 end
             end -- End SimC APL
         end --End In Combat

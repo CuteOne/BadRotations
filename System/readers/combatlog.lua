@@ -762,6 +762,23 @@ function cl:Warlock(...) -- 9
             if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
             br.lastCast.line_cd[spell] = GetTime()
         end
+
+
+
+
+        -- -- Demonology Manager
+        -- -- Imps are summoned
+        -- if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
+        --     print("Imp SUMMON") 
+        -- end
+        -- -- Other Demons are summoned
+        -- if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
+        --     print("Demon SUMMON") 
+        -- end
+
+
+
+
     end
     if GetSpecialization() == 3 then
         -- last Immolate
