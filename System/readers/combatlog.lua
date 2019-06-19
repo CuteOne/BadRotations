@@ -747,25 +747,21 @@ function cl:Warlock(...) -- 9
         end
     end
     if GetSpecialization() == 2 then
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
-            -- Hand of Guldan
-            if spell == 105174 then
-                if not br.lastCast.hog then br.lastCast.hog = {} end
-                if br.lastCast then
-                    tinsert(br.lastCast.hog, 1, GetTime())
-                    if #br.lastCast.hog == 5 then
-                        br.lastCast.hog[5] = nil
-                    end
-                end
-            end
-            -- Line CD
-            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-            br.lastCast.line_cd[spell] = GetTime()
-        end
-
-
-
-
+        -- if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+        --     -- Hand of Guldan
+        --     if spell == 105174 then
+        --         if not br.lastCast.hog then br.lastCast.hog = {} end
+        --         if br.lastCast then
+        --             tinsert(br.lastCast.hog, 1, GetTime())
+        --             if #br.lastCast.hog == 5 then
+        --                 br.lastCast.hog[5] = nil
+        --             end
+        --         end
+        --     end
+        --     -- Line CD
+        --     if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
+        --     br.lastCast.line_cd[spell] = GetTime()
+        -- end
         -- -- Demonology Manager
         -- -- Imps are summoned
         -- if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
@@ -775,10 +771,6 @@ function cl:Warlock(...) -- 9
         -- if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
         --     print("Demon SUMMON") 
         -- end
-
-
-
-
     end
     if GetSpecialization() == 3 then
         -- last Immolate
