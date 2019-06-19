@@ -123,7 +123,7 @@ local function createOptions()
         -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cff0070deHealth Percent to Cast At")
         -- Cleanse Spirit
-            br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cff0070deTarget to Cast On")
+            br.ui:createDropdown(section, "Cleanse Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cff0070deTarget to Cast On")
         -- Earth Shield
             br.ui:createCheckbox(section, "Earth Shield")
         -- Healing Surge

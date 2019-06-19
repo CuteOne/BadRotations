@@ -72,8 +72,10 @@ local function createOptions()
         --- PET OPTIONS ---
         -------------------
         section = br.ui:createSection(br.ui.window.profile, "Pet Management")            
-            -- Raise Dead 
+            -- Raise Dead
             br.ui:createCheckbox(section, "Raise Dead")
+            -- Pet Target
+            br.ui:createDropdownWithout(section, "Pet Target", {"Dynamic Unit", "Only Target", "Any Unit"},1,"Select how you want pet to acquire targets.")
             -- Auto Attack/Passive
             br.ui:createCheckbox(section, "Auto Attack/Passive")
             -- Claw
@@ -171,16 +173,6 @@ end
 --- ROTATION ---
 ----------------
 local function runRotation()
----------------
---- Toggles --- -- List toggles here in order to update when pressed
----------------
-    local UpdateToggle = UpdateToggle
-    UpdateToggle("Rotation",0.25)
-    UpdateToggle("Cooldown",0.25)
-    UpdateToggle("Defensive",0.25)
-    UpdateToggle("Interrupt",0.25)
-    UpdateToggle("DnD",0.25)
-    br.player.mode.dnd = br.data.settings[br.selectedSpec].toggles["DnD"]
 --------------
 --- Locals ---
 --------------
@@ -239,12 +231,33 @@ local function runRotation()
 --- Action Lists ---
 --------------------
     local function actionList_PetManagement()
-        if UnitExists("pet") and IsPetActive() and deadPet then deadPet = false end
+        local function getCurrentPetMode()
+            local petMode = "None"
+            for i = 1, NUM_PET_ACTION_SLOTS do
+                local name, _, _,isActive = GetPetActionInfo(i)
+                if isActive then
+                    if name == "PET_MODE_ASSIST" then petMode = "Assist" end
+                    if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
+                    if name == "PET_MODE_PASSIVE" then petMode = "Passive" end
+                end
+            end
+            return petMode
+        end
+
+        local friendUnit = br.friend[1].unit
+        local petActive = IsPetActive()
+        local petCombat = UnitAffectingCombat("pet")
+        local petDead = UnitIsDeadOrGhost("pet")
+        local petDistance = getDistance("pettarget","pet") or 99
+        local petExists = UnitExists("pet")
+        local petMode = getCurrentPetMode()
+        local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+        if petExists and petActive and deadPet then deadPet = false end
         if waitForPetToAppear == nil or IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
             waitForPetToAppear = GetTime()
         elseif isChecked("Raise Dead") then
             if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                if cast.able.raiseDead() and (UnitIsDeadOrGhost("pet") or deadPet or (not deadPet and not (IsPetActive() or UnitExists("pet"))) 
+                if cast.able.raiseDead() and (deadPet or (not deadPet and not (petActive or petExists)) 
                     or (talent.allWillServe and not pet.risenSkulker.exists())) 
                 then
                     if cast.raiseDead() then waitForPetToAppear = GetTime(); return end 
@@ -253,51 +266,36 @@ local function runRotation()
         end
         if isChecked("Auto Attack/Passive") then
             -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-            if petMode == nil then petMode = "None" end
-            if not inCombat then
-                if petMode == "Passive" then
-                    if petMode == "Assist" then PetAssistMode() end
-                    if petMode == "Defensive" then PetDefensiveMode() end
-                end
-                for i = 1, NUM_PET_ACTION_SLOTS do
-                    local name, _, _, _, isActive = GetPetActionInfo(i)
-                    if isActive then
-                        if name == "PET_MODE_ASSIST" then petMode = "Assist" end
-                        if name == "PET_MODE_DEFENSIVE" then petMode = "Defensive" end
-                    end
-                end
-            elseif inCombat and petMode ~= "Passive" then
+            if (not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive")) then
+                PetAssistMode()
+            elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then 
+                PetDefensiveMode()
+            elseif inCombat and petMode ~= "Passive" and #enemies.yards40 == 0 then
                 PetPassiveMode()
-                petMode = "Passive"
             end
             -- Pet Attack / retreat
-            if (not UnitExists("pettarget") or not isValidUnit("pettarget")) and (inCombat or petCombat) then
-                for i=1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if isValidUnit(thisUnit) or isDummy() then
-                        PetAttack(thisUnit)
-                        break;
+            if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+                if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
+                    PetAttack(units.dyn40)
+                elseif getOptionValue("Pet Target") == 2 and validTarget then
+                    PetAttack("target")
+                elseif getOptionValue("Pet Target") == 3 then
+                    for i=1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                     end
                 end
-            elseif (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
+            elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) and IsPetAttackActive() then
                 PetStopAttack()
                 PetFollow()
             end
-            -- if inCombat and (isValidUnit("target") or isDummy()) and getDistance("target") < 40 and not GetUnitIsUnit("target","pettarget") then
-            --     -- Print("Pet is switching to your target.")
-            --     PetAttack()
-            -- end
-            -- if (not inCombat or (inCombat and not isValidUnit("pettarget") and not isDummy())) and IsPetAttackActive() then
-            --     PetStopAttack()
-            --     PetFollow()
-            -- end
         end
         -- Huddle
         if isChecked("Huddle") and cast.able.huddle() and (inCombat or petCombat) and getHP("pet") <= getOptionValue("Huddle") then
             if cast.huddle() then return end
         end
         -- Claw
-        if isChecked("Claw") and cast.able.claw("pettarget") and not buff.huddle.exists("pet") and isValidUnit("pettarget") and getDistance("pettarget","pet") < 5 then
+        if isChecked("Claw") and cast.able.claw("pettarget") and not buff.huddle.exists("pet") and validTarget and getDistance("pettarget","pet") < 5 then
             if cast.claw("pettarget") then return end
         end
         -- Gnaw
@@ -310,7 +308,7 @@ local function runRotation()
             end
         end
         -- Leap
-        if isChecked("Leap") and cast.able.leap("pettarget") and not buff.huddle.exists("pet") and isValidUnit("pettarget") and getDistance("pettarget","pet") > 8 then
+        if isChecked("Leap") and cast.able.leap("pettarget") and not buff.huddle.exists("pet") and validTarget and getDistance("pettarget","pet") > 8 then
             if cast.leap("pettarget") then return end
         end
     end 
