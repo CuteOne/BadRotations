@@ -121,11 +121,11 @@ local function createOptions ()
 			-- Healing Potion
 			br.ui:createSpinner(section, "Healing Potion", 25, 0, 100, 5, "Health Percentage to use at.")
 			-- Healthstone
-			br.ui:createSpinner(section, "Healthstone", 60, 0, 100, 5, "Health Percentage to use at.")
+			br.ui:createSpinner(section, "Healthstone", 50, 0, 100, 5, "Health Percentage to use at.")
 			-- Dark Pact
 			br.ui:createSpinner(section, "Dark Pact", 50, 0, 100, 5, "Health Percent to Cast At")
 			-- Unending Resolve
-            br.ui:createSpinner(section, "Unending Resolve", 35, 0, 100, 5, "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Unending Resolve", 25, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -261,18 +261,16 @@ local function runRotation ()
 
         --- line_cd can be used to force a length of time, in seconds, to pass after executing an action before it can be executed again. In the example below, the second line can execute even while the first line is being delayed because of line_cd.
 		-- @return false if spell was cast within the given period
-        function Line_cd (spellid, seconds)
-            if br.lastCast.line_cd then
-                if br.lastCast.line_cd[spellid] then
-                    if br.lastCast.line_cd[spellid] + seconds <= GetTime() then
-                        return true
-                    end
-                else
-                    return true
-                end
-            end
-            return false
-        end
+		local function Line_cd (spellid, seconds)
+			if br.lastCast.line_cd then
+				if br.lastCast.line_cd[spellid] then
+					if br.lastCast.line_cd[spellid] + seconds >= GetTime() then
+						return false
+					end
+				end
+			end
+			return true
+		end
 
 		--- See if the current unit is really a boss
 		-- @return Wether the boss is a boss1-2-3-4-5
