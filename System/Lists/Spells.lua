@@ -821,6 +821,7 @@ br.lists.spells = {
                 solarWrath                  = 5176,
                 sunfire                     = 93402,
                 tranquility                 = 740,
+                ursolsVortex                = 102793,
                 yserasGift                  = 145108,
             },
             artifacts                       = {
