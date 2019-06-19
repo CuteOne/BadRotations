@@ -658,7 +658,7 @@ local function runRotation()
     
     
     --ImpsCasting = (105174 == select(9, UnitCastingInfo("player")) and (shards >= 3 and 3 or shards)
-    if GetSpecialization() == 1 then
+    if GetSpecialization() == 2 then
         local cl = br.read
         function cl:Warlock(...)
             local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
