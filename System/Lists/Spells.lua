@@ -688,7 +688,6 @@ br.lists.spells = {
                 arcanicPulsar               = 287773,
                 dawningSun                  = 276152,
                 highNoon                    = 278505,
-                livelySpirit                = 279642,
                 lunarShrapnel               = 278507,
                 powerOfTheMoon              = 273367,
                 streakingStars              = 272871,
@@ -960,6 +959,9 @@ br.lists.spells = {
                 tigerDash                   = 252216,
                 typhoon                     = 132469,
                 wildCharge                  = 102401,
+            },
+            traits                          = {
+                livelySpirit                = 279642,
             },
         },
     },

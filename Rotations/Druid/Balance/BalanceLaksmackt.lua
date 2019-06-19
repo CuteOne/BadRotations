@@ -337,6 +337,7 @@ local function runRotation()
         end
       end
 
+
       --quickdots
       if (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd + 1)
               or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd + 1) then
@@ -447,25 +448,23 @@ local function runRotation()
 
       --dots and roots
 
-      local root_UnitList = {}
-      if isChecked("Freehold - root grenadier") then
-        root_UnitList[129758] = "Irontide Grenadier"
-      end
-      if isChecked("Atal - root Spirit of Gold") then
-        root_UnitList[131009] = "Spirit of Gold"
-      end
+local root_UnitList = {}
+    if isChecked("Freehold - root grenadier") then
+      root_UnitList[129758] = "Irontide Grenadier"
+    end
+    if isChecked("Atal - root Spirit of Gold") then
+      root_UnitList[131009] = "Spirit of Gold"
+    end
 
-      for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-        if cast.able.entanglingRoots() then
-          for k, v in pairs(root_UnitList) do
-            if (root_UnitList[GetObjectID(thisUnit)] ~= nil or (UnitCastingInfo(thisUnit) == GetSpellInfo(v) and UnitCastingInfo(thisUnit) ~= nil) or (UnitChannelInfo(thisUnit) == GetSpellInfo(v) and UnitChannelInfo(thisUnit) ~= nil)) and getBuffRemain(thisUnit, 226510) == 0 then
-              if cast.entanglingRoots(thisUnit) then
-                return true
-              end
-            end
+    for i = 1, #enemies.yards40 do
+      local thisUnit = enemies.yards40[i]
+      if cast.able.entanglingRoots() then
+        if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
+          if cast.entanglingRoots(thisUnit) then
+            return true
           end
         end
+      end
 
         if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
           if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
