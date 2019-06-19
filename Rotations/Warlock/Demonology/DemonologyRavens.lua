@@ -241,6 +241,7 @@ local function runRotation()
     local shards											= shards or UnitPower("player", Enum.PowerType.SoulShards)
     local summonPet = getOptionValue("Summon Pet")
     local solo = br.player.instance == "none"
+    shards = WarlockPowerBar_UnitPower("player")
     local spell = br.player.spell
     local spell_haste 										= 1 / (1 + (GetHaste()/100))
     local talent = br.player.talent
@@ -251,13 +252,13 @@ local function runRotation()
     local units = br.player.units
     local use = br.player.use
 
-    local demonTable                  = demonTable or {}
+    demonTable                  = demonTable or {}
     demonTable.demonicBag       = demonTable.demonicBag or {}
     demonTable.imps             = demonTable.imps or {}
     demonTable.impsEnergy       = demonTable.impsEnergy or {}
-    local demonicBag                  = demonTable.demonicBag
-    local Imps                        = demonTable.imps
-    local ImpEnergy                   = demonTable.impsEnergy
+    demonicBag                  = demonTable.demonicBag
+    Imps                        = demonTable.imps
+    ImpEnergy                   = demonTable.impsEnergy
 
     local baselineDemons = {
         --[demon] = duration (0 to blacklist)
@@ -306,7 +307,7 @@ local function runRotation()
         summonTime = 0
     end
 
-    local function CDOptionEnabled (OptionName)
+    function CDOptionEnabled (OptionName)
         local OptionValue = getOptionValue(OptionName)
         -- Always				Will use the ability even if CDs are disabled.
         -- Always Boss			Will use the ability even if CDs are disabled as long as the current target is a Boss.
@@ -639,19 +640,19 @@ local function runRotation()
 
 
     -- variables for demon manager
-    local felguardActive = activePetId == 17252 or false
-    local ImpMaxCasts = 5
-    local ImpMaxTime = 20
-    local ImpsIncoming = inCombat and ImpsIncoming >= 0 and ImpsIncoming or 0
-    local TyrantDuration = 15
-    local TyrantStart = TyrantStart or 0
-    local TyrantActive = TyrantActive or false
-    local TyrantBuffPerEnergy = 10
-    local TyrantBuffPercent = TyrantBuffPercent or 0
-    local denonCount = demonCount or 0
-    local CountOnlyImps = true
+    felguardActive = activePetId == 17252 or false
+    ImpMaxCasts = 5
+    ImpMaxTime = 20
+    ImpsIncoming = ImpsIncoming and ImpsIncoming >= 0 and ImpsIncoming or 0
+    TyrantDuration = 15
+    TyrantStart = TyrantStart or 0
+    TyrantActive = TyrantActive or false
+    TyrantBuffPerEnergy = 10
+    TyrantBuffPercent = TyrantBuffPercent or 0
+    denonCount = demonCount or 0
+    CountOnlyImps = true
     
-    local ImpsCasting = ImpsCasting or 0
+    ImpsCasting = ImpsCasting or 0
     -- if 105174 == select(9, UnitCastingInfo("player")) then
     --     ImpsCasting = shards >= 3 and 3 or shards
     -- end
@@ -754,7 +755,7 @@ local function runRotation()
             end
             --Summon Demonic Tyrant
             if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 265187 then
-                print("Tyrant Power: " .. TyrantBuffPercent)
+                --print("Tyrant Power: " .. TyrantBuffPercent)
                 local remains
                 
                 TyrantActive = true
@@ -1239,7 +1240,8 @@ local function runRotation()
     
     local function actionList_implosion ()
         -- actions.implosion=implosion,if=(buff.wild_imps.stack>=6&(soul_shard<3|prev_gcd.1.call_dreadstalkers|buff.wild_imps.stack>=9|prev_gcd.1.bilescourge_bombers|(!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan))&!prev_gcd.1.hand_of_guldan&!prev_gcd.2.hand_of_guldan&buff.demonic_power.down)|(time_to_die<3&buff.wild_imps.stack>0)|(prev_gcd.2.call_dreadstalkers&buff.wild_imps.stack>2&!talent.demonic_calling.enabled)
-        if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and not buff.demonicPower.exists()) or (ttd("target") < 3 and wildImps > 0) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
+        if (wildImps >= 6 and (shards < 3 or cast.last.callDreadstalkers(1) or wildImps >= 9 or cast.last.bilescourgeBombers(1) or (not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2))) and not cast.last.handOfGuldan(1) and not cast.last.handOfGuldan(2) and not buff.demonicPower.exists()) 
+            or (ttd("target") < 3 and wildImps > 0) or (cast.last.callDreadstalkers(2) and wildImps > 2 and not talent.demonicCalling) then
             if cast.able.implosion() then
                 if cast.implosion() then return true end
             end
@@ -1571,6 +1573,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
+    if not inCombat then ImpsIncoming = 0 end
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
     elseif (inCombat and profileStop == true) or IsMounted() or IsFlying() or pause(true) or mode.rotation == 4 then
