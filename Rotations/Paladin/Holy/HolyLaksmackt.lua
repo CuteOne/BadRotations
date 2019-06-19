@@ -1425,9 +1425,9 @@ local function runRotation()
     end
 
     -- Jagged Nettles and Dessication logic
-    if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation") then
+    if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation" or GetMinimapZoneText() == "The Lustrous Apse") then
       for i = 1, #br.friend do
-        if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
+        if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 or (getDebuffRemain(br.friend[i].unit, 265773) ~= 0 and br.friend[i].hp < 90) then
           if getSpellCD(20473) == 0 then
             if cast.holyShock(br.friend[i].unit) then
               return true
@@ -1740,7 +1740,7 @@ local function runRotation()
           end
         end
       end
-      if php <= getValue("Critical HP") then
+      if php <= getValue("Critical HP") or getBuffRemain("player", 265773) ~= 0 then
         if cast.holyShock("player") then
           return true
         end
