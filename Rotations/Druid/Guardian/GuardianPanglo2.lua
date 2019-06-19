@@ -772,13 +772,15 @@ local function runRotation()
             if debuff.moonfire.count() < 3 or buff.galacticGuardian.exists() then
                 for i = 1, #enemies.yards8 do
                 local thisUnit = enemies.yards8[i]
-                    if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
-                        if cast.moonfire(thisUnit) then
-                            return
+                    if UnitAffectingCombat(thisUnit) then
+                        if not debuff.moonfire.exists(thisUnit) or debuff.moonfire.refresh(thisUnit) then
+                            if cast.moonfire(thisUnit) then
+                                return
+                            end
                         end
-                    end
-                    if buff.galacticGuardian.exists() then
-                        if cast.moonfire(thisUnit) then return end
+                        if buff.galacticGuardian.exists() then
+                            if cast.moonfire(thisUnit) then return end
+                        end
                     end
                 end
             end

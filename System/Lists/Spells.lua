@@ -2977,6 +2977,7 @@ br.lists.spells = {
                 demonwrath                  = 193440,
                 doom                        = 603,
                 drainLife                   = 234153,
+                felFirebolt                 = 104318,
                 felstorm                    = 89751,
                 grimoireFelguard            = 111898,
                 handOfGuldan                = 105174,
@@ -3006,6 +3007,7 @@ br.lists.spells = {
                 explosivePotential          = 275398,
                 forbiddenKnowledge          = 278738,
                 netherPortal                = 267218,
+                shadowsBite                 = 272945,
                 shadowyInspiration          = 196269,
             },
             debuffs                         = {
@@ -3017,6 +3019,7 @@ br.lists.spells = {
             },
             talents                         = {
                 bilescourgeBombers          = 267211,
+                demonicConsumption          = 267215,
                 demonicStrength             = 267171,
                 doom                        = 265412,
                 netherPortal                = 267217,
@@ -3026,7 +3029,9 @@ br.lists.spells = {
 
             },
             traits                          = {
+                balefulInvocation           = 287059,
                 explosivePotential          = 275395,
+                shadowsBite                 = 272944,
             }
         },
         -- Destruction

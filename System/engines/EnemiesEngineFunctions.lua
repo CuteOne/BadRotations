@@ -417,7 +417,7 @@ function dynamicTarget(range,facing)
 	local tarDist = getDistance("target") or 99
 	if isChecked("Dynamic Targetting") then
 		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) 
-			or (UnitIsUnit(bestUnit,"target") and tarDist >= range) 
+			and (bestUnit == nil or (UnitIsUnit(bestUnit,"target") and tarDist >= range))
 		then
 			bestUnit = findBestUnit(range,facing)
 		end
