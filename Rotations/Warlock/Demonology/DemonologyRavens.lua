@@ -658,179 +658,180 @@ local function runRotation()
     
     
     --ImpsCasting = (105174 == select(9, UnitCastingInfo("player")) and (shards >= 3 and 3 or shards)
+    if GetSpecialization() == 1 then
+        local cl = br.read
+        function cl:Warlock(...)
+            local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
 
-    local cl = br.read
-    function cl:Warlock(...)
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-
-        if source == br.guid and param == "SPELL_CAST_START" and spell == 105174 then
-            shards = WarlockPowerBar_UnitPower("player")
-            ImpsCasting = shards >= 3 and 3 or shards
-        end
-        if source == br.guid and param == "SPELL_CAST_FAILED" and spell == 105174 then
-            ImpsCasting = 0
-        end
-
-        if source == br.guid and param == "SPELL_CAST_SUCCESS" then
-            -- Hand of Guldan
-            if spell == 105174 then
-                ImpsIncoming = ImpsIncoming + ImpsCasting
-                if not br.lastCast.hog then br.lastCast.hog = {} end
-                -- if br.lastCast then
-                --     tinsert(br.lastCast.hog, 1, GetTime())
-                --     if #br.lastCast.hog == 5 then
-                --         br.lastCast.hog[5] = nil
-                --     end
-                -- end
-                if br.lastCast.hog then
-                    if ImpsCasting == 1 then
-                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                    elseif ImpsCasting == 2 then
-                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                        tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
-                    elseif ImpsCasting == 3 then
-                        tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
-                        tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
-                        tinsert(br.lastCast.hog, 1, GetTime()+2.0*spell_haste)
-                    end
-                end
+            if source == br.guid and param == "SPELL_CAST_START" and spell == 105174 then
+                shards = WarlockPowerBar_UnitPower("player")
+                ImpsCasting = shards >= 3 and 3 or shards
             end
-            -- Line CD
-            if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
-            br.lastCast.line_cd[spell] = GetTime()
-        end
+            if source == br.guid and param == "SPELL_CAST_FAILED" and spell == 105174 then
+                ImpsCasting = 0
+            end
 
-        -- DEMON MANAGER
-        -- Imps are summoned
-        if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
-            if br.lastCast.hog[1] then tremove(br.lastCast.hog, #br.lastCast.hog) end
-            local tyrantExtra = TyrantActive and TyrantDuration - (GetTime() - TyrantStart) or 0
-            ImpEnergy[destination] = {ImpMaxCasts, GetTime() + ImpMaxTime + tyrantExtra - 0.1}
-            C_Timer.After(ImpMaxTime + tyrantExtra, function()
-                for k in pairs(ImpEnergy) do
-                    if GetTime() > ImpEnergy[k][2] then
-                        ImpEnergy[k] = nil
-                    end
-                end
-            end)
-            -- time to imp
-            ImpsIncoming = ImpsIncoming - 1
-        end
-        -- Other Demons are summoned
-        if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
-            if baselineDemons[spell] and baselineDemons[spell] > 0 then
-                demonicBag[destination] = GetTime() + baselineDemons[spell] - 0.1
-                C_Timer.After(baselineDemons[spell], function()
-                    for k, v in pairs(demonicBag) do
-                        if GetTime() > v then
-                            demonicBag[k] = nil
+            if source == br.guid and param == "SPELL_CAST_SUCCESS" then
+                -- Hand of Guldan
+                if spell == 105174 then
+                    ImpsIncoming = ImpsIncoming + ImpsCasting
+                    if not br.lastCast.hog then br.lastCast.hog = {} end
+                    -- if br.lastCast then
+                    --     tinsert(br.lastCast.hog, 1, GetTime())
+                    --     if #br.lastCast.hog == 5 then
+                    --         br.lastCast.hog[5] = nil
+                    --     end
+                    -- end
+                    if br.lastCast.hog then
+                        if ImpsCasting == 1 then
+                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                        elseif ImpsCasting == 2 then
+                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                        elseif ImpsCasting == 3 then
+                            tinsert(br.lastCast.hog, 1, GetTime()+1.2*spell_haste)
+                            tinsert(br.lastCast.hog, 1, GetTime()+1.6*spell_haste)
+                            tinsert(br.lastCast.hog, 1, GetTime()+2.0*spell_haste)
                         end
                     end
-                end)
-                
-            elseif not baselineDemons[spell] then
-                demonicBag[destination] = GetTime() + randomDemonsDuration - 0.1
-                C_Timer.After(randomDemonsDuration, function()
-                    for k, v in pairs(demonicBag) do
-                        if GetTime() > v then
-                            demonicBag[k] = nil
-                        end
-                    end
-                end)
-            end
-        end
-        -- Dreadstalkers active
-        if param == "SPELL_SUMMON" and source == br.guid and (spell == 193331 or spell == 193332) then
-            dreadstalkersActive = true
-            C_Timer.After(12, function() dreadstalkersActive = false end)
-        end
-        -- Imps succesfully consume energy
-        if param == "SPELL_CAST_SUCCESS" and ImpEnergy[source] and not TyrantActive then
-            if ImpEnergy[source][1] == 1 then
-                ImpEnergy[source] = nil
-            else
-                ImpEnergy[source][1] = ImpEnergy[source][1] - 1
-            end
-        end
-        --Summon Demonic Tyrant
-        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 265187 then
-            print("Tyrant Power: " .. TyrantBuffPercent)
-            local remains
-            
-            TyrantActive = true
-            TyrantStart = GetTime()
-            
-            if IsPlayerSpell(267215) then
-                table.wipe(ImpEnergy)
-            end
-            C_Timer.After(TyrantDuration, function()
-                TyrantActive = false 
-                for k in pairs(ImpEnergy) do
-                    if GetTime() > ImpEnergy[k][2] then
-                        ImpEnergy[k] = nil
-                    end
-                end 
-                for k, v in pairs(demonicBag) do
-                    if GetTime() > v then
-                        demonicBag[k] = nil
-                    end
                 end
-            end)
-            for k in pairs(ImpEnergy) do
-                remains = ImpEnergy[k][2] - GetTime()
-                ImpEnergy[k][2] = ImpEnergy[k][2] + TyrantDuration - 0.1
-                C_Timer.After(TyrantDuration + remains, function()
+                -- Line CD
+                if not br.lastCast.line_cd then br.lastCast.line_cd = {} end
+                br.lastCast.line_cd[spell] = GetTime()
+            end
+
+            -- DEMON MANAGER
+            -- Imps are summoned
+            if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
+                if br.lastCast.hog[1] then tremove(br.lastCast.hog, #br.lastCast.hog) end
+                local tyrantExtra = TyrantActive and TyrantDuration - (GetTime() - TyrantStart) or 0
+                ImpEnergy[destination] = {ImpMaxCasts, GetTime() + ImpMaxTime + tyrantExtra - 0.1}
+                C_Timer.After(ImpMaxTime + tyrantExtra, function()
                     for k in pairs(ImpEnergy) do
                         if GetTime() > ImpEnergy[k][2] then
                             ImpEnergy[k] = nil
                         end
-                    end      
+                    end
                 end)
+                -- time to imp
+                ImpsIncoming = ImpsIncoming - 1
             end
-            for k in pairs(demonicBag) do
-                remains = demonicBag[k] - GetTime()
-                demonicBag[k] = demonicBag[k] - 0.1
-                C_Timer.After(TyrantDuration + remains, function()
+            -- Other Demons are summoned
+            if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
+                if baselineDemons[spell] and baselineDemons[spell] > 0 then
+                    demonicBag[destination] = GetTime() + baselineDemons[spell] - 0.1
+                    C_Timer.After(baselineDemons[spell], function()
+                        for k, v in pairs(demonicBag) do
+                            if GetTime() > v then
+                                demonicBag[k] = nil
+                            end
+                        end
+                    end)
+                    
+                elseif not baselineDemons[spell] then
+                    demonicBag[destination] = GetTime() + randomDemonsDuration - 0.1
+                    C_Timer.After(randomDemonsDuration, function()
+                        for k, v in pairs(demonicBag) do
+                            if GetTime() > v then
+                                demonicBag[k] = nil
+                            end
+                        end
+                    end)
+                end
+            end
+            -- Dreadstalkers active
+            if param == "SPELL_SUMMON" and source == br.guid and (spell == 193331 or spell == 193332) then
+                dreadstalkersActive = true
+                C_Timer.After(12, function() dreadstalkersActive = false end)
+            end
+            -- Imps succesfully consume energy
+            if param == "SPELL_CAST_SUCCESS" and ImpEnergy[source] and not TyrantActive then
+                if ImpEnergy[source][1] == 1 then
+                    ImpEnergy[source] = nil
+                else
+                    ImpEnergy[source][1] = ImpEnergy[source][1] - 1
+                end
+            end
+            --Summon Demonic Tyrant
+            if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 265187 then
+                print("Tyrant Power: " .. TyrantBuffPercent)
+                local remains
+                
+                TyrantActive = true
+                TyrantStart = GetTime()
+                
+                if IsPlayerSpell(267215) then
+                    table.wipe(ImpEnergy)
+                end
+                C_Timer.After(TyrantDuration, function()
+                    TyrantActive = false 
+                    for k in pairs(ImpEnergy) do
+                        if GetTime() > ImpEnergy[k][2] then
+                            ImpEnergy[k] = nil
+                        end
+                    end 
                     for k, v in pairs(demonicBag) do
                         if GetTime() > v then
                             demonicBag[k] = nil
                         end
                     end
                 end)
-            end
-        end
-        -- Implosion
-        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 196277 then
-            table.wipe(ImpEnergy)
-            --e.UpdateBuff()
-        end
-        -- Power Siphon
-        if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 264130 then
-            local oldest, oldestTime = "", 2*GetTime()
-            
-            for i = 1, 2 do
-                for name, imp in pairs(ImpEnergy) do
-                    oldestTime = math.min(imp[2], oldestTime)
-                    if imp[2] == oldestTime then
-                        oldest = name
-                    end
+                for k in pairs(ImpEnergy) do
+                    remains = ImpEnergy[k][2] - GetTime()
+                    ImpEnergy[k][2] = ImpEnergy[k][2] + TyrantDuration - 0.1
+                    C_Timer.After(TyrantDuration + remains, function()
+                        for k in pairs(ImpEnergy) do
+                            if GetTime() > ImpEnergy[k][2] then
+                                ImpEnergy[k] = nil
+                            end
+                        end      
+                    end)
                 end
-                
-                oldestTime = oldestTime*2
-                ImpEnergy[oldest] = nil
+                for k in pairs(demonicBag) do
+                    remains = demonicBag[k] - GetTime()
+                    demonicBag[k] = demonicBag[k] - 0.1
+                    C_Timer.After(TyrantDuration + remains, function()
+                        for k, v in pairs(demonicBag) do
+                            if GetTime() > v then
+                                demonicBag[k] = nil
+                            end
+                        end
+                    end)
+                end
             end
-        end
-        -- Death
-        if param == "UNIT_DIED" or param == "SPELL_INSTAKILL" or param == "UNIT_DESTROYED" then
-            if ImpEnergy[destination] then
-                ImpEnergy[destination] = nil
-                
-            elseif demonicBag[destination] then      
-                demonicBag[destination] = nil
-                
-            elseif destination == br.guid then
+            -- Implosion
+            if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 196277 then
                 table.wipe(ImpEnergy)
-                table.wipe(demonicBag)
+                --e.UpdateBuff()
+            end
+            -- Power Siphon
+            if param == "SPELL_CAST_SUCCESS" and source == br.guid and spell == 264130 then
+                local oldest, oldestTime = "", 2*GetTime()
+                
+                for i = 1, 2 do
+                    for name, imp in pairs(ImpEnergy) do
+                        oldestTime = math.min(imp[2], oldestTime)
+                        if imp[2] == oldestTime then
+                            oldest = name
+                        end
+                    end
+                    
+                    oldestTime = oldestTime*2
+                    ImpEnergy[oldest] = nil
+                end
+            end
+            -- Death
+            if param == "UNIT_DIED" or param == "SPELL_INSTAKILL" or param == "UNIT_DESTROYED" then
+                if ImpEnergy[destination] then
+                    ImpEnergy[destination] = nil
+                    
+                elseif demonicBag[destination] then      
+                    demonicBag[destination] = nil
+                    
+                elseif destination == br.guid then
+                    table.wipe(ImpEnergy)
+                    table.wipe(demonicBag)
+                end
             end
         end
     end
