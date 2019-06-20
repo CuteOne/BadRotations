@@ -143,11 +143,11 @@ local function createOptions()
             -- Psychic Scream
             br.ui:createCheckbox(section, "Psychic Scream")
             -- Mind Bomb
-            -- br.ui:createCheckbox(section, "Mind Bomb")
+             br.ui:createCheckbox(section, "Mind Bomb")
             -- Interrupt Target
-            br.ui:createDropdownWithout(section,"Interrupt Target", {"Focus","Target","All in Range"}, 2, "Interrupt your focus, your target, or all enemies in range.")
+            --br.ui:createDropdownWithout(section,"Interrupt Unit", {"1. All in Range", "2. Target", "3. Focus"}, 1, "Interrupt your focus, your target, or all enemies in range.")
             -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  10,  0,  95,  5,  "Cast Percent to Cast At")
+            br.ui:createSpinner(section, "Interrupt At",  45,  0,  95,  5,  "Cast Percent to Cast At")
         br.ui:checkSectionState(section)
         -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
@@ -157,6 +157,8 @@ local function createOptions()
             br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
             -- Void Form
             br.ui:createDropdown(section, "Void Form Mode", br.dropOptions.Toggle,  6)
+            -- Interrupts Key Toggle
+            br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -181,9 +183,9 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("VoidForm",0.25)
-    UpdateToggle("InterruptToggle",0.25)
+    UpdateToggle("Interrupt",0.25)
     br.player.mode.voidForm = br.data.settings[br.selectedSpec].toggles["VoidForm"]
-    br.player.mode.interruptToggle = br.data.settings[br.selectedSpec].toggles["InterruptToggle"]
+    --br.player.mode.interruptToggle = br.data.settings[br.selectedSpec].toggles["InterruptToggle"]
 --------------
 --- Locals ---
 --------------
@@ -266,6 +268,7 @@ local function runRotation()
     enemies.get(20, "target")
     enemies.get(30)
     enemies.get(40)
+    enemies.get(40, "target")
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -432,73 +435,43 @@ local function runRotation()
     end -- End Action List - Defensive
 -- Action List - Interrupts
     function actionList_Interrupts()
-     -- Silence
-     if useInterrupts() then
-         if isChecked("Silence") and mode.interruptToggle == 1 then
-             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
-                 if cast.silence("focus") then return end
-             elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
-                 if cast.silence("target") then return end
-             elseif getOptionValue("Interrupt Target") == 3 then
-                 for i=1, #enemies.yards30 do
-                     thisUnit = enemies.yards30[i]
-                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                         if cast.silence(thisUnit) then return end
-                     end
+       if useInterrupts() then
+        -- Silence
+         if isChecked("Silence") then
+             for i=1, #enemies.yards30 do
+                 thisUnit = enemies.yards30[i]
+                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                     if cast.silence(thisUnit) then return end
                  end
              end
          end
-     -- Psychic Horror
-         if talent.psychicHorror and isChecked("Psychic Horror") and mode.interruptToggle == 1 then
-             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
-                 if cast.psychicHorror("focus") then return end --Print("pH on focus") return end
-             elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) and (cd.silence.exists() or not isChecked("Silence")) then
-                 if cast.psychicHorror("target") then
-                    --Print("pH on target")
-                    return end
-             elseif getOptionValue("Interrupt Target") == 3 and (cd.silence.exists() or not isChecked("Silence")) then
-                 for i=1, #enemies.yards30 do
-                     thisUnit = enemies.yards30[i]
-                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                         if cast.psychicHorror(thisUnit) then return end --Print("pH on any") return end
-                     end
+      -- Psychic Horror
+         if talent.psychicHorror and isChecked("Psychic Horror") and (cd.silence.exists() or not isChecked("Silence")) then
+             for i=1, #enemies.yards30 do
+                 thisUnit = enemies.yards30[i]
+                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                     if cast.psychicHorror(thisUnit) then return end --Print("pH on any") return end
                  end
              end
          end
-     -- Psychic Scream
-         if isChecked("Psychic Scream") and mode.interruptToggle == 1 then
-             if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
-                 if cast.psychicScream("focus") then return end
-             elseif getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
-                 if cast.psychicScream("target") then return end
-             elseif getOptionValue("Interrupt Target") == 3 then
-                 for i=1, #enemies.yards8 do
-                     thisUnit = enemies.yards8[i]
-                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                         if cast.psychicScream("player") then return end
-                     end
+        -- Psychic Scream
+         if isChecked("Psychic Scream") then
+             for i=1, #enemies.yards8 do
+                 thisUnit = enemies.yards8[i]
+                 if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                     if cast.psychicScream("player") then return end
                  end
              end
          end
-     -- Mind Bomb
-         -- mind bomb has a 2 second delay before the interrupt happens. not using as an interrupt source for now ...
-         -- TODO figure out a useful way to use mind bomb as an interrupt
-             -- if getOptionValue("Interrupt Target") == 1 and UnitIsEnemy("player","focus") and canInterrupt("focus",getOptionValue("Interrupt At")) then
-             --     if cast.mindBomb("focus") then return end
-             -- end
-             -- if getOptionValue("Interrupt Target") == 2 and UnitIsEnemy("player","target") and canInterrupt("target",getOptionValue("Interrupt At")) then
-             --     if cast.mindBomb("target") then return end
-             -- end
-             -- if getOptionValue("Interrupt Target") == 3 then
-             --     if talent.mindBomb then
-             --         for i=1, #enemies.yards30 do
-             --             thisUnit = enemies.yards30[i]
-             --             if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-             --                 if cast.mindBomb(thisUnit) then return end
-             --             end
-             --         end
-             --     end
-             -- end
+        -- Mind Bomb
+         if talent.mindBomb and isChecked("Mind Bomb") then
+             for i=1, #enemies.yards30 do
+                 thisUnit = enemies.yards30[i]
+                 if canInterrupt(thisUnit,99) then
+                    if cast.mindBomb(thisUnit) then return end
+                end
+            end
+         end
      end
     end -- End Action List - Interrupts
 -- Action List - Cooldowns
@@ -888,9 +861,11 @@ local function runRotation()
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
                     if debuff.shadowWordPain.remain(thisUnit) < 3 and ttd(thisUnit) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check) then
-                        if cast.shadowWordPain(thisUnit) then
+                        if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswpb4vtLast or not cast.last.shadowWordPain() then
+                            if cast.shadowWordPain(thisUnit) then
                         --Print("cast Cleave SWPb4VT on adds")
-                        return end
+                            return end
+                        end
                     end
                 end
             end
@@ -1276,7 +1251,7 @@ local function runRotation()
         end--]]
     --Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
-        if #searEnemies == 1 and not buff.voidForm.exists() then --and --[[and not cast.able.voidEruption()--]] (power < 90 or talent.legacyOfTheVoid and power < 60) then --or mode.voidForm == 2 then--]]
+        if activeEnemies == 1 and not buff.voidForm.exists() then --and --[[and not cast.able.voidEruption()--]] (power < 90 or talent.legacyOfTheVoid and power < 60) then --or mode.voidForm == 2 then--]]
             --if cast.active.mindFlay() and cast.able.voidEruption() then
                 --RunMacroText('/stopcasting')
             --    Print("stop for VE2")
@@ -1286,7 +1261,7 @@ local function runRotation()
                     --Print("refresh mf")
                 return end
             end
-        elseif #searEnemies == 1 and buff.voidForm.exists() and noTH then 
+        elseif activeEnemies == 1 and buff.voidForm.exists() and noTH then 
             if not moving and not cast.current.mindFlay() and cd.voidBolt.remain() < 3.4 then --or (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.2)) then
                 if cast.mindFlay() then
                     --Print("refresh VF mf")
