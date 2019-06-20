@@ -304,6 +304,7 @@ local function runRotation()
   local inCombat = isInCombat("player")
   local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
   local inRaid = br.player.instance == "raid"
+  local solo = #br.friend == 1
   local race = br.player.race
   local racial = br.player.getRacial()
   local traits = br.player.traits
@@ -1006,7 +1007,7 @@ local function runRotation()
       for i = 1, #br.friend do
         if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
           if getOptionValue("Lay on Hands Target") == 1 then
-            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+            if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
               layOnHandsTarget = br.friend[i].unit
             end
           elseif getOptionValue("Lay on Hands Target") == 2 then
@@ -1313,13 +1314,22 @@ local function runRotation()
         end
       end
       -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-      if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance)) then
+      if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
+        for i = 1, #enemies.yards40 do
+          local thisUnit = enemies.yards40[i]
+          if not debuff.glimmerOfLight.exists(thisUnit) then
+            if cast.holyShock(thisUnit) then
+              return true
+            end
+          end
+        end
         if cast.holyShock(units.dyn40) then
           return true
         end
       end
+
       -- Crusader Strike
-      if isChecked("Crusader Strike") and (not talent.crusadersMight or (not inInstance and not inRaid)) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
+      if isChecked("Crusader Strike") and (not talent.crusadersMight or solo) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
         if cast.crusaderStrike(units.dyn5) then
           return true
         end
