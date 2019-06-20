@@ -307,6 +307,13 @@ local function runRotation()
         summonTime = 0
     end
 
+    --- See if the current unit is really a boss
+    -- @return Wether the boss is a boss1-2-3-4-5
+    local function isTargetUnitEqualBossFrameUnit_local (thisUnit)
+        if isDummy() then return true end
+        return UnitIsUnit(thisUnit, "Boss1") or UnitIsUnit(thisUnit, "Boss2") or UnitIsUnit(thisUnit, "Boss3") or UnitIsUnit(thisUnit, "Boss4") or UnitIsUnit(thisUnit, "Boss5")
+    end
+
     --- Get whether the unit is a boss.
     local function isBoss_local (thisUnit)
         if thisUnit == nil then thisUnit = "target" end
