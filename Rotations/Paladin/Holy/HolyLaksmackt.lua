@@ -1258,7 +1258,7 @@ local function runRotation()
 
 
     --and isChecked("DPS")
-    if mode.DPS == 1 and
+    if (mode.DPS == 1 or mode.DPS == 3) and
             isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
             isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") then
       if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
@@ -1463,8 +1463,18 @@ local function runRotation()
       if mode.DPS == 1 and
               isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-        if cast.holyShock(units.dyn30) then
-          return true
+        if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
+          for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not debuff.glimmerOfLight.exists(thisUnit) then
+              if cast.holyShock(thisUnit) then
+                return true
+              end
+            end
+          end
+          if cast.holyShock(units.dyn40) then
+            return true
+          end
         end
       end
       if cast.judgment(units.dyn30) then
@@ -1477,11 +1487,21 @@ local function runRotation()
 
 
     --Wings, burst mode
-    if (mode.DPS == 3 and buff.avengingWrath.exists() or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) and getFacing("player", "target") then
+    if mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295) and getFacing("player", "target") then
       if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-        if cast.holyShock(units.dyn30) then
-          return true
+        if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
+          for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            if not debuff.glimmerOfLight.exists(thisUnit) then
+              if cast.holyShock(thisUnit) then
+                return true
+              end
+            end
+          end
+          if cast.holyShock(units.dyn40) then
+            return true
+          end
         end
       end
       if cast.judgment(units.dyn30) then
@@ -1491,6 +1511,8 @@ local function runRotation()
         return true
       end
     end
+
+
     --Talent Crusaders Might
     if isChecked("Crusader Strike") and mode.Glimmer ~= 1 and talent.crusadersMight and cast.able.crusaderStrike()
             and lowest.hp > getValue("Critical HP")
