@@ -62,6 +62,22 @@ function br.ui:createConfigWindow()
         br.ui:checkSectionState(section)
     end
 
+    local function callEnemiesBlacklist()
+        -- Blacklist Options for Specific Units
+        section = br.ui:createSection(br.ui.window.config, "Dungeons")
+            br.ui:createCheckbox(section, "UD Rotting Spore", "Don't ignore Rotting Spore on Unbound Abomination in Underrot.")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Uldir")
+            br.ui:createCheckbox(section, "Taloc Elevator", "Don't ignore Taloc while Elevator Phase on Taloc.")
+            br.ui:createCheckbox(section, "Mythrax Immunity", "Don't ignore Mythrax with Oblivion Veil on Mythrax the Unraveler.")
+        br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.config, "Battle of Dazar'alor")
+            br.ui:createCheckbox(section, "CoL Buff", "Don't ignore Ra'wani/Frida with Seal of Reckoning on Champions of Light.")
+            br.ui:createCheckbox(section, "Spark Bot", "Don't ignore Spark Bot on High Tinker Mekkatorque.")
+            br.ui:createCheckbox(section, "Spark Bot Debuff", "Don't ignore Spark Bot with Spark Shield on High Tinker Mekkatorque.")
+        br.ui:checkSectionState(section)
+    end
+
     local function callHealingEngine()
         -- Healing Engine
         section = br.ui:createSection(br.ui.window.config, "Healing Engine")
@@ -151,6 +167,10 @@ function br.ui:createConfigWindow()
         {
             [1] = "Enemies Engine",
             [2] = callEnemiesEngine,
+        },
+        {
+            [1] = "Enemy Blacklist",
+            [2] = callEnemiesBlacklist,
         },
         {
             [1] = "Healing Engine",

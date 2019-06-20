@@ -9,9 +9,9 @@ if not metaTable2 then
 	br.unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
 	br.unitSetup.cache = {} -- This is for the cache Table to check against
 	br.unitBlacklist = { -- blacklist for units
-		[129359]=true, -- Sawtooth Shark
-        [129448]=true, -- Hammer Shark
-		[144942]=true, -- Spark Bot
+		[129359]=function() return true end, -- Freehold - Sawtooth Shark
+        [129448]=function() return true end, -- Freehold - Hammer Shark (Freehold)
+		[144942]=function() return false and isChecked("Spark Bot") or true end, -- Mekkatorque - Spark Bot
 	}
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
@@ -30,7 +30,7 @@ if not metaTable2 then
 	function br.unitSetup:new(unit)
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
-		if br.unitBlacklist[GetObjectID(unit)] then return false end
+		if br.unitBlacklist[GetObjectID(unit)] and br.unitBlacklist[GetObjectID(unit)]() then return false end
 		if UnitIsUnit("player", unit) then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)

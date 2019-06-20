@@ -253,6 +253,8 @@ end
 			local unitID = GetObjectExists(unit) and GetObjectID(unit) or 0
 			for i = 1, #br.lists.noTouchUnits do
 				local noTouch = br.lists.noTouchUnits[i]
+				-- return true, if the option for the unit is checked
+				if br.lists.noTouchUnits[i].check and br.lists.noTouchUnits[i].check() then return true end
 				if noTouch.unitID == 1 or noTouch.unitID == unitID then
 					if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
 					if noTouch.buff > 0 then

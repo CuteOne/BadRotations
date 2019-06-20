@@ -20,13 +20,13 @@ br.lists.noTouchUnits = {
     {unitID = 117264, buff = -241008}, -- Don't attack Maiden of Valor unless Buff is Present *** negative buff value denotes not present ***
     -- BfA
     -- Uldir
-    {unitID = 137119, buff = 271965}, -- Don't attack Taloc while Powered Down
+    {unitID = 137119, buff = 271965, check = function() isChecked("Taloc Elevator") end}, -- Don't attack Taloc while Powered Down
     {unitID = 131227, buff = 260189}, -- Motherlode last boss flight
-    {unitID = 136383, buff = 274230}, -- Mythrax immunity
+    {unitID = 136383, buff = 274230, check = function() isChecked("Mythrax Immunity") end}, -- Mythrax immunity
     -- Battle of Dazar'alor
-    {unitID = 144683, buff = 284436}, -- Champion of the Light (A), Ra'wani Kanae, Seal of Reckoning
-    {unitID = 144680, buff = 284436}, -- Champion of the Light (H), Frida Ironbellows, Seal of Reckoning
-    {unitID = 144942, buff = 289644}, -- Spark Bot,High Tinker Mekkatorque, Mythic 
+    {unitID = 144683, buff = 284436, check = function() return isChecked("CoL Buff") end}, -- Champion of the Light (A), Ra'wani Kanae, Seal of Reckoning
+    {unitID = 144680, buff = 284436, check = function() return isChecked("CoL Buff") end}, -- Champion of the Light (H), Frida Ironbellows, Seal of Reckoning
+    {unitID = 144942, buff = 289644, check = function() return isChecked("Spark Bot Debuff") end}, -- Spark Bot,High Tinker Mekkatorque, Mythic 
     {unitID = 145644, buff = 284377}, -- Bwonsamdi with Unliving buff
     -- Waycrest Manor
     -- {unitID = 135358, buff = -260805}, -- Sister Malady (No Focusing Iris)
@@ -37,5 +37,5 @@ br.lists.noTouchUnits = {
     -- {unitID = 131825, buff = -260805}, -- Sister Briar (No Focusing Iris)
     
     -- Underrot
-    {unitID = 137458}, -- Rotting Spore
+    {unitID = 137458, check = function() return isChecked("UD Rotting Spore") end}, -- Rotting Spore
 }
