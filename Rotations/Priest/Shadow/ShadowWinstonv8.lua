@@ -830,14 +830,14 @@ local function runRotation()
                     if cast.mindBlast(units.dyn40) then cmbLast = UnitGUID(units.dyn40)
                 --if cast.mindBlast(units.dyn40) then
                     --Print("Cleave MB VF")
-                    Print(mindblastTargets)
+                    --Print(mindblastTargets)
                     return end
                 end
             elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.01 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswvLast or not cast.last.shadowWordVoid() then
                     if cast.shadowWordVoid(units.dyn40) then cswvLast = UnitGUID(units.dyn40)
                     --Print("CLeave swv VF")
-                    Print(mindblastTargets)
+                    --Print(mindblastTargets)
                     return end
                 end
             end
