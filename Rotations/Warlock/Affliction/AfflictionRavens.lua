@@ -108,7 +108,9 @@ local function createOptions ()
 			br.ui:createDropdown(section, "Seed Target", {"Target", "Best"},  1, "Seed of Corruption Target", "Seed of Corruption Target", true)
 			br.ui:createCheckbox(section, "Seed on ST", "Check to use Seed of Corruption when running in single target")
 			-- No Dot units
-            br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
+			br.ui:createCheckbox(section, "Dot Blacklist", "Ignore certain units for dots")
+			-- UA Shards
+			br.ui:createSpinner(section, "UA Shards", 5, 1, 5, 1, nil, "Use UA on Shards", true)
 			-- Max Dots
 			br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
 			br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, nil, "The maximum amount of running Corruption. Standard is 8", true)
@@ -1025,7 +1027,7 @@ local function runRotation ()
 					end
 					-- actions+=/vile_taint,target_if=max:target.time_to_die,if=time>15&target.time_to_die>=10
 					-- actions+=/unstable_affliction,target_if=min:contagion,if=!variable.use_seed&soul_shard=5
-					if not use_seed and shards >= 5 then
+					if not use_seed and shards >= getOptionValue("UA Shards") then
 						if cast.able.unstableAffliction() then
 							if cast.unstableAffliction() then return true end
 						end
