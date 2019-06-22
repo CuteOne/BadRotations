@@ -213,6 +213,7 @@ local function runRotation()
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
+    enemies.get(40,"player",true)
 
     -- Nil Checks
     if leftCombat == nil then leftCombat = GetTime() end
@@ -274,7 +275,7 @@ local function runRotation()
                 PetPassiveMode()
             end
             -- Pet Attack / retreat
-            if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+            if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) then
                 if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                     PetAttack(units.dyn40)
                 elseif getOptionValue("Pet Target") == 2 and validTarget then
@@ -528,11 +529,11 @@ local function runRotation()
     -- Death Coil 
         -- death_coil,if=buff.sudden_doom.react&rune.deficit>=4
         if cast.able.deathCoil() and buff.suddenDoom.exists() and runeDeficit >= 4 then 
-            if cast.able.deathCoil() then return end 
+            if cast.deathCoil() then return end 
         end 
         -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
         if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then 
-            if cast.able.deathCoil() then return end 
+            if cast.deathCoil() then return end 
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
         if cast.able.deathCoil() and runicPowerDeficit < 14 and not poolForGargoyle 
