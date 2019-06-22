@@ -106,6 +106,7 @@ local function createOptions()
     br.ui:createSpinnerWithout(section, "Lunar Strike Filler Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Lunar Strike as filler spell. natuMin: 1 / Max: 10 / Interval: 1")
     br.ui:createSpinnerWithout(section, "Starfall Targets (0 for auto)", 0, 0, 10, 1, "|cff0070deSet to minimum number of targets to use Starfall. 0 to calculate")
     br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
+    br.ui:createCheckbox(section, "Ignore dots during pewbuff")
     br.ui:checkSectionState(section)
     -------------------------
     --- DEFENSIVE OPTIONS --- -- Define Defensive Options
@@ -224,6 +225,14 @@ local function runRotation()
   local pewbuff = buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()
   local starfallRadius = nil
 
+  if #tanks > 0 and inInstance then
+    for i = 1, #tanks do
+      tank = tanks[i].unit
+    end
+  else
+    tank = "Player"
+  end
+
   enemies.get(45)
   enemies.get(40)
   enemies.get(15)
@@ -327,10 +336,10 @@ local function runRotation()
     -- Innverate
     --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
 
-    if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 then
+    if isChecked("Auto Innervate") and cast.able.innervate() and getTTD(UnitTarget(tank)) >= 12 then
       for i = 1, #br.friend do
-        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) then
-          Print("Healer is: " .. br.friend[i].unit)
+        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and FaceDirection(br.friend[i].unit) and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) then
+          --Print("Healer is: " .. br.friend[i].unit)
           if cast.innervate(br.friend[i].unit) then
             return true
           end
@@ -467,29 +476,33 @@ local function runRotation()
         end
       end
 
-      if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
-        if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
-          if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
-            return true
+      if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+              or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+
+
+        if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+              return true
+            end
           end
         end
-      end
-      if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
-        if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
-          if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
-            return true
+        if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
+              return true
+            end
           end
         end
-      end
-      if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
-        if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
-          if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
-            return true
+        if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
+          if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
+            if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+              return true
+            end
           end
         end
       end
     end
-
     --(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
     --&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|
     --variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
