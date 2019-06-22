@@ -132,6 +132,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Bilescourge Target", {"Target", "Best"}, 2, "|cffFFFFFFBilescourge Bombers target")
             -- Bilescourge Bombers Unit
             br.ui:createSpinnerWithout(section, "Bilescourge Units", 1, 1, 10, 1, "|cffFFFFFFMinimum units to cast Bilescourge Bombers")
+            -- Demonbolt dump
+            br.ui:createSpinnerWithout(section, "Demonbolt Dump", 4, 1, 5, 1, "|cffFFFFFFUse Demonbolt on chosen value of Demonic Core stacks. Standard is 4.")
         br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -1500,7 +1502,7 @@ local function runRotation()
             end
         end
         -- actions+=/demonbolt,if=soul_shard<=3&buff.demonic_core.up&buff.demonic_core.stack=4
-        if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() >= 4 then
+        if shards <= 3 and buff.demonicCore.exists() and buff.demonicCore.stack() >= getOptionValue("Demonbolt Dump") then
             if cast.able.demonbolt() then
                 if cast.demonbolt() then return true end
             end
