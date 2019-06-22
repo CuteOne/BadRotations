@@ -187,6 +187,7 @@ local function runRotation()
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
     local inCombat                                      = br.player.inCombat
+    local inInstance                                    = br.player.instance == "party"
     local level                                         = br.player.level
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
@@ -291,12 +292,19 @@ local function runRotation()
         noDotUnits[tonumber(i)] = true
     end
 
+    local queenBuff = false
     local function noDotCheck(unit)
         if isChecked("Dot Blacklist") and (noDotUnits[GetObjectID(unit)] or UnitIsCharmed(unit)) then return true end
         if isTotem(unit) then return true end
         local unitCreator = UnitCreator(unit)
         if unitCreator ~= nil and UnitIsPlayer(unitCreator) ~= nil and UnitIsPlayer(unitCreator) == true then return true end
         if GetObjectID(unit) == 137119 and getBuffRemain(unit, 271965) > 0 then return true end
+        if inInstance and UnitBuffID(unit, 290026) then
+            if not queenBuff and IsSpellInRange(GetSpellInfo(spell.pickPocket), unit) == 1 then
+                queenBuff = true
+            end
+            return true
+        end
         return false
     end
 
@@ -802,16 +810,16 @@ local function runRotation()
         local useFiller = (comboDeficit > 1 or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not stealthedRogue or talent.masterAssassin)
         -- # With Echoing Blades, Fan of Knives at 2+ targets.
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&azerite.echoing_blades.enabled&spell_targets.fan_of_knives>=2
-        if useFiller and enemies10 >= 2 and trait.echoingBlades.active then
+        if useFiller and enemies10 >= 2 and trait.echoingBlades.active and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/fan_of_knives,if=variable.use_filler&(buff.hidden_blades.stack>=19|spell_targets.fan_of_knives>=4+(azerite.double_dose.rank>2)+stealthed.rogue)
-        if useFiller and (buff.hiddenBlades.stack() >= 19 or enemies10 >= (4 + dDRank + sRogue)) then
+        if useFiller and (buff.hiddenBlades.stack() >= 19 or enemies10 >= (4 + dDRank + sRogue)) and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- # Fan of Knives to apply Deadly Poison if inactive on any target at 3 targets
         -- actions.direct+=/fan_of_knives,target_if=!dot.deadly_poison_dot.ticking,if=variable.use_filler&spell_targets.fan_of_knives>=3
-        if not deadlyPoison10 and useFiller and enemies10 >= 3 then
+        if not deadlyPoison10 and useFiller and enemies10 >= 3 and not queenBuff then
             if cast.fanOfKnives("player") then return true end
         end
         -- actions.direct+=/blindside,if=variable.use_filler&(buff.blindside.up|!talent.venom_rush.enabled&!azerite.double_dose.enabled)
@@ -878,7 +886,7 @@ local function runRotation()
         -- actions.dot+=/crimson_tempest,if=spell_targets>=2&remains<2+(spell_targets>=5)&combo_points>=4
         local crimsonTargets
         if enemies10 >= 5 then crimsonTargets = 1 else crimsonTargets = 0 end
-        if talent.crimsonTempest and enemies10 >= 2 and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
+        if talent.crimsonTempest and enemies10 >= 2  and not queenBuff and debuff.crimsonTempest.remain("target") < (2+crimsonTargets) and combo >= 4 and not buff.stealth.exists() and not buff.vanish.exists() then
             if cast.crimsonTempest("player") then return true end
         end
         -- # Keep up Rupture at 4+ on all targets (when living long enough and not snapshot)
