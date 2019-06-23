@@ -338,7 +338,7 @@ local function runRotation()
 
     if isChecked("Auto Innervate") and cast.able.innervate() and getTTD(UnitTarget(tank)) >= 12 then
       for i = 1, #br.friend do
-        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and FaceDirection(br.friend[i].unit) and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) then
+        if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) then
           --Print("Healer is: " .. br.friend[i].unit)
           if cast.innervate(br.friend[i].unit) then
             return true
