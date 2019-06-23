@@ -417,11 +417,11 @@ local function runRotation()
 
     --starLord cancellation
     if talent.starlord and power >= 87 and buff.starLord.exists() and buff.starLord.remain() < 8 then
-      RunMacroText("/cancelaura starlord")
+      cancelBuff(279709)
       --Print("Cancelling starLord at" .. buff.starLord.remain())
+      --RunMacroText("/cancelAura starlord")
       return true
     end
-
     if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
       --Starfall
       if power >= 50 or talent.soulOfTheForest and power >= 40 then
