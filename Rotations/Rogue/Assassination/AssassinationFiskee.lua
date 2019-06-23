@@ -15,8 +15,7 @@ local stunSpellList = "274400|274383|257756|276292|268273|256897|272542|272888|2
 local function createToggles() -- Define custom toggles
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.garrote },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.fanOfKnives },
-        [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate }
+        [2] = { mode = "Sing", value = 2 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mutilate }
     };
     CreateButton("Rotation",1,0)
     CooldownModes = {
@@ -365,7 +364,7 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 3 or (mode.rotation == 3 and GetUnitIsUnit(thisUnit, "target"))) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -451,7 +450,7 @@ local function runRotation()
     if stealthedRogue == true then sRogue = 1 else sRogue = 0 end
     local enemies10 = #enemyTable10
 
-    if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 3 then
+    if isChecked("Ignore Blacklist for FoK and CT") and mode.rotation ~= 2 then
         enemies10 = #enemies.get(10, nil, nil, nil, spell.pickPocket)
     end
 
@@ -976,7 +975,7 @@ local function runRotation()
 --- Rotations ---
 -----------------
     -- Pause
-    if IsMounted() or IsFlying() or pause() or mode.rotation==4 then
+    if IsMounted() or IsFlying() or pause() then
         return true
     else
 ---------------------------------
