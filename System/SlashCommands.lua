@@ -34,7 +34,7 @@ local function toggleUI()
 	end
 end
 
-function toggle(name, index, check)
+local function toggle(name, index, check)
 	if check == nil then
 		check = false
 	end
