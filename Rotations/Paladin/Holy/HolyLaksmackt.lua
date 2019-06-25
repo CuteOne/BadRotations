@@ -83,6 +83,9 @@ local function createOptions()
     -- Overhealing Cancel
     br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "", "|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
     br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
+    br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
+    br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+
     br.ui:checkSectionState(section)
     -- Raid
     section = br.ui:createSection(br.ui.window.profile, "Raid")
@@ -106,6 +109,10 @@ local function createOptions()
     br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Waycrest - jagged Nettles", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Nettles target|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Shrine - Dispel Whisper of Power", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 0)
+    br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
+
+
+    --
     br.ui:checkSectionState(section)
     -------------------------
     ------ DEFENSIVES -------
@@ -254,6 +261,50 @@ local function createOptions()
   return optionTable
 end
 
+local stopCastingList = {
+  [257732] = "Shattering Bellow",
+  [266106] = "Sonic Screech",
+  [267257] = "Thundering Crash"
+}
+
+local function shouldStopCast()
+  local castStartTime, castEndTime, castTime
+
+  for k, v in pairs(br.enemy) do
+    local castReturn = { UnitCastingInfo(k) }
+    if castReturn[5] and stopCastingList[castReturn[9]] then
+      --Get spell cast time
+      if castEndTime == nil or castReturn[5] < castEndTime then
+        castEndTime = castReturn[5]
+      end
+    end
+  end
+
+  if castEndTime == nil or (castTime and castTime == 0) then
+    return false
+  end
+
+  if (UnitChannelInfo("player") or UnitCastingInfo("player")) and ((castEndTime / 1000) - br.time) < 0.3 then
+    SpellStopCasting()
+    return true
+  end
+
+  return false
+end
+local queenBuff = false
+local function noDamageCheck(unit)
+  if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+    return true
+  end
+  if inInstance and UnitBuffID(unit, 290026) then
+    if not queenBuff and IsSpellInRange(GetSpellInfo(spell.crusaderStrike), unit) == 1 then
+      queenBuff = true
+    end
+    return true
+  end
+  return false
+end
+
 ----------------
 --- ROTATION ---
 ----------------
@@ -361,6 +412,7 @@ local function runRotation()
   enemies.get(30)
   enemies.get(40)
   friends.yards40 = getAllies("player", 40 * master_coff)
+
   local CC_CreatureTypeList = { "Humanoid", "Demon", "Undead", "Dragonkin", "Giant" }
   local StunsBlackList = {
     -- Atal'Dazar
@@ -953,6 +1005,18 @@ local function runRotation()
     local layOnHandsTarget = nil
     local burst = nil
 
+    if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
+      if cast.concentratedFlame(lowest.uni) then
+        return true
+      end
+    end
+
+    if isChecked("ConcentratedFlame - DPS") then
+      if cast.concentratedFlame("target") then
+        return true
+      end
+    end
+
     if isChecked("Group Avenger w/ Wrath") then
       if buff.avengingWrath.exists() or buff.avengingCrusader.exists() then
         if cast.holyAvenger() then
@@ -1261,13 +1325,7 @@ local function runRotation()
     if (mode.DPS == 1 or mode.DPS == 3) and
             isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
             isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") then
-      if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
-        TargetUnit("focustarget")
-      end
-      -- Start Attack
-      if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
-        StartAttack()
-      end
+
 
       --Consecration
       if isChecked("Consecration") and cast.able.consecration() then
@@ -1295,47 +1353,61 @@ local function runRotation()
         end
       end
 
-      -- Holy Prism
-      if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
-        if cast.holyPrism(units.dyn30) then
-          return true
-        end
-      end
-      -- Light's Hammer
-      if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
-        if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
-          return true
-        end
-      end
-      -- Judgment
-      if isChecked("Judgment - DPS") and cast.able.judgment() then
-        if cast.judgment(units.dyn30) then
-          return true
-        end
-      end
-      -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-      if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
-        for i = 1, #enemies.yards40 do
-          local thisUnit = enemies.yards40[i]
-          if not debuff.glimmerOfLight.exists(thisUnit) then
+      for i = 1, #enemies.yards30 do
+        local thisUnit = enemies.yards30[i]
+        if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+          if isChecked("Auto Focus target") and not UnitExists("target") and not UnitIsDeadOrGhost("focustarget") and UnitAffectingCombat("focustarget") and hasThreat("focustarget") then
+            TargetUnit("focustarget")
+          end
+          -- Start Attack
+          if not IsAutoRepeatSpell(GetSpellInfo(6603)) and isValidUnit("target") and getDistance("target") <= 5 then
+            StartAttack()
+          end
+          -- Holy Prism
+          if isChecked("Holy Prism Damage") and talent.holyPrism and cast.able.holyPrism() and #enemies.yards15 >= getValue("Holy Prism Damage") then
+            if cast.holyPrism(thisUnit) then
+              return true
+            end
+          end
+          -- Light's Hammer
+          if isChecked("Light's Hammer Damage") and talent.lightsHammer and cast.able.lightsHammer() and not moving then
+            if cast.lightsHammer("best", false, getOptionValue("Light's Hammer Damage"), 10) then
+              return true
+            end
+          end
+          -- Judgment
+          if isChecked("Judgment - DPS") and cast.able.judgment() then
+            if cast.judgment(thisUnit) then
+              return true
+            end
+          end
+          -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
+          if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
+            if not debuff.glimmerOfLight.exists(thisUnit) then
+              if cast.holyShock(thisUnit) then
+                return true
+              end
+            end
             if cast.holyShock(thisUnit) then
               return true
             end
           end
         end
-        if cast.holyShock(units.dyn40) then
-          return true
-        end
       end
-
       -- Crusader Strike
-      if isChecked("Crusader Strike") and (not talent.crusadersMight or solo) and cast.able.crusaderStrike() and getFacing("player", units.dyn5) then
-        if cast.crusaderStrike(units.dyn5) then
-          return true
+      for i = 1, #enemies.yards5 do
+        local thisUnit = enemies.yards5[i]
+        if not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+          if isChecked("Crusader Strike") and (not talent.crusadersMight or solo) and cast.able.crusaderStrike() and getFacing("player", thisUnit) then
+            if cast.crusaderStrike(thisUnit) then
+              return true
+            end
+          end
         end
       end
     end
   end
+
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   --AOEHealing ------ AOEHealing ------AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ------ AOEHealing ----- AOEHealing -----
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1415,6 +1487,7 @@ local function runRotation()
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   local function topPriority()
 
+    shouldStopCast()
 
     --Grievous Wounds
     if isChecked("Grievous Wounds") then
@@ -1813,7 +1886,7 @@ local function runRotation()
       end
     end
     -- Divine Shield and Light of the Martyr
-    if lightOfTheMartyrDS ~= nil and php <= getValue("Critical HP") and getDebuffStacks("player", 267034) < 2 then
+    if lightOfTheMartyrDS ~= nil and php <= getValue("Critical HP") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 then
       if cast.lightOfTheMartyr(lightOfTheMartyrDS) then
         return true
       end
@@ -1830,7 +1903,7 @@ local function runRotation()
       end
     end
     -- Light of Martyr
-    if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 then
+    if lightOfTheMartyrHP ~= nil and isChecked("Light of the Martyr") and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 then
       if cast.lightOfTheMartyr(lightOfTheMartyrHP) then
         return true
       end
@@ -1902,7 +1975,7 @@ local function runRotation()
       end
     end
     -- Light of Martyr and Bestow Faith
-    if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getDebuffStacks("player", 267034) < 2 and getOptionValue("Bestow Faith Target") == 4 then
+    if isChecked("Light of the Martyr") and php >= 80 and buff.bestowFaith.exists("player") and getDebuffStacks("player", 267034) < 2 and getOptionValue("Bestow Faith Target") == 4 and getDebuffStacks("player", 265773) == 0 then
       if lightOfTheMartyrBF10 ~= nil then
         if cast.lightOfTheMartyr(lightOfTheMartyrBF10) then
           return true
@@ -1952,7 +2025,7 @@ local function runRotation()
       end
     end
     -- Moving Martyr
-    if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 then
+    if isChecked("Moving LotM") and moving and php >= getOptionValue("LotM player HP limit") and getDebuffStacks("player", 267034) < 2 and getDebuffStacks("player", 265773) == 0 then
       if #tanks > 0 then
         if tanks[1].hp <= getValue("Critical HP") and getDebuffStacks(tanks[1].unit, 209858) < getValue("Necrotic Rot") then
           if cast.lightOfTheMartyr(tanks[1].unit) then
@@ -2073,7 +2146,8 @@ local function runRotation()
         if SingleTarget() then
           return
         end
-        if DPS() then
+        if DPS()
+        then
           return
         end
       end
