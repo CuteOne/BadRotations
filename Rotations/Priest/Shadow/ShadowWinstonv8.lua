@@ -285,6 +285,7 @@ local function runRotation()
     if pmbLast == nil or not UnitExists("target") then pmbLast = UnitGUID("player") end
     if pswvLast == nil or not UnitExists("target") then pswvLast = UnitGUID("player") end
     if pvtLast == nil or not UnitExists("target") then pvtLast = UnitGUID("player") end
+    if swpb4vtLast == nil or not UnitExists(units.dyn40) then swpb4vtLast = UnitGUID("player") end
     if swvLast == nil or not UnitExists("target") then swvLast = UnitGUID("player") end
     if vtLast == nil or not UnitExists("target") then vtLast = UnitGUID("player") end
     if vtVFLast == nil or not UnitExists("target") then vtVFLast = UnitGUID("player") end
@@ -1156,15 +1157,19 @@ local function runRotation()
         -- shadow_word_pain,if=refreshable&target.time_to_die>4&!talent.misery.enabled&!talent.dark_void.enabled
         if not talent.misery and buff.voidForm.exists() and noTH and SWPb4VT then
             if debuff.shadowWordPain.remain("target") < 2.4 then
-                if cast.shadowWordPain(units.dyn40) then
+                if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= swpb4vtLast or not cast.last.shadowWordPain() then
+                    if cast.shadowWordPain(units.dyn40) then swpb4vtLast = UnitGUID(units.dyn40)
                     --Print("cast VF SWPb4VT on target not misery")
-                return end
+                    return end
+                end
             end
         elseif not talent.misery and not buff.voidForm.exists() and SWPb4VT then
             if debuff.shadowWordPain.remain("target") < 4.8 and ttd("target") > 4 then
-                if cast.shadowWordPain(units.dyn40) then
+                if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= swpb4vtLast or not cast.last.shadowWordPain() then
+                    if cast.shadowWordPain(units.dyn40) then swpb4vtLast = UnitGUID(units.dyn40)
                     --Print("cast SWPb4VT on target not misery")
-                return end
+                    return end
+                end
             end
         end
     --Vampiric Touch -- cast target and refresh if expiring soon
@@ -1296,7 +1301,7 @@ local function runRotation()
 -----------------
         if actionList_Extra() then return end
         --PowerWord: Shield
-            if IsMovingTime(mrdm(60,120)/100) then
+            if IsMovingTime(mrdm(60,120)/100) and not IsFalling() then
                 if bnSTimer == nil then bnSTimer = GetTime() - 6 end
                 if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
                      if cast.powerWordShield("player") then
