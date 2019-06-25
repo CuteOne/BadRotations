@@ -787,6 +787,18 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
+            --Worldvein Resonance
+            if cast.worldveinResonance("player") then return true end
+            --Memory of lucid Dreams
+            if energyDeficit > (25 + energyRegenCombined) then
+                if cast.memoryOfLucidDreams("player") then return true end
+            end
+            --Guardian
+            if cast.guardianOfAzeroth("player") then return true end
+            --Blood Of The Enemy
+            if cast.bloodOfTheEnemy("player") then return true end
+            --The Unbound Force
+            if cast.theUnboundForce("target") then return true end
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
         -- actions.cds+=/exsanguinate,if=dot.rupture.remains>4+4*cp_max_spend&!dot.garrote.refreshable
@@ -797,6 +809,11 @@ local function runRotation()
         if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") then
             if cast.toxicBlade("target") then return true end
         end
+        -- Concentrated Flame
+        if debuff.rupture.exists("target") and ttd("target") > 3 then
+            if cast.concentratedFlame("target") then return true end
+        end
+
     end
 
     local function actionList_Direct()
