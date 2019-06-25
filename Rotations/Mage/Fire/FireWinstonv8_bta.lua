@@ -569,7 +569,7 @@ local function runRotation()
             end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
-            if buff.combustion.remain() > cast.time.scorch() and buff.combustion.exists() or not buff.combustion.exists() and cd.combustion.remain() < 110 then
+            if buff.combustion.remain() > cast.time.scorch() and buff.combustion.exists() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 110 then
                 if cast.scorch() then 
                     --Print("BfA BM Co scor1") 
                     return true 
@@ -643,7 +643,7 @@ local function runRotation()
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>2)|active_enemies>6)&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
             if ((talent.flamePatch and fSEnemies > 2) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
                 if cast.flamestrike("best",nil,1,8) then
-                    Print("BfA Co fStrike")
+                    --Print("BfA Co fStrike")
                     return end
             --[[elseif ((#fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() and not talent.pyromaniac then
                 if cast.flamestrike("best",nil,1,8) then return end--]]
@@ -689,7 +689,7 @@ local function runRotation()
            end
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
-            if buff.combustion.exists() and buff.combustion.remain() > cast.time.scorch() or not buff.combustion.exists() and cd.combustion.remain() < 110 then --and not buff.heatingUp.exists() then
+            if buff.combustion.exists() and buff.combustion.remain() > cast.time.scorch() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 110 then --and not buff.heatingUp.exists() then
                 if cast.scorch() then 
                     --Print("BfA Co scor1") 
                     return true 
@@ -740,7 +740,7 @@ local function runRotation()
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1)|active_enemies>4)&buff.hot_streak.react
             if ((talent.flamePatch and fSEnemies > 1) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
                 if cast.flamestrike("best",nil,1,8) then
-                    Print("BfA RoP fStrike 1")
+                    --Print("BfA RoP fStrike 1")
                     return end
             end
         -- Pyroblast
@@ -825,7 +825,7 @@ local function runRotation()
             -- flamestrike,if=(talent.flame_patch.enabled&active_enemies>2)|active_enemies>5 - #enemies.yards8t - #fSEnemies
             if ((talent.flamePatch and fSEnemies > 2) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
                 if cast.flamestrike("best",nil,1,8) then
-                    Print("BfA RoP fStrike 2")
+                    --Print("BfA RoP fStrike 2")
                     return end
             end
         -- Fireball
@@ -854,7 +854,7 @@ local function runRotation()
         -- Flamestrike
             -- flamestrike,if=((talent.flame_patch.enabled&active_enemies>1&!firestarter.active)|active_enemies>4)&buff.hot_streak.react - #enemies.yards8t - #fSEnemies
             --if ((talent.flamePatch and fSEnemies > 1 and not firestarterActive) or fSEnemies >= getOptionValue("Flamestrike Targets")) and buff.hotStreak.exists() then
-            if ((talent.flamePatch and fSEnemies > 1 and firestarterInactive) or (fSEnemies >= getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
+            if ((talent.flamePatch and fSEnemies > 1 and firestarterInactive) or (fSEnemies > getOptionValue("Flamestrike Targets") and mode.rotation == 1) or mode.rotation == 2) and buff.hotStreak.exists() then
                 if cast.flamestrike("best",nil,1,8,spell.flamestrike) then
                 --if createCastFunction("target", false, getOptionValue("Flamestrike Targets"), 8, spell.flamestrike, nil, false, 0) then
                     --Print("BfA ST fStrike")
@@ -864,7 +864,7 @@ local function runRotation()
             end
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
-            if buff.hotStreak.exists() and (cast.last.fireball() --[[or cast.last.fireBlast())--]] or firestarterActive or cast.inFlight.pyroblast()) then -- or lastSpell == spell.pyroblast) then --or lastSpell == spell.pyroblast) then
+            if buff.hotStreak.exists() and (cast.last.fireball() or cast.last.fireBlast() or cast.inFlight.pyroblast() or firestarterActive) then -- or lastSpell == spell.pyroblast) then --or lastSpell == spell.pyroblast) then
                 if cast.pyroblast() then 
                     --MyOtherAddon_Print("MyOtherAddon", MyOtherAddon)
                     --Print("BfA ST Pyro2") 
@@ -910,7 +910,7 @@ local function runRotation()
             end
         -- PyroBlast
             --pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&talent.searing_touch.enabled&target.health.pct<=30&((talent.flame_patch.enabled&active_enemies=1&!firestarter.active)|(active_enemies<4&!talent.flame_patch.enabled))
-            if (talent.searingTouch and thp <= 30) and (cast.last.scorch() and buff.hotStreak.exists()) and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
+            if cast.last.scorch() and buff.hotStreak.exists() and (talent.searingTouch and thp <= 30) and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
                 if cast.pyroblast() then 
                     --Print("BfA ST Pyro5") 
                     return 
@@ -950,8 +950,14 @@ local function runRotation()
             end
         -- Fireball
             -- fireball
-            if not buff.combustion.exists() then --[[and not buff.heatingUp.exists() or not buff.hotStreak.exists() then--]]
+            if not moving and not buff.combustion.exists() then --[[and not buff.heatingUp.exists() or not buff.hotStreak.exists() then--]]
                 if cast.fireball() then --[[Print("BfA ST fBall")--]] return true end
+            end
+        -- Scorch
+            if moving then
+                if cast.scorch() then
+                    --Print("BfA ST sco")
+                return end
             end
         end  -- End BfA Single Target Action List
 ---------------------
@@ -1058,9 +1064,9 @@ local function runRotation()
                         end
                     --end
         -- Scorch
-                    if moving then
-                        if cast.scorch() then return end
-                    end
+                    --if not buff.hotStreak.exists() and moving then
+                    --    if cast.scorch() then return end
+                    --end
                 end -- End SimC BfA APL
             end --End In Combat
         end --End Rotation Logic
