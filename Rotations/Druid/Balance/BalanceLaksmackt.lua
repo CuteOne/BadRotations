@@ -95,6 +95,8 @@ local function createOptions()
     br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
     br.ui:createCheckbox(section, "Group treants with CD")
     br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
+    br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
+    br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
     br.ui:checkSectionState(section)
     -------------------------
     ---  TARGET OPTIONS   ---  -- Define Target Options
@@ -174,8 +176,8 @@ local function runRotation()
   -- local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
   -- local healPot                                       = getHealthPot()
   -- local level                                         = br.player.level
-  -- local lowestHP                                      = br.friend[1].unit
-  -- local lowest                                        = br.friend[1]
+   local lowestHP                                      = br.friend[1].unit
+   local lowest                                        = br.friend[1]
   local mana = getMana("player")
   -- local perk                                          = br.player.perk
 
@@ -267,6 +269,12 @@ local function runRotation()
 
     if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
       if cast.moonkinForm() then
+        return true
+      end
+    end
+
+    if isChecked("ConcentratedFlame - DPS") then
+      if cast.concentratedFlame("target") then
         return true
       end
     end
