@@ -146,6 +146,10 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
             -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
+            -- Word of Glory 
+            br.ui:createSpinner(section, "Word of Glory", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            -- Auto-Heal
+            br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
         br.ui:checkSectionState(section)
         -------------------------
         --- INTERRUPT OPTIONS ---
@@ -299,6 +303,40 @@ local function runRotation()
             -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
             --     greaterBuff = greaterBuff + 1
             -- end
+        end
+
+        local thisGlory = "player"
+        local function canGlory()
+            if charges.wordOfGlory.count() > 0 then
+                local optionValue = getOptionValue("Word of Glory")
+                for i = 1, #br.friend do
+                    local thisUnit = br.friend[i].unit
+                    local thisHP = getHP(thisUnit)
+                    local otherCounter = 0
+                    if thisHP < optionValue then
+                        -- Emergency Single
+                        if thisHP < 25 then 
+                            thisGlory = thisUnit 
+                            return true 
+                        end
+                        -- Group Heal
+                        if otherCounter < 2 then
+                            for j = 1, #br.friend do
+                                local otherUnit = br.friend[j].unit
+                                local otherHP = getHP(otherUnit)
+                                local distanceFromYou = getDistance(otherUnit,"player")
+                                if distanceFromYou < 30 and otherHP < optionValue then
+                                    otherCounter = otherCounter + 1
+                                end
+                            end
+                        else
+                            thisGlory = thisUnit
+                            return true
+                        end
+                    end
+                end
+            end
+            return false
         end
 
 --------------------
@@ -472,10 +510,29 @@ local function runRotation()
                         if cast.redemption("mouseover","dead") then return end
                     end
                 end
+            -- Word of Glory 
+                if isChecked("Word of Glory") and talent.wordOfGlory and cast.able.wordOfGlory() and canGlory() then
+                    if cast.wordOfGlory(thisGlory) then return end 
+                end
             -- Flash of Light
-                if isChecked("Flash of Light") and cast.able.flashOfLight() then
-                    if (forceHeal or (inCombat and php <= getOptionValue("Flash of Light") / 2) or (not inCombat and php <= getOptionValue("Flash of Light"))) and not isMoving("player") then
-                        if cast.flashOfLight() then return end
+                if isChecked("Flash of Light") and cast.able.flashOfLight() and not (IsMounted() or IsFlying())
+                    and (getOptionValue("Auto Heal") ~= 1 or (getOptionValue("Auto Heal") == 1
+                    and getDistance(br.friend[1].unit) < 40))
+                then
+                    local thisHP = php
+                    local thisUnit = "player"
+                    local lowestUnit = getLowestUnit(40)
+                    local fhp = getHP(lowestUnit)
+                    local optionValue = getOptionValue("Flash of Light")
+                    if getOptionValue("Auto Heal") == 1 then thisHP = fhp; thisUnit = lowestUnit end
+                    -- Instant Cast
+                    if talent.selflessHealer and thisHP <= optionValue and buff.selflessHealer.stack() == 4 then
+                        if cast.flashOfLight(thisUnit) then return end
+                    end
+                    -- Long Cast
+                    local lowestHP = getHP(br.friend[1])
+                    if not isMoving("player") and (forceHeal or (inCombat and thisHP <= optionValue / 2) or (not inCombat and thisHP <= optionValue)) then
+                        if cast.flashOfLight(thisUnit) then return end
                     end
                 end
             end
