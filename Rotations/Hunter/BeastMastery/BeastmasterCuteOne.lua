@@ -858,6 +858,11 @@ actionList.St = function()
     -- barrage
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
+    end    
+    -- Concentrated Flame 
+    -- AMR Use Logic
+    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
+        if cast.concentratedFlame() then return end 
     end
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)&cooldown.kill_command.remains>1
@@ -870,11 +875,6 @@ actionList.St = function()
     -- spitting_cobra
     if isChecked("Spitting Cobra") and talent.spittingCobra and cast.able.spittingCobra() then
         if cast.spittingCobra() then return end
-    end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
-        if cast.concentratedFlame() then return end 
     end
 end -- End Action List - Single Target
 
@@ -955,6 +955,11 @@ actionList.Cleave = function()
     then
         if cast.barbedShot(lowestBarbedShot) then return end
     end
+    -- Concentrated Flame 
+    -- AMR Use Logic
+    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
+        if cast.concentratedFlame() then return end 
+    end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
     if cast.able.multishot() and traits.rapidReload.active then
@@ -969,12 +974,7 @@ actionList.Cleave = function()
     -- spitting_cobra
     if isChecked("Spitting Cobra") and talent.spittingCobra and cast.able.spittingCobra() then
         if cast.spittingCobra() then return end
-    end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
-        if cast.concentratedFlame() then return end 
-    end
+    end    
 end -- End Action List - Cleave
 
 -- Action List - PreCombat
