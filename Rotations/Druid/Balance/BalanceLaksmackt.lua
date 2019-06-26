@@ -176,8 +176,8 @@ local function runRotation()
   -- local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
   -- local healPot                                       = getHealthPot()
   -- local level                                         = br.player.level
-   local lowestHP                                      = br.friend[1].unit
-   local lowest                                        = br.friend[1]
+  local lowestHP = br.friend[1].unit
+  local lowest = br.friend[1]
   local mana = getMana("player")
   -- local perk                                          = br.player.perk
 
@@ -205,6 +205,7 @@ local function runRotation()
   local racial = br.player.getRacial()
   local traits = br.player.traits
   local moving = isMoving("player")
+  local swimming = IsSwimming()
   local ttd = getTTD
   local astralPowerDeficit = br.player.power.astralPower.deficit()
   local travel, flight, cat = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
