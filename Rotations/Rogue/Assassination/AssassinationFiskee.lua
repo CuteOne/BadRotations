@@ -106,6 +106,7 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createCheckbox(section, "Cloak of Shadows")
             br.ui:createSpinner(section, "Crimson Vial",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Concentrated Flame",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Evasion",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
             br.ui:createSpinner(section, "Feint", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             br.ui:createCheckbox(section, "Auto Defensive Unavoidables", "|cffFFFFFF Will use feint/evasion on certain unavoidable boss abilities")
@@ -584,9 +585,7 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(152494))
-            and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone())
-            then
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(152494)) and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone()) then
                 if use.able.healthstone() then
                     use.healthstone()
                 elseif canUseItem(152494) then
@@ -598,6 +597,9 @@ local function runRotation()
             end
             if isChecked("Crimson Vial") and php < getOptionValue("Crimson Vial") then
                 if cast.crimsonVial() then return true end
+            end
+            if isChecked("Concentrated Flame") and php < getOptionValue("Concentrated Flame") then
+                if cast.concentratedFlame("player") then return true end
             end
             if isChecked("Evasion") and php < getOptionValue("Evasion") and inCombat and not stealth then
                 if cast.evasion() then return true end
