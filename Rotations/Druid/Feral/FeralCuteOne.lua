@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             -- Multi-DoT Limit
             br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
+            -- Essense: Concentrated Flame 
+            br.ui:createCheckbox(section,"Concentrated Flame")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -919,10 +921,10 @@ actionList.Generator = function()
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
     if (cast.pool.rake() or cast.able.rake()) and (debuff.rake.count() < getOptionValue("Multi-DoT Limit")
-        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active)) 
+        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit") 
+            or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
-        for i = 1, #enemies.yards5f do
-            local thisUnit = enemies.yards5f[i]
+        local function rakeLogic(thisUnit)
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
                 and (ttd(thisUnit) > 4 or isDummy(thisUnit)) and not UnitIsCharmed(thisUnit)
                 and canDoT(thisUnit) and getFacing("player",thisUnit)
@@ -931,12 +933,21 @@ actionList.Generator = function()
                     or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7
                     and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                 then
-                    if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
-                    if cast.able.rake(thisUnit) then
-                        if cast.rake(thisUnit) then return true end
-                    end
+                    return true
                 end
             end
+            return false
+        end
+        if rakeLogic("target") then
+            if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
+            if cast.rake("target") then return true end
+        end 
+        for i = 1, #enemies.yards5f do
+            local thisUnit = enemies.yards5f[i]
+            if rakeLogic(thisUnit) then
+                if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
+                if cast.rake(thisUnit) then return true end
+            end 
         end
     end
     -- Moonfire
@@ -995,6 +1006,11 @@ actionList.Generator = function()
                 if cast.thrashCat("player","aoe",1,8) then return true end
             end
         end
+    end
+    -- Concentrated Flame 
+    -- AMR Use Logic
+    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then
+        if cast.concentratedFlame() then return true end 
     end
     -- Swipe
     -- pool_resource,for_next=1
