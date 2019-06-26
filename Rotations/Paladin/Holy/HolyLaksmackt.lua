@@ -1006,7 +1006,7 @@ local function runRotation()
     local burst = nil
 
     if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
-      if cast.concentratedFlame(lowest.uni) then
+      if cast.concentratedFlame(lowest.unit) then
         return true
       end
     end
