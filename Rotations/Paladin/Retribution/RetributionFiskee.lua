@@ -731,6 +731,10 @@ local function runRotation()
 				if cast.avengingWrath() then return end
 			end
 		end -- End Cooldown Usage Check
+		-- Concentrated Flame
+		if ttd("target") > 3 then
+			if cast.concentratedFlame("target") then return true end
+		end
 	end -- End Action List - Cooldowns
 	-- Action List - PreCombat
 	local function actionList_PreCombat()
