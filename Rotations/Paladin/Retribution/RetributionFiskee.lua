@@ -732,7 +732,7 @@ local function runRotation()
 			end
 		end -- End Cooldown Usage Check
 		-- Concentrated Flame
-		if ttd("target") > 3 then
+		if ttd > 3 then
 			if cast.concentratedFlame("target") then return true end
 		end
 	end -- End Action List - Cooldowns
