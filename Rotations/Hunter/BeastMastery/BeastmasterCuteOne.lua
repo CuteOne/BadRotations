@@ -873,7 +873,7 @@ actionList.St = function()
     end
     -- Concentrated Flame 
     -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() and charges.concentratedFlame.frac() > 1.7 then 
+    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
         if cast.concentratedFlame() then return end 
     end
 end -- End Action List - Single Target
