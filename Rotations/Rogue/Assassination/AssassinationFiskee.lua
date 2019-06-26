@@ -85,6 +85,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Ignore Blacklist for FoK and CT", "|cffFFFFFF Ignore blacklist for Fan of Knives and Crimson Tempest usage")
             br.ui:createSpinner(section,  "Disable Garrote on # Units",  10,  1,  20,  1,  "|cffFFFFFF Max units within 10 yards for garrote usage outside stealth (FoK spam)")
             br.ui:createCheckbox(section, "Dot Players", "|cffFFFFFF Check to dot player targets (MC ect.)")
+            br.ui:createSpinner(section,  "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
+            br.ui:createCheckbox(section, "Ignore Azerite Beam Units During CDs", "|cffFFFFFF Check to use use on CD regardless of units on bosses/with CDs on")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -253,6 +255,56 @@ local function runRotation()
         if getOptionCheck("Enhanced Time to Die") then return ttdSec end
         if ttdSec == -1 then return 999 end
         return ttdSec
+    end
+
+    local standingTime = 0
+    if DontMoveStartTime then
+        standingTime = GetTime() - DontMoveStartTime
+    end
+
+    local function castBeam(minUnits, safe, minttd)
+        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+            return false
+        end
+        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() then
+            minUnits = 1
+        end
+        local x, y, z = ObjectPosition("player")
+        local length = 30
+        local width = 6
+        ttd = ttd or 0
+        safe = safe or true
+        local function getRectUnit(facing)
+            local halfWidth = width/2
+            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            return nlX, nlY, nrX, nrY, frX, frY
+        end
+        local enemiesTable = getEnemies("player", length, true)
+        local facing = ObjectFacing("player")        
+        local unitsInRect = 0
+        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+        local thisUnit
+        for i = 1, #enemiesTable do
+            thisUnit = enemiesTable[i]
+            local uX, uY, uZ = ObjectPosition(thisUnit)
+            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                    unitsInRect = 0
+                    break
+                end            
+                if ttd(thisUnit) >= minttd then                
+                    unitsInRect = unitsInRect + 1
+                end
+            end
+        end
+        if unitsInRect >= minUnits then
+            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+            return true
+        else
+            return false
+        end
     end
 
     local function shallWeDot(unit)
@@ -815,7 +867,10 @@ local function runRotation()
         if debuff.rupture.exists("target") and ttd("target") > 3 then
             if cast.concentratedFlame("target") then return true end
         end
-
+        --Beamers
+        if standingTime > 1 and isChecked("Focused Azerite Beam") then
+            if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then return true end
+        end
     end
 
     local function actionList_Direct()
