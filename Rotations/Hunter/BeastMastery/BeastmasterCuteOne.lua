@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
+            -- Essence: Concentrated Flames 
+            br.ui:createCheckbox(section,"Concentrated Flames")
             -- Opener
             br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
