@@ -3482,6 +3482,10 @@ br.lists.spells = {
                 cracklingTourmaline             = 290372,
                 saphireofBrilliance             = 290365,
                 vigorEngaged                    = 287916,
+                -- Essences
+                memoryOfLucidDreams             = 298357,
+                recklessForce                   = 302932,
+                seethingRage                    = 297126,
             },
             debuffs                             = {
                 dampening                       = 110310,

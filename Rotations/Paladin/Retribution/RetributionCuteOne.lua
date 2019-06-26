@@ -67,6 +67,27 @@ local function createOptions()
             -- Divine Storm Units
             br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm.")
         br.ui:checkSectionState(section)
+        -----------------------
+        --- ESSENCE OPTIONS ---
+        -----------------------
+        section = br.ui:createSection(br.ui.window.profile,  "Essences")
+            -- Blood of the Enemy
+            br.ui:createCheckbox(section,"Blood of the Enemy")
+            -- Concentrated Flame 
+            br.ui:createCheckbox(section,"Concentrated Flame")
+            -- Focused Azerite Beam
+            br.ui:createCheckbox(section,"Focused Azerite Beam")
+            -- Guardian of Azeroth
+            br.ui:createCheckbox(section,"Guardian of Azeroth")
+            -- Memory of Lucid Dreams 
+            br.ui:createCheckbox(section,"Memory of Lucid Dreams")
+            -- Purifying Blast
+            br.ui:createCheckbox(section,"Purifying Blast")
+            -- The Unbound Force
+            br.ui:createCheckbox(section,"The Unbound Force")
+            -- Worldvein Resonance
+            br.ui:createCheckbox(section,"Worldvein Resonance")
+        br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
@@ -515,13 +536,64 @@ local function runRotation()
                     end
                 end
             -- Shield of Vengenace
-                -- shield_of_vengeance
-                if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance() then
+                -- shield_of_vengeance,if=buff.seething_rage.down&buff.memory_of_lucid_dreams.down
+                if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance() 
+                    and not buff.seethingRage.exists() and not buff.memoryOfLucidDreams.exists() 
+                then
                     if cast.shieldOfVengeance() then return end
+                end
+            -- Essence: The Unbound Force
+                -- the_unbound_force,if=time<=2|buff.reckless_force.up
+                if isChecked("The Unbound Force") and cast.able.theUnboundForce() and (combatTime <= 2 or buff.recklessForce.exists()) then
+                    if cast.theUnboundForce() then return end 
+                end
+            -- Essence: Blood of the Enemy
+                -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
+                if isChecked("Blood of the Enemy") and cast.able.bloodOfTheEnemy() 
+                    and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10))
+                then 
+                    if cast.bloodOfTheEnemy() then return end 
+                end
+            -- Essence: Guardian of Azeroth 
+                -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.crusade.remains>=45)
+                if isChecked("Guardian of Azeroth") and cast.able.guardianOfAzeroth() 
+                    and ((not talent.crusade and ((cd.avengingWrath.remain() < gcd and holyPower >= 3) or cd.avengingWrath.remain() >= 45)) 
+                        or ((talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4) or cd.crusade.remain() >= 45))
+                then 
+                    if cast.guardianOfAzeroth() then return end 
+                end
+            -- Essence: Worldvein Resonance 
+                -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
+                if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() 
+                    and ((cd.avengingWrath.remain() < gcd and holyPower >= 3) 
+                        or (cd.crusade.remain() < gcd and holyPower >= 4)
+                        or cd.avengingWrath.remain() >= 45 or cd.crusade.remain() >= 45) 
+                then 
+                    if cast.worldveinResonance() then return end 
+                end 
+            -- Essence: Focused Azerite Beam
+                -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
+                if isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() or not buff.crusade.exists()) 
+                    and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3) 
+                then
+                    if cast.focusedAzeriteBeam() then return end 
+                end
+            -- Essence: Memory of Lucid Dreams
+                -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
+                if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams() 
+                    and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)) and holyPower <= 3 
+                then
+                    if cast.memoryOfLucidDreams() then return end 
+                end
+            -- Essence: Purifying Blast 
+                -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
+                if isChecked("Purifying Blast") and cast.able.purifyingBlast() then 
+                    if cast.purifyingBlast() then return end 
                 end
             -- Avenging Wrath
                 -- avenging_wrath,if=buff.inquisition.up|!talent.inquisition.enabled
                 if isChecked("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath() and (buff.inquisition.exists() or not talent.inquisition) then
+                    Print("Avenging Wrath")
                     if cast.avengingWrath() then return end
                 end
             -- Crusade
@@ -578,158 +650,6 @@ local function runRotation()
                 end
             end
         end -- End Action List - PreCombat
-    -- -- Action List - Opener
-    --     local function actionList_Opener()
-    --         if isChecked("Opener") and isBoss("target") and opener == false then
-    --             if isValidUnit("target") and getDistance("target") < 12 then
-    --                 if not OPN1 then
-    --                     Print("Starting Opener")
-    --                     OPN1 = true
-    --                 elseif OPN1 and not BOJ1 then
-    --     -- Blade Of Justice/Divine Hammer
-    --                     if not talent.divineHammer then
-    --                         if castOpener("bladeOfJustice","BOJ1",1) then return end
-    --                     else
-    --                         if castOpener("divineHammer","BOJ1",1) then return end
-    --                     end
-    --                 elseif BOJ1 and not CRS1 and (getDistance("target") < 5 or not (t20Bleg or (not t20_4pc and not hasEquiped(137048)))) then
-    --     -- Crusader Strike - T20 Blood Elf Leggo or no T20 and no Leggo
-    --                     if t20Bleg or (not t20_4pc and not hasEquiped(137048)) then
-    --                         if talent.zeal then
-    --                             if castOpener("zeal","CRS1",2) then return end
-    --                         else
-    --                             if castOpener("crusaderStrike","CRS1",2) then return end
-    --                         end
-    --                     else
-    --                         Print("2: Crusader Strike *special* (Uncastable)")
-    --                         CRS1 = true
-    --                     end
-    --                 elseif CRS1 and not JUD1 then
-    --     -- Judgment
-    --                     if castOpener("judgment","JUD1",3) then return end
-    --                 elseif JUD1 and not CRU1 then
-    --     -- Crusade/Avenging Wrath
-    --                     if talent.crusade then
-    --                         if castOpener("crusade","CRU1",4) then return end
-    --                     else
-    --                         if castOpener("avengingWrath","CRU1",4) then return end
-    --                     end
-    --                 elseif CRU1 and not TMV1 then
-    --     -- Templar's Verdict
-    --                     if castOpener("templarsVerdict","TMV1",5) then return end
-    --                 elseif TMV1 and not (ARC1 or WOA1) then
-    --     -- Arcane Torrent / Wake of Ashes
-    --                     if t20Bleg then
-    --                         if isChecked("Racial") then
-    --                             if castOpener("racial","ARC1",6) then return end
-    --                         else
-    --                             Print("6: Arcane Torrent (Uncastable)")
-    --                             ARC1 = true
-    --                         end
-    --                     else
-    --                         if castOpener("wakeOfAshes","WOA1",6) then return end
-    --                     end
-    --                 elseif (ARC1 or WOA1) and not TMV2 then
-    --     -- Templar's Verdict
-    --                     if castOpener("templarsVerdict","TMV2",7) then return end
-    --                 elseif TMV2 and not (WOA2 or ARC2 or CRS2) then
-    --     -- Wake of Ashes / Arcane Torrent / Crusader Strike
-    --                     if t20Bleg then
-    --                         if castOpener("wakeOfAshes","WOA2",8) then return end
-    --                     elseif race == "BloodElf" and not t20_4pc then
-    --                         if isChecked("Racial") then
-    --                             if castOpener("racial","ARC2",8) then return end
-    --                         else
-    --                             Print("8: Arcane Torrent (Uncastable)")
-    --                             ARC2 = true
-    --                         end
-    --                     elseif talent.zeal then
-    --                         if castOpener("zeal","CRS2",8) then return end
-    --                     else
-    --                         if castOpener("crusaderStrike","CRS2",8) then return end
-    --                     end
-    --                 elseif (WOA2 or ARC2 or CRS2) and not TMV3 then
-    --     -- Templar's Verdict
-    --                     if castOpener("templarsVerdict","TMV3",9) then return end
-    --                 elseif TMV3 and not (TMV4 or CRS3) then
-    --     -- End Opener 1 / Templar's Verdict / Crusader Strike
-    --                     if not t20_4pc or (t20_4pc and race == "BloodElf" and not hasEquiped(137048)) then
-    --                         opener = true;
-    --                         Print("Opener Complete")
-    --                         return
-    --                     elseif t20Bleg then
-    --                         if castOpener("templarsVerdict","TMV4",10) then return end
-    --                     elseif talent.zeal then
-    --                         if castOpener("zeal","CRS3",10) then return end
-    --                     else
-    --                         if castOpener("crusaderStrike","CRS3",10) then return end
-    --                     end
-    --                 elseif (TMV4 or CRS3) and not BOJ2 then
-    --     -- Blade Of Justice/Divine Hammer
-    --                     if not talent.divineHammer then
-    --                         if castOpener("bladeOfJustice","BOJ2",11) then return end
-    --                     else
-    --                         if castOpener("divineHammer","BOJ2",11) then return end
-    --                     end
-    --                 elseif BOJ2 and not (TMV5 or CRS4) then
-    --     -- Templar's Verdict / Crusader Strike
-    --                     if t20_4pc and hasEquiped(137048) then
-    --                         if castOpener("templarsVerdict","TMV5",12) then return end
-    --                     elseif talent.zeal then
-    --                         if castOpener("zeal","CRS4",12) then return end
-    --                     else
-    --                         if castOpener("crusaderStrike","CRS4",12) then return end
-    --                     end
-    --                 elseif (TMV5 or CRS4) and not CRS5 then
-    --     -- End of Opener 2 / Crusader Strike - T20 and Leggo
-    --                     if t20Bleg then
-    --                         opener = true;
-    --                         Print("Opener Complete")
-    --                         return
-    --                     elseif t20_4pc and hasEquiped(137048) then
-    --                         if talent.zeal then
-    --                             if castOpener("zeal","CRS5",13) then return end
-    --                         else
-    --                             if castOpener("crusaderStrike","CRS5",13) then return end
-    --                         end
-    --                     else
-    --                         Print("13: Crusader Strike *special* (Uncastable)")
-    --                         CRS5 = true
-    --                     end
-    --                 elseif CRS5 and not JUD2 then
-    --     -- Judgment
-    --                     if castOpener("judgment","JUD2",14) then return end
-    --                 elseif JUD2 and not TMV6 then
-    --     -- Templar's Verdict
-    --                     if castOpener("templarsVerdict","TMV6",15) then return end
-    --                 elseif TMV6 and not CRS6 then
-    --     -- End of Opener 3 / Crusader's Strile
-    --                     if t20_4pc and hasEquiped(137048) then
-    --                         opener = true;
-    --                         Print("Opener Complete")
-    --                         return
-    --                     else
-    --                         if talent.zeal then
-    --                             if castOpener("zeal","CRS6",16) then return end
-    --                         else
-    --                             if castOpener("crusaderStrike","CRS6",16) then return end
-    --                         end
-    --                     end
-    --                 elseif CRS6 and not TMV7 then
-    --     -- Templar's Verdict
-    --                     if castOpener("templarsVerdict","TMV7",17) then return end
-    --                 elseif TMV7 then
-    --     -- Final End of Opener
-    --                     opener = true;
-    --                     Print("Opener Complete")
-    --                     return
-    --                 end
-    --             end
-    --         elseif (UnitExists("target") and not isBoss("target")) or not isChecked("Opener") then
-    --             opener = true
-    --             return
-    --         end
-    --     end -- End Action List - Opener
     -- Action List - Finisher
         local function actionList_Finisher()
         -- Inquisition
@@ -741,17 +661,16 @@ local function runRotation()
                 if cast.inquisition() then return end 
             end
         -- Execution Sentence
-            -- execution_sentence,if=spell_targets.divine_storm<=2&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-            if cast.able.executionSentence() and ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards8 > 0) or level < 40)
-                and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) 
+            -- execution_sentence,if=spell_targets.divine_storm<=2&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>10|talent.crusade.enabled&buff.crusade.down&cooldown.crusade.remains>10|buff.crusade.stack>=7)
+            if cast.able.executionSentence() 
+                and ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards8 > 0) or level < 40)
+                and ((not talent.crusade and (cd.avengingWrath.remain() > 10 or not isChecked("Avenging Wrath")))
+                    or (talent.crusade and ((not buff.crusade.exists() and cd.crusade.remain() > 10) or buff.crusade.stack() >= 7 or not isChecked("Crusade")))
+                    or not useCDs())
             then
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
-            -- divine_storm,if=variable.ds_castable&buff.divine_purpose.react
-            if cast.able.divineStorm() and dsCastable and buff.divinePurpose.exists() then
-                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
-            end
             -- divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
             -- if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
             --     or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
@@ -766,14 +685,15 @@ local function runRotation()
                 end
             end
         -- Templar's Verdict
-            if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40) then
-                -- templars_verdict,if=buff.divine_purpose.react
-                if buff.divinePurpose.exists() then
-                    if cast.templarsVerdict() then return end
-                end
-                -- templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
-                if (not talent.crusade or cd.crusade.remain() > gcd * 3 or not isChecked("Crusade") or not useCDs()) 
-                    and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or cd.executionSentence.remain() > gcd * 2) 
+            -- templars_verdict,if=(!talent.crusade.enabled&cooldown.avenging_wrath.remains>gcd*3|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|buff.crusade.up&buff.crusade.stack<10)
+            if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units"))
+                or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40)
+            then
+                if ((not talent.crusade and (cd.avengingWrath.remain() > gcd * 3 or not isChecked("Avenging Wrath"))) 
+                        or (talent.crusade and (cd.crusade.remain() > gcd * 3 or not isChecked("Crusade"))) or not useCDs()) 
+                    and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2 
+                        or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
+                        or (buff.crusade.exists() and buff.crusade.stack() < 10))
                 then
                     if cast.templarsVerdict() then return end
                 end
@@ -782,14 +702,17 @@ local function runRotation()
     -- Action List - Generator
         local function actionList_Generator()
         -- Call Action List - Finisher
-            -- call_action_list,name=finishers,if=holy_power>=5
-            if holyPower >= 5 then
+            -- call_action_list,name=finishers,if=holy_power>=5|buff.memory_of_lucid_dreams.up|buff.seething_rage.up
+            if holyPower >= 5 or buff.memoryOfLucidDreams.exists() or buff.seethingRage.exists() then
                 if actionList_Finisher() then return end
             end
         -- Wake of Ashes
-            -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15|spell_targets.wake_of_ashes>=2)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
+            -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15|spell_targets.wake_of_ashes>=2)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)&(cooldown.avenging_wrath.remains>10|talent.crusade.enabled&cooldown.crusade.remains>10)
             if mode.wake == 1 and cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
                 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd))
+                and ((not talent.crusade and (cd.avengingWrath.remain() > 10 or not isChecked("Avenging Wrath")))
+                    or (talent.crusade and (cd.crusade.remain() > 10 or not isChecked("Crusade")))
+                    or not useCDs())
             then
                 if cast.wakeOfAshes(units.dyn12,"cone",1,12) then return end
             end
@@ -830,7 +753,11 @@ local function runRotation()
             end
         -- Call Action List: Finishers
             -- call_action_list,name=finishers
-            if actionList_Finisher() then return end 
+            if actionList_Finisher() then return end
+        -- Essence: Concentrated Flame 
+            if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
+                if cast.concentratedFlame() then return end 
+            end
         -- Crusader Strike 
             -- crusader_strike,if=holy_power<=4
             if cast.able.crusaderStrike() and holyPower <= 4 then 
