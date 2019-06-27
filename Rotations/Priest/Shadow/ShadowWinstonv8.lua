@@ -784,8 +784,12 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if isChecked("Lucid Dreams") and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
-            if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+        if isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then 
+            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+            end
         end
     --Shadow Word: Death
         -- shadow_word_death,target_if=target.time_to_die<3|buff.voidform.down
@@ -1080,8 +1084,12 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if isChecked("Lucid Dreams") and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
-            if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+        if isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then 
+            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+            end
         end
     --Mind Sear
         --mind_sear,if=buff.harvested_thoughts.up&cooldown.void_bolt.remains>=1.5&azerite.searing_dialogue.rank>=1
