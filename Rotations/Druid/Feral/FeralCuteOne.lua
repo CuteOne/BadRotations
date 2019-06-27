@@ -94,7 +94,7 @@ local function createOptions()
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Essences
-            br.ui:createCheckbox(section,"Use Essences")
+            br.ui:createCheckbox(section,"Use Essence")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
@@ -682,13 +682,10 @@ actionList.Cooldowns = function()
                 if useCDs() and cast.able.guardianOfAzeroth() then
                     if cast.guardianOfAzeroth() then return end
                 end
-                -- Essence: Worldvein Essence
-                if cast.able.worldveinEssence() then
-                    if cast.worldveinEssence() then return end
+                -- Essence: Worldvein Resonance
+                if cast.able.worldveinResonance() then
+                    if cast.worldveinResonance() then return end
                 end
-            end
-            if cast.able.heartEssence() and buff.tigersFury.exists() then
-                if cast.heartEssence() then return true end
             end
         end
         -- Incarnation - King of the Jungle
