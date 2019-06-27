@@ -82,8 +82,6 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             -- Multi-DoT Limit
             br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
-            -- Essense: Concentrated Flame 
-            br.ui:createCheckbox(section,"Concentrated Flame")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -95,6 +93,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
+            -- Essences
+            br.ui:createCheckbox(section,"Use Essences")
             -- Tiger's Fury
             br.ui:createCheckbox(section,"Tiger's Fury")
             br.ui:createDropdownWithout(section,"Snipe Tiger's Fury", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Tiger's Fury to take adavantage of Predator talent.")
@@ -634,10 +634,62 @@ actionList.Cooldowns = function()
         if isChecked("Racial") and cast.able.racial() and useCDs() and race == "Troll" then
             if cast.racial() then return true end
         end
+        if isChecked("Use Essence") then
+            -- Essence: The Unbound Force
+            -- the_unbound_force,if=buff.reckless_force.up|buff.tigers_fury.up
+            if cast.able.theUnboundForce()
+                and (buff.recklessness.exists() or buff.tigersFury.exists())
+            then
+                if cast.theUnboundForce() then return true end
+            end
+            -- Essence: Memory of Lucid Dreams
+            -- memory_of_lucid_dreams,if=buff.tigers_fury.up&buff.berserk.down
+            if useCDs() and cast.able.memoryOfLucidDreams() and buff.tigersFury.exists()
+                and not (buff.berserk.exists() or buff.incarnation.exists())
+            then
+                if cast.memoryOfLucidDreams() then return true end
+            end
+            -- Essence: Blood of the Enemy
+            -- blood_of_the_enemy,if=buff.tigers_fury.up
+            if useCDs() and cast.able.bloodOfTheEnemy() and buff.tigersFury.exists() then
+                if cast.bloodOfTheEnemy() then return true end
+            end
+        end
         -- Feral Frenzy
         -- feral_frenzy,if=combo_points=0
         if cast.able.feralFrenzy() and (comboPoints == 0) then
             if cast.feralFrenzy() then return true end
+        end
+        if isChecked("Use Essence") then
+            -- Essence: Focused Azerite Beam
+            -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50)) then
+                if cast.focusedAzeriteBeam() then return true end
+            end
+            -- Essence: Purifying Blast
+            -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
+            if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
+                if cast.purifyingBlast() then return true end
+            end
+            -- Essence: Heart Essence
+            -- heart_essence,if=buff.tigers_fury.up
+            if buff.tigersFury.exists() then
+                -- Essence: Concentrated Flame
+                if cast.able.concentratedFlame() then
+                    if cast.concentratedFlame() then return true end
+                end
+                -- Essence: Guardian of Azeroth
+                if useCDs() and cast.able.guardianOfAzeroth() then
+                    if cast.guardianOfAzeroth() then return end
+                end
+                -- Essence: Worldvein Essence
+                if cast.able.worldveinEssence() then
+                    if cast.worldveinEssence() then return end
+                end
+            end
+            if cast.able.heartEssence() and buff.tigersFury.exists() then
+                if cast.heartEssence() then return true end
+            end
         end
         -- Incarnation - King of the Jungle
         -- incarnation,if=energy>=30&(cooldown.tigers_fury.remains>15|buff.tigers_fury.up)
@@ -848,8 +900,8 @@ actionList.Finisher = function()
             or ferociousBiteFinish(units.dyn5) or level < 20 or ttd(units.dyn5) <= 8
             or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5) or isDummy(units.dyn5))
     then
-        if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
-            Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(thp(thisUnit),0).."% health remaining.")
+        if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(units.dyn5) then
+            Print("Ferocious Bite Finished! "..UnitName(units.dyn5).." with "..round2(thp(units.dyn5),0).."% health remaining.")
         end
         if cast.ferociousBite() then return true end
     end
@@ -1006,11 +1058,6 @@ actionList.Generator = function()
                 if cast.thrashCat("player","aoe",1,8) then return true end
             end
         end
-    end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then
-        if cast.concentratedFlame() then return true end 
     end
     -- Swipe
     -- pool_resource,for_next=1
@@ -1202,6 +1249,8 @@ local function runRotation()
     enemies.get(20,"player",true) -- makes enemies.yards20nc
     enemies.get(13,"player",false,true) -- makes enemies.yards13f
     enemies.get(8) -- makes enemies.yards8
+    enemies.get(8,"player",false,true) -- makes enemies.yards8f
+    enemies.get(8,"target") -- makes enemies.yards8t
     enemies.get(5,"player",false,true) -- makes enemies.yards5f
 
     -- General Vars
