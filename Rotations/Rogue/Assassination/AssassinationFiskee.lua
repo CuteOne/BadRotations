@@ -845,7 +845,7 @@ local function runRotation()
                 --Worldvein Resonance
                 if cast.worldveinResonance("player") then return true end
                 --Memory of lucid Dreams
-                if energyDeficit > (25 + energyRegenCombined) then
+                if energyDeficit > (25 + energyRegenCombined) and (not isChecked("Vendetta") or (cd.vendetta.exists() and cd.vendetta.remain() < 115)) then
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian
