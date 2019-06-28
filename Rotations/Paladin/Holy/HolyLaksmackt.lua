@@ -1533,7 +1533,7 @@ local function runRotation()
 
     --Avenging Crusader (216331)  UnitBuffID("player", 216331)
     if buff.avengingCrusader.exists("player") and getFacing("player", "target") then
-      if mode.DPS == 1 and
+      if mode.DPS == 1 or mode.DPS == 3 and
               isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
               isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
         if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo)) then
