@@ -630,6 +630,7 @@ br.lists.spells = {
                 starfall                    = 191034,
                 starsurge                   = 78674,
                 sunfire                     = 93402,
+                stellarFlare                = 202347,
             },
             artifacts                       = {
 
@@ -3412,7 +3413,7 @@ br.lists.spells = {
                 animaOfDeath                    = 294926,
                 azerothsUndyingGift             = 298081,
                 bloodOfTheEnemy                 = 297108,
-                concentratedFlame               = 295373, --299349,
+                concentratedFlame               = 295373,
                 empoweredNullBarrier            = 295746,
                 focusedAzeriteBeam              = 295258,
                 guardianOfAzeroth               = 299355,
