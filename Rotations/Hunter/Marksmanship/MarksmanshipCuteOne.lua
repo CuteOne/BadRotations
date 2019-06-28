@@ -72,6 +72,8 @@ local function createOptions()
         -- Piercing Shot
             -- br.ui:createCheckbox(section, "Piercing Shot")
             br.ui:createSpinnerWithout(section, "Piercing Shot Units", 3, 1, 5, 1, "|cffFFFFFFSet to desired units to cast Piercing Shot")
+        -- Heart Essence
+            br.ui:createCheckbox(section,"Use Essence")
         br.ui:checkSectionState(section)
     -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -621,6 +623,25 @@ local function runRotation()
                     if cast.racial("target","ground") then return true end
                 end
             end
+        -- Heart Essence
+            if isChecked("Use Essence") then 
+                -- worldvein_resonance
+                if cast.able.worldveinResonance() then
+                    if cast.worldveinResonance() then return end 
+                end
+                -- guardian_of_azeroth,if=cooldown.trueshot.remains<15
+                if cast.able.guardianOfAzeroth() and cd.trueshot.remain() < 15 then 
+                    if cast.guardianOfAzeroth() then return end
+                end 
+                -- ripple_in_space,if=cooldown.trueshot.remains<7
+                if cast.able.rippleInSpace() and cd.trueshot.remain() < 7 then 
+                    if cast.rippleInSpace() then return end 
+                end
+                -- memory_of_lucid_dreams
+                if cast.able.memoryOfLucidDeams() then
+                    if cast.memoryOfLucidDeams() then return end
+                end
+            end
         -- Potion
             -- potion,if=buff.trueshot.react&buff.bloodlust.react|buff.trueshot.up&ca_execute|target.time_to_die<25
             if useCDs() and isChecked("Potion") and canUseItem(142117) and inRaid then
@@ -679,6 +700,29 @@ local function runRotation()
             if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
                 if cast.multishot() then return end 
             end
+        -- Heart Essence
+            if isChecked("Use Essence") then
+                -- focused_azerite_beam
+                if cast.able.focusedAzeriteBeam() then
+                    if cast.focusedAzeriteBeam() then return end
+                end
+                -- purifying_blast
+                if cast.able.purifyingBlast() then
+                    if cast.purifyingBlast() then return end
+                end
+                -- concentrated_flame
+                if cast.able.concentratedFlame() then
+                    if cast.concentratedFlame() then return end
+                end
+                -- blood_of_the_enemy
+                if cast.able.bloodOfTheEnemy() then
+                    if cast.bloodOfTheEnemy() then return end
+                end
+                -- the_unbound_force
+                if cast.able.theUnboundForce() then
+                    if cast.theUnboundForce() then return end
+                end
+            end
         -- Piercing Shot 
             -- piercing_shot
             if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
@@ -730,8 +774,10 @@ local function runRotation()
                 if cast.rapidFire() then return end 
             end
         -- Arcane Shot 
-            -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up
-            if cast.able.arcaneShot() and buff.trueshot.exists() and buff.masterMarksman.exists() then 
+            -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&!buff.memory_of_lucid_dreams.up
+            if cast.able.arcaneShot() and buff.trueshot.exists() 
+                and buff.masterMarksman.exists() and not buff.memoryOfLucidDeams.exists()
+            then 
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
@@ -741,10 +787,40 @@ local function runRotation()
             then
                 if cast.aimedShot() then return end 
             end
+        -- Arcane Shot
+            -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&buff.memory_of_lucid_dreams.up
+            if cast.able.arcaneShot() and buff.trueshot.exists() 
+                and buff.masterMarksman.exists() and buff.memoryOfLucidDeams.exists()
+            then 
+                if cast.arcaneShot() then return end
+            end
         -- Piercing Shot 
             -- piercing_shot
             if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
                 if cast.piercingShot() then return end 
+            end
+        -- Heart Essence
+            if isChecked("Use Essence") then
+                -- focused_azerite_beam
+                if cast.able.focusedAzeriteBeam() then
+                    if cast.focusedAzeriteBeam() then return end
+                end
+                -- purifying_blast
+                if cast.able.purifyingBlast() then
+                    if cast.purifyingBlast() then return end
+                end
+                -- concentrated_flame
+                if cast.able.concentratedFlame() then
+                    if cast.concentratedFlame() then return end
+                end
+                -- blood_of_the_enemy
+                if cast.able.bloodOfTheEnemy() then
+                    if cast.bloodOfTheEnemy() then return end
+                end
+                -- the_unbound_force
+                if cast.able.theUnboundForce() then
+                    if cast.theUnboundForce() then return end
+                end
             end
         -- Arcane Shot 
             -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)

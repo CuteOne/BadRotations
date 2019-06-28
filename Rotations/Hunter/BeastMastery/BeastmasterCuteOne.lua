@@ -81,8 +81,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Units To AoE", 2, 1, 10, 1, "|cffFFFFFFSet to desired units to start AoE at.")
             -- Misdirection
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFSelect target to Misdirect to.")
-            -- Essence: Concentrated Flames 
-            br.ui:createCheckbox(section,"Concentrated Flames")
+            -- Heart Essence
+            br.ui:createCheckbox(section,"Use Essence")
             -- Opener
             br.ui:createCheckbox(section, "Opener")
         br.ui:checkSectionState(section)
@@ -599,6 +599,25 @@ actionList.Cooldowns = function()
             --     if cast.potion() then return end
             -- end
         end
+        -- Heart Essence
+        if isChecked("Use Essence") then
+            -- worldvein_resonance
+            if cast.able.worldveinResonance() then
+                if cast.worldveinResonance() then return end 
+            end
+            -- guardian_of_azeroth
+            if cast.able.guardianOfAzeroth() then 
+                if cast.guardianOfAzeroth() then return end
+            end 
+            -- ripple_in_space
+            if cast.able.rippleInSpace() then 
+                if cast.rippleInSpace() then return end 
+            end
+            -- memory_of_lucid_dreams
+            if cast.able.memoryOfLucidDeams() then
+                if cast.memoryOfLucidDeams() then return end
+            end
+        end
         -- Aspect of the Wild
         -- aspect_of_the_wild,precast_time=1.1,if=!azerite.primal_instincts.enabled
         if isChecked("Aspect of the Wild") and cast.able.aspectOfTheWild() 
@@ -830,11 +849,6 @@ actionList.St = function()
     if cast.able.killCommand() then
         if cast.killCommand() then return end
     end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() and charges.concentratedFlame.frac() > 1.7 then 
-        if cast.concentratedFlame() then return end 
-    end
     -- Chimaera Shot
     -- chimaera_shot
     if cast.able.chimaeraShot() then
@@ -854,20 +868,38 @@ actionList.St = function()
     then
         if cast.barbedShot() then return end
     end
+    -- Heart Essence
+    if isChecked("Use Essence") then
+        -- focused_azerite_beam
+        if cast.able.focusedAzeriteBeam() then
+            if cast.focusedAzeriteBeam() then return end
+        end
+        -- purifying_blast
+        if cast.able.purifyingBlast() then
+            if cast.purifyingBlast() then return end
+        end
+        -- concentrated_flame
+        if cast.able.concentratedFlame() then
+            if cast.concentratedFlame() then return end
+        end
+        -- blood_of_the_enemy
+        if cast.able.bloodOfTheEnemy() then
+            if cast.bloodOfTheEnemy() then return end
+        end
+        -- the_unbound_force
+        if cast.able.theUnboundForce() then
+            if cast.theUnboundForce() then return end
+        end
+    end
     -- Barrage
     -- barrage
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
-    end    
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
-        if cast.concentratedFlame() then return end 
     end
     -- Cobra Shot
-    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd)&cooldown.kill_command.remains>1
+    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
     if cast.able.cobraShot() and ((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand() 
-        or cd.killCommand.remain() > 1 + gcdMax) and cd.killCommand.remain() > 1) 
+        or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDeams.exists()) and cd.killCommand.remain() > 1) 
     then
         if cast.cobraShot() then return end
     end
@@ -932,11 +964,6 @@ actionList.Cleave = function()
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
     end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() and charges.concentratedFlame.frac() > 1.7 then 
-        if cast.concentratedFlame() then return end 
-    end
     -- Kill Command
     -- kill_command,if=active_enemies<4|!azerite.rapid_reload.enabled
     if cast.able.killCommand() and (#enemies.yards8p < 4 or not traits.rapidReload.active) then
@@ -955,10 +982,28 @@ actionList.Cleave = function()
     then
         if cast.barbedShot(lowestBarbedShot) then return end
     end
-    -- Concentrated Flame 
-    -- AMR Use Logic
-    if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
-        if cast.concentratedFlame() then return end 
+    -- Heart Essence
+    if isChecked("Use Essence") then
+        -- focused_azerite_beam
+        if cast.able.focusedAzeriteBeam() then
+            if cast.focusedAzeriteBeam() then return end
+        end
+        -- purifying_blast
+        if cast.able.purifyingBlast() then
+            if cast.purifyingBlast() then return end
+        end
+        -- concentrated_flame
+        if cast.able.concentratedFlame() then
+            if cast.concentratedFlame() then return end
+        end
+        -- blood_of_the_enemy
+        if cast.able.bloodOfTheEnemy() then
+            if cast.bloodOfTheEnemy() then return end
+        end
+        -- the_unbound_force
+        if cast.able.theUnboundForce() then
+            if cast.theUnboundForce() then return end
+        end
     end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
