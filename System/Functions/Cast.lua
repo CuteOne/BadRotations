@@ -591,8 +591,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return true
 	end
 	local function hasEssence(spellID)
-		local activeEssence = 0
-		local spellEssence = select(3,GetSpellInfo(spellID))
 		local essence = br.player.essence
 		if essence[index] == nil then return true end
 		if essence[index].id == nil then return true end
