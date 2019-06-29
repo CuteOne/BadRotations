@@ -83,8 +83,6 @@ local function createOptions()
     -- Overhealing Cancel
     br.ui:createSpinner(section, "Overhealing Cancel", 99, 0, 100, 1, "", "|cffFFFFFFSet Desired Threshold at which you want to prevent your own casts")
     br.ui:createCheckbox(section, "OOC Healing", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.", 1)
-    br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
-    br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
 
     br.ui:checkSectionState(section)
     -- Raid
@@ -184,6 +182,15 @@ local function createOptions()
     -- Aura Mastery
     br.ui:createSpinner(section, "Aura Mastery", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
     br.ui:createSpinner(section, "Aura Mastery Targets", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Aura Mastery Targets", true)
+    br.ui:checkSectionState(section)
+
+    -- Essences
+    --"Memory of Lucid Dreams"
+    section = br.ui:createSection(br.ui.window.profile, "Essences")
+    br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
+    br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+    br.ui:createSpinner(section, "Memory of Lucid Dreams", 50, 0, 100, 5, "", "mana to pop it at")
+    br.ui:createCheckbox(section, "Ever Rising Tide")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -349,6 +356,7 @@ local function runRotation()
   local talent = br.player.talent
   local gcd = br.player.gcdMax
   local charges = br.player.charges
+  local cd = br.player.cd
   local debuff = br.player.debuff
   local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
   local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
@@ -1005,15 +1013,31 @@ local function runRotation()
     local layOnHandsTarget = nil
     local burst = nil
 
-    if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") then
+    --Essences
+    --Concentrated Flame
+    if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and cd.concentratedFlame.remain() == 0 then
       if cast.concentratedFlame(lowest.unit) then
         return true
       end
     end
-
-    if isChecked("ConcentratedFlame - DPS") then
+    if isChecked("ConcentratedFlame - DPS") and cd.concentratedFlame.remain() == 0 and getTTD("target") > 3 then
       if cast.concentratedFlame("target") then
         return true
+      end
+    end
+    --lucid dreams
+    if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams()
+            and mana <= getValue("Memory of Lucid Dreams") then
+      if cast.memoryOfLucidDreams() then
+        return
+      end
+    end
+    -- the ever rising ride
+    --overchargeMana
+    if isChecked("Ever Rising Tide") and cast.able.overchargeMana()
+            and mana >= 20 then
+      if cast.overchargeMana() then
+        return
       end
     end
 
