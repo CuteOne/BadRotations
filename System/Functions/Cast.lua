@@ -630,7 +630,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			if ((distance >= minRange and distance < maxRange) or IsSpellInRange(spellName,thisUnit) == 1) then
 				-- Print("Spell is in range!")
 				local hasEnemies = #getEnemies("player",maxRange) >= minUnits or spellType == "Helpful" or spellType == "Unknown"
-                if debug == "rect" then
+				if debug == "rect" then
 					if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") and hasEnemies then
 						castDebug()
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)

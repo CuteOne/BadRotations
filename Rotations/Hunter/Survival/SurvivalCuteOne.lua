@@ -75,6 +75,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section,"Misdirection", {"|cff00FF00Tank","|cffFFFF00Focus","|cffFF0000Pet"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
             -- Opener
             br.ui:createDropdownWithout(section, "Opener", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use opener.")
+            -- Heart Essence 
+            br.ui:createCheckbox(section, "Use Essence")
         br.ui:checkSectionState(section)
         -- Pet Options
         section = br.ui:createSection(br.ui.window.profile, "Pet")
@@ -202,6 +204,7 @@ local use
 -- General Locals
 local combatTime
 local flying
+local haltProfile
 local hastar
 local healPot
 local petCombat
@@ -327,15 +330,15 @@ actionList.PetManagement = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if (not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive")) then
+        if ((not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive"))) and not haltProfile then
             PetAssistMode()
-        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then 
+        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then 
             PetDefensiveMode()
-        elseif inCombat and petMode ~= "Passive" and #enemies.yards40 == 0 then
+        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
             if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                 PetAttack(units.dyn40)
             elseif getOptionValue("Pet Target") == 2 and validTarget then
@@ -346,7 +349,7 @@ actionList.PetManagement = function()
                     if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                 end
             end
-        elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) and IsPetAttackActive() then
+        elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile then --and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
@@ -365,7 +368,7 @@ actionList.PetManagement = function()
         if cast.survivalOfTheFittest("pet") then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile then
         if cast.able.bite() then
             if cast.bite("pettarget","pet") then return end
         end
@@ -617,86 +620,112 @@ actionList.Cooldown = function()
     then
         if cast.aspectOfTheEagle() then return end
     end
-    -- -- A Murder of Crows
-    -- -- a_murder_of_crows
-    -- if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
-    --     if cast.aMurderOfCrows() then return end
-    -- end
-    -- -- Coordinated Assault
-    -- -- coordinated_assault
-    -- if cast.able.coordinatedAssault() and eagleScout() > 0
-    --     and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
-    -- then
-    --     if cast.coordinatedAssault() then return end
-    -- end
+    -- Heart Essence 
+    if isChecked("Use Essence") and useCDs() then
+        -- focused_azerite_beam
+        if cast.able.focusedAzeriteBeam() then 
+            if cast.focusedAzeriteBeam() then return end 
+        end
+        -- memory_of_lucid_dreams,if=buff.coordinated_assault.up
+        if cast.able.memoryOfLucidDreams() and buff.coordinatedAssault.exists() then
+            if cast.memoryOfLucidDreams() then return end
+        end
+        -- blood_of_the_enemy,if=buff.coordinated_assault.up
+        if cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() then
+            if cast.bloodOfTheEnemy() then return end
+        end
+        -- purifying_blast
+        if cast.able.purifyingBlast() then 
+            if cast.purifyingBlast() then return end 
+        end
+        -- guardian_of_azeroth
+        if cast.able.guardianOfAzeroth() then 
+            if cast.guardianOfAzeroth() then return end 
+        end
+        -- ripple_in_space
+        if cast.able.rippleInSpace() then 
+            if cast.rippleInSpace() then return end 
+        end
+        -- concentrated_flame,if=full_recharge_time<1*gcd
+        if cast.able.concentratedFlame() and charges.concentratedFlame.timeTillFull() < 1 * gcdMax then 
+            if cast.concentratedFlame() then return end 
+        end
+        -- the_unbound_force,if=buff.reckless_force.up
+        if cast.able.theUnboundForce() and buff.recklessForce.exists() then 
+            if cast.theUnboundForce() then return end 
+        end
+        -- worldvein_resonance
+        if cast.able.worldveinResonance() then 
+            if cast.worldveinResonance() then return end 
+        end
+    end
 end -- End Action List - Cooldowns
 
 -- Action List - Single Target
 actionList.St = function()
-    -- A Murder of Crows
-    -- a_murder_of_crows
-    if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
-        if cast.aMurderOfCrows() then return end
-    end
-    -- Mongoose Bite
-    -- mongoose_bite,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd)
-    if cast.able.mongooseBite() and talent.mongooseBite and talent.birdsOfPrey and buff.coordinatedAssault.exists() 
-        and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax) 
-    then
-        if cast.mongooseBite() then return end 
-    end 
-    -- Raptor Strike 
-    -- raptor_strike,if=talent.birds_of_prey.enabled&buff.coordinated_assault.up&(buff.coordinated_assault.remains<gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd)
-    if cast.able.raptorStrike() and not talent.mongooseBite and talent.birdsOfPrey and buff.coordinatedAssault.exists() 
-        and (buff.coordinatedAssault.remain() < gcdMax or buff.blurOfTalons.remain() < gcdMax) 
-    then
-        if cast.raptorStrike() then return end 
-    end
-    -- Serpent Sting 
-    -- serpent_sting,if=buff.vipers_venom.react&buff.vipers_venom.remains<gcd
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and buff.vipersVenom.exists() and buff.vipersVenom.remain() < gcdMax then 
-        if cast.serpentSting() then return end 
-    end
-    -- Kill Command
-    -- kill_command,if=focus+cast_regen<focus.max&(!talent.alpha_predator.enabled|talent.alpha_predator.enabled&full_recharge_time<1.5*gcd&azerite.primeval_intuition.enabled&focus+cast_regen<100|!azerite.primeval_intuition.enabled&focus+cast_regen<80)
-    if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (not talent.alphaPredator or talent.alphaPredator 
-        and charges.killCommand.timeTillFull() < 1.5 * gcdMax and traits.primevalIntuition.active and focus + castRegen(spell.killCommand) < 100 
-        or not traits.primevalIntuition.active and focus + castRegen(spell.killCommand) < 80)) 
-    then
-        if cast.killCommand() then return end
-    end
-    -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&(buff.mongoose_fury.down|full_recharge_time<4.5*gcd))
-    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and (charges.wildfireBomb.timeTillFull() < gcdMax 
-        or not debuff.wildfireBomb.exists(units.dyn40) and (not buff.mongooseFury.exists() or charges.wildfireBomb.timeTillFull() < 4.5 * gcdMax))
-    then
-        if cast.wildfireBomb() then return end
-    end
-    -- Serpent Sting
-    -- serpent_sting,if=buff.vipers_venom.react&dot.serpent_sting.remains<4*gcd|!talent.vipers_venom.enabled&!dot.serpent_sting.ticking&!buff.coordinated_assault.up
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and ((buff.vipersVenom.exists() and debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax) 
-        or (not talent.vipersVenom and not debuff.serpentSting.exists(units.dyn40) and not buff.coordinatedAssault.exists()))
-    then 
-        if cast.serpentSting() then return end
-    end
-    -- serpent_sting,if=refreshable&(azerite.latent_poison.rank>2|azerite.latent_poison.enabled&azerite.venomous_fangs.enabled|(azerite.latent_poison.enabled
-        --|azerite.venomous_fangs.enabled)&(!azerite.blur_of_talons.enabled|!talent.birds_of_prey.enabled|!buff.coordinated_assault.up))
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
-        and (traits.latentPoison.rank > 2 or (traits.latentPoison.active and traits.venomousFangs.active)
-        or ((traits.latentPoison.active or traits.venomousFangs.active) and (not traits.blurOfTalons.active
-        or not talent.birdsOfPrey or not buff.coordinatedAssault.exists())))
-    then 
-        if cast.serpentSting() then return end
-    end
-    -- Steel Trap 
-    -- steel_trap
-    if cast.able.steelTrap("best",nil,1,5) then
-        if cast.steelTrap("best",nil,1,5) then return end
-    end
     -- Harpoon 
     -- harpoon,if=talent.terms_of_engagement.enabled
     if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement then
         if cast.harpoon() then return end
+    end
+    -- Flanking Strike
+    -- flanking_strike,if=focus+cast_regen<focus.max
+    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
+        if cast.flankingStrike() then return end
+    end
+    -- Raptor Strike
+    -- raptor_strike,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
+    if cast.able.raptorStrike() and not talent.mongooseBite 
+        and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax 
+            or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
+    then
+        if cast.raptorStrike() then return end
+    end
+    -- Mongoose Bite 
+    -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
+    if cast.able.mongooseBite() and talent.mongooseBite 
+        and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax 
+            or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
+    then
+        if cast.mongooseBite() then return end
+    end
+    -- Steel Trap 
+    -- steel_trap,if=focus+cast_regen<focus.max 
+    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+        if cast.steelTrap("best",nil,1,5) then return end
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40)
+        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
+    then
+        if cast.wildfireBomb(nil,"aoe") then return end
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.mongoose_fury.stack>5&!cooldown.coordinated_assault.remains
+    if cast.able.mongooseBite() and talent.mongooseBite
+        and buff.mongooseFury.stack() > 5 and cd.coordinatedAssault.remain() == 0
+    then
+        if cast.mongooseBite() then return end
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd|dot.serpent_sting.refreshable&!buff.coordinated_assault.up
+    if cast.able.serpentSting() and (buff.vipersVenom.exists() and debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax
+        or debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists())
+    then
+        if cast.serpentSting() then return end
+    end
+    -- Kill Command
+    -- kill_command,if=focus+cast_regen<focus.max-focus.regen
+    if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax - focusRegen then
+        if cast.killCommand() then return end
+    end
+    -- A Murder of Crows
+    -- a_murder_of_crows,if=!buff.coordinated_assault.up
+    if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) 
+        and not buff.coordinatedAssault.exists()
+    then
+        if cast.aMurderOfCrows() then return end
     end
     -- Coordinated Assault
     -- coordinated_assault
@@ -705,43 +734,27 @@ actionList.St = function()
     then
         if cast.coordinatedAssault() then return end
     end
-    -- Chakrams
-    -- chakrams
-    if cast.able.chakrams(nil,"rect",1,40) and enemies.yards40r > 0 then
-        if cast.chakrams(nil,"rect",1,40) then return end
-    end
-    -- Flanking Strike
-    -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
-        if cast.flankingStrike() then return end
-    end
-    -- Kill Command 
-    -- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<4|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax and (buff.mongooseFury.stack() < 4 or focus < cast.cost.mongooseBite()) then 
-        if cast.killCommand() then return end 
-    end
     -- Mongoose Bite
-    -- mongoose_bite,if=buff.mongoose_fury.up|(azerite.primeval_intuition.enabled&(focus+cast_regen>110|talent.vipers_venom.enabled&focus>100))|(!azerite.primeval_intuition.enabled&(focus+cast_regen>90|talent.vipers_venom.enabled&focus+cast_regen>80))|buff.coordinated_assault.up
-    if cast.able.mongooseBite() and (buff.mongooseFury.exists() or (traits.primevalIntuition.active 
-        and (focus + focusRegen > 110 or talent.vipersVenom and focus > 100)) or (not traits.primevalIntuition.active 
-        and (focus + focusRegen > 90 or talent.vipersVenom and focus + focusRegen > 80)) or buff.coordinatedAssault.exists()) 
+    -- mongoose_bite,if=buff.mongoose_fury.up|focus+cast_regen>focus.max-20&talent.vipers_venom.enabled|focus+cast_regen>focus.max-1&talent.terms_of_engagement.enabled|buff.coordinated_assault.up
+    if cast.able.mongooseBite() and talent.mongooseBite and ((buff.mongooseFury.exists() or (focus + focusRegen > focusMax - 20 and talent.vipersVenom)) 
+        or (focus + focusRegen > focusMax - 1 and talent.termsOfEngagement) or buff.coordinatedAssault.exists())
     then
         if cast.mongooseBite() then return end
     end
-    -- Raptor Strike
+    -- Raptor Strike 
     -- raptor_strike
     if cast.able.raptorStrike() and not talent.mongooseBite then
         if cast.raptorStrike() then return end
     end
-    -- Serpent Sting
-    -- serpent_sting,if=dot.serpent_sting.refreshable&!buff.coordinated_assault.up
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists()) then
-        if cast.serpentSting() then return end
-    end
-    -- Wildfire Bomb
+    -- Wildfire Bomb 
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (debuff.wildfireBomb.refresh(units.dyn40)) then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
+    if cast.able.wildfireBomb() and debuff.wildfireBomb.refresh(units.dyn40) then 
+        if cast.wildfireBomb(nil,"aoe") then return end
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=buff.vipers_venom.up
+    if cast.able.serpentSting() and buff.vipersVenom.exists() then
+        if cast.serpentSting() then return end
     end
 end -- End Action List - Single Target
 
@@ -761,13 +774,13 @@ actionList.Cleave = function()
     end
     -- Carve
     -- carve,if=dot.shrapnel_bomb.ticking
-    if cast.able.carve(nil,"cone",2,5) and (debuff.shrapnelBomb.exists(units.dyn5)) then
-        if cast.carve(nil,"cone",2,5) then return end
+    if cast.able.carve() and (debuff.shrapnelBomb.exists(units.dyn5)) then
+        if cast.carve(nil,"cone",1,5) then return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=!talent.guerrilla_tactics.enabled|full_recharge_time<gcd
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (not talent.guerrillaTactics or charges.wildfireBomb.timeTillFull() < gcdMax) then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
+    if cast.able.wildfireBomb() and (not talent.guerrillaTactics or charges.wildfireBomb.timeTillFull() < gcdMax) then
+        if cast.wildfireBomb(nil,"aoe") then return end
     end
     -- Mongoose Bite
     -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack=10
@@ -776,8 +789,8 @@ actionList.Cleave = function()
     end
     -- Chakrams
     -- chakrams
-    if cast.able.chakrams("player","rect",2,40) and enemies.yards40r > 0 then
-        if cast.chakrams("player","rect",2,40) then return end
+    if cast.able.chakrams() and enemies.yards40r > 0 then
+        if cast.chakrams(nil,"rect",1,40) then return end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
@@ -793,8 +806,8 @@ actionList.Cleave = function()
     end
     -- Carve
     -- carve,if=talent.guerrilla_tactics.enabled
-    if cast.able.carve(nil,"cone",2,5) and (talent.guerrillaTactics) then
-        if cast.carve(nil,"cone",2,5) then return end
+    if cast.able.carve() and (talent.guerrillaTactics) then
+        if cast.carve(nil,"cone",1,5) then return end
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
@@ -803,8 +816,8 @@ actionList.Cleave = function()
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable|talent.wildfire_infusion.enabled
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (debuff.wildfireBomb.refresh(units.dyn40) or talent.wildfireInfusion) then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
+    if cast.able.wildfireBomb() and (debuff.wildfireBomb.refresh(units.dyn40) or talent.wildfireInfusion) then
+        if cast.wildfireBomb(nil,"aoe") then return end
     end
     -- Serpent Sting
     -- serpent_sting,target_if=min:remains,if=buff.vipers_venom.react
@@ -813,13 +826,13 @@ actionList.Cleave = function()
     end
     -- Carve
     -- carve,if=cooldown.wildfire_bomb.remains>variable.carve_cdr%2
-    if cast.able.carve(nil,"cone",2,5) and (cd.wildfireBomb.remain() > carveCdr / 2) then
-        if cast.carve(nil,"cone",2,5) then return end
+    if cast.able.carve() and (cd.wildfireBomb.remain() > carveCdr / 2) then
+        if cast.carve(nil,"cone",1,5) then return end
     end
     -- Steel Trap
     -- steel_trap
-    if cast.able.steelTrap("best",nil,2,5) then
-        if cast.steelTrap("best",nil,2,5) then return end
+    if cast.able.steelTrap() then
+        if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Harpoon
     -- harpoon,if=talent.terms_of_engagement.enabled
@@ -845,11 +858,66 @@ actionList.Cleave = function()
     end
 end -- End Action List - Cleave
 
--- Action List - Wildfire Infusion
-actionList.WfiSt = function()
+-- Action List - Alpha Predator
+actionList.ApSt = function()
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
+    if cast.able.mongooseBite() and talent.mongooseBite 
+        and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax 
+            or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
+    then
+        if cast.mongooseBite() then return end
+    end
+    -- Raptor Strike
+    -- raptor_strike,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
+    if cast.able.raptorStrike() and not talent.mongooseBite 
+        and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax 
+            or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
+    then
+        if cast.raptorStrike() then return end
+    end
+    -- Flanking Strike
+    -- flanking_strike,if=focus+cast_regen<focus.max
+    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
+        if cast.flankingStrike() then return end
+    end
+    -- Kill Command
+    -- kill_command,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-10
+    if cast.able.killCommand() and charges.killCommand.timeTillFull() < 1.5 * gcdMax and focus + castRegen(spell.killCommand) < focusMax - 10 then
+        if cast.killCommand() then return end
+    end
+    -- Steel Trap
+    -- steel_trap,if=focus+cast_regen<focus.max
+    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+        if cast.steelTrap("best",nil,1,5) then return end
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40)
+        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
+    then
+        if cast.wildfireBomb(nil,"aoe") then return end
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=!dot.serpent_sting.ticking&!buff.coordinated_assault.up
+    if cast.able.serpentSting() and not debuff.serpentSting.exists(units.dyn40) and not buff.coordinatedAssault.exists() then
+        if cast.serpentSting() then return end 
+    end
+    -- Kill Command
+    -- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
+    if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) then
+        if cast.killCommand() then return end
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=refreshable&!buff.coordinated_assault.up&buff.mongoose_fury.stack<5
+    if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists() and buff.mongooseFury.stack() < 5 then
+        if cast.killCommand() then return end 
+    end
     -- A Murder of Crows
-    -- a_murder_of_crows
-    if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
+    -- a_murder_of_crows,if=!buff.coordinated_assault.up
+    if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) 
+        and not buff.coordinatedAssault.exists()
+    then
         if cast.aMurderOfCrows() then return end
     end
     -- Coordinated Assault
@@ -860,107 +928,167 @@ actionList.WfiSt = function()
         if cast.coordinatedAssault() then return end
     end
     -- Mongoose Bite
-    -- mongoose_bite,if=azerite.wilderness_survival.enabled&next_wi_bomb.volatile&dot.serpent_sting.remains>2.1*gcd&dot.serpent_sting.remains<3.5*gcd&cooldown.wildfire_bomb.remains>2.5*gcd
-    if cast.able.mongooseBite() and talent.mongooseBite and traits.wildernessSurvival.active and nextBomb(spell.volatile)
-        and debuff.serpentSting.remain(units.dyn40) > 2.1 * gcdMax and debuff.serpentSting.remain(units.dyn40) < 3.5 * gcdMax
-        and cd.wildfireBomb.remain() > 2.5 * gcdMax
-    then
-        if cast.mongooseBite() then return end
-    end
-    -- Wildfire Bomb
-    -- wildfire_bomb,if=full_recharge_time<gcd|(focus+cast_regen<focus.max)&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (charges.wildfireBomb.timeTillFull() < gcdMax or (focus + cast.regen.wildfireBomb() < focusMax)
-        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
-        and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - cast.regen.killCommand() * 3))
-    then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
-    end
-    -- Kill Command
-    -- kill_command,if=focus+cast_regen<focus.max&buff.tip_of_the_spear.stack<3&(!talent.alpha_predator.enabled|buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand() and getDistance("pettarget","pet") < 30 and (focus + castRegen(spell.killCommand) < focusMax and buff.tipOfTheSpear.stack() < 3
-        and (not talent.alphaPredator or buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite()))
-    then
-        if cast.killCommand() then return end
-    end
-    -- Raptor Strike
-    -- raptor_strike,if=dot.internal_bleeding.stack<3&dot.shrapnel_bomb.ticking&!talent.mongoose_bite.enabled
-    if cast.able.raptorStrike() and (debuff.internalBleeding.stack() < 3 and debuff.shrapnelBomb.exists() and not talent.mongooseBite) then
-        if cast.raptorStrike() then return end
-    end
-    -- Wildfire Bomb
-    -- wildfire_bomb,if=next_wi_bomb.shrapnel&buff.mongoose_fury.down&(cooldown.kill_command.remains>gcd|focus>60)&!dot.serpent_sting.refreshable
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (nextBomb(spell.shrapnelBomb) and not buff.mongooseFury.exists()
-        and (cd.killCommand.remain() > gcdMax or focus > 60) and not debuff.serpentSting.refresh(units.dyn40))
-    then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
-    end
-    -- Steel Trap
-    -- steel_trap
-    if cast.able.steelTrap("best",nil,1,5) then
-        if cast.steelTrap("best",nil,1,5) then return end
-    end
-    -- Flanking Strike
-    -- flanking_strike,if=focus+cast_regen<focus.max
-    if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
-        if cast.flankingStrike() then return end
-    end
-    -- Serpent Sting
-    -- serpent_sting,if=buff.vipers_venom.react|refreshable&(!talent.mongoose_bite.enabled|!talent.vipers_venom.enabled|next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled|buff.mongoose_fury.stack=5)
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (buff.vipersVenom.exists() or debuff.serpentSting.refresh(units.dyn40) 
-        and (not talent.mongooseBite or not talent.vipersVenom or nextBomb(spell.volatileBomb) 
-        and not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active or buff.mongooseFury.stack() == 5))
-    then
-        if cast.serpentSting() then return end
-    end
-    -- Harpoon
-    -- harpoon,if=talent.terms_of_engagement.enabled
-    if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement then
-        if cast.harpoon() then return end
-    end
-    -- Mongoose Bite
-    -- mongoose_bite_eagle,if=buff.mongoose_fury.up|focus>60|dot.shrapnel_bomb.ticking
-    if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 60 or debuff.shrapnelBomb.exists(units.dyn40)) then
-        if cast.mongooseBite() then return end
+    -- mongoose_bite,if=buff.mongoose_fury.up|focus+cast_regen>focus.max-10|buff.coordinated_assault.up
+    if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus + focusRegen > focusMax - 10 or buff.coordinatedAssault.exists()) then 
+        if cast.mongooseBite() then return end 
     end
     -- Raptor Strike
     -- raptor_strike
-    if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike() then return end
+    if cast.able.raptorStrike() and not talent.mongooseBite then 
+        if cast.raptorStrike() then return end 
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=!ticking
+    if cast.able.wildfireBomb() and not debuff.wildfireBomb.exists(units.dyn40) then
+        if cast.wildfireBomb(nil,"aoe") then return end 
+    end
+end
+
+-- Action List - Alpha Predator / Wildfire Infusion
+actionList.ApWfi = function()
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
+    if cast.able.mongooseBite() and talent.mongooseBite 
+        and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax 
+    then
+        if cast.mongooseBite() then return end 
+    end
+    -- Raptor Strike
+    -- raptor_strike,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
+    if cast.able.raptorStrike() and not talent.mongooseBite 
+        and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax 
+    then
+        if cast.raptorStrike() then return end 
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=!dot.serpent_sting.ticking
+    if cast.able.serpentSting() and not debuff.serpentSting.exists(units.dyn40) and not buff.coordinatedAssault.exists() then
+        if cast.serpentSting() then return end 
+    end
+    -- A Murder of Crows
+    -- a_murder_of_crows
+    if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs())) then
+        if cast.aMurderOfCrows() then return end
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=full_recharge_time<1.5*gcd|focus+cast_regen<focus.max&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
+    if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or focus + focusRegen < focusMax 
+        and (nextBomb(spell.volatile) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) 
+            or nextBomb(spell.pheromone) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - castRegen(spell.killCommand) * 3)) 
+    then
+        if cast.wildfireBomb(nil,"aoe") then return end 
+    end  
+    -- Coordinated Assault
+    -- coordinated_assault
+    if cast.able.coordinatedAssault() and eagleScout() > 0
+        and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+    then
+        if cast.coordinatedAssault() then return end
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.mongoose_fury.remains&next_wi_bomb.pheromone
+    if cast.able.mongooseBite() and talent.mongooseBite and buff.mongooseFury.exists() and nextBomb(spell.pheromone) then
+        if cast.mongooseBite() then return end 
+    end
+    -- Kill Command
+    -- kill_command,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-20
+    if cast.killCommand() and charges.killCommand.timeTillFull() < 1.5 * gcdMax and focus + castRegen(spell.killCommand) < focusMax - 20 then 
+        if cast.killCommand() then return end
+    end
+    -- Steel Trap
+    -- steel_trap,if=focus+cast_regen<focus.max
+    if cast.able.steelTrap() and focus + focusRegen < focusMax then
+        if cast.steelTrap("best",nil,1,5) then return end
+    end
+    -- Raptor Strike
+    -- raptor_strike,if=buff.tip_of_the_spear.stack=3|dot.shrapnel_bomb.ticking
+    if cast.able.raptorStrike() and (buff.tipOfTheSpear.stack() == 3 or debuff.shrapnelBomb.exists(units.dyn40)) then
+        if cast.raptorStrike() then return end 
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=dot.shrapnel_bomb.ticking
+    if cast.able.mongooseBite() and talent.mongooseBite and debuff.shrapnelBomb.exists(units.dyn40) then
+        if cast.mongooseBite() then return end 
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>30&dot.serpent_sting.remains>5*gcd
+    if cast.able.wildfireBomb() and nextBomb(spell.shrapnel) and focus > 30 and debuff.serpentSting.remain(units.dyn40) > 5 * gcdMax then
+        if cast.wildfireBomb(nil,"aoe") then return end 
+    end
+    -- Chakrams
+    -- chakrams,if=!buff.mongoose_fury.remains
+    if cast.able.chakrams() and enemies.yards40r > 0 and not buff.mongooseFury.exists() then
+        if cast.chakrams(nil,"rect",1,40) then return end
     end
     -- Serpent Sting
     -- serpent_sting,if=refreshable
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40)) then
-        if cast.serpentSting() then return end
+    if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) then
+        if cast.serpentSting() then return end 
+    end
+    -- Kill Command
+    -- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
+    if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) then
+        if cast.killCommand() then return end
+    end
+    -- Raptor Strike
+    -- raptor_strike
+    if cast.able.raptorStrike() and not talent.mongooseBite then 
+        if cast.raptorStrike() then return end 
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.mongoose_fury.up|focus>40|dot.shrapnel_bomb.ticking
+    if cast.able.mongooseBite() and talent.mongooseBite and (buff.mongooseFury.exists() or focus > 40 or debuff.shrapnelBomb.exists(units.dyn40)) then
+        if cast.mongooseBite() then return end 
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (nextBomb(spell.volatileBomb)
-        and debuff.serpentSting.exists(units.dyn40) or nextBomb(spell.pheromoneBomb)
-        or nextBomb(spell.shrapnelBomb) and focus > 50)
+    if cast.able.wildfireBomb() and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
+        or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50)
     then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
+        if cast.wildfireBomb(nil,"aoe") then return end
     end
-end -- End Action List - Wildfire Infusion
+end
 
--- Action List - Mongoose Bite / Alpha Predator / Wildfire Infusion
-actionList.MbApWfiSt = function()
+-- Action List - Wildfire Infusion
+actionList.Wfi = function()
+    -- Harpoon
+    -- harpoon,if=focus+cast_regen<focus.max&talent.terms_of_engagement.enabled
+    if cast.able.harpoon() and mode.harpoon == 1 and focus + focusRegen < focusMax and talent.termsOfEngagement then
+        if cast.harpoon() then return end
+    end
+    -- Mongoose Bite
+    -- mongoose_bite,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
+    if cast.able.mongooseBite() and talent.mongooseBite 
+        and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax 
+    then
+        if cast.mongooseBite() then return end 
+    end
+    -- Raptor Strike
+    -- raptor_strike,if=buff.blur_of_talons.up&buff.blur_of_talons.remains<gcd
+    if cast.able.raptorStrike() and not talent.mongooseBite 
+        and buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < gcdMax 
+    then
+        if cast.raptorStrike() then return end 
+    end
     -- Serpent Sting
-    -- serpent_sting,if=!dot.serpent_sting.ticking
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (not debuff.serpentSting.exists(units.dyn40)) then
+    -- serpent_sting,if=buff.vipers_venom.up&buff.vipers_venom.remains<1.5*gcd|!dot.serpent_sting.ticking
+    if cast.able.serpentSting() and ((buff.vipersVenom.exists() and buff.vipersVenom.remain() < 1.5 * gcdMax) 
+        or not debuff.serpentSting.exists(units.dyn40)) 
+    then
         if cast.serpentSting() then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=full_recharge_time<gcd|(focus+cast_regen<focus.max)&(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
-    if cast.able.wildfireBomb(units.dyn40,"aoe") and (charges.wildfireBomb.timeTillFull() < gcdMax or (focus + cast.regen.wildfireBomb() < focusMax)
-        and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40) and debuff.serpentSting.refresh(units.dyn40) or nextBomb(spell.pheromoneBomb)
-        and not buff.mongooseFury.exists() and focus + cast.regen.wildfireBomb() < focusMax - castRegen(spell.killCommand) * 3))
+    -- wildfire_bomb,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max|(next_wi_bomb.volatile&dot.serpent_sting.ticking&dot.serpent_sting.refreshable|next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*3)
+    if cast.able.wildfireBomb() and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax 
+        or (nextBomb(spell.volatile) and debuff.serpentSting.refresh(units.dyn40)) 
+        or (nextBomb(spell.pheromone) and not buff.mongooseFury.exists() and focus + focusRegen < focusMax - castRegen(spell.killCommand) * 3))
     then
-        if cast.wildfireBomb(units.dyn40,"aoe") then return end
+        if cast.wildfireBomb(nil,"aoe") then return end 
     end
-    -- Coordinated Assault
-    -- coordinated_assault
-    if cast.able.coordinatedAssault() and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs())) then
-        if cast.coordinatedAssault() then return end
+    -- Kill Command
+    -- kill_command,if=focus+cast_regen<focus.max-focus.regen
+    if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax - focusRegen then
+        if cast.killCommand() then return end
     end
     -- A Murder of Crows
     -- a_murder_of_crows
@@ -968,50 +1096,72 @@ actionList.MbApWfiSt = function()
         if cast.aMurderOfCrows() then return end
     end
     -- Steel Trap
-    -- steel_trap
-    if cast.able.steelTrap("best",nil,1,5) then
+    -- steel_trap,if=focus+cast_regen<focus.max
+    if cast.able.steelTrap() and focus + focusRegen < focusMax then
         if cast.steelTrap("best",nil,1,5) then return end
     end
-    -- Mongoose Bite
-    -- mongoose_bite,if=buff.mongoose_fury.remains&next_wi_bomb.pheromone
-    if cast.able.mongooseBite() and (buff.mongooseFury.remain() and nextBomb(spell.pheromoneBomb)) then
-        if cast.mongooseBite() then return end
-    end
-    -- Kill Command
-    -- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) then
-        if cast.killCommand() then return end
-    end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=next_wi_bomb.shrapnel&focus>60&dot.serpent_sting.remains>3*gcd
-    if cast.able.wildfireBomb() and (nextBomb(spell.shrapnelBomb) and focus > 60 and debuff.serpentSting.remain(units.dyn40) > 3 * gcdMax) then
-        if cast.wildfireBomb() then return end
+    -- wildfire_bomb,if=full_recharge_time<1.5*gcd
+    if cast.able.wildfireBomb() and charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax then
+        if cast.wildfireBomb(nil,"aoe") then return end 
+    end
+    -- Coordinated Assault
+    -- coordinated_assault
+    if cast.able.coordinatedAssault() and eagleScout() > 0
+        and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
+    then
+        if cast.coordinatedAssault() then return end
     end
     -- Serpent Sting
-    -- serpent_sting,if=refreshable&(next_wi_bomb.volatile&!dot.shrapnel_bomb.ticking|azerite.latent_poison.enabled|azerite.venomous_fangs.enabled)
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and debuff.serpentSting.refresh(units.dyn40)
-        and (nextBomb(spell.volatileBomb) and (not debuff.shrapnelBomb.exists(units.dyn40) or traits.latentPoison.active or traits.venomousFangs.active))
+    -- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd
+    if cast.able.serpentSting() and ((buff.vipersVenom.exists() and debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax)
+        or (debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists()))
     then
         if cast.serpentSting() then return end
     end
     -- Mongoose Bite
-    -- mongoose_bite,if=buff.mongoose_fury.up|focus>60|dot.shrapnel_bomb.ticking
-    if cast.able.mongooseBite() and (buff.mongooseFury.exists() or focus > 60 or debuff.shrapnelBomb.exists(units.dyn40)) then
-        if cast.mongooseBite() then return end
+    -- mongoose_bite,if=dot.shrapnel_bomb.ticking|buff.mongoose_fury.stack=5
+    if cast.able.mongooseBite() and talent.mongooseBite and (debuff.shrapnelBomb.exists(units.dyn40) or buff.mongooseFury.stack() == 5) then
+        if cast.mongooseBite() then return end 
+    end
+    -- Wildfire Bomb
+    -- wildfire_bomb,if=next_wi_bomb.shrapnel&dot.serpent_sting.remains>5*gcd
+    if cast.able.wildfireBomb() and nextBomb(spell.shrapnel) and debuff.serpentSting.remain(units.dyn40) > 5 * gcdMax then
+        if cast.wildfireBomb(nil,"aoe") then return end 
     end
     -- Serpent Sting
     -- serpent_sting,if=refreshable
-    if cast.able.serpentSting() and ttd(units.dyn40) > 3 and (debuff.serpentSting.refresh(units.dyn40)) then
+    if cast.able.serpentSting() and debuff.serpentSting.refresh(units.dyn40) then
+        if cast.serpentSting() then return end
+    end
+    -- Chakrams
+    -- chakrams,if=!buff.mongoose_fury.remains
+    if cast.able.chakrams() and enemies.yards40r > 0 and not buff.mongooseFury.exists() then
+        if cast.chakrams(nil,"rect",1,40) then return end
+    end
+    -- Mongoose Bite
+    -- mongoose_bite
+    if cast.able.mongooseBite() and talent.mongooseBite then
+        if cast.mongooseBite() then return end 
+    end
+    -- Raptor Strike
+    -- raptor_strike
+    if cast.able.raptorStrike() and not talent.mongooseBite then
+        if cast.raptorStrike() then return end 
+    end
+    -- Serpent Sting
+    -- serpent_sting,if=buff.vipers_venom.up
+    if cast.able.serpentSting() and buff.vipersVenom.exists() then
         if cast.serpentSting() then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel&focus>50
-    if cast.able.wildfireBomb() and (nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40)
-        or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb) and focus > 50)
+    -- wildfire_bomb,if=next_wi_bomb.volatile&dot.serpent_sting.ticking|next_wi_bomb.pheromone|next_wi_bomb.shrapnel
+    if cast.able.wildfireBomb() and ((nextBomb(spell.volatileBomb) and debuff.serpentSting.exists(units.dyn40))
+        or nextBomb(spell.pheromoneBomb) or nextBomb(spell.shrapnelBomb))
     then
-        if cast.wildfireBomb() then return end
+        if cast.wildfireBomb(nil,"aoe") then return end
     end
-end -- End Action List - Mongoose Bite / Alpha Predator / Wildfire Infusion
+end
 
 -- Action List - Opener
 actionList.Opener = function()
@@ -1155,6 +1305,7 @@ local function runRotation()
     inInstance                                    = br.player.instance=="party"
     inRaid                                        = br.player.instance=="raid"
     item                                          = br.player.spell.items
+    level                                         = br.player.level
     mode                                          = br.player.mode
     opener                                        = br.player.opener
     php                                           = br.player.health
@@ -1175,6 +1326,7 @@ local function runRotation()
     profileStop                                   = profileStop or false
     pullTimer                                     = br.DBM:getPulltimer()
     ttd                                           = getTTD
+    haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
@@ -1213,11 +1365,11 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop then
         profileStop = false
-    elseif (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4 then
-        if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
-            PetStopAttack()
-            PetFollow()
-        end
+    elseif haltProfile then
+        -----------------
+        --- Pet Logic ---
+        -----------------
+        if actionList.PetManagement() then return true end
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then return end
         end
@@ -1262,28 +1414,50 @@ local function runRotation()
                 -- Cooldowns
                 -- call_action_list,name=CDs
                 if actionList.Cooldown() then return true end
-                -- Call Action List - Mongoose Bite / Alpha Predator / Wildfire Infusion
-                -- call_action_list,name=mb_ap_wfi_st,if=active_enemies<3&talent.wildfire_infusion.enabled&talent.alpha_predator.enabled&talent.mongoose_bite.enabled
-                if eagleScout() < 3 and talent.wildfireInfusion and talent.alphaPredator and talent.mongooseBite then
-                    if actionList.MbApWfiSt() then return end
+                if (mode.rotation == 1 and eagleScout() < 3) or (mode.rotation == 3 and eagleScout() > 0) or level < 28 then
+                    -- Call Action List - Alpha Predator / Wildfire Infusion
+                    -- call_action_list,name=apwfi,if=active_enemies<3&talent.chakrams.enabled&talent.alpha_predator.enabled
+                    if talent.chakrams and talent.alphaPredator then 
+                        if actionList.ApWfi() then return end 
+                    end
+                    -- Call Action List - Wildfire Infusion
+                    -- call_action_list,name=wfi,if=active_enemies<3&talent.chakrams.enabled
+                    if talent.chakrams and not talent.alphaPredator then 
+                        if actionList.Wfi() then return end 
+                    end
+                    -- Call Action List - Single Target
+                    -- call_action_list,name=st,if=active_enemies<3&!talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
+                    if not talent.alphaPredator and not talent.wildfireInfusion then 
+                        if actionList.St() then return end 
+                    end
+                    -- Call Action List - Alpha Predator
+                    -- call_action_list,name=apst,if=active_enemies<3&talent.alpha_predator.enabled&!talent.wildfire_infusion.enabled
+                    if talent.alphaPredator and not talent.wildfireInfusion then 
+                        if actionList.ApSt() then return end 
+                    end
+                    -- Call Action List - Alpha Predator / Wildfire Infusion
+                    -- call_action_list,name=apwfi,if=active_enemies<3&talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
+                    if talent.alphaPredator and talent.wildfireInfusion then 
+                        if actionList.ApWfi() then return end 
+                    end
+                    -- Call Action List - Wildfire Infusion
+                    -- call_action_list,name=wfi,if=active_enemies<3&!talent.alpha_predator.enabled&talent.wildfire_infusion.enabled
+                    if not talent.alphaPredator and talent.wildfireInfusion then 
+                        if actionList.Wfi() then return end 
+                    end
                 end
-                -- Call Action List - Wildfire Infusion
-                -- call_action_list,name=wfi_st,if=active_enemies<3&talent.wildfire_infusion.enabled
-                if eagleScout() < 3 and talent.wildfireInfusion then
-                    if actionList.WfiSt() then return end
-                end
-                -- Call Action List - Single Target
-                -- call_action_list,name=st,if=active_enemies<2|azerite.blur_of_talons.enabled&talent.birds_of_prey.enabled&buff.coordinated_assault.up
-                if eagleScout() < 2 or (traits.blurOfTalons.active and talent.birdsOfPrey and buff.coordinatedAssault.exists()) then
-                    if actionList.St() then return end
-                end
-                -- Call Action List - Cleave
-                -- call_action_list,name=cleave,if=active_enemies>1
-                if eagleScout() > 1 then 
+                if ((mode.rotation == 1 and eagleScout() > 1) or (mode.rotation == 2 and eagleScout() > 0)) and level >= 28 then
+                    -- Call Action List - Cleave
+                    -- call_action_list,name=cleave,if=active_enemies>1
                     if actionList.Cleave() then return end
                 end
-                -- Arcane Torrent 
-                -- arcane_torrent 
+                -- Heart Essence - Concentrated Flame
+                -- concentrated_flame
+                if cast.able.concentratedFlame() then 
+                    if cast.concentratedFlame() then return end 
+                end
+                -- Racial - Arcane Torrent
+                -- arcane_torrent
                 if isChecked("Racial") and cast.able.racial() and race == "BloodElf" then 
                     if cast.racial() then return end 
                 end

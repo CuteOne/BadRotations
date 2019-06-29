@@ -220,7 +220,7 @@ function cCharacter:new(class)
     function self.startRotation()
     	local startTime = debugprofilestop()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
-        if pause(true) then return end
+        -- if pause(true) then return end
 
         if self.rotation ~= nil then
         	self.rotation.run()
