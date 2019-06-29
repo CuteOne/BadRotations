@@ -584,15 +584,23 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 				" |r, Eff: |cffFFFF00"..effectRng.." |r, Min Units: |cffFFFF00"..minUnits)
         end
 	end
-	local function hasTalent()
+	local function hasTalent(spellID)
 		for k,v in pairs(br.player.spell.talents) do
 			if spellID == v then return br.player.talent[k] end
 		end
 		return true
 	end
+	local function hasEssence(spellID)
+		local activeEssence = 0
+		local spellEssence = select(3,GetSpellInfo(spellID))
+		local essence = br.player.essence
+		if essence[index] == nil then return true end
+		if essence[index].id == nil then return true end
+		return essence[index].active 
+	end
     -- Base Spell Availablility Check
 	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
-		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) --and not isIncapacitated(spellID)
+		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence(spellID) --and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then

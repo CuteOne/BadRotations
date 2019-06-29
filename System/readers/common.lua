@@ -304,6 +304,7 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
 	superReaderFrame:RegisterEvent("ENCOUNTER_END")
 	superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
+	superReaderFrame:RegisterUnitEvent("AZERITE_ESSENCE_ACTIVATED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
@@ -311,6 +312,10 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
 	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
 	local function SuperReader(self, event, ...)
+		-- Azerite Essence
+		if event == "AZERITE_ESSENCE_ACTIVATED" then
+			br.updatePlayerInfo = true
+		end
 		-- Warlock Soul Shards
 		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
 			shards = WarlockPowerBar_UnitPower("player")

@@ -116,6 +116,14 @@ System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
 
+## API
+System\API\Buff.lua
+System\API\Debuff.lua
+System\API\Essence.lua
+System\API\Item.lua
+System\API\Power.lua
+System\API\Spell.lua
+
 ## Loader
 
 System\Loader\cCharacter.lua

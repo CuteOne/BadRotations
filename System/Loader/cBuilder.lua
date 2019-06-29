@@ -165,6 +165,12 @@ function br.loader:new(spec,specName)
     end
 
     local function getFunctions()
+        -- Build Talent Info
+        -- for k,v in pairs(self.spell.talents) do
+        --     if self.talent == nil then self.talent = {} end
+
+        -- end
+
         -- if not UnitAffectingCombat("player") then
         -- Build Artifact Info
         for k,v in pairs(self.spell.artifacts) do
@@ -206,6 +212,20 @@ function br.loader:new(spec,specName)
         --     end
         -- end
 
+        -- Get Azerite Essence Info
+        for k,v in pairs(self.spell.essences) do
+            local heartEssence = self.spell.essences['heartEssence']
+            if v ~= heartEssence then
+                if not self.essence[k] then self.essence[k] = {} end
+                local essence = self.essence[k]
+                if not IsPassiveSpell(v) then
+                    self.spell['abilities'][k] = heartEssence
+                    self.spell[k] = heartEssence
+                end
+                br.api.essences(essence,k,v)
+            end
+        end
+
         -- Update Power
         if not self.power then self.power = {} end
         self.power.list     = {
@@ -231,237 +251,22 @@ function br.loader:new(spec,specName)
         }
         for k, v in pairs(self.power.list) do
             if not self.power[k] then self.power[k] = {} end
-            local power = self.power[k]
-            local isDKRunes = select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5
-
-            power.amount = function()
-                if isDKRunes then
-                    local runeCount = 0
-                    for i = 1, 6 do
-                        runeCount = runeCount + GetRuneCount(i)
-                    end
-                    return runeCount
-                else
-                    return getPower("player",v)
-                end
-            end
-            power.deficit = function()
-                return getPowerMax("player",v) - getPower("player",v)
-            end
-            power.frac = function()
-                if isDKRunes then
-                    local runeCount = 0
-                    for i = 1, 6 do
-                        runeCount = runeCount + GetRuneCount(i)
-                    end
-                    return runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
-                else
-                    return 0
-                end
-            end
-            power.max = function()
-                return getPowerMax("player",v)
-            end
-            power.percent = function()
-                if getPowerMax("player",v) == 0 then
-                    return 0
-                else
-                    return ((getPower("player",v) / getPowerMax("player",v)) * 100)
-                end
-            end
-            power.regen = function()
-                return getRegen("player")
-            end
-            power.ttm = function(amount)
-                if amount == nil then amount = 6 end
-                if isDKRunes then
-                    return runeTimeTill(amount)
-                else
-                    return getTimeToMax("player")
-                end
-            end
+            br.api.power(self.power[k],v)
         end
 
-        -- Make Buff Functions
+        -- Make Buff Functions from br.api.buffs
         for k,v in pairs(self.spell.buffs) do
             if k ~= "rollTheBones" then
                 if self.buff[k] == nil then self.buff[k] = {} end
                 if k == "bloodLust" then v = getLustID() end
-                --br.api.buffs(self.buff[k],v)
-                local buff = self.buff[k]
-                -- br.player.buff.spell.cancel()
-                buff.cancel = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
-                    if UnitBuffID(thisUnit,v,sourceUnit) ~= nil then
-                        RunMacroText("/cancelaura "..GetSpellInfo(v))
-                        -- CancelUnitBuff(thisUnit,v,sourceUnit)
-                    end
-                end
-                -- br.player.buff.spell.exists()
-                buff.exists = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
-                    return UnitBuffID(thisUnit,v,sourceUnit) ~= nil
-                end
-                -- br.player.buff.spell.duration()
-                buff.duration = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
-                    return getBuffDuration(thisUnit,v,sourceUnit)
-                end
-                -- br.player.buff.spell.remain()
-                buff.remain = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end 
-                    return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
-                end
-                -- br.player.buff.spell.remains()
-                buff.remains = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end
-                    return math.abs(getBuffRemain(thisUnit,v,sourceUnit))
-                end
-                -- br.player.buff.spell.stack()
-                buff.stack = function(thisUnit,sourceUnit)
-                    if thisUnit == nil then thisUnit = 'player' end
-                    if sourceUnit == nil then sourceUnit = 'player' end 
-                    return getBuffStacks(thisUnit,v,sourceUnit)
-                end
-                -- br.player.buff.spell.refresh()
-                buff.refresh = function(thisUnit,sourceUnit)
-                    return buff.remain(thisUnit,sourceUnit) <= buff.duration(thisUnit,sourceUnit) * 0.3
-                end
-                -- br.player.buff.spell.count()
-                buff.count = function()
-                    return tonumber(getBuffCount(v))
-                end
-                -- br.player.buff.spell.react(), buff detection with small reaction delay
-                buff.react = function(thisUnit, sourceUnit)
-                    thisUnit = thisUnit or "player"
-                    sourceUnit = sourceUnit or "player"
-                    return getBuffReact(thisUnit, v, sourceUnit)
-                end
+                br.api.buffs(self.buff[k],v)
             end
         end
-        -- Build Debuff Info
-        function self.getSnapshotValue(dot)
-            -- Feral Bleeds
-            if GetSpecializationInfo(GetSpecialization()) == 103 then
-                local multiplier        = 1.00
-                local Bloodtalons       = 1.30
-                -- local SavageRoar        = 1.40
-                local TigersFury        = 1.15
-                local RakeMultiplier    = 1
-                -- Bloodtalons
-                if self.buff.bloodtalons.exists() then multiplier = multiplier*Bloodtalons end
-                -- Savage Roar
-                -- if self.buff.savageRoar.exists() then multiplier = multiplier*SavageRoar end
-                -- Tigers Fury
-                if self.buff.tigersFury.exists() then multiplier = multiplier*TigersFury end
-                -- rip
-                if dot == self.spell.debuffs.rip then
-                    -- -- Versatility
-                    -- multiplier = multiplier*(1+Versatility*0.1)
-                    -- return rip
-                    return 5*multiplier
-                end
-                -- rake
-                if dot == self.spell.debuffs.rake then
-                    -- Incarnation/Prowl
-                    if self.buff.incarnationKingOfTheJungle.exists() or self.buff.prowl.exists() then
-                        RakeMultiplier = 2
-                    end
-                    -- return rake
-                    return multiplier*RakeMultiplier
-                end
-
-            end
-
-            if GetSpecializationInfo(GetSpecialization()) == 259 then
-                local multiplier = 1
-                if self.buff.stealth.exists() and self.talent.nightstalker and (dot == self.spell.debuffs.rupture or dot == self.spell.debuffs.garrote) then multiplier = 1.5 end
-                if (self.buff.stealth.exists() or self.buff.vanish.exists() or (self.buff.subterfuge.exists() and self.buff.subterfuge.remain() >= 0.1 and self.buff.subterfuge.remain() >= getSpellCD(61304))) and dot == self.spell.debuffs.garrote and self.talent.subterfuge then multiplier = 1.8 end
-                return multiplier
-            end
-            return 0
-
-        end
-
+        -- Make Debuff Functions from br.api.debuffs
         for k,v in pairs(self.spell.debuffs) do
             if self.debuff[k] == nil then self.debuff[k] = {} end
             local debuff = self.debuff[k]
-            debuff.exists = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                return UnitDebuffID(thisUnit,v,sourceUnit) ~= nil
-            end
-            debuff.duration = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                return getDebuffDuration(thisUnit,v,sourceUnit) or 0
-            end
-            debuff.remain = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                return math.abs(getDebuffRemain(thisUnit,v,sourceUnit))
-            end
-            debuff.remains = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                return math.abs(getDebuffRemain(thisUnit,v,sourceUnit))
-            end
-            debuff.stack = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                if getDebuffStacks(thisUnit,v,sourceUnit) == 0 and UnitDebuffID(thisUnit,v,sourceUnit) ~= nil then
-                    return 1
-                else
-                    return getDebuffStacks(thisUnit,v,sourceUnit)
-                end
-            end
-            debuff.pandemic = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                if thisUnit == 'target' then thisUnit = GetObjectWithGUID(UnitGUID("target")) end 
-                local pandemic = debuff.duration(thisUnit,sourceUnit)
-                if br.player.pandemic[thisUnit] ~= nil and br.player.pandemic[thisUnit][k] ~= nil then 
-                    pandemic = br.player.pandemic[thisUnit][k] 
-                end
-                return pandemic
-            end
-            debuff.refresh = function(thisUnit,sourceUnit)
-                if thisUnit == nil then thisUnit = 'target' end
-                if sourceUnit == nil then sourceUnit = 'player' end
-                return debuff.remain(thisUnit,sourceUnit) <= debuff.pandemic(thisUnit,sourceUnit) * 0.3
-            end
-            debuff.count = function()
-                return tonumber(getDebuffCount(v))
-            end
-            debuff.remainCount = function(remain)
-                return tonumber(getDebuffRemainCount(v,remain))
-            end
-            debuff.lowest = function(range,debuffType)
-                if range == nil then range = 40 end
-                if debuffType == nil then debuffType = "remain" end
-                return getDebuffMinMax(k, range, debuffType, "min")
-            end
-            debuff.max = function(range,debuffType)
-                if range == nil then range = 40 end
-                if debuffType == nil then debuffType = "remain" end
-                return getDebuffMinMax(k, range, debuffType, "max")
-            end
-            if spec == 103 or spec == 259 then
-                debuff.exsang = function(thisUnit)
-                        return debuff.exsa[thisUnit] or false
-                end
-                debuff.calc = function()
-                    return self.getSnapshotValue(v)
-                end
-                debuff.applied = function(thisUnit)
-                    return debuff.bleed[thisUnit] or 0
-                end
-            end
+            br.api.debuffs(debuff,k,v)
         end
 
         self.units.get = function(range,aoe)
@@ -519,7 +324,7 @@ function br.loader:new(spec,specName)
                     end
                     return count
                 end
-                
+
                 pet.exists = function()
                     return self.pet[k].count() > 0
                 end
@@ -556,52 +361,22 @@ function br.loader:new(spec,specName)
 
         -- Cycle through Items List
         for k,v in pairs(self.spell.items) do
-            if self.charges[k]  == nil then self.charges[k] = {} end -- Item Charge Functions
+            if self.charges     == nil then self.charges    = {} end -- Item Charge Functions
+            if self.charges[k]  == nil then self.charges[k] = {} end -- Item Charge Subtables
             if self.equiped     == nil then self.equiped    = {} end -- Use Item Debugging
             if self.has         == nil then self.has        = {} end -- Item In Bags
             if self.use         == nil then self.use        = {} end -- Use Item Functions
             if self.use.able    == nil then self.use.able   = {} end -- Useable Item Check Functions
 
-            local charges = self.charges[k]
-            charges.exists = function()
-                return itemCharges(v) > 0
-            end
-            charges.count = function()
-                return itemCharges(v)
-            end
+            br.api.items(self.charges,k,v,"charges")
 
-            self.use[k] = function(slotID)
-                if slotID == nil then
-                    if canUseItem(v) then return useItem(v) else return end
-                else
-                    if canUseItem(slotID) then return useItem(slotID) else return end
-                end
-            end
-            self.use.able[k] = function(slotID)
-                if slotID == nil then return canUseItem(v) else return canUseItem(slotID) end
-            end
+            br.api.items(self.equiped,k,v,"equiped")
 
-            self.equiped[k] = function(slotID)
-                if slotID == nil then
-                    return hasEquiped(v)
-                else
-                    return hasEquiped(v,slotID)
-                end
-            end
+            br.api.items(self.has,k,v,"has")
 
-            self.has[k] = function()
-                return hasItem(v)
-            end
+            br.api.items(self.use,k,v,"use")
         end
 
-        self.use.slot = function(slotID)
-            if canUseItem(slotID) then return useItem(slotID) else return end
-        end
-        self.use.able.slot = function(slotID)
-            return canUseItem(slotID)
-        end
-
-        -- if UnitDebuffID("player", 240447) ~= nil and (getCastTime(v) + 0.15) > getDebuffRemain("player",240447) then end
         -- Cycle through Abilities List
         for k,v in pairs(self.spell.abilities) do
             if self.cast            == nil then self.cast               = {} end        -- Cast Spell Functions
@@ -617,110 +392,15 @@ function br.loader:new(spec,specName)
             if self.cast.regen      == nil then self.cast.regen         = {} end        -- Cast Spell Regen
             if self.cast.safe       == nil then self.cast.safe          = {} end        -- Case Spell Safe
             if self.cast.time       == nil then self.cast.time          = {} end        -- Cast Spell Time
-            if self.charges[k]      == nil then self.charges[k]         = {} end        -- Spell Charge Functions
-            if self.cd[k]           == nil then self.cd[k]              = {} end        -- Spell Cooldown Functions
+            if self.charges         == nil then self.charges            = {} end        -- Spell Charge Functions
+            if self.cd              == nil then self.cd                 = {} end        -- Spell Cooldown Functions
 
             -- Build Spell Charges
-            local charges = self.charges[k]
-            charges.exists = function()
-                return getCharges(v) >= 1
-            end
-            charges.count = function()
-                return getCharges(v)
-            end
-            charges.frac = function()
-                return getChargesFrac(v)
-            end
-            charges.max = function()
-                return getChargesFrac(v,true)
-            end
-            charges.recharge = function(chargeMax)
-                if chargeMax then
-                    return getRecharge(v,true)
-                else
-                    return getRecharge(v)
-                end
-            end
-            charges.timeTillFull = function()
-                return getFullRechargeTime(v)
-            end
-
+            br.api.spells(self.charges,k,v,"charges")
             -- Build Spell Cooldown
-            local cd = self.cd[k]
-            cd.exists = function()
-                return getSpellCD(v) > 0
-            end
-            cd.remain = function()
-                return getSpellCD(v)
-            end
-            cd.remains = function()
-                return getSpellCD(v)
-            end
-
+            br.api.spells(self.cd,k,v,"cd")
             -- Build Cast Funcitons
-            self.cast[k] = function(thisUnit,debug,minUnits,effectRng,predict)
-                return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k,predict)
-            end
-
-            self.cast.able[k] = function(thisUnit,debug,minUnits,effectRng,predict)
-                return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k,predict)
-                -- return self.cast[v](nil,"debug")
-            end
-
-            self.cast.active[k] = function(unit)
-                if unit == nil then unit = "player" end
-                return isCastingSpell(v,unit)
-            end
-
-            self.cast.cost[k] = function(altPower)
-                if altPower == nil then altPower = false end
-                if altPower then
-                    return select(2,getSpellCost(v))
-                else
-                    return select(1,getSpellCost(v))
-                end
-            end
-
-            self.cast.pool[k] = function(altPower, specificAmt, multiplier)
-                local powerType = select(2, UnitPowerType("player")):lower()
-                specificAmt = specificAmt or 0
-                multiplier = multiplier or 1
-                if altPower == nil then altPower = false end
-                return self.power[powerType].amount() < self.cast.cost[k](altPower) * multiplier or
-                    self.power[powerType].amount() < specificAmt
-            end
-
-            self.cast.current[k] = function(spellID,unit)
-                if spellID == nil then spellID = v end
-                if unit == nil then unit = "player" end
-                return isCastingSpell(spellID,unit)
-            end
-
-            self.cast.inFlight[k] = function(unit)
-                return br.InFlight.Check(v, unit)
-            end
-
-            self.cast.last[k] = function(index)
-                local tracker = br.lastCast.tracker
-                index = index or 1
-                return tracker[index] and tracker[index] == v
-            end
-
-            self.cast.range[k] = function()
-                return getSpellRange(v)
-            end
-
-            self.cast.regen[k] = function()
-                return getCastingRegen(v)
-            end
-
-            self.cast.safe[k] = function(unit,effectRng,minUnits,aoeType)
-                return isSafeToAoE(v,unit,effectRng,minUnits,aoeType)
-            end
-
-            self.cast.time[k] = function()
-                return getCastTime(v)
-            end
+            br.api.spells(self.cast,k,v,"cast")
         end
     end
 
@@ -799,11 +479,6 @@ function br.loader:new(spec,specName)
             self.mode[toggle] = br.data.settings[br.selectedSpec].toggles[k]
             UpdateToggle(k,0.25)
         end
-
-        -- self.mode.rotation      = br.data.settings[br.selectedSpec].toggles["Rotation"]
-        -- self.mode.cooldown      = br.data.settings[br.selectedSpec].toggles["Cooldown"]
-        -- self.mode.defensive     = br.data.settings[br.selectedSpec].toggles["Defensive"]
-        -- self.mode.interrupt     = br.data.settings[br.selectedSpec].toggles["Interrupt"]
     end
 
     -- Create the toggle defined within rotation files
@@ -881,8 +556,6 @@ function br.loader:new(spec,specName)
         -- if profileTable then
             insertTableIntoTable(optionTable, self.rotation.options())
         -- end
-
-
 
         -- Create pages dropdown
         br.ui:createPagesDropdown(br.ui.window.profile, optionTable)
@@ -986,7 +659,7 @@ function br.loader:new(spec,specName)
     end
 
     -- Debugging
-        br.debug.cpu.rotation.loadTime = debugprofilestop()-loadStart
+    br.debug.cpu.rotation.loadTime = debugprofilestop()-loadStart
 -----------------------------
 --- CALL CREATE FUNCTIONS ---
 -----------------------------
