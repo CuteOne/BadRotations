@@ -354,6 +354,7 @@ local function runRotation()
   local php = br.player.health
   local spell = br.player.spell
   local talent = br.player.talent
+  local essence = br.player.essence
   local gcd = br.player.gcdMax
   local charges = br.player.charges
   local cd = br.player.cd
@@ -1015,14 +1016,19 @@ local function runRotation()
 
     --Essences
     --Concentrated Flame
-    if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and cd.concentratedFlame.remain() == 0 then
-      if cast.concentratedFlame(lowest.unit) then
-        return true
+
+    -- Concentrated Flame Heal
+
+    if essence.concentratedFlame.active and getSpellCD(295373) <= gcd and cast.able.concentratedFlame() then
+      if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
+        if cast.concentratedFlame(lowest.unit) then
+          return true
+        end
       end
-    end
-    if isChecked("ConcentratedFlame - DPS") and cd.concentratedFlame.remain() == 0 and getTTD("target") > 3 then
-      if cast.concentratedFlame("target") then
-        return true
+      if isChecked("ConcentratedFlame - DPS") and getTTD("target") > 3 and getLineOfSight("target") and getDistance("target") <= 40 then
+        if cast.concentratedFlame("target") then
+          return true
+        end
       end
     end
     --lucid dreams
@@ -1034,7 +1040,8 @@ local function runRotation()
     end
     -- the ever rising ride
     --overchargeMana
-    if isChecked("Ever Rising Tide") and cast.able.overchargeMana()
+
+    if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd and cast.able.overchargeMana()
             and mana >= 20 then
       if cast.overchargeMana() then
         return
@@ -1627,7 +1634,7 @@ local function runRotation()
     --Glimmer support
 
     if mode.Glimmer == 3 and (inInstance or inRaid) and #tanks > 0 then
-      if not buff.glimmerOfLight.exists(tanks[1].unit) and not UnitBuffID(tanks[1].unit, 115191) then
+      if not buff.glimmerOfLight.exists(tanks[1].unit) and not UnitBuffID(tanks[1].unit, 115191) and getLineOfSight(tanks[1].unit, "player") then
         if cast.holyShock(tanks[1].unit) then
         end
       end
