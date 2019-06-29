@@ -221,6 +221,7 @@ local use
 local actionList
 local critChance
 local flying
+local haltProfile
 local hastar
 local healPot
 local leftCombat
@@ -302,15 +303,15 @@ actionList.PetManagement = function()
     end
     if isChecked("Auto Attack/Passive") then
         -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
-        if (not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive")) then
+        if ((not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive"))) and not haltProfile then
             PetAssistMode()
-        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then 
+        elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then 
             PetDefensiveMode()
-        elseif inCombat and petMode ~= "Passive" and #enemies.yards40 == 0 then
+        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") then
+        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
             if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                 PetAttack(units.dyn40)
             elseif getOptionValue("Pet Target") == 2 and validTarget then
@@ -321,7 +322,7 @@ actionList.PetManagement = function()
                     if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                 end
             end
-        elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) and IsPetAttackActive() then
+        elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile then --and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
@@ -340,7 +341,7 @@ actionList.PetManagement = function()
         if cast.survivalOfTheFittest("pet") then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile then
         if cast.able.bite() then
             if cast.bite("pettarget","pet") then return end
         end
@@ -1107,6 +1108,7 @@ local function runRotation()
     pullTimer                          = PullTimerRemain()
     thp                                = getHP
     ttd                                = getTTD
+    haltProfile                        = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1160,11 +1162,11 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop then
         profileStop = false
-    elseif (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4 then
-        if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
-            PetStopAttack()
-            PetFollow()
-        end
+    elseif haltProfile then
+        -----------------
+        --- Pet Logic ---
+        -----------------
+        if actionList.PetManagement() then return true end
         if cast.able.playDead() and cast.last.feignDeath() and not buff.playDead.exists("pet") then
             if cast.playDead() then return end
         end
