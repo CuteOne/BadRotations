@@ -614,16 +614,20 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 			castDebug()
             return true --castSpell(thisUnit,spellCast,false,false,false,false,false,false,false,true)
         elseif thisUnit == "best" then
-            castDebug()
+			-- castDebug()
+			br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..thisUnit)
             return castGroundAtBestLocation(spellCast,effectRng,minUnits,maxRange,minRange,debug,castTime)
         elseif thisUnit == "playerGround" and (getDistance("player") < maxRange or IsSpellInRange(spellName,"player") == 1) then
-            castDebug()
+			-- castDebug()
+			-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..thisUnit)
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"player")
         elseif thisUnit == "targetGround" and (getDistance("target") < maxRange or IsSpellInRange(spellName,"target") == 1) then
-            castDebug()
+			-- castDebug()
+			-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..thisUnit)
             return castGroundAtUnit(spellCast,effectRng,minUnits,maxRange,minRange,debug,"target")
 		elseif thisUnit == "pettarget" and (getDistance("pettarget","pet") < maxRange or IsSpellInRange(spellName,"pettarget") == 1) then
-			castDebug()
+			-- castDebug()
+			-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..thisUnit)
 			return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 		elseif thisUnit ~= nil then
 			local distance = getDistance(thisUnit)
@@ -633,34 +637,41 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 				local hasEnemies = #getEnemies("player",maxRange) >= minUnits or spellType == "Helpful" or spellType == "Unknown"
 				if debug == "rect" then
 					if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"rect") and hasEnemies then
-						castDebug()
+						-- castDebug()
+						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [rect]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
                 elseif debug == "cone" then
 					if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone") and hasEnemies then
-						castDebug()
+						-- castDebug()
+						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [cone]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
 					end
                 elseif debug == "ground" then
 			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) and hasEnemies then
 	                    if getLineOfSight(thisUnit) then
-                          castDebug()
-                          return castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
+							-- castDebug()
+							-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [ground]")
+							return castGround(thisUnit,spellCast,maxRange,minRange,effectRng,castTime)
 	                    end
 	                end
                 elseif debug == "aoe" then
 			        if isSafeToAoE(spellID,thisUnit,effectRng,minUnits) and hasEnemies then
-						castDebug()
+						-- castDebug()
+						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [aoe]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
                 elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player") then
-                    castDebug()
+					-- castDebug()
+					-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [dead]")
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
                 elseif (debug == "norm" or debug == "pet") and hasEnemies then
 					castDebug()
 					if debug == "pet" then
-						return castSpell(thisUnit,spellCast,true,false,false,false,false,true)
+						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [pet]")
+						return castSpell("thisUnit",spellCast,true,false,false,false,false,true)
 					else
+						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit))
 						return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
 					end
 	            end
