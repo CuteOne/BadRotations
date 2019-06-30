@@ -578,7 +578,7 @@ local function runRotation()
                     end
                 end
             end
-            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or ttd(units.dyn40) < 20) then
+            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or (ttd(units.dyn40) < 20 and useCDs()) then
                 if use.able.slot(13) and not equiped.vigorTrinket(13) then
                     use.slot(13)
                 end
@@ -603,7 +603,7 @@ local function runRotation()
         -- Double Tap 
             -- double_tap,if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20
             if opUseCD("Double Tap") and cast.able.doubleTap() and talent.doubleTap 
-                and (cd.rapidFire.remain() < gcd or cd.rapidFire.remain() < cd.aimedShot.remain() or ttd(units.dyn40) < 20) 
+                and (cd.rapidFire.remain() < gcdMax or cd.rapidFire.remain() < cd.aimedShot.remain() or (ttd(units.dyn40) < 20 and useCDs())) 
             then
                 if cast.doubleTap() then return end 
             end
@@ -645,7 +645,7 @@ local function runRotation()
         -- Potion
             -- potion,if=buff.trueshot.react&buff.bloodlust.react|buff.trueshot.up&ca_execute|target.time_to_die<25
             if useCDs() and isChecked("Potion") and canUseItem(142117) and inRaid then
-                if buff.trueshot.exists() and (buff.bloodLust.exists() or caExecute or buff.trueshot.exists or ttd(units.dyn40) < 25) then
+                if buff.trueshot.exists() and (buff.bloodLust.exists() or caExecute or buff.trueshot.exists or (ttd(units.dyn40) < 25 and useCDs())) then
                     useItem(142117)
                 end
             end
@@ -653,7 +653,7 @@ local function runRotation()
             -- trueshot,if=focus>60&(buff.precise_shots.down&cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15
             if opUseCD("Trueshot") and cast.able.trueshot() then
                 if power > 60 and ((not buff.preciseShots.exists() and cd.rapidFire.remain() > 0 
-                    and (ttd(units.dyn40) > 15 or getHP(units.dyn40) < 20 or not talent.carefulAim)) or ttd(units.dyn40) < 15)
+                    and (ttd(units.dyn40) > 15 or getHP(units.dyn40) < 20 or not talent.carefulAim)) or (ttd(units.dyn40) < 15 and useCDs()))
                 then
                     if cast.trueshot("player") then return end
                 end
@@ -697,7 +697,7 @@ local function runRotation()
             end
         -- Multishot 
             -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
-            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() or not buff.trueshot.exists() or power > 70) then 
+            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() and not buff.trueshot.exists() or power > 70) then 
                 if cast.multishot() then return end 
             end
         -- Heart Essence
@@ -826,7 +826,7 @@ local function runRotation()
             -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)
             if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists() 
                 and (power > 41 or buff.masterMarksman.exists()) or ((power > 50 and traits.focusedFire.active) or power > 75) 
-                and (cd.trueshot.remain() > 5 or power > 80) or ttd(units.dyn40) < 5)
+                and (cd.trueshot.remain() > 5 or power > 80) or (ttd(units.dyn40) < 5 and useCDs()))
             then
                 if cast.arcaneShot() then return end 
             end 

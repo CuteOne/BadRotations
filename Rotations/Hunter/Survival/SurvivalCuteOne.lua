@@ -689,6 +689,11 @@ actionList.St = function()
     then
         if cast.mongooseBite() then return end
     end
+    -- Kill Command
+    -- kill_command,if=focus+cast_regen<focus.max-focus.regen
+    if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax - focusRegen then
+        if cast.killCommand() then return end
+    end
     -- Steel Trap 
     -- steel_trap,if=focus+cast_regen<focus.max 
     if cast.able.steelTrap() and focus + focusRegen < focusMax then
@@ -714,11 +719,6 @@ actionList.St = function()
         or debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists())
     then
         if cast.serpentSting() then return end
-    end
-    -- Kill Command
-    -- kill_command,if=focus+cast_regen<focus.max-focus.regen
-    if cast.able.killCommand() and focus + castRegen(spell.killCommand) < focusMax - focusRegen then
-        if cast.killCommand() then return end
     end
     -- A Murder of Crows
     -- a_murder_of_crows,if=!buff.coordinated_assault.up
