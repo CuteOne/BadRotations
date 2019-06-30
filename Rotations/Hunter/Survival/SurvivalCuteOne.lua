@@ -1333,6 +1333,7 @@ local function runRotation()
     -- Enemies
     enemies.get(5)
     enemies.get(5,"pet")
+    enemies.get(8,"pet")
     enemies.get(20,"pet")
     enemies.get(30)
     enemies.get(30,"pet")

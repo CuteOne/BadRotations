@@ -1116,14 +1116,14 @@ local function runRotation()
 
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
-    enemies.get(8,"target")
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(40,"player",true)
-    enemies.get(5,"pet")
-    enemies.get(8,"pet")
-    enemies.get(20,"pet")
     enemies.get(30,"pet")
+    enemies.get(20,"pet")
+    enemies.get(8,"pet")
+    enemies.get(8,"target")
+    enemies.get(5,"pet")
 
     -- General Vars
     if isChecked("Spirit Mend") then br.friend:Update() end
