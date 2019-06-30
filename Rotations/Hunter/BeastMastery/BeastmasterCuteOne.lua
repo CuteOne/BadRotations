@@ -615,8 +615,8 @@ actionList.Cooldowns = function()
                 if cast.rippleInSpace() then return end 
             end
             -- memory_of_lucid_dreams
-            if cast.able.memoryOfLucidDeams() then
-                if cast.memoryOfLucidDeams() then return end
+            if cast.able.memoryOfLucidDreams() then
+                if cast.memoryOfLucidDreams() then return end
             end
         end
         -- Aspect of the Wild
@@ -900,7 +900,7 @@ actionList.St = function()
     -- Cobra Shot
     -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
     if cast.able.cobraShot() and ((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand() 
-        or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDeams.exists()) and cd.killCommand.remain() > 1) 
+        or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDreams.exists()) and cd.killCommand.remain() > 1) 
     then
         if cast.cobraShot() then return end
     end
