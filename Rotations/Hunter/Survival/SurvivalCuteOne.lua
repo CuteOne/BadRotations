@@ -621,29 +621,29 @@ actionList.Cooldown = function()
         if cast.aspectOfTheEagle() then return end
     end
     -- Heart Essence 
-    if isChecked("Use Essence") and useCDs() then
+    if isChecked("Use Essence") then
         -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() then 
+        if cast.able.focusedAzeriteBeam() and useCDs() then 
             if cast.focusedAzeriteBeam() then return end 
         end
         -- memory_of_lucid_dreams,if=buff.coordinated_assault.up
-        if cast.able.memoryOfLucidDreams() and buff.coordinatedAssault.exists() then
+        if cast.able.memoryOfLucidDreams() and buff.coordinatedAssault.exists() and useCDs() then
             if cast.memoryOfLucidDreams() then return end
         end
         -- blood_of_the_enemy,if=buff.coordinated_assault.up
-        if cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() then
+        if cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() and useCDs() then
             if cast.bloodOfTheEnemy() then return end
         end
         -- purifying_blast
-        if cast.able.purifyingBlast() then 
+        if cast.able.purifyingBlast() and useCDs() then 
             if cast.purifyingBlast() then return end 
         end
         -- guardian_of_azeroth
-        if cast.able.guardianOfAzeroth() then 
+        if cast.able.guardianOfAzeroth() and useCDs() then 
             if cast.guardianOfAzeroth() then return end 
         end
         -- ripple_in_space
-        if cast.able.rippleInSpace() then 
+        if cast.able.rippleInSpace() and useCDs() then 
             if cast.rippleInSpace() then return end 
         end
         -- concentrated_flame,if=full_recharge_time<1*gcd
