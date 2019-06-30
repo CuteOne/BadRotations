@@ -67,6 +67,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Death Grip - Pre-Combat","|cffFFFFFFWill grip selected target to begin combat.")
             -- Path of Frost 
             br.ui:createCheckbox(section, "Path of Frost")
+            -- Heart Essence
+            br.ui:createCheckbox(section, "Use Essence")
         br.ui:checkSectionState(section)
         -------------------
         --- PET OPTIONS ---
@@ -190,6 +192,7 @@ local function runRotation()
     local pet                                           = br.player.pet
     local runes                                         = br.player.power.runes.amount()
     local runeDeficit                                   = br.player.power.runes.deficit()
+    local runesTTM                                      = br.player.power.runes.ttm
     local runicPower                                    = br.player.power.runicPower.amount()
     local runicPowerDeficit                             = br.player.power.runicPower.deficit()
     local talent                                        = br.player.talent
@@ -209,6 +212,7 @@ local function runRotation()
     -- Enemies Declaration
     enemies.get(5)
     enemies.get(8)
+    enemies.get(8,"target")
     enemies.get(15)
     enemies.get(20)
     enemies.get(30)
@@ -467,6 +471,43 @@ local function runRotation()
             if cast.unholyBlight("player","aoe",1,10) then return end 
         end
     end -- End Action List - Cooldowns
+    local function actionList_Essences()
+        -- Memory of Lucid Dreams
+        -- memory_of_lucid_dreams,if=rune.time_to_1>gcd&runic_power<40
+        if useCDs() and cast.able.memoryOfLucidDreams() and runesTTM(1) > gcd and runicPower < 40 then 
+            if cast.memoryOfLucidDreams() then return end 
+        end
+        -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&cooldown.death_and_decay.ready)
+        if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1) 
+            or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or (cd.apocalypse.remain() > 0 and cd.deathAndDecay.remain() == 0))
+        then 
+            if cast.bloodOfTheEnemy() then return end 
+        end
+        -- guardian_of_azeroth,if=cooldown.apocalypse.ready
+        if useCDs() and cast.able.guardianOfAzeroth() and cd.apocalypse.remain() == 0 then 
+            if cast.guardianOfAzeroth() then return end 
+        end
+        -- focused_azerite_beam,if=!death_and_decay.ticking
+        if cast.able.focusedAzeriteBeam() and deathAndDecayRemain == 0 then 
+            if cast.focusedAzeriteBeam() then return end 
+        end
+        -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
+        if cast.able.concentratedFlame() and not debuff.concentratedFlame.exits(units.dyn5) then 
+            if cast.concentratedFlame() then return end 
+        end
+        -- purifying_blast,if=!death_and_decay.ticking
+        if useCDs() and cast.able.purifyingBlast() and deathAndDecayRemain == 0 then
+            if cast.purifyingBlast() then return end 
+        end
+        -- worldvein_resonance,if=!death_and_decay.ticking
+        if cast.able.worldveinResonance() and deathAndDecayRemain == 0 then
+            if cast.worldveinResonance() then return end 
+        end 
+        -- ripple_in_space,if=!death_and_decay.ticking
+        if useCDs() and cast.able.rippleInSpace() and deathAndDecayRemain == 0 then
+            if cast.rippleInSpace() then return end 
+        end
+    end
     local function actionList_AOE()
     -- Death and Decay 
         -- death_and_decay,if=cooldown.apocalypse.remains 
@@ -764,7 +805,13 @@ local function runRotation()
                     if cast.able.outbreak(units.dyn30AOE) and debuff.virulentPlague.remain(units.dyn30AOE) <= gcd then 
                         if cast.outbreak(units.dyn30AOE) then return end 
                     end 
+            -- Call Action List - Essences
+                    -- call_action_list,name=essences
+                    if isChecked("Use Essence") then
+                        if actionList_Essences() then return end
+                    end
             -- Call Action List - Cooldowns
+                    -- call_action_list,name=cooldowns
                     if actionList_Cooldowns() then return end
                 end
             -- Run Action List - AOE

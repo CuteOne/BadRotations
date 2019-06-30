@@ -323,6 +323,7 @@ br.lists.spells = {
                 runicAttenuation            = 207104,
             },
             traits                          = {
+                frozenTempest               = 278487,
                 icyCitadel                  = 272718,
             }
         },
@@ -3469,6 +3470,7 @@ br.lists.spells = {
                 seethingRage                    = 297126,
             },
             debuffs                             = {
+                concentratedFlame               = 295368,
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
                 temptation                      = 234143,
