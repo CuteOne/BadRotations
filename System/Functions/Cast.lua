@@ -594,7 +594,8 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local essence = br.player.essence
 		if essence[index] == nil then return true end
 		if essence[index].id == nil then return true end
-		return essence[index].active 
+		if essence[index].active then spellID = br.player.spell.essences["heartEssence"] end
+		return essence[index].active
 	end
     -- Base Spell Availablility Check
 	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
