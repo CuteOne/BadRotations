@@ -84,6 +84,8 @@ local function createOptions ()
 			br.ui:createCheckbox(section, "Opener", "Perform the opener.", true)
 			-- Pre-Pull Timer
 			br.ui:createSpinner(section, "Pre-Pull Timer", 2, 0, 10, 0.1, "Set desired time offset to opener (DBM Required). Min: 0 / Max: 10 / Interval: 0.1", nil, true)
+			-- Pet Management
+            br.ui:createCheckbox(section, "Pet Management", "Select to enable/disable auto pet management")
 		br.ui:checkSectionState(section)
 		-------------------------
         --- OFFENSIVE OPTIONS ---
@@ -103,7 +105,7 @@ local function createOptions ()
 			-- Drain Life Trait
 			br.ui:createCheckbox(section, "Drain Life Trait", "Use Drain Life automatically if enough stacks")
 			-- Spread agony on single target
-			br.ui:createSpinner(section, "Spread Agony on ST", 3, 1, 15, 1, "Check to spread Agony when running in single target", "The amont of additionally running Agony. Standard is 3")
+			br.ui:createSpinner(section, "Spread Agony on ST", 3, 0, 15, 1, "Check to spread Agony when running in single target", "The amont of additionally running Agony. Standard is 3")
 			-- Seed of Corruption
 			br.ui:createDropdown(section, "Seed Target", {"Target", "Best"},  1, "Seed of Corruption Target", "Seed of Corruption Target", true)
 			br.ui:createCheckbox(section, "Seed on ST", "Check to use Seed of Corruption when running in single target")
@@ -113,7 +115,7 @@ local function createOptions ()
 			br.ui:createSpinner(section, "Agony Count", 8, 1, 15, 1, nil, "The maximum amount of running Agony. Standard is 8", true)
 			br.ui:createSpinner(section, "Corruption Count", 8, 1, 15, 1, nil, "The maximum amount of running Corruption. Standard is 8", true)
 			br.ui:createSpinner(section, "Siphon Life Count", 8, 1, 15, 1, nil, "The maximum amount of running Siphon Life. Standard is 8", true)
-		br.ui:checkSectionState(section)
+        br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
 		-------------------------
@@ -127,27 +129,6 @@ local function createOptions ()
 			-- Unending Resolve
             br.ui:createSpinner(section, "Unending Resolve", 25, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:checkSectionState(section)
-		-----------------------
-        --- ESSENCE OPTIONS ---
-        -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "Essences")
-            -- Blood of the Enemy
-            br.ui:createCheckbox(section,"Blood of the Enemy")
-            -- Concentrated Flame 
-            br.ui:createCheckbox(section,"Concentrated Flame")
-            -- Focused Azerite Beam
-            br.ui:createCheckbox(section,"Focused Azerite Beam")
-            -- Guardian of Azeroth
-            br.ui:createCheckbox(section,"Guardian of Azeroth")
-            -- Memory of Lucid Dreams 
-            br.ui:createCheckbox(section,"Memory of Lucid Dreams")
-            -- Purifying Blast
-            br.ui:createCheckbox(section,"Purifying Blast")
-            -- The Unbound Force
-            br.ui:createCheckbox(section,"The Unbound Force")
-            -- Worldvein Resonance
-            br.ui:createCheckbox(section,"Worldvein Resonance")
-        br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
 		-------------------------
@@ -213,7 +194,6 @@ local function runRotation ()
 		local enemies											= br.player.enemies
 		local falling, swimming, flying, moving					= getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
 		local gcd												= br.player.gcd
-		local hastar											= hastar or GetObjectExists("target")
 		local healPot											= getHealthPot()
 		local inCombat											= UnitAffectingCombat("player")
 		local inInstance										= br.player.instance=="party"
@@ -352,6 +332,16 @@ local function runRotation ()
 		-------------------------
 		--- Profile Functions ---
 		-------------------------
+
+		function travelTime (spellID, target)
+			if target == nil then target = "target" end
+			local speed = {
+				[232670] = 25, -- Shadow Bolt
+				[48181] = 40, -- Haunt
+				[27243] = 30 -- Seed of Corruption
+			}
+			return getDistance(target) / speed[spellID] or 40
+		end
 
 		if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
 
@@ -874,7 +864,9 @@ local function runRotation ()
 			if not inCombat 
 				and not (IsFlying() or IsMounted()) 
 				and isValidUnit("target") 
-				and getDistance("target") < 40 then
+				and getDistance("target") < 40 
+				and isBoss("target") 
+				then
 				-- actions.precombat=flask
 				-- actions.precombat+=/food
 				-- actions.precombat+=/augmentation
@@ -882,25 +874,30 @@ local function runRotation ()
 				-- actions.precombat+=/grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
 				-- actions.precombat+=/snapshot_stats
 				-- actions.precombat+=/potion
-				-- pet
-				if isChecked("Pet Management") and GetUnitExists("target") and not UnitAffectingCombat("pet") then
-					PetAssistMode()
-					PetAttack("target")
-				end
-				-- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3
-				if seedTargetsHit >= 3 then
-					if cast.able.seedOfCorruption() then
-						if cast.seedOfCorruption("target") then return true end
+				-- PrePull
+				if isChecked("Opener") and pullTimer <= 10 then
+					if isChecked("Intellect-Potion") then
+						if hasItem(163222) and canUseItem(163222) then
+							useItem(163222)
+						end
 					end
-				end
-				-- actions.precombat+=/haunt
-				if cast.able.haunt() then
-					if cast.haunt("target") then return true end
-				end
-				-- actions.precombat+=/shadow_bolt,if=!talent.haunt.enabled&spell_targets.seed_of_corruption_aoe<3
-				if not talent.haunt and seedTargetsHit < 3 then
-					if cast.able.shadowBolt() then
-						if cast.shadowBolt() then return true end
+					-- actions.precombat+=/seed_of_corruption,if=spell_targets.seed_of_corruption_aoe>=3
+					if seedTargetsHit >= 3 and pullTimer <= 2.5*spell_haste + travelTime(27243, "target") then
+						-- if cast.able.seedOfCorruption() then
+							if cast.seedOfCorruption("target") then return true end
+						-- end
+					end
+					-- actions.precombat+=/haunt
+					if pullTimer <= 1.5*spell_haste + travelTime(48181, "target") then
+						-- if cast.able.haunt() then
+							if cast.haunt("target") then return true end
+						-- end
+					end
+					-- actions.precombat+=/shadow_bolt,if=!talent.haunt.enabled&spell_targets.seed_of_corruption_aoe<3
+					if not talent.haunt and pullTimer <= 2*spell_haste + travelTime(232670, "target") then
+						-- if cast.able.shadowBolt() then
+							if cast.shadowBolt() then return true end
+						-- end
 					end
 				end
 				opener = true
@@ -916,15 +913,6 @@ local function runRotation ()
 		-- end
 
 		function actionList_Extras ()
-			if isChecked("Concentrated Flame") then
-				if not inCombat then
-					if buff.concentratedFlame.stack() < 3 then
-						if cast.able.concentratedFlame() then
-							if cast.concentratedFlame("player") then return true end
-						end
-					end
-				end
-			end
 		end
 
 
@@ -935,10 +923,10 @@ local function runRotation ()
 		if not inCombat and not hastar and profileStop==true then
 			profileStop = false
 		elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not cast.current.drainSoul()) or mode.rotation==4 then
-			if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
-				PetStopAttack()
-				PetFollow()
-			end
+			-- if not pause() and IsPetAttackActive() and isChecked("Pet Management") then
+			-- 	PetStopAttack()
+			-- 	PetFollow()
+			-- end
 			return true
 		else
 
@@ -957,7 +945,7 @@ local function runRotation ()
 			---------------------------
 			--- Pre-Combat Rotation ---
 			---------------------------
-			if actionList_PreCombat() then return true end
+			-- if actionList_PreCombat() then return true end
 			
 			----------------------------------
 			--- AUTO ENGANGE COMBAT TOGGLE ---
@@ -966,15 +954,15 @@ local function runRotation ()
 			-----------------------
 			--- Opener Rotation ---
 			-----------------------
-			if opener == false --[[ and isChecked("Opener") ]] and isBoss("target") then
-				if actionList_Opener() then return true end
-			end
+			-- if --[[ opener == false ]] --[[ and isChecked("Opener") ]] --[[ and ]] isBoss("target") then
+			-- 	if actionList_Opener() then return true end
+			-- end
 			
 			--------------------------
 			--- In Combat Rotation ---
 			--------------------------
 			if inCombat and profileStop==false and #enemyTable40 > 0
-            	and (opener == true or not isChecked("Opener") or not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
+            	and (--[[ opener == true or not isChecked("Opener") or ]] not isBoss("target")) and (not cast.current.drainLife() or (cast.current.drainLife() and php > 80)) then
 				------------------------------
 				--- In Combat - Interrupts ---
 				------------------------------
@@ -995,9 +983,10 @@ local function runRotation ()
 				if --[[ getOptionValue("APL Mode") == 1 and ]] not pause() then
 					
 
-					-- Pet Attack
-					if isChecked("Pet Management") and not GetUnitIsUnit("pettarget","target") and isValidUnit("target") then
-						PetAttack()
+					-- Pet
+					if isChecked("Pet Management") and GetUnitExists("target") and not UnitAffectingCombat("pet") then
+						PetAssistMode()
+						PetAttack("target")
 					end
 					-- # Executed every time the actor is available.
 					-- actions=variable,name=use_seed,value=talent.sow_the_seeds.enabled&spell_targets.seed_of_corruption_aoe>=3+raid_event.invulnerable.up|talent.siphon_life.enabled&spell_targets.seed_of_corruption>=5+raid_event.invulnerable.up|spell_targets.seed_of_corruption>=8+raid_event.invulnerable.up
@@ -1038,19 +1027,12 @@ local function runRotation ()
 							end
 						end
 					end
-					-- Essence - The Crucible of Flame - Concentrated Flame
-					if isChecked("Concentrated Flame") and hastar then
-						if cast.able.concentratedFlame() then
-							if cast.concentratedFlame("player") then return true end
-						end
-					end
 					-- actions+=/agony,target_if=min:dot.agony.remains,if=remains<=gcd+action.shadow_bolt.execute_time&target.time_to_die>8
 					if not noDotCheck("target") and  debuff.agony.remain() <= gcd + cast.time.shadowBolt() and ttd("target") > 8 then
 						if cast.able.agony() then
 							if cast.agony() then return true end
 						end
 					end
-					
 					-- actions+=/unstable_affliction,target_if=!contagion&target.time_to_die<=8
 					
 					-- actions+=/drain_soul,target_if=min:debuff.shadow_embrace.remains,cancel_if=ticks_remain<5,if=talent.shadow_embrace.enabled&variable.maintain_se&debuff.shadow_embrace.remains&debuff.shadow_embrace.remains<=gcd*2
