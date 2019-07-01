@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             -- Multi-DoT Limit
             br.ui:createSpinnerWithout(section,"Multi-DoT Limit", 8, 2, 10, 1, "|cffFFFFFFSet to number of enemies to stop multi-dotting with Rake and Moonfire.")
+            -- Primal Wrath Usage
+            br.ui:createSpinnerWithout(section,"Primal Wrath Usage",{"|cffFFFF00Always","|cff00FF00Refresh Only"})
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -302,7 +304,7 @@ local function usePrimalWrath()
     if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8) and cast.safe.primalWrath("player",8,1)
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
-        if #enemies.yards8 >= 3 then return true end
+        if getOptionValue("Primal Wrath Usage") == 1 and #enemies.yards8 >= 3 then return true end
         local ripCount = 0
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
