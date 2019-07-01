@@ -543,6 +543,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
 	-- Locals
+	origID = spellID
 	if br.player.essence[index] ~= nil then
 		if br.player.essence[index].active then spellID = br.player.spell.essences["heartEssence"] end -- Heart Essence Cast (funky Essence IDs)
 	end
@@ -600,7 +601,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return essence[index].active
 	end
     -- Base Spell Availablility Check
-	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
+	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and (getSpellCD(spellID) == 0 and getSpellCD(origID) == 0)
 		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence(spellID) --and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
