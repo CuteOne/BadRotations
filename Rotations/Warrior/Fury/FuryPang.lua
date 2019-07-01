@@ -112,25 +112,25 @@ local function createToggles()
         }
     }
     CreateButton("Mover", 5, 0)
-    HoldcdModes = {
-        [1] = {
-            mode = "ON",
-            value = 1,
-            overlay = "CDs will not be held",
-            tip = "CDs will not be held",
-            highlight = 1,
-            icon = br.player.spell.recklessness
-        },
-        [2] = {
-            mode = "OFF",
-            value = 2,
-            overlay = "CDs will be held",
-            tip = "CDs will be held",
-            highlight = 0,
-            icon = br.player.spell.recklessness
-        }
-    }
-    CreateButton("Holdcd", 6, 0)
+    -- HoldcdModes = {
+    --     [1] = {
+    --         mode = "ON",
+    --         value = 1,
+    --         overlay = "CDs will not be held",
+    --         tip = "CDs will not be held",
+    --         highlight = 1,
+    --         icon = br.player.spell.recklessness
+    --     },
+    --     [2] = {
+    --         mode = "OFF",
+    --         value = 2,
+    --         overlay = "CDs will be held",
+    --         tip = "CDs will be held",
+    --         highlight = 0,
+    --         icon = br.player.spell.recklessness
+    --     }
+    -- }
+    -- CreateButton("Holdcd", 6, 0)
     -- LazyassModes = {
     --     [1] = {
     --         mode = "ON",
@@ -173,14 +173,14 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Essences")
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-        br.ui:createCheckbox(section, "Lucid Dreams")
+        br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         -- Trinkets
-        br.ui:createDropdown(section, "Trinkets", {"Always", "Cooldown"}, 1, "Use Trinkets always or with CDs")
+        br.ui:createDropdown(section, "Trinkets", {"Always", "Cooldown", "With Recklessness"}, 1, "Use Trinkets always or with CDs")
         -- Racials
         br.ui:createCheckbox(section, "Racials")
         -- Bladestorm Units
@@ -286,12 +286,26 @@ local function runRotation()
     local traits = br.player.traits
     local units = br.player.units
 
+    --wipe timers table
+    if timersTable then
+        wipe(timersTable)
+    end
+
     units.get(5)
     units.get(8)
     enemies.get(5)
     enemies.get(8)
     enemies.get(15)
     enemies.get(20)
+
+    --Keybindings
+    local leapKey = false
+    if getOptionValue("Heroic Leap Hotkey") ~= 1 then
+        leapKey = _G["rotationFunction" .. (getOptionValue("Heroic Leap Hotkey") - 1)]
+        if leapKey == nil then
+            leapKey = false
+        end
+    end
 
     if profileStop == nil then
         profileStop = false
@@ -414,7 +428,7 @@ local function runRotation()
 
     function moverlist()
         if br.player.mode.mover == 1 then
-            if SpecificToggle("Heroic Leap Hotkey") then
+            if leapKey and not GetCurrentKeyBoardFocus() then
                 CastSpellByName(GetSpellInfo(spell.heroicLeap), "cursor")
             end
             if isChecked("Charge In Combat") then
@@ -442,8 +456,10 @@ local function runRotation()
             end
         end
 
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd then
-            if cast.memoryOfLucidDreams() then return end
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+            if cast.memoryOfLucidDreams() then
+                return
+            end
         end
         -- Rampage
         if buff.recklessness.exists() or (rage >= 75) or not buff.enrage.exists() then
@@ -453,14 +469,14 @@ local function runRotation()
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.holdcd == 1 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if br.player.mode.holdcd == 1 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
+        if br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs())) then
             if cast.siegebreaker() then
                 return
             end
@@ -516,7 +532,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists() and isChecked("Bladestorm Units") and br.player.mode.holdcd == 1 and useCDs() then
+        if buff.enrage.exists() and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and useCDs() then
             if cast.bladestorm() then
                 return
             end
@@ -574,19 +590,21 @@ local function runRotation()
             end
         end
 
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd then
-            if cast.memoryOfLucidDreams() then return end
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+            if cast.memoryOfLucidDreams() then
+                return
+            end
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.holdcd == 1 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
         end
 
         -- Siegebreaker
-        if buff.whirlwind.exists() and (br.player.mode.holdcd == 1 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
+        if buff.whirlwind.exists() and (br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
             if cast.siegebreaker() then
                 return
             end
@@ -606,7 +624,7 @@ local function runRotation()
             end
         end
         -- Bladestorm
-        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.holdcd == 1 then
+        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.cooldown ~= 3 then
             if cast.bladestorm() then
                 return
             end
@@ -676,8 +694,8 @@ local function runRotation()
 
     function cooldownlist()
         --trinkets
-        if isChecked("Trinkets") and br.player.mode.holdcd == 1 then
-            if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) then
+        if isChecked("Trinkets") then
+            if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) or (getOptionValue("Trinkets") == 3 and getSpellCD(1719) < 5 and br.player.mode.cooldown ~= 3) then
                 if canTrinket(13) then
                     useItem(13)
                 end
@@ -688,7 +706,7 @@ local function runRotation()
         end
 
         --racials
-        if isChecked("Racials") and br.player.mode.holdcd == 1 then
+        if isChecked("Racials") and br.player.mode.cooldown ~= 3 then
             if race == "Orc" or race == "Troll" or race == "LightforgedDraenei" then
                 if cast.racial("player") then
                     return

@@ -332,6 +332,11 @@ local function runRotation()
         hasAggro = 0
     end
 
+    --wipe timers table
+    if timersTable then
+        wipe(timersTable)
+    end
+
     units.get(5)
     units.get(8)
     units.get(40)
