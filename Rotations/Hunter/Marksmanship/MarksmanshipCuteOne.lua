@@ -578,7 +578,7 @@ local function runRotation()
                     end
                 end
             end
-            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or (ttd(units.dyn40) < 20 and useCDs()) then
+            if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or (ttd(units.dyn40) < 20 and useCDs())) then
                 if use.able.slot(13) and not equiped.vigorTrinket(13) then
                     use.slot(13)
                 end
