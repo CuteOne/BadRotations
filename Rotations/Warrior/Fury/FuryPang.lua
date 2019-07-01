@@ -169,6 +169,12 @@ local function createOptions()
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
         br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+        br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+        br.ui:createCheckbox(section, "Lucid Dreams")
+        br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
@@ -328,6 +334,12 @@ local function runRotation()
                 end
             end
 
+            if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                if cast.concentratedFlame("player") then
+                    return
+                end
+            end
+
             -- Enraged Regeneration
             if isChecked("Enraged Regeneration") and cast.able.enragedRegeneration() and php <= getOptionValue("Enraged Regeneration") then
                 if cast.enragedRegeneration() then
@@ -430,6 +442,9 @@ local function runRotation()
             end
         end
 
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd then
+            if cast.memoryOfLucidDreams() then return end
+        end
         -- Rampage
         if buff.recklessness.exists() or (rage >= 75) or not buff.enrage.exists() then
             if cast.rampage() then
@@ -450,7 +465,6 @@ local function runRotation()
                 return
             end
         end
-
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
@@ -474,6 +488,12 @@ local function runRotation()
         -- Raging Blow
         if charges.ragingBlow.count() == 2 then
             if cast.ragingBlow() then
+                return
+            end
+        end
+
+        if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+            if cast.concentratedFlame("target") then
                 return
             end
         end
@@ -554,6 +574,10 @@ local function runRotation()
             end
         end
 
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd then
+            if cast.memoryOfLucidDreams() then return end
+        end
+
         -- Recklessness
         if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.holdcd == 1 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
@@ -569,7 +593,7 @@ local function runRotation()
         end
 
         -- Dragon Roar
-        if buff.enrage.exists() then
+        if buff.enrage.exists() and isChecked("Dragon Roar") then
             if cast.dragonRoar() then
                 return
             end
@@ -581,9 +605,8 @@ local function runRotation()
                 return
             end
         end
-
         -- Bladestorm
-        if #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.holdcd == 1 then
+        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.holdcd == 1 then
             if cast.bladestorm() then
                 return
             end
@@ -619,6 +642,12 @@ local function runRotation()
         -- Raging Blow
         if buff.whirlwind.exists() and charges.ragingBlow.count() == 2 then
             if cast.ragingBlow() then
+                return
+            end
+        end
+
+        if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+            if cast.concentratedFlame("target") then
                 return
             end
         end
@@ -668,9 +697,9 @@ local function runRotation()
         end
     end
 
-    -- if br.player.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
-    --     RunMacroText("/follow")
-    -- end
+    if br.player.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
+        RunMacroText("/follow")
+    end
 
     ---------------------
     --- Begin Profile ---
