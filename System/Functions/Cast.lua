@@ -542,7 +542,10 @@ end
 function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,predict,predictPad)
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
-    -- Locals
+	-- Locals
+	if br.player.essence[index] ~= nil then
+		if br.player.essence[index].active then spellID = br.player.spell.essences["heartEssence"] end -- Heart Essence Cast (funky Essence IDs)
+	end
     local spellCast = spellID
     local spellName,_,_,castTime,minRange,maxRange = GetSpellInfo(spellID)
 	local spellType = getSpellType(spellName)
@@ -594,7 +597,6 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local essence = br.player.essence
 		if essence[index] == nil then return true end
 		if essence[index].id == nil then return true end
-		if essence[index].active then spellID = br.player.spell.essences["heartEssence"] end
 		return essence[index].active
 	end
     -- Base Spell Availablility Check
