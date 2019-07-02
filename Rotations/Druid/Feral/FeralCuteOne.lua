@@ -1111,10 +1111,9 @@ actionList.Generator = function()
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
     if cast.able.shred() and range.dyn5
         and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or level < 32)
-        and ((debuff.rake.exists(units.dyn5)
-            and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)))
+        and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
-            or level < 12 or not rakeLogic(units.dyn5))
+            or level < 12)
     then
         if cast.shred() then debug("Casting Shred on "..UnitName(units.dyn5).."") return true end
     end
