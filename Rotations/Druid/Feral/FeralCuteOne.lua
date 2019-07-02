@@ -90,9 +90,9 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdown(section,"Potion", {"Old War","Prolonged Power"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createCheckbox(section,"Potion")
             -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Essences
@@ -225,6 +225,7 @@ local htTimer
 local lastForm
 local leftCombat
 local profileStop
+local range
 local ripDuration = 24
 local useThrash
 
@@ -429,8 +430,8 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.rebirth(thisUnit,"dead") and UnitIsPlayer(thisUnit)
-                and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player")
+            if cast.able.rebirth(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit) 
+                and (GetUnitIsFriend(thisUnit,"player") or UnitIsPlayer(thisUnit))
             then
                 if cast.rebirth(thisUnit,"dead") then debug("Casting Rebirth on "..UnitName(thisUnit)) return true end
             end
@@ -443,8 +444,8 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.revive(thisUnit,"dead") and UnitIsPlayer(thisUnit)
-                and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player")
+            if cast.able.revive(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit)
+                and (GetUnitIsFriend(thisUnit,"player") or UnitIsPlayer(thisUnit))
             then
                 if cast.revive(thisUnit,"dead") then debug("Casting Revive on "..UnitName(thisUnit)) return true end
             end
@@ -459,9 +460,10 @@ actionList.Defensive = function()
             elseif opValue == 3 then
                 thisUnit = "mouseover"
             end
-            if cast.able.removeCorruption(thisUnit) and GetUnitIsFriend(thisUnit)
+            if cast.able.removeCorruption() and (GetUnitIsFriend(thisUnit) or UnitIsPlayer(thisUnit))
                 and canDispel(thisUnit,spell.removeCorruption)
             then
+                Print("Removing Corruption")
                 if cast.removeCorruption(thisUnit) then debug("Casting Remove Corruption on "..UnitName(thisUnit)) return true end
             end
         end
@@ -735,21 +737,13 @@ actionList.Cooldowns = function()
             end
         end
         -- Potion
-        -- potion,name=prolonged_power,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if isChecked("Potion") and (use.able.potionOfTheOldWar() or use.able.potionOfProlongedPower())
-            and useCDs() and inRaid
-        then
+        -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
+        if isChecked("Potion") and use.able.potionOfFocusedResolve() and useCDs() and inRaid then
             if (ttd(units.dyn5) < 65 or (ttd(units.dyn5) < 180
                 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())))
             then
-                local opValue = getOptionValue("Potion")
-                if opValue == 1 and use.able.potionOfTheOldWar() then
-                    use.potionOfTheOldWar()
-                    debug("Using Potion [Old War]") 
-                elseif opValue == 2 and use.able.potionOfProlongedPower() then
-                    use.potionOfProlongedPower()
-                    debug("Using Potion [Prolonged Power]") 
-                end
+                use.potionOfFocusedResolve()
+                debug("Using Potion [Focused Resolve]") 
             end
         end
         -- Shadowmeld
@@ -885,13 +879,13 @@ actionList.Finisher = function()
     -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
     -- pool_resource,for_next=1
     -- primal_wrath,target_if=spell_targets.primal_wrath>=2
-    if usePrimalWrath() then
+    if usePrimalWrath() and range.dyn8AOE then
         if cast.primalWrath(nil,"aoe",1,8) then debug("Casting Primal Wrath") return true end
     end
     -- Rip
     -- pool_resource,for_next=1
     -- rip,target_if=!ticking|(remains<=duration*0.3)&(!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
-    if (cast.pool.rip() or cast.able.rip()) and not usePrimalWrath()
+    if (cast.pool.rip() or cast.able.rip()) and not usePrimalWrath() and range.dyn5
         and (buff.savageRoar.exists() or not talent.savageRoar)
     then
         for i = 1, #enemies.yards5f do
@@ -923,7 +917,7 @@ actionList.Finisher = function()
     -- Maim
     -- pool_resource,for_next=1
     -- maim,if=buff.iron_jaws.up
-    if (cast.pool.maim() or cast.able.maim()) and (buff.ironJaws.exists()) then
+    if (cast.pool.maim() or cast.able.maim()) and (buff.ironJaws.exists()) and range.dyn5 then
         if cast.pool.maim() then ChatOverlay("Pooling For Maim") return true end
         if cast.able.maim() then
             if cast.maim() then debug("Casting Maim on "..UnitName(units.dyn5)) return true end
@@ -931,7 +925,7 @@ actionList.Finisher = function()
     end
     -- Ferocious Bite
     -- ferocious_bite,max_energy=1
-    if cast.able.ferociousBite() and fbMaxEnergy and not usePrimalWrath()
+    if cast.able.ferociousBite() and fbMaxEnergy and not usePrimalWrath() and range.dyn5
         and (buff.savageRoar.remain() >= 12 or not talent.savageRoar)
         and (not debuff.rip.refresh(units.dyn5) or thp(units.dyn5) <= 25
             or ferociousBiteFinish(units.dyn5) or level < 20 or ttd(units.dyn5) <= 8
@@ -970,13 +964,14 @@ actionList.Generator = function()
         and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE)) and mode.rotation < 3
         and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets"))
             or (mode.rotation == 2 and #enemies.yards8 > 0))
+        and range.dyn8AOE
     then
         if cast.brutalSlash("player","aoe",1,8) then debug("Casting Brutal Slash [AOE]") return true end
     end
     -- Thrash
     -- pool_resource,for_next=1
     -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4 then
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4 and range.dyn8AOE then
         if (not debuff.thrashCat.exists(units.dyn8AOE) or debuff.thrashCat.refresh(units.dyn8AOE))
             and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
         then
@@ -990,7 +985,7 @@ actionList.Generator = function()
     -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3
     if (cast.pool.thrashCat() or cast.able.thrashCat()) and (talent.scentOfBlood and not buff.scentOfBlood.exists()
         and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
-        and ttd(units.dyn8AOE) > 4
+        and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
     then
         if cast.pool.thrashCat() then ChatOverlay("Pooling For Thrash: Scent of Blood") return true end
         if cast.able.thrashCat() then
@@ -1000,7 +995,9 @@ actionList.Generator = function()
     -- Swipe
     -- pool_resource,for_next=1
     -- swipe_cat,if=buff.scent_of_blood.up
-    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash and buff.scentOfBlood.exists() then
+    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash 
+        and buff.scentOfBlood.exists() and range.dyn8AOE < 8
+    then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
         if cast.able.swipeCat() then
             if cast.swipeCat("player","aoe",1,8) then debug("Casting Swipe [Scent of Blood]") return true end
@@ -1013,6 +1010,7 @@ actionList.Generator = function()
     if (cast.pool.rake() or cast.able.rake()) and (debuff.rake.count() < getOptionValue("Multi-DoT Limit")
         and (#enemies.yards5f < getOptionValue("Multi-DoT Limit") 
             or not traits.wildFleshrending.active or traits.bloodMist.active))
+        and range.dyn5
     then
         local function rakeLogic(thisUnit)
             if (multidot or (GetUnitIsUnit(thisUnit,units.dyn5) and not multidot))
@@ -1042,7 +1040,7 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-    if cast.able.moonfireFeral() and talent.lunarInspiration 
+    if cast.able.moonfireFeral() and talent.lunarInspiration and range.dyn40
         and canDoT(units.dyn40) and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit") 
         and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
@@ -1056,12 +1054,13 @@ actionList.Generator = function()
         and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE))
         and (buff.tigersFury.exists() or charges.brutalSlash.timeTillFull() < gcdMax)
         and (#enemies.yards8 < getOptionValue("Brutal Slash Targets") or (mode.rotation == 3 and #enemies.yards8 > 0))
+        and range.dyn8AOE
     then
         if cast.brutalSlash("player","aoe",1,8) then debug("Casting Brutal Slash [Max Charges]") return true end
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral() and talent.lunarInspiration 
+    if cast.able.moonfireFeral() and talent.lunarInspiration and range.dyn40
         and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit")
         and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
@@ -1079,7 +1078,7 @@ actionList.Generator = function()
     -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
     -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
     if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4
-        and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3
+        and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3 and range.dyn8AOE
     then
         if (useThrash == 2 or (useThrash == 1 and buff.clearcasting.exists())
             and ((not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active)
@@ -1100,7 +1099,7 @@ actionList.Generator = function()
     -- Swipe
     -- pool_resource,for_next=1
     -- swipe_cat,if=spell_targets.swipe_cat>1
-    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash --and multidot
+    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash and range.dyn8AOE--and multidot
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
@@ -1110,11 +1109,12 @@ actionList.Generator = function()
     end
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
-    if cast.able.shred()
+    if cast.able.shred() and range.dyn5
         and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or level < 32)
         and ((debuff.rake.exists(units.dyn5)
             and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)))
-            or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() or level < 12)
+            or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
+            or level < 12 or not rakeLogic(units.dyn5))
     then
         if cast.shred() then debug("Casting Shred on "..UnitName(units.dyn5).."") return true end
     end
@@ -1125,24 +1125,24 @@ actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
         if not stealth then
             -- Flask / Crystal
-            -- flask,type=flask_of_the_seventh_demon
+            -- flask
             local opValue = getOptionValue("Elixir")
-            if opValue == 1 and inRaid and use.able.flaskOfTheSeventhDemon()
-                and not buff.flaskOfTheSeventhDemon.exists()
+            if opValue == 1 and inRaid and use.able.greaterFlaskOfTheCurrents()
+                and not buff.greaterFlaskOfTheCurrents.exists()
             then
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
-                if use.flaskOfTheSeventhDemon() then debug("Using Flask of the Seventh Demon") return true end
+                if use.greaterFlaskOfTheCurrents() then debug("Using Greater Flask of the Currents") return true end
             elseif opValue == 2 and use.able.repurposedFelFocuser() and not buff.felFocus.exists()
-                and (not inRaid or (inRaid and not buff.flaskOfTheSeventhDemon.exists()))
+                and (not inRaid or (inRaid and not buff.greaterFlaskOfTheCurrents.exists()))
             then
-                if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
                 if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                 if use.repurposedFelFocuser() then debug("Using Repurposed Fel Focuser") return true end
             elseif opValue == 3 and use.able.oraliusWhisperingCrystal()
                 and not buff.whispersOfInsanity.exists()
             then
-                if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
+                if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.oraliusWhisperingCrystal() then debug("Using Oralius's Whispering Crystal") return true end
             end
@@ -1205,11 +1205,11 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         -- Rake/Shred
         -- buff.prowl.up|buff.shadowmeld.up
-        if isValidUnit("target") and opener.complete and getDistance(units.dyn5) < 5 then
-            if cast.able.shred() and level < 12 then
-                if cast.shred() then debug("Casting Shred on "..UnitName(units.dyn5).." [Pull]"); return true end
-            elseif cast.able.rake() then
-               if cast.rake() then debug("Casting Rake on "..UnitName(units.dyn5).." [Pull]"); return true end
+        if isValidUnit("target") and opener.complete and getDistance("target") < 5 then
+            if cast.able.shred("target") and level < 12 then
+                if cast.shred("target") then debug("Casting Shred on "..UnitName("target").." [Pull]"); return true end
+            elseif cast.able.rake("target") then
+                if cast.rake("target") then debug("Casting Rake on "..UnitName("target").." [Pull]"); return true end
             end
         end
     end -- End No Combat
@@ -1281,6 +1281,10 @@ local function runRotation()
     units.get(40)
     units.get(8,true)
     units.get(5)
+    if range == nil then range = {} end
+    range.dyn40 = getDistance(units.dyn40) < 40
+    range.dyn8AOE = getDistance(units.dyn8AOE) < 8
+    range.dyn5 = getDistance(units.dyn5) < 5
 
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
@@ -1380,7 +1384,7 @@ local function runRotation()
             end
             -- Rake/Shred from Stealth
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
-            if (buff.prowl.exists() or buff.shadowmeld.exists()) and getDistance(units.dyn5) < 5 then
+            if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
                 if cast.able.rake() and level >= 12
                     and debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85
@@ -1391,7 +1395,7 @@ local function runRotation()
                 end
             elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                 -- auto_attack
-                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and getDistance(units.dyn5) < 5 then
+                if not IsAutoRepeatSpell(GetSpellInfo(6603)) and range.dyn5 then
                     StartAttack(units.dyn5)
                 end
                 ------------------------------
@@ -1406,7 +1410,7 @@ local function runRotation()
                     if actionList.Cooldowns() then return true end
                     -- Ferocious Bite
                     -- ferocious_bite,target_if=dot.rip.ticking&dot.rip.remains<3&target.time_to_die>10&(talent.sabertooth.enabled)
-                    if cast.able.ferociousBite() then
+                    if cast.able.ferociousBite() and range.dyn5 then
                         for i = 1, #enemies.yards5f do
                             local thisUnit = enemies.yards5f[i]
                             if getFacing("player",thisUnit) and ((debuff.rip.exists(thisUnit)
