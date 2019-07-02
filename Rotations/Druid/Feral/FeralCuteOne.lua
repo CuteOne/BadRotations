@@ -684,7 +684,7 @@ actionList.Cooldowns = function()
             -- Essence: Memory of Lucid Dreams
             -- memory_of_lucid_dreams,if=buff.tigers_fury.up&buff.berserk.down
             if useCDs() and cast.able.memoryOfLucidDreams() and buff.tigersFury.exists()
-                and not (buff.berserk.exists() or buff.incarnation.exists())
+                and not (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
             then
                 if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
             end
