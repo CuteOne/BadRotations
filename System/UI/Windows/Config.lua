@@ -175,4 +175,12 @@ function br.ui:createConfigWindow()
     })
 
     br.ui:checkWindowStatus("config")
+    -- Run Once For Options Garbage Collector (Removing or Commenting out will cause loss of some settings!)
+    callGeneral()
+    callEnemiesEngine()
+    callHealingEngine()
+    callHealingOptions()
+    callQueueEngine()
+    callOtherFeaturesEngine()
+    callSettingsEngine()
 end

@@ -56,6 +56,11 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     --------------
     -- Read number from config or set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"] == nil then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"] = number end
+
+    -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
+    if br.data.ui == nil then br.data.ui = {} end
+    br.data.ui[text.."Status"] = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"]
+
     local state = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"]
     spinner:SetNumber(state)
 

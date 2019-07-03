@@ -104,6 +104,7 @@ keyBoardFrame:SetScript("OnKeyDown", testKeys)
 local brlocVersion = GetAddOnMetadata("BadRotations","Version")
 local brcurrVersion
 local brUpdateTimer
+local collectGarbage = true
 function BadRotationsUpdate(self)
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
@@ -119,19 +120,19 @@ function BadRotationsUpdate(self)
 	else 
 		if EWT and GetObjectCount() ~= nil then
 			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and EasyWoWToolbox ~= nil then
-			 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-			 	if brlocVersion and brcurrVersion then
-			 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-			 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-			 		if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-			 			if isChecked("Overlay Messages") then
-			 				ChatOverlay("BadRotations is currently out of date.")
-			 			else
-			 				 Print("BadRotations is currently out of date.  Please download latest version for best performance.")
-			 			end
-			 		end
-			 		brUpdateTimer = GetTime()
-			 	end
+				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+				if brlocVersion and brcurrVersion then
+					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+					if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+						if isChecked("Overlay Messages") then
+							ChatOverlay("BadRotations is currently out of date.")
+						else
+							Print("BadRotations is currently out of date.  Please download latest version for best performance.")
+						end
+					end
+					brUpdateTimer = GetTime()
+				end
 			end
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
@@ -208,6 +209,7 @@ function BadRotationsUpdate(self)
 						br.player:createOptions()
 						br.player:createToggles()
 						br.player:update()
+						collectGarbage = true
 						Print("Loaded Profile: " .. br.player.rotation.name)
 						br.rotationChanged = false
 					end
@@ -266,6 +268,7 @@ function BadRotationsUpdate(self)
 						commandHelp = nil
 						commandHelp = ""
 						slashHelpList()
+
 					end
 
 					if br.data.settings[br.selectedSpec].toggles["Main"] ~= 1 and br.data.settings[br.selectedSpec].toggles["Main"] ~= 0 then
@@ -304,6 +307,29 @@ function BadRotationsUpdate(self)
 
 					-- Rotation Log
 					br.ui:toggleDebugWindow()
+
+					-- Settings Garbage Collection
+					if collectGarbage then
+						-- Init the UI to get the UI to populate br.data.ui with the ui options
+						br.ui:createConfigWindow()
+						br.player:createOptions()
+						-- Compare br.data.settings for the current spec/profile to the ui options
+						for k,v in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
+							local inOptions = br.data.ui[k] ~= nil
+							-- Remove any Check/Drop/Status Options that are no longer a UI Option
+							if br.data.ui[k] == nil then
+								local drop = k.sub(k,-4)
+								local check = k.sub(k,-5)
+								local status = k.sub(k,-6)
+								if check == "Check" or drop == "Drop" or status == "Status" then
+									Print("Removing Unused Option: "..k)
+									br.data.settings[br.selectedSpec][br.selectedProfile][k] = nil
+								end
+							end
+						end
+						-- Set flag to prevent un-needed runs
+						collectGarbage = false
+					end
 				end --End Update Check
 			end -- End Update In Progress Check
 		end

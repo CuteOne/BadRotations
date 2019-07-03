@@ -34,7 +34,7 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     local newDropdown = DiesalGUI:Create('Dropdown')
     local default = default or 1
     parent:AddChild(newDropdown)
-    
+
     newDropdown:SetParent(parent.content)
     newDropdown:SetPoint("TOPRIGHT", parent.content, "TOPRIGHT", -10, Y)
     newDropdown:SetHeight(12)
@@ -45,6 +45,11 @@ function br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipD
     --------------
     -- Read from config or set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"] == nil then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"] = default end
+
+    -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
+    if br.data.ui == nil then br.data.ui = {} end
+    br.data.ui[text.."Drop"] = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"]
+
     local value = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Drop"]
     newDropdown:SetValue(value)
 

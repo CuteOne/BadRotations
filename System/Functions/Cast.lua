@@ -543,10 +543,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
     -- Invalid Spell ID Check
 	if GetSpellInfo(spellID) == nil then Print("Invalid Spell ID: "..spellID.." for key: "..index) end
 	-- Locals
-	origID = spellID
-	if br.player.essence[index] ~= nil then
-		if br.player.essence[index].active then spellID = br.player.spell.essences["heartEssence"] end -- Heart Essence Cast (funky Essence IDs)
-	end
+	-- origID = spellID
+	-- if br.player.essence[index] ~= nil then
+	-- 	if br.player.essence[index].active then spellID = br.player.spell.essences["heartEssence"] end -- Heart Essence Cast (funky Essence IDs)
+	-- end
     local spellCast = spellID
     local spellName,_,_,castTime,minRange,maxRange = GetSpellInfo(spellID)
 	local spellType = getSpellType(spellName)
@@ -594,24 +594,32 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		end
 		return true
 	end
-	local function hasEssence(spellID)
+	local function hasEssence()
 		local essence = br.player.essence
 		if essence[index] == nil then return true end
 		if essence[index].id == nil then return true end
 		return essence[index].active
 	end
     -- Base Spell Availablility Check
-	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and (getSpellCD(spellID) == 0 and getSpellCD(origID) == 0)
-		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence(spellID) --and not isIncapacitated(spellID)
+	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
+		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence() --and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then
 			if debug == "norm" or debug == "dead" or debug == "rect" or debug == "cone" then
-				thisUnit = getSpellUnit(spellCast)
+				thisUnit = getSpellUnit(spellID)
 			else
-				thisUnit = getSpellUnit(spellCast,true)
+				thisUnit = getSpellUnit(spellID,true)
 			end
 		end
+		-- if index == "concentratedFlame" then Print(spellID.." - "..
+		-- 	"\nUsable:     "..tostring(not select(2,IsUsableSpell(spellID)))..
+		-- 	"\nOffCD:      "..tostring(getSpellCD(spellID) == 0)..
+		-- 	"\nIsKnown:    "..tostring(isKnown(spellID))..
+		-- 	"\nTalentChk:  "..tostring(hasTalent(spellID))..
+		-- 	"\nEssenceChk: "..tostring(hasEssence())..
+		-- 	"\nTarget      "..tostring(thisUnit)
+		-- ) end
         -- Return specified/best cast method
         if debug == "debug" then
 			castDebug()

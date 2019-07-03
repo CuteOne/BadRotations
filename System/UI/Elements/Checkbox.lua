@@ -38,6 +38,10 @@ function br.ui:createCheckbox(parent, text, tooltip, checked)
     -- Set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil and not checked then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = false end
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] == nil and checked then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"] = true end
+    -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
+    if br.data.ui == nil then br.data.ui = {} end
+    br.data.ui[text.."Check"] = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"]
+
     local check = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"]
     if check == 0 then check = false end
     if check == 1 then check = true end
