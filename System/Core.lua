@@ -313,6 +313,7 @@ function BadRotationsUpdate(self)
 						-- Init the UI to get the UI to populate br.data.ui with the ui options
 						br.ui:createConfigWindow()
 						br.player:createOptions()
+						br.ui:closeWindow("all")
 						-- Compare br.data.settings for the current spec/profile to the ui options
 						for k,v in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
 							local inOptions = br.data.ui[k] ~= nil
