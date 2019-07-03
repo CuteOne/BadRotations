@@ -457,7 +457,7 @@ local function runRotation()
         end
 
         if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
-            if cast.memoryOfLucidDreams() then
+            if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
@@ -591,7 +591,7 @@ local function runRotation()
         end
 
         if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
-            if cast.memoryOfLucidDreams() then
+            if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
