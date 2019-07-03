@@ -390,16 +390,6 @@ actionList.Cooldowns = function()
     end -- End useCDs check
     -- Heart Essences
     if isChecked("Use Essence") then
-        -- Essence: Purifying Blast
-        -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
-        if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
-            if cast.purifyingBlast() then debug("Casting Purifying Blast") return true end
-        end
-        -- Essence: Focused Azerite Beam
-        -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and powerDeficit >= 50)) then
-            if cast.focusedAzeriteBeam() then debug("Casting Focused Azerite Beam") return true end
-        end
         if useCDs() then
             -- Essence: Memory of Lucid Dreams
             -- memory_of_lucid_dreams,if=buff.tigers_fury.up&buff.berserk.down
@@ -415,20 +405,29 @@ actionList.Cooldowns = function()
             if cast.able.guardianOfAzeroth() then
                 if cast.guardianOfAzeroth() then debug("Casting Guardian of Azeroth") return end
             end
-        else
-            -- Essence: The Unbound Force
-            -- the_unbound_force,if=buff.reckless_force.up|buff.tigers_fury.up
-            if cast.able.theUnboundForce() and buff.recklessness.exists() then
-                if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
-            end
-            -- Essence: Concentrated Flame
-            if cast.able.concentratedFlame() then
-                if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
-            end
-            -- Essence: Worldvein Resonance
-            if cast.able.worldveinResonance() then
-                if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
-            end
+        end
+        -- Essence: Purifying Blast
+        -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
+        if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
+            if cast.purifyingBlast() then debug("Casting Purifying Blast") return true end
+        end
+        -- Essence: Focused Azerite Beam
+        -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
+        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and powerDeficit >= 50)) then
+            if cast.focusedAzeriteBeam() then debug("Casting Focused Azerite Beam") return true end
+        end
+        -- Essence: The Unbound Force
+        -- the_unbound_force,if=buff.reckless_force.up|buff.tigers_fury.up
+        if cast.able.theUnboundForce() and buff.recklessness.exists() then
+            if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
+        end
+        -- Essence: Concentrated Flame
+        if cast.able.concentratedFlame() then
+            if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
+        end
+        -- Essence: Worldvein Resonance
+        if cast.able.worldveinResonance() then
+            if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
         end
     end
 end -- End Action List - Cooldowns
