@@ -323,8 +323,8 @@ function BadRotationsUpdate(self)
 								local check = k.sub(k,-5)
 								local status = k.sub(k,-6)
 								if check == "Check" or drop == "Drop" or status == "Status" then
-									Print("Removing Unused Option: "..k)
-									br.data.settings[br.selectedSpec][br.selectedProfile][k] = nil
+									-- Print("Removing Unused Option: "..k)
+									-- br.data.settings[br.selectedSpec][br.selectedProfile][k] = nil
 								end
 							end
 						end
