@@ -219,8 +219,8 @@ function br.loader:new(spec,specName)
                 if not self.essence[k] then self.essence[k] = {} end
                 local essence = self.essence[k]
                 if not IsPassiveSpell(v) then
-                    self.spell['abilities'][k] = v--heartEssence
-                    self.spell[k] = v--heartEssence
+                    self.spell['abilities'][k] = select(7,GetSpellInfo(GetSpellInfo(v))) or v--heartEssence
+                    self.spell[k] = select(7,GetSpellInfo(GetSpellInfo(v))) or v--heartEssence
                 end
                 br.api.essences(essence,k,v)
             end
