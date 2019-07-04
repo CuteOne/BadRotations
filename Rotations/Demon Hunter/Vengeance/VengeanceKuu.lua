@@ -81,8 +81,6 @@ local function createOptions()
         -- Trinkets
             br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
             br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
-        -- Variable Intensity Gigavolt Oscillating Reactor
-            br.ui:createCheckbox(section,"Power Reactor", "|cffFFBB00Check to use the Gigavolt Oscillating Reactor Trinket.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -107,8 +105,13 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Fragless Soul Cleave",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use Soul Cleave without Soul Frags at.");
         --Spirit Bomb
             br.ui:createSpinnerWithout(section, "Spirit Bomb",  50,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
+        br.ui:checkSectionState(section)
+    -- Essence Options
+        section = br.ui:createSection(br.ui.window.profile,"Essences")
+        -- Lucid Dreams
+            br.ui:createCheckbox(section,"Lucid Dreams")
         -- Concentrated Flame Heal
-        br.ui:createSpinner(section,"Concentrated Flame Heal", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section,"Concentrated Flame Heal", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -228,7 +231,7 @@ local function runRotation()
                     ClickPosition(x,y,z)
                     iStrikeDelay = GetTime()
                     if IsAoEPending() then
-                        RunMacroText("/stopspelltarget") 
+                        SpellStopTargeting()
                         br.addonDebug("Canceling Spell")
                         return false
                     end
@@ -373,7 +376,7 @@ local function runRotation()
                     if not hasEquiped(165572,13) and not hasEquiped(167868,13) and php <= getOptionValue("Trinket 1") then
                             br.addonDebug("Using Trinket 1")
                             useItem(13)
-                    elseif hasEquiped(165572,13) and isChecked("Power Reactor") then
+                    elseif hasEquiped(165572,13) then
                         if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
                             br.addonDebug("Using Variable Intensity Gigavolt Oscillating Reactor")
                             useItem(13)
@@ -389,7 +392,7 @@ local function runRotation()
                     if not hasEquiped(165572,14) and not hasEquiped(167868,14) and php <= getOptionValue("Trinket 2") then
                             br.addonDebug("Using Trinket 1")
                             useItem(14)
-                    elseif hasEquiped(165572,14) and isChecked("Power Reactor") then
+                    elseif hasEquiped(165572,14) then
                         if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
                             br.addonDebug("Using Variable Intensity Gigavolt Oscillating Reactor")
                             useItem(14)
@@ -571,6 +574,10 @@ local function runRotation()
 				if mode.mover == 1 and not cast.last.infernalStrike(1) and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 and C_LossOfControl.GetNumEvents() == 0 and GetTime() - iStrikeDelay > 2  then
                     --if cast.infernalStrike("player","ground",1,6) then return end
                     if iStrike("target") then return true end
+                end
+                -- Lucid Dreams
+                if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and getSpellCD(298357) <= gcd then
+                    if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
 				-- actions.normal+=/shear
                 if not talent.fracture then
