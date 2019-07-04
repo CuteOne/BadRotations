@@ -635,8 +635,9 @@ actionList.Cooldown = function()
             if cast.bloodOfTheEnemy() then return end
         end
         -- purifying_blast
-        if cast.able.purifyingBlast() and useCDs() then 
-            if cast.purifyingBlast() then return end 
+        if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then 
+            local minCount = useCDs() and 1 or 3
+            if cast.purifyingBlast("best", nil, minCount, 8) then return true end
         end
         -- guardian_of_azeroth
         if cast.able.guardianOfAzeroth() and useCDs() then 

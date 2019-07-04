@@ -497,7 +497,7 @@ local function runRotation()
         end
         -- purifying_blast,if=!death_and_decay.ticking
         if useCDs() and cast.able.purifyingBlast() and deathAndDecayRemain == 0 then
-            if cast.purifyingBlast() then return end 
+            if cast.purifyingBlast("best", nil, 1, 8) then return true end
         end
         -- worldvein_resonance,if=!death_and_decay.ticking
         if cast.able.worldveinResonance() and deathAndDecayRemain == 0 then

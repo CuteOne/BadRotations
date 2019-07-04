@@ -55,6 +55,7 @@ local function createOptions()
         local section
         -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
+            -- br.ui:createCheckbox(section, "Garbage")
             -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC"}, 1, "|cffFFFFFFSet APL Mode to use.")
             -- Death Cat
@@ -708,7 +709,8 @@ actionList.Cooldowns = function()
             -- Essence: Purifying Blast
             -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
             if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
-                if cast.purifyingBlast() then debug("Casting Purifying Blast") return true end
+                local minCount = useCDs() and 1 or 3
+                if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
             end
             -- Essence: Heart Essence
             -- heart_essence,if=buff.tigers_fury.up

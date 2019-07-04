@@ -877,7 +877,7 @@ actionList.St = function()
         end
         -- purifying_blast
         if cast.able.purifyingBlast() then
-            if cast.purifyingBlast() then return end
+            if cast.purifyingBlast("best", nil, 1, 8) then return true end
         end
         -- concentrated_flame
         if cast.able.concentratedFlame() then
@@ -991,7 +991,7 @@ actionList.Cleave = function()
         end
         -- purifying_blast
         if cast.able.purifyingBlast() then
-            if cast.purifyingBlast() then return end
+            if cast.purifyingBlast("best", nil, 1, 8) then return true end
         end
         -- concentrated_flame
         if cast.able.concentratedFlame() then

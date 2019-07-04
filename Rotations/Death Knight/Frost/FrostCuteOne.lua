@@ -484,7 +484,7 @@ local function runRotation()
         -- Purifying Blast
             -- purifying_blast,if=!buff.pillar_of_frost.up&!buff.breath_of_sindragosa.up
             if useCDs() and cast.able.purifyingBlast() and not buff.pillarOfFrost.exists() and not breathOfSindragosaActive then
-                if cast.purifyingBlast() then return true end 
+                if cast.purifyingBlast("best", nil, 1, 8) then return true end
             end
         -- Worldvein Resonance
             -- worldvein_resonance,if=!buff.pillar_of_frost.up&!buff.breath_of_sindragosa.up

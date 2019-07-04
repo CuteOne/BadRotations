@@ -644,8 +644,8 @@ local function runRotation()
                 end
             -- Essence: Purifying Blast 
                 -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
-                if isChecked("Purifying Blast") and cast.able.purifyingBlast() then 
-                    if cast.purifyingBlast() then return end 
+                if isChecked("Purifying Blast") and cast.able.purifyingBlast() then
+                    if cast.purifyingBlast("best", nil, 1, 8) then return true end 
                 end
             -- Avenging Wrath
                 -- avenging_wrath,if=buff.inquisition.up|!talent.inquisition.enabled
