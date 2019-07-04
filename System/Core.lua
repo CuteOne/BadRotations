@@ -61,46 +61,46 @@ function ObjectManagerUpdate(self)
 end
 
 -- Key Pause from Beniamin
-local rotationPause
-local buttonName
-local pauseSpellId
+-- local rotationPause
+-- local buttonName
+-- local pauseSpellId
 
-local ignoreKeys = {"W", "A", "S", "D", "Q", "E", "SPACE", "ENTER", "UP", "DOWN", "LEFT", "RIGHT", "LALT", "RALT", "LCTRL", "RCTRL", "LSHIFT", "RSHIFT", "TAB"}
-local actionBarKeys = {"1","2","3","4","5","6","7","8","9","0","-","="}
+-- local ignoreKeys = {"W", "A", "S", "D", "Q", "E", "SPACE", "ENTER", "UP", "DOWN", "LEFT", "RIGHT", "LALT", "RALT", "LCTRL", "RCTRL", "LSHIFT", "RSHIFT", "TAB"}
+-- local actionBarKeys = {"1","2","3","4","5","6","7","8","9","0","-","="}
 
-local keyBoardFrame = CreateFrame("Frame")
-keyBoardFrame:SetPropagateKeyboardInput(true)
-local function testKeys(self, key)
-	local ignorePause = ignoreKeys
-	-- iterate over a list to ignore pause
-	if not isChecked("Disable Key Pause Queue") then
-        for i = 1, #actionBarKeys do
-            if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
-                buttonName = GetBindingAction(actionBarKeys[i])
-                local slot = buttonName:match("ACTIONBUTTON(%d+)") or buttonName:match("BT4Button(%d+)")
-                if slot and HasAction(slot) then       
-                    local actionType, id = GetActionInfo(slot)
-                    if actionType == "spell" then
-                        pauseSpellId = id
-                        if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
-                            ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
-                        end
-                    end
-                end
-            end
-        end
-    elseif isChecked("Disable Key Pause Queue") then
-        pauseSpellId = nil
-    end
-	for i = 1, #ignorePause do
-		if string.find(key, ignorePause[i]) then
-			return
-		end
-	end
-	rotationPause = GetTime()
-end
+-- local keyBoardFrame = CreateFrame("Frame")
+-- keyBoardFrame:SetPropagateKeyboardInput(true)
+-- local function testKeys(self, key)
+-- 	local ignorePause = ignoreKeys
+-- 	-- iterate over a list to ignore pause
+-- 	if not isChecked("Disable Key Pause Queue") then
+--         for i = 1, #actionBarKeys do
+--             if string.find(key,actionBarKeys[i]) and not IsLeftShiftKeyDown() and not IsLeftAltKeyDown() and not IsLeftControlKeyDown() and not IsRightShiftKeyDown() and not IsRightAltKeyDown() and not IsRightControlKeyDown() and (UnitAffectingCombat("player") or isChecked("Ignore Combat")) and not isChecked("Queue Casting") then
+--                 buttonName = GetBindingAction(actionBarKeys[i])
+--                 local slot = buttonName:match("ACTIONBUTTON(%d+)") or buttonName:match("BT4Button(%d+)")
+--                 if slot and HasAction(slot) then       
+--                     local actionType, id = GetActionInfo(slot)
+--                     if actionType == "spell" then
+--                         pauseSpellId = id
+--                         if not isChecked("Queue Casting") and GetSpellInfo(pauseSpellId) and pauseSpellId ~= 0 then
+--                             ChatOverlay("Spell "..GetSpellInfo(pauseSpellId).." queued. Found on "..buttonName..".")
+--                         end
+--                     end
+--                 end
+--             end
+--         end
+--     elseif isChecked("Disable Key Pause Queue") then
+--         pauseSpellId = nil
+--     end
+-- 	for i = 1, #ignorePause do
+-- 		if string.find(key, ignorePause[i]) then
+-- 			return
+-- 		end
+-- 	end
+-- 	rotationPause = GetTime()
+-- end
 
-keyBoardFrame:SetScript("OnKeyDown", testKeys)
+-- keyBoardFrame:SetScript("OnKeyDown", testKeys)
 local brlocVersion = GetAddOnMetadata("BadRotations","Version")
 local brcurrVersion
 local brUpdateTimer
@@ -110,29 +110,28 @@ function BadRotationsUpdate(self)
 	-- Check for Unlocker
 	if not EWT then
 		br.ui:closeWindow("all")
-		if getOptionCheck("Start/Stop BadRotations") then
-			ChatOverlay("Unable To Load")
-			if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
-				Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
-			end
+		ChatOverlay("Unable To Load")
+		if isChecked("Notify Not Unlocked") and br.timer:useTimer("notLoaded", getOptionValue("Notify Not Unlocked")) then
+			Print("|cffFFFFFFCannot Start... |cffFF1100BR |cffFFFFFFcan not complete loading. Please check requirements.")
 		end
 		return false
 	else 
 		if EWT and GetObjectCount() ~= nil then
 			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and EasyWoWToolbox ~= nil then
-				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-				if brlocVersion and brcurrVersion then
-					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
-					if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
-						if isChecked("Overlay Messages") then
-							ChatOverlay("BadRotations is currently out of date.")
-						else
-							Print("BadRotations is currently out of date.  Please download latest version for best performance.")
-						end
-					end
-					brUpdateTimer = GetTime()
-				end
+			 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+			 	if brlocVersion and brcurrVersion then
+			 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+			 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+					 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
+						local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
+			 			if isChecked("Overlay Messages") then
+							RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
+			 			else
+							Print(msg)
+			 			end
+			 		end
+			 		brUpdateTimer = GetTime()
+			 	end
 			end
 			if br.data.settings ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
@@ -244,7 +243,7 @@ function BadRotationsUpdate(self)
 							groupSize = 1
 						end
 						if #br.friend < groupSize and br.timer:useTimer("Reform", 5) then
-							br.addonDebug("Group size does not match #br.friend. Recreating br.friend.")
+							br.addonDebug("Group size ("..groupSize..") does not match #br.friend ("..#br.friend.."). Recreating br.friend.")
 							table.wipe(br.memberSetup.cache)
 							table.wipe(br.friend)
 							SetupTables()
