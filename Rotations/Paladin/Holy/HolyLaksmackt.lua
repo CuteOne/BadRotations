@@ -1430,19 +1430,27 @@ local function runRotation()
               return true
             end
           end
-          -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-          if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or solo or getDistance(tanks[1].unit) == 100) then
-            if not debuff.glimmerOfLight.exists(thisUnit) then
-              if cast.holyShock(thisUnit) then
-                return true
-              end
-            end
+        end
+      end
+
+      if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10)
+              or (inInstance and #tanks == 0) or
+              solo
+              or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)) then
+        for i = 1, #enemies.yards40 do
+          local thisUnit = enemies.yards40[i]
+          if not debuff.glimmerOfLight.exists(thisUnit) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
             if cast.holyShock(thisUnit) then
               return true
             end
           end
         end
+        if cast.holyShock(thisUnit) then
+          return true
+        end
+
       end
+
       -- Crusader Strike
       for i = 1, #enemies.yards5 do
         local thisUnit = enemies.yards5[i]
