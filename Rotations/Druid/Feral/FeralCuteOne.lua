@@ -678,7 +678,7 @@ actionList.Cooldowns = function()
             -- Essence: The Unbound Force
             -- the_unbound_force,if=buff.reckless_force.up|buff.tigers_fury.up
             if cast.able.theUnboundForce()
-                and (buff.recklessness.exists() or buff.tigersFury.exists())
+                and (buff.recklessForce.exists() or buff.tigersFury.exists())
             then
                 if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
             end
