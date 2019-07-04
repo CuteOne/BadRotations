@@ -35,7 +35,7 @@ function TogglesFrame()
 	mainButton:SetScript("OnDragStart", mainButton.StartMoving)
 	mainButton:SetScript("OnDragStop", mainButton.StopMovingOrSizing)
 -- Set Main Button
-	if getOptionCheck("Start/Stop BadRotations") then
+	if br.data.settings[br.selectedSpec].toggles['Power'] == 1 then
 		mainButton:SetNormalTexture(backIconOn)
 	else
 		mainButton:SetNormalTexture(backIconOff)

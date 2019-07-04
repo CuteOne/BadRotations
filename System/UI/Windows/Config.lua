@@ -12,11 +12,11 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Auto Delay", "Check to dynamically change update rate based on current FPS.")
         br.ui:createSpinnerWithout(section, "Bot Update Rate", 0.1, 0.0, 1.0, 0.01, "Adjust the update rate of Bot operations. Increase to improve FPS but may cause reaction delays. Will be ignored if Auto Delay is checked. Default: 0.1")
         br.ui:createSpinnerWithout(section, "Pause Interval", 0.25, 0, 3, 0.05, "Adjust the length of rotation pause when a non-ignored key is pressed.")
-        br.ui:createCheckbox(section, "Disable Key Pause Queue", "If this is checked, spells will not be queued from action bars automatically during rotation pause", 1)
+        --br.ui:createCheckbox(section, "Disable Key Pause Queue", "If this is checked, spells will not be queued from action bars automatically during rotation pause", 1)
         -- br.ui:createSpinnerWithout(section, "Dynamic Target Rate", 0.5, 0.5, 2.0, 0.01, "Adjusts the rate at which enemies are cycled for new dynamic targets. Default: 0.5")
         -- As you should use the toggle to stop, i (defmaster) just activated this toggle default and made it non interactive
-        local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Toggle this option from the Toggle Bar (Shift Left Click on the Minimap Icon.");
-        startStop:SetChecked(true); br.data.settings[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()
+        --local startStop = br.ui:createCheckbox(section, "Start/Stop BadRotations", "Toggle this option from the Toggle Bar (Shift Left Click on the Minimap Icon.");
+        --startStop:SetChecked(true); br.data.settings[br.selectedSpec][br.selectedProfile]["Start/Stop BadRotationsCheck"] = true; startStop.frame:Disable()
         -- br.ui:createCheckbox(section, "Start/Stop BadRotations", "Uncheck to prevent BadRotations pulsing.");
         rotationLog = br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.");
         -- br.ui:createCheckbox(section, "Rotation Log", "Display Rotation Log.")
@@ -38,7 +38,8 @@ function br.ui:createConfigWindow()
     local function callEnemiesEngine()
         -- Enemies Engine
         section = br.ui:createSection(br.ui.window.config, "Enemies Engine")
-        br.ui:createDropdown(section, "Dynamic Targetting", {"Only In Combat", "Default"}, 2, "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
+        br.ui:createDropdown(section, "Dynamic Targetting", {"Only In Combat","Default", --[["Lite"]]}, 2, "Check this to allow dynamic targetting. If unchecked, profile will only attack current target.")
+        --br.ui:createCheckbox(section,"Include Range", "Checking this will pick a new target if current target is out of range. (Only valid on Lite mode)")
         br.ui:createCheckbox(section, "Target Dynamic Target", "Check this will target the current dynamic target.")
         br.ui:createCheckbox(section, "Hostiles Only", "Checking this will target only units hostile to you.")
         br.ui:createCheckbox(section, "Attack MC Targets", "Check this to allow addon to attack charmed/mind controlled targets.")
