@@ -1,10 +1,9 @@
--- This creates the normal BadBay Configuration Window
+-- This creates the normal BadRotations Configuration Window
 br.ui.window.config = {}
 function br.ui:createConfigWindow()
     br.ui.window.config = br.ui:createWindow("config", 275, 400,"Configuration")
 
     local section
-
     local function callGeneral()
         -- General
         section = br.ui:createSection(br.ui.window.config, "General")
@@ -176,12 +175,4 @@ function br.ui:createConfigWindow()
     })
 
     br.ui:checkWindowStatus("config")
-    -- Run Once For Options Garbage Collector (Removing or Commenting out will cause loss of some settings!)
-    callGeneral()
-    callEnemiesEngine()
-    callHealingEngine()
-    callHealingOptions()
-    callQueueEngine()
-    callOtherFeaturesEngine()
-    callSettingsEngine()
 end
