@@ -190,7 +190,9 @@ local function createOptions()
     br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
     br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
     br.ui:createSpinner(section, "Memory of Lucid Dreams", 50, 0, 100, 5, "", "mana to pop it at")
-    br.ui:createSpinner(section, "Ever Rising Tide", 30, 0, 100, 5, "", "min mana to use")
+    br.ui:createDropdown(section, "Ever Rising Tide", { "Always", "Pair with CDs", "Based on health" }, 1, "When to use this essence")
+    br.ui:createSpinner(section, "Ever Rising Tide - Mana", 30, 0, 100, 5, "", "min mana to use")
+    br.ui:createSpinner(section, "Ever Rising Tide - Health", 30, 0, 100, 5, "", "health threshold to pop at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -254,7 +256,6 @@ local function createOptions()
     br.ui:createSpinner(section, "Light's Hammer Damage", 3, 0, 40, 1, "", "|cffFFFFFFMinimum Light's Hammer Targets")
     -- Judgment
     br.ui:createCheckbox(section, "Judgment - DPS")
-
     -- Holy Shock
     br.ui:createCheckbox(section, "Holy Shock Damage")
     -- Crusader Strike
@@ -890,7 +891,7 @@ local function runRotation()
           end
         end]]
 
-        if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and
+        if canDispel(br.friend[i].unit, spell.cleanse) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 and
                 ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
                         or GetMinimapZoneText() ~= "Shrine of Shadows") then
           if cast.cleanse(br.friend[i].unit) then
@@ -1041,10 +1042,27 @@ local function runRotation()
     -- the ever rising ride
     --overchargeMana
 
-    if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd
-            and mana >= getValue("Ever Rising Tide") then
-      if cast.overchargeMana() then
-        return
+    if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
+
+      if getOptionValue("Ever Rising Tide") == 1 then
+        if cast.overchargeMana() then
+          return
+        end
+      end
+
+      if getOptionValue("Ever Rising Tide") == 2 then
+        if buff.avengingWrath.exists("player") or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
+          if cast.overchargeMana() then
+            return
+          end
+        end
+      end
+      if getOptionValue("Ever Rising Tide") == 3 then
+        if lowest.hp > getOptionValue("Ever Rising Tide - Health") or burst == true then
+          if cast.overchargeMana() then
+            return
+          end
+        end
       end
     end
 
@@ -1413,7 +1431,7 @@ local function runRotation()
             end
           end
           -- Holy Shock  ((inInstance and getDistance(units.dyn40, tanks[1].unit) <= 10 or not inInstance))
-          if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or getDistance(tanks[1].unit) == 100 )) then
+          if isChecked("Holy Shock Damage") and cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10) or solo or getDistance(tanks[1].unit) == 100) then
             if not debuff.glimmerOfLight.exists(thisUnit) then
               if cast.holyShock(thisUnit) then
                 return true
