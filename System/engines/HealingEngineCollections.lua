@@ -27,6 +27,8 @@ novaEngineTables.DispelID = {
 	[247552] = {stacks = 0, range = 15}, -- http://www.wowhead.com/spell=247552/sleep-canister
 	-- Jadefire Masters
 	[286988] = {stacks = 0}, -- https://www.wowhead.com/spell=286988/searing-embers
+	-- Opulence
+	[284470] = {stacks = 0}, -- https://www.wowhead.com/spell=284470/hex-of-lethargy
 	-- Conclave of the Chosen
 	--[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
 	[285879] = {stacks = 0}, --https://www.wowhead.com/spell=285879/mind-wipe
@@ -63,7 +65,7 @@ novaEngineTables.DispelID = {
 	[280605] = { stacks = 0 }, --https://www.wowhead.com/spell=280605/brain-freeze
 	[262268] = { stacks = 0 }, --https://www.wowhead.com/spell=262268/caustic-compound
 	[268797] = { stacks = 0 }, --https://www.wowhead.com/spell=268797/transmute-enemy-to-goo
-	[259856] = { stacks = 0 }, --https://www.wowhead.com/spell=259856/chemical-burn
+	[259853] = { stacks = 0 }, --https://www.wowhead.com/spell=259853/chemical-burn
 	[269298] = { stacks = 0 }, --https://www.wowhead.com/spell=269298/widowmaker-toxin
 	-- Atal'Dazar
 	[252781] = { stacks = 0, range = 8 }, -- https://www.wowhead.com/spell=252781/unstable-hex
