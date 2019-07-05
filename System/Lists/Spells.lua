@@ -2717,6 +2717,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 ascendance                  = 114051,
+                cracklingSurge              = 224127,
                 crashLightning              = 187878,
                 earthShield                 = 974,
                 flametongue                 = 194084,
@@ -2726,11 +2727,13 @@ br.lists.spells = {
                 gatheringStorms             = 198300,
                 hailstorm                   = 210853,
                 hotHand                     = 215785,
+                icyEdge                     = 224126,
                 landslide                   = 202004,
                 lightningCrash              = 242284, -- T20 - 2 piece buff
                 lightningShield             = 192106,
                 lightningShieldOvercharge   = 273323,
                 naturalHarmonyFrost         = 279029,
+                moltenWeapon                = 272664,
                 oldWar                      = 188028,
                 prolongedPower              = 229206,
                 resonanceTotem              = 262417,
@@ -2770,6 +2773,7 @@ br.lists.spells = {
                 lightningConduit            = 275389,
                 naturalHarmony              = 278697,
                 primalPrimer                = 272992,
+                strengthOfTheEarth          = 273461,
             },
         },
         -- Restoration
