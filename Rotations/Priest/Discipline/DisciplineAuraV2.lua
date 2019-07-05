@@ -84,6 +84,15 @@ local function createOptions()
             --br.ui:createSpinner(section, "Tank Heal", 30, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Non-Tank units. Default: 30")
         br.ui:checkSectionState(section)
         -------------------------
+        ------  ESSENCE  --------
+        -------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Essence")
+            --Concentrated Flame
+            br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
+            --Memory of Lucid Dreams
+            br.ui:createCheckbox(section, "Lucid Dreams")
+        br.ui:checkSectionState(section)
+        -------------------------
         ---- SINGLE TARGET ------
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Single Target Healing")
@@ -298,7 +307,7 @@ local function runRotation()
 
         local atonementCount = 0
         local maxatonementCount = 0
-        local noAtone = {}
+        --local noAtone = {}
         for i=1, #br.friend do
             local atonementRemain = getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") or 0 -- 194384
             if atonementRemain > 0  then
@@ -308,10 +317,10 @@ local function runRotation()
                 else
                     atonementCount = atonementCount + 1
                 end
-            else
-                if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 and getDistance(br.friend[i].unit) < 40 and br.friend[i].hp ~= 250 then
-                    table.insert(noAtone,br.friend[i].unit)
-                end
+            -- else
+            --     if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 and getDistance(br.friend[i].unit) < 40 and br.friend[i].hp ~= 250 then
+            --         table.insert(noAtone,br.friend[i].unit)
+            --     end
             end
         end
 
@@ -462,6 +471,77 @@ local function runRotation()
                 if isChecked("Disable CD during Speed: Slow") and UnitDebuffID("player",207011) then
                     return true --Speed: Slow debuff during the Chromatic Anomaly encounter
                 else
+                    -- Pain Suppression
+                    if isChecked("Pain Suppression Tank") and inCombat and useCDs then
+                        for i = 1, #br.friend do
+                            if br.friend[i].hp <= getValue("Pain Suppression Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
+                                if cast.painSuppression(br.friend[i].unit) then return true end
+                            end
+                        end
+                    end
+                    if isChecked("PW:B/LB") then
+                        if isChecked("PW:B/LB on Melee") then
+                            -- get melee players
+                            for i=1, #tanks do
+                                -- get the tank's target
+                                local tankTarget = UnitTarget(tanks[i].unit)
+                                if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
+                                    -- get players in melee range of tank's target
+                                    local meleeFriends = getAllies(tankTarget,5)
+                                    -- get the best ground circle to encompass the most of them
+                                    local loc = nil
+                                    local meleeHurt = {}
+                                    for j=1, #meleeFriends do
+                                        if meleeFriends[j].hp < getValue("PW:B/LB") then
+                                            tinsert(meleeHurt,meleeFriends[j])
+                                        end
+                                    end
+                                    if #meleeHurt >= getValue("PW:B/LB Targets") then
+                                        loc = getBestGroundCircleLocation(meleeHurt,getValue("PW:B/LB Targets"),6,8)
+                                    end
+                                    if loc ~= nil then
+                                        if talent.luminousBarrier then
+                                            if castGroundAtLocation(loc, spell.luminousBarrier) then return true end
+                                        else
+                                            if castGroundAtLocation(loc, spell.powerWordBarrier) then return true end
+                                        end
+                                    end
+                                end
+                            end
+                        else
+                            if talent.luminousBarrier then
+                                if castWiseAoEHeal(br.friend,spell.luminousBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
+                            else
+                                if castWiseAoEHeal(br.friend,spell.powerWordBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
+                            end
+                        end
+                    end
+                    -- Rapture when getting Innervate/Symbol
+                    if isChecked("Rapture when get Innervate") and freeMana then
+                        if cast.rapture() then return true end
+                    end
+                    if isChecked("Rapture (Tank Only)") then
+                        for i=1, #br.friend do
+                            if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.friend[i].hp <= getValue("Rapture (Tank Only)") then
+                                if cast.rapture() then
+                                    if cast.powerWordShield(br.friend[i].unit) then return true end
+                                end
+                            end
+                        end
+                    end
+                    --Rapture
+                    if isChecked("Rapture") then
+                        if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
+                            if cast.rapture() then return true end
+                        end
+                    end
+                    -- Mana Potion
+                    if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
+                        if hasItem(152495) then
+                            useItem(152495)
+                            return true
+                        end
+                    end
                     --Racials
                     --blood_fury
                     --arcane_torrent
@@ -488,13 +568,7 @@ local function runRotation()
                             end
                         end
                     end
-                    -- Mana Potion
-                    if isChecked("Mana Potion") and mana <= getValue("Mana Potion")then
-                        if hasItem(152495) then
-                            useItem(152495)
-                            return true
-                        end
-                    end
+                    
                     -- Trinkets
                     if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
                         if GetItemCooldown(158320) <= gcdMax then
@@ -645,6 +719,10 @@ local function runRotation()
                             end
                         end
                     end
+                    --Lucid Dreams
+                    if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcd then
+                        if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
+                    end
                 end
             end
         end -- End Action List - Cooldowns
@@ -683,32 +761,40 @@ local function runRotation()
                             if cast.powerWordShield(br.friend[i].unit) then
                                 if cast.shadowMend(br.friend[i].unit) then return true end
                             end
-                        elseif cast.shadowMend(br.friend[i].unit) then return true end
+                        elseif cast.shadowMend(br.friend[i].unit) then 
+                            return true 
+                        end
                     elseif (br.friend[i].hp < 95 or flagDebuff == br.friend[i].guid) and not buff.powerWordShield.exists(br.friend[i].unit) then
-                        if cast.powerWordShield(br.friend[i].unit) then return true end
+                         if cast.powerWordShield(br.friend[i].unit) then return true end
                     end
                     flagDebuff = nil
                 end
+                -- Concentrated Flame
+                if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+                    if lowest.hp <= getValue("Concentrated Flame") then
+                        if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
+                    end
+                end
                 --Resurrection
-            if isChecked("Resurrection") and not inCombat and not isMoving("player") then
-                if getOptionValue("Resurrection - Target") == 1
-                    and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
-                then
-                    if cast.resurrection("target","dead") then return true end
-                end
-                if getOptionValue("Resurrection - Target") == 2
-                    and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
-                then
-                    if cast.resurrection("mouseover","dead") then return true end
-                end
-                if getOptionValue("Resurrection - Target") == 3 then
-                    for i =1, #br.friend do
-                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                            if cast.resurrection(br.friend[i].unit) then return true end
+                if isChecked("Resurrection") and not inCombat and not isMoving("player") then
+                    if getOptionValue("Resurrection - Target") == 1
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
+                    then
+                        if cast.resurrection("target","dead") then return true end
+                    end
+                    if getOptionValue("Resurrection - Target") == 2
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player")
+                    then
+                        if cast.resurrection("mouseover","dead") then return true end
+                    end
+                    if getOptionValue("Resurrection - Target") == 3 then
+                        for i =1, #br.friend do
+                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                                if cast.resurrection(br.friend[i].unit) then return true end
+                            end
                         end
                     end
                 end
-            end
             end
         end
         local function actionList_Dispels()
@@ -747,7 +833,7 @@ local function runRotation()
                 if isChecked("Angelic Feather") and talent.angelicFeather and (not buff.angelicFeather.exists("player") or GetTime() > runningTime + 5) then
                     if cast.angelicFeather("player") then
                         runningTime = GetTime()
-                        RunMacroText("/stopspelltarget")
+                        SpellStopTargeting()
                     end
                 end
             end
@@ -770,7 +856,7 @@ local function runRotation()
         
         local function actionList_AMR()
              -- Atonement Key
-             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
+            if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
                     if cast.powerWordRadiance(lowest.unit) then end
                 else 
@@ -849,75 +935,11 @@ local function runRotation()
                     end
                 end
             end
-            -- Pain Suppression
-            if isChecked("Pain Suppression Tank") and inCombat and useCDs then
-                for i = 1, #br.friend do
-                    if br.friend[i].hp <= getValue("Pain Suppression Tank") and UnitGroupRolesAssigned(br.friend[i].unit) == "TANK" then
-                        if cast.painSuppression(br.friend[i].unit) then return true end
-                    end
-                end
-            end
-            if isChecked("PW:B/LB") then
-                if isChecked("PW:B/LB on Melee") then
-                    -- get melee players
-                    for i=1, #tanks do
-                        -- get the tank's target
-                        local tankTarget = UnitTarget(tanks[i].unit)
-                        if tankTarget ~= nil and getDistance(tankTarget) <= 40 then
-                            -- get players in melee range of tank's target
-                            local meleeFriends = getAllies(tankTarget,5)
-                            -- get the best ground circle to encompass the most of them
-                            local loc = nil
-                            local meleeHurt = {}
-                            for j=1, #meleeFriends do
-                                if meleeFriends[j].hp < getValue("PW:B/LB") then
-                                    tinsert(meleeHurt,meleeFriends[j])
-                                end
-                            end
-                            if #meleeHurt >= getValue("PW:B/LB Targets") then
-                                loc = getBestGroundCircleLocation(meleeHurt,getValue("PW:B/LB Targets"),6,8)
-                            end
-                            if loc ~= nil then
-                                if talent.luminousBarrier then
-                                    if castGroundAtLocation(loc, spell.luminousBarrier) then return true end
-                                else
-                                    if castGroundAtLocation(loc, spell.powerWordBarrier) then return true end
-                                end
-                            end
-                        end
-                    end
-                else
-                    if talent.luminousBarrier then
-                        if castWiseAoEHeal(br.friend,spell.luminousBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
-                    else
-                        if castWiseAoEHeal(br.friend,spell.powerWordBarrier,10,getValue("PW:B/LB"),getValue("PW:B/LB Targets"),6,true, true) then return true end
-                    end
-                end
-            end
-            -- Rapture when getting Innervate/Symbol
-            if isChecked("Rapture when get Innervate") and freeMana then
-                if cast.rapture() then return true end
-            end
-            if isChecked("Rapture (Tank Only)") then
-                for i=1, #br.friend do
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.friend[i].hp <= getValue("Rapture (Tank Only)") then
-                        if cast.rapture() then
-                            if cast.powerWordShield(br.friend[i].unit) then return true end
-                        end
-                    end
-                end
-            end
-            --Rapture
-            if isChecked("Rapture") then
-                if getLowAllies(getValue("Rapture")) >= getValue("Rapture Targets") then
-                    if cast.rapture() then return true end
-                end
-            end
             -- Power Word: Shield with Rapture
             if buff.rapture.exists("player") then
                 if isChecked("Obey Atonement Limits") then
-                    for i = 1, #noAtone do
-                        if maxatonementCount < getValue("Max Atonements") then
+                    for i = 1, #br.friend do
+                        if maxatonementCount < getValue("Max Atonements") and not buff.atonement.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
                             if cast.powerWordShield(br.friend[i].unit) then return true end
                         end
                     end
@@ -929,8 +951,10 @@ local function runRotation()
                         end
                     end
                 else
-                    for i = 1, #noAtone do
-                        if cast.powerWordShield(br.friend[i].unit) then return true end
+                    for i = 1, #br.friend do
+                        if not buff.atonement.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
+                            if cast.powerWordShield(br.friend[i].unit) then return true end
+                        end
                     end
                     for i = 1, #br.friend do
                         if getBuffRemain(br.friend[i].unit,spell.buffs.powerWordShield,"player") < 1 then
@@ -943,6 +967,62 @@ local function runRotation()
             if isChecked("Evangelism") and talent.evangelism and (atonementCount >= getValue("Atonement for Evangelism") or (not inRaid and atonementCount >= 3)) and not buff.rapture.exists("player") and not freeMana then
                 if getLowAllies(getValue("Evangelism")) >= getValue("Evangelism Targets") then
                     if cast.evangelism() then return true end
+                end
+            end
+             -- Power Word Radiance
+             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then                
+                if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() and atonementCount < 10 then
+                    if charges.powerWordRadiance.count() >= 1 then
+                        if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
+                            for i = 1, #br.friend do
+                                if not buff.atonement.exists(br.friend[i].unit) and br.friend[i].hp <= getValue("Power Word: Radiance") then
+                                    if cast.powerWordRadiance(br.friend[i].unit) then
+                                        healCount = healCount + 1
+                                        return true
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            -- Shadow Covenant
+            if isChecked("Shadow Covenant") and talent.shadowCovenant and schismCount < 1 and atonementCount < 10 then
+                if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then
+                    if cast.shadowCovenant(lowest.unit) then return true end
+                end
+            end
+            -- Contrition Penance Heal
+            if isChecked("Penance Heal") and penanceCheck and talent.contrition and atonementCount >= 3 and schismCount < 1 then
+                if cast.penance(lowest.unit) then return true end
+            end
+            -- Shadow Mend
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
+                if isChecked("Shadow Mend") and norganBuff and atonementCount < 5 then
+                    for i=1, #br.friend do
+                        if br.friend[i].hp <= getValue("Shadow Mend") and not buff.atonement.exists(br.friend[i].unit) then
+                            if cast.shadowMend(br.friend[i].unit) then 
+                                healCount = healCount + 1 
+                                return true end
+                        end
+                    end
+                end
+            end
+            -- Power Word: Shield
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
+                for i = 1, #tanks do
+                    if tanks[i].hp <= getValue("Tank Atonement HP") and not buff.powerWordShield.exists(tanks[i].unit) and getBuffRemain(tanks[i].unit,spell.buffs.atonement,"player") < 1 then
+                        if cast.powerWordShield(tanks[i].unit) then 
+                            healCount = healCount + 1 
+                            return true end
+                    end
+                end
+                for i = 1, #br.friend do
+                    if (br.friend[i].role ~= "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK") and br.friend[i].hp <= getValue("Party Atonement HP") and not buff.powerWordShield.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 and (maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
+                        if cast.powerWordShield(br.friend[i].unit) then 
+                            healCount = healCount + 1 
+                            return true end
+                    end
                 end
             end
             -- Mindbender
@@ -965,153 +1045,6 @@ local function runRotation()
                 end
                 if cast.shadowfiend() then
                      healCount = 0
-                end
-            end
-            -- Shadow Covenant
-            if isChecked("Shadow Covenant") and talent.shadowCovenant and schismCount < 1 then
-                if getLowAllies(getValue("Shadow Covenant")) >= getValue("Shadow Covenant Targets") and lastSpell ~= spell.shadowCovenant then
-                    if cast.shadowCovenant(lowest.unit) then return true end
-                end
-            end
-            -- Power Word Radiance
-            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then                
-                if isChecked("Power Word: Radiance") and #br.friend - atonementCount >= 2 and norganBuff and not cast.last.powerWordRadiance() and atonementCount < 10 then
-                    if charges.powerWordRadiance.count() >= 1 then
-                        if getLowAllies(getValue("Power Word: Radiance")) >= getValue("PWR Targets") then
-                            for i = 1, #br.friend do
-                                if not buff.atonement.exists(br.friend[i].unit) then
-                                    if cast.powerWordRadiance(br.friend[i].unit) then
-                                        healCount = healCount + 1
-                                        return true
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-            -- Contrition Penance Heal
-            if isChecked("Penance Heal") and penanceCheck and talent.contrition and atonementCount >= 3 and schismCount < 1 then
-                if cast.penance(lowest.unit) then return true end
-            end
-            -- Schism (2+ Atonement)
-            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcdMax and norganBuff and ttd(units.dyn40) > 9 then
-                if cast.schism(units.dyn40) then
-                    schismBuff = (units.dyn40)
-                end
-            end
-            -- Penance (2+ Atonement)
-            if isChecked("Penance") and penanceCheck and atonementCount >= 2 then
-                if GetUnitExists("target") then
-                    penanceTarget = "target"
-                end
-                if penanceTarget ~= nil then
-                    if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
-                        penanceTarget = schismBuff
-                    end
-                    if ptwDebuff and isValidUnit(ptwDebuff) then
-                        penanceTarget = ptwDebuff
-                    end
-                    if not GetUnitIsFriend(penanceTarget,"player") then
-                        if cast.penance(penanceTarget) then
-                            healCount = 0
-                        end
-                    end
-                else
-                    if lowest.hp <= getOptionValue("Penance Heal") and schismCount < 1 then
-                        if cast.penance(lowest.unit) then return true end
-                    end
-                end
-            end
-            -- Power Word: Shield (Tank)
-            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
-                for i = 1, #br.friend do
-                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and br.friend[i].hp <= getValue("Tank Atonement HP") and not buff.powerWordShield.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then
-                        if cast.powerWordShield(br.friend[i].unit) then 
-                            healCount = healCount + 1 
-                            return true end
-                    end
-                end
-            end
-            -- Shadow Mend
-            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
-                if isChecked("Shadow Mend") and norganBuff then
-                    for i=1, #br.friend do
-                        if br.friend[i].hp <= getValue("Shadow Mend") then
-                            if cast.shadowMend(br.friend[i].unit) then 
-                                healCount = healCount + 1 
-                                return true end
-                        end
-                    end
-                end
-            end
-            -- Halo
-             if isChecked("Halo") and norganBuff then
-                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
-                    if cast.halo(lowest.unit) then return true end
-                end
-            end
-            -- Divine Star
-            if isChecked("Divine Star Healing") and talent.divineStar then
-                --print("DSUnits: "..DSUnits.." DSAtone: "..DSAtone)
-                if DSUnits>= getOptionValue("DS Healing Targets") 
-                    and DSAtone >= 1 then
-                    if cast.divineStar() then
-                        healCount = 0
-                    end
-                end
-            end
-            -- Power Word: Shield
-            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
-                for i = 1, #br.friend do
-                    if (br.friend[i].role ~= "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) ~= "TANK") and br.friend[i].hp <= getValue("Party Atonement HP") and not buff.powerWordShield.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 and (maxatonementCount < getValue("Max Atonements") or (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK")) then
-                        if cast.powerWordShield(br.friend[i].unit) then 
-                            healCount = healCount + 1 
-                            return true end
-                    end
-                end
-            end
-            -- Schism
-            if talent.schism and isChecked("Schism") and norganBuff and ttd(units.dyn40) > 9 then
-                if cast.schism(units.dyn40) then
-                    schismBuff = (units.dyn40)
-                    return true
-                end
-            end
-            -- Power Word: Solace
-            if isChecked("Power Word: Solace") and talent.powerWordSolace then
-                if debuff.schism.exists(schismBuff) then
-                    if cast.powerWordSolace(schismBuff) then
-                        healCount = 0
-                        return true
-                    end
-                elseif cast.powerWordSolace() then
-                    healCount = 0
-                    return true
-                end
-            end
-            -- Penance
-            if isChecked("Penance") and penanceCheck then
-                if GetUnitExists("target") then
-                    penanceTarget = "target"
-                end
-                if penanceTarget ~= nil then
-                    if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
-                        penanceTarget = schismBuff
-                    end
-                    if ptwDebuff and isValidUnit(ptwDebuff) then
-                        penanceTarget = ptwDebuff
-                    end
-                    if not GetUnitIsFriend(penanceTarget,"player") then
-                        if cast.penance(penanceTarget) then
-                            healCount = 0
-                            return true
-                        end
-                    end
-                else
-                    if lowest.hp <= getOptionValue("Penance Heal") then
-                        if cast.penance(lowest.unit) then return true end
-                    end
                 end
             end
             -- Purge the Wicked/ Shadow Word: Pain
@@ -1144,6 +1077,82 @@ local function runRotation()
                                     end
                                 end
                             end
+                        end
+                    end
+                end
+            end
+            -- Schism (2+ Atonement)
+            if talent.schism and isChecked("Schism") and atonementCount >= 2 and cd.penance.remain() <= gcdMax and norganBuff and ttd(units.dyn40) > 9 then
+                if cast.schism(units.dyn40) then
+                    schismBuff = (units.dyn40)
+                end
+            end
+            -- Power Word: Solace
+            if isChecked("Power Word: Solace") and talent.powerWordSolace then
+                if debuff.schism.exists(schismBuff) then
+                    if cast.powerWordSolace(schismBuff) then
+                        healCount = 0
+                        return true
+                    end
+                elseif cast.powerWordSolace() then
+                    healCount = 0
+                    return true
+                end
+            end
+             -- Halo
+             if isChecked("Halo") and norganBuff then
+                if getLowAllies(getValue("Halo")) >= getValue("Halo Targets") then
+                    if cast.halo(lowest.unit) then return true end
+                end
+            end
+            -- Divine Star
+            if isChecked("Divine Star Healing") and talent.divineStar then
+                --print("DSUnits: "..DSUnits.." DSAtone: "..DSAtone)
+                if DSUnits>= getOptionValue("DS Healing Targets") 
+                    and DSAtone >= 1 then
+                    if cast.divineStar() then
+                        healCount = 0
+                    end
+                end
+            end
+            -- Penance
+            if isChecked("Penance") and penanceCheck then
+                if GetUnitExists("target") then
+                    penanceTarget = "target"
+                end
+                if penanceTarget ~= nil then
+                    if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
+                        penanceTarget = schismBuff
+                    end
+                    if ptwDebuff and isValidUnit(ptwDebuff) then
+                        penanceTarget = ptwDebuff
+                    end
+                    if not GetUnitIsFriend(penanceTarget,"player") then
+                        if cast.penance(penanceTarget) then
+                            healCount = 0
+                            return true
+                        end
+                    end
+                else
+                    if lowest.hp <= getOptionValue("Penance Heal") then
+                        if cast.penance(lowest.unit) then return true end
+                    end
+                end
+            end
+            -- Concentrated Flame
+            if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+                if lowest.hp <= getValue("Concentrated Flame") then
+                    if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
+                end
+            end
+            -- Shadow Mend
+            if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
+                if isChecked("Shadow Mend") and norganBuff then
+                    for i=1, #br.friend do
+                        if br.friend[i].hp <= getValue("Shadow Mend") then
+                            if cast.shadowMend(br.friend[i].unit) then 
+                                healCount = healCount + 1 
+                                return true end
                         end
                     end
                 end
