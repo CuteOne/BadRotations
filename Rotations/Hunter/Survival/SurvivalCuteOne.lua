@@ -623,15 +623,15 @@ actionList.Cooldown = function()
     -- Heart Essence 
     if isChecked("Use Essence") then
         -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() and useCDs() then 
+        if useCDs() and cast.able.focusedAzeriteBeam() then 
             if cast.focusedAzeriteBeam() then return end 
         end
-        -- memory_of_lucid_dreams,if=buff.coordinated_assault.up
-        if cast.able.memoryOfLucidDreams() and buff.coordinatedAssault.exists() and useCDs() then
+        -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
+        if useCDs() and cast.able.memoryOfLucidDreams() and focus < focusMax - 30 and buff.coordinatedAssault.exists() then
             if cast.memoryOfLucidDreams() then return end
         end
         -- blood_of_the_enemy,if=buff.coordinated_assault.up
-        if cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() and useCDs() then
+        if useCDs() and cast.able.bloodOfTheEnemy() and buff.coordinatedAssault.exists() then
             if cast.bloodOfTheEnemy() then return end
         end
         -- purifying_blast
@@ -640,11 +640,11 @@ actionList.Cooldown = function()
             if cast.purifyingBlast("best", nil, minCount, 8) then return true end
         end
         -- guardian_of_azeroth
-        if cast.able.guardianOfAzeroth() and useCDs() then 
+        if useCDs() and cast.able.guardianOfAzeroth() then 
             if cast.guardianOfAzeroth() then return end 
         end
         -- ripple_in_space
-        if cast.able.rippleInSpace() and useCDs() then 
+        if useCDs() and cast.able.rippleInSpace() then 
             if cast.rippleInSpace() then return end 
         end
         -- concentrated_flame,if=full_recharge_time<1*gcd
@@ -701,8 +701,8 @@ actionList.St = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
-    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
     then
         if cast.wildfireBomb(nil,"aoe") then return end
@@ -893,8 +893,8 @@ actionList.ApSt = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
-    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
     then
         if cast.wildfireBomb(nil,"aoe") then return end
