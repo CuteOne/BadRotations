@@ -118,22 +118,22 @@ function BadRotationsUpdate(self)
 	else 
 		if EWT and GetObjectCount() ~= nil then
 			if (brcurrVersion == nil or not brUpdateTimer or (GetTime() - brUpdateTimer) > 300) and EasyWoWToolbox ~= nil then
-			 	SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
-			 	if brlocVersion and brcurrVersion then
-			 		brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
-			 		brcleanLoc = gsub(tostring(brlocVersion),"%p","")
+				SendHTTPRequest('https://raw.githubusercontent.com/CuteOne/BadRotations/master/BadRotations.toc', nil, function(body) brcurrVersion =(string.match(body, "(%d+%p%d+%p%d+)")) end)
+				if brlocVersion and brcurrVersion then
+					brcleanCurr = gsub(tostring(brcurrVersion),"%p","")
+					brcleanLoc = gsub(tostring(brlocVersion),"%p","")
 					 if tonumber(brcleanCurr) ~= tonumber(brcleanLoc) then 
 						local msg = "BadRotations is currently out of date. Local Version: "..brlocVersion.. " Current Version: "..brcurrVersion..".  Please download latest version for best performance."
-			 			if isChecked("Overlay Messages") then
+						if isChecked("Overlay Messages") then
 							RaidNotice_AddMessage(RaidWarningFrame, msg, {r=1, g=0.3, b=0.1})
-			 			else
+						else
 							Print(msg)
-			 			end
-			 		end
-			 		brUpdateTimer = GetTime()
-			 	end
+						end
+					end
+					brUpdateTimer = GetTime()
+				end
 			end
-			if br.data.settings ~= nil then
+			if br.data.settings ~= nil and br.data.settings[br.selectedSpec].toggles ~= nil then
 				if br.data.settings[br.selectedSpec].toggles["Power"] ~= nil and br.data.settings[br.selectedSpec].toggles["Power"] ~= 1 then
 					if pauseSpellId ~= nil then
 						pauseSpellId = nil
