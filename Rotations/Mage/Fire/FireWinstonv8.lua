@@ -730,7 +730,7 @@ local function runRotation()
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
             if lucisDreams then
                 if not buff.memoryOfLucidDreams.exists() and (not buff.hotStreak.exists() or not buff.heatingUp.exists()) and cast.time.scorch() > buff.memoryOfLucidDreams.remain() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 0 then --and not buff.heatingUp.exists() then
-                    if cast.scorch"target"() then 
+                    if cast.scorch("target") then 
                         --Print("BfA Co Lu scor1") 
                         return true 
                     end
