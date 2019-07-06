@@ -206,6 +206,7 @@ local function runRotation()
     local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
+    local essence                                       = br.player.essence
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
     local friendly                                      = friendly or GetUnitIsFriend("target", "player")
     local gcd                                           = br.player.gcd
@@ -296,9 +297,9 @@ local function runRotation()
 
     -- if HackEnabled("NoKnockback") ~= nil then HackEnabled("NoKnockback", false) end
 
-    if t19_2pc then t19pc2 = 1 else t19pc2 = 0 end
-    if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
-    if t21_4pc then t21pc4 = 1 else t21pc4 = 0 end
+    --if t19_2pc then t19pc2 = 1 else t19pc2 = 0 end
+    --if t20_4pc then t20pc4 = 1 else t20pc4 = 0 end
+    --if t21_4pc then t21pc4 = 1 else t21pc4 = 0 end
     if hasBloodLust() then lusting = 1 else lusting = 0 end
     if talent.auspiciousSpirits then auspiciousSpirits = 1 else auspiciousSpirits = 0 end
     if talent.fortressOfTheMind then fortressOfTheMind = 1 else fortressOfTheMind = 0 end
@@ -341,7 +342,10 @@ local function runRotation()
 
     -- Insanity Drain
     insanityDrain = 6 + (0.68 * (drainStacks))
-    insanityDrained = insanityDrain + (15.6 * gcdMax)
+    --insanityDrained = insanityDrain + (15.6 * gcdMax)
+    insanityDrained = insanityDrain * gcdMax * 3
+
+    local lucisDreams = essence.memoryOfLucidDreams.active
 
     local dotsUp = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists()
     local dotsTick = debuff.shadowWordPain.remain() > 4.3 and debuff.vampiricTouch.remain() > 4.3
@@ -784,10 +788,10 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then 
-            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and useCDs() then 
+            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
-            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             end
         end
@@ -1084,10 +1088,10 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then 
-            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 * lusting) and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and useCDs() then 
+            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
-            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") and (power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power) then
+            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             end
         end
@@ -1348,7 +1352,7 @@ local function runRotation()
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindBlast) then
+        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindBlast) and not isCastingSpell(303769) then
         -- Action List - Defensive
             if actionList_Defensive() then return end
         -- Action List - Cooldowns
@@ -1374,7 +1378,7 @@ local function runRotation()
             end
         -- Action List - Main
             -- run_action_list,name=single,if=active_enemies=1
-            if activeEnemies == 1 or mode.rotation == 3 then --Print(insanityDrained) --Print("Single")
+            if activeEnemies == 1 or mode.rotation == 3 then Print(insanityDrained) --Print("Single")
                 if actionList_Single() then return end
             end
         end -- End Combat Rotation
