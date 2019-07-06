@@ -64,7 +64,6 @@ function cCharacter:new(class)
 	self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
 	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
-	self.options 	    	= {}        -- Contains options
 	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
 	self.perk 	    		= {}	-- Perk Table
 	self.petId 	    		= 0 	-- Current Pet Id
@@ -92,8 +91,6 @@ function cCharacter:new(class)
 		local startTime = debugprofilestop()
 		-- Pause
 		-- TODO
-		-- Get base options
-		self.baseGetOptions()
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
@@ -115,13 +112,7 @@ function cCharacter:new(class)
 			self.getConsumables()		-- Find All The Tasty Things!
 			bagsUpdated = false
 		end
-		-- Crystal
-		self.useCrystal()
-		-- Fel Focuser
-		self.useFelFocuser()
-		-- Empowered Augment Rune
-		self.useEmpoweredRune()
-    -- Get selected rotation
+		-- Get selected rotation
     self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
@@ -300,80 +291,8 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Ignore Combat")
         br.ui:createCheckbox(section_base, "Mute Queue")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
-        br.ui:createCheckbox(section_base, "Use Crystal")
-		br.ui:createCheckbox(section_base, "Use Fel Focuser")
-        br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
         br.ui:checkSectionState(section_base)
     end
-
- -- Get option modes
-	function self.baseGetOptions()
-		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
-		self.options.useCrystal       = isChecked("Use Crystal")==true or false
-		self.options.useFelFocuser    = isChecked("Use Fel Focuser")==true or false
-		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
-	end
-
--- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
-	function self.useCrystal()
-		if self.options.useCrystal and getBuffRemain("player",176151) < 600 and not hasBuff(242551) and not canUseItem(147707) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-     	-- Check if other flask is present, if so abort here
-      for _,flaskID in pairs(self.flask.wod.buff) do
-      	if hasBuff(flaskID) then return end
-      end
-      useItem(118922)
-		end
-  end
-
--- Use Fel Focuser +500 to all Stat - ID: 147707, Buff: 242551 (Fel Focus)
-	function self.useFelFocuser()
-		if canUseItem(147707) and not IsMounted() then cancelBuff(176151) end
-
-		if self.options.useFelFocuser and getBuffRemain("player",242551) < 600 and not hasBuff(176151) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-      -- Check if other flask is present, if so abort here
-      for _,flaskID in pairs(self.flask.wod.buff) do
-        if hasBuff(flaskID) then return end
-      end
-      useItem(147707)
-		end
-  end
-
--- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
-	function self.useEmpoweredRune()
-		if self.options.useEmpoweredRune and not UnitIsDeadOrGhost("player") and not IsMounted() then
-			if self.level < 110 then
-				if getOptionValue("Use emp. Rune") == 1 then
-					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-						if self.faction == "Alliance" and self.level < 110 then
-							useItem(128482)
-						else
-							useItem(128475)
-						end
-					end
-				end
-				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
-					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-						if self.faction == "Alliance" and self.level < 110 then
-							useItem(128482)
-						else
-							useItem(128475)
-						end
-					end
-				end
-			elseif self.level >= 110 then
-				if getOptionValue("Use emp. Rune") == 1 then
-					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
-						useItem(140587)
-					end
-				end
-				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
-					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
-						useItem(140587)
-					end
-				end
-			end
-		end
-	end
 
 -- Returns and sets highest stat, which will be the primary stat
 	function self.getPrimaryStat()
