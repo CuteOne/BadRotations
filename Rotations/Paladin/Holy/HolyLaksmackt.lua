@@ -103,7 +103,7 @@ local function createOptions()
     br.ui:createCheckbox(section, "Freehold - pig", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFCatches pig in Freehold|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Freehold - Blackout Barrel", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble blacout barrel|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Atal - Devour", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 1)
-    br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 1)
+    br.ui:createCheckbox(section, "Motherload - Stun jockeys", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFStun ...jockeys ... |cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Tol Dagor - Deadeye", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Deadeye target|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Waycrest - jagged Nettles", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Nettles target|cffFFBB00.", 1)
     br.ui:createCheckbox(section, "Shrine - Dispel Whisper of Power", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFto dispel or not :)|cffFFBB00.", 0)
@@ -169,6 +169,7 @@ local function createOptions()
     br.ui:createDropdownWithout(section, "BoS Target", { "|cffFFFFFFAll", "|cffFFFFFFTanks", "|cffFFFFFFDamage" }, 2, "|cffFFFFFFTarget for BoS")
     -- Avenging Wrath/Crusader
     br.ui:createSpinner(section, "Avenging Crusader", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
+    br.ui:createSpinner(section, "Avenging Crusader Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
     br.ui:createSpinner(section, "Avenging Crusader Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
     br.ui:createSpinner(section, "Avenging Wrath", 50, 0, 100, 5, "", "|cffFFFFFFHealth Percent to Cast At")
     br.ui:createSpinner(section, "Avenging Wrath Targets", 4, 0, 40, 1, "", "|cffFFFFFFMinimum Avenging Wrath Targets", true)
@@ -1019,7 +1020,6 @@ local function runRotation()
     --Concentrated Flame
 
     -- Concentrated Flame Heal
-
     if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
       if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
         if cast.concentratedFlame(lowest.unit) then
@@ -1051,7 +1051,7 @@ local function runRotation()
       end
 
       if getOptionValue("Ever Rising Tide") == 2 then
-        if buff.avengingWrath.exists("player") or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
+        if (buff.avengingWrath.exists("player")and not mode.DPS == 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
           if cast.overchargeMana() then
             return
           end
@@ -1868,10 +1868,10 @@ local function runRotation()
           if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (10 * master_coff) then
             holyLight10 = br.friend[i].unit
           end
-          if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (10 * master_coff) then
+          if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (20 * master_coff) then
             holyLight20 = br.friend[i].unit
           end
-          if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (10 * master_coff) then
+          if br.friend[i].hp <= getValue("Holy Light") and br.friend[i].distance <= (30 * master_coff) then
             holyLight30 = br.friend[i].unit
           end
         end
