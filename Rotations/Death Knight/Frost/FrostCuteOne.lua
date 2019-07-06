@@ -902,15 +902,6 @@ local function runRotation()
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.oraliusWhisperingCrystal() then return true end
             end
-        -- Flask / Crystal
-            -- flask,name=countless_armies
-            if isChecked("Flask / Crystal") and not (IsFlying() or IsMounted()) then
-                if (raid or solo) and not (buff.strenthFlaskLow or buff.strengthFlaskBig) then--Draenor Str Flasks
-                    if not UnitBuffID("player",176151) and canUseItem(118922) then --Draenor Insanity Crystal
-                        if br.player.useCrystal() then return true end
-                    end
-                end
-            end
         -- Food
             -- food,type=food,name=fishbrul_special
         -- Augmentation

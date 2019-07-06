@@ -434,17 +434,6 @@ local function runRotation()
         end -- End Action List - Single
     -- Action List - Pre-Combat
         function actionList_PreCombat()
-        -- Flask
-            -- flask,type=greater_draenic_strength_flask
-            if isChecked("Str-Pot") then
-                if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
-                    useItem(br.player.flask.leg.strengthBig)
-                    return true
-                end
-                if flaskBuff==0 then
-                    if br.player.useCrystal() then return end
-                end
-            end
             -- food,type=pickled_eel
             -- snapshot_stats
             -- potion,name=Potion Of Bursting blood
