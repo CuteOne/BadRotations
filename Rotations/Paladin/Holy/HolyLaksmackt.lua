@@ -194,6 +194,7 @@ local function createOptions()
     br.ui:createDropdown(section, "Ever Rising Tide", { "Always", "Pair with CDs", "Based on health" }, 1, "When to use this essence")
     br.ui:createSpinner(section, "Ever Rising Tide - Mana", 30, 0, 100, 5, "", "min mana to use")
     br.ui:createSpinner(section, "Ever Rising Tide - Health", 30, 0, 100, 5, "", "health threshold to pop at")
+    br.ui:createSpinner(section, "Well of Existence  - Health", 30, 0, 100, 5, "", "health threshold to pop at")
     br.ui:checkSectionState(section)
 
     -------------------------
@@ -1051,17 +1052,26 @@ local function runRotation()
       end
 
       if getOptionValue("Ever Rising Tide") == 2 then
-        if (buff.avengingWrath.exists("player")and not mode.DPS == 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
+        if (buff.avengingWrath.exists("player") and not mode.DPS == 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
           if cast.overchargeMana() then
             return
           end
         end
       end
       if getOptionValue("Ever Rising Tide") == 3 then
-        if lowest.hp > getOptionValue("Ever Rising Tide - Health") or burst == true then
+        if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
           if cast.overchargeMana() then
             return
           end
+        end
+      end
+    end
+
+    --"Well of Existence  - Health"
+    if isChecked("Well of Existence  - Health") and essence.refreshment.active and getSpellCD(296197) <= gcd then
+      if lowest.hp < getOptionValue("Well of Existence  - Health") or burst == true then
+        if cast.refreshment(lowest.unit) then
+          return true
         end
       end
     end
