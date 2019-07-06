@@ -637,11 +637,11 @@ local function runRotation()
                     end
                 end
             end
-            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(152494)) and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(152494) or has.healthstone()) then
+            if isChecked("Health Pot / Healthstone") and (use.able.healthstone() or canUseItem(169451)) and php <= getOptionValue("Health Pot / Healthstone") and inCombat and (hasItem(169451) or has.healthstone()) then
                 if use.able.healthstone() then
                     use.healthstone()
-                elseif canUseItem(152494) then
-                    useItem(152494)
+                elseif canUseItem(169451) then
+                    useItem(169451)
                 end
             end
             if isChecked("Cloak of Shadows") and canDispel("player",spell.cloakOfShadows) and inCombat then
