@@ -1378,7 +1378,7 @@ local function runRotation()
             end
         -- Action List - Main
             -- run_action_list,name=single,if=active_enemies=1
-            if activeEnemies == 1 or mode.rotation == 3 then Print(insanityDrained) --Print("Single")
+            if activeEnemies == 1 or mode.rotation == 3 then --Print(insanityDrained) --Print("Single")
                 if actionList_Single() then return end
             end
         end -- End Combat Rotation
