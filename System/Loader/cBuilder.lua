@@ -562,6 +562,13 @@ function br.loader:new(spec,specName)
 
         -- br:checkProfileWindowStatus()
         br.ui:checkWindowStatus("profile")
+
+        if self.option == nil then self.option = {} end
+        br.api.ui(self.option)
+        -- for k,v in pairs(br.data.ui) do
+        --     if self.option[k] == nil then self.option[k] = {} end
+        --     local option = self.option[k]
+        -- end
     end
 
 ------------------------
