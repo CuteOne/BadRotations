@@ -4,7 +4,7 @@ local rotationName = "CuteOne"
 --- Toggles ---
 ---------------
 local function createToggles()
--- Rotation Button
+    -- Rotation Button
     RotationModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.crashLightning},
         [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.crashLightning},
@@ -12,20 +12,20 @@ local function createToggles()
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.healingSurge}
     };
     CreateButton("Rotation",1,0)
--- Cooldown Button
+    -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.feralSpirit},
         [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.feralSpirit},
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.feralSpirit}
     };
     CreateButton("Cooldown",2,0)
--- Defensive Button
+    -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1 , overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.astralShift},
         [2] = { mode = "Off", value = 2 , overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.astralShift}
     };
     CreateButton("Defensive",3,0)
--- Interrupt Button
+    -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1 , overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.windShear},
         [2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.windShear}
@@ -41,92 +41,94 @@ local function createOptions()
 
     local function rotationOptions()
         local section
-    -- General Options
+        -- General Options
         section = br.ui:createSection(br.ui.window.profile, "General")
-        -- APL
+            -- APL
             br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC","|cffFFFFFFAMR"}, 1, "|cffFFFFFFSet APL Mode to use.")
-        -- Dummy DPS Test
+            -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
-        -- Pre-Pull Timer
+            -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Ghost Wolf
+            -- Ghost Wolf
             br.ui:createCheckbox(section,"Ghost Wolf")
-        -- Feral Lunge
+            -- Feral Lunge
             br.ui:createCheckbox(section,"Feral Lunge")
-        -- Lightning Bolt OOC
+            -- Lightning Bolt OOC
             br.ui:createCheckbox(section,"Lightning Bolt Out of Combat")
-        -- Spirit Walk
+            -- Spirit Walk
             br.ui:createCheckbox(section,"Spirit Walk")
-        -- Sundering
-            br.ui:createSpinner(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
-        -- Water Walking
+            -- Sundering
+            br.ui:createSpinnerWithout(section,"Units to Sunder", 3,  1,  10,  1,  "|cffFFFFFFSet to desired number of units to cast Sunder. Min: 1 / Max: 10 / Interval: 1")
+            -- Water Walking
             br.ui:createCheckbox(section,"Water Walking")
         br.ui:checkSectionState(section)
-    -- Cooldown Options
+        -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        -- Agi Pot
+            -- Agi Pot
             br.ui:createCheckbox(section,"Potion")
-        -- Elixir
+            -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Seventh Demon","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
-        -- Racial
+            -- Racial
             br.ui:createCheckbox(section,"Racial")
-        -- Trinkets
+            -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
-        -- Ascendance
+            -- Ascendance
             br.ui:createCheckbox(section,"Ascendance")
-        -- Earth Elemental Totem
+            -- Earth Elemental Totem
             br.ui:createCheckbox(section,"Earth Elemental")
-        -- Feral Spirit
+            -- Feral Spirit
             br.ui:createDropdownWithout(section,"Feral Spirit", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Feral Spirit.")
+            -- Heart Essence
+            br.ui:createCheckbox(section,"Use Essence")
         br.ui:checkSectionState(section)
-    -- Defensive Options
+        -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
-        -- Healthstone
+            -- Healthstone
             br.ui:createSpinner(section, "Pot/Stoned",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Heirloom Neck
+            -- Heirloom Neck
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.");
-        -- Gift of The Naaru
+            -- Gift of The Naaru
             if br.player.race == "Draenei" then
                 br.ui:createSpinner(section, "Gift of the Naaru",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             end
-        -- Ancestral Spirit
+            -- Ancestral Spirit
             br.ui:createDropdown(section, "Ancestral Spirit", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-        -- Astral Shift
+            -- Astral Shift
             br.ui:createSpinner(section, "Astral Shift",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Cleanse Spirit
+            -- Cleanse Spirit
             br.ui:createDropdown(section, "Clease Spirit", {"|cff00FF00Player Only","|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
-        -- Earth Shield
+            -- Earth Shield
             br.ui:createCheckbox(section, "Earth Shield")
-        -- Healing Surge
+            -- Healing Surge
             br.ui:createSpinner(section, "Healing Surge",  80,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
-        -- Lightning Surge Totem
+            -- Lightning Surge Totem
             br.ui:createSpinner(section, "Capacitor Totem - HP", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
             br.ui:createSpinner(section, "Capacitor Totem - AoE", 5, 0, 10, 1, "|cffFFFFFFNumber of Units in 5 Yards to Cast At")
-        -- Purge
+            -- Purge
             br.ui:createCheckbox(section,"Purge")
         br.ui:checkSectionState(section)
-    -- Interrupt Options
+        -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Wind Shear
+            -- Wind Shear
             br.ui:createCheckbox(section,"Wind Shear")
-        -- Hex
+            -- Hex
             br.ui:createCheckbox(section,"Hex")
-        -- Lightning Surge Totem
+            -- Lightning Surge Totem
             br.ui:createCheckbox(section,"Capacitor Totem")
-        -- Interrupt Percentage
-            br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
+            -- Interrupt Percentage
+            br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
-    -- Toggle Key Options
+        -- Toggle Key Options
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-            br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle,  4)
-        -- Cooldown Key Toggle
-            br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
-        -- Defensive Key Toggle
-            br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle,  6)
-        -- Interrupts Key Toggle
-            br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
-        -- Pause Toggle
+            -- Single/Multi Toggle
+            br.ui:createDropdownWithout(section, "Rotation Mode", br.dropOptions.Toggle,  4)
+            -- Cooldown Key Toggle
+            br.ui:createDropdownWithout(section, "Cooldown Mode", br.dropOptions.Toggle,  3)
+            -- Defensive Key Toggle
+            br.ui:createDropdownWithout(section, "Defensive Mode", br.dropOptions.Toggle,  6)
+            -- Interrupts Key Toggle
+            br.ui:createDropdownWithout(section, "Interrupt Mode", br.dropOptions.Toggle,  6)
+            -- Pause Toggle
             br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
     end
@@ -147,15 +149,14 @@ local cd
 local charges
 local debuff
 local enemies
-local equiped
 local essence
-local gcd
 local gcdMax
 local inCombat
 local inRaid
 local item
 local maelstrom
 local mode
+local option
 local php
 local race
 local spell
@@ -167,12 +168,16 @@ local use
 -- General API Locals
 local actionList = {}
 local combatTime
-local deadMouse, hasMouse, playerMouse
-local deadtar, playertar
-local falling, swimming, flying, moving
+local deadMouse
+local deadtar
+local falling
+local hasMouse
 local hastar
 local healPot
-local profileStop
+local moving
+local playerMouse
+local playertar
+local profileStop = false
 local pullTimer
 local ttd
 
@@ -198,31 +203,25 @@ local ocPoolSS
 -- variable,name=OCPool_LL
 local ocPoolLL
 -- variable,name=OCPool_CL
-local ocPullCL
--- variable,name=OCPool_FB
-local ocPoolFB
+local ocPoolCL
 -- variable,name=CLPool_LL
 local clPoolLL
 -- variable,name=CLPool_SS
 local clPoolSS
 -- variable,name=freezerburn_enabled
 local freezerburnEnabled
--- variable,name=rockslide_enabled
-local rockslideEnabled
-
 
 -- Custom Profile Locals
 local activeEnemies
 local activeEnemiesMore1
 local activeEnemiesMore2
 local activeEnemiesLess3
-local crashedEnemies
-local feralSpiritCastTime
-local feralSpiritRemain
+local feralSpiritCastTime = 0
+local feralSpiritRemain = 0
 local furiousAir
 local icyHot
 local overcharged
-local resonanceTotemRemain
+local totemMaster = 0
 local windforce
 
 --------------------
@@ -231,35 +230,35 @@ local windforce
 -- Action List - Extras
 actionList.Extras = function()
     -- Dummy Test
-    if isChecked("DPS Testing") then
+    if option.checked("DPS Testing") then
         if GetObjectExists("target") then
-            if getCombatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+            if getCombatTime() >= (tonumber(option.value("DPS Testing"))*60) and isDummy() then
                 StopAttack()
                 ClearTarget()
-                Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
+                Print(tonumber(option.value("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
                 profileStop = true
             end
         end
     end -- End Dummy Test
     -- Ghost Wolf
-    if isChecked("Ghost Wolf") and cast.able.ghostWolf() and not (IsMounted() or IsFlying()) then
+    if option.checked("Ghost Wolf") and cast.able.ghostWolf() and not (IsMounted() or IsFlying()) then
         if ((#enemies.yards20 == 0 and not inCombat) or (#enemies.yards10 == 0 and inCombat)) and isMoving("player") and not buff.ghostWolf.exists() then
             if cast.ghostWolf() then return true end
         end
     end
     -- Purge
-    if isChecked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
+    if option.checked("Purge") and cast.able.purge() and canDispel("target",spell.purge) and not isBoss() and GetObjectExists("target") then
         if cast.purge() then return true end
     end
     -- Spirit Walk
-    if isChecked("Spirit Walk") and cast.able.spiritWalk() and hasNoControl(spell.spiritWalk) then
+    if option.checked("Spirit Walk") and cast.able.spiritWalk() and hasNoControl(spell.spiritWalk) then
         if cast.spiritWalk() then return true end
     end
     -- Water Walking
     if falling > 1.5 and buff.waterWalking.exists() then
         CancelUnitBuffID("player", spell.waterWalking)
     end
-    if isChecked("Water Walking") and cast.able.waterWalking() and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
+    if option.checked("Water Walking") and cast.able.waterWalking() and not inCombat and IsSwimming() and not buff.waterWalking.exists() then
         if cast.waterWalking() then return true end
     end
 end -- End Action List - Extras
@@ -267,7 +266,7 @@ end -- End Action List - Extras
 actionList.Defensive = function()
     if useDefensive() then
         -- Pot/Stoned
-        if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+        if option.checked("Pot/Stoned") and php <= option.value("Pot/Stoned")
             and inCombat and (hasHealthPot() or hasItem(5512))
         then
             if canUseItem(5512) then
@@ -277,7 +276,7 @@ actionList.Defensive = function()
             end
         end
         -- Heirloom Neck
-        if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
+        if option.checked("Heirloom Neck") and php <= option.value("Heirloom Neck") then
             if hasEquiped(122668) then
                 if GetItemCooldown(122668)==0 then
                     useItem(122668)
@@ -285,51 +284,51 @@ actionList.Defensive = function()
             end
         end
         -- Gift of the Naaru
-        if isChecked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= getOptionValue("Gift of the Naaru") and php > 0 and race == "Draenei" then
+        if option.checked("Gift of the Naaru") and cast.able.giftOfTheNaaru() and php <= option.value("Gift of the Naaru") and php > 0 and race == "Draenei" then
             if cast.giftOfTheNaaru() then return true end
         end
         -- Ancestral Spirit
-        if isChecked("Ancestral Spirit") then
-            if getOptionValue("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
+        if option.checked("Ancestral Spirit") then
+            if option.value("Ancestral Spirit")==1 and cast.able.ancestralSpirit("target") and hastar and playertar and deadtar then
                 if cast.ancestralSpirit("target","dead") then return true end
             end
-            if getOptionValue("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
+            if option.value("Ancestral Spirit")==2 and cast.able.ancestralSpirit("mouseover") and hasMouse and playerMouse and deadMouse then
                 if cast.ancestralSpirit("mouseover","dead") then return true end
             end
         end
         -- Astral Shift
-        if isChecked("Astral Shift") and cast.able.astralShift() and php <= getOptionValue("Astral Shift") and inCombat then
+        if option.checked("Astral Shift") and cast.able.astralShift() and php <= option.value("Astral Shift") and inCombat then
             if cast.astralShift() then return true end
         end
         -- Cleanse Spirit
-        if isChecked("Cleanse Spirit") then
-            if getOptionValue("Cleanse Spirit")==1 and cast.able.cleanseSpirit("player") and canDispel("player",spell.cleanseSpirit) then
+        if option.checked("Cleanse Spirit") then
+            if option.value("Cleanse Spirit")==1 and cast.able.cleanseSpirit("player") and canDispel("player",spell.cleanseSpirit) then
                 if cast.cleanseSpirit("player") then return; end
             end
-            if getOptionValue("Cleanse Spirit")==2 and cast.able.cleanseSpirit("target") and canDispel("target",spell.cleanseSpirit) then
+            if option.value("Cleanse Spirit")==2 and cast.able.cleanseSpirit("target") and canDispel("target",spell.cleanseSpirit) then
                 if cast.cleanseSpirit("target") then return true end
             end
-            if getOptionValue("Cleanse Spirit")==3 and cast.able.cleanseSpirit("mouseover") and canDispel("mouseover",spell.cleanseSpirit) then
+            if option.value("Cleanse Spirit")==3 and cast.able.cleanseSpirit("mouseover") and canDispel("mouseover",spell.cleanseSpirit) then
                 if cast.cleanseSpirit("mouseover") then return true end
             end
         end
         -- Earthen Shield
-        if isChecked("Earth Shield") and cast.able.earthShield() and not buff.earthShield.exists() then
+        if option.checked("Earth Shield") and cast.able.earthShield() and not buff.earthShield.exists() then
             if cast.earthShield() then return true end
         end
         -- Healing Surge
-        if isChecked("Healing Surge") and cast.able.healingSurge()
-            and ((inCombat and ((php <= getOptionValue("Healing Surge") / 2 and power > 20)
-                or (power >= 90 and php <= getOptionValue("Healing Surge")))) or (not inCombat and php <= getOptionValue("Healing Surge") and not moving))
+        if option.checked("Healing Surge") and cast.able.healingSurge()
+            and ((inCombat and ((php <= option.value("Healing Surge") / 2 and maelstrom > 20)
+                or (maelstrom >= 90 and php <= option.value("Healing Surge")))) or (not inCombat and php <= option.value("Healing Surge") and not moving))
         then
             if cast.healingSurge() then return true end
         end
         -- Capacitor Totem
-        if isChecked("Capacitor Totem - HP") and cast.able.capacitorTotem() and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
+        if option.checked("Capacitor Totem - HP") and cast.able.capacitorTotem() and php <= option.value("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
             if cast.capacitorTotem("player","ground") then return true end
         end
-        if isChecked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and #enemies.yards5 >= getOptionValue("Capacitor Totem - AoE") and inCombat then
-            if cast.capacitorTotem("best",nil,getOptionValue("Capacitor Totem - AoE"),8) then return true end
+        if option.checked("Capacitor Totem - AoE") and cast.able.capacitorTotem() and #enemies.yards5 >= option.value("Capacitor Totem - AoE") and inCombat then
+            if cast.capacitorTotem("best",nil,option.value("Capacitor Totem - AoE"),8) then return true end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive
@@ -338,18 +337,18 @@ actionList.Interrupts = function()
     if useInterrupts() then
         for i=1, #enemies.yards30 do
             thisUnit = enemies.yards30[i]
-            if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+            if canInterrupt(thisUnit,option.value("Interrupt At")) then
                 -- Wind Shear
                 -- wind_shear
-                if isChecked("Wind Shear") and cast.able.windShear(thisUnit) then
+                if option.checked("Wind Shear") and cast.able.windShear(thisUnit) then
                     if cast.windShear(thisUnit) then return true end
                 end
                 -- Hex
-                if isChecked("Hex") and cast.able.hex(thisUnit) then
+                if option.checked("Hex") and cast.able.hex(thisUnit) then
                     if cast.hex(thisUnit) then return true end
                 end
                 -- Capacitor Totem
-                if isChecked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcd then
+                if option.checked("Capacitor Totem") and cast.able.capacitorTotem(thisUnit) and cd.windShear.remain() > gcdMax then
                     if hasThreat(thisUnit) and not isMoving(thisUnit) and ttd(thisUnit) > 7 then
                         if cast.capacitorTotem(thisUnit,"ground") then return true end
                     end
@@ -368,46 +367,46 @@ actionList.Cooldowns = function()
         -- blood_fury,if=variable.cooldown_sync
         -- fireblood,if=variable.cooldown_sync
         -- ancestral_call,if=variable.cooldown_sync
-        if isChecked("Racial") and cast.able.racial() and cooldownSync
+        if option.checked("Racial") and cast.able.racial() and cooldownSync
         and (race == "Troll" or race == "Orc" or race == "DarkIronDwarf" or race == "MagharOrc")
         then
             if cast.racial() then return true end
         end
         -- Potion
         -- potion,if=buff.ascendance.up|!talent.ascendance.enabled&feral_spirit.remains>5|target.time_to_die<=60
-        if isChecked("Potion") and canUseItem(142117) and inRaid and not buff.prolongedPower.exists() then
+        if option.checked("Potion") and canUseItem(142117) and inRaid and not buff.prolongedPower.exists() then
             if (hasBloodLust() or (not talent.ascendance and feralSpiritRemain > 5) or ttd(units.dyn5) <= 60) then
                 useItem(142117)
             end
         end
         -- Heart Essence - Guardian of Azeroth
         -- guardian_of_azeroth
-        if isChecked("Use Essence") and cast.able.guardianOfAzeroth() then
+        if option.checked("Use Essence") and cast.able.guardianOfAzeroth() then
             if cast.guardianOfAzeroth() then return true end
         end
         -- Heart Essence - Memory of Lucid Dreams
         -- memory_of_lucid_dreams
-        if isChecked("Use Essence") and cast.able.memoryOfLucidDreams() then
+        if option.checked("Use Essence") and cast.able.memoryOfLucidDreams() then
             if cast.memoryOfLucidDreams() then return true end
         end
         -- Feral Spirit
         -- feral_spirit
-        if cast.able.feralSpirit() and (getOptionValue("Feral Spirit") == 1 or (getOptionValue("Feral Spirit") == 2 and useCDs())) then
+        if cast.able.feralSpirit() and (option.value("Feral Spirit") == 1 or (option.value("Feral Spirit") == 2 and useCDs())) then
             if cast.feralSpirit() then return true end
         end
         -- Heart Essence - Blood of the Enemy
         -- blood_of_the_enemy
-        if isChecked("Use Essence") and cast.able.bloodOfTheEnemy() then
+        if option.checked("Use Essence") and cast.able.bloodOfTheEnemy() then
             if cast.bloodOfTheEnemy() then return true end
         end
         -- Ascendance
         -- ascendance,if=cooldown.strike.remains>0
-        if isChecked("Ascendance") and cast.able.ascendance() and cd.stormstrike.remain() > 0 then
+        if option.checked("Ascendance") and cast.able.ascendance() and cd.stormstrike.remain() > 0 then
             if cast.ascendance() then return true end
         end
         -- Trinkets
         -- use_items
-        if isChecked("Trinkets") then
+        if option.checked("Trinkets") then
             if canUseItem(11) then
                 useItem(11)
             end
@@ -423,21 +422,21 @@ actionList.Cooldowns = function()
         end
         -- Earth Elemental
         -- earth_elemental
-        if isChecked("Earth Elemental") and cast.able.earthElemental() then
+        if option.checked("Earth Elemental") and cast.able.earthElemental() then
             if cast.earthElemental() then return true end
         end
     end
     if useCDs() and getDistance("target") < 5 then
         -- Ascendance
         -- ascendance,if=cooldown.strike.remains>0
-        if isChecked("Ascendance") and cast.able.ascendance() then
+        if option.checked("Ascendance") and cast.able.ascendance() then
             if cd.stormstrike.remain() > 0 then
                 if cast.ascendance() then return true end
             end
         end
         -- Earth Elemental
         -- earth_elemental
-        if isChecked("Earth Elemental") and cast.able.earthElemental() then
+        if option.checked("Earth Elemental") and cast.able.earthElemental() then
             if cast.earthElemental() then return true end
         end
     end -- End useCDs check
@@ -447,7 +446,7 @@ actionList.Ascendance = function()
     -- Crash Lightning
     -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>1&variable.furyCheck_CL
     if cast.able.crashLightning() and not buff.crashLightning.exists() and activeEnemiesMore1 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",2,8) then return true end
     end
     -- Rockbiter
     -- rockbiter,if=talent.landslide.enabled&!buff.landslide.up&charges_fractional>1.7
@@ -465,13 +464,13 @@ actionList.Priority = function()
     -- Crash lightning
     -- crash_lightning,if=active_enemies>=(8-(talent.forceful_winds.enabled*3))&variable.freezerburn_enabled&variable.furyCheck_CL
     if cast.able.crashLightning() and freezerburnEnabled and furyCheckCL
-        and ((mode.rotation == 1 and #enemies.yards10 >= (8 - (windforce * 3))) or (mode.rotation == 2 and #enemies.yards10 > 0))
+        and ((mode.rotation == 1 and #enemies.yards8 >= (8 - (windforce * 3))) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",8 - (windforce * 3),8) then return true end
     end
     -- Heart Essence - The Unbound Force
     -- the_unbound_force,if=buff.reckless_force.up|time<5
-    if isChecked("Use Essence") and cast.able.theUnboundForce()
+    if option.checked("Use Essence") and cast.able.theUnboundForce()
         and (buff.recklessForce.exists() or combatTime < 5)
     then
         if cast.theUnboundForce() then return true end
@@ -486,7 +485,7 @@ actionList.Priority = function()
     -- Crash lightning
     -- crash_lightning,if=!buff.crash_lightning.up&active_enemies>1&variable.furyCheck_CL
     if cast.able.crashLightning() and not buff.crashLightning.exists() and activeEnemiesMore1 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",2,8) then return true end
     end
     -- Fury of Air
     -- fury_of_air,if=!buff.fury_of_air.up&maelstrom>=20&spell_targets.fury_of_air_damage>=(1+variable.freezerburn_enabled)
@@ -499,7 +498,7 @@ actionList.Priority = function()
     end
     -- Totem Mastery
     -- totem_mastery,if=buff.resonance_totem.remains<=2*gcd
-    if cast.able.totemMastery() and buff.resonanceTotem.remain() <= 2 * gcdMax then
+    if cast.able.totemMastery() and not cast.last.totemMastery() and (totemMaster - buff.resonanceTotem.remain()) <= 2 * gcdMax then
         if cast.totemMastery() then return true end
     end
     -- Sundering
@@ -507,16 +506,16 @@ actionList.Priority = function()
     if cast.able.sundering() and activeEnemiesMore2 and (not essence.bloodOfTheEnemy.active
         or (essence.bloodOfTheEnemy.active and (buff.seethingRage.exists() or cd.bloodOfTheEnemy.remian() > 40)))
     then
-        if cast.sundering() then return true end
+        if cast.sundering(nil,"rect",3,11) then return true end
     end
     -- Heart Essence - Focused Azerite Beam
     -- focused_azerite_beam,if=active_enemies>=3
-    if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and activeEnemiesMore2 then
+    if option.checked("Use Essence") and cast.able.focusedAzeriteBeam() and activeEnemiesMore2 then
         if cast.focusedAzeriteBeam() then return true end
     end
     -- Heart Essence - Purifying Blast
     -- purifying_blast,if=active_enemies>=3
-    if isChecked("Use Essence") and cast.able.purifyingBlast() and activeEnemiesMore2 then
+    if option.checked("Use Essence") and cast.able.purifyingBlast() and activeEnemiesMore2 then
         if cast.purifyingBlast("best", nil, 3, 8) then return true end
     end
     -- Rockbiter
@@ -589,7 +588,7 @@ actionList.FreezerburnCore = function()
     -- Crash lightning
     -- crash_lightning,if=active_enemies>=3&variable.furyCheck_CL
     if cast.able.crashLightning() and activeEnemiesMore2 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",3,8) then return true end
     end
     -- Lightning Bolt
     -- lightning_bolt,if=talent.overcharge.enabled&active_enemies=1&variable.furyCheck_LB&maelstrom>=40
@@ -638,7 +637,7 @@ actionList.DefaultCore = function()
     -- Crash lightning
     -- crash_lightning,if=active_enemies>=3&variable.furyCheck_CL
     if cast.able.crashLightning() and activeEnemiesMore2 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",3,8) then return true end
     end
     -- Lightning Bolt
     -- lightning_bolt,if=talent.overcharge.enabled&active_enemies=1&variable.furyCheck_LB&maelstrom>=40
@@ -656,11 +655,11 @@ actionList.Filler = function()
     -- Sundering
     -- sundering,if=active_enemies<3
     if cast.able.sundering() and activeEnemiesLess3 then
-        if cast.sundering() then return true end
+        if cast.sundering(nil,"rect",1,11) then return true end
     end
     -- Heart Essence - Focused Azerite Beam
     -- focused_azerite_beam,if=!buff.ascendance.up&!buff.molten_weapon.up&!buff.icy_edge.up&!buff.crackling_surge.up&!debuff.earthen_spike.up
-    if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.ascendance.exists()
+    if option.checked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.ascendance.exists()
         and not buff.moltenWeapon.exists() and not buff.icyEdge.exists() and not buff.cracklingSurge.exists()
         and not debuff.earthenSpike.exists(units.dyn8)
     then
@@ -668,23 +667,23 @@ actionList.Filler = function()
     end
     -- Heart Essence - Purifying Blast
     -- purifying_blast
-    if isChecked("Use Essence") and cast.able.purifyingBlast() then
+    if option.checked("Use Essence") and cast.able.purifyingBlast() then
         if cast.purifyingBlast("best", nil, 1, 8) then return true end
     end
     -- Heart Essence - Concentrated Flame
     -- concentrated_flame
-    if isChecked("Use Essence") and cast.able.concentratedFlame() then
+    if option.checked("Use Essence") and cast.able.concentratedFlame() then
         if cast.concentratedFlame() then return true end
     end
     -- Heart Essence - Worldvein Resonance
     -- worldvein_resonance,if=buff.lifeblood.stack<4
-    if isChecked("Use Essence") and cast.able.worldveinResonance() then
+    if option.checked("Use Essence") and cast.able.worldveinResonance() then
         if cast.worldveinResonance() then return true end
     end
     -- Crash lightning
     -- crash_lightning,if=talent.forceful_winds.enabled&active_enemies>1&variable.furyCheck_CL
     if cast.able.crashLightning() and talent.forcefulWinds and activeEnemiesMore1 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",2,8) then return true end
     end
     -- Flametongue
     -- flametongue,if=talent.searing_assault.enabled
@@ -699,7 +698,7 @@ actionList.Filler = function()
     -- Crash Lightning
     -- crash_lightning,if=active_enemies>1&variable.furyCheck_CL
     if cast.able.crashLightning() and activeEnemiesMore1 and furyCheckCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",2,8) then return true end
     end
     -- Rockbiter
     -- rockbiter,if=maelstrom<70&!buff.strength_of_earth.up
@@ -709,7 +708,7 @@ actionList.Filler = function()
     -- Crash lightning
     -- crash_lightning,if=talent.crashing_storm.enabled&variable.OCPool_CL
     if cast.able.crashLightning() and talent.crashingStorm and ocPoolCL then
-        if cast.crashLightning() then return true end
+        if cast.crashLightning(nil,"cone",1,8) then return true end
     end
     -- Lava Lash
     -- lava_lash,if=variable.OCPool_LL&variable.furyCheck_LL
@@ -736,7 +735,7 @@ end -- End Action List - Filler
 actionList.Opener = function()
     -- Rockbiter
     -- rockbiter,if=maelstrom<15&time<gcd
-    if cast.able.rockbiter() and power < 15 and combatTime < gcdMax then
+    if cast.able.rockbiter() and maelstrom < 15 and combatTime < gcdMax then
         if cast.rockbiter() then return true end
     else
         StartAttack()
@@ -747,17 +746,17 @@ actionList.PreCombat = function()
     if not inCombat and not (IsFlying() or IsMounted()) then
         -- Flask / Crystal
         -- flask,type=flask_of_the_seventh_demon
-        if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
+        if option.value("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.flaskOfTheSeventhDemon() then return true end
         end
-        if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
+        if option.value("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
             if use.repurposedFelFocuser() then return true end
         end
-        if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
+        if option.value("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
             if buff.flaskOfTheSeventhDemon.exists() then buff.flaskOfTheSeventhDemon.cancel() end
             if buff.felFocus.exists() then buff.felFocus.cancel() end
             if use.oraliusWhisperingCrystal() then return true end
@@ -767,10 +766,10 @@ actionList.PreCombat = function()
         if cast.able.lightningShield() and not buff.lightningShield.exists() then
             if cast.lightningShield() then return true end
         end
-        if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+        if option.checked("Pre-Pull Timer") and pullTimer <= option.value("Pre-Pull Timer") then
             -- Potion
-            -- potion,name=prolonged_power,if=feral_spirit.remain()s>5
-            if isChecked("Potion") and canUseItem(142117) and inRaid then
+            -- potion,name=prolonged_maelstrom,if=feral_spirit.remain()s>5
+            if option.checked("Potion") and canUseItem(142117) and inRaid then
                 if feralSpiritRemain > 5 and not buff.prolongedPower.exists() then
                     useItem(142117)
                 end
@@ -778,14 +777,14 @@ actionList.PreCombat = function()
         end -- End Pre-Pull
         if isValidUnit("target") then
             -- Feral Lunge
-            if isChecked("Feral Lunge") and cast.able.feralLunge() then
+            if option.checked("Feral Lunge") and cast.able.feralLunge() then
                 if cast.feralLunge("target") then return true end
             end
             -- Lightning Bolt
-            if isChecked("Lightning Bolt Out of Combat") and cast.able.lightningBolt()
+            if option.checked("Lightning Bolt Out of Combat") and cast.able.lightningBolt()
                 and getDistance("target") >= 10 and not talent.overcharge
-                and (not isChecked("Feral Lunge") or not talent.feralLunge
-                    or cd.feralLunge.remain() > gcd or not cast.able.feralLunge())
+                and (not option.checked("Feral Lunge") or not talent.feralLunge
+                    or cd.feralLunge.remain() > gcdMax or not cast.able.feralLunge())
             then
                 if cast.lightningBolt("target") then return true end
             end
@@ -811,15 +810,14 @@ local function runRotation()
     charges                                       = br.player.charges
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
-    essence                                       = br.plater.essence
-    equiped                                       = br.player.equiped
-    gcd                                           = br.player.gcd
+    essence                                       = br.player.essence
     gcdMax                                        = br.player.gcdMax
     inCombat                                      = br.player.inCombat
     inRaid                                        = br.player.instance=="raid"
     item                                          = br.player.spell.items
     maelstrom                                     = br.player.power.maelstrom.amount()
     mode                                          = br.player.mode
+    option                                        = br.player.option
     php                                           = br.player.health
     race                                          = br.player.race
     spell                                         = br.player.spell
@@ -830,14 +828,17 @@ local function runRotation()
 
     -- General API
     combatTime                                    = getCombatTime()
-    deadMouse, hasMouse, playerMouse              = UnitIsDeadOrGhost("mouseover"), GetObjectExists("mouseover"), UnitIsPlayer("mouseover")
-    deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
-    falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player") > 0
+    deadMouse                                     = UnitIsDeadOrGhost("mouseover")
+    deadtar                                       = UnitIsDeadOrGhost("target")
+    falling                                       = getFallTime()
+    hasMouse                                      = GetObjectExists("mouseover")
     hastar                                        = GetObjectExists("target")
     healPot                                       = getHealthPot()
+    moving                                        = GetUnitSpeed("player") > 0
+    playerMouse                                   = UnitIsPlayer("mouseover")
+    playertar                                     = UnitIsPlayer("target")
     pullTimer                                     = br.DBM:getPulltimer()
     ttd                                           = getTTD
-    if profileStop == nil then profileStop = false end
 
     -- Dynamic Units
     units.get(5)
@@ -845,38 +846,39 @@ local function runRotation()
     units.get(20)--units.dyn20 = br.player.units(20)
 
     -- Enemies Lists
+    enemies.get(5)
     enemies.get(5,"player",false,true)
     enemies.get(8) --enemies.yards8 = br.player.enemies(8)
     enemies.get(10) --enemies.yards10 = br.player.enemies(10)
+    enemies.yards11r = getEnemiesInRect(10,11,false) or 0
     enemies.get(20) --enemies.yards20 = br.player.enemies(20)
     enemies.get(30) --enemies.yards30 = br.player.enemies(30)
 
     -- Custom Profile Specific
 
     -- active_enemies=1
-    activeEnemies                                   = ((mode.rotation == 1 and #enemies.yards10 == 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+    activeEnemies                                   = ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     -- active_enemies>1
-    activeEnemiesMore1                              = ((mode.rotation == 1 and #enemies.yards10 > 1) or (mode.rotation == 2 and #enemies.yards10 > 0))
+    activeEnemiesMore1                              = ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     -- active_enemies>=3
-    activeEnemiesMore2                              = ((mode.rotation == 1 and #enemies.yards10 >= 3) or (mode.rotation == 2 and #enemies.yards10 > 0))
+    activeEnemiesMore2                              = ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
     -- active_enemies<3
-    activeEnemiesLess3                              = ((mode.rotation == 1 and #enemies.yards10 < 3) or (mode.rotation == 3 and #enemies.yards10 > 0))
+    activeEnemiesLess3                              = ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
     -- Crash Lightning
-    crashedEnemies                                  = getEnemiesInCone(100,7)
+    -- crashedEnemies                                  = getEnemiesInCone(100,7)
     -- Fury of Air
     furiousAir                                      = talent.furyOfAir and 1 or 0
     -- Overcharge
     overcharged                                     = talent.overcharge and 1 or 0
-    -- Resonance Totem
-    resonanceTotemRemain                            = (not buff.resonanceTotem.exists() or (totemTimer - GetTime()) <= 0) and 0 or (totemTimer - GetTime())
     -- Forceful Winds
     windforce                                       = talent.forcefulWinds and 1 or 0
 
     -- Feral Spirit
-    if feralSpiritCastTime == nil then feralSpiritCastTime = 0 end
-    if feralSpiritRemain == nil then feralSpiritRemain = 0 end
     if cast.last.feralSpirit() then feralSpiritCastTime = GetTime() + 15 end
     if feralSpiritCastTime > GetTime() then feralSpiritRemain = feralSpiritCastTime - GetTime() else feralSpiritCastTime = 0; feralSpiritRemain = 0 end
+    -- Totem Mastery
+    if buff.resonanceTotem.remain() > 0 and totemMaster == 0 then totemMaster = GetTime() + 120 end
+    if buff.resonanceTotem.remain() == 0 then totemMaster = 0 end
 
     -- Profile Specific
     -- cooldown_sync,value=(talent.ascendance.enabled&(buff.ascendance.up|cooldown.ascendance.remains>50))|(!talent.ascendance.enabled&(feral_spirit.remains>5|cooldown.feral_spirit.remains>50))
@@ -884,13 +886,13 @@ local function runRotation()
     -- furyCheck_SS,value=maelstrom>=(talent.fury_of_air.enabled*(6+action.stormstrike.cost))
     furyCheckSS = maelstrom >= (furiousAir * (6 + cast.cost.stormstrike()))
     -- furyCheck_LL,value=maelstrom>=(talent.fury_of_air.enabled*(6+action.lava_lash.cost))
-    furyCheckLL = maelstrom >= (furiousAir * (6 + cast.cost.lavaLash))
+    furyCheckLL = maelstrom >= (furiousAir * (6 + cast.cost.lavaLash()))
     -- furyCheck_CL,value=maelstrom>=(talent.fury_of_air.enabled*(6+action.crash_lightning.cost))
-    furyCheckCL = maelstrom >= (furiousAir * (6 + cast.cost.crashLightning))
+    furyCheckCL = maelstrom >= (furiousAir * (6 + cast.cost.crashLightning()))
     -- furyCheck_FB,value=maelstrom>=(talent.fury_of_air.enabled*(6+action.frostbrand.cost))
-    furyCheckFB = maelstrom >= (furiousAir * (6 + cast.cost.frostbrand))
+    furyCheckFB = maelstrom >= (furiousAir * (6 + cast.cost.frostbrand()))
     -- furyCheck_ES,value=maelstrom>=(talent.fury_of_air.enabled*(6+action.earthen_spike.cost))
-    furyCheckES = maelstrom >= (furiousAir * (6 + cast.cost.earthenSpike))
+    furyCheckES = maelstrom >= (furiousAir * (6 + cast.cost.earthenSpike()))
     -- furyCheck_LB,value=maelstrom>=(talent.fury_of_air.enabled*(6+40))
     furyCheckLB = maelstrom >= (furiousAir * (6 + 40))
     -- OCPool,value=(active_enemies>1|(cooldown.lightning_bolt.remains>=2*gcd))
@@ -901,18 +903,15 @@ local function runRotation()
     ocPoolLL = (ocPool or maelstrom >= (overcharged * (40 + cast.cost.lavaLash())))
     -- OCPool_CL,value=(variable.OCPool|maelstrom>=(talent.overcharge.enabled*(40+action.crash_lightning.cost)))
     ocPoolCL = (ocPool or maelstrom >= (overcharged * (40 + cast.cost.crashLightning())))
-    -- OCPool_FB,value=(variable.OCPool|maelstrom>=(talent.overcharge.enabled*(40+action.frostbrand.cost)))
-    ocPoolFB = (ocPool or maelstrom >= (overcharged * (40 + cast.cost.frostbrand())))
     -- CLPool_LL,value=active_enemies=1|maelstrom>=(action.crash_lightning.cost+action.lava_lash.cost)
     clPoolLL = activeEnemies or maelstrom >= (cast.cost.crashLightning() + cast.cost.lavaLash())
     -- CLPool_SS,value=active_enemies=1|maelstrom>=(action.crash_lightning.cost+action.stormstrike.cost)
     clPoolSS = activeEnemies or maelstrom >= (cast.cost.crashLightning() + cast.cost.stormstrike())
     -- freezerburn_enabled,value=(talent.hot_hand.enabled&talent.hailstorm.enabled&azerite.primal_primer.enabled)
     freezerburnEnabled = (talent.hotHand and talent.hailstorm and trait.primalPrimer.active)
-    -- rockslide_enabled,value=(!variable.freezerburn_enabled&(talent.boulderfist.enabled&talent.landslide.enabled&azerite.strength_of_earth.enabled))
-    rockslideEnabled = (not freezerburnEnabled and (talent.boulderfist and talent.landslide and trait.strengthOfTheEarth.active))
 
     icyHot = freezerburnEnabled and 1 or 2
+
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -928,15 +927,15 @@ local function runRotation()
         -----------------------
         --- Extras Rotation ---
         -----------------------
-        if actionList_Extras() then return true end
+        if actionList.Extras() then return true end
         --------------------------
         --- Defensive Rotation ---
         --------------------------
-        if actionList_Defensive() then return true end
+        if actionList.Defensive() then return true end
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
-        if actionList_PreCombat() then return true end
+        if actionList.PreCombat() then return true end
         --------------------------
         --- In Combat Rotation ---
         --------------------------
@@ -944,13 +943,13 @@ local function runRotation()
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------
-            if actionList_Interrupts() then return true end
+            if actionList.Interrupts() then return true end
             ---------------------------
             --- SimulationCraft APL ---
             ---------------------------
-            if getOptionValue("APL Mode") == 1 then
+            if option.value("APL Mode") == 1 then
                 -- Feral Lunge
-                if isChecked("Feral Lunge") and hasThreat("target") then
+                if option.checked("Feral Lunge") and hasThreat("target") then
                     if cast.feralLunge("target") then return true end
                 end
                 -- Start Attack
@@ -998,7 +997,7 @@ local function runRotation()
             ----------------------
             --- AskMrRobot APL ---
             ----------------------
-            if getOptionValue("APL Mode") == 2 then
+            if option.value("APL Mode") == 2 then
 
             end
         end --End In Combat
