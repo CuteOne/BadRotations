@@ -704,7 +704,8 @@ actionList.Cooldowns = function()
             -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
             if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50)) then
-                if cast.focusedAzeriteBeam() then debug("Casting Focused Azerite Beam") return true end
+                local minCount = useCDs() and 1 or 3
+                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then debug("Casting Focused Azerite Beam") return true end
             end
             -- Essence: Purifying Blast
             -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
