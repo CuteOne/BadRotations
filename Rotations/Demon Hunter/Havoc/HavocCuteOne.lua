@@ -159,6 +159,7 @@ local cast
 local combatTime
 local cd
 local charges
+local debug
 local hastar
 local debuff
 local enemies
@@ -753,6 +754,7 @@ local function runRotation()
     charges                                       = br.player.charges
     hastar                                        = hastar or GetObjectExists("target")
     debuff                                        = br.player.debuff
+    debug                                         = br.addonDebug
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
     falling, flying, moving                       = getFallTime(), IsFlying(), GetUnitSpeed("player")>0
