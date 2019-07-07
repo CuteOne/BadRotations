@@ -212,6 +212,7 @@ local level
 local mode
 local moving
 local opener
+local option
 local php
 local power
 local powerMax
@@ -1019,6 +1020,7 @@ local function runRotation()
     mode              = br.player.mode
     moving            = GetUnitSpeed("player")>0
     opener            = br.player.opener
+    option            = br.player.option
     php               = br.player.health
     power             = br.player.power.energy.amount()
     powerMax          = br.player.power.energy.max()
