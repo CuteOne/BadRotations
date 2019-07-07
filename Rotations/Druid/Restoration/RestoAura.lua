@@ -227,6 +227,13 @@ local function createOptions()
 		br.ui:createSpinner(section, "Tranquility", 50, 0, 100, 5, "Health Percent to Cast At")
 		br.ui:createSpinnerWithout(section, "Tranquility Targets", 3, 0, 40, 1, "Minimum Tranquility Targets")
 		br.ui:checkSectionState(section)
+		 -- Essence Options
+		 section = br.ui:createSection(br.ui.window.profile, "Essence Options")
+		 --Concentrated Flame
+			 br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
+		 --Memory of Lucid Dreams
+			 br.ui:createCheckbox(section, "Lucid Dreams")
+		 br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Rebirth
@@ -377,6 +384,7 @@ local function runRotation()
 	local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
 	local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
 	local deadtar = UnitIsDeadOrGhost("target") or isDummy()
+	local essence = br.player.essence
 	local hastar = hastar or GetObjectExists("target")
 	local enemies = br.player.enemies
 	local friends = friends or {}
@@ -1014,6 +1022,10 @@ local function runRotation()
 					end
 				end
 			end
+			--  Lucid Dream
+            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcd then
+                if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
+            end
 		end -- End useCooldowns check
 	end -- End Action List - Cooldowns
 
@@ -1523,6 +1535,12 @@ local function runRotation()
 						return true
 					end
 				end
+			end
+		end
+		-- Concentrated Flame
+		if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+			if lowest.hp <= getValue("Concentrated Flame") then
+				if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
 			end
 		end
 		-- Rejuvenation
