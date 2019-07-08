@@ -1023,7 +1023,7 @@ local function runRotation()
 				end
 			end
 			--  Lucid Dream
-            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcd then
+            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcdMax then
                 if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
             end
 		end -- End useCooldowns check
