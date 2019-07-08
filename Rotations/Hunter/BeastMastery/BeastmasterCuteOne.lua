@@ -102,7 +102,7 @@ local function createOptions()
             -- Dash
             br.ui:createCheckbox(section, "Dash")
             -- Play Dead / Wake Up
-            br.ui:createSpinner(section, "Play Dead / Wave Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Play Dead / Wake Up", 25,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
             -- Prowl/Spirit Walk
             br.ui:createCheckbox(section, "Prowl / Spirit Walk")
             -- Mend Pet
@@ -404,12 +404,12 @@ actionList.PetManagement = function()
     -- Play Dead / Wake Up
     if isChecked("Play Dead / Wake Up") and not deadPet then
         if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
-            and getHP("pet") < getOptionValue("Play Dead / Wave Up")
+            and getHP("pet") < getOptionValue("Play Dead / Wake Up")
         then
             if cast.playDead() then return end
         end
         if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
-            and getHP("pet") >= getOptionValue("Play Dead / Wave Up")
+            and getHP("pet") >= getOptionValue("Play Dead / Wake Up")
         then
             if cast.wakeUp() then return end
         end
