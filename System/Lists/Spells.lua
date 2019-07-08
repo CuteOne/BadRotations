@@ -1180,8 +1180,8 @@ br.lists.spells = {
                 naturesGrace                = 264266,
                 netherShock                 = 264264,
                 sonicBlast                  = 264263,
-                soothingWater               = 254262,
-                sporeCloud                  = 254056,
+                soothingWater               = 264262,
+                sporeCloud                  = 264056,
                 survivalOfTheFittest        = 264735,
 
                 camouflage                  = 199483,
