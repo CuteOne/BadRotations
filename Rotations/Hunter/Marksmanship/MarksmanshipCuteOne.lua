@@ -116,15 +116,15 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
         -- A Murder of Crows
             br.ui:createDropdownWithout(section,"A Murder of Crows", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-        -- Barrage 
+        -- Barrage
             br.ui:createDropdownWithout(section,"Barrage", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         -- Double Tap
             br.ui:createDropdownWithout(section,"Double Tap", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-        -- Explosive Shot 
+        -- Explosive Shot
             br.ui:createDropdownWithout(section,"Explosive Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-        -- Piercing Shot 
+        -- Piercing Shot
             br.ui:createDropdownWithout(section,"Piercing Shot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
-        -- Rapid Fire 
+        -- Rapid Fire
             br.ui:createDropdownWithout(section,"Rapid Fire", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
         -- Trueshot
             br.ui:createDropdownWithout(section,"Trueshot", {"Always", "Cooldown", "Never"}, 1, "|cffFFFFFFSet when to use ability.")
@@ -327,7 +327,7 @@ local function runRotation()
                 -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
                 if ((not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive"))) and not haltProfile then
                     PetAssistMode()
-                elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then 
+                elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
                     PetDefensiveMode()
                 elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
                     PetPassiveMode()
@@ -344,7 +344,7 @@ local function runRotation()
                             if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                         end
                     end
-                elseif (not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile then --and IsPetAttackActive() then
+                elseif ((not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile) and IsPetAttackActive() then
                     PetStopAttack()
                     PetFollow()
                 end
@@ -357,9 +357,9 @@ local function runRotation()
             if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
                 if cast.catlikeReflexes("pet") then return end
             end
-            if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest() 
+            if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
                 --[[and petCombat ]]and getHP("pet") <= getOptionValue("Survival of the Fittest")
-            then 
+            then
                 if cast.survivalOfTheFittest("pet") then return end
             end
             -- Bite/Claw
@@ -425,13 +425,13 @@ local function runRotation()
             end
             -- Play Dead / Wake Up
             if isChecked("Play Dead / Wake Up") and not deadPet and petCombat then
-                if cast.able.playDead() and not buff.playDead.exists("pet") 
+                if cast.able.playDead() and not buff.playDead.exists("pet")
                     and getHP("pet") < getOptionValue("Play Dead / Wave Up")
                 then
                     if cast.playDead() then return end
                 end
-                if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists() 
-                    and getHP("pet") >= getOptionValue("Play Dead / Wave Up") 
+                if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
+                    and getHP("pet") >= getOptionValue("Play Dead / Wave Up")
                 then
                     if cast.wakeUp() then return end
                 end
@@ -595,47 +595,47 @@ local function runRotation()
             end
         -- Hunter's Mark
             -- hunters_mark,if=debuff.hunters_mark.down&!buff.trueshot.up
-            if cast.able.huntersMark() and talent.huntersMark 
-                and not debuff.huntersMark.exists(units.dyn40) and not buff.trueshot.exists() 
+            if cast.able.huntersMark() and talent.huntersMark
+                and not debuff.huntersMark.exists(units.dyn40) and not buff.trueshot.exists()
             then
                 if cast.huntersMark() then return end
             end
-        -- Double Tap 
+        -- Double Tap
             -- double_tap,if=cooldown.rapid_fire.remains<gcd|cooldown.rapid_fire.remains<cooldown.aimed_shot.remains|target.time_to_die<20
-            if opUseCD("Double Tap") and cast.able.doubleTap() and talent.doubleTap 
-                and (cd.rapidFire.remain() < gcdMax or cd.rapidFire.remain() < cd.aimedShot.remain() or (ttd(units.dyn40) < 20 and useCDs())) 
+            if opUseCD("Double Tap") and cast.able.doubleTap() and talent.doubleTap
+                and (cd.rapidFire.remain() < gcdMax or cd.rapidFire.remain() < cd.aimedShot.remain() or (ttd(units.dyn40) < 20 and useCDs()))
             then
-                if cast.doubleTap() then return end 
+                if cast.doubleTap() then return end
             end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-            if useCDs() and isChecked("Racial") then 
+            if useCDs() and isChecked("Racial") then
                 -- berserking,if=buff.trueshot.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<13
                 -- blood_fury,if=buff.trueshot.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<16
                 -- ancestral_call,if=buff.trueshot.up&(target.time_to_die>cooldown.ancestral_call.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<16
                 -- fireblood,if=buff.trueshot.up&(target.time_to_die>cooldown.fireblood.duration+duration|(target.health.pct<20|!talent.careful_aim.enabled))|target.time_to_die<9
                 if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf")
                     and buff.trueshot.exists() and not talent.carefulAim
-                then 
-                    if cast.racial() then return end 
-                end 
+                then
+                    if cast.racial() then return end
+                end
                 -- lights_judgment
                 if race == "LightforgedDraenei" then
                     if cast.racial("target","ground") then return true end
                 end
             end
         -- Heart Essence
-            if isChecked("Use Essence") then 
+            if isChecked("Use Essence") then
                 -- worldvein_resonance
                 if cast.able.worldveinResonance() then
-                    if cast.worldveinResonance() then return end 
+                    if cast.worldveinResonance() then return end
                 end
                 -- guardian_of_azeroth,if=cooldown.trueshot.remains<15
-                if cast.able.guardianOfAzeroth() and cd.trueshot.remain() < 15 then 
+                if cast.able.guardianOfAzeroth() and cd.trueshot.remain() < 15 then
                     if cast.guardianOfAzeroth() then return end
-                end 
+                end
                 -- ripple_in_space,if=cooldown.trueshot.remains<7
-                if cast.able.rippleInSpace() and cd.trueshot.remain() < 7 then 
-                    if cast.rippleInSpace() then return end 
+                if cast.able.rippleInSpace() and cd.trueshot.remain() < 7 then
+                    if cast.rippleInSpace() then return end
                 end
                 -- memory_of_lucid_dreams
                 if cast.able.memoryOfLucidDreams() then
@@ -652,7 +652,7 @@ local function runRotation()
         -- Trueshot
             -- trueshot,if=focus>60&(buff.precise_shots.down&cooldown.rapid_fire.remains&target.time_to_die>cooldown.trueshot.duration_guess+duration|target.health.pct<20|!talent.careful_aim.enabled)|target.time_to_die<15
             if opUseCD("Trueshot") and cast.able.trueshot() then
-                if power > 60 and ((not buff.preciseShots.exists() and cd.rapidFire.remain() > 0 
+                if power > 60 and ((not buff.preciseShots.exists() and cd.rapidFire.remain() > 0
                     and (ttd(units.dyn40) > 15 or getHP(units.dyn40) < 20 or not talent.carefulAim)) or (ttd(units.dyn40) < 15 and useCDs()))
                 then
                     if cast.trueshot("player") then return end
@@ -663,42 +663,42 @@ local function runRotation()
         local function actionList_TrickShots()
         -- Barrage
             -- barrage
-            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage then 
-                if cast.barrage() then return end 
-            end 
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage then
+                if cast.barrage() then return end
+            end
         -- Explosive Shot
             -- explosive_shot
             if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
-                if cast.explosiveShot() then return end 
+                if cast.explosiveShot() then return end
             end
-        -- Aimed Shot 
+        -- Aimed Shot
             -- aimed_shot,if=buff.trick_shots.up&ca_execute&buff.double_tap.up
-            if cast.able.aimedShot() and buff.trickShots.exists() and caExecute and buff.doubleTap.exists() then 
-                if cast.aimedShot() then return end 
-            end 
-        -- Rapid Fire 
+            if cast.able.aimedShot() and buff.trickShots.exists() and caExecute and buff.doubleTap.exists() then
+                if cast.aimedShot() then return end
+            end
+        -- Rapid Fire
             -- rapid_fire,if=buff.trick_shots.up&(azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1|azerite.surging_shots.enabled|talent.streamline.enabled)
-            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() 
-                and (traits.focusedFire.active or traits.inTheRhythm.rank > 1 or traits.surgingShots.active or talent.streamline) 
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists()
+                and (traits.focusedFire.active or traits.inTheRhythm.rank > 1 or traits.surgingShots.active or talent.streamline)
             then
-                if cast.rapidFire() then return end 
+                if cast.rapidFire() then return end
             end
-        -- Aimed Shot 
+        -- Aimed Shot
             -- aimed_shot,if=buff.trick_shots.up&(buff.precise_shots.down|cooldown.aimed_shot.full_recharge_time<action.aimed_shot.cast_time|buff.trueshot.up)
-            if cast.able.aimedShot() and buff.trickShots.exists() 
-                and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() or buff.trueshot.exists()) 
+            if cast.able.aimedShot() and buff.trickShots.exists()
+                and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot() or buff.trueshot.exists())
             then
-                if cast.aimedShot() then return end 
+                if cast.aimedShot() then return end
             end
-        -- Rapid Fire 
+        -- Rapid Fire
             -- rapid_fire,if=buff.trick_shots.up
-            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() then 
-                if cast.rapidFire() then return end 
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and buff.trickShots.exists() then
+                if cast.rapidFire() then return end
             end
-        -- Multishot 
+        -- Multishot
             -- multishot,if=buff.trick_shots.down|buff.precise_shots.up&!buff.trueshot.up|focus>70
-            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() and not buff.trueshot.exists() or power > 70) then 
-                if cast.multishot() then return end 
+            if cast.able.multishot() and (not buff.trickShots.exists() or buff.preciseShots.exists() and not buff.trueshot.exists() or power > 70) then
+                if cast.multishot() then return end
             end
         -- Heart Essence
             if isChecked("Use Essence") then
@@ -723,61 +723,61 @@ local function runRotation()
                     if cast.theUnboundForce() then return end
                 end
             end
-        -- Piercing Shot 
+        -- Piercing Shot
             -- piercing_shot
-            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
-                if cast.piercingShot() then return end 
-            end 
-        -- A Murder of Crows 
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then
+                if cast.piercingShot() then return end
+            end
+        -- A Murder of Crows
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
-                if cast.aMurderOfCrows() then return end 
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
+                if cast.aMurderOfCrows() then return end
             end
-        -- Serpent Sting 
+        -- Serpent Sting
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
-            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
-                if cast.serpentSting() then return end 
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then
+                if cast.serpentSting() then return end
             end
-        -- Steady Shot 
-            -- steady_shot 
-            if cast.able.steadyShot() then 
-                if cast.steadyShot() then return end 
+        -- Steady Shot
+            -- steady_shot
+            if cast.able.steadyShot() then
+                if cast.steadyShot() then return end
             end
         end -- End Action List - Trick Shots
     -- Action List - Single Target
         local function actionList_SingleTarget()
-        -- Explosive Shot 
+        -- Explosive Shot
             -- explosive_shot
             if opUseCD("Explosive Shot") and cast.able.explosiveShot() and talent.explosiveShot then
-                if cast.explosiveShot() then return end 
+                if cast.explosiveShot() then return end
             end
         -- Barrage
             -- barrage,if=active_enemies>1
-            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage 
-                and ((mode.rotation == 1 and #enemies.yards40f > 1) or (mode.rotation == 2 and #enemies.yards40f > 0)) 
-            then 
-                if cast.barrage() then return end 
-            end 
-        -- A Murder of Crows 
+            if opUseCD("Barrage") and cast.able.barrage() and talent.barrage
+                and ((mode.rotation == 1 and #enemies.yards40f > 1) or (mode.rotation == 2 and #enemies.yards40f > 0))
+            then
+                if cast.barrage() then return end
+            end
+        -- A Murder of Crows
             -- a_murder_of_crows
-            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then 
-                if cast.aMurderOfCrows() then return end 
+            if opUseCD("A Murder of Crows") and cast.able.aMurderOfCrows() and talent.aMurderOfCrows then
+                if cast.aMurderOfCrows() then return end
             end
-        -- Serpent Sting 
+        -- Serpent Sting
             -- serpent_sting,if=refreshable&!action.serpent_sting.in_flight
-            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then 
-                if cast.serpentSting() then return end 
+            if cast.able.serpentSting() and talent.serpentSting and debuff.serpentSting.refresh(units.dyn40) and not cast.last.serpentSting(units.dyn40) then
+                if cast.serpentSting() then return end
             end
-        -- Rapid Fire 
+        -- Rapid Fire
             -- rapid_fire,if=buff.trueshot.down|focus<70
-            if opUseCD("Rapid Fire") and cast.able.rapidFire() and (not buff.trueshot.exists() or power < 70) then 
-                if cast.rapidFire() then return end 
+            if opUseCD("Rapid Fire") and cast.able.rapidFire() and (not buff.trueshot.exists() or power < 70) then
+                if cast.rapidFire() then return end
             end
-        -- Arcane Shot 
+        -- Arcane Shot
             -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&!buff.memory_of_lucid_dreams.up
-            if cast.able.arcaneShot() and buff.trueshot.exists() 
+            if cast.able.arcaneShot() and buff.trueshot.exists()
                 and buff.masterMarksman.exists() and not buff.memoryOfLucidDreams.exists()
-            then 
+            then
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
@@ -785,19 +785,19 @@ local function runRotation()
             if cast.able.aimedShot() and (buff.trueshot.exists() or (not buff.doubleTap.exists() or caExecute))
                 and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot())
             then
-                if cast.aimedShot() then return end 
+                if cast.aimedShot() then return end
             end
         -- Arcane Shot
             -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&buff.memory_of_lucid_dreams.up
-            if cast.able.arcaneShot() and buff.trueshot.exists() 
+            if cast.able.arcaneShot() and buff.trueshot.exists()
                 and buff.masterMarksman.exists() and buff.memoryOfLucidDreams.exists()
-            then 
+            then
                 if cast.arcaneShot() then return end
             end
-        -- Piercing Shot 
+        -- Piercing Shot
             -- piercing_shot
-            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then 
-                if cast.piercingShot() then return end 
+            if opUseCD("Piercing Shot") and cast.able.piercingShot() and talent.piercingShot then
+                if cast.piercingShot() then return end
             end
         -- Heart Essence
             if isChecked("Use Essence") then
@@ -822,18 +822,18 @@ local function runRotation()
                     if cast.theUnboundForce() then return end
                 end
             end
-        -- Arcane Shot 
+        -- Arcane Shot
             -- arcane_shot,if=buff.trueshot.down&(buff.precise_shots.up&(focus>41|buff.master_marksman.up)|(focus>50&azerite.focused_fire.enabled|focus>75)&(cooldown.trueshot.remains>5|focus>80)|target.time_to_die<5)
-            if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists() 
-                and (power > 41 or buff.masterMarksman.exists()) or ((power > 50 and traits.focusedFire.active) or power > 75) 
+            if cast.able.arcaneShot() and not buff.trueshot.exists() and (buff.preciseShots.exists()
+                and (power > 41 or buff.masterMarksman.exists()) or ((power > 50 and traits.focusedFire.active) or power > 75)
                 and (cd.trueshot.remain() > 5 or power > 80) or (ttd(units.dyn40) < 5 and useCDs()))
             then
-                if cast.arcaneShot() then return end 
-            end 
-        -- Steady Shot 
+                if cast.arcaneShot() then return end
+            end
+        -- Steady Shot
             -- steady_shot
-            if cast.able.steadyShot() then 
-                if cast.steadyShot() then return end 
+            if cast.able.steadyShot() then
+                if cast.steadyShot() then return end
             end
         end -- End Action List - Single Target
     -- Action List - Pre-Combat
@@ -862,16 +862,16 @@ local function runRotation()
                 if actionList_PetManagement() then return end
                 if isValidUnit("target") and getDistance("target") < 40 then
             -- Hunter's Mark
-                    -- hunters_mark 
-                    if cast.able.huntersMark() then 
-                        if cast.huntersMark() then return end 
+                    -- hunters_mark
+                    if cast.able.huntersMark() then
+                        if cast.huntersMark() then return end
                     end
-            -- Double Tap 
+            -- Double Tap
                     -- double_tap,precast_time=10
-                    if cast.able.doubleTap() and pullTimer <= 10 then 
+                    if cast.able.doubleTap() and pullTimer <= 10 then
                         if cast.doubleTap() then return end
                     end
-            -- Trueshot 
+            -- Trueshot
                     -- trueshot,precast_time=1.5,if=active_enemies>2
             -- Aimed Shot
                     -- aimed_shot,if=active_enemies<3
