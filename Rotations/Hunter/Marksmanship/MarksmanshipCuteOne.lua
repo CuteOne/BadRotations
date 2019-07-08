@@ -424,8 +424,8 @@ local function runRotation()
                 end
             end
             -- Play Dead / Wake Up
-            if isChecked("Play Dead / Wake Up") and not deadPet and petCombat then
-                if cast.able.playDead() and not buff.playDead.exists("pet")
+            if isChecked("Play Dead / Wake Up") and not deadPet then
+                if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
                     and getHP("pet") < getOptionValue("Play Dead / Wave Up")
                 then
                     if cast.playDead() then return end
