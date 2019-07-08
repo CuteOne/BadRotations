@@ -1538,7 +1538,7 @@ local function runRotation()
 			end
 		end
 		-- Concentrated Flame
-		if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+		if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcdMax then
 			if lowest.hp <= getValue("Concentrated Flame") then
 				if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
 			end
