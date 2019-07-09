@@ -224,6 +224,10 @@ local function runRotation()
         if talent.runeOfPower then powerRune = true else runeOfPower = false end
 
         if fballLast == nil or not UnitAffectingCombat("player") then fballLast = false end
+        if fblastLast == nil or not UnitAffectingCombat("player") then fblastLast = false end
+        if pyroLast == nil or not UnitAffectingCombat("player") then pyroLast = false end
+        if scorchLast == nil or not UnitAffectingCombat("player") then scorchLast = false end
+        if teorLast == nil or not UnitAffectingCombat("player") then teorLast = false end
 
         --if #enemies.yards40 == 1 then singleEnemy = 1 else singleEnemy = 0 end
         
@@ -284,6 +288,10 @@ local function runRotation()
 
         --variable,name=fire_blast_pooling,value=talent.rune_of_power.enabled&cooldown.rune_of_power.remains<cooldown.fire_blast.full_recharge_time&(cooldown.combustion.remains>variable.combustion_rop_cutoff|firestarter.active)&(cooldown.rune_of_power.remains<target.time_to_die|action.rune_of_power.charges>0)|cooldown.combustion.remains<action.fire_blast.full_recharge_time+cooldown.fire_blast.duration*azerite.blaster_master.enabled&!firestarter.active&cooldown.combustion.remains<target.time_to_die|talent.firestarter.enabled&firestarter.active&firestarter.remains<cooldown.fire_blast.full_recharge_time+cooldown.fire_blast.duration*azerite.blaster_master.enabled
         local fireBlastPool = talent.runeOfPower and cd.runeOfPower.remain() < charges.fireBlast.timeTillFull() and (cd.combustion.remain() > combustionROPcutoff or firestarterActive) and (cd.runeOfPower.remain() < ttd("target") or charges.runeOfPower.count() > 0) or cd.combustion.remain() < bMasterFBCD and (not firestarterActive and cd.combustion.remain() < ttd("target")) or talent.firestarter and firestarterActive and firestarterremain < bMasterFBCD --then
+
+        if timersTable then
+            wipe(timersTable)
+        end
 
         --Clear last cast table ooc to avoid strange casts
         if not inCombat and #br.lastCast.tracker > 0 then
@@ -439,7 +447,7 @@ local function runRotation()
             -- Fireball Opener
                     if isChecked("Pull OoC") --[[and isChecked("No Crit-Opener")]] and isValidUnit("target") then
                         if not moving and not buff.hotStreak.exists() then
-                            if cast.fireball() then fballLast = true 
+                            if cast.fireball() then --fballLast = true 
                                 --Print("opener fball")
                                 return true end
                         elseif moving then
@@ -461,8 +469,8 @@ local function runRotation()
             -- meteor,if=buff.rune_of_power.up&(firestarter.remains>cooldown.meteor.duration|!firestarter.active)|cooldown.rune_of_power.remains>target.time_to_die&action.rune_of_power.charges<1|(cooldown.meteor.duration<cooldown.combustion.remains|cooldown.combustion.ready)&!talent.rune_of_power.enabled&(cooldown.meteor.duration<firestarter.remains|!talent.firestarter.enabled|!firestarter.active)
             if useCDs() and not firestarterActive and not tmoving then
                 if buff.runeOfPower.exists() and (firestarterremain > cdMeteorDuration or not firestarterActive) or cd.runeOfPower.remain() > ttd("target") and charges.runeOfPower.count() < 1 or (cd.combustion.remain() > cdMeteorDuration or cd.combustion.remain() == 0) and not talent.runeOfPower and (firestarterremain > cdMeteorDuration or not firestarterActive) then
-                    if cast.meteor("target",nil,1,8,spell.meteor) then
-                    --if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) then
+                    --if cast.meteor("target",nil,1,8,spell.meteor) then
+                    if createCastFunction("best", false, 1, 8, spell.meteor, nil, false, 0) then
                         --Print("Talents Meteor")
                         --mFlight = GetTime()
                         return true end
@@ -519,7 +527,7 @@ local function runRotation()
         -- Pyroblast
             -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up
             if cast.last.scorch() and buff.hotStreak.exists() then
-                if cast.pyroblast("target") then 
+                if cast.pyroblast("target") then --pyroLast = true
                     --Print("BfA BM Co Pyro1") 
                     return true 
                 end
@@ -528,7 +536,7 @@ local function runRotation()
             -- pyroblast,if=buff.pyroclasm.react&cast_time<buff.combustion.remains 
             -- pyroblast,if=buff.hot_streak.up
             if (buff.pyroclasm.exists() and cast.time.pyroblast() < buff.combustion.remain()) or buff.hotStreak.exists() then
-                if cast.pyroblast("target") then 
+                if cast.pyroblast("target") then --pyroLast = true
                     --Print("BfA BM Co Pyro2")
                    return
                 end
@@ -536,7 +544,7 @@ local function runRotation()
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.up
             if buff.hotStreak.exists() then
-                if cast.pyroblast("target") then 
+                if cast.pyroblast("target") then --pyroLast = true
                     --Print("BfA BM Co Pyro3")
                    return
                 end
@@ -565,7 +573,7 @@ local function runRotation()
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
             if buff.combustion.remain() > cast.time.scorch() and buff.combustion.exists() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 110 then
-                if cast.scorch("target") then 
+                if cast.scorch("target") then --scorchLast = true
                     --Print("BfA BM Co scor1") 
                     return true 
                 end
@@ -603,7 +611,7 @@ local function runRotation()
         -- Scorch
             -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled
             if getHP("target") <= 30 and talent.searingTouch then
-                if cast.scorch("target") then 
+                if cast.scorch("target") then --scorchLast = true
                     --Print("BfA BM Co scor2") 
                     return 
                 end
@@ -618,7 +626,9 @@ local function runRotation()
             end
         --Lucid Dreams
             --memory_of_lucid_dreams
-            if lucisDreams and cast.able.memoryOfLucidDreams() then 
+            if lucisDreams and cast.able.memoryOfLucidDreams() and (talent.runeOfPower and buff.runeOfPower.exists()) then 
+                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+            elseif lucisDreams and cast.able.memoryOfLucidDreams() and not talent.runeOfPower then 
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             end
         -- Rune of Power
@@ -628,18 +638,18 @@ local function runRotation()
             end
         -- Call Action List - Active Talents
             -- call_action_list,name=active_talents,if=(azerite.blaster_master.enabled&buff.blaster_master.stack>=3)|!azerite.blaster_master.enabled
-            if (traits.blasterMaster.active and buff.blasterMaster.stack() >= 3) or not traits.blasterMaster.active then
-                if actionList_ActiveTalents() then
+            if (traits.blasterMaster.active and buff.blasterMaster.stack() >= 1) or not traits.blasterMaster.active then
+                if actionList_ActiveTalents() then teorLast = true
                     --Print("BfA Comb Talents")
                     return
                 end
             end
-            if cast.inFlight.meteor() and buff.heatingUp.exists() then
+            if teorLast and cast.inFlight.meteor() and buff.heatingUp.exists() then
                 if cast.fireBlast("target") then 
                     --Print("BfA Co fblasteor") 
                    return true
                 end
-            elseif cast.inFlight.meteor() and buff.hotStreak.exists() then
+            elseif teorLast and cast.inFlight.meteor() and buff.hotStreak.exists() then
                 if cast.pyroblast("target") then 
                     --Print("BfA Co Pyroteor")
                    return
@@ -690,9 +700,9 @@ local function runRotation()
             end
         -- Fire Blast
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=essence.memory_of_lucid_dreams.enabled&((buff.combustion.up&(buff.heating_up.react&!action.pyroblast.in_flight&!action.scorch.executing)|
-            --(action.scorch.execute_remains&buff.heating_up.down&buff.hot_streak.down&!action.pyroblast.in_flight)))
-            if lucisDreams and (buff.combustion.exists() and (buff.heatingUp.exists() and not cast.inFlight.pyroblast() and not cast.current.scorch()
-            or cast.current.scorch() and not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.inFlight.pyroblast())) then
+            -- (action.scorch.execute_remains&buff.heating_up.down&buff.hot_streak.down&!action.pyroblast.in_flight)))
+            if lucisDreams and ((buff.combustion.exists() and (buff.heatingUp.exists() and not cast.inFlight.pyroblast() and not cast.current.scorch())
+            or (cast.current.scorch() and not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.inFlight.pyroblast()))) then
                 if cast.fireBlast("target") then 
                     --Print("BfA Co fblast1") 
                    return true
@@ -705,9 +715,9 @@ local function runRotation()
             end
         -- Fire Blast
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=!essence.memory_of_lucid_dreams.enabled&(!azerite.blaster_master.enabled|!talent.flame_on.enabled)&((buff.combustion.up&(buff.heating_up.react&!action.pyroblast.in_flight&!action.scorch.executing)|
-            --(action.scorch.execute_remains&buff.heating_up.down&buff.hot_streak.down&!action.pyroblast.in_flight)))
-            if not lucisDreams and (not traits.blasterMaster.active or not talent.flameOn) and (buff.combustion.exists() and (buff.heatingUp.exists() and not cast.inFlight.pyroblast() and not cast.current.scorch() 
-            or cast.active.scorch() and not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.inFlight.pyroblast())) then
+            -- (action.scorch.execute_remains&buff.heating_up.down&buff.hot_streak.down&!action.pyroblast.in_flight)))
+            if not lucisDreams and (not traits.blasterMaster.active or not talent.flameOn) and ((buff.combustion.exists() and (buff.heatingUp.exists() and not cast.inFlight.pyroblast() and not cast.current.scorch()) 
+            or (cast.active.scorch() and not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.inFlight.pyroblast()))) then
                 if cast.fireBlast("target") then 
                     --Print("BfA Co fblast2") 
                    return true
@@ -715,11 +725,16 @@ local function runRotation()
             end
         -- Pyroblast
             -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up
-            if cast.last.scorch() and buff.hotStreak.exists() then
+            if cast.last.scorch(2) and buff.heatingUp.exists() then --and talent.searingTouch and thp < 30 then
                 if cast.pyroblast("target") then 
                     --Print("BfA Co Pyro3") 
                     return true 
                 end
+            -- elseif cast.last.scorch(2) and buff.hotStreak.exists() then
+            --     if cast.pyroblast("target") then 
+            --         Print("BfA Co Pyro3.5") 
+            --         return true 
+            --     end
             end
         -- Phoenix's Flames
             -- phoenixs_flames
@@ -729,14 +744,14 @@ local function runRotation()
         -- Scorch
             -- scorch,if=buff.combustion.remains>cast_time&&buff.combustion.up|buff.combustion.down
             if lucisDreams then
-                if not buff.memoryOfLucidDreams.exists() and (not buff.hotStreak.exists() or not buff.heatingUp.exists()) and cast.time.scorch() > buff.memoryOfLucidDreams.remain() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 0 then --and not buff.heatingUp.exists() then
-                    if cast.scorch("target") then 
+                if not buff.memoryOfLucidDreams.exists() and not buff.heatingUp.exists() and not buff.hotStreak.exists() and cast.time.scorch() > buff.memoryOfLucidDreams.remain() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() > gcd then --and not buff.heatingUp.exists() then
+                    if cast.scorch("target") then --scorchLast = true
                         --Print("BfA Co Lu scor1") 
                         return true 
                     end
                 end
             elseif not lucisDreams then
-                if buff.combustion.exists() and buff.combustion.remain() > cast.time.scorch() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() ~= 110 then --and not buff.heatingUp.exists() then
+                if buff.combustion.exists() and buff.combustion.remain() > cast.time.scorch() or --[[not buff.combustion.exists() and--]] cd.combustion.remain() > gcd then --and not buff.heatingUp.exists() then
                     if cast.scorch("target") then 
                         --Print("BfA Co scor1") 
                         return true 
@@ -744,7 +759,7 @@ local function runRotation()
                 end
             end
         -- Living Bomb
-            -- living_bomb,if=active_enemies>1&buff.combustion.down
+            -- living_bomb,if=buff.combustion.remains<gcd.max&active_enemies>1
            --  if ((#enemies.yards10t >= 1 and mode.rotation == 1) or mode.rotation == 2) and not buff.combustion.exists() then
             if (buff.combustion.remain() < gcdMax) and ((#enemies.yards6t >= 1 and mode.rotation == 1) or mode.rotation == 2) then
                 if cast.livingBomb("target") then return end
@@ -768,7 +783,7 @@ local function runRotation()
         -- Scorch
             -- scorch,if=target.health.pct<=25&equipped.132454
             if getHP("target") <= 25 and talent.searingTouch then
-                if cast.scorch("target") then 
+                if cast.scorch("target") then --scorchLast = true
                     --Print("BfA Co scor2") 
                     return 
                 end
@@ -803,10 +818,10 @@ local function runRotation()
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&(!buff.heating_up.react&!buff.hot_streak.react&!prev_off_gcd.fire_blast&
             -- (action.fire_blast.charges>=2|(action.phoenix_flames.charges>=1&talent.phoenix_flames.enabled)|(talent.alexstraszas_fury.enabled&cooldown.dragons_breath.ready)|(talent.searing_touch.enabled&target.health.pct<=30)|
             -- (talent.firestarter.enabled&firestarter.active)))
-            if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (not buff.heatingUp.exists() and not buff.hotStreak.exists() and not cast.last.fireBlast() and
+            if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (not buff.heatingUp.exists() and not buff.hotStreak.exists() and not fblastLast and
             (charges.fireBlast.count() >= 2 or (talent.phoenixsFlames and charges.phoenixsFlames.count() >= 1) or (talent.alexstraszasFury and cd.dragonsBreath.exists()) or
             (talent.searingTouch and thp <= 30) or (talent.firestarter and firestarterActive))) then
-               if cast.fireBlast("target") then 
+               if cast.fireBlast("target") then --fblastLast = true
                     --Print("BfA RoP fBlast") 
                     return true 
                 end
@@ -816,7 +831,7 @@ local function runRotation()
             if actionList_ActiveTalents() then return end
         -- Pyroblast
             -- pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains&buff.rune_of_power.remains>cast_time
-            if buff.pyroclasm.exists() and cast.time.pyroblast() < buff.pyroclasm.remain() and buff.runeOfPower.remain() > cast.time.runeOfPower() then
+            if talent.pyroclasm and buff.pyroclasm.exists() and cast.time.pyroblast() < buff.pyroclasm.remain() and buff.runeOfPower.remain() > cast.time.runeOfPower() then
                 if cast.pyroblast("target") then 
                     --Print("BfA RoP Pyro2") 
                     return true 
@@ -825,7 +840,7 @@ local function runRotation()
         -- Fire Blast
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&(buff.heating_up.react&(target.health.pct>=30|!talent.searing_touch.enabled)) 
             if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (buff.heatingUp.exists() and (thp >= 30 or not talent.searingTouch)) then
-                if cast.fireBlast("target") then 
+                if cast.fireBlast("target") then --fblastLast = true
                     --Print("BfA RoP fBlast") 
                     return true 
                 end
@@ -834,14 +849,14 @@ local function runRotation()
             -- fire_blast,use_off_gcd=1,use_while_casting=1,if=(cooldown.combustion.remains>0|firestarter.active&buff.rune_of_power.up)&talent.searing_touch.enabled&target.health.pct<=30&
             -- (buff.heating_up.react&!action.scorch.executing|!buff.heating_up.react&!buff.hot_streak.react)
             if (cd.combustion.remain() >= 0 or firestarterActive and buff.runeOfPower.exists()) and (talent.searingTouch and thp <= 30) and (buff.heatingUp.exists() and not cast.current.scorch() or not buff.heatingUp.exists() and not buff.hotStreak.exists()) then
-                if cast.fireBlast("target") then 
+                if cast.fireBlast("target") then --fblastLast = true
                     --Print("BfA RoP fBlast") 
                     return true 
                 end
             end
         -- Pyroblast
             -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&talent.searing_touch.enabled&target.health.pct<=30&(!talent.flame_patch.enabled|active_enemies=1)
-            if cast.last.scorch() and buff.heatingUp.exists() and talent.searingTouch and thp <= 30 and (not talent.flamePatch and fSEnemies == 1) then
+            if cast.last.scorch(2) and buff.heatingUp.exists() and talent.searingTouch and thp <= 30 and (not talent.flamePatch and fSEnemies == 1) then
                 if cast.pyroblast("target") then 
                     --Print("BfA RoP Pyro3") 
                     return true 
@@ -855,7 +870,7 @@ local function runRotation()
         -- Scorch
             -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled
             if thp <= 30 and talent.searingTouch then
-                if cast.scorch("target") then 
+                if cast.scorch("target") then --scorchLast = true
                     --Print("BfA RoP scor1") 
                     return 
                 end
@@ -878,18 +893,18 @@ local function runRotation()
             end
         -- Fireball
             -- fireball
-            if cast.fireball("target") then fballLast = true
+            if cast.fireball("target") then --fballLast = true
                 --Print("BfA RoP FB")
                 return 
             end
         -- Make sure hotStreak proccs are being consumed!
-            if cast.current.fireball() and buff.hotStreak.exists() or buff.combustion.exists() then
-                --if br.timer:useTimer("delaystop", getCastTime(spell.fireball)-1.3) then
-                    SpellStopCasting()
-                    fballLast = true
-                    --Print("stop for Pyro")
-                return true end
-            --end
+            -- if cast.current.fireball() and buff.hotStreak.exists() or buff.combustion.exists() then
+            --     --if br.timer:useTimer("delaystop", getCastTime(spell.fireball)-1.3) then
+            --         SpellStopCasting()
+            --         fballLast = true
+            --         --Print("stop for Pyro")
+            --     return true end
+            -- --end
         end -- End ROP Phase Action List
     -- Action List - Standard Rotation
         local function actionList_Standard()
@@ -919,10 +934,9 @@ local function runRotation()
                 end
             end
         -- Pyroblast
-            -- pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
-            if buff.hotStreak.exists() and (fballLast or --[[cast.last.fireBlast() or ]]firestarterActive or cast.inFlight.pyroblast()) then -- or lastSpell == spell.pyroblast) then --or lastSpell == spell.pyroblast) then
+        -- pyroblast,if=buff.hot_streak.react&(prev_gcd.1.fireball|firestarter.active|action.pyroblast.in_flight)
+            if buff.hotStreak.exists() and (cast.last.fireball(1) or cast.last.fireBlast() or firestarterActive or cast.inFlight.pyroblast()) and thp > 30 then -- or lastSpell == spell.pyroblast) then --or lastSpell == spell.pyroblast) then
                 if cast.pyroblast("target") then 
-                    --MyOtherAddon_Print("MyOtherAddon", MyOtherAddon)
                     --Print("BfA ST Pyro2") 
                     return --true 
                 end
@@ -930,7 +944,7 @@ local function runRotation()
         -- Pyroblast
             -- pyroblast,if=buff.hot_streak.react&target.health.pct<=30&talent.searing_touch.enabled
             -- pyroblast,if=buff.pyroclasm.react&cast_time<buff.pyroclasm.remains
-            if buff.hotStreak.exists() and thp <= 30 and talent.searingTouch then
+            if buff.hotStreak.exists() and thp <= 30 and talent.searingTouch and not buff.heatingUp.exists() then
                 if cast.pyroblast("target") then 
                     --Print("BfA ST Pyro3") 
                     return 
@@ -966,11 +980,16 @@ local function runRotation()
             end
         -- PyroBlast
             --pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up&talent.searing_touch.enabled&target.health.pct<=30&((talent.flame_patch.enabled&active_enemies=1&!firestarter.active)|(active_enemies<4&!talent.flame_patch.enabled))
-            if cast.last.scorch() and buff.hotStreak.exists() and (talent.searingTouch and thp <= 30) and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
-                if cast.pyroblast("target") then 
+            if cast.last.scorch(2) and buff.heatingUp.exists() and (talent.searingTouch and thp < 30) and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
+                if cast.pyroblast("target") then
                     --Print("BfA ST Pyro5") 
                     return 
                 end
+            -- elseif cast.last.scorch() and buff.hotStreak.exists() and ((talent.flamePatch and fSEnemies == 1 and not firestarterActive) or (fSEnemies < getOptionValue("Flamestrike Targets") and not talent.flamePatch)) then
+            --     if cast.pyroblast("target") then
+            --         Print("BfA ST Pyro5.5") 
+            --         return 
+            --     end
             end
         -- Phoenix's Flames
             --phoenix_flames,if=(buff.heating_up.react|(!buff.hot_streak.react&(action.fire_blast.charges>0|talent.searing_touch.enabled&target.health.pct<=30)))&!variable.phoenix_pooling
@@ -999,26 +1018,27 @@ local function runRotation()
         -- Scorch
             -- scorch,if=target.health.pct<=30&talent.searing_touch.enabled
             if thp <= 30 and talent.searingTouch then
-                if cast.scorch("target") then 
+                if cast.scorch("target") then
                     --Print("BfA ST Scor") 
                     return 
                 end
             end
         -- Fireball
             -- fireball
-            if not buff.combustion.exists() and not cast.current.fireball() then -- --[[and not buff.heatingUp.exists()--]] and not buff.hotStreak.exists() then --]]
-                if cast.fireball("target") then fballLast = true
+            if not buff.combustion.exists() and not cast.current.fireball() then ----[[and not buff.heatingUp.exists()--]] and not buff.hotStreak.exists() then --]]
+                if cast.fireball("target") then
                     --Print("BfA ST fBall")
                 return end
             end
-        -- Make sure hotStreak proccs are being consumed!
-            if cast.current.fireball() and buff.hotStreak.exists() or buff.combustion.exists() then
-                --if br.timer:useTimer("delaystop", getCastTime(spell.fireball)-1.3) then
-                    SpellStopCasting()
-                    fballLast = true
-                    --Print("stop for Pyro")
-                return true end
-            --end
+            --if cast.last.fireball() then print(GetTime() .. " fireball") end
+            -- Make sure hotStreak proccs are being consumed!
+            -- if cast.current.fireball() and buff.hotStreak.exists() or buff.combustion.exists() then
+            --     if br.timer:useTimer("delaystop", getCastTime(spell.fireball)*gcdMax) then
+            --         SpellStopCasting()
+            --         fballLast = true
+            --         --Print("stop for Pyro")
+            --     return true end
+            -- end
         -- Scorch
             if moving then
                 if cast.scorch() then
@@ -1033,9 +1053,9 @@ local function runRotation()
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
         elseif (inCombat and profileStop==true) or IsMounted() or pause(true) or mode.rotation==4 then
-            --if buff.heatingUp.exists() then
+            if buff.heatingUp.exists() then
                 if cast.fireBlast("target") then return end
-            --end
+            end
             return true
         else
 -----------------------
@@ -1062,7 +1082,7 @@ local function runRotation()
     --- SimC BfA APL ---
     ----------------------
                 if getOptionValue("APL Mode") == 1 then --Print("BfA ST Fblast") 
-                    --Print(cdMeteorDuration)
+                    --Print(gcd)
         -- Mirror Image
                     -- mirror_image,if=buff.combustion.down
                     if useCDs() and isChecked("Mirror Image") and not buff.combustion.exists() then

@@ -359,6 +359,11 @@ local function runRotation()
     local vt_mis_trait_ranks_check = (1 - 0.07 * traits.deathThroes.rank - 0.03 * traits.thoughtHarvester.rank - 0.055 * traits.spitefulApparitions.rank) * (1 - 0.27 * traits.thoughtHarvester.rank * traits.searingDialogue.rank)
     local vt_mis_sd_check = 1 - 0.014 * traits.searingDialogue.rank
 
+    --Clear last cast table ooc to avoid strange casts
+    if not inCombat and #br.lastCast.tracker > 0 then
+        wipe(br.lastCast.tracker)
+    end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -788,7 +793,7 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and useCDs() then 
+        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
             if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
@@ -1088,7 +1093,7 @@ local function runRotation()
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and useCDs() then 
+        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
             if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
                 if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
             elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
