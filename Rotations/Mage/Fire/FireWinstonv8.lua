@@ -727,7 +727,7 @@ local function runRotation()
             -- pyroblast,if=prev_gcd.1.scorch&buff.heating_up.up
             if cast.last.scorch(2) and buff.heatingUp.exists() then --and talent.searingTouch and thp < 30 then
                 if cast.pyroblast("target") then 
-                    Print("BfA Co Pyro3") 
+                    --Print("BfA Co Pyro3") 
                     return true 
                 end
             -- elseif cast.last.scorch(2) and buff.hotStreak.exists() then
