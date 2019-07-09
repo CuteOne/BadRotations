@@ -149,6 +149,7 @@ local function createOptions()
     -- Blinding Light
     br.ui:createCheckbox(section, "Blinding Light")
     br.ui:createCheckbox(section, "Repentance as Interrupt")
+    br.ui:createCheckbox(section, "organic grenade as int")
 
     -- Interrupt Percentage
     br.ui:createSpinner(section, "InterruptAt", 95, 0, 95, 5, "", "|cffFFBB00Cast Percentage to use at.")
@@ -943,6 +944,20 @@ local function runRotation()
         end
       end
     end
+    if isChecked("organic grenade as int") and useInterrupts() and hasItem(153487) and canUseItem(153487) then
+      for i = 1, #enemies.yards30 do
+        thisUnit = enemies.yards30[i]
+        if canInterrupt(thisUnit, 99) and getCastTimeRemain(thisUnit) > 1.5 and StunsBlackList[GetObjectID(thisUnit)] == nil and not isBoss(thisUnit)
+                and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(258150) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(252923)
+        then
+          local currentX, currentY, currentZ = GetObjectPosition(thisUnit)
+          useItem(153487)
+          ClickPosition(currentX, currentY, currentZ)
+          return true
+        end
+      end
+    end
+
   end
   ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   -- Beacon ---------- Beacon ---------- Beacon ---l------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ---------- Beacon ------
@@ -1052,7 +1067,7 @@ local function runRotation()
       end
 
       if getOptionValue("Ever Rising Tide") == 2 then
-        if (buff.avengingWrath.exists("player") and not mode.DPS == 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
+        if (buff.avengingWrath.exists() and mode.DPS ~= 3) or buff.avengingCrusader.exists() or buff.holyAvenger.exists() or buff.auraMastery.exists() or burst == true then
           if cast.overchargeMana() then
             return
           end
