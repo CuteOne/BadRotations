@@ -44,6 +44,40 @@ function br.loader.loadProfiles()
     end
 end
 
+function loadSupport(thisFile) -- Loads support rotation file from Class Folder
+    if thisFile == nil then return end
+    local class = select(2,UnitClass('player'))
+
+    local function getFolderClassName(class)
+        local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
+        if formatClass == "Deathknight" then formatClass = "Death Knight" end
+        if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+
+        return formatClass
+    end
+
+    local function rotationsDirectory()
+        return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
+    end
+
+    local function profiles(class)
+        return GetDirectoryFiles(rotationsDirectory() .. class .. '\\Support\\' .. thisFile .. '.lua')
+    end
+
+    -- Search each Profile in the Spec Folder
+    if br.rotations.support == nil then br.rotations.support = {} end
+    wipe(br.rotations.support)
+    local folderClass = getFolderClassName(class)
+    local profile = ReadFile(rotationsDirectory()..folderClass..'\\Support\\'..thisFile..'.lua')
+    local loadProfile = loadstring(profile,thisFile..".lua")
+    if loadProfile == nil then
+        Print("|cffff0000Failed to Load - |r"..tostring(thisFile).."|cffff0000, contact dev.");
+    else
+        Print("Loaded Support Rotation: "..thisFile)
+        loadProfile()
+    end
+end
+
 function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
@@ -58,7 +92,7 @@ function br.loader:new(spec,specName)
     self.profile = specName
 
     -- Mandatory !
-    self.rotation = br.rotations[spec][br.selectedProfile]    
+    self.rotation = br.rotations[spec][br.selectedProfile]
 
     -- Spells From Spell Table
     local function getSpellsForSpec(spec)
