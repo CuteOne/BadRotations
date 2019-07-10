@@ -43,5 +43,6 @@ br.lists.los = {
 	[138530] = true, -- Volatile Droplet (Uldir - Taloc's fight)
     [133392] = true, -- Sethraliss
 	[146256] = true, -- Laminaria
-	[150773] = true, -- Radiance of Azshara
+	[150773] = true, -- Blackwater Behemoth Mob
+	[152364] = true, -- Radiance of Azshara
 }
