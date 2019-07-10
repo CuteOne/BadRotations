@@ -1257,7 +1257,7 @@ local function runRotation()
         -----------------------------
         --- In Combat - Rotations ---
         -----------------------------
-        if inCombat and isValidUnit("target") and opener.complete and cd.global.remain() == 0 then
+        if inCombat and isValidUnit("target") and opener.complete and cd.global.remain() == 0 and not cast.current.focusedAzeriteBeam() then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------

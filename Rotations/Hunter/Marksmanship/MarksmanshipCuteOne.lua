@@ -743,7 +743,9 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop == false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not cast.current.barrage() then
+            if inCombat and profileStop == false and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40
+                and not cast.current.barrage() and not cast.current.focusedAzeriteBeam()
+            then
     ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
