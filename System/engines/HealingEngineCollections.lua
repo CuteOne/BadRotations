@@ -159,6 +159,8 @@ novaEngineTables.BadDebuffList= {
 	[284733] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[282738] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
+	-- The Eternal Palace
+	[292127] = "Darkest Depths", -- (Blackwater Behemoth)
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
