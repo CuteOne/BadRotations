@@ -73,13 +73,13 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Essences")
             -- Blood of the Enemy
             br.ui:createCheckbox(section,"Blood of the Enemy")
-            -- Concentrated Flame 
+            -- Concentrated Flame
             br.ui:createCheckbox(section,"Concentrated Flame")
             -- Focused Azerite Beam
             br.ui:createCheckbox(section,"Focused Azerite Beam")
             -- Guardian of Azeroth
             br.ui:createCheckbox(section,"Guardian of Azeroth")
-            -- Memory of Lucid Dreams 
+            -- Memory of Lucid Dreams
             br.ui:createCheckbox(section,"Memory of Lucid Dreams")
             -- Purifying Blast
             br.ui:createCheckbox(section,"Purifying Blast")
@@ -146,7 +146,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Lay on Hands Target", {"|cffFFFFFFPlayer","|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFHealer/Damage", "|cffFFFFFFAny"}, 8, "|cffFFFFFFTarget for Lay On Hands")
             -- Redemption
             br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|cffFFFFFFTarget to Cast On")
-            -- Word of Glory 
+            -- Word of Glory
             br.ui:createSpinner(section, "Word of Glory", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
             -- Auto-Heal
             br.ui:createDropdownWithout(section, "Auto Heal", { "|cffFFDD11LowestHP", "|cffFFDD11Player"},  1,  "|cffFFFFFFSelect Target to Auto-Heal")
@@ -315,9 +315,9 @@ local function runRotation()
                     local otherCounter = 0
                     if thisHP < optionValue then
                         -- Emergency Single
-                        if thisHP < 25 then 
-                            thisGlory = thisUnit 
-                            return true 
+                        if thisHP < 25 then
+                            thisGlory = thisUnit
+                            return true
                         end
                         -- Group Heal
                         if otherCounter < 2 then
@@ -349,8 +349,8 @@ local function runRotation()
                 if cast.blessingOfFreedom() then return end
             end
         -- Hand of Hinderance
-            if isChecked("Hand of Hinderance") and cast.able.handOfHinderance("target") and isMoving("target") 
-                and not getFacing("target","player") and getDistance("target") > 8 and getHP("target") < 25 
+            if isChecked("Hand of Hinderance") and cast.able.handOfHinderance("target") and isMoving("target")
+                and not getFacing("target","player") and getDistance("target") > 8 and getHP("target") < 25
             then
                 if cast.handOfHinderance("target") then return end
             end
@@ -365,14 +365,14 @@ local function runRotation()
             --     end
             -- end
         -- Greater Blessing of Kings
-            if isChecked("Greater Blessing of Kings") and cast.able.greaterBlessingOfKings(kingsUnit) 
-                and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not IsMounted() 
+            if isChecked("Greater Blessing of Kings") and cast.able.greaterBlessingOfKings(kingsUnit)
+                and buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and not IsMounted()
             then
                 if cast.greaterBlessingOfKings(kingsUnit) then return end
             end
         -- Greater Blessing of Wisdom
-            if isChecked("Greater Blessing of Wisdom") and cast.able.greaterBlessingOfWisdom(wisdomUnit) 
-                and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not IsMounted() 
+            if isChecked("Greater Blessing of Wisdom") and cast.able.greaterBlessingOfWisdom(wisdomUnit)
+                and buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and not IsMounted()
             then
                 if cast.greaterBlessingOfWisdom(wisdomUnit) then return end
             end
@@ -460,7 +460,7 @@ local function runRotation()
                     end
                 end
             -- Blinding Light
-                if cast.able.blindingLight() then 
+                if cast.able.blindingLight() then
                     if isChecked("Blinding Light - HP") and php <= getOptionValue("Blinding Light - HP") and inCombat and #enemies.yards10 > 0 then
                         if cast.blindingLight() then return end
                     end
@@ -493,7 +493,7 @@ local function runRotation()
                     end
                 end
             -- Hammer of Justice
-                if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and inCombat then 
+                if isChecked("Hammer of Justice - HP") and cast.able.hammerOfJustice() and inCombat then
                     if php <= getOptionValue("Hammer of Justice - HP") then
                         if cast.hammerOfJustice() then return end
                     end
@@ -510,9 +510,9 @@ local function runRotation()
                         if cast.redemption("mouseover","dead") then return end
                     end
                 end
-            -- Word of Glory 
+            -- Word of Glory
                 if isChecked("Word of Glory") and talent.wordOfGlory and cast.able.wordOfGlory() and canGlory() then
-                    if cast.wordOfGlory(thisGlory) then return end 
+                    if cast.wordOfGlory(thisGlory) then return end
                 end
             -- Flash of Light
                 if isChecked("Flash of Light") and cast.able.flashOfLight() and not (IsMounted() or IsFlying())
@@ -584,73 +584,72 @@ local function runRotation()
                     -- lights_judgment,if=spell_targets.lights_judgment>=2|(!raid_event.adds.exists|raid_event.adds.in>75)
                     if race == "LightforgedDraenei" and ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                         if cast.racial() then return end
-                    end                
+                    end
                     -- fireblood,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-                    if race == "DarkIronDwarf" and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10) 
+                    if race == "DarkIronDwarf" and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)
                         or (talent.crusade and not isChecked("Crusade")))
-                    then 
-                        if cast.racial() then return end 
+                    then
+                        if cast.racial() then return end
                     end
                 end
             -- Shield of Vengenace
                 -- shield_of_vengeance,if=buff.seething_rage.down&buff.memory_of_lucid_dreams.down
-                if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance() 
-                    and not buff.seethingRage.exists() and not buff.memoryOfLucidDreams.exists() 
+                if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance()
+                    and not buff.seethingRage.exists() and not buff.memoryOfLucidDreams.exists()
                 then
                     if cast.shieldOfVengeance() then return end
                 end
             -- Essence: The Unbound Force
                 -- the_unbound_force,if=time<=2|buff.reckless_force.up
                 if isChecked("The Unbound Force") and cast.able.theUnboundForce() and (combatTime <= 2 or buff.recklessForce.exists()) then
-                    if cast.theUnboundForce() then return end 
+                    if cast.theUnboundForce() then return end
                 end
             -- Essence: Blood of the Enemy
                 -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
-                if isChecked("Blood of the Enemy") and cast.able.bloodOfTheEnemy() 
+                if isChecked("Blood of the Enemy") and cast.able.bloodOfTheEnemy()
                     and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10))
-                then 
-                    if cast.bloodOfTheEnemy() then return end 
+                then
+                    if cast.bloodOfTheEnemy() then return end
                 end
-            -- Essence: Guardian of Azeroth 
+            -- Essence: Guardian of Azeroth
                 -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.crusade.remains>=45)
-                if isChecked("Guardian of Azeroth") and cast.able.guardianOfAzeroth() 
-                    and ((not talent.crusade and ((cd.avengingWrath.remain() < gcd and holyPower >= 3) or cd.avengingWrath.remain() >= 45)) 
+                if isChecked("Guardian of Azeroth") and cast.able.guardianOfAzeroth()
+                    and ((not talent.crusade and ((cd.avengingWrath.remain() < gcd and holyPower >= 3) or cd.avengingWrath.remain() >= 45))
                         or ((talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4) or cd.crusade.remain() >= 45))
-                then 
-                    if cast.guardianOfAzeroth() then return end 
+                then
+                    if cast.guardianOfAzeroth() then return end
                 end
-            -- Essence: Worldvein Resonance 
+            -- Essence: Worldvein Resonance
                 -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
-                if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() 
-                    and ((cd.avengingWrath.remain() < gcd and holyPower >= 3) 
+                if isChecked("Worldvein Resonance") and cast.able.worldveinResonance()
+                    and ((cd.avengingWrath.remain() < gcd and holyPower >= 3)
                         or (cd.crusade.remain() < gcd and holyPower >= 4)
-                        or cd.avengingWrath.remain() >= 45 or cd.crusade.remain() >= 45) 
-                then 
-                    if cast.worldveinResonance() then return end 
-                end 
+                        or cd.avengingWrath.remain() >= 45 or cd.crusade.remain() >= 45)
+                then
+                    if cast.worldveinResonance() then return end
+                end
             -- Essence: Focused Azerite Beam
                 -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-                if isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() or not buff.crusade.exists()) 
-                    and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3) 
+                if isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() or not buff.crusade.exists())
+                    and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
                 then
-                    if cast.focusedAzeriteBeam() then return end 
+                    if cast.focusedAzeriteBeam() then return end
                 end
             -- Essence: Memory of Lucid Dreams
                 -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
-                if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams() 
-                    and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)) and holyPower <= 3 
+                if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams()
+                    and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)) and holyPower <= 3
                 then
-                    if cast.memoryOfLucidDreams() then return end 
+                    if cast.memoryOfLucidDreams() then return end
                 end
-            -- Essence: Purifying Blast 
+            -- Essence: Purifying Blast
                 -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
                 if isChecked("Purifying Blast") and cast.able.purifyingBlast() then
-                    if cast.purifyingBlast("best", nil, 1, 8) then return true end 
+                    if cast.purifyingBlast("best", nil, 1, 8) then return true end
                 end
             -- Avenging Wrath
                 -- avenging_wrath,if=buff.inquisition.up|!talent.inquisition.enabled
                 if isChecked("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath() and (buff.inquisition.exists() or not talent.inquisition) then
-                    Print("Avenging Wrath")
                     if cast.avengingWrath() then return end
                 end
             -- Crusade
@@ -691,15 +690,15 @@ local function runRotation()
                 -- end
                 if isValidUnit("target") and (not isBoss("target") or not isChecked("Opener")) then
         -- Judgment
-                    if cast.able.judgment("target") then 
+                    if cast.able.judgment("target") then
                         if cast.judgment("target") then return end
                     end
         -- Blade of Justice
-                    if cast.able.bladeOfJustice("target") then 
+                    if cast.able.bladeOfJustice("target") then
                         if cast.bladeOfJustice("target") then return end
                     end
         -- Crusader Strike
-                    if cast.able.crusaderStrike("target") then 
+                    if cast.able.crusaderStrike("target") then
                         if cast.crusaderStrike("target") then return end
                     end
         -- Start Attack
@@ -711,15 +710,15 @@ local function runRotation()
         local function actionList_Finisher()
         -- Inquisition
             -- inquisition,if=buff.inquisition.down|buff.inquisition.remains<5&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3
-            if cast.able.inquisition() and (not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3) 
-                or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15) 
+            if cast.able.inquisition() and (not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3)
+                or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15)
                 or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3))
-            then 
-                if cast.inquisition() then return end 
+            then
+                if cast.inquisition() then return end
             end
         -- Execution Sentence
             -- execution_sentence,if=spell_targets.divine_storm<=2&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>10|talent.crusade.enabled&buff.crusade.down&cooldown.crusade.remains>10|buff.crusade.stack>=7)
-            if cast.able.executionSentence() 
+            if cast.able.executionSentence()
                 and ((mode.rotation == 1 and #enemies.yards8 <= getOptionValue("Divine Storm Units")) or (mode.rotation == 3 and #enemies.yards8 > 0) or level < 40)
                 and ((not talent.crusade and (cd.avengingWrath.remain() > 10 or not isChecked("Avenging Wrath")))
                     or (talent.crusade and ((not buff.crusade.exists() and cd.crusade.remain() > 10) or buff.crusade.stack() >= 7 or not isChecked("Crusade")))
@@ -732,10 +731,10 @@ local function runRotation()
             -- if cast.able.divineStorm() and ((dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()))
             --     or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists()))
             -- then
-            if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs()) 
-                or buff.empyreanPower.exists() and not debuff.judgment.exists() and not buff.divinePurpose.exists()) 
+            if cast.able.divineStorm() and (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd * 2 or not isChecked("Crusade") or not useCDs())
+                or buff.empyreanPower.exists() and not debuff.judgment.exists() and not buff.divinePurpose.exists())
             then
-                if buff.empyreanPower.exists() then 
+                if buff.empyreanPower.exists() then
                     if cast.divineStorm("player","aoe",1,8) then return end
                 else
                     if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
@@ -746,10 +745,10 @@ local function runRotation()
             if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units"))
                 or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40)
             then
-                if ((not talent.crusade and (cd.avengingWrath.remain() > gcd * 3 or not isChecked("Avenging Wrath"))) 
-                        or (talent.crusade and (cd.crusade.remain() > gcd * 3 or not isChecked("Crusade"))) or not useCDs()) 
-                    and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2 
-                        or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
+                if ((not talent.crusade and (cd.avengingWrath.remain() > gcd * 3 or not isChecked("Avenging Wrath")))
+                        or (talent.crusade and (cd.crusade.remain() > gcd * 3 or not isChecked("Crusade"))) or not useCDs())
+                    and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2
+                        or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10)
                         or (buff.crusade.exists() and buff.crusade.stack() < 10))
                 then
                     if cast.templarsVerdict() then return end
@@ -765,7 +764,7 @@ local function runRotation()
             end
         -- Wake of Ashes
             -- wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>15|spell_targets.wake_of_ashes>=2)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)&(cooldown.avenging_wrath.remains>10|talent.crusade.enabled&cooldown.crusade.remains>10)
-            if mode.wake == 1 and cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0)) 
+            if mode.wake == 1 and cast.able.wakeOfAshes() --and ((mode.rotation == 1 and #enemies.yards12 >=2) or (mode.rotation == 2 and #enemies.yards12 > 0))
                 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd))
                 and ((not talent.crusade and (cd.avengingWrath.remain() > 10 or not isChecked("Avenging Wrath")))
                     or (talent.crusade and (cd.crusade.remain() > 10 or not isChecked("Crusade")))
@@ -783,48 +782,48 @@ local function runRotation()
             if cast.able.judgment() and (holyPower <= 2 or (holyPower <= 4 and (cd.bladeOfJustice.remain() > gcd * 2 or howVar))) then
                 if cast.judgment() then return end
             end
-        -- Hammer of Wrath 
+        -- Hammer of Wrath
             -- hammer_of_wrath,if=holy_power<=4
-            if cast.able.hammerOfWrath() and holyPower <= 4 then 
-                if cast.hammerOfWrath() then return end 
+            if cast.able.hammerOfWrath() and holyPower <= 4 then
+                if cast.hammerOfWrath() then return end
             end
-        -- Consecration 
+        -- Consecration
             -- consecration,if=holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2
-            if cast.able.consecration() and (holyPower <= 2 or (holyPower <=3 and cd.bladeOfJustice.remain() > gcd * 2) 
-                or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd * 2 and cd.judgment.remain() > gcd * 2)) 
+            if cast.able.consecration() and (holyPower <= 2 or (holyPower <=3 and cd.bladeOfJustice.remain() > gcd * 2)
+                or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd * 2 and cd.judgment.remain() > gcd * 2))
             then
-                if cast.consecration("player","aoe",1,8) then return end 
+                if cast.consecration("player","aoe",1,8) then return end
             end
         -- Call Action List: Finishers
             -- call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)
-            if talent.hammerOfWrath and (thp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists()) then 
-                if actionList_Finisher() then return end 
-            end 
+            if talent.hammerOfWrath and (thp(units.dyn5) <= 20 or buff.avengingWrath.exists() or buff.crusade.exists()) then
+                if actionList_Finisher() then return end
+            end
         -- Crusader Strike
             -- crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2&cooldown.consecration.remains>gcd*2)
-            if cast.able.crusaderStrike() and charges.crusaderStrike.frac() >= 1.75 
-                and (holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd * 2) 
-                    or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd * 2 and cd.judgment.remain() > gcd * 2 and cd.consecration.remain() > gcd * 2)) 
-            then 
-                if cast.crusaderStrike() then return end 
+            if cast.able.crusaderStrike() and charges.crusaderStrike.frac() >= 1.75
+                and (holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd * 2)
+                    or (holyPower == 4 and cd.bladeOfJustice.remain() > gcd * 2 and cd.judgment.remain() > gcd * 2 and cd.consecration.remain() > gcd * 2))
+            then
+                if cast.crusaderStrike() then return end
             end
         -- Call Action List: Finishers
             -- call_action_list,name=finishers
             if actionList_Finisher() then return end
-        -- Essence: Concentrated Flame 
-            if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then 
-                if cast.concentratedFlame() then return end 
+        -- Essence: Concentrated Flame
+            if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then
+                if cast.concentratedFlame() then return end
             end
-        -- Crusader Strike 
+        -- Crusader Strike
             -- crusader_strike,if=holy_power<=4
-            if cast.able.crusaderStrike() and holyPower <= 4 then 
+            if cast.able.crusaderStrike() and holyPower <= 4 then
                 if cast.crusaderStrike() then return end
-            end 
-        -- Arcane Torrent 
+            end
+        -- Arcane Torrent
             -- arcane_torrent,if=holy_power<=4
-            if cast.able.racial() and race == "BloodElf" and holyPower <= 4 then 
-                if cast.racial() then return end 
-            end 
+            if cast.able.racial() and race == "BloodElf" and holyPower <= 4 then
+                if cast.racial() then return end
+            end
         end
 ---------------------
 --- Begin Profile ---
