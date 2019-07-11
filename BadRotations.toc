@@ -48,6 +48,7 @@ System\Lists\NoTouchUnits.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
+System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
 ## Readers
