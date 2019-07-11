@@ -203,6 +203,7 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
+	local unitID = getUnitID(unit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
 	local targetUnit, targetFriend
@@ -216,29 +217,36 @@ function hasThreat(unit,playerUnit)
 	if targetUnit == "None" then targetFriend = false
 	else targetFriend = (UnitName(targetUnit) == UnitName("player") or (UnitExists("pet") and UnitName(targetUnit) == UnitName("pet")) or UnitInParty(targetUnit) or UnitInRaid(targetUnit))
 	end
+	local function threatSituation(friendlyUnit,enemyUnit)
+		local _,_,threatPct = UnitDetailedThreatSituation(friendlyUnit,enemyUnit)
+		if threatPct ~= nil then 
+			if threatPct > 0 then
+				if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(enemyUnit).." is threatening "..UnitName(friendlyUnit).."."); end
+				return true
+			end
+		end	 
+		return false
+	end
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
 	if unit == nil or not GetObjectExists(targetUnit) then return false end
 	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
 		return targetFriend
-	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
-		if select(3,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
-			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end
-			return true
-		end
+	elseif UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil then 
+		return true
+	elseif threatSituation(playerUnit, unit) then
+		return true
 	elseif #br.friend > 1 then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
-			if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
-				if select(3,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then
-					if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
-					return true
-				end
+			if threatSituation(thisUnit,unit) then
+				return true
 			end
 		end
 	elseif isBoss() and UnitAffectingCombat(unit) and (instance == "party" or instance == "raid") then
 		return true
 	end
+	return false
 end
 function isTanking(unit)
 	return UnitThreatSituation("player", unit) ~= nil and UnitThreatSituation("player", unit) >= 2

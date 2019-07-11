@@ -402,7 +402,7 @@ function isValidUnit(Unit)
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
 	local dummy = isDummy(Unit)
-	local threatBypassUnit = validUnitBypassList[GetObjectID(Unit)] ~= nil
+	local threatBypassUnit = br.lists.threatBypass[GetObjectID(Unit)] ~= nil
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
