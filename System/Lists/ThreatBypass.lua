@@ -26,7 +26,7 @@ br.lists.threatBypass = {
     [120651] = "Explosive", -- Explosive
     [136330] = "Soul Thorns", -- Soul Thorns Waycrest Manor
     [134388] = "A Knot of Snakes", -- A Knot of Snakes ToS
+    [153064] = "Overzealous Hulk", -- Overzealous Hulk
     [154240] = "Azshara's Devoted", -- Azshara's Devoted
     [155354] = "Azshara's Indomitable", -- Azshara's Indomitable
-    [155643] = "Overzealous Hulk", -- Overzealous Hulk
 }
