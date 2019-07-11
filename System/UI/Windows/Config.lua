@@ -139,6 +139,7 @@ function br.ui:createConfigWindow()
         br.ui:createSpinnerWithout(section, "Bwonsamdi's Wrath HP", 30,1,100, 5, "Set HP to decurse Bwonsamdi's Wrath (Mythic Conclave)")
         br.ui:createSpinnerWithout(section, "Reaping", 20, 1, 100, 5, "Set how many stacks of reaping needed to dispel.")
         br.ui:createSpinnerWithout(section, "Promise of Power", 8, 1, 10, 1, "Set how many stacks of promise of power needed to dispel.")
+        br.ui:createSpinnerWithout(section, "Toxic Brand", 10, 1, 20, 1, "Set how many stacks of toxic brand to stop healing party members at.")
         br.ui:checkSectionState(section)
     end
 
