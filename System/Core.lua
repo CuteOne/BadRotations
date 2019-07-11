@@ -304,6 +304,8 @@ function BadRotationsUpdate(self)
 
 					-- Settings Garbage Collection
 					if collectGarbage then
+						-- Ensure we have all the settings recorded
+						br.ui:recreateWindows()
 						-- Compare br.data.settings for the current spec/profile to the ui options
 						for k,v in pairs(br.data.settings[br.selectedSpec][br.selectedProfile]) do
 							local inOptions = br.data.ui[k] ~= nil

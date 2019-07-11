@@ -1,6 +1,7 @@
 -- define br global that will hold the bot global background features
 br = {}
 br.data = {}
+br.data.ui = {}
 br.dungeon = {}
 br.mdungeon = {}
 br.raid = {}
