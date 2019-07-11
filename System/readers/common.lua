@@ -266,7 +266,7 @@ function br.read.commonReaders()
 			if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
 				if isValidUnit(unit) then
 					self:AddLine("Unit is Valid",0,1,0)
-				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
+				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
 					self:AddLine("Not in Units Table",1,0,0)
 				elseif not (not UnitIsTapDenied(unit) or dummy) then
 					self:AddLine("Unit is Tap Denied",1,0,0)
