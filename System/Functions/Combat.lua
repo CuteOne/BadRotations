@@ -228,11 +228,11 @@ function hasThreat(unit,playerUnit)
 		return false
 	end
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
-	if unit == nil or not GetObjectExists(targetUnit) then return false end
+	if unit == nil or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil) then return false end
 	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
 		return targetFriend
-	elseif UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil then 
+	elseif UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil then
 		return true
 	elseif threatSituation(playerUnit, unit) then
 		return true

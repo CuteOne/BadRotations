@@ -418,12 +418,12 @@ function isValidUnit(Unit)
 		local distanceToTarget = getDistance("target",Unit)
 		local distanceToPlayer = getDistance("player",Unit)
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local hasThreat = hasThreat(Unit) or targeting or isInProvingGround() or burnUnit or threatBypassUnit
-		return hasThreat or (not hasThreat and (
+		local unitThreat = hasThreat(Unit) or targeting or isInProvingGround() or burnUnit or threatBypassUnit
+		return unitThreat or ((not instance and playerTarget) or (instance and #br.friend == 1)) -- (not hasThreat and (
 			-- Not In Instance
-			(not instance and (playerTarget or distanceToTarget < 8)) or
+			-- (not instance and (playerTarget or distanceToTarget < 8)) or
 			-- In Instance 
-			(instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))))
+			-- (instance and playerTarget and ((distanceToPlayer < 20 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)) or #br.friend == 1))))
 	end
 	return false
 end
