@@ -148,6 +148,11 @@ if not metaTable1 then
 			if select(9,GetInstanceInfo()) == 1676 and UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
+			if br.player.eID and br.player.eID == 2298 then
+				if getDebuffStacks(o.unit, 294715) >= getOptionValue("Toxic Brand") then
+					return 250,250,250
+				end
+			end
 			local chiJiSong = {
 				286367,
 				286369,
