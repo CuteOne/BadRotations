@@ -102,14 +102,14 @@ Vilt    | Unknown |  8.0  |   100% | :interrobang:
 
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
-CuteOne |  Full   |  8.0  |   100% | :white_check_mark:
+CuteOne |  Full   |  8.2  |   100% | :white_check_mark:
 Aura    |  Full   |  8.0  |   90%  | :white_check_mark:
 
 - Unholy
 
 author   | support | patch | status | raidable?
 :------- | :-----: | :---: | -----: | :-------:
-None     | None    | N/A   |  0%    | :x:
+CuteOne  |  Full   |  8.2  |   100% | :white_check_mark:
 
 ### Demon Hunter
 
@@ -117,14 +117,14 @@ None     | None    | N/A   |  0%    | :x:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0   |   100% | :white_check_mark:
+CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
 
 - Vengeance
 
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
-CuteOne |   Full   |  8.0  |   99%   | :white_check_mark:
-Kuukuu  |Sporadic  |  8.2  |   99%   | :white_check_mark:
+CuteOne |   Full   |  8.0  |   99%  | :white_check_mark:
+Kuukuu  |Sporadic  |  8.2  |   99%  | :white_check_mark:
 
 ### Druid
 
@@ -132,7 +132,7 @@ Kuukuu  |Sporadic  |  8.2  |   99%   | :white_check_mark:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  |   Full   | 8.0   |   99% | :white_check_mark:
+CuteOne  |   Full   | 8.2   |   100% | :white_check_mark:
 
 - Guardian
 
@@ -158,19 +158,19 @@ Aura   |  Full   | 8.1   |   80%  | :interrobang:
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne   |  Full    |  8.0  |    99% | :heavy_check_mark:
+CuteOne  |  Full    |  8.2  |   100% | :white_check_mark:
 
 - Marksmanship
 
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
-CuteOne  | Sporadic |  7.3.5  |    ??% | :interrobang:
+CuteOne  |  Full    |  8.2  |   100% | :interrobang:
 
 - Survival
 
 author           |    support    | patch | status |   raidable?
 :--------------- | :-----------: | :---: | -----: | :-----------:
-CuteOne          | Full          | 8.0 |    100% | :heavy_check_mark:
+CuteOne          | Full          | 8.2   |   100% | :white_check_mark:
 
 ### Mage
 
@@ -210,7 +210,7 @@ Panglo   | Full     | 8.1   |    75% | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0  |   99% | :white_check_mark:
+CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
 
 ### Paladin
 
@@ -230,7 +230,7 @@ Fengshen   | Full | 8.0 |   99% | :interrobang:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 7.3.5 |   99%  | :interrobang:
+CuteOne |  Full   | 8.2   |   100% | :white_check_mark:
 Fiskee  |  Full   | 8.0   |   99%  | :white_check_mark:
 
 ### Priest
@@ -259,7 +259,6 @@ winston       | Full          | 8.0  |   95% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0   |   100%  | :interrobang:
 Fiskee  |  Full   | 8.0   |   100%  | :white_check_mark:
 Immy    |  Full   | 8.0   |   100%  | :white_check_mark:
 
@@ -274,7 +273,6 @@ Immy    |  Full   | 8.0   |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0   |    95% | :white_check_mark:
 Fiskee  |  Full   | 8.0   |   100% | :white_check_mark:
 
 ### Shaman
@@ -289,8 +287,8 @@ Aura    |  Full   | 8.0   |   90% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-CuteOne |  Full   | 8.0 |   90% | :white_check_mark:
-Aura    |  Full   | 8.0 |   90% | :white_check_mark:
+CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
+Aura    |  Full   | 8.0   |   90%  | :white_check_mark:
 
 - Restoration
 
