@@ -258,9 +258,9 @@ local function runRotation()
         -- variable,name=wings_pool,value=!equipped.169314&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>gcd*3|cooldown.crusade.remains>gcd*3)|equipped.169314&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>gcd*6|cooldown.crusade.remains>gcd*6)
         local wingsPool = (not useCDs() 
             or (talent.crusade and (not isChecked("Crusade") 
-                or (not equiped.azsharasFontOfPower() and cd.crusade.remain() > gcd * 3) or cd.crusade.remain() > gcdMax * 6))
+                or (not equiped.azsharasFontOfPower() and cd.crusade.remain() > gcd * 3) or cd.crusade.remain() > gcd * 6))
             or (not talent.crusade and (not isChecked("Avenging Wrath") 
-                or (not equiped.azsharasFontOfPower() and cd.avengingWrath.remain() > gcd * 3) or cd.avengingWrath.remain() > gcdMax * 6)))
+                or (not equiped.azsharasFontOfPower() and cd.avengingWrath.remain() > gcd * 3) or cd.avengingWrath.remain() > gcd * 6)))
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled
         local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0)
         -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
@@ -729,8 +729,8 @@ local function runRotation()
         -- Divine Storm
             -- divine_storm,if=variable.ds_castable&variable.wings_pool&(!talent.execution_sentence.enabled|spell_targets.divine_storm<=2&cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|buff.crusade.up&buff.crusade.stack<10)
             if cast.able.divineStorm() and dsCastable and wingsPool and (not talent.executionSentence 
-                or (#enemies.yards8 <= 2 and cd.executionSentence.remain() > gcdMax * 2) 
-                or (cd.avengingWrath.remain() > gcdMax * 3 and cd.avengingWrath.remain() < 10) 
+                or (#enemies.yards8 <= 2 and cd.executionSentence.remain() > gcd * 2) 
+                or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
                 or (buff.crusade.exists() or buff.crusade.stack() < 10))
             then
                 if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
