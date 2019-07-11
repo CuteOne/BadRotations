@@ -98,6 +98,7 @@ novaEngineTables.DispelID = {
 	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
 	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
+	[296746] = { stacks = 0, range = 11}, -- https://www.wowhead.com/spell=296746/arcane-bomb
 }
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
@@ -160,7 +161,8 @@ novaEngineTables.BadDebuffList= {
 	[282738] = "Embrace of the Void", -- Embrace of the Void (The Restless Cabal)
 	[285652] = "Insatiable Torment", --insatiable-torment (Uu'nat)
 	-- The Eternal Palace
-	[292127] = "Darkest Depths", -- (Blackwater Behemoth)
+	[292127] = "Darkest Depths", -- Blackwater Behemoth
+	[297586] = "Suffering", -- Queen's Court
 }
 -- list of special units we want to heal, these npc will go directly into healing engine(Special Heal must be checked)
 novaEngineTables.SpecialHealUnitList = {
