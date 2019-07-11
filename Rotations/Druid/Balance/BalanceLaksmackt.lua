@@ -9,7 +9,7 @@ local function createToggles()
   RotationModes = {
     [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of enemies in range.", highlight = 1, icon = br.player.spell.moonfire },
     [2] = { mode = "Mult", value = 2, overlay = "Multi Target rotation", tip = "Multi Target rotation", highlight = 1, icon = br.player.spell.starfall },
-    [3] = { mode = "Sing", value = 2, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.solarWrath },
+    [3] = { mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.solarWrath },
     [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe }
   };
 
@@ -97,6 +97,7 @@ local function createOptions()
     br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
     br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
     br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+    --br.ui:createCheckbox(section, "opener")
     br.ui:checkSectionState(section)
     -------------------------
     ---  TARGET OPTIONS   ---  -- Define Target Options
@@ -105,7 +106,6 @@ local function createOptions()
     br.ui:createSpinnerWithout(section, "Max Stellar Flare Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Stellar Flare. Min: 1 / Max: 10 / Interval: 1")
     br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
     br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
-    br.ui:createSpinnerWithout(section, "Lunar Strike Filler Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Lunar Strike as filler spell. natuMin: 1 / Max: 10 / Interval: 1")
     br.ui:createSpinnerWithout(section, "Starfall Targets (0 for auto)", 0, 0, 10, 1, "|cff0070deSet to minimum number of targets to use Starfall. 0 to calculate")
     br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
     br.ui:createCheckbox(section, "Ignore dots during pewbuff")
@@ -154,6 +154,8 @@ local function createOptions()
   return optionTable
 end
 
+local opener
+
 local function runRotation()
 
   ---------------
@@ -165,6 +167,7 @@ local function runRotation()
   UpdateToggle("Interrupt", 0.25)
   UpdateToggle("ForceofNature", 0.25)
   br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
+  br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
 
 
   --------------
@@ -210,6 +213,7 @@ local function runRotation()
   local astralPowerDeficit = br.player.power.astralPower.deficit()
   local travel, flight, cat = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
   local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
+  local norepeat = nil
   -------------
   -- Raid
   ------------
@@ -217,7 +221,7 @@ local function runRotation()
   local tanks = getTanksTable()
   local lowest = br.friend[1]
   local friends = friends or {}
-  -------------
+  local gcd = br.player.gcdMax
   -- Enemies
   -------------
   local enemies = br.player.enemies
@@ -244,6 +248,27 @@ local function runRotation()
   enemies.get(12, "target") -- enemies.yards12t
 
 
+    --Print(tostring(mode.DPS))
+
+  -- Opener Reset
+  local opener = br.player.opener
+
+  if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
+    opener.count = 0
+    opener.WRA1 = false
+    opener.WRA2 = false
+    opener.DOT1 = false
+    opener.DOT2 = false
+    opener.DOT3 = false
+    opener.PWR = false
+    opener.PEW = false
+    opener.complete = false
+
+    --Clear last cast table ooc to avoid strange casts
+    if #br.lastCast.tracker > 0 then
+      wipe(br.lastCast.tracker)
+    end
+  end
 
   --[134388] = "A Knot of Snakes",
 
@@ -265,7 +290,51 @@ local function runRotation()
        end
      end
  ]]
+
+  local opener_complete
+  local open_count = 0
+  local open1, open2, open3, open3, open4, open5, open6
+  local function openerACT()
+    -- if isChecked("opener") and not opener.complete and isValidUnit("target") and getDistance("target") < 45
+    --       and getFacing("player", "target") and getSpellCD(61304) == 0 and isBoss("target") then
+    if isChecked("opener") and getSpellCD(61304) == 0 and opener_complete == nil then
+
+      if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
+        if cast.moonkinForm() then
+          return true
+        end
+      end
+
+      -- 2 x wrath
+      Print("count: " .. open_count)
+
+      if not open1 and cast.last.solarWrath(1) then
+        open_count = open_count + 1
+        open1 = true
+        return true
+      elseif not open1 then
+        if cast.solarWrath("target") then
+          open_count = open_count + 1
+          open1 = true
+          return true
+        end
+      end
+      if open1 and not open2 then
+        Print("Open1:  " .. open_count)
+      end
+
+
+    end
+  end
+
   local function dps()
+
+    --setting norepeat
+    norepeat = false
+    if (traits.streakingStars.active and pewbuff) or UnitDebuffID("player", 304409) then
+      norepeat = true
+    end
+
 
 
     if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
@@ -274,11 +343,17 @@ local function runRotation()
       end
     end
 
+
+
+
     if isChecked("ConcentratedFlame - DPS") then
       if cast.concentratedFlame("target") then
         return true
       end
     end
+
+
+
 
     local aoeTarget = 0
     if getValue("Starfall Targets (0 for auto)") == 0 then
@@ -360,11 +435,11 @@ local function runRotation()
     --quickdots
     if (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() < gcd + 1)
             or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() < gcd + 1) then
-      if traits.streakingStars.active and not cast.last.moonfire(1) then
+      if norepeat and not cast.last.moonfire(1) then
         if cast.moonfire(units.dyn45) then
           return true
         end
-      elseif traits.streakingStars.active and not cast.last.sunfire(1) then
+      elseif norepeat and not cast.last.sunfire(1) then
         if cast.sunfire(units.dyn45) then
           return true
         end
@@ -372,9 +447,16 @@ local function runRotation()
     end
 
     --if streaking stars, rotate with solar_wrath
-    if (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) then
-      if cast.solarWrath(units.dyn45) then
-        return true
+    if (norepeat and not cast.last.solarWrath(1)) then
+      if mode.DPS == 1 or mode.DPS == 2 then
+        if cast.solarWrath(units.dyn45) then
+          return true
+        end
+      end
+      if mode.DPS == 3 then
+        if cast.solarWrath("target") then
+          return true
+        end
       end
     end
 
@@ -431,6 +513,7 @@ local function runRotation()
       --RunMacroText("/cancelAura starlord")
       return true
     end
+
     if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
       --Starfall
       if power >= 50 or talent.soulOfTheForest and power >= 40 then
@@ -475,43 +558,69 @@ local function runRotation()
       root_UnitList[131009] = "Spirit of Gold"
     end
 
-    for i = 1, #enemies.yards45 do
-      local thisUnit = enemies.yards45[i]
-      if cast.able.entanglingRoots() then
-        if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
-          if cast.entanglingRoots(thisUnit) then
-            return true
-          end
-        end
-      end
-
-      if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
-              or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
-
-
-        if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
-          if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.sunfire) or not pewbuff) then
-            if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+    if mode.DPS < 3 then
+      for i = 1, #enemies.yards45 do
+        local thisUnit = enemies.yards45[i]
+        if cast.able.entanglingRoots() then
+          if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
+            if cast.entanglingRoots(thisUnit) then
               return true
             end
           end
         end
-        if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
-          if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((traits.streakingStars.active and pewbuff and lastSpellCast ~= spell.moonfire) or not pewbuff) then
-            if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
-              return true
+
+        if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+                or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+
+
+          if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
+            if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((norepeat and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+              if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+                return true
+              end
             end
           end
-        end
-        if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
-          if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
-            if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
-              return true
+          if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
+            if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((norepeat and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+              if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
+                return true
+              end
+            end
+          end
+          if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
+            if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
+              if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+                return true
+              end
             end
           end
         end
       end
     end
+    if mode.DPS == 3 then
+      --single target dots
+      if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+              or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+        local thisUnit = "target"
+
+        if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((norepeat and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+          if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+            return true
+          end
+        end
+        if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((norepeat and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+          if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
+            return true
+          end
+        end
+        if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
+          if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+            return true
+          end
+        end
+      end
+    end
+
     --(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
     --&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|
     --variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
@@ -521,7 +630,7 @@ local function runRotation()
             or buff.warriorOfElune.exists()
             or (#enemies.yards8t >= 2 and buff.lunarEmpowerment.stack() > 0)
             or buff.solarEmpowerment.stack == 0
-            or (traits.streakingStars.active and pewbuff and cast.last.solarWrath(1)) then
+            or (norepeat and cast.last.solarWrath(1)) then
       --if cast.lunarStrike(units.dyn45) then
       if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
         return true
@@ -529,12 +638,17 @@ local function runRotation()
       --end
     end
     --solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
-    if ((traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff or not traits.streakingStars.active) then
+    if ((norepeat and not cast.last.solarWrath(1)) or not pewbuff or not traits.streakingStars.active) then
       if cast.solarWrath(units.dyn45) then
       end
     end
 
-    if cast.sunfire(units.dyn45)
+    if ((norepeat and not cast.last.sunfire(1)) or not pewbuff or not traits.streakingStars.active) then
+      if cast.sunfire(units.dyn45) then
+      end
+    end
+
+    if cast.moonfire(units.dyn45)
     then
       return true
     end
@@ -846,7 +960,7 @@ local function runRotation()
   --- Rotations ---
   -----------------
   -- Pause
-  if (not IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
+  if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
     if pause() or drinking then
       return true
     else
@@ -872,6 +986,12 @@ local function runRotation()
     --- In Combat - Rotations ---
     -----------------------------
     if inCombat and not UnitBuffID("player", 115834) then
+      -----------------------
+      --- Opener Rotation ---
+      -----------------------
+      if openerACT() then
+        return true
+      end
       if useInterrupts() then
         if interrupts() then
           return true
