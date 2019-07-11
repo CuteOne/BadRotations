@@ -431,12 +431,16 @@ local function runRotation()
             if useDefensive() then
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
-                then
+                    and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
+                        br.addonDebug("Using Healthstone")
                         useItem(5512)
                     elseif canUseItem(healPot) then
+                        br.addonDebug("Using Health Pot")
                         useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
                     end
                 end
         -- Heirloom Neck
@@ -469,6 +473,10 @@ local function runRotation()
         -----------------
         local function actionList_Cooldowns()
             if useCDs() then
+                if hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
                 if isChecked("Disable CD during Speed: Slow") and UnitDebuffID("player",207011) then
                     return true --Speed: Slow debuff during the Chromatic Anomaly encounter
                 else
@@ -721,7 +729,7 @@ local function runRotation()
                         end
                     end
                     --Lucid Dreams
-                    if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcd then
+                    if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and getSpellCD(298357) <= gcd then
                         if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
                     end
                 end
@@ -735,6 +743,10 @@ local function runRotation()
             end
              -- Pre-pull Opener
             if prepullOpener then
+                if hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
                 if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and not cast.last.powerWordRadiance() then
                     for i = 1, charges.powerWordRadiance.count() do
                         cast.powerWordRadiance(lowest.unit)
