@@ -265,7 +265,7 @@ local function runRotation()
     
 
         local function firestarterRemain(unit, pct)
-            if not ObjectExists(unit) then return -1 end
+            if not GetObjectExists(unit) then return -1 end
             if not string.find(unit,"0x") then unit = ObjectPointer(unit) end
             if getOptionCheck("Enhanced Time to Die") and getHP(unit) > pct and br.unitSetup.cache[unit] ~= nil then
                 return br.unitSetup.cache[unit]:unitTtd(pct)
