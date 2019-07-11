@@ -125,6 +125,9 @@ local function createOptions()
         -- Healing Tide Totem
             br.ui:createSpinner(section, "Healing Tide Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
             br.ui:createSpinnerWithout(section, "Healing Tide Totem Targets",  3,  0,  40,  1,  "Minimum Healing Tide Totem Targets (excluding yourself)")
+            -- Spirit Link Totem
+            br.ui:createSpinner(section, "Spirit Link Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
+            br.ui:createSpinnerWithout(section, "Spirit Link Totem Targets",  3,  0,  40,  1,  "Minimum Spirit Link Totem Targets")
         -- Ancestral Protection Totem
             br.ui:createSpinner(section, "Ancestral Protection Totem",  70,  0,  100,  5,  "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Ancestral Protection Totem Targets",  3,  0,  40,  1,  "Minimum Ancestral Protection Totem Targets")
@@ -186,9 +189,6 @@ local function createOptions()
             br.ui:createSpinner(section, "Downpour", 70, 0 , 100, 5, "Health Percent to Cast At")
             br.ui:createSpinnerWithout(section, "Downpour Targets",  2,  0,  40,  1,  "Minimum Downpour Targets")
             br.ui:createCheckbox(section,"Downpour on Melee", "Cast on Melee only")
-        -- Spirit Link Totem
-            br.ui:createSpinner(section, "Spirit Link Totem",  50,  0,  100,  5,  "Health Percent to Cast At") 
-            br.ui:createSpinnerWithout(section, "Spirit Link Totem Targets",  3,  0,  40,  1,  "Minimum Spirit Link Totem Targets")
         -- Riptide
             br.ui:createSpinner(section, "Riptide",  90,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Healing Stream Totem
@@ -255,6 +255,7 @@ local function runRotation()
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local lastSpell                                     = lastSpellCast
         local level                                         = br.player.level
+        local mana                                          = br.player.power.mana.percent()
         local mode                                          = br.player.mode
         local perk                                          = br.player.perk        
         local php                                           = br.player.health
@@ -409,15 +410,18 @@ local function runRotation()
             end
             if useDefensive() then
             -- Healthstone
-                if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
-                    and inCombat and  hasItem(5512)
-                then
-                    if canUseItem(5512) then
-                        useItem(5512)
-                        br.addonDebug("Using Healthstone")
-                        return
-                    end
-                end
+			if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+				if canUseItem(5512) then
+					br.addonDebug("Using Healthstone")
+					useItem(5512)
+				elseif canUseItem(healPot) then
+					br.addonDebug("Using Health Pot")
+					useItem(healPot)
+				elseif hasItem(166799) and canUseItem(166799) then
+					br.addonDebug("Using Emerald of Vigor")
+					useItem(166799)
+				end
+			end
             -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                     if hasEquiped(122668) then
@@ -497,6 +501,14 @@ local function runRotation()
        end
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+            prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
+            -- Sapphire of Brilliance
+            if prepullOpener then
+                if hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
+            end
         -- Riptide
             if isChecked("Riptide") then
                 for i = 1, #br.friend do
@@ -836,7 +848,7 @@ local function runRotation()
                 end
             end
         --  Lucid Dream
-            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcd then
+            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and getSpellCD(298357) <= gcd then
                 if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
             end
             -- Cloud Burst Totem
@@ -1101,6 +1113,10 @@ local function runRotation()
                                 end
                             end
                         end
+                    end
+                    if hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
                     end
                     if br.player.mode.dPS == 1 and GetUnitExists("target") and UnitCanAttack("player","target") and getFacing("player","target") and lowest.hp > getOptionValue("DPS Threshold") then
                         if isExplosive("target") then
