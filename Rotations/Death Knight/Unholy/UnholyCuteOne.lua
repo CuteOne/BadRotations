@@ -493,7 +493,7 @@ local function runRotation()
                 if cast.focusedAzeriteBeam() then return end 
             end
             -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
-            if cast.able.concentratedFlame() and not debuff.concentratedFlame.exits(units.dyn5) then 
+            if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then 
                 if cast.concentratedFlame() then return end 
             end
             -- purifying_blast,if=!death_and_decay.ticking
