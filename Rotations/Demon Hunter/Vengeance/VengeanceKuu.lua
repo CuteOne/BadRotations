@@ -303,20 +303,19 @@ local function runRotation()
                     if cast.concentratedFlame("player") then br.addonDebug("Casting Concentrated Flame Heal") return end
                 end
 		-- Pot/Stoned
-	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-	            	and inCombat and (hasHealthPot() or hasItem(5512))
-	            then
+                if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
+                and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
                         br.addonDebug("Using Healthstone")
                         useItem(5512)
-                    elseif canUseItem(129196) then --Legion Healthstone
-                        br.addonDebug("Using Healthstone")
-                        useItem(129196)
                     elseif canUseItem(healPot) then
                         br.addonDebug("Using Health Pot")
                         useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
                     end
-	            end
+                end
 	    -- Heirloom Neck
 	    		if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
 	    			if hasEquiped(122668) then
@@ -372,6 +371,10 @@ local function runRotation()
         local function actionList_Cooldowns()
             -- Trinkets
             if useCDs() and getDistance("target") < 5 then
+                if hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
                 if isChecked("Trinket 1") and canTrinket(13) then            
                     if not hasEquiped(165572,13) and not hasEquiped(167868,13) and php <= getOptionValue("Trinket 1") then
                             br.addonDebug("Using Trinket 1")
@@ -428,7 +431,10 @@ local function runRotation()
                     end
                 end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-
+                    if hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
+                    end
                 end -- End Pre-Pull
                 if GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") and getDistance("target") < 5 then        
                     -- Start Attack
