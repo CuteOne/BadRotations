@@ -594,7 +594,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		return essence[index].active
 	end
 	local function queensCourtCastCheck(spellID)
-		local queensCournEncounter = EJ_GetEncounterInfo(2311)
+		local queensCournEncounter = UnitDebuffID("player",304409) -- EJ_GetEncounterInfo(2311)
 		return queensCournEncounter == nil or (queensCournEncounter ~= nil and not br.lastCast.tracker[1] == spellID)
 	end
 	-- if index == "purifyingBlast" then Print(spellID.." - "..
