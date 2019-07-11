@@ -593,6 +593,10 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		if essence[index].id == nil then return true end
 		return essence[index].active
 	end
+	local function queensCourtCastCheck(spellID)
+		local queensCournEncounter = EJ_GetEncounterInfo(2311)
+		return queensCournEncounter == nil or (queensCournEncounter ~= nil and not br.lastCast.tracker[1] == spellID)
+	end
 	-- if index == "purifyingBlast" then Print(spellID.." - "..
 	-- 	"\nUsable:     "..tostring(not select(2,IsUsableSpell(spellID)))..
 	-- 	"\nOffCD:      "..tostring(getSpellCD(spellID) == 0)..
@@ -605,7 +609,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	-- end
     -- Base Spell Availablility Check
 	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
-		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence() --and not isIncapacitated(spellID)
+		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
         if thisUnit == nil then
