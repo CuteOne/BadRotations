@@ -124,6 +124,7 @@ CuteOne |  Full   | 8.0   |   100% | :white_check_mark:
 author  | support  | patch | status |     raidable?
 :------ | :------: | :---: | -----: | :----------------:
 CuteOne |   Full   |  8.0  |   99%   | :white_check_mark:
+Kuukuu  |Sporadic  |  8.2  |   99%   | :white_check_mark:
 
 ### Druid
 
