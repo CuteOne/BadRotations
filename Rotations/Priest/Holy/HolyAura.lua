@@ -89,8 +89,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
 		br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
 		br.ui:createSpinner(section,"Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
-		-- Pre-Pot Timer
-		br.ui:createSpinner(section, "Pre-Pot Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
+		-- Pre-Pull Timer
+		br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  15,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 15 / Interval: 1")
 		-- Racial
 		br.ui:createCheckbox(section,"Arcane Torrent","Uses Blood Elf Arcane Torrent for Mana")
 		br.ui:createSpinnerWithout(section, "Arcane Torrent Mana",  50,  0,  100,  1,  "Mana Percent to Cast At")
@@ -133,6 +133,13 @@ local function createOptions()
 		br.ui:createCheckbox(section,"Guardian Spirit Tank Only")
 		-- Leap of Faith
 		br.ui:createSpinner(section, "Leap of Faith",  20,  0,  100,  5,  "Health Percent to Cast At")
+		br.ui:checkSectionState(section)
+		 -- Essence Options
+		section = br.ui:createSection(br.ui.window.profile, "Essence Options")
+		 --Concentrated Flame
+			br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
+		 --Memory of Lucid Dreams
+			br.ui:createCheckbox(section, "Lucid Dreams")
 		br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
@@ -246,6 +253,7 @@ local function runRotation()
 		local debuff                                        = br.player.debuff
 		local enemies                                       = br.player.enemies
 		local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), isMoving("player")
+		local essence										= br.player.essence
 		local gcd                                           = br.player.gcd
 		local gcdMax                                        = br.player.gcdMax
 		local healPot                                       = getHealthPot()
@@ -339,13 +347,17 @@ local function runRotation()
 				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
 						br.addonDebug("Casting Angelic Feather")
-						RunMacroText("/stopspelltarget")
+						SpellStopTargeting()
 					end
 				end
 			end
-			-- Pre-Pot Timer
-			if isChecked("Pre-Pot Timer") and pullTimer <= getOptionValue("Pre-Pot Timer") then
-				if pullTimer <= getOptionValue("Pre-Pot Timer") then
+			-- Pre-Pull Timer
+			if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+				if pullTimer <= getOptionValue("Pre-Pull Timer") then
+					if hasItem(166801) and canUseItem(166801) then
+						br.addonDebug("Using Sapphire of Brilliance")
+						useItem(166801)
+					end
 					if canUseItem(142117) and not buff.prolongedPower.exists() then
 						useItem(142117);
 						br.addonDebug("Using Prolonged Power")
@@ -368,7 +380,7 @@ local function runRotation()
             end
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat
-		function actionList_PreCombat()
+		function actionList_OOCHealing()
 			-- Renew on tank
 			if isChecked("Renew on Tanks")  then
 				for i = 1, #br.friend do
@@ -415,12 +427,16 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
 				-- Healthstone
-				if isChecked("Healthstone") and php <= getOptionValue("Healthstone")
-					and inCombat and  hasItem(5512)
-				then
+				if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
 					if canUseItem(5512) then
 						br.addonDebug("Using Healthstone")
 						useItem(5512)
+					elseif canUseItem(healPot) then
+						br.addonDebug("Using Health Pot")
+						useItem(healPot)
+					elseif hasItem(166799) and canUseItem(166799) then
+						br.addonDebug("Using Emerald of Vigor")
+						useItem(166799)
 					end
 				end
 				-- Heirloom Neck
@@ -457,6 +473,10 @@ local function runRotation()
 		end -- End Action List - Defensive
 		function actionList_Cooldowns()
 			if useCDs() then
+				if hasItem(166801) and canUseItem(166801) then
+					br.addonDebug("Using Sapphire of Brilliance")
+					useItem(166801)
+				end
 				--Salvation
 				if isChecked("Holy Word: Salvation") and not moving then
 					if getLowAllies(getValue("Holy Word: Salvation")) >= getValue("Holy Word: Salvation Targets") or burst == true then
@@ -475,6 +495,10 @@ local function runRotation()
 						if cast.apotheosis() then br.addonDebug("Casting Apothesis") return end
 					end
 				end	
+				--  Lucid Dream
+				if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and getSpellCD(298357) <= gcdMax then
+					if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
+				end
 				-- Trinkets
 				if isChecked("Revitalizing Voodoo Totem") and hasEquiped(158320) and lowest.hp < getValue("Revitalizing Voodoo Totem") then
 					if GetItemCooldown(158320) <= gcdMax then
@@ -678,7 +702,7 @@ local function runRotation()
 			if isChecked("Binding Heal On Me") and talent.bindingHeal and php <= getValue("Binding Heal On Me") and getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= getValue("Binding Heal On Me") then
 					if cast.bindingHeal(lowest.unit) then
-						RunMacroText("/stopspelltarget")
+						SpellStopTargeting()
 						br.addonDebug("Casting Binding Heal")
 						return
 					end
@@ -864,7 +888,7 @@ local function runRotation()
 			if isChecked("Binding Heal") and not isChecked("Binding Heal Multi") and talent.bindingHeal and (php <= getValue("Binding Heal Player HP") or not isChecked("Binding Heal Player HP")) and getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= getValue("Binding Heal") then
 					if cast.bindingHeal(lowest.unit) then
-						RunMacroText("/stopspelltarget")
+						SpellStopTargeting()
 						br.addonDebug("Casting Binding Heal")
 						return
 					end
@@ -900,6 +924,12 @@ local function runRotation()
 					if br.friend[i].hp <= getValue("Leap of Faith") and not GetUnitIsUnit(br.friend[i].unit,"player") and br.friend[i].role ~= "TANK" then
 						if cast.leapOfFaith(br.friend[i].unit) then br.addonDebug("Casting Leap of Faith") return end
 					end
+				end
+			end
+			-- Concentrated Flame
+			if isChecked("Concentrated Flame") and essence.concentratedFlame.active and getSpellCD(295373) <= gcdMax then
+				if lowest.hp <= getValue("Concentrated Flame") then
+					if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
 				end
 			end
 			-- Flash Heal
@@ -945,7 +975,7 @@ local function runRotation()
 			if IsMovingTime(1) then
 				if isChecked("Angelic Feather") and talent.angelicFeather and not buff.angelicFeather.exists("player") then
 					if cast.angelicFeather("player") then
-						RunMacroText("/stopspelltarget")
+						SpellStopTargeting()
 						br.addonDebug("Casting Angelic Feather")
 						return
 					end
@@ -987,7 +1017,7 @@ local function runRotation()
 				actionList_Extras()
 				actionList_Dispel()
 				if isChecked("OOC Healing") then
-					actionList_PreCombat()
+					actionList_OOCHealing()
 				end
 			end -- End Out of Combat Rotation
 			-----------------------------
