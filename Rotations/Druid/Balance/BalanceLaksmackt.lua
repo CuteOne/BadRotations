@@ -214,6 +214,9 @@ local function runRotation()
   local travel, flight, cat = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
   local catspeed = br.player.buff.dash.exists() or br.player.buff.tigerDash.exists()
   local norepeat = nil
+  local hasteAmount = GetHaste() / 100
+  local thisUnit = nil
+  local aoeTarget = 0
   -------------
   -- Raid
   ------------
@@ -248,7 +251,7 @@ local function runRotation()
   enemies.get(12, "target") -- enemies.yards12t
 
 
-    --Print(tostring(mode.DPS))
+  --Print(tostring(mode.DPS))
 
   -- Opener Reset
   local opener = br.player.opener
@@ -335,16 +338,11 @@ local function runRotation()
       norepeat = true
     end
 
-
-
     if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
       if cast.moonkinForm() then
         return true
       end
     end
-
-
-
 
     if isChecked("ConcentratedFlame - DPS") then
       if cast.concentratedFlame("target") then
@@ -352,10 +350,6 @@ local function runRotation()
       end
     end
 
-
-
-
-    local aoeTarget = 0
     if getValue("Starfall Targets (0 for auto)") == 0 then
       aoeTarget = 4
       if traits.arcanicPulsar.active then
@@ -558,46 +552,73 @@ local function runRotation()
       root_UnitList[131009] = "Spirit of Gold"
     end
 
-    if mode.DPS < 3 then
-      for i = 1, #enemies.yards45 do
-        local thisUnit = enemies.yards45[i]
-        if cast.able.entanglingRoots() then
-          if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
-            if cast.entanglingRoots(thisUnit) then
+    if mode.DPS < 4 then
+      if mode.DPS < 3 then
+        for i = 1, #enemies.yards45 do
+          thisUnit = enemies.yards45[i]
+        end
+      end
+      if mode.DPS == 3 then
+        thisUnit = "target"
+      end
+      if cast.able.entanglingRoots() then
+        if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
+          if cast.entanglingRoots(thisUnit) then
+            return true
+          end
+        end
+      end
+
+      if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+              or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
+
+        --[[
+        actions+=/sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+        ]]
+        if debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((norepeat and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+              return true
+            end
+          end
+        end
+        if debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+          if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6
+                  and floor(ttd(thisUnit) / (2 * hasteAmount)) >= 6 and ((norepeat and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+            if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
               return true
             end
           end
         end
 
-        if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
-                or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
-
-
-          if debuff.sunfire.count() <= getOptionValue("Max Sunfire Targets") then
-            if astralPowerDeficit >= 7 and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((norepeat and lastSpellCast ~= spell.sunfire) or not pewbuff) then
-              if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
-                return true
-              end
-            end
-          end
-          if debuff.moonfire.count() <= getOptionValue("Max Moonfire Targets") then
-            if astralPowerDeficit >= 7 and debuff.moonfire.remain(thisUnit) < 6.6 and ttd(thisUnit) > 6.6 and ((norepeat and lastSpellCast ~= spell.moonfire) or not pewbuff) then
-              if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
-                return true
-              end
-            end
-          end
-          if debuff.stellarFlare.count() <= getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
-            if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and ttd(thisUnit) > 7.2 and not cast.last.stellarFlare() then
-              if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
-                return true
-              end
+        if debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") and not isMoving("player") then
+          if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.remain(thisUnit) < 7.2 and floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5 and not cast.last.stellarFlare() then
+            if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+              return true
             end
           end
         end
       end
+      --refresh dots
+      if astralPowerDeficit >= 7 and debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6.6
+              and floor(ttd(thisUnit) / (2 * hasteAmount)) >= 6 and ((norepeat and lastSpellCast ~= spell.moonfire) or not pewbuff) then
+        if castSpell(thisUnit, spell.moonfire, true, false, false, true, false, true, true, false) then
+          return true
+        end
+      end
+      if astralPowerDeficit >= 7 and debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5.4 and ttd(thisUnit) > 5.4 and ((norepeat and lastSpellCast ~= spell.sunfire) or not pewbuff) then
+        if castSpell(thisUnit, spell.sunfire, true, false, false, true, false, true, true, false) then
+          return true
+        end
+      end
+      if talent.stellarFlare and astralPowerDeficit >= 12 and debuff.stellarFlare.exists(thisUnit) and debuff.stellarFlare.remain(thisUnit) < 7.2 and floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5 and not cast.last.stellarFlare() then
+        if castSpell(thisUnit, spell.stellarFlare, true, false, false, true, false, true, true, false) then
+          return true
+        end
+      end
     end
-    if mode.DPS == 3 then
+
+    if mode.DPS == 8 then
       --single target dots
       if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
               or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
