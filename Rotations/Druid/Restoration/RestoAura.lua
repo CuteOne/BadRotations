@@ -692,6 +692,10 @@ local function runRotation()
 		-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
 			if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+				if hasItem(166801) and canUseItem(166801) then
+					br.addonDebug("Using Sapphire of Brilliance")
+					useItem(166801)
+				end
 				if canUseItem(142117) and not buff.prolongedPower.exists() then
 					br.addonDebug("Using Prolonged Power Pot")
 					useItem(142117)
@@ -712,13 +716,16 @@ local function runRotation()
 				end
 			end
 			-- Healthstone
-			if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512)) then
+			if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
 				if canUseItem(5512) then
 					br.addonDebug("Using Healthstone")
 					useItem(5512)
 				elseif canUseItem(healPot) then
 					br.addonDebug("Using Health Pot")
 					useItem(healPot)
+				elseif hasItem(166799) and canUseItem(166799) then
+					br.addonDebug("Using Emerald of Vigor")
+					useItem(166799)
 				end
 			end
 			-- Renewal
@@ -831,6 +838,10 @@ local function runRotation()
 
 	local function actionList_Cooldowns()
 		if useCDs() then
+			if hasItem(166801) and canUseItem(166801) then
+				br.addonDebug("Using Sapphire of Brilliance")
+				useItem(166801)
+			end
 			-- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
 			if isChecked("Racial") and (race == "Orc" or race == "Troll" or race == "BloodElf") then
 				if castSpell("player", racial, false, false, false) then
@@ -1023,7 +1034,7 @@ local function runRotation()
 				end
 			end
 			--  Lucid Dream
-            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and power <= powmax * 0.85 and getSpellCD(298357) <= gcdMax then
+            if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and mana <= 85 and getSpellCD(298357) <= gcdMax then
                 if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
             end
 		end -- End useCooldowns check
