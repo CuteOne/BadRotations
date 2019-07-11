@@ -91,6 +91,7 @@ br.lists.items = {
     galecallersBeak                 = 161379,
     hornOfValor                     = 133642,
     jesHowler                       = 159627,
+    pocketSizedComputationDevice    = 167555,
     specterOfBetrayal               = 151190,
     umbralMoonglaives               = 147012,
     vigorTrinket                    = 165572,

@@ -23,6 +23,13 @@ br.api.items = function(item,k,v,subtable)
                 return hasEquiped(v,slotID)
             end
         end
+        equiped.socket[k] = function(gemID, socketIndex)
+            if socketIndex == nil then socketIndex = 1 end
+            local socketName = GetItemGem(GetItemInfo(v),socketIndex)
+            local socketSpell = GetItemSpell(v)
+            local checkSpell = GetItemInfo(gemID) 
+            return socketSpell == checkSpell
+        end
     end 
     if subtable == "has" then 
         local has = item
