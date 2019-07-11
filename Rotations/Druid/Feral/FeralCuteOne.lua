@@ -772,10 +772,22 @@ actionList.Cooldowns = function()
                 and getDistance(units.dyn5) < 5
             then
                 for i = 13, 14 do
-                    if use.able.slot(i) then
+                    if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i) 
+                        or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1))) 
+                    then
                         use.slot(i)
                         debug("Using Trinket [Slot "..i.."]") 
                     end
+                end
+            end
+        end
+        if useCDs() and equiped.pocketSizedComputationDevice() and equiped.socket.pocketSizedComputationDevice(167672,1) and energy < 35
+            and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.memoryOfLucidDreams.exists())
+        then
+            for i = 13, 14 do
+                if use.able.slot(i) and equiped.pocketSizedComputationDevice(i) then
+                    use.slot(i)
+                    debug("Using Pocket Sized Computation Device [Slot "..i.."]") 
                 end
             end
         end
