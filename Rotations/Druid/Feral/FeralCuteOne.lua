@@ -1272,7 +1272,7 @@ local function runRotation()
     healPot                            = getHealthPot()
     inCombat                           = br.player.inCombat
     inRaid                             = br.player.instance=="raid"
-    item                               = br.player.spell.items
+    item                               = br.player.items
     level                              = br.player.level
     lootDelay                          = getOptionValue("LootDelay")
     lowestHP                           = br.friend[1].unit

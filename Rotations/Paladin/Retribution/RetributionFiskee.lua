@@ -201,7 +201,7 @@ local function runRotation()
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
 	local inCombat      = br.player.inCombat
-	local item          = br.player.spell.items
+	local item          = br.player.items
 	local level         = br.player.level
 	local mode          = br.player.mode
 	local php           = br.player.health

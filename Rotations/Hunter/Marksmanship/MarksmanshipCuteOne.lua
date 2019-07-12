@@ -215,7 +215,7 @@ local function runRotation()
         local inCombat                                      = UnitAffectingCombat("player") --br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
-        local item                                          = br.player.spell.items
+        local item                                          = br.player.items
         local level                                         = br.player.level
         local mode                                          = br.player.mode
         local multidot                                      = (br.player.mode.cleave == 1 or br.player.mode.rotation == 2) and br.player.mode.rotation ~= 3

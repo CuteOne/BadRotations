@@ -814,7 +814,7 @@ local function runRotation()
     gcdMax                                        = br.player.gcdMax
     inCombat                                      = br.player.inCombat
     inRaid                                        = br.player.instance=="raid"
-    item                                          = br.player.spell.items
+    item                                          = br.player.items
     maelstrom                                     = br.player.power.maelstrom.amount()
     mode                                          = br.player.mode
     option                                        = br.player.option

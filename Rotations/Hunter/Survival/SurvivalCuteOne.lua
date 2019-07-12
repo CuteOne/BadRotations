@@ -1159,7 +1159,7 @@ local function runRotation()
     inCombat                                      = br.player.inCombat
     inInstance                                    = br.player.instance=="party"
     inRaid                                        = br.player.instance=="raid"
-    item                                          = br.player.spell.items
+    item                                          = br.player.items
     level                                         = br.player.level
     mode                                          = br.player.mode
     opener                                        = br.player.opener

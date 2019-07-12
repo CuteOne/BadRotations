@@ -763,7 +763,7 @@ local function runRotation()
     healPot                                       = getHealthPot()
     inCombat                                      = br.player.inCombat
     inRaid                                        = br.player.instance=="raid"
-    item                                          = br.player.spell.items
+    item                                          = br.player.items
     mode                                          = br.player.mode
     php                                           = br.player.health
     power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
