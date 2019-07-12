@@ -254,15 +254,16 @@ local function runRotation()
             TMV7 = false
             WOA1 = false
         end
-        
+
         -- variable,name=wings_pool,value=!equipped.169314&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>gcd*3|cooldown.crusade.remains>gcd*3)|equipped.169314&(!talent.crusade.enabled&cooldown.avenging_wrath.remains>gcd*6|cooldown.crusade.remains>gcd*6)
-        local wingsPool = (not useCDs() 
-            or (talent.crusade and (not isChecked("Crusade") 
+        local wingsPool = (not useCDs()
+            or (talent.crusade and (not isChecked("Crusade")
                 or (not equiped.azsharasFontOfPower() and cd.crusade.remain() > gcd * 3) or cd.crusade.remain() > gcd * 6))
-            or (not talent.crusade and (not isChecked("Avenging Wrath") 
+            or (not talent.crusade and (not isChecked("Avenging Wrath")
                 or (not equiped.azsharasFontOfPower() and cd.avengingWrath.remain() > gcd * 3) or cd.avengingWrath.remain() > gcd * 6)))
-        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled
-        local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0)
+        -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down&buff.avenging_wrath_autocrit.down
+        local dsCastable = ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0)
+            or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists() and not buff.avengingWrath.exists()))
         -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
         local howVar = (not talent.hammerOfWrath or thp(units.dyn5) >= 20) and (not buff.avengingWrath.exists() or not buff.crusade.exists())
 
@@ -552,10 +553,10 @@ local function runRotation()
         local function actionList_Cooldowns()
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
                 -- Potion
-                -- potion,name=old_war,if=(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25|target.time_to_die<=40)
-                if isChecked("Potion") and canUseItem(127844) and inRaid then
-                    if (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25) or ttd(units.dyn5) <= 40) then
-                        useItem(127844)
+                -- potion,if=cooldown.guardian_of_azeroth.remains>90&(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25)
+                if isChecked("Potion") and use.able.potionOfFocusedResolve() and inRaid then
+                    if cd.guardianOfAzeroth.remain() > 90 and (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25)) then
+                        use.potionOfFocusedResolve()
                     end
                 end
                 -- Racial
@@ -579,15 +580,15 @@ local function runRotation()
                     if cast.shieldOfVengeance() then return end
                 end
             -- Trinkets
-                -- use_item,name=ashvanes_razor_coral,if=(cooldown.avenging_wrath.remains>=8|cooldown.crusade.remains>=8|buff.crusade.stack=10)
-                if isChecked("Trinkets") and ((not talent.crusade and (not isChecked("Avenging Wrath") or cd.avengingWrath.remain() >= 8)) 
-                    or (talent.crusade and (isChecked("Crusade") or cd.crusade.remain() >= 8 or buff.crusade.stack() == 10)) or not useCDs())
+                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|buff.avenging_wrath.remains>=20|buff.crusade.up&buff.crusade.stack=10&buff.crusade.remains>15
+                if isChecked("Trinkets") and (not debuff.razorCoral.exists(units.dyn5) or not useCDs()
+                    or (not talent.crusade and (not isChecked("Avenging Wrath") or cd.avengingWrath.remain() >= 8))
+                    or (talent.crusade and (not isChecked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
                 then
-                    if canUseItem(13) then
-                        useItem(13)
-                    end
-                    if canUseItem(14) then
-                        useItem(14)
+                    for i = 13, 14 do
+                        if use.able.slot(i) then
+                            use.slot(i)
+                        end
                     end
                 end
             -- Heart Essence
@@ -607,8 +608,8 @@ local function runRotation()
                 -- Essence: Guardian of Azeroth
                     -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<5&holy_power>=3&(buff.inquisition.up|!talent.inquisition.enabled)|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|holy_power>=3&time<10&talent.wake_of_ashes.enabled|cooldown.crusade.remains>=45)
                     if cast.able.guardianOfAzeroth()
-                        and ((not talent.crusade and ((cd.avengingWrath.remain() < 5 and holyPower >= 3 and (buff.inquisition.exists() or not talent.inquisition)) 
-                            or cd.avengingWrath.remain() >= 45)) or ((talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4) 
+                        and ((not talent.crusade and ((cd.avengingWrath.remain() < 5 and holyPower >= 3 and (buff.inquisition.exists() or not talent.inquisition))
+                            or cd.avengingWrath.remain() >= 45)) or ((talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4)
                                 or (holyPower >= 3 and combatTime < 10 and talent.wakeOfAshes) or cd.crusade.remain() >= 45))
                     then
                         if cast.guardianOfAzeroth() then return end
@@ -728,9 +729,9 @@ local function runRotation()
             end
         -- Divine Storm
             -- divine_storm,if=variable.ds_castable&variable.wings_pool&(!talent.execution_sentence.enabled|spell_targets.divine_storm<=2&cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|buff.crusade.up&buff.crusade.stack<10)
-            if cast.able.divineStorm() and dsCastable and wingsPool and (not talent.executionSentence 
-                or (#enemies.yards8 <= 2 and cd.executionSentence.remain() > gcd * 2) 
-                or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
+            if cast.able.divineStorm() and dsCastable and wingsPool and (not talent.executionSentence
+                or (#enemies.yards8 <= 2 and cd.executionSentence.remain() > gcd * 2)
+                or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10)
                 or (buff.crusade.exists() or buff.crusade.stack() < 10))
             then
                 if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end

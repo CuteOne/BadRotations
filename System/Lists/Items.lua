@@ -16,16 +16,16 @@ function getHeirloomNeck()
     return 0
 end
 br.lists.items = {
-    -- Death Knight: Frost 
+    -- Death Knight: Frost
     consortsColdCore                = 144293,
     koltirasNewfoundWill            = 132366,
     perseveranceOfTheEbonMartyr     = 132459,
-    -- Death Knight: Shared 
+    -- Death Knight: Shared
     coldHeart                       = 151796,
-    -- Demonhunter: Shared  
+    -- Demonhunter: Shared
     inquisitorsMenacingEye          = 129192,
     soulOfTheSlayer                 = 151639,
-    -- Druid: Shared    
+    -- Druid: Shared
     ailuroPouncers                  = 137024,
     burningSeeds                    = 94604,
     chatoyantSignet                 = 137040,
@@ -59,6 +59,7 @@ br.lists.items = {
     repurposedFelFocuser            = 147707,
     -- Greater Flasks
     greaterFlaskOfTheCurrents       = 168651,
+    greaterFlaskOfTheUndertow       = 168654,
     -- Healthstones
     healthstone                     = 5512,
     -- Heirlooms
@@ -74,7 +75,7 @@ br.lists.items = {
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,
     battlePotionOfStrength          = 163224,
-    potionOfBurstingBlood           = 152560,                
+    potionOfBurstingBlood           = 152560,
     potionOfFocusedResolve          = 168506,
     potionOfProlongedPower          = 142117,
     potionOfTheOldWar               = 127844,
