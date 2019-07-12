@@ -3438,7 +3438,7 @@ br.lists.spells = {
                 concentratedFlame               = 295368,
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
-                razorCoral                      = 304877,
+                razorCoral                      = 303568, --304877,
                 repeatPerformance               = 304409,
                 temptation                      = 234143,
             },
