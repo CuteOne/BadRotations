@@ -703,7 +703,9 @@ actionList.Cooldowns = function()
         if isChecked("Use Essence") then
             -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
-            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50)) then
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50))
+                and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
+            then
                 local minCount = useCDs() and 1 or 3
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then debug("Casting Focused Azerite Beam") return true end
             end
@@ -1365,7 +1367,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or cast.current.focusedAzeriteBeam() then
         return true
     else
         -----------------------
