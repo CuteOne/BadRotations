@@ -1828,6 +1828,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 blessedHammer               = 204301,
+                judgmentOfLight             = 196941,
             },
             glyphs                          = {
 
@@ -3205,6 +3206,7 @@ br.lists.spells = {
                 bladestorm                  = 46924,
                 bloodthirst                 = 23881,
                 dragonRoar                  = 118000,
+                deathWish                   = 199261,
                 enragedRegeneration         = 184364,
                 execute                     = 5308,
                 furiousSlash                = 100130,
@@ -3219,6 +3221,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
+                deathWish                   = 199261,
                 enrage                      = 184362,
                 furiousSlash                = 202539,
                 meatCleaver                 = 85739,
