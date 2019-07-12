@@ -3448,6 +3448,7 @@ br.lists.spells = {
                 azerothsUndyingGift             = 298081,
                 bloodOfTheEnemy                 = 297108,
                 concentratedFlame               = 295373,
+                condensedLifeForce              = 299357,
                 empoweredNullBarrier            = 295746,
                 focusedAzeriteBeam              = 295258,
                 guardianOfAzeroth               = 299355,

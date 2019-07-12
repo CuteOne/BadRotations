@@ -553,9 +553,11 @@ local function runRotation()
         local function actionList_Cooldowns()
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
                 -- Potion
-                -- potion,if=cooldown.guardian_of_azeroth.remains>90&(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25)
+                -- potion,if=(cooldown.guardian_of_azeroth.remains>90|!essence.condensed_lifeforce.major)&(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25)
                 if isChecked("Potion") and use.able.potionOfFocusedResolve() and inRaid then
-                    if cd.guardianOfAzeroth.remain() > 90 and (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25)) then
+                    if (cd.guardianOfAzeroth.remain() > 90 or not essence.condensedLifeForce.active)
+                        and (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25))
+                    then
                         use.potionOfFocusedResolve()
                     end
                 end
