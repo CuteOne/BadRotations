@@ -582,10 +582,10 @@ local function runRotation()
                     if cast.shieldOfVengeance() then return end
                 end
             -- Trinkets
-                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|buff.avenging_wrath.remains>=20|buff.crusade.up&buff.crusade.stack=10&buff.crusade.remains>15
-                if isChecked("Trinkets") and (not debuff.razorCoral.exists(units.dyn5) or not useCDs()
-                    or (not talent.crusade and (not isChecked("Avenging Wrath") or cd.avengingWrath.remain() >= 8))
-                    or (talent.crusade and (not isChecked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
+                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|buff.avenging_wrath.remains>=20&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30)|buff.crusade.up&buff.crusade.stack=10&buff.crusade.remains>15&(cooldown.guardian_of_azeroth.remains>90||target.time_to_die<30)
+                if isChecked("Trinkets") and (not equiped.ashvanesRazorCoral() or (equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
+                    or (not talent.crusade and (not isChecked("Avenging Wrath") or cd.avengingWrath.remain() >= 8) and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30))
+                    or (talent.crusade and (not isChecked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15) and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30))))))
                 then
                     for i = 13, 14 do
                         if use.able.slot(i) then
@@ -730,22 +730,23 @@ local function runRotation()
                 if cast.executionSentence() then return end
             end
         -- Divine Storm
-            -- divine_storm,if=variable.ds_castable&variable.wings_pool&(!talent.execution_sentence.enabled|spell_targets.divine_storm<=2&cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|buff.crusade.up&buff.crusade.stack<10)
-            if cast.able.divineStorm() and dsCastable and wingsPool and (not talent.executionSentence
-                or (#enemies.yards8 <= 2 and cd.executionSentence.remain() > gcd * 2)
-                or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10)
-                or (buff.crusade.exists() or buff.crusade.stack() < 10))
+            -- divine_storm,if=variable.ds_castable&variable.wings_pool&((!talent.execution_sentence.enabled|(spell_targets.divine_storm>=2|cooldown.execution_sentence.remains>gcd*2))|(cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10))
+            if cast.able.divineStorm() and dsCastable and wingsPool and ((not talent.executionSentence or (#enemies.yards8 >= 2 or cd.executionSentence.remain() > gcd * 2))
+                or (not talent.crusade and cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
+                or (talent.crusade and cd.crusade.remain() > gcd * 3 and cd.crusade.remain() < 10)
+                or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10))
             then
                 if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
             end
         -- Templar's Verdict
-            -- templars_verdict,if=variable.wings_pool&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|buff.crusade.up&buff.crusade.stack<10)
+            -- templars_verdict,if=variable.wings_pool&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10)
             if cast.able.templarsVerdict() and ((mode.rotation == 1 and #enemies.yards8 < getOptionValue("Divine Storm Units"))
                 or (mode.rotation == 3 and #enemies.yards5 > 0) or level < 40)
             then
                 if wingsPool and (not talent.executionSentence or cd.executionSentence.remain() > gcd * 2
-                    or (cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10)
-                    or (buff.crusade.exists() and buff.crusade.stack() < 10))
+                    or (not talent.crusade and cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) 
+                    or (talent.crusade and cd.crusade.remain() > gcd * 3 and cd.crusade.remain() < 10)
+                    or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10))
                 then
                     if cast.templarsVerdict() then return end
                 end
