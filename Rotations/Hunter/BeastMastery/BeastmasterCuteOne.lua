@@ -125,6 +125,8 @@ local function createOptions()
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF001st Only","|cff00FF002nd Only","|cffFFFF00Both","|cffFF0000None"}, 1, "|cffFFFFFFSelect Trinket Usage.")
             br.ui:createCheckbox(section,"Power Reactor")
+            br.ui:createCheckbox(section,"Ashvane's Razor Coral")
+            br.ui:createCheckbox(section,"Pocket Sized Computation Device")
             -- Bestial Wrath
             br.ui:createDropdownWithout(section,"Bestial Wrath", {"|cff00FF00Boss","|cffFFFF00Always"}, 1, "|cffFFFFFFSelect Bestial Wrath Usage.")
             -- Trueshot
@@ -374,7 +376,6 @@ end -- End Action List - Interrupts
 actionList.Cooldowns = function()
     if useCDs() then
         -- Trinkets
-        if buff.aspectOfTheWild.exists() then
             if useCDs() and #enemies.yards40f >= 1 then
                 if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
                     if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
@@ -384,13 +385,24 @@ actionList.Cooldowns = function()
                     end
                 end
             end
+
+            if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice() then
+                use.pocketSizedComputationDevice()
+            end
+
+            if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and cd.global.remain() == 0 then
+                use.ashvanesRazorCoral()
+            end
+
             if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
                 and use.able.slot(13) and not equiped.vigorTrinket(13)
+                and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
             then
                 use.slot(13)
             end
             if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
                 and use.able.slot(14) and not equiped.vigorTrinket(14)
+                and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
             then
                 use.slot(14)
             end
@@ -420,7 +432,7 @@ actionList.Cooldowns = function()
             -- if cast.able.potion() and (buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() and (thp(units.dyn40) < 35 or not talent.killerInstinct) or ttd(units.dyn40) < 25) then
             --     if cast.potion() then return end
             -- end
-        end
+        
         -- Heart Essence
         if isChecked("Use Essence") then
             -- worldvein_resonance
