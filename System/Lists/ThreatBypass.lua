@@ -29,6 +29,6 @@ br.lists.threatBypass = {
     [153064] = "Overzealous Hulk", -- Overzealous Hulk
     [154240] = "Azshara's Devoted", -- Azshara's Devoted
     [155354] = "Azshara's Indomitable", -- Azshara's Indomitable
-    [153194] = "Briny Bubble" -- Lady Ashvane Fight
+    [153194] = "Briny Bubble", -- Lady Ashvane Fight
     [150773] = "Shimmerskin Pufferfish" -- Shimmerskin Pufferfish
 }
