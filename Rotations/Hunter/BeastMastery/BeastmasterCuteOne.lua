@@ -396,13 +396,13 @@ actionList.Cooldowns = function()
 
             if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
                 and use.able.slot(13) and not equiped.vigorTrinket(13)
-                and not equiped.pocketSizedComputationDevice() and not equiped.ashvanesRazorCoral()
+                and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
             then
                 use.slot(13)
             end
             if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
                 and use.able.slot(14) and not equiped.vigorTrinket(14)
-                and not equiped.pocketSizedComputationDevice() and not equiped.ashvanesRazorCoral()
+                and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
             then
                 use.slot(14)
             end
