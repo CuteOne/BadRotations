@@ -112,6 +112,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Lucid Dreams")
         -- Concentrated Flame Heal
             br.ui:createSpinner(section,"Concentrated Flame Heal", 50, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+        -- Anima of Death
+            br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
     -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -298,9 +300,9 @@ local function runRotation()
                         if cast.fieryBrand() then br.addonDebug("Casting Fiery Brand") return end
                     end
                 end
-        -- Concentrated Flame Heal
-                if isChecked("Concentrated Flame Heal") and essence.concentratedFlame.active and php <= getOptionValue("Concentrated Flame Heal") and getSpellCD(295373) <= gcd then
-                    if cast.concentratedFlame("player") then br.addonDebug("Casting Concentrated Flame Heal") return end
+        -- Anima of Death
+                if isChecked("Anima of Death") and essence.animaOfDeath.active and inCombat and #enemies.yards8 >= 3 and php <= getOptionValue("Anima of Death") then
+                    if cast.animaOfDeath("player") then br.addonDebug("Casting Anima of Death") return end
                 end
 		-- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
@@ -543,6 +545,10 @@ local function runRotation()
                 -- soul_cleave
                 if not talent.spiritBomb and php <= getOptionValue("Fragless Soul Cleave") then
                     if cast.soulCleave() then return end
+                end
+                -- Concentrated Flame Heal
+                if isChecked("Concentrated Flame Heal") and essence.concentratedFlame.active and php <= getOptionValue("Concentrated Flame Heal") and getSpellCD(295373) <= gcd then
+                    if cast.concentratedFlame("player") then br.addonDebug("Casting Concentrated Flame Heal") return end
                 end
                 -- soul_cleave
                 if talent.spiritBomb and buff.soulFragments.stack() >= 1 and #enemies.yards5t < 2 and php <= getOptionValue("Soul Cleave") then
