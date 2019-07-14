@@ -262,8 +262,8 @@ local function runRotation()
             or (not talent.crusade and (not isChecked("Avenging Wrath")
                 or (not equiped.azsharasFontOfPower() and cd.avengingWrath.remain() > gcd * 3) or cd.avengingWrath.remain() > gcd * 6)))
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down&buff.avenging_wrath_autocrit.down
-        local dsCastable = ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0)
-            or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists() and not buff.avengingWrath.exists()))
+        local dsCastable = ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists() and not buff.avengingWrath.exists())
         -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
         local howVar = (not talent.hammerOfWrath or thp(units.dyn5) >= 20) and (not buff.avengingWrath.exists() or not buff.crusade.exists())
 
