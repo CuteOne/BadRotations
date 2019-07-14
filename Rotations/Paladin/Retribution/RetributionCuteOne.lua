@@ -784,7 +784,15 @@ local function runRotation()
         -- Hammer of Wrath
             -- hammer_of_wrath,if=holy_power<=4
             if cast.able.hammerOfWrath() and holyPower <= 4 then
-                if cast.hammerOfWrath() then return end
+                if buff.avengingWrath.exists() then
+                    if cast.hammerOfWrath() then return end
+                end
+                for i = 1, #enemies.yards30f then
+                    local thisUnit = enemies.yards30f[i]
+                    if getHP(thisUnit) < 20 then
+                        if cast.hammerOfWrath(thisUnit) then return end
+                    end
+                end
             end
         -- Consecration
             -- consecration,if=holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2
