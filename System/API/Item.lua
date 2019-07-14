@@ -2,6 +2,13 @@ if br.api == nil then br.api = {} end
 
 br.api.items = function(item,k,v,subtable)
     if item[k] == nil then item[k] = {} end
+    if subtable == "cd" then
+        local cd = item
+        cd[k].remain = function(slotID)
+            if slotID == nil then slotID = v end
+            return GetItemCooldown(slotID)
+        end
+    end
     if subtable == "charges" then
         local charges = item
         -- br.player.charges.item.exists()

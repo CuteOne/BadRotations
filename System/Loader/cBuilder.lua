@@ -399,12 +399,15 @@ function br.loader:new(spec,specName)
         for k,v in pairs(self.items) do --self.spell.items) do
             if self.charges         == nil then self.charges    = {} end -- Item Charge Functions
             if self.charges[k]      == nil then self.charges[k] = {} end -- Item Charge Subtables
+            if self.cd              == nil then self.cd         = {} end -- Item Cooldown Functions
             if self.equiped         == nil then self.equiped    = {} end -- Use Item Debugging
             if self.equiped.socket  == nil then self.equiped.socket = {} end -- Item Socket Info
             if self.has             == nil then self.has        = {} end -- Item In Bags
             if self.use             == nil then self.use        = {} end -- Use Item Functions
             if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
 
+            br.api.items(self.cd,k,v,"cd")
+            
             br.api.items(self.charges,k,v,"charges")
 
             br.api.items(self.equiped,k,v,"equiped")
