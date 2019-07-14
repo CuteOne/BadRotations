@@ -390,7 +390,7 @@ actionList.Cooldowns = function()
                 use.pocketSizedComputationDevice()
             end
 
-            if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and cd.global.remain() == 0 then
+            if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and not use.able.pocketSizedComputationDevice() and cd.global.remain == 0 and use.able.ashvanesRazorCoral() then
                 use.ashvanesRazorCoral()
             end
 
