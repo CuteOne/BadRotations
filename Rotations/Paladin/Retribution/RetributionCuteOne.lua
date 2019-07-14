@@ -205,6 +205,7 @@ local function runRotation()
         local item          = br.player.items
         local level         = br.player.level
         local mode          = br.player.mode
+        local moving        = GetUnitSpeed("player") > 0
         local php           = br.player.health
         local race          = br.player.race
         local resable       = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and UnitIsFriend("target","player")
@@ -630,8 +631,10 @@ local function runRotation()
                     -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
                     if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() or not buff.crusade.exists())
                         and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
+                        and (#enemies.yards8f >= 3 or useCDs()) and not moving
                     then
-                        if cast.focusedAzeriteBeam() then return end
+                        local minCount = useCDs() and 1 or 3
+                        if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then return true end
                     end
                 -- Essence: Memory of Lucid Dreams
                     -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
@@ -839,7 +842,7 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
-        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
+        elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or cast.current.focusedAzeriteBeam() then
             return true
         else
 -----------------------
