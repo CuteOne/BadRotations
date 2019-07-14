@@ -393,7 +393,7 @@ actionList.Cooldowns = function()
             -- ashvanes_razor_coral,if=buff.aspect_of_the_wild.remains>15|debuff.razor_coral_debuff.down|target.time_to_die<20
             if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() 
                 and (not equiped.pocketSizedComputationDevice() or (equiped.pocketSizedComputationDevice() and cd.pocketSizedComputationDevice.remain() > 0)) 
-                and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(unit.dyn40) or ttd(units.dyn40) < 20)
+                and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(units.dyn40) or ttd(units.dyn40) < 20)
             then
                 use.ashvanesRazorCoral()
             end
