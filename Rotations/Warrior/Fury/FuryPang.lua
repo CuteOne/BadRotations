@@ -168,12 +168,16 @@ local function createOptions()
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
+        br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Essences")
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
         br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
+        br.ui:createDropdownWithout(section, "Blood of the Enemy", {"Always", "With Reck", "CDS", "Never"}, 1)
+        -- br.ui:createSpinner(section, "Min HP deathwish", 20, 1, 100, 5)
+        -- br.ui:createSpinnerWithout(section, "Deathwish Stacks", 7, 1, 10, 1)
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -335,6 +339,10 @@ local function runRotation()
                 return
             end
         end
+
+       --[[  if php >= getOptionValue("Min HP deathwish") and isChecked("Min HP deathwish") and (buff.deathWish.stack("player") < getOptionValue("Deathwish Stacks") or (buff.deathWish.stack("player") == 10 and buff.deathWish.remain() < 3)) then
+            if cast.deathWish() then return end
+        end ]]
     end
 
     function defensivelist()
@@ -383,7 +391,7 @@ local function runRotation()
             end
 
             -- Victory Rush
-            if isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush") and buff.victorious.exists() then
+            if isChecked("Victory Rush") and (cast.able.victoryRush() or cast.able.impendingVictory()) and php <= getOptionValue("Victory Rush") and buff.victorious.exists("player") then
                 if talent.impendingVictory then
                     if cast.impendingVictory() then
                         return
@@ -450,7 +458,7 @@ local function runRotation()
 
     function singlelist()
         -- furious slash
-        if talent.furiousSlash and not cast.last.furiousSlash() and (buff.furiousSlash.stack() < 3 or buff.furiousSlash.remains() <= 2) then
+        if talent.furiousSlash and not cast.last.furiousSlash() and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
             if cast.furiousSlash() then
                 return
             end
@@ -462,14 +470,14 @@ local function runRotation()
             end
         end
         -- Rampage
-        if buff.recklessness.exists() or (rage >= 75) or not buff.enrage.exists() then
+        if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
                 return
             end
         end
 
         -- Recklessness
-        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
@@ -484,7 +492,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 70) then
+            if cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
@@ -495,7 +503,7 @@ local function runRotation()
         -- end
 
         -- High Prio Bloodthirst
-        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists() then
+        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player") then
             if cast.bloodthirst() then
                 return
             end
@@ -520,7 +528,7 @@ local function runRotation()
         end
 
         -- Dragon Roar
-        if buff.enrage.exists() and isChecked("Dragon Roar") then
+        if buff.enrage.exists("player") and isChecked("Dragon Roar") then
             if cast.dragonRoar() then
                 return
             end
@@ -532,7 +540,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists() and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and useCDs() then
+        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and useCDs() then
             if cast.bladestorm() then
                 return
             end
@@ -554,17 +562,17 @@ local function runRotation()
     end --  end single target
 
     function explosivelist()
-        if buff.recklessness.exists() or (rage >= 75) or not buff.enrage.exists() then
+        if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
                 return
             end
         end
-        if cast.able.execute() and (getHP("target") <= 20 or (talent.massacre and getHP("target") <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 70) then
+        if cast.able.execute() and (getHP("target") <= 20 or (talent.massacre and getHP("target") <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
             if cast.execute("target") then
                 return
             end
         end
-        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists() then
+        if traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player") then
             if cast.bloodthirst() then
                 return
             end
@@ -584,7 +592,7 @@ local function runRotation()
 
     function multilist()
         -- Maintain Whirlwind buff
-        if not buff.whirlwind.exists() then
+        if not buff.whirlwind.exists("player") then
             if cast.whirlwind("player", nil, 1, 5) then
                 return
             end
@@ -604,27 +612,27 @@ local function runRotation()
         end
 
         -- Siegebreaker
-        if buff.whirlwind.exists() and (br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
+        if buff.whirlwind.exists("player") and (br.player.mode.cooldown ~= 3 and (getBuffRemain("player", spell.recklessness) > 4.5 or cd.recklessness.remain() > 25 or (getOptionValue("Recklessness") == 2 and not useCDs()))) then
             if cast.siegebreaker() then
                 return
             end
         end
 
         -- Dragon Roar
-        if buff.enrage.exists() and isChecked("Dragon Roar") then
+        if buff.enrage.exists("player") and isChecked("Dragon Roar") then
             if cast.dragonRoar() then
                 return
             end
         end
 
         -- Rampage
-        if buff.whirlwind.exists() and (buff.recklessness.exists() or (not buff.enrage.exists() or (talent.carnage and rage >= 75) or (rage >= 85))) then
+        if buff.whirlwind.exists("player") and (buff.recklessness.exists("player") or (not buff.enrage.exists("player") or (talent.carnage and rage >= 75) or (rage >= 85))) then
             if cast.rampage() then
                 return
             end
         end
         -- Bladestorm
-        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists() and br.player.mode.cooldown ~= 3 then
+        if isChecked("Bladestorm Units") and #enemies.yards8 >= getOptionValue("Bladestorm Units") and buff.enrage.exists("player") and br.player.mode.cooldown ~= 3 then
             if cast.bladestorm() then
                 return
             end
@@ -633,7 +641,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if buff.whirlwind.exists() and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists()) and (buff.enrage.exists() or rage <= 70) then
+            if buff.whirlwind.exists("player") and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
@@ -644,21 +652,21 @@ local function runRotation()
         --end
 
         -- furious slash
-        if talent.furiousSlash and (buff.furiousSlash.stack() < 3 or buff.furiousSlash.remains() <= 2) then
+        if talent.furiousSlash and (buff.furiousSlash.stack("player") < 3 or buff.furiousSlash.remains("player") <= 2) then
             if cast.furiousSlash() then
                 return
             end
         end
 
         -- High Prio Bloodthirst
-        if buff.whirlwind.exists() and (traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists()) then
+        if buff.whirlwind.exists("player") and (traits.coldSteelHotBlood.rank > 1 or not buff.enrage.exists("player")) then
             if cast.bloodthirst() then
                 return
             end
         end
 
         -- Raging Blow
-        if buff.whirlwind.exists() and charges.ragingBlow.count() == 2 then
+        if buff.whirlwind.exists("player") and charges.ragingBlow.count() == 2 then
             if cast.ragingBlow() then
                 return
             end
@@ -671,21 +679,21 @@ local function runRotation()
         end
 
         -- Low Prio Bloodthirst
-        if buff.whirlwind.exists() then
+        if buff.whirlwind.exists("player") then
             if cast.bloodthirst() then
                 return
             end
         end
 
         -- Raging Blow Dump
-        if buff.whirlwind.exists() then
+        if buff.whirlwind.exists("player") then
             if cast.ragingBlow() then
                 return
             end
         end
 
         -- Furious Slash Filler
-        if buff.whirlwind.exists() then
+        if buff.whirlwind.exists("player") then
             if cast.furiousSlash() then
                 return
             end
@@ -712,6 +720,11 @@ local function runRotation()
                     return
                 end
             end
+        end
+
+        --BOTE
+        if getOptionValue("Blood of the Enemy") == 1 or (getOptionValue("Blood of the Enemy") == 2 and buff.recklessness.remain() > 4) or (getOptionValue("Blood of the Enemy") == 3 and useCDs()) then
+            if cast.bloodOfTheEnemy("player") then return end
         end
     end
 
@@ -750,14 +763,14 @@ local function runRotation()
             if cooldownlist() then
                 return
             end
-            if #enemies.yards8 > 1 then
+            if #enemies.yards8 > 1 --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting")) ]] then
                 --Print("Multi")
                 if multilist() then
                     return
                 end
             else
                 --Print("Single")
-                if singlelist() then
+                if singlelist() --[[ and not (isChecked("Dont kill your friends with bursting") or debuff.burst.stack("player") >= getOptionValue("Dont kill your friends with bursting"))  ]]then
                     return
                 end
             end

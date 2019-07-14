@@ -1821,6 +1821,7 @@ br.lists.spells = {
                 avengingWrath               = 31884,
                 bulwarkOfOrder              = 209388,
                 consecration                = 188370,
+                divineShield                = 642,
                 guardianOfAncientKings      = 86659,
                 seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
@@ -1851,6 +1852,9 @@ br.lists.spells = {
                 retributionAura             = 203797,
                 righteousProtector          = 204074,
                 seraphim                    = 152262,
+            },
+            traits                          = {
+                bulwarkOfLight              = 272976,
             },
         },
         -- Retribution
@@ -3288,6 +3292,7 @@ br.lists.spells = {
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
+                spellReflection             = 23920,
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,

@@ -270,6 +270,11 @@ local function runRotation()
 		enemies.yards30 = enemies.get(30)
 		enemies.yards40 = enemies.get(40)
 
+		--wipe timers table
+		if timersTable then
+			wipe(timersTable)
+		end
+
 
 
 		---Making Lunch
