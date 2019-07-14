@@ -222,6 +222,7 @@ local function runRotation()
         enemies.get(8)
         enemies.get(10)
         enemies.get(12)
+        enemies.get(30,"player",false,true)
 
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
@@ -787,7 +788,7 @@ local function runRotation()
                 if buff.avengingWrath.exists() then
                     if cast.hammerOfWrath() then return end
                 end
-                for i = 1, #enemies.yards30f then
+                for i = 1, #enemies.yards30f do
                     local thisUnit = enemies.yards30f[i]
                     if getHP(thisUnit) < 20 then
                         if cast.hammerOfWrath(thisUnit) then return end
