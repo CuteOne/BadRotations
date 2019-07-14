@@ -112,6 +112,7 @@ local function createOptions()
         -- Racial
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
+            br.ui:createCheckbox(section,"Pocket Sized Computation Device")
             br.ui:createCheckbox(section,"Power Reactor")
             br.ui:createCheckbox(section,"Trinkets")
         -- A Murder of Crows
@@ -401,19 +402,19 @@ local function runRotation()
                     end
                 end
             end
+            -- use_item,name=pocketsized_computation_device,if=!buff.trueshot.up|target.time_to_die<5
+            if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice()
+                and (not buff.trueshot.exists() or ttd(unit.dyn40) < 5)
+            then
+                use.pocketSizedComputationDevice()
+            end
+            --use_items,if=buff.trueshot.up|!talent.calling_the_shots.enabled|target.time_to_die<20
             if useCDs() and isChecked("Trinkets") and (buff.trueshot.exists() or not talent.callingTheShots or (ttd(units.dyn40) < 20 and useCDs())) then
-                if use.able.slot(13) and not equiped.vigorTrinket(13) then
+                if use.able.slot(13) and not equiped.vigorTrinket(13) and not equiped.pocketSizedComputationDevice(13) then
                     use.slot(13)
                 end
-                if use.able.slot(14) and not equiped.vigorTrinket(14) then
+                if use.able.slot(14) and not equiped.vigorTrinket(14) and not equiped.pocketSizedComputationDevice(13) then
                     use.slot(14)
-                end
-            end
-            if useCDs() and #enemies.yards40f >= 1 then
-                if isChecked("Power Reactor") and hasEquiped(165572) then
-                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
-                        useItem(165572)
-                    end
                 end
             end
         -- Hunter's Mark
