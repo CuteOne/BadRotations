@@ -1021,7 +1021,7 @@ local function runRotation()
             if fofExists and (not (bfExists and iciclesStack >= 5) or targetUnit.ttd < 3) then
                 if cast.iceLance("target") then return true end
             end
-        elseif (#getEnemies("target", 5) > 1 and talent.splittingIce) or (fofExists and targetUnit.ttd < 3) then
+        elseif fofExists and ((#getEnemies("target", 5) > 1 and talent.splittingIce) or targetUnit.ttd < 3) then
             if cast.iceLance("target") then return true end
         end
         -- actions.single+=/comet_storm
