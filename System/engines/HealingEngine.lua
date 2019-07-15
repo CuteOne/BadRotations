@@ -149,9 +149,12 @@ if not metaTable1 then
 				return 250,250,250
 			end
 			if br.player.eID and br.player.eID == 2298 then
-				if getDebuffStacks(o.unit, 294715) >= getOptionValue("Toxic Brand") then
+				if getDebuffStacks(o.unit,294715) > 0 and getDebuffStacks(o.unit, 294715) >= getOptionValue("Toxic Brand") then
 					return 250,250,250
 				end
+			end
+			if getDebuffStacks(o.unit,209858) > 0 and getDebuffStacks(o.unit,209858) >= getValue("Necrotic Rot") then
+				return 250,250,250
 			end
 			local chiJiSong = {
 				286367,
