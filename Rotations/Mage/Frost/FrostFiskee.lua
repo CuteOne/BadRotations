@@ -2,6 +2,8 @@ local rotationName = "Fiskee - 8.0.1"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
+local lastIF = 0
+local lastIFTime = 0
 ---------------
 --- Toggles ---
 ---------------
@@ -232,6 +234,14 @@ local function runRotation()
     local use = br.player.use
 
     --
+    -- local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
+    -- if curIF then
+    --     if curIF ~= lastIF then
+    --         lastIF = curIF
+    --         print(GetTime()-lastIFTime)
+    --         lastIFTime = GetTime()
+    --     end
+    -- end
 
     -- Show/Hide toggles
     if not UnitAffectingCombat("player") then
@@ -380,21 +390,23 @@ local function runRotation()
     local function calcHP(unit)
         local thisUnit = unit.unit
         local hp = UnitHealth(thisUnit)
-        local castID, _, castTarget = UnitCastID("player")
-        if castID and castTarget and UnitIsUnit(unit, castTarget) and playerCasting then
-            hp = hp - calcDamage(castID, unit)
-        end
-        for k, v in pairs(spell.abilities) do
-            if br.InFlight.Check(v, thisUnit) then
-                hp = hp - calcDamage(v, unit)
+        if EasyWoWToolbox ~= nil then
+            local castID, _, castTarget = UnitCastID("player")
+            if castID and castTarget and UnitIsUnit(unit, castTarget) and playerCasting then
+                hp = hp - calcDamage(castID, unit)
             end
-        end
-        if UnitIsVisible("pet") then
-            castID, _, castTarget = UnitCastID("pet")
-            if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
-                local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
-                if castRemain < 0.5 then
-                    hp = hp - calcDamage(castID, unit)
+            for k, v in pairs(spell.abilities) do
+                if br.InFlight.Check(v, thisUnit) then
+                    hp = hp - calcDamage(v, unit)
+                end
+            end
+            if UnitIsVisible("pet") then
+                castID, _, castTarget = UnitCastID("pet")
+                if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
+                    local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
+                    if castRemain < 0.5 then
+                        hp = hp - calcDamage(castID, unit)
+                    end
                 end
             end
         end
