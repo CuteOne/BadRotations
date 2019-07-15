@@ -32,16 +32,12 @@ br.lists.noTouchUnits = {
     {unitID = 144680, buff = 284436}, -- Champion of the Light (H), Frida Ironbellows, Seal of Reckoning
     {unitID = 144942, buff = 289644}, -- Spark Bot,High Tinker Mekkatorque, Mythic 
     {unitID = 145644, buff = 284377}, -- Bwonsamdi with Unliving buff
-    -- Waycrest Manor
-    -- {unitID = 135358, buff = -260805}, -- Sister Malady (No Focusing Iris)
-    -- {unitID = 135359, buff = -260805}, -- Sister Solena (No Focusing Iris)
-    -- {unitID = 135360, buff = -260805}, -- Sister Briar (No Focusing Iris)
-    -- {unitID = 131823, buff = -260805}, -- Sister Malady (No Focusing Iris)
-    -- {unitID = 131824, buff = -260805}, -- Sister Solena (No Focusing Iris)
-    -- {unitID = 131825, buff = -260805}, -- Sister Briar (No Focusing Iris)
-    
+    -- The Motherlode!
+    {unitID = 131227, buff = 260189}, -- Mogul Razdunk with Configuration: Drill buff
     -- Underrot
     {unitID = 137458}, -- Rotting Spore
     -- Siege of Boralus
     {unitID = 128652}, -- Viq'Goth
+    -- Mechagon
+    {unitID = 152703}, -- Walkie Shockie X1
 }
