@@ -3,7 +3,7 @@ local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
 local lastIF = 0
-local lastIFTime = 0
+local if5Start, if5End = 0, 0
 ---------------
 --- Toggles ---
 ---------------
@@ -233,15 +233,30 @@ local function runRotation()
     local units = br.player.units
     local use = br.player.use
 
-    --
-    -- local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
-    -- if curIF then
-    --     if curIF ~= lastIF then
-    --         lastIF = curIF
-    --         print(GetTime()-lastIFTime)
-    --         lastIFTime = GetTime()
-    --     end
-    -- end
+    -- Super scuffed IF tracker
+    local curIF = select(3,AuraUtil.FindAuraByName(GetSpellInfo(116267), "player", "HELPFUL"))
+    if curIF then
+        if curIF ~= lastIF then
+            if curIF == 1 and lastIF == 2 then
+                if5Start = GetTime() + 5
+                if5End = GetTime() + 7 - 0.1
+            end
+            lastIF = curIF
+        end
+    else
+        if5Start = 0
+        if5End = 0
+    end
+    local function ifCheck()
+        if if5Start ~= 0 and isChecked("No Ice Lance") then
+            --cast_time+travel_time>incanters_flow_time_to.5.up&cast_time+travel_time<incanters_flow_time_to.4.down
+            local hitTime = GetTime() + cast.time.glacialSpike() + getDistance("target") / 40
+            if hitTime > if5Start and hitTime < if5End then
+                return true
+            end
+        end
+        return false
+    end
 
     -- Show/Hide toggles
     if not UnitAffectingCombat("player") then
@@ -324,7 +339,7 @@ local function runRotation()
 
     units.get(40)
     enemies.get(10, "target", true)
-    enemies.get(40)
+    enemies.get(40, nil, nil, nil, spell.frostbolt)
 
     local dispelDelay = 1.5
     if isChecked("Dispel delay") then
@@ -504,7 +519,7 @@ local function runRotation()
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
                 enemyUnit.distance = getDistance(thisUnit)
-                enemyUnit.distance20 = math.abs(getDistance(thisUnit) - 20)
+                enemyUnit.distance20 = math.abs(enemyUnit.distance - 20)
                 enemyUnit.hpabs = UnitHealth(thisUnit)
                 enemyUnit.facing = getFacing("player", thisUnit)
                 if getOptionValue("APL Mode") == 2 then
@@ -1086,7 +1101,7 @@ local function runRotation()
         end
         -- # Glacial Spike is used when there's a Brain Freeze proc active (i.e. only when it can be shattered). This is a small to medium gain in most situations. Low mastery leans towards using it when available. When using Splitting Ice and having another target nearby, it's slightly better to use GS when available, as the second target doesn't benefit from shattering the main target.
         -- actions.single+=/glacial_spike,if=buff.brain_freeze.react|prev_gcd.1.ebonbolt|active_enemies>1&talent.splitting_ice.enabled
-        if (bfExists or cast.last.ebonbolt() or (not isChecked("No Ice Lance") and #getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
+        if (bfExists or cast.last.ebonbolt() or ifCheck() or (not isChecked("No Ice Lance") and #getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
             if cast.glacialSpike("target") then return true end
         end
         -- actions.single+=/ice_nova
