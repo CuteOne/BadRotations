@@ -1220,7 +1220,7 @@ local function runRotation()
     end
 
     local function actionList_Rotation()
-        if (((fofExists and not isChecked("No Ice Lance")) or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if (((fofExists and not isChecked("No Ice Lance")) or ((bfExists or ifCheck()) and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
