@@ -659,29 +659,35 @@ local function runRotation()
       end
     end
 
-    --(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-    --&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|
-    --variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-    -- if (traits.streakingStars.active and pewbuff and not cast.last.lunarStrike(1)) or not traits.streakingStars.active or not pewbuff then
-    if buff.owlkinFrenzy.exists()
-            or (buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() == 3)
-            or buff.warriorOfElune.exists()
-            or (#enemies.yards8t >= 2 and buff.lunarEmpowerment.stack() > 0)
-            or buff.solarEmpowerment.stack == 0
-            or (norepeat and cast.last.solarWrath(1)) then
+
+
+    --lunar_strike
+    if buff.solarEmpowerment.stack() < 3 and
+            (astralPowerDeficit >= 12 or buff.lunarEmpowerment.stack() == 3) and
+            ((buff.warriorOfElune.exists() or buff.lunarEmpowerment.exists() or #enemies.yards8t >= 2 and
+                    not buff.solarEmpowerment.exists()) and
+                    (not norepeat or norepeat and cast.last.solarWrath(1))) then
+      if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
+        return true
+      end
+    end
+    --[[if buff.owlkinFrenzy.exists()
+            or buff.solarEmpowerment.stack() < 3 and (buff.lunarEmpowerment.stack() == 3 or astralPowerDeficit >= 12 )
+            and ((buff.warriorOfElune.exists() or buff.lunarEmpowerment.stack() > 0 or (#enemies.yards8t >= 2 and not buff.solarEmpowerment.exists()))
+            and (norepeat and cast.last.solarWrath(1)) then
       --if cast.lunarStrike(units.dyn45) then
       if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
         return true
       end
       --end
-    end
+    ]]
     --solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
     if ((norepeat and not cast.last.solarWrath(1)) or not pewbuff or not traits.streakingStars.active) then
       if cast.solarWrath(units.dyn45) then
       end
     end
 
-    if ((norepeat and not cast.last.sunfire(1)) or not pewbuff or not traits.streakingStars.active) then
+    if not norepeat or norepeat and cast.last.sunfire(1) then
       if cast.sunfire(units.dyn45) then
       end
     end
@@ -1064,13 +1070,13 @@ local function runRotation()
   -----------------
   -- Pause
   if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
-    if pause() or drinking then
+    if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
       return true
     else
 
       ---------------------------------
       --- Out Of Combat - Rotations ---
-      ---------------------------------
+      ---------------------------------````````````````````````````````````````````
       if not inCombat and not UnitBuffID("player", 115834) then
         if extras() then
           return true
