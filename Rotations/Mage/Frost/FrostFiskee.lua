@@ -1,6 +1,6 @@
 local rotationName = "Fiskee - 8.0.1"
 local targetMoveCheck, opener, fbInc = false, false, false
-local lastTargetX, lastTargetY, lastTargetZ
+local lastTargetX, lastTargetY, lastTargetZ, trinketTime
 local ropNotice = false
 ---------------
 --- Toggles ---
@@ -885,6 +885,7 @@ local function runRotation()
                         end
                     else
                         useItem(13)
+                        trinketTime = GetTime()
                     end
                 end
                 if canUseItem(14) then
@@ -894,6 +895,7 @@ local function runRotation()
                         end
                     else
                         useItem(14)
+                        trinketTime = GetTime()
                     end
                 end
             end
@@ -1272,7 +1274,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) then
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or (trinketTime ~= nil and (GetTime() - trinketTime) < 0.5) then
         if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
