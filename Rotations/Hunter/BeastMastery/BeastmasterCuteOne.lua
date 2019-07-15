@@ -468,7 +468,7 @@ actionList.Cooldowns = function()
     -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
     if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
         and cast.able.bestialWrath() and (traits.primalInstincts.active) and ttd(units.dyn40) > 15
-        and (not equiped.pocketSizedComputationDevice() or not cd.pocketSizedComputationDevice.remain() > 0)
+        -- and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
     then
         if cast.bestialWrath() then return end
     end
