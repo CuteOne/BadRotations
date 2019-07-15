@@ -184,7 +184,7 @@ local function runRotation()
     local cd                                            = br.player.cd
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
-    local energyDeficit, energyRegen                    = br.player.power.energy.deficit(), br.player.power.energy.regen()
+    local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -266,7 +266,7 @@ local function runRotation()
         if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
             return false
         end
-        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() then
+        if isChecked("Ignore Azerite Beam Units During CDs") and useCDs() and energy < 70 then
             minUnits = 1
         end
         local x, y, z = ObjectPosition("player")
@@ -845,7 +845,7 @@ local function runRotation()
                 --Worldvein Resonance
                 if cast.worldveinResonance("player") then return true end
                 --Memory of lucid Dreams
-                if energyDeficit > (25 + energyRegenCombined) and (not isChecked("Vendetta") or (cd.vendetta.exists() and cd.vendetta.remain() < 115)) then
+                if energy < 50 and energyDeficit > (25 + energyRegenCombined) and (not isChecked("Vendetta") or (cd.vendetta.exists() and cd.vendetta.remain() < 115)) and not hasBloodLust() then
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian

@@ -84,6 +84,8 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Frozen Orb Units", 3, 1, 10, 1, "|cffFFFFFFMin. number of units Frozen Orb will be cast on.")
         -- Frozen Orb Units
         br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFFFFFMin. number of units Comet Storm will be cast on.")
+        -- Focused Azerite Beam
+        br.ui:createSpinner(section, "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
         -- Predict movement
         --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFFFFF Disable prediction of unit movement for casts")
         -- Auto target
@@ -97,7 +99,7 @@ local function createOptions()
         -- Casting Interrupt Delay
         br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFFFFFActivate to delay interrupting own casts to use procs.")
         -- Casting Interrupt Delay
-        br.ui:createCheckbox(section, "Disable FoF Interrupts", "|cffFFFFFFDeactivate interrupting casts to use Fingers of Frost procs.")
+        br.ui:createCheckbox(section, "No Ice Lance", "|cffFFFFFFUse No Ice Lance Rotation.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -228,6 +230,8 @@ local function runRotation()
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
     local use = br.player.use
+
+    --
 
     -- Show/Hide toggles
     if not UnitAffectingCombat("player") then
@@ -653,6 +657,51 @@ local function runRotation()
         fbInc = false
     end
 
+    local function castBeam(minUnits, safe, minttd)
+        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+            return false
+        end
+        if not isChecked("Obey AoE units when using CDs") and useCDs() then
+            minUnits = 1
+        end
+        local x, y, z = ObjectPosition("player")
+        local length = 30
+        local width = 6
+        ttd = ttd or 0
+        safe = safe or true
+        local function getRectUnit(facing)
+            local halfWidth = width/2
+            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+            return nlX, nlY, nrX, nrY, frX, frY
+        end
+        local enemiesTable = getEnemies("player", length, true)
+        local facing = ObjectFacing("player")        
+        local unitsInRect = 0
+        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+        local thisUnit
+        for i = 1, #enemiesTable do
+            thisUnit = enemiesTable[i]
+            local uX, uY, uZ = ObjectPosition(thisUnit)
+            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+                    unitsInRect = 0
+                    break
+                end            
+                if ttd(thisUnit) >= minttd then                
+                    unitsInRect = unitsInRect + 1
+                end
+            end
+        end
+        if unitsInRect >= minUnits then
+            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+            return true
+        else
+            return false
+        end
+    end
+
     local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
             StopAttack()
@@ -783,6 +832,35 @@ local function runRotation()
         -- actions.talent_rop+=/rune_of_power,if=!talent.glacial_spike.enabled&(talent.ebonbolt.enabled&cooldown.ebonbolt.remains<cast_time|talent.comet_storm.enabled&cooldown.comet_storm.remains<cast_time|talent.ray_of_frost.enabled&cooldown.ray_of_frost.remains<cast_time|charges_fractional>1.9)
     end
 
+    local function actionList_Essences()
+        -- actions.essences=focused_azerite_beam,if=buff.rune_of_power.down|active_enemies>3
+        if standingTime > 1 and isChecked("Focused Azerite Beam") and (blizzardUnits > 3 or not buff.runeOfPower.exists()) then
+            if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then return true end
+        end
+        -- actions.essences+=/memory_of_lucid_dreams,if=active_enemies<5&(buff.icicles.stack<=1|!talent.glacial_spike.enabled)&cooldown.frozen_orb.remains>10
+        if blizzardUnits < 5 and (iciclesStack <= 1 or not talent.glacialSpike) and cd.frozenOrb.remain() > 10 and useCDs() then
+            if cast.memoryOfLucidDreams("player") then return true end
+        end
+        -- actions.essences+=/blood_of_the_enemy,if=(talent.glacial_spike.enabled&buff.icicles.stack=5&(buff.brain_freeze.react|prev_gcd.1.ebonbolt))|((active_enemies>3|!talent.glacial_spike.enabled)&(prev_gcd.1.frozen_orb|ground_aoe.frozen_orb.remains>5))
+        
+        if blizzardUnits > 3 or not buff.runeOfPower.exists() then
+            -- actions.essences+=/purifying_blast,if=buff.rune_of_power.down|active_enemies>3
+            if useCDs() then
+                if cast.purifyingBlast("target") then return true end
+                -- actions.essences+=/ripple_in_space,if=buff.rune_of_power.down|active_enemies>3
+                --if cast.rippleInSpace("target") then return true end 
+                -- actions.essences+=/worldvein_resonance,if=buff.rune_of_power.down|active_enemies>3
+                if cast.worldveinResonance("target") then return true end
+            end
+            -- actions.essences+=/concentrated_flame,line_cd=6,if=buff.rune_of_power.down
+            if cast.concentratedFlame("target") then return true end
+        end
+        -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up
+        if buff.recklessForce.exists() then
+            if cast.theUnboundForce("target") then return true end
+        end
+    end
+
     local function actionList_Cooldowns()
         if useCDs() and not moving and targetUnit.ttd >= getOptionValue("CDs TTD Limit") then
             -- actions.cooldowns=icy_veins
@@ -854,7 +932,7 @@ local function runRotation()
         else
             if castFrozenOrb(getOptionValue("Frozen Orb Units"), true, 4) then return true end
         end
-        if not playerCasting and blizzardUnits >= getOptionValue("Blizzard Units") and not tankMoving and not moving then
+        if mode.rotation ~= 2 and not playerCasting and blizzardUnits >= getOptionValue("Blizzard Units") and not tankMoving and not moving then
             if createCastFunction("best", false, getOptionValue("Blizzard Units"), 8, spell.blizzard, nil, true, 3) then
                 return true
             end
@@ -915,6 +993,8 @@ local function runRotation()
         if cast.last.frostbolt() and bfExists and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3) then
             if cast.flurry("target") then return true end
         end
+        -- Essences
+        if actionList_Essences() then return true end
         -- actions.single+=/frozen_orb
         if not moving and targetMoveCheck then
             if not isChecked("Obey AoE units when using CDs") and useCDs() then
@@ -925,7 +1005,7 @@ local function runRotation()
         end
         -- # With Freezing Rain and at least 2 targets, Blizzard needs to be used with higher priority to make sure you can fit both instant Blizzards into a single Freezing Rain. Starting with three targets, Blizzard leaves the low priority filler role and is used on cooldown (and just making sure not to waste Brain Freeze charges) with or without Freezing Rain.
         -- actions.single+=/blizzard,if=active_enemies>2|active_enemies>1&cast_time=0&buff.fingers_of_frost.react<2
-        if not tankMoving and not moving and not playerCasting then
+        if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if createCastFunction("best", false, 3, 8, spell.blizzard, nil, true, 3) then
                 return true
             end
@@ -937,7 +1017,11 @@ local function runRotation()
         end
         -- # Trying to pool charges of FoF for anything isn't worth it. Use them as they come.
         -- actions.single+=/ice_lance,if=buff.fingers_of_frost.react
-        if fofExists and (not (bfExists and iciclesStack >= 5) or targetUnit.ttd < 3) then
+        if not isChecked("No Ice Lance") then
+            if fofExists and (not (bfExists and iciclesStack >= 5) or targetUnit.ttd < 3) then
+                if cast.iceLance("target") then return true end
+            end
+        elseif (#getEnemies("target", 5) > 1 and talent.splittingIce) or (fofExists and targetUnit.ttd < 3) then
             if cast.iceLance("target") then return true end
         end
         -- actions.single+=/comet_storm
@@ -965,7 +1049,7 @@ local function runRotation()
         end 
         -- # Blizzard is used as low priority filler against 2 targets. When using Freezing Rain, it's a medium gain to use the instant Blizzard even against a single target, especially with low mastery.
         -- actions.single+=/blizzard,if=cast_time=0|active_enemies>1
-        if not tankMoving and not moving and not playerCasting then
+        if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then
                 if not isChecked("Obey AoE units when using CDs") and useCDs() then
                     if createCastFunction("best", false, 1, 8, spell.blizzard, nil, false, 3) then
@@ -990,7 +1074,7 @@ local function runRotation()
         end
         -- # Glacial Spike is used when there's a Brain Freeze proc active (i.e. only when it can be shattered). This is a small to medium gain in most situations. Low mastery leans towards using it when available. When using Splitting Ice and having another target nearby, it's slightly better to use GS when available, as the second target doesn't benefit from shattering the main target.
         -- actions.single+=/glacial_spike,if=buff.brain_freeze.react|prev_gcd.1.ebonbolt|active_enemies>1&talent.splitting_ice.enabled
-        if (bfExists or cast.last.ebonbolt() or (#getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
+        if (bfExists or cast.last.ebonbolt() or (not isChecked("No Ice Lance") and #getEnemies("target", 5) > 1 and talent.splittingIce)) and iciclesStack >= 5 and not moving and targetUnit.facing then
             if cast.glacialSpike("target") then return true end
         end
         -- actions.single+=/ice_nova
@@ -999,7 +1083,7 @@ local function runRotation()
         end
         -- actions.single+=/use_item,name=tidestorm_codex,if=buff.icy_veins.down&buff.rune_of_power.down
         -- actions.single+=/frostbolt
-        if not moving and targetUnit.facing and not fofExists then
+        if not moving and targetUnit.facing and (isChecked("No Ice Lance") or not fofExists) then
             if cast.frostbolt("target") then return true end
         end
         -- actions.single+=/call_action_list,name=movement
@@ -1021,7 +1105,7 @@ local function runRotation()
             end
         end
         -- actions.aoe+=/blizzard
-        if not tankMoving and not moving and not playerCasting then
+        if mode.rotation ~= 2 and not tankMoving and not moving and not playerCasting then
             if buff.freezingRain.exists() then
                 if not isChecked("Obey AoE units when using CDs") and useCDs() then
                     if createCastFunction("best", false, 4, 8, spell.blizzard, nil, false, 3) then
@@ -1044,6 +1128,8 @@ local function runRotation()
                 end
             end
         end
+        -- Essences
+        if actionList_Essences() then return true end
         -- actions.aoe+=/comet_storm
         if mode.cometStorm == 1 and not moving and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
@@ -1107,14 +1193,14 @@ local function runRotation()
     end
 
     local function actionList_Rotation()
-        if (((fofExists and not isChecked("Disable FoF Interrupts")) or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
+        if (((fofExists and not isChecked("No Ice Lance")) or (bfExists and iciclesStack > 5)) and interruptCast(spell.frostbolt)) or (bfExists and interruptCast(spell.ebonbolt)) then
             SpellStopCasting()
             return true
         end
         if spellQueueReady() then
             -- # If the mage has FoF after casting instant Flurry, we can delay the Ice Lance and use other high priority action, if available.
             -- actions+=/ice_lance,if=prev_gcd.1.flurry&!buff.fingers_of_frost.react
-            if cast.last.flurry() and not fofExists then
+            if not isChecked("No Ice Lance") and cast.last.flurry() and not fofExists then
                 if cast.iceLance("target") then return true end
             end
             -- actions+=/call_action_list,name=cooldowns
