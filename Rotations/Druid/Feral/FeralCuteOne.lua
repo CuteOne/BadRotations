@@ -221,6 +221,7 @@ local use
 
 -- General Locals
 local fbMaxEnergy
+local focusedTime = GetTime()
 local friendsInRange = false
 local htTimer
 local lastForm
@@ -705,9 +706,14 @@ actionList.Cooldowns = function()
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
             if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50))
                 and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
+                and (debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5)
             then
                 local minCount = useCDs() and 1 or 3
-                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then debug("Casting Focused Azerite Beam") return true end
+                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then 
+                    focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+                    debug("Casting Focused Azerite Beam") 
+                    return true 
+                end
             end
             -- Essence: Purifying Blast
             -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
@@ -783,8 +789,9 @@ actionList.Cooldowns = function()
                 end
             end
         end
-        if useCDs() and equiped.pocketSizedComputationDevice() and equiped.socket.pocketSizedComputationDevice(167672,1) and energy < 35
+        if useCDs() and equiped.pocketSizedComputationDevice() and equiped.socket.pocketSizedComputationDevice(167672,1) and ttm > 3
             and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.memoryOfLucidDreams.exists())
+            and (debuff.rake.remain(units.dyn5) > 3 and debuff.rip.remain(units.dyn5) > 3)
         then
             for i = 13, 14 do
                 if use.able.slot(i) and equiped.pocketSizedComputationDevice(i) then
@@ -1361,13 +1368,17 @@ local function runRotation()
         useThrash = 0
     end
 
+    -- ChatOverlay("Rake: "..round2(debuff.rake.remain("target"),0)..", Rip: "..round2(debuff.rip.remain("target"),0))
+
     ---------------------
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or cast.current.focusedAzeriteBeam() then
+    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 
+        or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
+    then
         return true
     else
         -----------------------
