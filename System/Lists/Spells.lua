@@ -816,6 +816,7 @@ br.lists.spells = {
                 cultivat                    = 200389,
                 tranquility                 = 157982,
                 springblossom               = 207386,
+                symbolOfHope                = 64901,
                 fullbloom                   = 290213,
             },
             debuffs                         = {
@@ -1762,6 +1763,7 @@ br.lists.spells = {
                 theLightSaves               = 200423,
                 vindicator                  = 200376,
                 avengingCrusader            = 216331,
+                symbolOfHope                = 64901,
             },
             debuffs                         = {
                 judgement                   = 214222,
@@ -3429,6 +3431,7 @@ br.lists.spells = {
                 sephuz2                         = 208052, -- the proc, 70% movement, 25% haste buff
                 sephuzCooldown                  = 226262, -- CD (30 seconds) for the proc
                 shadowmeld                      = 58984,
+                symbolOfHope                    = 64901,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,
                 cracklingTourmaline             = 290372,
