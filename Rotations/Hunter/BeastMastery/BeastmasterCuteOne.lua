@@ -222,9 +222,9 @@ local use
 -- General Locals
 local actionList = {}
 local critChance
+local focusedTime = GetTime()
 local flying
 local haltProfile
-local hastar
 local healPot
 local leftCombat
 local lootDelay
@@ -465,9 +465,10 @@ actionList.Cooldowns = function()
         end
     end -- End useCooldowns check
     -- Bestial Wrath
-    -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled
+    -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
     if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
         and cast.able.bestialWrath() and (traits.primalInstincts.active) and ttd(units.dyn40) > 15
+        and (not equiped.pocketSizedComputationDevice() or not cd.pocketSizedComputationDevice.remain() > 0)
     then
         if cast.bestialWrath() then return end
     end
@@ -649,35 +650,49 @@ end -- End Action List - Opener
 -- Action List - Single Target
 actionList.St = function()
     -- Barbed Shot
-    -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<=gcd.max|full_recharge_time<gcd.max&cooldown.bestial_wrath.remains|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd
+    -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
     if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax + 0.1)
-        or (charges.barbedShot.timeTillFull() < gcdMax and cd.bestialWrath.remain() > gcdMax)
-        or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))
+        or (cd.bestialWrath.remain() > gcdMax and (charges.barbedShot.timeTillFull() < gcdMax
+        or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))))
     then
         if cast.barbedShot() then return end
     end
     -- Aspect of the Wild
-    -- aspect_of_the_wild
-    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) then
+    -- aspect_of_the_wild,if=cooldown.barbed_shot.charges<2|pet.cat.buff.frenzy.stack>2|!azerite.primal_instincts.enabled
+    if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs()) 
+        and (charges.barbedShot.count() < 2 or buff.frenzy.stack("pet") > 2 or not traits.primalInstincts.active)
+    then
         if cast.aspectOfTheWild() then return end
-    end
-    -- A Murder of Crows
-    -- a_murder_of_crows
-    if isChecked("A Murder Of Crows / Barrage") and mode.murderOfCrows == 1 and cast.able.aMurderOfCrows() then
-        if cast.aMurderOfCrows() then return end
     end
     -- Stampede
     -- stampede,if=buff.aspect_of_the_wild.up&buff.bestial_wrath.up|target.time_to_die<15
     if isChecked("Stampede") and talent.stampede and cast.able.stampede()
-        and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and (ttd(units.dyn40) > 15 or useCDs())
+    and (buff.aspectOfTheWild.exists() and buff.bestialWrath.exists()) and (ttd(units.dyn40) > 15 or useCDs())
     then
         if cast.stampede() then return end
     end
+    -- A Murder of Crows
+    -- a_murder_of_crows,if=cooldown.bestial_wrath.remains
+    if isChecked("A Murder Of Crows / Barrage") and mode.murderOfCrows == 1 and cast.able.aMurderOfCrows()
+        and (cd.bestialWrath.remain() > 0 or (getOptionValue("Bestial Wrath") == 1 and not useCDs()) or getOptionValue("Bestial Wrath") == 3)
+    then
+        if cast.aMurderOfCrows() then return end
+    end
+    -- Focused Azerite Beam
+    -- focused_azerite_beam,if=buff.bestial_wrath.down
+    if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists() 
+        and (#enemies.yards8f >= 3 or useCDs())
+    then
+        local minCount = useCDs() and 1 or 3
+        if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then 
+            focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+            return
+        end
+    end
     -- Bestial Wrath
-    -- bestial_wrath,if=cooldown.aspect_of_the_wild.remains>20|target.time_to_die<15
+    -- bestial_wrath
     if mode.bestialWrath == 1 and cast.able.bestialWrath()
         and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-        and (not isChecked("Aspect of the Wild") or (getOptionValue("Bestial Wrath") == 2 and not useCDs()) or cd.aspectOfTheWild.remains() > 20)
         and (ttd(units.dyn40) > 15 or useCDs())
     then
         if cast.bestialWrath() then return end
@@ -708,10 +723,6 @@ actionList.St = function()
     end
     -- Heart Essence
     if isChecked("Use Essence") then
-        -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() then
-            if cast.focusedAzeriteBeam() then return end
-        end
         -- purifying_blast
         if cast.able.purifyingBlast() then
             if cast.purifyingBlast("best", nil, 1, 8) then return true end
@@ -745,6 +756,11 @@ actionList.St = function()
     -- spitting_cobra
     if isChecked("Spitting Cobra") and talent.spittingCobra and cast.able.spittingCobra() then
         if cast.spittingCobra() then return end
+    end
+    -- Barbed Shot
+    -- barbed_shot,if=charges_fractional>1.4
+    if cast.able.barbedShot() and charges.barbedShot.frac() > 1.4 then 
+        if cast.barbedShot() then return end 
     end
 end -- End Action List - Single Target
 
@@ -945,14 +961,14 @@ local function runRotation()
     -- Global Functions
     critChance                         = GetCritChance()
     flying                             = IsFlying()
-    hastar                             = UnitExists("target")
     healPot                            = getHealthPot()
     lootDelay                          = getOptionValue("LootDelay")
     petCombat                          = UnitAffectingCombat("pet")
     pullTimer                          = PullTimerRemain()
     thp                                = getHP
     ttd                                = getTTD
-    haltProfile                        = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
+    haltProfile                        = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() 
+                                            or mode.rotation==4 or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1004,7 +1020,7 @@ local function runRotation()
     --- Begin Profile ---
     ---------------------
     -- Profile Stop | Pause
-    if not inCombat and not hastar and profileStop then
+    if not inCombat and not UnitExists("target") and profileStop then
         profileStop = false
     elseif haltProfile then
         -----------------
