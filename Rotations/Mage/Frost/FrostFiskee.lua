@@ -1299,7 +1299,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop == true then
         profileStop = false
-    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or isCastingSpell(293491) then
+    elseif (inCombat and profileStop == true) or IsMounted() or UnitChannelInfo("player") or IsFlying() or pause(true) or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
         if not pause(true) and not talent.lonelyWinter and IsPetAttackActive() and isChecked("Pet Management") then
             PetStopAttack()
             PetFollow()
