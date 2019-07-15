@@ -348,11 +348,13 @@ local function runRotation()
     function defensivelist()
         if useDefensive() then
             -- Healthstone/Health Potion
-            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and (hasItem(152494) or hasItem(5512)) then
+            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
                     useItem(5512)
-                elseif canUseItem(152494) then
-                    useItem(152494)
+                elseif canUseItem(healPot) then
+                    useItem(healPot)
+                elseif hasItem(166799) and canUseItem(166799) then
+                    useItem(166799)
                 end
             end
 

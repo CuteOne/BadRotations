@@ -442,7 +442,13 @@ local function runRotation()
             [273653] = "Shadow Claw",
             [265881] = "Decaying Touch",
             [264153] = "Spit",
-            [278444] = "Infest"
+            [278444] = "Infest",
+			--Operation: Mechagn
+			[298669] = "Taze",
+			[300764] = "slimebolt",
+			[300650] = "suffocating smog",
+			[294195] = "arcing zap",
+			[291878] = "pulse blast"
         }
         local Storm_unitList={
 			[131009] = "Spirit of Gold",
@@ -660,7 +666,7 @@ local function runRotation()
                         return
                     end
                 end
-                if rage <= 65 and not moving and getOptionValue("Demoralizing Shout - CD") == 2 then
+                if rage <= 100 and not moving and getOptionValue("Demoralizing Shout - CD") == 2 then
                     if cast.demoralizingShout() then
                         return
                     end
@@ -754,14 +760,13 @@ local function runRotation()
                 if isChecked("Engineering Belt") and php <= getOptionValue("Engineering Belt") and canUseItem(6) then
                     useItem(6)
                 end
-                if
-                    isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and
-                        (hasItem(152494) or hasItem(5512))
-                 then
+                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUseItem(152494) then
-                        useItem(152494)
+                    elseif canUseItem(healPot) then
+                        useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        useItem(166799)
                     end
                 end
                 if
@@ -832,7 +837,7 @@ local function runRotation()
             end
 
             --Use Demo Shout on CD
-            if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 65 and not moving then
+            if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 and not moving then
                 if cast.demoralizingShout() then
                     return
                 end
@@ -922,7 +927,7 @@ local function runRotation()
 
         local function technoViking()
             --Use Demo Shout on CD
-            if isChecked("Demoralizing Shout - CD") and rage <= 65 then
+            if isChecked("Demoralizing Shout - CD") and rage <= 100 then
                 if cast.demoralizingShout() then
                     return
                 end

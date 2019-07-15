@@ -222,15 +222,14 @@ local function createOptions()
         br.ui:createCheckbox(section, "Auto Maul")
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+        br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
         br.ui:checkSectionState(section)
         -----------------------
         --- Cooldown Options---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createDropdownWithout(section, "Trinkets", {"Always", "When CDs are enabled", "Never"}, 1, "Decide when Trinkets will be used.")
-
         br.ui:createCheckbox(section, "Racial")
-
         br.ui:createCheckbox(section, "Incarnation")
         br.ui:checkSectionState(section)
         ------------------------
@@ -495,11 +494,19 @@ local function runRotation()
 
     local function List_Defensive()
         if useDefensive() then
-            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and (hasItem(152494) or hasItem(5512)) then
+            if inCombat and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+                if cast.memoryOfLucidDreams("player") then
+                    return
+                end
+            end
+
+            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
                     useItem(5512)
-                elseif canUseItem(152494) then
-                    useItem(152494)
+                elseif canUseItem(healPot) then
+                    useItem(healPot)
+                elseif hasItem(166799) and canUseItem(166799) then
+                    useItem(166799)
                 end
             end
 

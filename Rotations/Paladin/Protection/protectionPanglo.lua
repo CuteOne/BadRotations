@@ -86,7 +86,7 @@ local function createOptions()
 		-------------------------
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")
 		-- Healthstone
-		br.ui:createSpinner(section, "Pot/Stoned", 30, 0, 100, 5, "|cffFFFFFFHealth Percentage to use at")
+		br.ui:createSpinner(section, "Healthstone/Potion", 30, 0, 100, 5, "|cffFFFFFFHealth Percentage to use at")
 		-- Gift of The Naaru
 		if br.player.race == "Draenei" then
 			br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percentage to use at")
@@ -566,13 +566,15 @@ local function runRotation()
 	local function actionList_Defensive()
 		if useDefensive() then
 			-- Pot/Stoned
-			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512)) then
-				if canUseItem(5512) then
-					useItem(5512)
-				elseif canUseItem(healPot) then
-					useItem(healPot)
-				end
-			end
+            if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+                if canUseItem(5512) then
+                    useItem(5512)
+                elseif canUseItem(healPot) then
+                    useItem(healPot)
+                elseif hasItem(166799) and canUseItem(166799) then
+                    useItem(166799)
+                end
+            end
 			-- Divine Shield
 			if isChecked("Divine Shield") and cast.able.divineShield() and not buff.ardentDefender.exists() then
 				if php <= getOptionValue("Divine Shield") and inCombat then

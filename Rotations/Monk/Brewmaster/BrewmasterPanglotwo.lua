@@ -90,7 +90,7 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
-            br.ui:createSpinner(section, "Healthstone",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
+            br.ui:createSpinner(section, "Healthstone/Potion",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Healing Elixir
             br.ui:createSpinner(section, "Healing Elixir", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         -- Fortifying Brew
@@ -267,11 +267,13 @@ local function runRotation()
                     if cast.expelHarm() then return true end
                 end
         -- Pot/Stoned
-                if isChecked("Pot/Stoned") and getHP("player") <= getValue("Pot/Stoned") and inCombat then
+                if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUseItem(healthPot) then
-                        useItem(healthPot)
+                    elseif canUseItem(healPot) then
+                        useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        useItem(166799)
                     end
                 end
         -- Dampen Harm
