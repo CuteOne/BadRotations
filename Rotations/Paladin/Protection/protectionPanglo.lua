@@ -1017,7 +1017,7 @@ local function runRotation()
 	local function actionList_Feng()
 		-- Shield of the Righteous
 		if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and not buff.shieldOfTheRighteous.exists("player") then
-			if (not talent.seraphim and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
+			if (not talent.seraphim and charges.shieldOfTheRighteous.frac() > 2 and buff.avengersValor.exists()) or (charges.shieldOfTheRighteous.frac() == 3 and not buff.shieldOfTheRighteous.exists()) or (talent.seraphim and getSpellCD(152262) > 15 and charges.shieldOfTheRighteous.frac() >= 2 and buff.avengersValor.exists()) then
 				if CastSpellByName(GetSpellInfo(53600)) then
 					return
 				end
