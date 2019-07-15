@@ -30,19 +30,19 @@ novaEngineTables.DispelID = {
 	-- Opulence
 	[284470] = {stacks = 0}, -- https://www.wowhead.com/spell=284470/hex-of-lethargy
 	-- Conclave of the Chosen
-	--[282135] = {stacks = 0, range = 8}, -- https://www.wowhead.com/spell=282135/crawling-hex
+	--[282135] = {stacks = 0, range = 12}, -- https://www.wowhead.com/spell=282135/crawling-hex
 	[285879] = {stacks = 0}, --https://www.wowhead.com/spell=285879/mind-wipe
 	-- Mekkatorque
 	[287167] = {stacks = 0}, -- https://www.wowhead.com/spell=287167/discombobulation
 	-- Jaina Proudmoore
 	[287626] = {stacks = 0}, -- https://www.wowhead.com/spell=287626/grasp-of-frost
 	-- Siege of Boralis
-	[275014] = { stacks = 0, range = 3 }, --https://www.wowhead.com/spell=274991/putrid-waters
+	[275014] = { stacks = 0, range = 7 }, --https://www.wowhead.com/spell=274991/putrid-waters
 	[257168] = { stacks = 0 }, --https://www.wowhead.com/spell=257168/cursed-slash
 	[272571] = { stacks = 0 }, --https://www.wowhead.com/spell=272571/choking-waters
 	[275835] = { stacks = 0 }, --https://www.wowhead.com/spell=275835/stinging-venom-coating
 	-- Waycrest Manor
-	[261440] = { stacks = 0, range = 6 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	[261440] = { stacks = 0, range = 10 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
 	[264378] = { stacks = 0 }, --https://www.wowhead.com/spell=264378/fragment-soul
 	[263891] = { stacks = 0 }, --https://www.wowhead.com/spell=263891/grasping-thorns
 	[265352] = { stacks = 0 }, --https://www.wowhead.com/spell=265352/toad-blight
@@ -68,7 +68,7 @@ novaEngineTables.DispelID = {
 	[259853] = { stacks = 0 }, --https://www.wowhead.com/spell=259853/chemical-burn
 	[269298] = { stacks = 0 }, --https://www.wowhead.com/spell=269298/widowmaker-toxin
 	-- Atal'Dazar
-	[252781] = { stacks = 0, range = 8 }, -- https://www.wowhead.com/spell=252781/unstable-hex
+	[252781] = { stacks = 0, range = 12 }, -- https://www.wowhead.com/spell=252781/unstable-hex
 	[250096] = { stacks = 0 }, -- https://www.wowhead.com/spell=250096/wracking-pain
 	[253562] = { stacks = 0 }, -- https://www.wowhead.com/spell=253562/wildfire
 	[255582] = { stacks = 0 }, -- https://www.wowhead.com/spell=255582/molten-gold
@@ -98,7 +98,13 @@ novaEngineTables.DispelID = {
 	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
 	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
-	[296746] = { stacks = 0, range = 11}, -- https://www.wowhead.com/spell=296746/arcane-bomb
+	[296746] = { stacks = 0, range = 15}, -- https://www.wowhead.com/spell=296746/arcane-bomb
+	-- Mechagon
+	[300659] = {stacks = 0}, --https://www.wowhead.com/spell=300659/consuming-slime
+	[298124] = {stacks = 0}, --https://www.wowhead.com/spell=298124/gooped
+	[300414] = {stacks = 0}, --https://www.wowhead.com/spell=300414/enrage
+
+
 }
 -- List of buffs to purge
 novaEngineTables.PurgeID = {
