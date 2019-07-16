@@ -248,7 +248,8 @@ local function runRotation()
         local drinking                                      = UnitBuff("player",192001) ~= nil or UnitBuff("player",225737) ~= nil
         local essence                                       = br.player.essence
         local gcd                                           = br.player.gcd
-        local gcdMax                                           = br.player.gcdMax
+        local gcdMax                                        = br.player.gcdMax
+        local healPot                                       = getHealthPot()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
@@ -1125,7 +1126,7 @@ local function runRotation()
                             actionList_DPS()
                         end
                     end
-                    if movingCheck then
+                    if movingCheck and br.player.mode.dPS == 1 then
                         if cast.lightningBolt() then br.addonDebug("Casting Lightning Bolt") return end
                     end
                 end
