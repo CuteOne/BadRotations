@@ -67,7 +67,7 @@ local function createOptions()
             -- Divine Storm Units
             br.ui:createSpinnerWithout(section, "Divine Storm Units",  2,  2,  3,  1,  "|cffFFBB00Units to use Divine Storm.")
             -- Heart Essence
-            br.ui:createCheckbox(section, "Heart Essence")
+            br.ui:createCheckbox(section, "Use Essence")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
@@ -823,7 +823,7 @@ local function runRotation()
             -- call_action_list,name=finishers
             if actionList_Finisher() then return end
         -- Essence: Concentrated Flame
-            if isChecked("Concentrated Flame") and cast.able.concentratedFlame() then
+            if isChecked("Use Essence") and cast.able.concentratedFlame() then
                 if cast.concentratedFlame() then return end
             end
         -- Crusader Strike
