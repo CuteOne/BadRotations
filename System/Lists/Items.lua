@@ -88,6 +88,7 @@ br.lists.items = {
     convergenceOfFates              = 140806,
     deceiversGrandDesign            = 147007,
     draughtOfSouls                  = 140808,
+    dribblingInkpod                 = 169319,
     feloiledInfernalMachine         = 144482,
     galecallersBeak                 = 161379,
     hornOfValor                     = 133642,

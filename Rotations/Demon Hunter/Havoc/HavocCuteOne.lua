@@ -373,6 +373,21 @@ actionList.Cooldowns = function()
             if cast.nemesis(lowestUnit) then return end
         end
         -- Trinkets
+        for i = 13, 14 do
+            local opValue = getOptionValue("Trinkets")
+            local iValue = i - 12
+            if (opValue == iValue or opValue == 3) and use.able.slot(iValue) then
+                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(!equipped.dribbling_inkpod&(buff.metamorphosis.remains>20|target.time_to_die<20))|(equipped.dribbling_inkpod&target.health.pct<31)
+                if not equiped.ashvanesRazorCoral(i) or (equiped.ashvanesRazorCoral(i)
+                    and (not debuff.razorCoral.exists(units.dyn5) or (not equiped.dribblingInkpod() and (buff.metamorphosis.remain() > 20))
+                        or (equiped.dribblingInkpod() and getHP(units.dyn5) < 31)))
+                then
+                    use.slot(i)
+                    return
+                end
+            end
+        end
+
         -- use_item,slot=trinket2,if=!buff.metamorphosis.up&(!talent.first_blood.enabled|!cooldown.blade_dance.ready)&(!talent.nemesis.enabled|cooldown.nemesis.remains>30|target.time_to_die<cooldown.nemesis.remains+3)
             -- if not buff.metamorphosis.exists() and (not talent.firstBlood or cd.bladeDance.remain() ~= 0) and (not talent.nemesis or cd.nemesis.remain() > 30 or ttd(units.dyn5) < cd.nemesis.remain() + 3) then
         if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
@@ -391,45 +406,56 @@ actionList.Cooldowns = function()
     end -- End useCDs check
     -- Heart Essences
     if isChecked("Use Essence") then
-        if useCDs() then
-            -- Essence: Memory of Lucid Dreams
-            -- memory_of_lucid_dreams,if=buff.tigers_fury.up&buff.berserk.down
-            if cast.able.memoryOfLucidDreams() then
-                if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
-            end
-            -- Essence: Blood of the Enemy
-            -- blood_of_the_enemy,if=buff.tigers_fury.up
-            if cast.able.bloodOfTheEnemy() then
-                if cast.bloodOfTheEnemy() then debug("Casting Blood of the Enemy") return true end
-            end
-            -- Essence: Guardian of Azeroth
-            if cast.able.guardianOfAzeroth() then
-                if cast.guardianOfAzeroth() then debug("Casting Guardian of Azeroth") return end
+        -- Essence: Concentrated Flame
+        -- concentrated_flame
+        if cast.able.concentratedFlame() then
+            if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
+        end
+        -- Essence: Blood of the Enemy
+        -- blood_of_the_enemy,if=buff.metamorphosis.up|target.time_to_die<=10
+        if cast.able.bloodOfTheEnemy() and (buff.metamorphosis.exists() or (ttd(units.dyn5) <= 10 and useCDs())) then
+            if cast.bloodOfTheEnemy() then debug("Casting Blood of the Enemy") return true end
+        end
+        -- Essence: Guardian of Azeroth
+        -- guardian_of_azeroth
+        if useCDs() and cast.able.guardianOfAzeroth() then
+            if cast.guardianOfAzeroth() then debug("Casting Guardian of Azeroth") return end
+        end
+        -- Essence: Focused Azerite Beam
+        -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
+        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or useCDs()) then
+            local minCount = useCDs() and 1 or 3
+            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+                focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcd
+                debug("Casting Focused Azerite Beam")
+                return true
             end
         end
         -- Essence: Purifying Blast
-        -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
+        -- purifying_blast,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
         if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
             local minCount = useCDs() and 1 or 3
             if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
         end
-        -- Essence: Focused Azerite Beam
-        -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and powerDeficit >= 50)) then
-            if cast.focusedAzeriteBeam() then debug("Casting Focused Azerite Beam") return true end
-        end
         -- Essence: The Unbound Force
-        -- the_unbound_force,if=buff.reckless_force.up|buff.tigers_fury.up
-        if cast.able.theUnboundForce() and buff.recklessForce.exists() then
+        -- the_unbound_force
+        if cast.able.theUnboundForce() then
             if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
         end
-        -- Essence: Concentrated Flame
-        if cast.able.concentratedFlame() then
-            if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
+        -- Essence: Ripple In Space
+        -- ripple_in_space
+        if cast.able.rippleInSpace() then
+            if cast.rippleInSpace() then debug("Casting Ripple In Space") return true end
         end
         -- Essence: Worldvein Resonance
-        if cast.able.worldveinResonance() then
+        -- worldvein_resonance,if=buff.lifeblood.stack<3
+        if cast.able.worldveinResonance() and buff.lifeblood.stack() < 3 then
             if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
+        end
+        -- Essence: Memory of Lucid Dreams
+        -- memory_of_lucid_dreams,if=fury<40&buff.metamorphosis.up
+        if cast.able.memoryOfLucidDreams() and buff.metamorphosis.exists() and power < 40 then
+            if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
         end
     end
 end -- End Action List - Cooldowns
