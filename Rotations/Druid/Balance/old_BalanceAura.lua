@@ -246,6 +246,11 @@ local function runRotation()
             -- Pre-Pull Timer
             if isChecked("Pre-Pull Timer") then
                 if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
+                    -- Sapphire of Brilliance
+                    if hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
+                    end
                     if cast.solarWrath() then return true end
                 end
             end
@@ -323,11 +328,16 @@ local function runRotation()
 
         local function actionList_Defensive()
             --Potion or Stone
-            if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
+            if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
+                    br.addonDebug("Using Healthstone")
                     useItem(5512)
-                elseif canUseItem(getHealthPot()) then
-                    useItem(getHealthPot())
+                elseif canUseItem(healPot) then
+                    br.addonDebug("Using Health Pot")
+                    useItem(healPot)
+                elseif hasItem(166799) and canUseItem(166799) then
+                    br.addonDebug("Using Emerald of Vigor")
+                    useItem(166799)
                 end
             end
             -- Renewal
@@ -748,12 +758,16 @@ local function runRotation()
                 if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
                     actionList_Opener()
                 end
+                if useCDs() and hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
                 actionList_AMR()
             end -- End In Combat Rotation
         end -- Pause
     --end
 end -- End runRotation 
-local id = 102
+local id = 0
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
