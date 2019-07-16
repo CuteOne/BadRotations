@@ -186,6 +186,7 @@ local cd
 local charges
 local debuff
 local enemies
+local equiped
 local focus
 local focusMax
 local focusRegen
@@ -196,26 +197,20 @@ local inCombat
 local inInstance
 local inRaid
 local item
+local level
 local mode
 local opener
 local php
-local potion
 local race
 local spell
 local talent
-local traits
-local ttm
 local units
 local use
 -- General Locals
-local combatTime
-local flying
 local haltProfile
 local hastar
 local healPot
-local petCombat
 local profileStop
-local pullTimer
 local ttd
 -- Profile Specific Locals
 local actionList = {}
@@ -223,7 +218,6 @@ local carveCdr
 local eagleUnit
 local lowestBloodseeker
 local lowestSerpentSting
-local lowestInternalBleeding
 local maxLatentPoison
 local thisRange
 
@@ -415,10 +409,10 @@ actionList.Cooldown = function()
     if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
         if isChecked("Trinkets") then
-            if use.able.slot(13) then
+            if use.able.slot(13) and not equiped.ashvanesRazorCoral(13) then
                 use.slot(13)
             end
-            if use.able.slot(14) then
+            if use.able.slot(14) and not equiped.ashvanesRazorCoral(14) then
                 use.slot(14)
             end
         end
@@ -454,6 +448,14 @@ actionList.Cooldown = function()
         and (getOptionValue("Aspect of the Eagle") == 1 or (getOptionValue("Aspect of the Eagle") == 2 and useCDs()))
     then
         if cast.aspectOfTheEagle() then return end
+    end
+    -- Ashvane's Razor Coral
+    -- use_item,name=ashvanes_razor_coral,if=buff.memory_of_lucid_dreams.up|buff.guardian_of_azeroth.up|debuff.razor_coral_debuff.down|target.time_to_die<20
+    if equiped.ashvanesRazorCoral() and (buff.memoryOfLucidDreams.exists() or buff.guardianOfAzeroth.exists()
+        or not debuff.razorCoral.exists(eagleUnit) or (ttd(eagleUnit) < 20 and useCDs()))
+    then
+        use.ashvanesRazorCoral()
+        return
     end
     -- Heart Essence
     if isChecked("Use Essence") then
@@ -1164,22 +1166,15 @@ local function runRotation()
     mode                                          = br.player.mode
     opener                                        = br.player.opener
     php                                           = br.player.health
-    potion                                        = br.player.potion
     race                                          = br.player.race
     spell                                         = br.player.spell
     talent                                        = br.player.talent
-    traits                                        = br.player.traits
-    ttm                                           = br.player.power.focus.ttm()
     units                                         = br.player.units
     use                                           = br.player.use
     -- General Locals
-    combatTime                                    = getCombatTime()
-    flying                                        = IsFlying()
     hastar                                        = GetObjectExists("target")
     healPot                                       = getHealthPot()
-    petCombat                                     = UnitAffectingCombat("pet")
     profileStop                                   = profileStop or false
-    pullTimer                                     = br.DBM:getPulltimer()
     ttd                                           = getTTD
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
     -- Units
@@ -1213,7 +1208,6 @@ local function runRotation()
     lowestBloodseeker                             = debuff.bloodseeker.lowest(40,"remain")
     lowestSerpentSting                            = debuff.serpentSting.lowest(40,"remain")
     thisRange                                     = buff.aspectOfTheEagle.exists() and 40 or 5
-    lowestInternalBleeding                        = debuff.internalBleeding.lowest(thisRange,"stack")
     maxLatentPoison                               = debuff.latentPoison.max(thisRange,"stack")
 
     -- variable,name=carve_cdr,op=setif,value=active_enemies,value_else=5,condition=active_enemies<5

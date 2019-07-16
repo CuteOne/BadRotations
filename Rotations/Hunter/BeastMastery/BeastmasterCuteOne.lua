@@ -376,67 +376,67 @@ end -- End Action List - Interrupts
 actionList.Cooldowns = function()
     if useCDs() then
         -- Trinkets
-            if useCDs() and #enemies.yards40f >= 1 then
-                if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
-                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
-                        and br.timer:useTimer("Vigor Engaged Delay", 6)
-                    then
-                        use.vigorTrinket()
-                    end
-                end
-            end
-
-            if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice() then
-                use.pocketSizedComputationDevice()
-            end
-            -- Ashvane's Razor Coral
-            -- ashvanes_razor_coral,if=buff.aspect_of_the_wild.remains>15|debuff.razor_coral_debuff.down|target.time_to_die<20
-            if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() 
-                and (not equiped.pocketSizedComputationDevice() or (equiped.pocketSizedComputationDevice() and cd.pocketSizedComputationDevice.remain() > 0)) 
-                and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(units.dyn40) or ttd(units.dyn40) < 20)
-            then
-                use.ashvanesRazorCoral()
-            end
-
-            if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
-                and use.able.slot(13) and not equiped.vigorTrinket(13)
-                and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
-            then
-                use.slot(13)
-            end
-            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
-                and use.able.slot(14) and not equiped.vigorTrinket(14)
-                and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
-            then
-                use.slot(14)
-            end
-            -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
-            if isChecked("Racial") and cast.able.racial() then --and cd.racial.remain() == 0 then
-                -- ancestral_call,if=cooldown.bestial_wrath.remains>30
-                -- fireblood,if=cooldown.bestial_wrath.remains>30
-                if cd.bestialWrath.remain() > 30 and (race == "MagharOrc" or race == "DarkIronDwarf") then
-                    if cast.racial() then return end
-                end
-                -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
-                -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
-                if (buff.aspectOfTheWild.exists()
-                    and ((race == "Troll" and ttd(units.dyn40) < 13) or (race == "Orc" and ttd(units.dyn40) < 16))
-                    and (ttd(units.dyn40) > cd.racial.remain() + buff.racial.remain()
-                        or (thp(units.dyn40) < 35 or not talent.killerInstinct)))
+        if useCDs() and #enemies.yards40f >= 1 then
+            if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
+                if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
+                    and br.timer:useTimer("Vigor Engaged Delay", 6)
                 then
-                    if cast.racial() then return end
-                end
-                -- lights_judgment,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains>gcd.max|!pet.cat.buff.frenzy.up
-                if (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
-                    if cast.racial() then return end
+                    use.vigorTrinket()
                 end
             end
-            -- Potion
-            --potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up&(target.health.pct<35|!talent.killer_instinct.enabled)|target.time_to_die<25
-            -- if cast.able.potion() and (buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() and (thp(units.dyn40) < 35 or not talent.killerInstinct) or ttd(units.dyn40) < 25) then
-            --     if cast.potion() then return end
-            -- end
-        
+        end
+        -- Pocket Sized Computation Device
+        -- use_item,name=pocketsized_computation_device,if=!raid_event.invulnerable.exists
+        if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice() then
+            use.pocketSizedComputationDevice()
+        end
+        -- Ashvane's Razor Coral
+        -- ashvanes_razor_coral,if=buff.aspect_of_the_wild.remains>15|debuff.razor_coral_debuff.down|target.time_to_die<20
+        if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral()
+            and (not equiped.pocketSizedComputationDevice() or (equiped.pocketSizedComputationDevice() and cd.pocketSizedComputationDevice.remain() > 0))
+            and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(units.dyn40) or ttd(units.dyn40) < 20)
+        then
+            use.ashvanesRazorCoral()
+        end
+
+        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
+            and use.able.slot(13) and not equiped.vigorTrinket(13)
+            and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
+        then
+            use.slot(13)
+        end
+        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
+            and use.able.slot(14) and not equiped.vigorTrinket(14)
+            and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
+        then
+            use.slot(14)
+        end
+        -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
+        if isChecked("Racial") and cast.able.racial() then --and cd.racial.remain() == 0 then
+            -- ancestral_call,if=cooldown.bestial_wrath.remains>30
+            -- fireblood,if=cooldown.bestial_wrath.remains>30
+            if cd.bestialWrath.remain() > 30 and (race == "MagharOrc" or race == "DarkIronDwarf") then
+                if cast.racial() then return end
+            end
+            -- berserking,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.berserking.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<13
+            -- blood_fury,if=buff.aspect_of_the_wild.up&(target.time_to_die>cooldown.blood_fury.duration+duration|(target.health.pct<35|!talent.killer_instinct.enabled))|target.time_to_die<16
+            if (buff.aspectOfTheWild.exists()
+                and ((race == "Troll" and ttd(units.dyn40) < 13) or (race == "Orc" and ttd(units.dyn40) < 16))
+                and (ttd(units.dyn40) > cd.racial.remain() + buff.racial.remain()
+                    or (thp(units.dyn40) < 35 or not talent.killerInstinct)))
+            then
+                if cast.racial() then return end
+            end
+            -- lights_judgment,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains>gcd.max|!pet.cat.buff.frenzy.up
+            if (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
+                if cast.racial() then return end
+            end
+        end
+        -- Potion
+        --potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up&(target.health.pct<35|!talent.killer_instinct.enabled)|target.time_to_die<25
+        -- if cast.able.potion() and (buff.bestialWrath.exists() and buff.aspectOfTheWild.exists() and (thp(units.dyn40) < 35 or not talent.killerInstinct) or ttd(units.dyn40) < 25) then
+        --     if cast.potion() then return end
+        -- end
         -- Heart Essence
         if isChecked("Use Essence") then
             -- worldvein_resonance
@@ -465,7 +465,7 @@ actionList.Cooldowns = function()
         end
     end -- End useCooldowns check
     -- Bestial Wrath
-    -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
+    -- bestial_wrath,precast_time=1.5,if=azerite.primal_instincts.enabled&(!essence.essence_of_the_focusing_iris.major)&(!equipped.pocketsized_computation_device|!cooldown.cyclotronic_blast.duration)
     if mode.bestialWrath == 1 and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
         and cast.able.bestialWrath() and (traits.primalInstincts.active) and ttd(units.dyn40) > 15
         -- and (not equiped.pocketSizedComputationDevice() or cd.pocketSizedComputationDevice.remain() > 0)
@@ -1023,7 +1023,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop then
         profileStop = false
-    elseif haltProfile then
+    elseif haltProfile or cast.current.focusedAzeriteBeam() then
         -----------------
         --- Pet Logic ---
         -----------------
@@ -1052,7 +1052,7 @@ local function runRotation()
         --------------------------
         --- In Combat Rotation ---
         --------------------------
-        if inCombat and isValidUnit("target") and opener.complete and not cast.current.focusedAzeriteBeam() then
+        if inCombat and isValidUnit("target") and opener.complete then
             ------------------------------
             --- In Combat - Interrupts ---
             ------------------------------

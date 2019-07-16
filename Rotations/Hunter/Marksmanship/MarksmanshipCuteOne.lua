@@ -402,9 +402,9 @@ local function runRotation()
                     end
                 end
             end
-            -- use_item,name=pocketsized_computation_device,if=!buff.trueshot.up|target.time_to_die<5
+            -- use_item,name=pocketsized_computation_device,if=!buff.trueshot.up&!essence.blood_of_the_enemy.major.rank3|debuff.blood_of_the_enemy.up|target.time_to_die<5
             if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice()
-                and (not buff.trueshot.exists() or ttd(unit.dyn40) < 5)
+                and (not buff.trueshot.exists() or debuff.bloodOfTheEnemy.exists(units.dyn40) or (ttd(unit.dyn40) < 5 and useCDs()))
             then
                 use.pocketSizedComputationDevice()
             end
@@ -542,8 +542,8 @@ local function runRotation()
                 if cast.able.bloodOfTheEnemy() then
                     if cast.bloodOfTheEnemy() then return end
                 end
-                -- the_unbound_force
-                if cast.able.theUnboundForce() then
+                -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
+                if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForce.stack() < 10) then
                     if cast.theUnboundForce() then return end
                 end
             end
@@ -597,6 +597,19 @@ local function runRotation()
             if opUseCD("Rapid Fire") and cast.able.rapidFire() and (not buff.trueshot.exists() or power < 70) then
                 if cast.rapidFire() then return end
             end
+        -- Heart Essence: Blood of the Enemy
+            -- blood_of_the_enemy,if=buff.trueshot.up&(buff.unerring_vision.stack>4|!azerite.unerring_vision.enabled)|target.time_to_die<11
+            if isChecked("Use Essence") and cast.able.bloodOfTheEnemy() and (buff.trueshot.exist()
+                and (buff.unerringVision.stack() > 4 or not traits.unerringVision.active)
+                    or (ttd(units.dyn40) < 11 or useCDs()))
+            then
+                if cast.bloodOfTheEnemy() then return end
+            end
+        -- Heart Essence: Focused Azerite Beam
+            -- focused_azerite_beam,if=!buff.trueshot.up
+            if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.trueshot.exists() then
+                if cast.focusedAzeriteBeam() then return end
+            end
         -- Arcane Shot
             -- arcane_shot,if=buff.trueshot.up&buff.master_marksman.up&!buff.memory_of_lucid_dreams.up
             if cast.able.arcaneShot() and buff.trueshot.exists()
@@ -605,9 +618,10 @@ local function runRotation()
                 if cast.arcaneShot() then return end
             end
         -- Aimed Shot
-            -- aimed_shot,if=buff.trueshot.up|(buff.double_tap.down|ca_execute)&buff.precise_shots.down|full_recharge_time<cast_time
-            if cast.able.aimedShot() and (buff.trueshot.exists() or (not buff.doubleTap.exists() or caExecute))
-                and (not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot())
+            -- aimed_shot,if=buff.trueshot.up|(buff.double_tap.down|ca_execute)&buff.precise_shots.down|full_recharge_time<cast_time&cooldown.trueshot.remains
+            if cast.able.aimedShot() and (buff.trueshot.exists() or (not buff.doubleTap.exists() or caExecute)
+                and not buff.preciseShots.exists() or charges.aimedShot.timeTillFull() < cast.time.aimedShot()
+                and cd.trueshot.remain() > 0)
             then
                 if cast.aimedShot() then return end
             end
@@ -625,24 +639,16 @@ local function runRotation()
             end
         -- Heart Essence
             if isChecked("Use Essence") then
-                -- focused_azerite_beam
-                if cast.able.focusedAzeriteBeam() then
-                    if cast.focusedAzeriteBeam() then return end
-                end
-                -- purifying_blast
-                if cast.able.purifyingBlast() then
+                -- purifying_blast,if=!buff.trueshot.up
+                if cast.able.purifyingBlast() and not buff.trueshot.exists() then
                     if cast.purifyingBlast("best", nil, 1, 8) then return true end
                 end
-                -- concentrated_flame
-                if cast.able.concentratedFlame() then
+                -- concentrated_flame,if=!buff.trueshot.up
+                if cast.able.concentratedFlame() and not buff.trueshot.exists() then
                     if cast.concentratedFlame() then return end
                 end
-                -- blood_of_the_enemy
-                if cast.able.bloodOfTheEnemy() then
-                    if cast.bloodOfTheEnemy() then return end
-                end
-                -- the_unbound_force
-                if cast.able.theUnboundForce() then
+                -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
+                if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForce.stack() < 10) then
                     if cast.theUnboundForce() then return end
                 end
             end
