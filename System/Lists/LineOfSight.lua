@@ -45,4 +45,5 @@ br.lists.los = {
 	[146256] = true, -- Laminaria
 	[150773] = true, -- Blackwater Behemoth Mob
 	[152364] = true, -- Radiance of Azshara
+	[152671] = true, -- Wekemara
 }
