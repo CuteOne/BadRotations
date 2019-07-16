@@ -103,7 +103,7 @@ Vilt    | Unknown |  8.0  |   100% | :interrobang:
 author  | support | patch | status |   raidable?
 :------ | :-----: | :---: | -----: | :-----------:
 CuteOne |  Full   |  8.2  |   100% | :white_check_mark:
-Aura    |  Full   |  8.0  |   90%  | :white_check_mark:
+Aura    |  None   |  8.0  |   90%  | :interrobang:
 
 - Unholy
 
@@ -144,13 +144,13 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 author  | support | patch | status |     raidable?
 :------ | :-----: | :---: | -----: | :----------------:
-Aura    |  Full   | 8.1   |   80%  | :white_check_mark:
+Aura    |  None   | 8.1   |   80%  | :interrobang:
 
 - Restoration
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Aura   |  Full   | 8.1   |   80%  | :interrobang:
+Aura   |  Full   | 8.2   |   99%  | :white_check_mark:
 
 ### Hunter
 
@@ -237,15 +237,15 @@ Fiskee  |  Full   | 8.0   |   99%  | :white_check_mark:
 
 - Discipline
 
-author       |    support    | patch |  status |     raidable?
-:----------- | :-----------: | :---: | ------: | :----------------:
-Aura       |     Full      | 8.0 |    100% |   :white_check_mark:
+author  |    support    | patch |  status |     raidable?
+:-------| :-----------: | :---: | ------: | :----------------:
+Aura    |     Full      | 8.2   |    100% |   :white_check_mark:
 
 - Holy
 
 author     | support | patch | status | raidable?
 :--------- | :-----: | :---: | -----: | :-------:
-Aura       | Full    | 8.0   |   100% |   :white_check_mark:
+Aura       | Full    | 8.2   |   100% |   :white_check_mark:
 
 - Shadow
 
@@ -294,7 +294,7 @@ Aura    |  Full   | 8.0   |   90%  | :white_check_mark:
 
 author | support | patch | status |     raidable?
 :----- | :-----: | :---: | -----: | :----------------:
-Aura   |  Full   | 8.0   |   90%  |  :white_check_mark:
+Aura   |  Full   | 8.2   |   90%  |  :white_check_mark:
 
 ### Warlock
 
