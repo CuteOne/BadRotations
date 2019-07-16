@@ -202,7 +202,7 @@ function canDispel(Unit, spellID)
 	end
 	if br.player.race == "BloodElf" then --Blood Elf
 		-- Arcane Torrent
-		if spellID == 69179 then typesList = {"Magic"} end
+		if spellID == select(7, GetSpellInfo(GetSpellInfo(69179))) then typesList = {"Magic"} end
 	end
 	local function ValidType(debuffType)
 		local typeCheck = false
