@@ -630,7 +630,7 @@ local function runRotation()
                     end
                 -- Essence: Focused Azerite Beam
                     -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-                    if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() or not buff.crusade.exists())
+                    if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() and not buff.crusade.exists())
                         and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
                         and (#enemies.yards8f >= 3 or useCDs()) and not moving
                     then
