@@ -238,11 +238,16 @@ local function runRotation()
             profileDebug = "Defensive"
             if useDefensive() and not IsMounted() then
         -- Healthstone
-                if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
+                if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
+                        br.addonDebug("Using Healthstone")
                         useItem(5512)
                     elseif canUseItem(healPot) then
+                        br.addonDebug("Using Health Pot")
                         useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
                     end
                 end
         -- Anti-Magic Shell
@@ -458,6 +463,10 @@ local function runRotation()
                 -- Potions
                 --Racials
                 if useCDs() then
+                    if hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
+                    end
                     if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") then
                         if race == "LightforgedDraenei" then
                         if cast.racial("target","ground") then return true end
@@ -491,7 +500,7 @@ local function runRotation()
         end -- Pause
     end -- End Timer
 end -- End runRotation 
-local id = 251 --Change to the spec id profile is for.
+local id = 0 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,
