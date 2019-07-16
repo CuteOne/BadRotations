@@ -525,19 +525,19 @@ actionList.Priority = function()
     end
     -- Frostbrand
     -- frostbrand,if=(azerite.natural_harmony.enabled&buff.natural_harmony_frost.remains<=2*gcd)&talent.hailstorm.enabled&variable.furyCheck_FB
-    if cast.able.frostbrand() and (trait.naturalHarmony.active and buff.naturalHarmony.remain() <= 2 * gcdMax)
+    if cast.able.frostbrand() and (trait.naturalHarmony.active and buff.naturalHarmonyFrost.remain() <= 2 * gcdMax)
         and talent.hailstorm and furyCheckFB
     then
         if cast.frostbrand() then return true end
     end
     -- Flametongue
     -- flametongue,if=(azerite.natural_harmony.enabled&buff.natural_harmony_fire.remains<=2*gcd)
-    if cast.able.flametongue() and (trait.naturalHarmony.active and buff.naturalHarmony.remain() <= 2 * gcdMax) then
+    if cast.able.flametongue() and (trait.naturalHarmony.active and buff.naturalHarmonyFire.remain() <= 2 * gcdMax) then
         if cast.flametongue() then return true end
     end
     -- Rockbiter
     -- rockbiter,if=(azerite.natural_harmony.enabled&buff.natural_harmony_nature.remains<=2*gcd)&maelstrom<70
-    if cast.able.rockbiter() and (trait.naturalHarmony.active and buff.naturalHarmony.remain() <= 2 * gcdMax) and maelstrom < 70 then
+    if cast.able.rockbiter() and (trait.naturalHarmony.active and buff.naturalHarmonyNature.remain() <= 2 * gcdMax) and maelstrom < 70 then
         if cast.rockbiter() then return true end
     end
 end -- End Action List - Priority
