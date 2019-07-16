@@ -79,7 +79,7 @@ br.rotations.support["PetCuteOne"] = function()
             PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
-        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
+        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not isUnitCasting("player") then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
@@ -94,7 +94,9 @@ br.rotations.support["PetCuteOne"] = function()
                     if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
                 end
             end
-        elseif ((not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile) and IsPetAttackActive() then
+        elseif ((not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile)
+            and IsPetAttackActive() and not isUnitCasting("player")
+        then
             PetStopAttack()
             PetFollow()
         end
