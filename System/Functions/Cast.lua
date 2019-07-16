@@ -390,7 +390,7 @@ function castOpener(spellIndex,flag,index,checkdistance)
 					Print(index..": "..spellName)
 					br.player.opener[flag] = true
 				end
-				return true 
+				return true
 			end
 	    end
 	end
@@ -399,7 +399,7 @@ function castOpenerFail(spellIndex,flag,index)
 	local spellCast = br.player.spell[spellIndex]
 	local castSpell = br.player.cast[spellIndex]
 	local spellName = select(1,GetSpellInfo(spellCast))
-	if br.player.opener[flag] == nil then 
+	if br.player.opener[flag] == nil then
 		Print(index..": "..spellName.." (Uncastable)")
 		br.player.opener[flag] = true
 	elseif br.player.opener[flag] ~= true then
@@ -605,7 +605,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 	-- 	"\nEssenceChk: "..tostring(hasEssence())..
 	-- 	"\nTarget      "..tostring(thisUnit)
 	-- 	)
-	-- 	print("\n") 
+	-- 	print("\n")
 	-- end
     -- Base Spell Availablility Check
 	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
@@ -662,7 +662,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [aoe]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
-				elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player") 
+				elseif debug == "dead" and UnitIsPlayer(thisUnit) and UnitIsDeadOrGhost(thisUnit) and GetUnitIsFriend(thisUnit,"player")
 				then
 					-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [dead]")
                     return castSpell(thisUnit,spellCast,false,false,false,true,true,true,true,false)
@@ -670,7 +670,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 					castDebug()
 					if debug == "pet" then
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [pet]")
-						return castSpell("thisUnit",spellCast,true,false,false,false,false,true)
+						return castSpell(thisUnit,spellCast,true,false,false,false,false,true)
 					else
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit))
 						return castSpell(thisUnit,spellCast,true,false,false,true,false,true,true,false)
@@ -701,8 +701,8 @@ function castQueue()
 			for i=1, #br.player.queue do
 				local thisUnit = br.player.queue[i].target
 				local debug = br.player.queue[i].debug
-				local minUnits = br.player.queue[i].minUnits 
-				local effectRng = br.player.queue[i].effectRng				
+				local minUnits = br.player.queue[i].minUnits
+				local effectRng = br.player.queue[i].effectRng
 				local spellID = br.player.queue[i].id
 				if createCastFunction(thisUnit,debug,minUnits,effectRng,spellID) then return end
 			end
