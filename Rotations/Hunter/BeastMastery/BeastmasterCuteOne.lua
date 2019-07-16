@@ -839,8 +839,14 @@ actionList.Cleave = function()
     -- Heart Essence
     if isChecked("Use Essence") then
         -- focused_azerite_beam
-        if cast.able.focusedAzeriteBeam() then
-            if cast.focusedAzeriteBeam() then return end
+        if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists() 
+            and (#enemies.yards8f >= 3 or useCDs())
+        then
+            local minCount = useCDs() and 1 or 3
+            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then 
+                focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+                return
+            end
         end
         -- purifying_blast
         if cast.able.purifyingBlast() then
@@ -1023,7 +1029,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop then
         profileStop = false
-    elseif haltProfile or cast.current.focusedAzeriteBeam() then
+    elseif haltProfile or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime()) then
         -----------------
         --- Pet Logic ---
         -----------------
