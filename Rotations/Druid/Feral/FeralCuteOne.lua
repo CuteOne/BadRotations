@@ -1229,9 +1229,7 @@ actionList.PreCombat = function()
         -- Rake/Shred
         -- buff.prowl.up|buff.shadowmeld.up
         if isValidUnit("target") and opener.complete and getDistance("target") < 5 then
-            if cast.able.rake() and level >= 12
-                and debuff.rake.calc() > debuff.rake.applied("target") * 0.85
-            then
+            if cast.able.rake() and level >= 12 and not debuff.rake.exists("target") then
                 if cast.rake("target") then debug("Casting Rake on "..UnitName("target").." [Pull]"); return true end
             elseif cast.able.shred() then
                 if cast.shred("target") then debug("Casting Shred on "..UnitName("target").." [Pull]"); return true end
@@ -1415,9 +1413,7 @@ local function runRotation()
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
-                if cast.able.rake() and level >= 12
-                    and debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85
-                then
+                if cast.able.rake() and level >= 12 and not debuff.rake.exists(units.dyn5) then
                     if cast.rake(units.dyn5) then debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
                 elseif cast.able.shred() then
                     if cast.shred(units.dyn5) then debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
