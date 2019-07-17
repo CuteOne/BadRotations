@@ -45,8 +45,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
     saveButton:SetEventListener("OnClick", function()
         if getOptionValue("Load Prior Saved Settings") == 1 then
             if br.dungeon == nil then
-                br.dungeon = deepcopy(br.data)
-            elseif br.dungeon.settings == nil then
+                br.dungeon = {}
+            end
+            if br.dungeon.settings == nil then
                 br.dungeon.settings = {}
                 br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
@@ -55,8 +56,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             print("Dungeon Data Saved")
         elseif getOptionValue("Load Prior Saved Settings") == 2 then
             if br.mdungeon == nil then
-                br.mdungeon = deepcopy(br.data)
-            elseif br.mdungeon.settings == nil then
+                br.mdungeon = {}
+            end
+            if br.mdungeon.settings == nil then
                 br.mdungeon.settings = {}
                 br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
@@ -66,8 +68,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             print("Mythic Dungeon Data Saved")
          elseif getOptionValue("Load Prior Saved Settings") == 3 then
             if br.raid == nil then
-                br.raid = deepcopy(br.data)
-            elseif br.raid.settings == nil then
+                br.raid = {}
+            end
+            if br.raid.settings == nil then
                 br.raid.settings = {}
                 br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
@@ -77,8 +80,9 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
             print("Raid Data Saved")
          elseif getOptionValue("Load Prior Saved Settings") == 4 then
             if br.mraid == nil then
-                br.mraid = deepcopy(br.data)
-            elseif br.mraid.settings == nil then
+                br.mraid = {}
+            end
+            if br.mraid.settings == nil then
                 br.mraid.settings = {}
                 br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
             else
