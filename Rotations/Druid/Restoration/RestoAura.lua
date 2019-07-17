@@ -1139,12 +1139,12 @@ local function runRotation()
 			end
 		end
 		-- Cultivation
-		if isChecked("Cultivation") and inRaid and talent.cultivation then
+		if isChecked("Cultivation") and inRaid and talent.cultivation and talent.germination then
 			for i = 1, #br.friend do
 				if getLowAllies(60) < 5 and br.friend[i].hp < 60 and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Cultivation)")
 						return true
 					end
 				end
@@ -1542,7 +1542,7 @@ local function runRotation()
 				if br.friend[i].hp < 60 and not buff.rejuvenation.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Cultivation)")
 						return true
 					end
 				end
@@ -1560,13 +1560,13 @@ local function runRotation()
 				if talent.germination and tanks[i].hp <= getValue("Germination Tank") and not buff.rejuvenationGermination.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
 					--clearform()
 					if cast.rejuvenation(tanks[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Germinate Tank)")
 						return true
 					end
 				elseif not talent.germination and tanks[i].hp <= getValue("Rejuvenation Tank") and not buff.rejuvenation.exists(tanks[i].unit) and getDistance(tanks[i].unit) <= 40 then
 					--clearform()
 					if cast.rejuvenation(tanks[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Tank Rejuv)")
 						return true
 					end
 				end
@@ -1575,13 +1575,13 @@ local function runRotation()
 				if talent.germination and br.friend[i].hp <= getValue("Germination") and (rejuvCount < getValue("Max Rejuvenation Targets")) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Germinate Party)")
 						return true
 					end
 				elseif br.friend[i].hp <= getValue("Rejuvenation") and not buff.rejuvenation.exists(br.friend[i].unit) and (rejuvCount < getValue("Max Rejuvenation Targets")) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (Rejuv Party)")
 						return true
 					end
 				end
@@ -1723,7 +1723,7 @@ local function runRotation()
 						if getDebuffRemain(br.friend[i].unit, v.spellID) > v.secs and getDebuffStacks(br.friend[i].unit, v.spellID) >= v.stacks and not buff.rejuvenation.exists(br.friend[i].unit) then
 							--clearform()
 							if cast.rejuvenation(br.friend[i].unit) then
-								br.addonDebug("Casting Rejuvenation")
+								br.addonDebug("Casting Rejuvenation (DOT Rejuv)")
 								return true
 							end
 						end
@@ -1778,7 +1778,7 @@ local function runRotation()
 							if not buff.rejuvenation.exists(br.friend[j].unit) then
 								--clearform()
 								if cast.rejuvenation(br.friend[j].unit) then
-									br.addonDebug("Casting Rejuvenation")
+									br.addonDebug("Casting Rejuvenation (DBM Rejuv)")
 									return true
 								end
 							end
@@ -1793,7 +1793,7 @@ local function runRotation()
 				if not buff.rejuvenation.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation(Innervate Rejuv)")
 						return true
 					end
 				end
@@ -1805,7 +1805,7 @@ local function runRotation()
 				if not travel and mana >= 99 and not buff.rejuvenation.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (100% Rejuv)")
 						return true
 					end
 				end
@@ -1819,7 +1819,7 @@ local function runRotation()
 				if not buff.rejuvenation.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (All Player Rejuv)")
 						return true
 					end
 				end
@@ -1829,7 +1829,7 @@ local function runRotation()
 				if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
 					--clearform()
 					if cast.rejuvenation(br.friend[i].unit) then
-						br.addonDebug("Casting Rejuvenation")
+						br.addonDebug("Casting Rejuvenation (All Player Double Rejuv)")
 						return true
 					end
 				end
@@ -1967,7 +1967,7 @@ local function runRotation()
 					end
 					if buff.rejuvenation.remains(tanks[i].unit) < 4.5 then
 						if cast.rejuvenation(tanks[i].unit) then
-							br.addonDebug("Casting Rejuvenation")
+							br.addonDebug("Casting Rejuvenation (DPS Mode Tank Rejuv)")
 							return true
 						end
 					end
