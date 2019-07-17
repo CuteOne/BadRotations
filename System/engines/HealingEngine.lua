@@ -143,17 +143,21 @@ if not metaTable1 then
 		-- end
 		-- We are checking the HP of the person through their own function.
 		function o:CalcHP()
+			local toxicBrand = getOptionValue("Toxic Brand")
+			local necroRot = getOptionValue("Necrotic Rot")
+			if toxicBrand == 0 or toxicBrand == nil then toxicBrand = 10 end
+			if necroRot == 0  or necroRot == nil then necroRot = 40 end
 			-- Darkness phase of Kil'Jaeden. basically blacklists all friends if I have this debuff, since I can't heal.
 			-- but once I have Illidan's Sightless Gaze (241721), I can hea
 			if select(9,GetInstanceInfo()) == 1676 and UnitDebuffID("player",236555) and not UnitDebuffID("player",241721) then
 				return 250,250,250
 			end
-			if br.player.eID and br.player.eID == 2298 then
-				if getDebuffStacks(o.unit,294715) > 0 and getDebuffStacks(o.unit, 294715) >= getOptionValue("Toxic Brand") then
+			if isChecked("Toxic Brand") and br.player.eID and br.player.eID == 2298 then
+				if getDebuffStacks(o.unit,294715) > 0 and getDebuffStacks(o.unit, 294715) >= toxicBrand then
 					return 250,250,250
 				end
 			end
-			if getDebuffStacks(o.unit,209858) > 0 and getDebuffStacks(o.unit,209858) >= getValue("Necrotic Rot") then
+			if isChecked("Necrotic Rot") and getDebuffStacks(o.unit,209858) > 0 and getDebuffStacks(o.unit,209858) >= necroRot then
 				return 250,250,250
 			end
 			local chiJiSong = {
