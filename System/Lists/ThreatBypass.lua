@@ -31,5 +31,7 @@ br.lists.threatBypass = {
     [155354] = "Azshara's Indomitable", -- Azshara's Indomitable
     [153194] = "Briny Bubble", -- Lady Ashvane Fight
     [150773] = "Shimmerskin Pufferfish", -- Shimmerskin Pufferfish
-    [154174] = "Za'qul Summoners",
+    [154174] = "Horrific Summoner", -- Za'qul
+    [154175] = "Horrific Summoner", -- Za'qul
+    [151581] = "Horrific Vision", -- Za'qul
 }
