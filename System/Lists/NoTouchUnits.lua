@@ -38,6 +38,10 @@ br.lists.noTouchUnits = {
     {unitID = 137458}, -- Rotting Spore
     -- Siege of Boralus
     {unitID = 128652}, -- Viq'Goth
+    -- Atal'Dazar
+    {unitID = 129399 , buff =250192}, -- Vol'kaal with Bad Voodoo buff
     -- Mechagon
     {unitID = 152703}, -- Walkie Shockie X1
+    -- M+ Beguiling
+    {unitID = 155432}, -- Enchanted Emissary
 }
