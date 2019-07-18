@@ -833,7 +833,7 @@ local function runRotation()
             end
         -- Arcane Torrent
             -- arcane_torrent,if=holy_power<=4
-            if cast.able.racial() and race == "BloodElf" and holyPower <= 4 then
+            if isChecked("Racial") and cast.able.racial() and race == "BloodElf" and holyPower <= 4 then
                 if cast.racial() then return end
             end
         end
