@@ -974,8 +974,8 @@ local function runRotation()
     pullTimer                          = PullTimerRemain()
     thp                                = getHP
     ttd                                = getTTD
-    haltProfile                        = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() 
-                                            or mode.rotation==4 or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
+    haltProfile                        = ((inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists()
+                                            or mode.rotation==4 or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime) or isCastingSpell(293491))
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1030,7 +1030,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop then
         profileStop = false
-    elseif haltProfile or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime()) then
+    elseif haltProfile then
         -----------------
         --- Pet Logic ---
         -----------------
