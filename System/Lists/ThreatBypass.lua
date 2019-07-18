@@ -34,4 +34,5 @@ br.lists.threatBypass = {
     [154174] = "Horrific Summoner", -- Za'qul
     [154175] = "Horrific Summoner", -- Za'qul
     [151581] = "Horrific Vision", -- Za'qul
+    [151900] = "Horrific Summoner", -- Za'qul
 }
