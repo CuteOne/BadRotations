@@ -53,14 +53,9 @@ function castInterrupt(SpellID,Percent,Unit)
 end
 -- canInterrupt("target",20)
 function canInterrupt(unit,percentint)
-	-- M+ Affix: Beguiling (Prevents Interrupt)
-	if C_MythicPlus.IsMythicPlusActive() then
-		local affixes = C_MythicPlus.GetCurrentAffixes()
-		for i = 1, #affixes do
-			if affixes[i].id == 119 then return true end
-		end
-	end
 	unit = unit or "target"
+	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
+	if UnitBuffID(unit,302417) ~= nil then return false end
 	local interruptTarget = getOptionValue("Interrupt Target")
 	if interruptTarget == 2 and not GetUnitIsUnit(unit, "target") then
 		return false
