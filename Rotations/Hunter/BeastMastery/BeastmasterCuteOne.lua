@@ -774,6 +774,7 @@ actionList.Cleave = function()
     -- Multishot
     -- multishot,if=gcd.max-pet.cat.buff.beast_cleave.remains>0.25
     if cast.able.multishot() and (gcdMax - buff.beastCleave.remain("pet") > 0.25)
+         and not isExplosive("target")
     then
         if cast.multishot() then return end
     end
@@ -867,7 +868,7 @@ actionList.Cleave = function()
     end
     -- Multishot
     -- multishot,if=azerite.rapid_reload.enabled&active_enemies>2
-    if cast.able.multishot() and traits.rapidReload.active then
+    if cast.able.multishot() and traits.rapidReload.active and not isExplosive("target") then
         if cast.multishot() then return end
     end
     -- Cobra Shot
