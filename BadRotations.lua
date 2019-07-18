@@ -6,8 +6,10 @@ br.dungeon = {}
 br.mdungeon = {}
 br.raid = {}
 br.mraid = {}
+br.settingsFile = "None.lua"
 br.selectedSpec = "None"
 br.selectedProfile = 1
+br.selectedProfileName = "None"
 br.dropOptions = {}
 --br.dropOptions.Toggle = {"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None"}
 br.dropOptions.Toggle ={"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None","MMouse","Mouse4","Mouse5" }
@@ -109,7 +111,7 @@ function br:loadSettings()
     else
         br.selectedProfile = br.data.settings[br.selectedSpec]["RotationDrop"]
     end
-    if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
+	if br.data.settings[br.selectedSpec][br.selectedProfile] == nil then br.data.settings[br.selectedSpec][br.selectedProfile] = {} end
 end
 local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");

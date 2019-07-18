@@ -191,3 +191,189 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
 
     return loadButton
 end
+
+function br.ui:createExportButton(parent, buttonName, x, y)
+    local exportButton = DiesalGUI:Create('Button')
+    local parent = parent
+
+    exportButton:SetParent(parent.content)
+    exportButton:SetStylesheet(br.ui.buttonStyleSheet)
+    exportButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    exportButton:SetText(buttonName)
+    exportButton:SetWidth(100)
+    exportButton:SetHeight(20)
+    exportButton:SetEventListener("OnClick", function()
+        -- Save br.data for current profile to Settings folder
+        br.data.settings[br.selectedSpec]["toggleBar"] = {}
+        br.data.settings[br.selectedSpec]["toggleBar"] = br.data.settings.mainButton
+        br.data.settings[br.selectedSpec].toggleBar.size = br.data.settings.buttonSize
+        local savedSettings = deepcopy(br.data.settings[br.selectedSpec][br.selectedProfile])
+        if savedSettings ~= nil then
+            br.tableSave(br.data.settings[br.selectedSpec],br.settingsFile)
+            Print("Saved Settings for Profile "..br.selectedProfile..": "..br.selectedSpec..br.selectedProfileName..", to Settings Folder")
+        else
+            Print("Error Saving Settings File")
+        end
+    end)
+
+    parent:AddChild(exportButton)
+
+    return exportButton
+end
+
+function br.ui:createImportButton(parent, buttonName, x, y)
+    local importButton = DiesalGUI:Create('Button')
+    local parent = parent
+
+    importButton:SetParent(parent.content)
+    importButton:SetStylesheet(br.ui.buttonStyleSheet)
+    importButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    importButton:SetText(buttonName)
+    importButton:SetWidth(100)
+    importButton:SetHeight(20)
+    importButton:SetEventListener("OnClick", function()
+        -- Load settings file matching profile to br.data
+        local loadSettings = br.tableLoad(br.settingsFile)
+        if assert(loadSettings ~= nil) then
+            br.ui:closeWindow("all")
+            mainButton:Hide()
+            br.data.settings[br.selectedSpec] = loadSettings
+            br.data.settings.mainButton = br.data.settings[br.selectedSpec].toggleBar
+            br.data.settings.buttonSize = br.data.settings[br.selectedSpec].toggleBar.size
+            br.ui:recreateWindows()
+            Print("Loaded Settings for Profile "..br.selectedProfile..": "..br.selectedProfileName..br.selectedSpec..", from Settings Folder")
+            ReloadUI() 
+        else
+            Print("Error Loading Settings File")
+        end
+    end)
+
+    parent:AddChild(importButton)
+
+    return importButton
+end
+
+--------------------------------------------------------------------------
+-- Table Save/Load code from: http://lua-users.org/wiki/SaveTableToFile --
+--------------------------------------------------------------------------
+local function exportstring( s )
+    return string.format("%q", s)
+end
+
+--// The Save Function
+br.tableSave = function(tbl,filename)
+    local charS,charE = "   ","\n"
+    -- local file,err = io.open( filename, "wb" )
+    -- if err then return err end
+    WriteFile(filename,"")
+    -- initiate variables for save procedure
+    local tables,lookup = { tbl },{ [tbl] = 1 }
+    -- file:write( "return {"..charE )
+    WriteFile(filename,"return {"..charE,true)
+
+    for idx,t in ipairs( tables ) do
+        -- file:write( "-- Table: {"..idx.."}"..charE )
+        WriteFile(filename,"-- Table: {"..idx.."}"..charE,true)
+        -- file:write( "{"..charE )
+        WriteFile(filename,"{"..charE,true)
+        local thandled = {}
+
+        for i,v in ipairs( t ) do
+            thandled[i] = true
+            local stype = type( v )
+            -- only handle value
+            if stype == "table" then
+                if not lookup[v] then
+                    table.insert( tables, v )
+                    lookup[v] = #tables
+                end
+                -- file:write( charS.."{"..lookup[v].."},"..charE )
+                WriteFile(filename,charS.."{"..lookup[v].."},"..charE,true)
+            elseif stype == "string" then
+                -- file:write(  charS..exportstring( v )..","..charE )
+                WriteFile(filename,charS..exportstring( v )..","..charE,true)
+            elseif stype == "number" then
+                -- file:write(  charS..tostring( v )..","..charE )
+                WriteFile(filename,charS..tostring( v )..","..charE,true)
+            elseif stype == "boolean" then
+                WriteFile(filename,charS..tostring( v )..","..charE,true)
+            end
+        end
+
+        for i,v in pairs( t ) do
+            -- escape handled values
+            if (not thandled[i]) then
+            
+                local str = ""
+                local stype = type( i )
+                -- handle index
+                if stype == "table" then
+                    if not lookup[i] then
+                        table.insert( tables,i )
+                        lookup[i] = #tables
+                    end
+                    str = charS.."[{"..lookup[i].."}]="
+                elseif stype == "string" then
+                    str = charS.."["..exportstring( i ).."]="
+                elseif stype == "number" then
+                    str = charS.."["..tostring( i ).."]="
+                elseif stype == "boolean" then
+                    str = charS.."["..i.."]="
+                end
+            
+                if str ~= "" then
+                    stype = type( v )
+                    -- handle value
+                    if stype == "table" then
+                        if not lookup[v] then
+                            table.insert( tables,v )
+                            lookup[v] = #tables
+                        end
+                        -- file:write( str.."{"..lookup[v].."},"..charE )
+                        WriteFile(filename,str.."{"..lookup[v].."},"..charE,true)
+                    elseif stype == "string" then
+                        -- file:write( str..exportstring( v )..","..charE )
+                        WriteFile(filename,str..exportstring( v )..","..charE,true)
+                    elseif stype == "number" then
+                        -- file:write( str..tostring( v )..","..charE )
+                        WriteFile(filename,str..tostring( v )..","..charE,true)
+                    elseif stype == "boolean" then
+                        WriteFile(filename,str..tostring( v )..","..charE,true)
+                    end
+                end
+            end
+        end
+        -- file:write( "},"..charE )
+        WriteFile(filename,"},"..charE,true)
+    end
+    -- file:write( "}" )
+    WriteFile(filename,"}",true)
+    -- file:close()
+end
+
+--// The Load Function
+br.tableLoad = function( sfile )
+    local file = assert(ReadFile(sfile))
+    if file == nil then return end
+    local ftables = loadstring(file,sfile)
+    -- local ftables,err = loadfile( sfile )
+    -- if err then return _,err end
+    local tables = ftables()
+    -- return deepcopy(tables)
+    for idx = 1,#tables do
+        local tolinki = {}
+        for i,v in pairs( tables[idx] ) do
+            if type( v ) == "table" then
+                tables[idx][i] = tables[v[1]]
+            end
+            if type( i ) == "table" and tables[i[1]] then
+                table.insert( tolinki,{ i,tables[i[1]] } )
+            end
+        end
+        -- link indices
+        for _,v in ipairs( tolinki ) do
+            tables[idx][v[2]],tables[idx][v[1]] =  tables[idx][v[1]],nil
+        end
+    end
+    return tables[1]
+end

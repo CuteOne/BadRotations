@@ -31,5 +31,6 @@ misc.xml
 Rotations/Test
 .vscode/settings.json
 *.simc
+Settings/*
 
 Rotations/Rogue/Outlaw/OutlawRavens\.lua

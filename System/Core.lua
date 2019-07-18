@@ -210,6 +210,8 @@ function BadRotationsUpdate(self)
 						br.player:update()
 						collectGarbage = true
 						Print("Loaded Profile: " .. br.player.rotation.name)
+						br.settingsFile = GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Settings\\' .. 
+							br.selectedSpec .. br.selectedProfileName .. ".lua"
 						br.rotationChanged = false
 					end
 					-- Queue Casting
