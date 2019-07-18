@@ -1845,7 +1845,7 @@ local function runRotation()
 			if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
 				for i = 1, #enemies.yards40 do
 					local thisUnit = enemies.yards40[i]
-					if not debuff.sunfire.exists(thisUnit) then
+					if not debuff.sunfire.exists(thisUnit) and not isExplosive(thisUnit) then
 						if cast.sunfire(thisUnit) then
 							br.addonDebug("Casting Sunfire")
 							return true
@@ -1858,7 +1858,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 and not isExplosive(thisUnit) then
 							if cast.moonfire(thisUnit) then
 								br.addonDebug("Casting Moonfire")
 								return true
@@ -1882,7 +1882,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 and not isExplosive(thisUnit) then
 							if cast.moonfire(thisUnit) then
 								br.addonDebug("Casting Moonfire")
 								return true
@@ -1981,7 +1981,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 and not isExplosive(thisUnit) then
 							if cast.moonfire(thisUnit) then
 								br.addonDebug("Casting Moonfire")
 								return true
@@ -1993,7 +1993,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
-						if not debuff.sunfire.exists(thisUnit) then
+						if not debuff.sunfire.exists(thisUnit) and not isExplosive(thisUnit) then
 							if cast.sunfire(thisUnit) then
 								br.addonDebug("Casting Sunfire")
 								return true
@@ -2010,14 +2010,14 @@ local function runRotation()
 				end
 			elseif nearEnemies == 1 then
 				-- Moonfire
-				if not debuff.moonfire.exists("target") and mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
+				if not debuff.moonfire.exists("target") and mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") and not isExplosive("target") then
 					if cast.moonfire("target") then
 						br.addonDebug("Casting Moonfire")
 						return true
 					end
 				end
 				-- Sunfire
-				if not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+				if not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") and not isExplosive("target") then
 					if cast.sunfire("target") then
 						br.addonDebug("Casting Sunfire")
 						return true
@@ -2065,7 +2065,7 @@ local function runRotation()
 				end
 			elseif nearEnemies > 1 and nearEnemies < 4 then
 				-- Sunfire
-				if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") then
+				if #enemies.yards8t > 1 and not debuff.sunfire.exists("target") and mana >= getOptionValue("DPS Save mana") and not isExplosive("target") then
 					if cast.sunfire("target") then
 						br.addonDebug("Casting Sunfire")
 						return true
@@ -2075,7 +2075,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards8[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 and not isExplosive(thisUnit) then
 							if cast.moonfire(thisUnit) then
 								br.addonDebug("Casting Moonfire")
 								return true
@@ -2084,7 +2084,7 @@ local function runRotation()
 					end
 				end
 				-- Sunfire
-				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") and not isExplosive(thisUnit) then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.sunfire.exists(thisUnit) then
@@ -2145,7 +2145,7 @@ local function runRotation()
 				end
 			elseif nearEnemies >= 4 then
 				--Sunfire
-				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") and not isExplosive(thisUnit) then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.sunfire.exists(thisUnit) then
@@ -2227,7 +2227,7 @@ local function runRotation()
 					end
 				end
 				-- Sunfire
-				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") then
+				if mana >= getOptionValue("DPS Save mana") and debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") and not isExplosive(thisUnit) then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
 						if not debuff.sunfire.exists(thisUnit) then
@@ -2242,7 +2242,7 @@ local function runRotation()
 				if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 					for i = 1, #enemies.yards40 do
 						local thisUnit = enemies.yards40[i]
-						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 then
+						if not debuff.moonfire.exists(thisUnit) and ttd(thisUnit) > 10 and not isExplosive(thisUnit) then
 							if cast.moonfire(thisUnit) then
 								br.addonDebug("Casting Moonfire")
 								return true
@@ -2373,7 +2373,7 @@ local function runRotation()
 					if mana >= getOptionValue("DPS Save mana") and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") then
 						for i = 1, #enemies.yards40 do
 							local thisUnit = enemies.yards40[i]
-							if not debuff.moonfire.exists(thisUnit) then
+							if not debuff.moonfire.exists(thisUnit) and not isExplosive(thisUnit) then
 								if cast.moonfire(thisUnit) then
 									br.addonDebug("Casting Moonfire")
 									return true
@@ -2382,10 +2382,10 @@ local function runRotation()
 						end
 					end
 					-- Sunfire
-					if mana >= getOptionValue("DPS Save mana") then
+					if mana >= getOptionValue("DPS Save mana")  then
 						for i = 1, #enemies.yards40 do
 							local thisUnit = enemies.yards40[i]
-							if not debuff.sunfire.exists(thisUnit) then
+							if not debuff.sunfire.exists(thisUnit) and not isExplosive(thisUnit) then
 								if cast.sunfire(thisUnit) then
 									br.addonDebug("Casting Sunfire")
 									return true
