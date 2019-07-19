@@ -197,6 +197,7 @@ local debuff
 local enemies
 local equiped
 local focus
+local focusMax
 local focusRegen
 local gcd
 local gcdMax
@@ -950,6 +951,7 @@ local function runRotation()
     enemies                            = br.player.enemies
     equiped                            = br.player.equiped
     focus                              = br.player.power.focus.amount()
+    focusMax                           = br.player.power.focus.max()
     focusRegen                         = br.player.power.focus.regen()
     gcd                                = br.player.gcd
     gcdMax                             = br.player.gcdMax
