@@ -193,6 +193,7 @@ local function runRotation()
         local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
+        local essence                                       = br.player.essence
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
         local gcdMax                                        = br.player.gcdMax
