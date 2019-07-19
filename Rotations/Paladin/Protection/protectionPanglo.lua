@@ -533,7 +533,7 @@ local function runRotation()
 		for i = 1, #Debuff do
 			local debuff_id = Debuff[i]
 			if getDebuffRemain("player", debuff_id) > 1 and not buff.shieldOfTheRighteous.exists() then
-				if cast.shieldOfTheRighteous() then Print("Debuff Shield")
+				if cast.shieldOfTheRighteous() then --[[ Print("Debuff Shield") ]]
 					return
 				end
 			end
@@ -556,7 +556,7 @@ local function runRotation()
 			local spell_name = Casting[i][2]
 			if UnitCastingInfo("target") == GetSpellInfo(spell_id) and not buff.shieldOfTheRighteous.exists() then
 				if cast.shieldOfTheRighteous() then
-					Print("damage reduction in advance..." .. spell_name)
+					--[[ Print("damage reduction in advance..." .. spell_name) ]]
 					return
 				end
 			end
@@ -835,7 +835,7 @@ local function runRotation()
 			-- Shield of the Righteous
 			if isChecked("Shield of the Righteous - HP") and cast.able.shieldOfTheRighteous() then
 				if php <= getOptionValue("Shield of the Righteous - HP") and inCombat and not buff.shieldOfTheRighteous.exists() then
-					if cast.shieldOfTheRighteous() then Print("HP Shield")
+					if cast.shieldOfTheRighteous() then--[[  Print("HP Shield") ]]
 						return
 					end
 				end
@@ -1052,7 +1052,7 @@ local function runRotation()
 				elseif (((talent.judgmentOfLight and not debuff.judgmentOfLight.exists(thisUnit)) or not talent.judgmentOfLight) or 
 						debuff.judgmentOfLight.count() >= #enemies.yards10) then
 					if cast.judgment(thisUnit) then
-						--Print("feng Judge")
+						--Print("Judge")
 						return
 					end
 				end
@@ -1084,6 +1084,23 @@ local function runRotation()
 		-- Consecration
 		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 then
 			if cast.consecration("player") then
+				return
+			end
+		end
+	end
+	local function explosivelist() 
+		if isChecked("Avenger's Shield") and cast.able.avengersShield() then
+			if cast.avengersShield("target") then
+				return
+			end
+		end
+		if isChecked("Judgment") and cast.able.judgment() then
+			if cast.judgment("target") then
+				return
+			end
+		end
+		if isChecked("Hammer of the Righteous") and cast.able.hammerOfTheRighteous() and getDistance("target") < 5 then
+			if cast.hammerOfTheRighteous("target") then
 				return
 			end
 		end
@@ -1131,6 +1148,10 @@ local function runRotation()
 		--- In Combat Rotation ---
 		--------------------------
 		if inCombat and (not IsMounted()) and profileStop == false then
+			--Start Attack
+			if getDistance(units.dyn5) < 5 then
+				StartAttack()
+			end
 			------------------------------
 			--- In Combat - Interrupts ---
 			------------------------------
@@ -1149,6 +1170,11 @@ local function runRotation()
 			--------------------------------
 			----- In Combat  -----
 			--------------------------------
+			if isExplosive("target") then
+                if explosivelist() then
+                    return
+                end
+            end
 			if actionList_Feng() then
 				return
 			end
