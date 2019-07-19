@@ -41,6 +41,12 @@ local function createToggles()
   };
   CreateButton("ForceofNature", 5, 0)
 
+  FormsModes = {
+    [1] = { mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm },
+    [2] = { mode = "Off", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm },
+  };
+  CreateButton("Forms", 6, 0)
+
 end
 ---------------
 --- OPTIONS ---
@@ -97,6 +103,8 @@ local function createOptions()
     br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
     br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
     br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+    br.ui:createSpinner(section, "Focused Azerite Beam", 3, 1, 10, 1, "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
+
     br.ui:createCheckbox(section, "Opener")
     br.ui:checkSectionState(section)
     -------------------------
@@ -167,8 +175,11 @@ local function runRotation()
   UpdateToggle("Defensive", 0.25)
   UpdateToggle("Interrupt", 0.25)
   UpdateToggle("ForceofNature", 0.25)
+  UpdateToggle("Forms", 0.25)
+
   br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
   br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
+  br.player.mode.forms = br.data.settings[br.selectedSpec].toggles["Forms"]
 
 
   --------------
@@ -248,6 +259,7 @@ local function runRotation()
   enemies.get(40)
   enemies.get(15)
   enemies.get(8, "target") -- enemies.yards8t
+  enemies.get(10, "target", true)
   enemies.get(15, "target") -- enemies.yards15t
   enemies.get(12, "target") -- enemies.yards12t
 
@@ -355,6 +367,64 @@ local function runRotation()
     end
   end
 
+  local function castBeam(minUnits, safe, minttd)
+    if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+      return false
+    end
+
+    local x, y, z = ObjectPosition("player")
+    local length = 30
+    local width = 6
+    ttd = ttd or 0
+    safe = safe or true
+    local function getRectUnit(facing)
+      local halfWidth = width / 2
+      local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+      local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+      local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+      return nlX, nlY, nrX, nrY, frX, frY
+    end
+    local enemiesTable = getEnemies("player", length, true)
+    local facing = ObjectFacing("player")
+    local unitsInRect = 0
+    local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+    local thisUnit
+    for i = 1, #enemiesTable do
+      thisUnit = enemiesTable[i]
+      local uX, uY, uZ = ObjectPosition(thisUnit)
+      if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z + 2, uX, uY, uZ + 2, 0x100010) then
+        if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+          unitsInRect = 0
+          break
+        end
+        if ttd(thisUnit) >= minttd then
+          unitsInRect = unitsInRect + 1
+        end
+      end
+    end
+    if unitsInRect >= minUnits then
+      CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+      return true
+    else
+      return false
+    end
+  end
+
+
+  --aoe_count
+  local aoe_count = 0
+  for i = 1, #enemies.yards10tnc do
+    local thisUnit = enemies.yards10tnc[i]
+    if ttd(thisUnit) > 4 then
+      aoe_count = aoe_count + 1
+    end
+  end
+
+  local standingTime = 0
+  if DontMoveStartTime then
+    standingTime = GetTime() - DontMoveStartTime
+  end
+
   local function dps()
 
     --setting norepeat
@@ -369,8 +439,14 @@ local function runRotation()
       end
     end
 
+    --Essence Support
     if isChecked("ConcentratedFlame - DPS") then
       if cast.concentratedFlame("target") then
+        return true
+      end
+    end
+    if standingTime > 1 and isChecked("Focused Azerite Beam") and aoe_count > 3 then
+      if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then
         return true
       end
     end
@@ -939,7 +1015,8 @@ local function runRotation()
       standingTime = GetTime() - DontMoveStartTime
     end
 
-    if isChecked("Auto Shapeshifts") then
+
+    if mode.forms == 1 then
       if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 1 then
         if cast.moonkinForm("player") then
           return true
