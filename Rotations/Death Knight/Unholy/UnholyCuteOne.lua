@@ -58,14 +58,14 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Chains of Ice
             br.ui:createCheckbox(section, "Chains of Ice")
-            -- Control Undead 
+            -- Control Undead
             br.ui:createCheckbox(section, "Control Undead")
-            -- Dark Command 
+            -- Dark Command
             br.ui:createCheckbox(section, "Dark Command","|cffFFFFFFWill taunt selected target to begin combat.")
-            -- Death Grip 
+            -- Death Grip
             br.ui:createCheckbox(section, "Death Grip","|cffFFFFFFWill grip units out that are >8yrds away from you while in combat.")
             br.ui:createCheckbox(section, "Death Grip - Pre-Combat","|cffFFFFFFWill grip selected target to begin combat.")
-            -- Path of Frost 
+            -- Path of Frost
             br.ui:createCheckbox(section, "Path of Frost")
             -- Heart Essence
             br.ui:createCheckbox(section, "Use Essence")
@@ -73,7 +73,7 @@ local function createOptions()
         -------------------
         --- PET OPTIONS ---
         -------------------
-        section = br.ui:createSection(br.ui.window.profile, "Pet Management")            
+        section = br.ui:createSection(br.ui.window.profile, "Pet Management")
             -- Raise Dead
             br.ui:createCheckbox(section, "Raise Dead")
             -- Pet Target
@@ -83,7 +83,7 @@ local function createOptions()
             -- Claw
             br.ui:createCheckbox(section, "Claw")
             -- Gnaw
-            br.ui:createCheckbox(section, "Gnaw")            
+            br.ui:createCheckbox(section, "Gnaw")
             -- Huddle
             br.ui:createSpinner(section, "Huddle", 30, 0, 100, 5, "|cffFFFFFFPet Health Percent to Cast At")
             -- Leap
@@ -103,19 +103,19 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
-            -- Apocalypse 
+            -- Apocalypse
             br.ui:createDropdownWithout(section, "Apocalypse", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Apocalypse.")
             -- Army of the Dead
             br.ui:createCheckbox(section, "Army of the Dead")
             -- Dark Transformation
             br.ui:createDropdownWithout(section, "Dark Transformation", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation.")
-            -- Soul Reaper 
+            -- Soul Reaper
             br.ui:createDropdownWithout(section, "Soul Reaper", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Soul Reaper.")
             -- Summon Gargoyle
             br.ui:createCheckbox(section, "Summon Gargoyle")
             -- Unholy BLight
             br.ui:createDropdownWithout(section, "Unholy Blight", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Blight.")
-            -- Unholy Frenzy 
+            -- Unholy Frenzy
             br.ui:createDropdownWithout(section, "Unholy Frenzy", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Frenzy.")
         br.ui:checkSectionState(section)
         -------------------------
@@ -128,12 +128,12 @@ local function createOptions()
             br.ui:createSpinner(section, "Heirloom Neck",  60,  0,  100,  5,  "|cffFFFFFFHealth Percent to use at.")
             -- Anti-Magic Shell
             br.ui:createSpinner(section, "Anti-Magic Shell", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
-            -- Death Strike 
+            -- Death Strike
             br.ui:createSpinner(section, "Death Strike", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
-            -- Death Pact 
+            -- Death Pact
             br.ui:createSpinner(section, "Death Pact", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
-            -- Icebound Fortitude 
-            br.ui:createSpinner(section, "Icebound Fortitude", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.") 
+            -- Icebound Fortitude
+            br.ui:createSpinner(section, "Icebound Fortitude", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to use at.")
             -- Raise Ally
             br.ui:createDropdown(section, "Raise Ally", {"|cff00FF00Target","|cffFF0000Mouseover"}, 1, "|cffFFFFFFTarget to cast on")
         br.ui:checkSectionState(section)
@@ -229,7 +229,7 @@ local function runRotation()
     -- Variables
     -- variable,name=pooling_for_gargoyle,value=cooldown.summon_gargoyle.remains<5&talent.summon_gargoyle.enabled
     poolForGargoyle = cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
-    deathAndDecayRemain = 0 
+    deathAndDecayRemain = 0
     if (cd.deathAndDecay.remain() - 10) > 0 then deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
 
 --------------------
@@ -262,10 +262,10 @@ local function runRotation()
             waitForPetToAppear = GetTime()
         elseif isChecked("Raise Dead") then
             if waitForPetToAppear ~= nil and GetTime() - waitForPetToAppear > 2 then
-                if cast.able.raiseDead() and (deadPet or (not deadPet and not (petActive or petExists)) 
-                    or (talent.allWillServe and not pet.risenSkulker.exists())) 
+                if cast.able.raiseDead() and (deadPet or (not deadPet and not (petActive or petExists))
+                    or (talent.allWillServe and not pet.risenSkulker.exists()))
                 then
-                    if cast.raiseDead() then waitForPetToAppear = GetTime(); return end 
+                    if cast.raiseDead() then waitForPetToAppear = GetTime(); return end
                 end
             end
         end
@@ -273,7 +273,7 @@ local function runRotation()
             -- Set Pet Mode Out of Comat / Set Mode Passive In Combat
             if (not inCombat and petMode == "Passive") or (inCombat and (petMode == "Defensive" or petMode == "Passive")) then
                 PetAssistMode()
-            elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then 
+            elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 then
                 PetDefensiveMode()
             elseif inCombat and petMode ~= "Passive" and #enemies.yards40 == 0 then
                 PetPassiveMode()
@@ -316,7 +316,7 @@ local function runRotation()
         if isChecked("Leap") and cast.able.leap("pettarget") and not buff.huddle.exists("pet") and validTarget and getDistance("pettarget","pet") > 8 then
             if cast.leap("pettarget") then return end
         end
-    end 
+    end
     local function actionList_Extras()
     -- Dummy Test
         if isChecked("DPS Testing") then
@@ -340,15 +340,15 @@ local function runRotation()
                 end
             end
         end
-    -- Control Undead 
-        if isChecked("Control Undead") and cast.able.controlUndead() then 
-            for i = 1, #enemies.yards30 do 
+    -- Control Undead
+        if isChecked("Control Undead") and cast.able.controlUndead() then
+            for i = 1, #enemies.yards30 do
                 thisUnit = enemies.yards30[i]
-                if isUndead(thisUnit) and not isDummy(thisUnit) and not isBoss(thisUnit) and UnitLevel(thisUnit) <= level + 1 then 
-                    if cast.controlUndead(thisUnit) then return end 
-                end 
-            end 
-        end 
+                if isUndead(thisUnit) and not isDummy(thisUnit) and not isBoss(thisUnit) and UnitLevel(thisUnit) <= level + 1 then
+                    if cast.controlUndead(thisUnit) then return end
+                end
+            end
+        end
     -- Death Grip
         if isChecked("Death Grip") and cast.able.deathGrip() then
             thisUnit = talent.deathsReach and units.dyn40 or units.dyn30
@@ -363,24 +363,24 @@ local function runRotation()
             end
         end
     end -- End Action List - Extras
-    local function actionList_Defensive() 
+    local function actionList_Defensive()
         -- Anti-Magic Shell
-        if isChecked("Anti-Magic Shell") and cast.able.antiMagicShell() and php < getOptionValue("Anti-Magic Shell") then 
-            if cast.antiMagicShell() then return end 
+        if isChecked("Anti-Magic Shell") and cast.able.antiMagicShell() and php < getOptionValue("Anti-Magic Shell") then
+            if cast.antiMagicShell() then return end
         end
-        -- Death Strike 
-        if isChecked("Death Strike") and cast.able.deathStrike() and (php < getOptionValue("Death Strike") or buff.darkSuccor.exists()) then 
+        -- Death Strike
+        if isChecked("Death Strike") and cast.able.deathStrike() and (php < getOptionValue("Death Strike") or buff.darkSuccor.exists()) then
             if cast.deathStrike() then return end
         end
-        -- Death Pact 
-        if isChecked("Death Pact") and cast.able.deathPact() and php < getOptionValue("Death Pact") then 
-            if cast.deathPact() then return end 
-        end 
-        -- Icebound Fortitude 
-        if isChecked("Icebound Fortitude") and cast.able.iceboundFortitude() and php < getOptionValue("Icebound Fortitude") then 
-            if cast.iceboundFortitude() then return end 
+        -- Death Pact
+        if isChecked("Death Pact") and cast.able.deathPact() and php < getOptionValue("Death Pact") then
+            if cast.deathPact() then return end
         end
-        -- Raise Ally 
+        -- Icebound Fortitude
+        if isChecked("Icebound Fortitude") and cast.able.iceboundFortitude() and php < getOptionValue("Icebound Fortitude") then
+            if cast.iceboundFortitude() then return end
+        end
+        -- Raise Ally
         if isChecked("Raise Ally") then
             if getOptionValue("Raise Ally")==1 and cast.able.raiseAlly("target","dead")
                 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player")
@@ -417,84 +417,88 @@ local function runRotation()
         end -- End useInterrupts check
     end -- End Action List - Interrupts
     local function actionList_Cooldowns()
-    -- Army of the Dead 
+    -- Army of the Dead
         -- army_of_the_dead
-        if isChecked("Army of the Dead") and useCDs() and cast.able.armyOfTheDead() then 
-            if cast.armyOfTheDead() then return end 
-        end 
-    -- Apocalypse 
-        -- apocalypse,if=debuff.festering_wound.stack>=4
-        if (getOptionValue("Apocalypse") == 1 or (getOptionValue("Apocalypse") == 2 and useCDs())) 
-            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4 
-        then 
-            if cast.apocalypse(units.dyn5) then return end 
+        if isChecked("Army of the Dead") and useCDs() and cast.able.armyOfTheDead() then
+            if cast.armyOfTheDead() then return end
         end
-    -- Dark Transformation 
+    -- Apocalypse
+        -- apocalypse,if=debuff.festering_wound.stack>=4
+        if (getOptionValue("Apocalypse") == 1 or (getOptionValue("Apocalypse") == 2 and useCDs()))
+            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4
+        then
+            if cast.apocalypse(units.dyn5) then return end
+        end
+    -- Dark Transformation
         -- dark_transformation
         if pet.active.exists() and cast.able.darkTransformation()
-            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs())) 
-        then 
-            if cast.darkTransformation() then return end 
-        end 
-    -- Summon Gargoyle 
-        -- summon_gargoyle,if=runic_power.deficit<14
-        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 then 
-            if cast.summonGargoyle() then return end 
+            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs()))
+        then
+            if cast.darkTransformation() then return end
         end
-    -- Unholy Frenzy 
+    -- Summon Gargoyle
+        -- summon_gargoyle,if=runic_power.deficit<14
+        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 then
+            if cast.summonGargoyle() then return end
+        end
+    -- Unholy Frenzy
         if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyFrenzy() then
             -- unholy_frenzy,if=debuff.festering_wound.stack<4
-            if debuff.festeringWound.stack(units.dyn5) < 4 then 
-                if cast.unholyFrenzy() then return end 
-            end 
+            if debuff.festeringWound.stack(units.dyn5) < 4 then
+                if cast.unholyFrenzy() then return end
+            end
             -- unholy_frenzy,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile))
-            then 
-                if cast.unholyFrenzy() then return end 
-            end 
+            then
+                if cast.unholyFrenzy() then return end
+            end
         end
-    -- Soul Reaper 
+    -- Soul Reaper
         if (getOptionValue("Soul Reaper") == 1 or (getOptionValue("Soul Reaper") == 2 and useCDs())) and cast.able.soulReaper() then
             -- soul_reaper,target_if=target.time_to_die<8&target.time_to_die>4
-            if ttd(units.dyn5) < 8 and ttd(units.dyn5) > 4 then 
-                if cast.soulReaper() then return end 
-            end 
-            -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_frenzy.up)
-            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) then 
-                if cast.soulReaper() then return end 
+            if ttd(units.dyn5) < 8 and ttd(units.dyn5) > 4 then
+                if cast.soulReaper() then return end
             end
-        end 
+            -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_frenzy.up)
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) then
+                if cast.soulReaper() then return end
+            end
+        end
     -- Unholy Blight
         -- unholu_blight
         if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyBlight("player","aoe",1,10) then
-            if cast.unholyBlight("player","aoe",1,10) then return end 
+            if cast.unholyBlight("player","aoe",1,10) then return end
         end
     end -- End Action List - Cooldowns
     local function actionList_Essences()
         if isChecked("Use Essence") then
             -- Memory of Lucid Dreams
             -- memory_of_lucid_dreams,if=rune.time_to_1>gcd&runic_power<40
-            if useCDs() and cast.able.memoryOfLucidDreams() and runesTTM(1) > gcd and runicPower < 40 then 
-                if cast.memoryOfLucidDreams() then return end 
+            if useCDs() and cast.able.memoryOfLucidDreams() and runesTTM(1) > gcd and runicPower < 40 then
+                if cast.memoryOfLucidDreams() then return end
             end
             -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&cooldown.death_and_decay.ready)
-            if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1) 
+            if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1)
                 or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or (cd.apocalypse.remain() > 0 and cd.deathAndDecay.remain() == 0))
-            then 
-                if cast.bloodOfTheEnemy() then return end 
+            then
+                if cast.bloodOfTheEnemy() then return end
             end
             -- guardian_of_azeroth,if=cooldown.apocalypse.ready
-            if useCDs() and cast.able.guardianOfAzeroth() and cd.apocalypse.remain() == 0 then 
-                if cast.guardianOfAzeroth() then return end 
+            if useCDs() and cast.able.guardianOfAzeroth() and cd.apocalypse.remain() == 0 then
+                if cast.guardianOfAzeroth() then return end
+            end
+            -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<11
+            if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForceCounter.stack() < 11) then
+                if cast.theUnboundForce() then return end
             end
             -- focused_azerite_beam,if=!death_and_decay.ticking
-            if cast.able.focusedAzeriteBeam() and deathAndDecayRemain == 0 then 
-                if cast.focusedAzeriteBeam() then return end 
+            if cast.able.focusedAzeriteBeam() and deathAndDecayRemain == 0 then
+                if cast.focusedAzeriteBeam() then return end
             end
             -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
-            if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then 
-                if cast.concentratedFlame() then return end 
+            if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then
+                if cast.concentratedFlame() then return end
             end
             -- purifying_blast,if=!death_and_decay.ticking
             if useCDs() and cast.able.purifyingBlast() and deathAndDecayRemain == 0 then
@@ -502,177 +506,177 @@ local function runRotation()
             end
             -- worldvein_resonance,if=!death_and_decay.ticking
             if cast.able.worldveinResonance() and deathAndDecayRemain == 0 then
-                if cast.worldveinResonance() then return end 
-            end 
+                if cast.worldveinResonance() then return end
+            end
             -- ripple_in_space,if=!death_and_decay.ticking
             if useCDs() and cast.able.rippleInSpace() and deathAndDecayRemain == 0 then
-                if cast.rippleInSpace() then return end 
+                if cast.rippleInSpace() then return end
             end
         end
     end
     local function actionList_AOE()
-    -- Death and Decay 
-        -- death_and_decay,if=cooldown.apocalypse.remains 
-        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile 
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
-        then 
-            if cast.deathAndDecay("best",nil,1,8) then return end 
+    -- Death and Decay
+        -- death_and_decay,if=cooldown.apocalypse.remains
+        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile
+            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+        then
+            if cast.deathAndDecay("best",nil,1,8) then return end
         end
-    -- Defile 
-        -- defile 
-        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) then 
-            if cast.defile("best",nil,1,8) then return end 
-        end 
-    -- Epidemic 
+    -- Defile
+        -- defile
+        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) then
+            if cast.defile("best",nil,1,8) then return end
+        end
+    -- Epidemic
         -- epidemic,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then 
-            if cast.epidemic() then return end 
+        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+            if cast.epidemic() then return end
         end
     -- Death Coil
         -- death_coil,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
-        end 
-    -- Scourge Strike 
+        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+            if cast.deathCoil() then return end
+        end
+    -- Scourge Strike
         -- scourge_strike,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.scourgeStrike() and not talent.clawingShadows and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
+            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
             and debuff.festeringWound.stack(units.dyn5) > 0
-        then 
-            if cast.scourgeStrike() then return end 
+        then
+            if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
         -- clawing_shadows,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.clawingShadows() and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
-        then 
-            if cast.clawingShadows() then return end 
+            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+        then
+            if cast.clawingShadows() then return end
         end
-    -- Epidemic 
+    -- Epidemic
         -- epidemic,if=!variable.pooling_for_gargoyle
-        if cast.able.epidemic() and not poolForGargoyle then 
-            if cast.epidemic() then return end 
-        end 
-    -- Festering Strike 
+        if cast.able.epidemic() and not poolForGargoyle then
+            if cast.epidemic() then return end
+        end
+    -- Festering Strike
         -- festering_strike,target_if=debuff.festering_wound.stack<=1&cooldown.death_and_decay.remains
-        if cast.able.festeringStrike() and (cd.deathAndDecay.remain() > 0 or level < 56) then 
+        if cast.able.festeringStrike() and (cd.deathAndDecay.remain() > 0 or level < 56) then
             for i = 1, #enemies.yards5 do
                 thisUnit = enemies.yards5[i]
-                if debuff.festeringWound.stack(thisUnit) <= 1 then 
-                    if cast.festeringStrike(thisUnit) then return end 
+                if debuff.festeringWound.stack(thisUnit) <= 1 then
+                    if cast.festeringStrike(thisUnit) then return end
                 end
             end
         end
         -- festering_strike,if=talent.bursting_sores.enabled&spell_targets.bursting_sores>=2&debuff.festering_wound.stack<=1
         if cast.able.festeringStrike() and talent.burstingSores and debuff.festeringWound.stack(units.dyn5) <= 1
             and ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
-        then 
-            if cast.festeringStrike(units.dyn5) then return end 
+        then
+            if cast.festeringStrike(units.dyn5) then return end
         end
-    -- Death Coil 
+    -- Death Coil
         -- death_coil,if=buff.sudden_doom.react&rune.deficit>=4
-        if cast.able.deathCoil() and buff.suddenDoom.exists() and runeDeficit >= 4 then 
-            if cast.deathCoil() then return end 
-        end 
+        if cast.able.deathCoil() and buff.suddenDoom.exists() and runeDeficit >= 4 then
+            if cast.deathCoil() then return end
+        end
         -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
-        if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then 
-            if cast.deathCoil() then return end 
+        if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then
+            if cast.deathCoil() then return end
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 14 and not poolForGargoyle 
+        if cast.able.deathCoil() and runicPowerDeficit < 14 and not poolForGargoyle
             and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4)
-        then 
-            if cast.deathCoil() then return end 
-        end 
-    -- Scourge Strike 
+        then
+            if cast.deathCoil() then return end
+        end
+    -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
-        if cast.able.scourgeStrike() and not talent.clawingShadows 
+        if cast.able.scourgeStrike() and not talent.clawingShadows
             and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
-        then 
-            if cast.scourgeStrike() then return end 
+        then
+            if cast.scourgeStrike() then return end
         end
-    -- Clawing Shadows 
+    -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
         if cast.able.clawingShadows() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
-        then 
-            if cast.clawingShadows() then return end 
+        then
+            if cast.clawingShadows() then return end
         end
-    -- Death Coil 
+    -- Death Coil
         -- death_coil,if=runic_power.deficit<20&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 20 and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
-        end 
-    -- Festering Strike 
+        if cast.able.deathCoil() and runicPowerDeficit < 20 and not poolForGargoyle then
+            if cast.deathCoil() then return end
+        end
+    -- Festering Strike
         -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&cooldown.army_of_the_dead.remains>5
         if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists()) 
-                or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3) 
-                    or debuff.festeringWound.stack(units.dyn5) < 1) 
+            and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists())
+                or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
+                    or debuff.festeringWound.stack(units.dyn5) < 1)
         then
-            if cast.festeringStrike(units.dyn5) then return end 
-        end 
+            if cast.festeringStrike(units.dyn5) then return end
+        end
     -- Death Coil
-        -- death_coil,if=!variable.pooling_for_gargoyle 
-        if cast.able.deathCoil() and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
+        -- death_coil,if=!variable.pooling_for_gargoyle
+        if cast.able.deathCoil() and not poolForGargoyle then
+            if cast.deathCoil() then return end
         end
     end -- End Action List - AOE
     local function actionList_Single()
-    -- Death Coil 
+    -- Death Coil
         -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
-        if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then 
-            if cast.deathCoil() then return end 
-        end 
+        if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then
+            if cast.deathCoil() then return end
+        end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
-        end 
-    -- Death and Decay 
+        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then
+            if cast.deathCoil() then return end
+        end
+    -- Death and Decay
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile and talent.pestilence
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) 
-        then 
-            if cast.deathAndDecay("best",nil,1,8) then return end 
-        end 
-    -- Defile 
+            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+        then
+            if cast.deathAndDecay("best",nil,1,8) then return end
+        end
+    -- Defile
         -- defile,if=cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.defile("best",nil,1,8) and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
             if cast.defile("best",nil,1,8) then return end
         end
-    -- Scourge Strike 
+    -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
-        if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82) 
+        if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
-        then 
-            if cast.scourgeStrike() then return end 
-        end 
+        then
+            if cast.scourgeStrike() then return end
+        end
     -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
-        if cast.able.clawingShadows() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82) 
+        if cast.able.clawingShadows() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
-        then 
-            if cast.clawingShadows() then return end 
-        end 
-    -- Death Coil 
+        then
+            if cast.clawingShadows() then return end
+        end
+    -- Death Coil
         -- death_coil,if=runic_power.deficit<20&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 20 and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
-        end 
+        if cast.able.deathCoil() and runicPowerDeficit < 20 and not poolForGargoyle then
+            if cast.deathCoil() then return end
+        end
     -- Festering Strike
         -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&cooldown.army_of_the_dead.remains>5
         if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists()) 
-                or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3) 
-                    or debuff.festeringWound.stack(units.dyn5) < 1) 
+            and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists())
+                or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
+                    or debuff.festeringWound.stack(units.dyn5) < 1)
         then
-            if cast.festeringStrike(units.dyn5) then return end 
+            if cast.festeringStrike(units.dyn5) then return end
         end
     -- Death Coil
         -- death_coil,if=!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and not poolForGargoyle then 
-            if cast.deathCoil() then return end 
+        if cast.able.deathCoil() and not poolForGargoyle then
+            if cast.deathCoil() then return end
         end
     end -- End Action List - Single
     local function actionList_PreCombat()
@@ -700,13 +704,13 @@ local function runRotation()
                 use.battlePotionOfStrength()
             end
     -- Army of the Dead
-            if isChecked("Army of the Dead") and useCDs() and pullTimer <= 2 then 
-                if cast.armyOfTheDead() then return end 
+            if isChecked("Army of the Dead") and useCDs() and pullTimer <= 2 then
+                if cast.armyOfTheDead() then return end
             end
         end -- Pre-Pull
         if isValidUnit("target") and not inCombat then
     -- Death Grip
-            if isChecked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not isDummy() 
+            if isChecked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not isDummy()
                 and getDistance("target") > 8 and ((talent.deathsReach and getDistance("target") < 40) or getDistance("target") < 30)
             then
                 if cast.deathGrip("target") then return true end
@@ -764,7 +768,7 @@ local function runRotation()
     --- SimulationCraft APL ---
     ---------------------------
             if getOptionValue("APL Mode") == 1 then
-                if getDistance(units.dyn5) < 5 then 
+                if getDistance(units.dyn5) < 5 then
             -- Racial
                     -- arcane_torrent,if=runic_power.deficit>65&(cooldown.summon_gargoyle.remains|!talent.summon_gargoyle.enabled)&rune.deficit>=5
                     -- blood_fury,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
@@ -772,20 +776,23 @@ local function runRotation()
                     if isChecked("Racial") and cast.able.racial()
                         and ((race == "BloodElf" and runicPowerDeficit > 65 and (cd.summonGargoyle.remain() > 0 or not talent.summonGargoyle) and runeDeficit >= 5)
                             or ((race == "Orc" or race == "Troll") and (pet.gargoyle.exists() or not talent.summonGargoyle)))
-                    then 
-                        if cast.racial("player") then return end 
+                    then
+                        if cast.racial("player") then return end
                     end
             -- Trinkets
-                    -- use_items
-                    -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled
-                    -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-                    -- use_item,name=galecallers_beak,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-                    if isChecked("Augment Rune") and use.able.battleScarredAugmentRune() and inRaid then 
-                        use.battleScarredAugmentRune() 
+                    -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
+                    -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.active
+                    -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
+                    -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    -- use_item,name=galecallers_beak,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                    -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
+                    if isChecked("Augment Rune") and use.able.battleScarredAugmentRune() and inRaid then
+                        use.battleScarredAugmentRune()
                     end
                     if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
                         for i = 13, 14 do
-                            if use.able.slot(i) 
+                            if use.able.slot(i)
                                 and (not (equiped.bygoneBeeAlmanac(i) or equiped.jesHowler(i) or equiped.galecallersBeak(i))
                                     or (equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60 or not talent.summonGargoyle))
                                     or (equiped.jesHowler(i) and (pet.gargoyle.exists() or not talent.summonGargoyle))
@@ -795,18 +802,18 @@ local function runRotation()
                             end
                         end
                     end
-            -- Potion 
+            -- Potion
                     -- potion,if=cooldown.army_of_the_dead.ready|pet.gargoyle.active|buff.unholy_frenzy.up
-                    if isChecked("Potion") and inRaid and useCDs() and use.able.battlePotionOfStrength() 
-                        and (cd.armyOfTheDead.remain() == 0 or pet.gargoyle.exists() or buff.unholyFrenzy.exists()) 
-                    then 
+                    if isChecked("Potion") and inRaid and useCDs() and use.able.battlePotionOfStrength()
+                        and (cd.armyOfTheDead.remain() == 0 or pet.gargoyle.exists() or buff.unholyFrenzy.exists())
+                    then
                         use.battlePotionOfStrength()
                     end
             -- Outbreak
                     -- outbreak,target_if=(dot.virulent_plague.tick_time_remains+tick_time<=dot.virulent_plague.remains)&dot.virulent_plague.remains<=gcd
-                    if cast.able.outbreak(units.dyn30AOE) and debuff.virulentPlague.remain(units.dyn30AOE) <= gcd then 
-                        if cast.outbreak(units.dyn30AOE) then return end 
-                    end 
+                    if cast.able.outbreak(units.dyn30AOE) and debuff.virulentPlague.remain(units.dyn30AOE) <= gcd then
+                        if cast.outbreak(units.dyn30AOE) then return end
+                    end
             -- Call Action List - Essences
                     -- call_action_list,name=essences
                     if actionList_Essences() then return end
@@ -816,14 +823,14 @@ local function runRotation()
                 end
             -- Run Action List - AOE
                 -- run_action_list,name=aoe,if=active_enemies>=2
-                if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then 
-                    if actionList_AOE() then return end 
-                end 
-            -- Call Action List - Single 
+                if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+                    if actionList_AOE() then return end
+                end
+            -- Call Action List - Single
                 -- call_action_list,name=generic
-                if ((mode.rotation == 1 and #enemies.yards8 < 2) or (mode.rotation == 3 and #enemies.yards8 > 0)) then 
-                    if actionList_Single() then return end 
-                end 
+                if ((mode.rotation == 1 and #enemies.yards8 < 2) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
+                    if actionList_Single() then return end
+                end
             end -- End SimC APL
         end -- End Rotation
     end -- End Pause Check
