@@ -3443,6 +3443,7 @@ br.lists.spells = {
                 lifeblood                       = 295137,
                 memoryOfLucidDreams             = 298357,
                 recklessForce                   = 302932,
+                recklessForceCounter            = 298452,
                 seethingRage                    = 297126,
             },
             debuffs                             = {
