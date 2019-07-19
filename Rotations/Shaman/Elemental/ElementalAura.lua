@@ -106,6 +106,12 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Meteor Targets", 2, 1, 10, 1, "|cff0070deSet to desired number of targets needed to use Meteor. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Earth Shock Maelstrom Dump", 90, 1, 100, 5, "|cff0070deSet to desired value to use Earth Shock as maelstrom dump. Min: 1 / Max: 100 / Interval: 5")
         br.ui:checkSectionState(section)
+        ------------------------
+        --- ESSENCE  OPTIONS --- -- Define Essence Options
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Essence")
+            br.ui:createCheckbox(section, "Use Essence")
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
@@ -292,7 +298,7 @@ local function runRotation()
             end
             -- Healing Surge (OOC)
             if isChecked("Healing Surge") and not isMoving("player") and php <= getOptionValue("Healing Surge") then    
-                if cast.healingSurge() then br.addonDebug("Casting Healing Surge") return true end
+                if cast.healingSurge("player") then br.addonDebug("Casting Healing Surge") return true end
             end
             -- Ancestral Spirit
             if isChecked("Ancestral Spirit") and not isMoving("player") then
@@ -335,6 +341,10 @@ local function runRotation()
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
             -- Totem Mastery
             if prepullOpener then
+                if hasItem(166801) and canUseItem(166801) then
+                    br.addonDebug("Using Sapphire of Brilliance")
+                    useItem(166801)
+                end
                 if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
             end
             if isChecked("Auto Engage On Target") then
@@ -361,14 +371,16 @@ local function runRotation()
             if useDefensive() then
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
-                then
+                and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
-                        useItem(5512)
                         br.addonDebug("Using Healthstone")
+                        useItem(5512)
                     elseif canUseItem(healPot) then
+                        br.addonDebug("Using Health Pot")
                         useItem(healPot)
-                        br.addonDebug("Using Heal Pot")
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
                     end
                 end
         -- Heirloom Neck
@@ -405,10 +417,9 @@ local function runRotation()
                     if cast.earthShield() then br.addonDebug("Casting Earth Shield") return true end
                 end
         -- Healing Surge
-                if isChecked("Healing Surge") and not isMoving("player") and ((php <= getOptionValue("Healing Surge") / 2 and mana > 20)
-                        or (mana >= 90 and php <= getOptionValue("Healing Surge")))
+                if isChecked("Healing Surge") and not isMoving("player") and ((mana >= 90 and php <= getOptionValue("Healing Surge"))or (php <= getOptionValue("Healing Surge") / 2 and mana > 20))
                 then
-                    if cast.healingSurge() then br.addonDebug("Casting Healing Surge") return true end
+                    if cast.healingSurge("player") then br.addonDebug("Casting Healing Surge") return true end
                 end
         -- Capacitor Totem
                 if isChecked("Capacitor Totem - HP") and php <= getOptionValue("Capacitor Totem - HP") and inCombat and #enemies.yards5 > 0 then
@@ -1069,7 +1080,7 @@ local function runRotation()
             else
                 if cast.ghostWolf("player") then br.addonDebug("Casting Ghost Wolf") return true end
             end
-        elseif pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 4 then
+        elseif pause() or (UnitExists("target") and not UnitCanAttack("target", "player")) or mode.rotation == 4 or isCastingSpell(293491) or cast.current.focusedAzeriteBeam() then
             return true
         else
 ---------------------------------
@@ -1093,17 +1104,12 @@ local function runRotation()
                             if createCastFunction("best",false,1,8,spell.capacitorTotem,nil,true) then br.addonDebug("Casting Capacitor Totem") return true end
                         end
                     end
+                    if useCDs() and hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
+                    end
                     --Simc
                     if getOptionValue("APL Mode") == 1 then
-                                -- Racial Buffs
-                        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs() and holdBreak
-                        then
-                            if race == "LightforgedDraenei" then
-                                if cast.racial("target","ground") then br.addonDebug("Casting Racial") return true end
-                            else
-                                if cast.racial("player") then br.addonDebug("Casting Racial") return true end
-                            end
-                        end
                         --Trinkets
                         if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
                             if canUseItem(13) then
@@ -1130,6 +1136,37 @@ local function runRotation()
                         --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
                         if useCDs() and isChecked("Earth Elemental") and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)) and holdBreak then
                             if cast.earthElemental() then br.addonDebug("Casting Earth Elemental") return true end
+                        end
+                        -- Essence
+                        if isChecked("Use Essence") then
+                            if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+                                if cast.concentratedFlame("target") then return true end
+                            elseif essence.memoryOfLucidDreams.active and getSpellCD(298357) <= gcd and #enemies.yards10 >= 1 then
+                                if cast.memoryOfLucidDreams("player") then return true end
+                            elseif essence.bloodOfTheEnemy.active and getSpellCD(298277) <= gcd and #enemies.yards10 >= 1 then
+                                if cast.bloodOfTheEnemy() then return true end
+                            elseif essence.guardianOfAzeroth.action and getSpellCD(299355) <= gcd and #enemies.yards30 >= 1 then
+                                if cast.guardianOfAzeroth() then return true end
+                            elseif essence.focusedAzeriteBeam.active and getSpellCD(292258) <= gcd and getDistance("target") <= 30 and getFacing("player","target") and not isMoving("player") then
+                                if cast.focusedAzeriteBeam() then return true end
+                            elseif essence.purifyingBlast.active and getSpellCD(299345) <= gcd and getDistance("target") <= 30 then
+                                if cast.purifyingBlast("best", nil, 1, 8) then return true end
+                            elseif essence.theUnboundForce.active and getSpellCD(299376) <= gcd and getDistance("target") <= 30 then
+                                if cast.theUnboundForce() then return true end
+                            elseif essence.rippleInSpace.active and getSpellCD(302731) <= gcd and getDistance("target") <= 25 then
+                                if cast.rippleInSpace("target") then return true end
+                            elseif essence.worldveinResonance.active and getSpellCD(295186) <= gcd then
+                                if cast.worldveinResonance() then return true end
+                            end
+                        end
+                        -- Racial Buffs
+                        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs() and holdBreak
+                        then
+                            if race == "LightforgedDraenei" then
+                                if cast.racial("target","ground") then br.addonDebug("Casting Racial") return true end
+                            else
+                                if cast.racial("player") then br.addonDebug("Casting Racial") return true end
+                            end
                         end
                         if (#enemies.yards10t > 2 and (mode.rotation ~= 3 and mode.rotation ~= 2)) or mode.rotation == 2 then
                             if actionList_AoE() then return true end
