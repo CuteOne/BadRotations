@@ -192,6 +192,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
+	local ttd					    = getTTD
         local units                                         = br.player.units
         iStrikeDelay                                        = iStrikeDelay or 0
 
