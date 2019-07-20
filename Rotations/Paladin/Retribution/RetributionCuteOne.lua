@@ -585,10 +585,18 @@ local function runRotation()
                     if cast.shieldOfVengeance() then return end
                 end
             -- Trinkets
-                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|buff.avenging_wrath.remains>=20&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30)|buff.crusade.up&buff.crusade.stack=10&buff.crusade.remains>15&(cooldown.guardian_of_azeroth.remains>90||target.time_to_die<30)
-                if isChecked("Trinkets") and (not equiped.ashvanesRazorCoral() or (equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
-                    or (not talent.crusade and (not isChecked("Avenging Wrath") or cd.avengingWrath.remain() >= 8) and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30))
-                    or (talent.crusade and (not isChecked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15) and (cd.guardianOfAzeroth.remain() > 90 or ttd(units.dyn5) < 30))))))
+                if isChecked("Trinkets") then                     
+                    for i = 13, 14 do
+                        if use.able.slot(i) and not (equiped.ashvanesRazorCoral(i) or equiped.pocketSizedComputationDevice(i)) then
+                            use.slot(i)
+                        end
+                    end
+                end
+                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(buff.avenging_wrath.remains>=20|buff.crusade.stack=10&buff.crusade.remains>15)&(cooldown.guardian_of_azeroth.remains>90|target.time_to_die<30|!essence.condensed_lifeforce.major)                
+                if isChecked("Trinkets") and equiped.ashvanesRazorCoral() and (not debuff.razorCoral.exists(units.dyn5)
+                    or ((not talent.crusade and (not useCDs() or not isChecked("Avenging Wrath") or buff.avengingWrath.remain() >= 20))
+                        or (talent.crusade and (not useCDs() or not isChecked("Crusade") or (buff.crusade.stack() == 10 and buff.crusade.remain() > 15))))
+                    and (cd.guardianOfAzeroth.remain() > 90 or ttd(unit.dyn5) < 30 or not essence.condensedLifeForce.active))
                 then
                     for i = 13, 14 do
                         if use.able.slot(i) then
@@ -648,6 +656,17 @@ local function runRotation()
                     -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
                     if cast.able.purifyingBlast() then
                         if cast.purifyingBlast("best", nil, 1, 8) then return true end
+                    end
+                end
+            -- Pocket Sized Computation Device: Cyclotronic Blast
+                -- use_item,effect_name=cyclotronic_blast,if=(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
+                if isChecked("Trinkets") and equiped.pocketSizedComputationDevice() and (not buff.avengingWrath.exists() and not buff.crusade.exists())
+                    and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
+                then
+                    for i = 13, 14 do
+                        if use.able.slot(i) then
+                            use.slot(i)
+                        end
                     end
                 end
             -- Avenging Wrath
