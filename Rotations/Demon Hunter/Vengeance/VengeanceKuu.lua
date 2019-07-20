@@ -378,7 +378,7 @@ local function runRotation()
                     useItem(166801)
                 end
                 if isChecked("Trinket 1") and canTrinket(13) then            
-                    if not hasEquiped(165572,13) and not hasEquiped(167868,13) and php <= getOptionValue("Trinket 1") then
+                    if not hasEquiped(165572,13) and not hasEquiped(167868,13) and not hasEquiped(169311,13) and php <= getOptionValue("Trinket 1") then
                             br.addonDebug("Using Trinket 1")
                             useItem(13)
                     elseif hasEquiped(165572,13) then
@@ -391,10 +391,18 @@ local function runRotation()
                             br.addonDebug("Using Idol of Indiscriminate Consumption")
                             useItem(13)
                         end
+                    elseif hasEquiped(169311,13) then
+                        if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
+                            br.addonDebug("Using second activation of Ashvane's Razor Coral")
+                            useItem(13)
+                        elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
+                            br.addonDebug("Using first activation of Ashvane's Razor Coral")
+                            useItem(13)
+                        end
                     end
                 end
                 if isChecked("Trinket 2") and canTrinket(14) then            
-                    if not hasEquiped(165572,14) and not hasEquiped(167868,14) and php <= getOptionValue("Trinket 2") then
+                    if not hasEquiped(165572,14) and not hasEquiped(167868,14) and not hasEquiped(169311,14) and php <= getOptionValue("Trinket 2") then
                             br.addonDebug("Using Trinket 1")
                             useItem(14)
                     elseif hasEquiped(165572,14) then
@@ -406,6 +414,14 @@ local function runRotation()
                         if (#getAllies("player",15) + getNumEnemies("player",15)) >= 4 and php <= 50 then
                             br.addonDebug("Using Idol of Indiscriminate Consumption")
                             useItem(14)
+                        end
+                    elseif hasEquiped(169311,13) then
+                        if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
+                            br.addonDebug("Using second activation of Ashvane's Razor Coral")
+                            useItem(13)
+                        elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
+                            br.addonDebug("Using first activation of Ashvane's Razor Coral")
+                            useItem(13)
                         end
                     end
                 end
@@ -588,7 +604,7 @@ local function runRotation()
                     if iStrike("target") then return true end
                 end
                 -- Lucid Dreams
-                if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and getSpellCD(298357) <= gcd then
+                if isChecked("Lucid Dreams") and essence.memoryOfLucidDreams.active and getSpellCD(298357) <= gcd and #enemies.yards5 > 0 then
                     if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
 				-- actions.normal+=/shear
