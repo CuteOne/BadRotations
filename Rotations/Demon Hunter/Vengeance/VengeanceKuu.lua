@@ -415,13 +415,13 @@ local function runRotation()
                             br.addonDebug("Using Idol of Indiscriminate Consumption")
                             useItem(14)
                         end
-                    elseif hasEquiped(169311,13) then
+                    elseif hasEquiped(169311,14) then
                         if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
                             br.addonDebug("Using second activation of Ashvane's Razor Coral")
-                            useItem(13)
+                            useItem(14)
                         elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
                             br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                            useItem(13)
+                            useItem(14)
                         end
                     end
                 end
