@@ -273,6 +273,7 @@ local function runRotation()
     local equiped = br.player.equiped
     local gcd = br.player.gcdMax
     local gcdMax = br.player.gcdMax
+    local healPot = getHealthPot()
     local heirloomNeck = 122667 or 122668
     local inCombat = br.player.inCombat
     local inRaid = br.player.instance == "raid"
