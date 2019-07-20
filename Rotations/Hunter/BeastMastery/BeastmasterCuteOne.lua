@@ -387,8 +387,10 @@ actionList.Cooldowns = function()
             end
         end
         -- Pocket Sized Computation Device
-        -- use_item,name=pocketsized_computation_device,if=!raid_event.invulnerable.exists
-        if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice() then
+        -- use_item,effect_name=cyclotronic_blast,if=!buff.bestial_wrath.up
+        if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() 
+            and use.able.pocketSizedComputationDevice() and not buff.bestialWrath.exists()
+        then
             use.pocketSizedComputationDevice()
         end
         -- Ashvane's Razor Coral
