@@ -521,8 +521,9 @@ function pause(skipCastingCheck)
 	-- Focused Azerite Beam / Cyclotronic Blast
 	local lastCast = br.lastCast.tracker[1]
 	if br.pauseCast - GetTime() <= 0 then
-		if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + getCastTime(295261) end
-		if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + 2.5 end
+		local hasted = (1-UnitSpellHaste("player")/100)
+		if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted) end
+		if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) end
 	end
 	if GetTime() < br.pauseCast then
 		return true
