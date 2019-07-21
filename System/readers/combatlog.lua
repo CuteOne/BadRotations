@@ -3,6 +3,7 @@ br.guid = UnitGUID("player")
 -- specific reader location
 br.read = {}
 br.read.combatLog = {}
+br.read.debuffTracker = {}
 br.read.enraged = {}
 local cl = br.read
 -- will update the br.read.enraged list
@@ -212,6 +213,22 @@ function br.read.combatLog()
                             end
                         end
                     end
+                end
+            end
+        end
+        ---------------------
+        --[[Debuff Tracking]]
+        if destination ~= nil and destination ~= "" then
+            local thisUnit = thisUnit
+            if EWT then
+                if param == "SPELL_AURA_APPLIED" and spellType == "DEBUFF" then
+                    local destination = GetObjectWithGUID(destination)
+                    local source = GetObjectWithGUID(source)
+                    if UnitName(source) == UnitName("player") then source = "player" end
+                    if br.read.debuffTracker[spell] == nil then br.read.debuffTracker[spell] = {} end
+                    br.read.debuffTracker[spell][1] = source
+                    br.read.debuffTracker[spell][2] = spell
+                    br.read.debuffTracker[spell][3] = destination
                 end
             end
         end

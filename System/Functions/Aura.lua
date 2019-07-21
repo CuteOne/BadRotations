@@ -41,7 +41,20 @@ function UnitBuffID(unit, spellID, filter)
 end
 
 function UnitDebuffID(unit, spellID, filter)
+	local thisUnit = ObjectPointer(unit)
 	local spellName = GetSpellInfo(spellID)
+	-- Check Cache
+	if br.units[thisUnit] ~= nil then 
+		if filter == nil then filter = "player" else filter = ObjectPointer(filter) end
+		if br.units[thisUnit].debuffs[filter] ~= nil then 
+			if br.units[thisUnit].debuffs[filter][spellID] ~= nil then
+				return br.units[thisUnit].debuffs[filter][spellID]
+			else 
+				return nil
+			end
+		end
+	end
+	-- Failsafe if not cached
 	local exactSearch = filter ~= nil and strfind(strupper(filter), "EXACT")
 	if exactSearch then
 		for i = 1, 40 do
@@ -331,6 +344,7 @@ function getDebuffRemain(Unit, DebuffID, Source)
 	local remain = select(6, UnitDebuffID(Unit, DebuffID, Source))
 	if remain ~= nil then
 		remain = remain - GetTime()
+		-- Print(GetSpellInfo(DebuffID)..": "..remain)
 		return remain
 	end
 	-- if UnitDebuffID(Unit,DebuffID,Source) ~= nil then

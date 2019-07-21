@@ -14,6 +14,21 @@ local testSpell = {
 }
 
 function getDistance(Unit1,Unit2,option)
+    if Unit2 == nil then
+        Unit2 = Unit1
+        Unit1 = "player"
+    end
+    if br.units ~= nil then
+        if (Unit1 == "player" and br.units[ObjectPointer(Unit2)] ~= nil) then
+            return br.units[ObjectPointer(Unit2)].range
+        end
+        if (br.units[ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
+            return br.units[ObjectPointer(Unit1)].range
+        end
+    end
+    return getDistanceCalc(Unit1,Unit2,option)
+end
+function getDistanceCalc(Unit1,Unit2,option)
     local currentDist = 100
     local meleeSpell = nil
     local playerClass = select(2,UnitClass("player"))
