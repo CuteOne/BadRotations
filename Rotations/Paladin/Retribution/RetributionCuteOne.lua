@@ -196,6 +196,7 @@ local function runRotation()
         local combatTime    = getCombatTime()
         local debuff        = br.player.debuff
         local enemies       = br.player.enemies
+        local essence       = br.player.essence
         local equiped       = br.player.equiped
         local gcd           = br.player.gcdMax
         local hastar        = GetObjectExists("target")
