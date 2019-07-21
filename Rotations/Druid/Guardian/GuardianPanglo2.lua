@@ -304,6 +304,7 @@ local function runRotation()
     local flaskBuff = getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
     local gcd = br.player.gcdMax
     local hasMouse = GetObjectExists("mouseover")
+    local healPot = getHealthPot()
     local inCombat = br.player.inCombat
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
