@@ -94,7 +94,9 @@ function updateOM()
 			if omCounter == 1 then cycleTime = debugprofilestop() end
 				-- define our unit
 				local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) then
+				if ObjectIsUnit(thisUnit) and ObjectIsVisible(thisUnit) and (UnitReaction("player", thisUnit) <= 4 
+					or UnitCreator(thisUnit) == "player") and not isCritter(thisUnit) and getDistance(thisUnit) <= 50 and getLineOfSight(thisUnit)
+				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
 					local enemyUnit = br.unitSetup:new(thisUnit)
 					if enemyUnit then
@@ -442,7 +444,7 @@ end
 
 -- Cone Logic for Enemies
 function getEnemiesInCone(angle,length,showLines,checkNoCombat)
-	if angle == nil then angle = 0 end
+	if angle == nil then angle = 180 end
 	if length == nil then length = 0 end
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")

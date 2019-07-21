@@ -18,6 +18,8 @@ br.loadedIn = false
 br.rotations = {}
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
 br.debug = {}
+
+br.pauseCast = GetTime()
 -- Cache all non-nil return values from GetSpellInfo in a table to improve performance
 local spellcache = setmetatable({}, {__index=function(t,v) local a = {GetSpellInfo(v)} if GetSpellInfo(v) then t[v] = a end return a end})
 local function GetSpellInfo(a)
