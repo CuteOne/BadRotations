@@ -226,6 +226,7 @@ local friendsInRange = false
 local htTimer
 local lastForm
 local leftCombat
+local minCount
 local profileStop
 local range
 local ripDuration = 24
@@ -306,6 +307,7 @@ end
 local function usePrimalWrath()
     if talent.primalWrath and cast.able.primalWrath(nil,"aoe",1,8) and cast.safe.primalWrath("player",8,1)
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
+        and not isExplosive("target")
     then
         if getOptionValue("Primal Wrath Usage") == 1 and #enemies.yards8 >= 3 then return true end
         local ripCount = 0
@@ -704,13 +706,11 @@ actionList.Cooldowns = function()
         if isChecked("Use Essence") then
             -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
-            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50))
-                and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
-                and (debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5)
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50
+                    and debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5))
+                and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())                
             then
-                local minCount = useCDs() and 1 or 3
-                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then 
-                    focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+                if cast.focusedAzeriteBeam(nil,"cone",minCount, 180) then
                     debug("Casting Focused Azerite Beam") 
                     return true 
                 end
@@ -718,7 +718,6 @@ actionList.Cooldowns = function()
             -- Essence: Purifying Blast
             -- purifying_blast,if=active_enemies>desired_targets|raid_event.adds.in>60
             if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
-                local minCount = useCDs() and 1 or 3
                 if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
             end
             -- Essence: Heart Essence
@@ -984,7 +983,7 @@ actionList.Generator = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=spell_targets.brutal_slash>desired_targets
-    if cast.able.brutalSlash() and talent.brutalSlash and not buff.bloodtalons.exists()
+    if cast.able.brutalSlash() and talent.brutalSlash and not isExplosive("target") and not buff.bloodtalons.exists()
         and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE)) and mode.rotation < 3
         and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Brutal Slash Targets"))
             or (mode.rotation == 2 and #enemies.yards8 > 0))
@@ -995,7 +994,9 @@ actionList.Generator = function()
     -- Thrash
     -- pool_resource,for_next=1
     -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4 and range.dyn8AOE then
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") 
+        and ttd(units.dyn8AOE) > 4 and range.dyn8AOE 
+    then
         if (not debuff.thrashCat.exists(units.dyn8AOE) or debuff.thrashCat.refresh(units.dyn8AOE))
             and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
         then
@@ -1007,7 +1008,8 @@ actionList.Generator = function()
     end
     -- pool_resource,for_next=1
     -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and (talent.scentOfBlood and not buff.scentOfBlood.exists()
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") 
+        and (talent.scentOfBlood and not buff.scentOfBlood.exists()
         and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
         and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
     then
@@ -1020,7 +1022,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- swipe_cat,if=buff.scent_of_blood.up
     if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash 
-        and buff.scentOfBlood.exists() and range.dyn8AOE < 8
+        and not isExplosive("target") and buff.scentOfBlood.exists() and range.dyn8AOE < 8
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
         if cast.able.swipeCat() then
@@ -1074,7 +1076,7 @@ actionList.Generator = function()
     end
     -- Brutal Slash
     -- brutal_slash,if=(buff.tigers_fury.up&(raid_event.adds.in>(1+max_charges-charges_fractional)*recharge_time))
-    if cast.able.brutalSlash() and talent.brutalSlash and not buff.bloodtalons.exists()
+    if cast.able.brutalSlash() and talent.brutalSlash and not isExplosive("target") and not buff.bloodtalons.exists()
         and (useThrash ~= 2 or debuff.thrashCat.exists(units.dyn8AOE))
         and (buff.tigersFury.exists() or charges.brutalSlash.timeTillFull() < gcdMax)
         and (#enemies.yards8 < getOptionValue("Brutal Slash Targets") or (mode.rotation == 3 and #enemies.yards8 > 0))
@@ -1101,7 +1103,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
     -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and ttd(units.dyn8AOE) > 4
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") and ttd(units.dyn8AOE) > 4
         and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3 and range.dyn8AOE
     then
         if (useThrash == 2 or (useThrash == 1 and buff.clearcasting.exists())
@@ -1123,7 +1125,7 @@ actionList.Generator = function()
     -- Swipe
     -- pool_resource,for_next=1
     -- swipe_cat,if=spell_targets.swipe_cat>1
-    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash and range.dyn8AOE--and multidot
+    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not isExplosive("target") and not talent.brutalSlash and range.dyn8AOE--and multidot
         and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
@@ -1134,7 +1136,7 @@ actionList.Generator = function()
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
     if cast.able.shred() and range.dyn5
-        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or level < 32)
+        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or talent.brutalSlash or level < 32)
         and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
             or level < 12)
@@ -1281,6 +1283,7 @@ local function runRotation()
     level                              = br.player.level
     lootDelay                          = getOptionValue("LootDelay")
     lowestHP                           = br.friend[1].unit
+    minCount                           = useCDs() and 1 or 3
     mode                               = br.player.mode
     multidot                           = br.player.mode.cleave == 1 and br.player.mode.rotation < 3
     opener                             = br.player.opener
@@ -1367,7 +1370,6 @@ local function runRotation()
     end
 
     -- ChatOverlay("Rake: "..round2(debuff.rake.remain("target"),0)..", Rip: "..round2(debuff.rip.remain("target"),0))
-
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1375,7 +1377,7 @@ local function runRotation()
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
     elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 
-        or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
+        -- or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
     then
         return true
     else
@@ -1413,9 +1415,11 @@ local function runRotation()
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
-                if cast.able.rake() and level >= 12 and not debuff.rake.exists(units.dyn5) then
+                if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5) 
+                    or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
+                then
                     if cast.rake(units.dyn5) then debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
-                elseif cast.able.shred() then
+                elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
                     if cast.shred(units.dyn5) then debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
                 end
             elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
@@ -1438,9 +1442,8 @@ local function runRotation()
                     if cast.able.ferociousBite() and range.dyn5 then
                         for i = 1, #enemies.yards5f do
                             local thisUnit = enemies.yards5f[i]
-                            if getFacing("player",thisUnit) and ((debuff.rip.exists(thisUnit)
-                                and debuff.rip.remain(thisUnit) < 3 and ttd(thisUnit) > 10
-                                and talent.sabertooth) or (ferociousBiteFinish(thisUnit) and not usePrimalWrath()))
+                            if (debuff.rip.exists(thisUnit) and debuff.rip.remain(thisUnit) < 3 and ttd(thisUnit) > 10
+                                and talent.sabertooth) or (ferociousBiteFinish(thisUnit) and not usePrimalWrath())
                             then
                                 if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(thisUnit) then
                                     Print("Ferocious Bite Finished! "..UnitName(thisUnit).." with "..round2(thp(thisUnit),0).."% health remaining.")
