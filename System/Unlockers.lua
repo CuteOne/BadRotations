@@ -8,11 +8,11 @@ elseif EWT and EasyWoWToolbox ~= nil then
 	SetHackEnabled = SetHackEnabled
 	ObjectTypes = ObjectTypes
 	ObjectExists = ObjectExists
-elseif EWT and EasyWoWToolbox == nil then
-	IsHackEnabled = IsHackEnabled
-	SetHackEnabled = SetHackEnabled
-	ObjectTypes = ObjectTypes
-	ObjectExists = ObjectExists
-	ObjectIsUnit = UnitIsUnit
-	ObjectIsVisible = UnitIsVisible
+elseif EasyWoWToolbox == nil then
+    IsHackEnabled = IsHackEnabled
+    SetHackEnabled = SetHackEnabled
+    ObjectTypes = ObjectTypes
+    ObjectExists = ObjectExists
+    ObjectIsUnit = UnitIsUnit
+    ObjectIsVisible = UnitIsVisible
 end
