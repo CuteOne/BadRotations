@@ -138,6 +138,7 @@ function br.read.commonReaders()
 			Thrash_sDamage = {}
 			petAttacking = false
 			br.lastCast.line_cd = {}
+			wipe(br.read.debuffTracker)
 		end
 	end
 	Frame:SetScript("OnEvent", LeavingCombat)

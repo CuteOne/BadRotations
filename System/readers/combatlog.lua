@@ -219,16 +219,16 @@ function br.read.combatLog()
         ---------------------
         --[[Debuff Tracking]]
         if destination ~= nil and destination ~= "" then
-            local thisUnit = thisUnit
             if EWT then
                 if param == "SPELL_AURA_APPLIED" and spellType == "DEBUFF" then
                     local destination = GetObjectWithGUID(destination)
                     local source = GetObjectWithGUID(source)
                     if UnitName(source) == UnitName("player") then source = "player" end
-                    if br.read.debuffTracker[spell] == nil then br.read.debuffTracker[spell] = {} end
-                    br.read.debuffTracker[spell][1] = source
-                    br.read.debuffTracker[spell][2] = spell
-                    br.read.debuffTracker[spell][3] = destination
+                    if br.read.debuffTracker[destination] == nil then br.read.debuffTracker[destination] = {} end
+                    if br.read.debuffTracker[destination][spell] == nil then br.read.debuffTracker[destination][spell] = {} end
+                    br.read.debuffTracker[destination][spell][1] = source
+                    br.read.debuffTracker[destination][spell][2] = spell
+                    br.read.debuffTracker[destination][spell][3] = destination
                 end
             end
         end

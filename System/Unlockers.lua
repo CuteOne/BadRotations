@@ -3,9 +3,16 @@ if FH and not EWT then
 	SetHackEnabled = HackEnabled
 	ObjectTypes = ObjectType
 	ObjectExists = ObjectIsVisible
-elseif EWT then
+elseif EWT and EasyWoWToolbox ~= nil then
 	IsHackEnabled = IsHackEnabled
 	SetHackEnabled = SetHackEnabled
 	ObjectTypes = ObjectTypes
 	ObjectExists = ObjectExists
+elseif EWT and not EasyWoWToolbox == nil then
+	IsHackEnabled = IsHackEnabled
+	SetHackEnabled = SetHackEnabled
+	ObjectTypes = ObjectTypes
+	ObjectExists = ObjectExists
+	ObjectIsUnit = UnitIsUnit
+	ObjectIsVisible = UnitIsVisible
 end

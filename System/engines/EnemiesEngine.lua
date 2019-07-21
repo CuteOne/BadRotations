@@ -130,26 +130,49 @@ if not metaTable2 then
 			rawset(table, o.unit, thisUnit)
 		end
 		function o:UpdateDebuffs(debuffList,unit)
+			local tracker
+			local buffCaster
+			local buffName
+			local buffUnit
 			-- Add Debuffs
+			local function cacheDebuff(buffUnit,buffName,buffCaster)
+				-- Print("Caching Debuff!")
+				-- Cache it to the OM
+				if buffCaster ~= nil and (buffCaster == "player" or UnitIsFriend("player",buffCaster)) then
+					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
+					if debuffList[buffCaster][buffName] == nil then
+						-- Print("Adding player debuff")
+						debuffList[buffCaster][buffName] = function(buffName, unit) 
+							return AuraUtil.FindAuraByName(GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+						end 
+						if debuffList[buffCaster][buffName] ~= nil then br.read.debuffTracker[unit][buffName] = nil end
+					end--{} end
+				end
+			end
 			-- Get the Info from Combat Log
 			for k,v in pairs(br.read.debuffTracker) do
-				local buffCaster = br.read.debuffTracker[k][1]
-				local buffName = br.read.debuffTracker[k][2]
-				local buffUnit = br.read.debuffTracker[k][3]
-				-- Cache it to the OM
-				if unit == buffUnit and buffCaster ~= nil and (buffCaster == "player" or UnitIsFriend("player",buffCaster))  then
-					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
-					if debuffList[buffCaster][buffName] == nil then debuffList[buffCaster][buffName] = {} end
-					debuffList[buffCaster][buffName] = {AuraUtil.FindAuraByName(GetSpellInfo(buffName), unit, "HARMFUL|PLAYER")}
-					br.read.debuffTracker[k] = nil
+				tracker = br.read.debuffTracker[k]
+				for j, u in pairs(tracker) do
+					buffCaster = tracker[j][1]
+					buffName = tracker[j][2]
+					buffUnit = tracker[j][3]
+					if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then 
+						cacheDebuff(buffUnit,buffName,buffCaster) 
+					end
 				end
-				-- Clear Combat Log
-				br.read.debuffTracker[k] = nil
 			end
 			-- Remove Debuffs
-			for buffCaster, buffs in pairs(debuffList) do 
+			for buffCaster, buffs in pairs(debuffList) do
 				for buffName, buff in pairs(buffs) do
-					if buff[6] == nil or GetTime() > buff[6] then debuffList[buffCaster][buffName] = nil end
+					if debuffList[buffCaster][buffName] ~= nil then
+						if debuffList[buffCaster][buffName](buffName,unit) == nil then
+							-- Print("Removing player expired - "..buffName) 
+							debuffList[buffCaster][buffName] = nil 
+							if br.read.debuffTracker[unit] ~= nil and br.read.debuffTracker[unit][buffName] ~= nil and br.read.debuffTracker[unit][buffName][1] == buffCaster then
+								br.read.debuffTracker[unit][buffName] = nil
+							end
+						end
+					end
 				end
 			end
 			return debuffList
@@ -313,4 +336,3 @@ if not metaTable2 then
 	-- We are setting up the Tables for the first time
 	SetupEnemyTables()
 end
-

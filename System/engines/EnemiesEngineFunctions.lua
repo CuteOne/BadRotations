@@ -94,7 +94,7 @@ function updateOM()
 			if omCounter == 1 then cycleTime = debugprofilestop() end
 				-- define our unit
 				local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and  ((EasyWoWToolbox ~= nil and ObjectIsVisible(thisUnit)) or UnitIsVisible(thisUnit)) and (UnitReaction("player", thisUnit) <= 4 
+				if ObjectIsUnit(thisUnit) and ObjectIsVisible(thisUnit) and (UnitReaction("player", thisUnit) <= 4 
 					or UnitCreator(thisUnit) == "player") and not isCritter(thisUnit) and getDistance(thisUnit) <= 50 and getLineOfSight(thisUnit)
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
