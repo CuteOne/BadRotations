@@ -177,6 +177,7 @@ local function runRotation()
         local hasPet            = IsPetActive()
         local glyph             = br.player.glyph
         local healthPot         = getHealthPot() or 0
+        local healPot           = getHealthPot()
         local inCombat          = br.player.inCombat
         local inRaid            = select(2,IsInInstance())=="raid"
         local inInstance        = br.player.instance=="party"

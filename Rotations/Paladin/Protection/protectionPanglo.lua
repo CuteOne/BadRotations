@@ -36,6 +36,12 @@ local function createToggles()
 		[2] = {mode = "Off", value = 2, overlay = "BossCase Disabled", tip = "Boss Encounter Case Disabled.", highlight = 0, icon = br.player.spell.shieldOfTheRighteous}
 	}
 	CreateButton("BossCase", 5, 0)
+	--Cancel Bop
+	CancelBopModes = {
+		[1] = {mode = "On", value = 1, overlay = "Cancel Enabled", tip = "Will auto cancel Bop", highlight = 1, icon = br.player.spell.divineShield},
+		[2] = {mode = "Off", value = 2, overlay = "Cancel Disabled", tip = "Will leave Bop buff", highlight = 0, icon = br.player.spell.divineShield}
+	}
+	CreateButton("CancelBop", 6, 0)
 end
 ---------------
 --- OPTIONS ---
@@ -50,8 +56,6 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "General")
 		-- Blessing of Freedom
 		br.ui:createCheckbox(section, "Blessing of Freedom")
-		-- Auto cancel Blessing of Protection
-		br.ui:createCheckbox(section, "Auto cancel BoP")
 		-- Taunt
 		br.ui:createCheckbox(section, "Taunt", "|cffFFFFFFAuto Taunt usage.")
 		br.ui:checkSectionState(section)
@@ -183,7 +187,9 @@ local function runRotation()
 	UpdateToggle("Defensive", 0.25)
 	UpdateToggle("Interrupt", 0.25)
 	UpdateToggle("BossCase", 0.25)
+	UpdateToggle("CancelBop", 0.25)
 	br.player.mode.BossCase = br.data.settings[br.selectedSpec].toggles["BossCase"]
+	br.player.mode.cancelBop = br.data.settings[br.selectedSpec].toggles["CancelBop"]
 	--- FELL FREE TO EDIT ANYTHING BELOW THIS AREA THIS IS JUST HOW I LIKE TO SETUP MY ROTATIONS ---
 
 	--------------
@@ -225,6 +231,7 @@ local function runRotation()
 	enemies.get(8)
 	enemies.get(10)
 	enemies.get(30)
+	enemies.get(30,"player",false,true)
 	--wipe timers table
 	if timersTable then
 		wipe(timersTable)
@@ -335,8 +342,8 @@ local function runRotation()
 		[129758] = "Irontide Grenadier"
 	}
 	-- Auto cancel Blessing of Protection
-	if isChecked("Auto cancel BoP") then
-		if buff.blessingOfProtection.exists() then
+	if mode.cancelBop == 1 then
+		if buff.blessingOfProtection.exists() or buff.divineShield.exists() then
 			if cast.handOfReckoning("target") then
 				return
 			end
@@ -961,7 +968,7 @@ local function runRotation()
 					end
 				end
 				-- Avenging Wrath
-				if not buff.avengingWrath.exists() and isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 15) and (getOptionValue("Avenging Wrath") <= ttd) then
+				if not buff.avengingWrath.exists() and isChecked("Avenging Wrath") and cast.able.avengingWrath() and (not talent.seraphim or buff.seraphim.remain() > 13) and (getOptionValue("Avenging Wrath") <= ttd) then
 					if cast.avengingWrath() then
 						return
 					end
@@ -979,8 +986,8 @@ local function runRotation()
 	local function actionList_Interrupts()
 		if useInterrupts() then
 			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
+				for i = 1, #enemies.yards30f do
+					local thisUnit = enemies.yards30f[i]
 					if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						if cast.avengersShield(thisUnit) then
 							return
@@ -1039,10 +1046,10 @@ local function runRotation()
 			end
 		end
 		-- Judgment
-		for i = 1, #enemies.yards30 do
+		for i = 1, #enemies.yards30f do
 			local thisUnit 
 			if mode.rotation == 1 then
-				thisUnit = enemies.yards30[i]
+				thisUnit = enemies.yards30f[i]
 			elseif mode.rotation == 2 then
 				thisUnit = "target"
 			end
