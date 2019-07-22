@@ -342,13 +342,13 @@ actionList.Cooldowns = function()
         -- Metamorphosis
         if isChecked("Metamorphosis") then
             -- metamorphosis,if=!(talent.demonic.enabled|variable.pooling_for_meta|variable.waiting_for_nemesis)|target.time_to_die<25
-            if cast.able.metamorphosis() and (not (talent.demonic or poolForMeta or waitForNemesis) and ttd(units.dyn5) >= 25) then
+            if cast.able.metamorphosis() and (not (talent.demonic or poolForMeta or waitForNemesis) and ttd(units.dyn5) >= 25) and #enemies.yards8 > 0 then
                 -- if cast.metamorphosis("best",false,1,8) then return end
                 if cast.metamorphosis("player") then return end
             end
             -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&cooldown.blade_dance.remains>gcd.max))
             if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active 
-                or (cd.eyeBeam.remain() > 20 and cd.bladeDance.remain() > gcd)) 
+                or (cd.eyeBeam.remain() > 20 and cd.bladeDance.remain() > gcd)) and #enemies.yards8 > 0 
             then
                 if cast.metamorphosis("player") then return end
             end
@@ -423,10 +423,9 @@ actionList.Cooldowns = function()
         end
         -- Essence: Focused Azerite Beam
         -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or useCDs()) then
+        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and #enemies.yards8f > 0)) then
             local minCount = useCDs() and 1 or 3
             if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
-                focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcd
                 debug("Casting Focused Azerite Beam")
                 return true
             end
