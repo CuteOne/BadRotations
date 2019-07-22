@@ -45,7 +45,7 @@ function br.read.combatLog()
         -- with as few checks as possible per class/spec as in raiding environment we have already enough to check
         -- pulse common stuff for all classes
         cl:common(...)
-        
+
         -- best way is to split per class so lets make a selector for it
         local class = br.class
         if class == 1 then -- Warrior
@@ -157,7 +157,7 @@ function br.read.combatLog()
                     if isInCombat("player") and GetUnitIsUnit(sourceName, "player") and not IsPassiveSpell(spell)
                         and spell ~= botSpell and not botCast and spell ~= 48018 and spell ~= 48020
                     then
-                        local notOnCD = true 
+                        local notOnCD = true
                         if br ~= nil and br.player ~= nil then notOnCD = getSpellCD(spell) <= br.player.gcdMax end
                         -- set destination
                         if destination == "" then
@@ -223,7 +223,7 @@ function br.read.combatLog()
                 if param == "SPELL_AURA_APPLIED" and spellType == "DEBUFF" then
                     local destination = GetObjectWithGUID(destination)
                     local source = GetObjectWithGUID(source)
-                    if UnitName(source) == UnitName("player") then source = "player" end
+                    if source ~= nil and UnitName(source) == UnitName("player") then source = "player" end
                     if destination ~= nil then
                         if br.read.debuffTracker[destination] == nil then br.read.debuffTracker[destination] = {} end
                         if br.read.debuffTracker[destination][spell] == nil then br.read.debuffTracker[destination][spell] = {} end
@@ -252,30 +252,30 @@ function br.read.combatLog()
                         local debuff = br.player.debuff
                         local pandemic = br.player.pandemic
                         if br.player["spell"].debuffs ~= nil then
-                            if param == "SPELL_AURA_REMOVED" then                                   
-                                if not UnitAffectingCombat("player") or not UnitExists(thisUnit) or UnitIsDeadOrGhost(thisUnit) then 
+                            if param == "SPELL_AURA_REMOVED" then
+                                if not UnitAffectingCombat("player") or not UnitExists(thisUnit) or UnitIsDeadOrGhost(thisUnit) then
                                     if pandemic[thisUnit] ~= nil then pandemic[thisUnit] = nil end
                                 else
                                     for k,v in pairs(br.player["spell"].debuffs) do
-                                        if spell == v and pandemic[thisUnit] ~= nil and pandemic[thisUnit][k] ~= nil then 
-                                            pandemic[thisUnit][k] = 0; 
-                                            break 
+                                        if spell == v and pandemic[thisUnit] ~= nil and pandemic[thisUnit][k] ~= nil then
+                                            pandemic[thisUnit][k] = 0;
+                                            break
                                         end
-                                    end 
+                                    end
                                 end
                             end
                             if param == "SPELL_AURA_APPLIED" then
                                 for k,v in pairs(br.player["spell"].debuffs) do
-                                    if spell == v then 
+                                    if spell == v then
                                         if pandemic[thisUnit] == nil then pandemic[thisUnit] = {} end
-                                        if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0 
-                                            or debuff[k].duration(thisUnit) ~= pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3)) 
-                                        then                                        
+                                        if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0
+                                            or debuff[k].duration(thisUnit) ~= pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3))
+                                        then
                                             --Print("Debuff: "..spellName.." Applied (k = "..k..", v = "..v..", duration = "..debuff[k].duration(thisUnit))
                                             pandemic[thisUnit][k] = debuff[k].duration(thisUnit)
-                                            break; 
-                                        end 
-                                    end                                       
+                                            break;
+                                        end
+                                    end
                                 end
                             end
                         end
@@ -612,17 +612,17 @@ function cl:Monk(...)
                 if param == "SPELL_CAST_SUCCESS" and comboSpells[spell] and spell ~= lastCombo then
                     prevCombo = lastCombo
                     lastCombo = spell
-                    -- Print(GetSpellInfo(lastCombo).." Success! - Prev Last Combo was: "..GetSpellInfo(prevCombo)) 
+                    -- Print(GetSpellInfo(lastCombo).." Success! - Prev Last Combo was: "..GetSpellInfo(prevCombo))
                 end
-                if comboSpells[spell] and (castTime == 0 or (castTime > 0 and getCastTimeRemain("player") < castTime)) and not (getSpellCD(spell) > br.player.gcdMax) 
-                    and (param == "SPELL_CAST_FAILED" or (param == "SPELL_MISSED" and failType[spellType])) 
+                if comboSpells[spell] and (castTime == 0 or (castTime > 0 and getCastTimeRemain("player") < castTime)) and not (getSpellCD(spell) > br.player.gcdMax)
+                    and (param == "SPELL_CAST_FAILED" or (param == "SPELL_MISSED" and failType[spellType]))
                 then
-                    -- Print(GetSpellInfo(lastCombo).." "..spellType.."! - Setting Last Combo to: "..GetSpellInfo(prevCombo)) 
+                    -- Print(GetSpellInfo(lastCombo).." "..spellType.."! - Setting Last Combo to: "..GetSpellInfo(prevCombo))
                     lastCombo = prevCombo
                     prevCombo = 6603
                 end
-            end 
-        end 
+            end
+        end
     end
 end
 function cl:Priest(...)
@@ -784,11 +784,11 @@ function cl:Warlock(...) -- 9
         -- -- Demonology Manager
         -- -- Imps are summoned
         -- if param == "SPELL_SUMMON" and source == br.guid and (spell == 104317 or spell == 279910) then
-        --     print("Imp SUMMON") 
+        --     print("Imp SUMMON")
         -- end
         -- -- Other Demons are summoned
         -- if param == "SPELL_SUMMON" and source == br.guid and not (spell == 104317 or spell == 279910) then
-        --     print("Demon SUMMON") 
+        --     print("Demon SUMMON")
         -- end
     end
     if GetSpecialization() == 3 then

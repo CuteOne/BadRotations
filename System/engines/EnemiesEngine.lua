@@ -142,11 +142,11 @@ if not metaTable2 then
 					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
 					if debuffList[buffCaster][buffName] == nil then
 						-- Print("Adding player debuff")
-						debuffList[buffCaster][buffName] = function(buffName, unit) 
+						debuffList[buffCaster][buffName] = function(buffName, unit)
 							return AuraUtil.FindAuraByName(GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
-						end 
+						end
 						if debuffList[buffCaster][buffName] ~= nil then br.read.debuffTracker[unit][buffName] = nil end
-					end--{} end
+					end
 				end
 			end
 			-- Get the Info from Combat Log
@@ -156,8 +156,8 @@ if not metaTable2 then
 					buffCaster = tracker[j][1]
 					buffName = tracker[j][2]
 					buffUnit = tracker[j][3]
-					if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then 
-						cacheDebuff(buffUnit,buffName,buffCaster) 
+					if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then
+						cacheDebuff(buffUnit,buffName,buffCaster)
 					end
 				end
 			end
@@ -166,8 +166,8 @@ if not metaTable2 then
 				for buffName, buff in pairs(buffs) do
 					if debuffList[buffCaster][buffName] ~= nil then
 						if debuffList[buffCaster][buffName](buffName,unit) == nil then
-							-- Print("Removing player expired - "..buffName) 
-							debuffList[buffCaster][buffName] = nil 
+							-- Print("Removing player expired - "..buffName)
+							debuffList[buffCaster][buffName] = nil
 							if br.read.debuffTracker[unit] ~= nil and br.read.debuffTracker[unit][buffName] ~= nil and br.read.debuffTracker[unit][buffName][1] == buffCaster then
 								br.read.debuffTracker[unit][buffName] = nil
 							end
@@ -182,23 +182,24 @@ if not metaTable2 then
 			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
 			o.name = UnitName(o.unit)
 			o.guid = UnitGUID(o.unit)
-			o.debuffs = o:UpdateDebuffs(o.debuffs,o.unit)
 			o.distance = o:RawDistance()
-			o.range = 100
 			o.hpabs = UnitHealth(o.unit)
 			o.hpmax = UnitHealthMax(o.unit)
 			o.hp = o.hpabs / o.hpmax * 100
-			o.objectID = ObjectID(o.unit)			
+			o.objectID = ObjectID(o.unit)
+			o.range = o.range
+			o.debuffs = o.debuffs
 			if o.distance <= 50 and not UnitIsDeadOrGhost(o.unit) then
 				-- EnemyListCheck
 				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
 					o.enemyListCheck = enemyListCheck(o.unit)
 					o.enemyRefresh = GetTime()
 					if o.enemyListCheck == true then
+						o.range = getDistanceCalc(o.unit)
 						if br.units[o.unit] == nil then
 							o:AddUnit(br.units)
-						end						
-						br.units[o.unit].range = getDistanceCalc(o.unit)
+						end
+						br.units[o.unit].range = o.range
 					else
 						if br.units[o.unit] ~= nil then
 							br.units[o.unit] = nil
@@ -215,10 +216,12 @@ if not metaTable2 then
 			if o.enemyListCheck == true then
 				o.isValidUnit = isValidUnit(o.unit)
 				if o.isValidUnit == true then
+					o.debuffs = o:UpdateDebuffs(o.debuffs,o.unit)
+					-- o.range = getDistanceCalc(o.unit)
 					if br.enemy[o.unit] == nil then
 						o:AddUnit(br.enemy)
 					end
-					br.enemy[o.unit].range = getDistanceCalc(o.unit)
+					-- br.enemy[o.unit].range = o.range
 					br.enemy[o.unit].debuffs = o.debuffs
 				else
 					if br.enemy[o.unit] ~= nil then

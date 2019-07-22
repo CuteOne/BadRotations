@@ -94,7 +94,7 @@ function updateOM()
 			if omCounter == 1 then cycleTime = debugprofilestop() end
 				-- define our unit
 				local thisUnit = GetObjectWithIndex(i)
-				if ObjectIsUnit(thisUnit) and ObjectIsVisible(thisUnit) and (UnitReaction("player", thisUnit) <= 4 
+				if ObjectIsUnit(thisUnit) and ObjectIsVisible(thisUnit) and (UnitReaction("player", thisUnit) <= 4
 					or UnitCreator(thisUnit) == "player") and not isCritter(thisUnit) and getDistance(thisUnit) <= 50 and getLineOfSight(thisUnit)
 				then
 					br.debug.cpu.enemiesEngine.objects.targets = br.debug.cpu.enemiesEngine.objects.targets + 1
@@ -143,7 +143,7 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 						return br.storedTables[checkNoCombat][thisUnit][radius][facing]
 					end
 				end
-			end		
+			end
 		end
 		-- if br.storedTables[checkNoCombat][thisUnit] ~= nil then
 		-- 	local lowestTable
@@ -247,7 +247,7 @@ end
 		end
 		return false
 	end
-	
+
 	-- returns true if we can safely attack this target
 	function isSafeToAttack(unit)
 		if getOptionCheck("Safe Damage Check") == true then
@@ -275,7 +275,7 @@ end
 		-- if all went fine return true
 		return true
 	end
-	
+
 	-- returns true if target is shielded or should be avoided
 	local function isShieldedTarget(unit)
 		local coef = 0
@@ -360,9 +360,9 @@ end
 local function compare(a,b)
 	if UnitHealth(a) == UnitHealth(b) then
 		return getDistance(a) < getDistance(b)
-	else	
+	else
 		return  UnitHealth(a) < UnitHealth(b)
-	end 
+	end
 end
 
 local function findBestUnit(range,facing)
@@ -373,7 +373,7 @@ local function findBestUnit(range,facing)
 	local enemyList = getEnemies("player",range,false,facing)
 	if bestUnit ~= nil and br.enemy[bestUnit] == nil then bestUnit = nil end
 	if bestUnit == nil
---		or GetTime() > lastCheckTime 
+--		or GetTime() > lastCheckTime
 		then
 		-- for k, v in pairs(enemyList) do
 		if #enemyList > 0 then
@@ -387,9 +387,9 @@ local function findBestUnit(range,facing)
 					-- local thisUnit = v.unit
 					-- local distance = getDistance(thisUnit)
 					-- if distance < range then
-					if not isCC then					
+					if not isCC then
 						local coeficient = getUnitCoeficient(thisUnit) or 0
-						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest	
+						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest
 							if currHP == nil or UnitHealth(thisUnit) < currHP then
 								currHP = UnitHealth(thisUnit)
 								coeficient = coeficient + 100
@@ -418,7 +418,7 @@ function dynamicTarget(range,facing)
 	local bestUnit = bestUnit or nil
 	local tarDist = getDistance("target") or 99
 	if isChecked("Dynamic Targetting") then
-		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1) 
+		if getOptionValue("Dynamic Targetting") == 2 or (UnitAffectingCombat("player") and getOptionValue("Dynamic Targetting") == 1)
 			and (bestUnit == nil or (UnitIsUnit(bestUnit,"target") and tarDist >= range))
 		then
 			bestUnit = findBestUnit(range,facing)
@@ -431,7 +431,7 @@ function dynamicTarget(range,facing)
 	end
 	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
-		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 
+		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
 	then
 		TargetUnit(bestUnit)
