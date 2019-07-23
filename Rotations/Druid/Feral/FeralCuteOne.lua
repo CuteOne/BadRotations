@@ -93,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Potion of Unbridled Fury","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
@@ -751,17 +751,20 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if getOptionValue("Potion") ~= 4 and (inRaid or inInstance) and isBoss("target") then
+        if getOptionValue("Potion") ~= 5 and (inRaid or inInstance) and isBoss("target") then
             if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
                 if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                     use.superiorBattlePotionOfAgility()
-                    debug("Using Superior Battle Potion of Agility [Pre-pull]");
-                elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                    debug("Using Superior Battle Potion of Agility");
+		elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
+                    use.potionOfUnbridledFury()
+                    debug("Using Potion of Unbridled Fury");
+                elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
                     use.battlePotionOfAgility()
-                    debug("Using Battle Potion of Agility [Pre-pull]");
-                elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
+                    debug("Using Battle Potion of Agility");
+                elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
                     use.potionOfProlongedPower()
-                    debug("Using Potion of Prolonged Power [Pre-pull]");
+                    debug("Using Potion of Prolonged Power");
                 end
             end
         end
@@ -1225,14 +1228,17 @@ actionList.PreCombat = function()
             if buff.prowl.exists() then
                 -- Pre-pot
                 -- potion,name=old_war
-                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or inInstance) then
+                if getOptionValue("Potion") ~= 5 and pullTimer <= 1 and (inRaid or inInstance) then
                     if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                         use.superiorBattlePotionOfAgility()
                         debug("Using Superior Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                    elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
+                        use.potionOfUnbridledFury()
+                        debug("Using Potion of Unbridled Fury [Pre-pull]");
+                    elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
                         use.battlePotionOfAgility()
                         debug("Using Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
+                    elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
                         use.potionOfProlongedPower()
                         debug("Using Potion of Prolonged Power [Pre-pull]");
                     end
