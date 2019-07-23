@@ -72,6 +72,7 @@ br.lists.items = {
     heirloomNeck                    = getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
     -- Potions
+    superiorBattlePotionOfAgility   = 168489,
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,
     battlePotionOfStrength          = 163224,
