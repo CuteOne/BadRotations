@@ -199,6 +199,7 @@ local has
 local healPot
 local inCombat
 local inRaid
+local inInstance
 local item
 local level
 local lootDelay
@@ -750,10 +751,10 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if getOptionValue("Potion") ~= 4 and (inRaid or #br.friend > 1)
+        if getOptionValue("Potion") ~= 4 and (inRaid or inInstance) and isBoss("target")
             if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())))
             then
-                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() inRaid then
+                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                     use.superiorBattlePotionOfAgility()
                     debug("Using Superior Battle Potion of Agility [Pre-pull]");
                 elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
@@ -1224,9 +1225,9 @@ actionList.PreCombat = function()
             if buff.prowl.exists() then
                 -- Pre-pot
                 -- potion,name=old_war
-                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or #br.friend > 1)
+                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or inInstance)
                 then
-                    if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() inRaid then
+                    if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                         use.superiorBattlePotionOfAgility()
                         debug("Using Superior Battle Potion of Agility [Pre-pull]");
                     elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
@@ -1385,7 +1386,7 @@ local function runRotation()
     if traits.wildFleshrending.active then
         useThrash = 2
     else
-        useThrash = 2
+        useThrash = 1
     end
 
     -- ChatOverlay("Rake: "..round2(debuff.rake.remain("target"),0)..", Rip: "..round2(debuff.rip.remain("target"),0))
