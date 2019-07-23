@@ -3440,6 +3440,7 @@ br.lists.spells = {
                 saphireofBrilliance             = 290365,
                 vigorEngaged                    = 287916,
                 -- Essences
+                guardianOfAzeroth               = 295855,
                 lifeblood                       = 295137,
                 memoryOfLucidDreams             = 298357,
                 recklessForce                   = 302932,
