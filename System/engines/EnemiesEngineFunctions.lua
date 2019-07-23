@@ -424,14 +424,14 @@ function dynamicTarget(range,facing)
 			bestUnit = findBestUnit(range,facing)
 		end
 	end
-	if (not isChecked("Dynamic Targetting") or bestUnit == nil) and getDistance("target") < range
+	if (not isChecked("Dynamic Targetting") or bestUnit == nil) and tarDist < range
 		and (not facing or (facing and getFacing("player","target"))) and isValidUnit("target")
 	then
 		bestUnit = "target"
 	end
 	if ((UnitIsDeadOrGhost("target") and not GetUnitIsFriend("target","player")) or (not UnitExists("target") and hasThreat(bestUnit))
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
-		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0
+		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and getDistance(bestUnit) < range
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
 	then
 		TargetUnit(bestUnit)
