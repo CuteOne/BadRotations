@@ -751,9 +751,8 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if getOptionValue("Potion") ~= 4 and (inRaid or inInstance) and isBoss("target")
-            if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())))
-            then
+        if getOptionValue("Potion") ~= 4 and (inRaid or inInstance) and isBoss("target") then
+            if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
                 if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                     use.superiorBattlePotionOfAgility()
                     debug("Using Superior Battle Potion of Agility [Pre-pull]");
@@ -763,7 +762,7 @@ actionList.Cooldowns = function()
                 elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
                     use.potionOfProlongedPower()
                     debug("Using Potion of Prolonged Power [Pre-pull]");
-		end
+                end
             end
         end
         -- Shadowmeld
@@ -1146,10 +1145,11 @@ actionList.Generator = function()
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
     if cast.able.shred() and range.dyn5
-        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0) or talent.brutalSlash or level < 32)
+        and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0)
+            or talent.brutalSlash or level < 32 or isExplosive("target"))
         and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
-            or level < 12)
+            or level < 12 or isExplosive("target"))
     then
         if cast.shred() then debug("Casting Shred on "..UnitName(units.dyn5).."") return true end
     end
