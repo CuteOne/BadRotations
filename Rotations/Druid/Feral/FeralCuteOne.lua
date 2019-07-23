@@ -71,6 +71,8 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Brutal Slash in Opener", {"|cff00FF00Enabled","|cffFF0000Disabled"}, 1, "|cff15FF00Enable|cffFFFFFF/|cffD60000Disable |cffFFFFFFuse of Brutal Slash in Opener")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+	    -- Berserk/Tiger's Fury Pre-Pull
+            br.ui:createCheckbox(section, "Berserk/Tiger's Fury Pre-Pull")
             -- Travel Shapeshifts
             br.ui:createCheckbox(section,"Auto Shapeshifts","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to best form for situation.|cffFFBB00.")
             -- Fall Timer
@@ -91,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createCheckbox(section,"Potion")
+            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
@@ -748,12 +750,19 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if isChecked("Potion") and use.able.potionOfFocusedResolve() and useCDs() and inRaid then
-            if (ttd(units.dyn5) < 65 or (ttd(units.dyn5) < 180
-                and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())))
+        if getOptionValue("Potion") ~= 4 and (inRaid or #br.friend > 1)
+            if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())))
             then
-                use.potionOfFocusedResolve()
-                debug("Using Potion [Focused Resolve]") 
+                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() inRaid then
+                    use.superiorBattlePotionOfAgility()
+                    debug("Using Superior Battle Potion of Agility [Pre-pull]");
+                elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                    use.battlePotionOfAgility()
+                    debug("Using Battle Potion of Agility [Pre-pull]");
+                elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
+                    use.potionOfProlongedPower()
+                    debug("Using Potion of Prolonged Power [Pre-pull]");
+		end
             end
         end
         -- Shadowmeld
@@ -1215,18 +1224,28 @@ actionList.PreCombat = function()
             if buff.prowl.exists() then
                 -- Pre-pot
                 -- potion,name=old_war
-                if useCDs() and isChecked("Potion") and inRaid
-                    and (use.able.potionOfTheOldWar() or use.able.potionOfProlongedPower())
+                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or #br.friend > 1)
                 then
-                    if getOptionValue("Potion") == 1 and use.able.potionOfTheOldWar() then
-                        use.potionOfTheOldWar()
-                        debug("Using Potion of the Old War [Pre-pull]"); 
-                    elseif getOptionValue("Potion") == 2 and use.able.potionOfProlongedPower() then
+                    if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() inRaid then
+                        use.superiorBattlePotionOfAgility()
+                        debug("Using Superior Battle Potion of Agility [Pre-pull]");
+                    elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                        use.battlePotionOfAgility()
+                        debug("Using Battle Potion of Agility [Pre-pull]");
+                    elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
                         use.potionOfProlongedPower()
-                        debug("Using Potion of Prolonged Power [Pre-pull]"); 
+                        debug("Using Potion of Prolonged Power [Pre-pull]");
                     end
                 end
             end -- End Prowl
+            -- Berserk/Tiger's Fury Pre-Pull
+            if isChecked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or #br.friend > 1) then
+                if cast.able.berserk() and cast.able.tigersFury() then
+                    cast.berserk()
+                    cast.tigersFury()
+                    debug("Casting Berserk and Tiger's Fury [Pre-Pull]")
+                end
+            end
         end -- End Pre-Pull
         -- Rake/Shred
         -- buff.prowl.up|buff.shadowmeld.up
@@ -1366,7 +1385,7 @@ local function runRotation()
     if traits.wildFleshrending.active then
         useThrash = 2
     else
-        useThrash = 0
+        useThrash = 2
     end
 
     -- ChatOverlay("Rake: "..round2(debuff.rake.remain("target"),0)..", Rip: "..round2(debuff.rip.remain("target"),0))
