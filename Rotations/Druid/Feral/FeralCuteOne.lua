@@ -1225,8 +1225,7 @@ actionList.PreCombat = function()
             if buff.prowl.exists() then
                 -- Pre-pot
                 -- potion,name=old_war
-                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or inInstance)
-                then
+                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or inInstance) then
                     if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                         use.superiorBattlePotionOfAgility()
                         debug("Using Superior Battle Potion of Agility [Pre-pull]");
@@ -1298,6 +1297,7 @@ local function runRotation()
     has                                = br.player.has
     healPot                            = getHealthPot()
     inCombat                           = br.player.inCombat
+    inInstance                         = br.player.instance=="party"
     inRaid                             = br.player.instance=="raid"
     item                               = br.player.items
     level                              = br.player.level
