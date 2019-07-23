@@ -1108,7 +1108,7 @@ local function runRotation()
         end
 
         if isChecked("Group Avenger w/ Wrath") then
-            if cast.able.holyAvenger() and (buff.avengingWrath.exists() and buff.avengingWrath.remain >= 15) or buff.avengingCrusader.exists() then
+            if cast.able.holyAvenger() and (buff.avengingWrath.exists() and buff.avengingWrath.remain() >= 15) or buff.avengingCrusader.exists() then
                 if cast.holyAvenger() then
                     return true
                 end
