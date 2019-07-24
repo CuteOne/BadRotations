@@ -130,6 +130,10 @@ if not metaTable2 then
 			rawset(table, o.unit, thisUnit)
 		end
 		function o:UpdateDebuffs(debuffList,unit)
+			if not isChecked("Cache Debuffs") then
+				debuffList = {}
+				return debuffList
+			end
 			local tracker
 			local buffCaster
 			local buffName

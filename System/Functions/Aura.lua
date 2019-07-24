@@ -44,13 +44,15 @@ function UnitDebuffID(unit, spellID, filter)
 	local thisUnit = ObjectPointer(unit)
 	local spellName = GetSpellInfo(spellID)
 	-- Check Cache
-	if br.enemy[thisUnit] ~= nil then 
-		if filter == nil then filter = "player" else filter = ObjectPointer(filter) end
-		if br.enemy[thisUnit].debuffs[filter] ~= nil then 
-			if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
-				return br.enemy[thisUnit].debuffs[filter][spellID](spellID,thisUnit)
-			else 
-				return nil
+	if isChecked("Cache Debuffs") then
+		if br.enemy[thisUnit] ~= nil then 
+			if filter == nil then filter = "player" else filter = ObjectPointer(filter) end
+			if br.enemy[thisUnit].debuffs[filter] ~= nil then 
+				if br.enemy[thisUnit].debuffs[filter][spellID] ~= nil then
+					return br.enemy[thisUnit].debuffs[filter][spellID](spellID,thisUnit)
+				else 
+					return nil
+				end
 			end
 		end
 	end

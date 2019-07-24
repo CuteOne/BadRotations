@@ -95,6 +95,7 @@ function br.ui:createConfigWindow()
         br.ui:createCheckbox(section, "Fish Oil", "Turn Fish into Aromatic Fish Oil. Profession Helper must be checked.")
         br.ui:createCheckbox(section, "Quaking Helper", "Auto cancel channeling and block casts during mythic+ affix quaking")
         br.ui:createCheckbox(section, "Debug Timers", "Useless to users, for Devs.")
+        br.ui:createCheckbox(section, "Cache Debuffs", "Experimental feature still in testing")
         br.ui:checkSectionState(section)
     end
 
