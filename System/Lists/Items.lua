@@ -72,15 +72,23 @@ br.lists.items = {
     heirloomNeck                    = getHeirloomNeck(),
     manariTrainingAmulet            = 153130,
     -- Potions
-    potionOfUnbridledFury           = 169299,
-    superiorBattlePotionOfAgility   = 168489,
     battlePotionOfAgility           = 163223,
     battlePotionOfIntellect         = 163222,
     battlePotionOfStrength          = 163224,
     potionOfBurstingBlood           = 152560,
-    potionOfFocusedResolve          = 168506,
     potionOfProlongedPower          = 142117,
     potionOfTheOldWar               = 127844,
+    -- 8.2 Potions
+    abyssalHealingPotion            = 169451,
+    potionOfUnbridledFury           = 169299, -- DPS Potion
+    potionOfEmpoweredProximity      = 168592, -- DPS Potion (AoE)
+    potionOfFocusedResolve          = 168506, -- Crit Damage Potion
+    potionOfWildMending             = 169300, -- Healer Potion
+    superiorSteelskinPotion         = 168501, -- Armor Potion
+    superiorBattlePotionOfAgility   = 168489,
+    superiorBattlePotionOfIntellect = 168498,
+    superiorNattlePotionOfStrength  = 168500,
+    superiorBattlePotionOfStamina   = 168499,
     -- Rings
     ringOfCollapsingFutures         = 142173,
     --Trinkets
