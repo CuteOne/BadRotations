@@ -80,7 +80,7 @@ local function createOptions()
             -- Break Crowd Control
             br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
             -- Wild Charge
-            br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             -- Multi-DoT Limit
@@ -1431,8 +1431,7 @@ local function runRotation()
             and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete and cd.global.remain() == 0
         then
             -- Wild Charge
-            -- wild_charge
-            if isChecked("Displacer Beast / Wild Charge")
+            if isChecked("Wild Charge")
                 and cast.able.wildCharge("player") and isValidUnit("target")
             then
                 if cast.wildCharge("target") then debug("Casting Wild Charge on "..UnitName("target").." [Out of Melee]"); return true end
