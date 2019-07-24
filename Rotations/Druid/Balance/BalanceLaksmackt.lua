@@ -230,6 +230,8 @@ local function runRotation()
     local hasteAmount = GetHaste() / 100
     local thisUnit = nil
     local aoeTarget = 0
+    local healPot = getHealthPot()
+
     -------------
     -- Raid
     ------------
