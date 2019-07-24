@@ -1245,7 +1245,7 @@ actionList.PreCombat = function()
                 end
             end -- End Prowl
             -- Berserk/Tiger's Fury Pre-Pull
-            if isChecked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or #br.friend > 1) then
+            if isChecked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or inInstance) then
                 if cast.able.berserk() and cast.able.tigersFury() then
                     cast.berserk()
                     cast.tigersFury()
