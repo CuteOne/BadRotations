@@ -200,8 +200,8 @@ br.rotations.support["PetCuteOne"] = function()
         end
     end
     -- Mend Pet
-    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
-        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not buff.mendPet.exists("pet")
+    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet and not buff.mendPet.exists("pet")
+        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not haltProfile
     then
         if cast.mendPet() then return end
     end
