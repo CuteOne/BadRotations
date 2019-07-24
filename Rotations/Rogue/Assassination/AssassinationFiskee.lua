@@ -185,6 +185,7 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local energy, energyDeficit, energyRegen            = br.player.power.energy.amount(), br.player.power.energy.deficit(), br.player.power.energy.regen()
+    local essence                                       = br.player.essence
     local gcd                                           = br.player.gcd
     local has                                           = br.player.has
     local healPot                                       = getHealthPot()
@@ -774,10 +775,17 @@ local function runRotation()
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13)) then
+            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13) or hasEquiped(169311, 13)) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14)) then
+            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14) or hasEquiped(169311, 14)) then
+                useItem(14)
+            end
+        end
+        if useCDs() and isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
+            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
+                useItem(13)
+            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
                 useItem(14)
             end
         end
@@ -871,7 +879,7 @@ local function runRotation()
                 if cast.concentratedFlame("target") then return true end
             end
             --Beamers
-            if standingTime > 1 and isChecked("Focused Azerite Beam") then
+            if (standingTime > 1 or (essence.essenceOfTheFocusingIris and essence.essenceOfTheFocusingIris.rank >= 3)) and isChecked("Focused Azerite Beam") then
                 if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then return true end
             end
         end
