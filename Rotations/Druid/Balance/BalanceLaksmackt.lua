@@ -91,7 +91,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Auto Innervate", "Use Innervate if you have Lively Spirit traits for DPS buff")
-        br.ui:createDropdown(section, "Pots", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdown(section, "Pots", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createCheckbox(section, "Racial")
         br.ui:createCheckbox(section, "Use Trinkets")
         br.ui:createCheckbox(section, "Warrior Of Elune")
@@ -453,16 +453,30 @@ local function runRotation()
         end
 
         --Essence Support
-        if isChecked("ConcentratedFlame - DPS") then
+        if useCDs() and isChecked("ConcentratedFlame - DPS") then
             if cast.concentratedFlame("target") then
                 return true
             end
         end
-        if standingTime > 1 and isChecked("Focused Azerite Beam") and (aoe_count >= 3 or isBoss("target")) then
+        if useCDs() and standingTime > 1 and isChecked("Focused Azerite Beam") and (aoe_count >= 3 or isBoss("target")) then
             if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then
                 return true
             end
         end
+        --[[
+                -- https://www.wowhead.com/spell=295840/guardian-of-azeroth
+                if useCDs() and cast.able.guardianOfAzeroth()
+                        and (debuff.moonfire.exists("target")
+                        and debuff.sunfire.exists("target")
+                        and (not talent.stellarFlare or debuff.stellarFlare.exists "target"))
+                        and (not talent.starlord.active or buff.starLord.exists())
+                then
+                    if cast.guardianOfAzeroth() then
+                        debug("Essence: Casting Guardian of Azeroth")
+                        return
+                    end
+                end
+        ]]
 
         if getValue("Starfall Targets (0 for auto)") == 0 then
             aoeTarget = 4
@@ -529,7 +543,7 @@ local function runRotation()
 
 
         --Pots
-        --{ "None", "Battle", "RisingDeath", "Draenic", "Prolonged" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        --{ "None", "Battle", "RisingDeath", "Draenic", "Prolonged"", "Empowered Proximity" } }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
 
         if isChecked("Pots") and not getOptionValue("Pots") == 1 and not solo and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
             if getOptionValue("Pots") == 2 and canUseItem(163222) then
@@ -540,6 +554,8 @@ local function runRotation()
                 useItem(109218)
             elseif getOptionValue("Pots") == 5 and canUseItem(142117) then
                 useItem(142117)
+            elseif getOptionValue("Pots") == 6 and canUseItem(168529) then
+                useItem(168529)
             end
         end
 
@@ -642,15 +658,18 @@ local function runRotation()
                     return true
                 end
             ]]
+
         if buff.starLord.exists() and buff.starLord.stack() == 3 and buff.starLord.remain() < 3 then
             cancelBuff(279709)
         end
 
+
+
+        --    -- starfall,if=(buff.starlord.stack<3|buff.starlord.remains>=8)&spell_targets>=variable.sf_targets&(target.time_to_die+1)*spell_targets>cost%2.5
         if (talent.stellarDrift and #enemies.yards15t >= aoeTarget) or #enemies.yards12t >= aoeTarget then
             --Starfall
-            if power >= 50 or talent.soulOfTheForest and power >= 40 then
-                if #enemies.yards12t >= aoeTarget
-                        and (talent.starlord and (buff.starLord.remain() >= 8 or buff.starLord.stack() == 3) or not talent.starlord)
+            if power >= 50 or (talent.soulOfTheForest and power >= 40) then
+                if (talent.starlord and (buff.starLord.remain() >= 8 or buff.starLord.stack() < 3) or not talent.starlord)
                 then
                     if cast.starfall("best", false, aoeTarget, starfallRadius) then
                         return true
@@ -886,15 +905,22 @@ local function runRotation()
             end
         end
 
-
-        --Potion or Stone
+        -- Pot/Stoned
         if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
-            if canUseItem(5512) then
-                useItem(5512)
-            elseif canUseItem(getHealthPot()) then
-                useItem(getHealthPot())
+            if inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+                if canUseItem(5512) then
+                    br.addonDebug("Using Healthstone")
+                    useItem(5512)
+                elseif hasItem(166799) and canUseItem(166799) then
+                    br.addonDebug("Using Emerald of Vigor")
+                    useItem(166799)
+                elseif canUseItem(healPot) then
+                    br.addonDebug("Using Health Pot")
+                    useItem(healPot)
+                end
             end
         end
+
         -- Renewal
         if isChecked("Renewal") and talent.renewal and php <= getValue("Renewal") then
             if cast.renewal("player") then
@@ -1063,13 +1089,7 @@ local function runRotation()
     end
 
     local function root_cc()
-        local root_UnitList = {}
-        if isChecked("Freehold - root grenadier") then
-            root_UnitList[129758] = "Irontide Grenadier"
-        end
-        if isChecked("Atal - root Spirit of Gold") then
-            root_UnitList[131009] = "Spirit of Gold"
-        end
+
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") then
             root_UnitList[129758] = "Irontide Grenadier"
@@ -1080,10 +1100,9 @@ local function runRotation()
         if ischecked("All - root Emissary of the Tides") then
             root_UnitList[155434] = "Emissary of the Tides"
         end
-        for i = 1, #enemies.yards40 do
-            local thisUnit = enemies.yards40[i]
-
-            if cast.able.entanglingRoots() then
+        if cast.able.entanglingRoots() then
+            for i = 1, #enemies.yards40 do
+                thisUnit = enemies.yards40[i]
                 if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffremain(thisUnit, 226510) <= 3) then
                     if cast.entanglingRoots(thisUnit) then
                         return true
@@ -1091,8 +1110,6 @@ local function runRotation()
                 end
             end
         end
-
-
     end
 
     local function PreCombat()
@@ -1317,12 +1334,15 @@ local function runRotation()
                     return true
                 end
             end
+            --[[
+                        if root_cc then
+                            return true
+                        end
+            ]]
             if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
                 actionList_Opener()
             end
-            --[[if root_cc() then
-                 return true
-             end]]
+
             if mode.rotation ~= 4 then
                 if dps() then
                     return true
