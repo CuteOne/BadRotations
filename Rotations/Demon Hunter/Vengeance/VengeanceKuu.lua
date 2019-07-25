@@ -67,6 +67,10 @@ local function createOptions()
             br.ui:createCheckbox(section,"Fel Devastation")
         -- Throw Glaive 
             br.ui:createCheckbox(section,"Throw Glaive")
+        -- Infernal Strike Key
+            br.ui:createDropdown(section,"Infernal Strike Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually infernal strike")
+        -- Sigil of Chains Key
+            br.ui:createDropdown(section,"Sigil of Chains Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually use Sigil of Chains")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -192,7 +196,7 @@ local function runRotation()
         local racial                                        = br.player.getRacial()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
-	local ttd					    = getTTD
+        local ttd                                           = getTTD
         local units                                         = br.player.units
         iStrikeDelay                                        = iStrikeDelay or 0
 
@@ -209,7 +213,7 @@ local function runRotation()
         if profileStop == nil then profileStop = false end
         
         local function iStrike(unit)
-            if getDistance("player",unit) < 40 then
+            --if getDistance("player",unit) < 40 then
               local wasMouseLooking = false
                 if IsMouselooking() then
                     wasMouseLooking = true
@@ -233,18 +237,38 @@ local function runRotation()
                     br.addonDebug("Casting Inferal Strike")
                     ClickPosition(x,y,z)
                     iStrikeDelay = GetTime()
-                    if IsAoEPending() then
-                        SpellStopTargeting()
-                        br.addonDebug("Canceling Spell")
-                        return false
-                    end
                     if wasMouseLooking then
                         MouselookStart()
                     end
                 end
                 return true
+          --  end
+          --  return false
+        end
+
+        local function trinketLogic(slot)
+            if not hasEquiped(165572,slot) and not hasEquiped(167868,slot) and not hasEquiped(169311,slot) and php <= getOptionValue("Trinket 1") then
+                br.addonDebug("Using Trinket 1")
+                useItem(slot)
+            elseif hasEquiped(165572,slot) then
+                if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
+                    br.addonDebug("Using Variable Intensity Gigavolt Oscillating Reactor")
+                    useItem(slot)
+                end
+            elseif hasEquiped(167868,slot) then
+                if (#getAllies("player",15) + getNumEnemies("player",15)) >= 4 and php <= 50 then
+                    br.addonDebug("Using Idol of Indiscriminate Consumption")
+                    useItem(slot)
+                end
+            elseif hasEquiped(169311,slot) then
+                if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
+                    br.addonDebug("Using second activation of Ashvane's Razor Coral")
+                    useItem(slot)
+                elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
+                    br.addonDebug("Using first activation of Ashvane's Razor Coral")
+                    useItem(slot)
+                end
             end
-            return false
         end
 
 --------------------
@@ -378,53 +402,11 @@ local function runRotation()
                     br.addonDebug("Using Sapphire of Brilliance")
                     useItem(166801)
                 end
-                if isChecked("Trinket 1") and canTrinket(13) then            
-                    if not hasEquiped(165572,13) and not hasEquiped(167868,13) and not hasEquiped(169311,13) and php <= getOptionValue("Trinket 1") then
-                            br.addonDebug("Using Trinket 1")
-                            useItem(13)
-                    elseif hasEquiped(165572,13) then
-                        if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
-                            br.addonDebug("Using Variable Intensity Gigavolt Oscillating Reactor")
-                            useItem(13)
-                        end
-                    elseif hasEquiped(167868,13) then
-                        if (#getAllies("player",15) + getNumEnemies("player",15)) >= 4 and php <= 50 then
-                            br.addonDebug("Using Idol of Indiscriminate Consumption")
-                            useItem(13)
-                        end
-                    elseif hasEquiped(169311,13) then
-                        if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
-                            br.addonDebug("Using second activation of Ashvane's Razor Coral")
-                            useItem(13)
-                        elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
-                            br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                            useItem(13)
-                        end
-                    end
+                if isChecked("Trinket 1") and canTrinket(13) then  
+                    trinketLogic(13)          
                 end
                 if isChecked("Trinket 2") and canTrinket(14) then            
-                    if not hasEquiped(165572,14) and not hasEquiped(167868,14) and not hasEquiped(169311,14) and php <= getOptionValue("Trinket 2") then
-                            br.addonDebug("Using Trinket 1")
-                            useItem(14)
-                    elseif hasEquiped(165572,14) then
-                        if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
-                            br.addonDebug("Using Variable Intensity Gigavolt Oscillating Reactor")
-                            useItem(14)
-                        end
-                    elseif hasEquiped(167868,14) then
-                        if (#getAllies("player",15) + getNumEnemies("player",15)) >= 4 and php <= 50 then
-                            br.addonDebug("Using Idol of Indiscriminate Consumption")
-                            useItem(14)
-                        end
-                    elseif hasEquiped(169311,14) then
-                        if ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and br.timer:useTimer("Razor Coral Delay", 3) then
-                            br.addonDebug("Using second activation of Ashvane's Razor Coral")
-                            useItem(14)
-                        elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
-                            br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                            useItem(14)
-                        end
-                    end
+                    trinketLogic(14)
                 end
             end
         end -- End Action List - Cooldowns
@@ -470,7 +452,7 @@ local function runRotation()
                 if cast.sigilOfFlame("best",false,1,8) then br.addonDebug("Casting Sigil Of Flame") return end
 			end
 			-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-			if mode.mover == 1 and not cast.last.infernalStrike(1) and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 and C_LossOfControl.GetNumEvents() == 0 and GetTime() - iStrikeDelay > 2 then
+			if mode.mover == 1 and not cast.last.infernalStrike(1) and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and getDistance("target") <= 10 and C_LossOfControl.GetNumEvents() == 0 and GetTime() - iStrikeDelay > 2 then
                 --if cast.infernalStrike("targetGround","ground",1,6) then return end
                 if iStrike("target") then return true end
             end
@@ -488,7 +470,7 @@ local function runRotation()
 					if cast.felDevastation() then br.addonDebug("Casting Fel Devastation") return end
 				end
 				-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
-				if mode.mover == 1 and not cast.last.infernalStrike(1) and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 and C_LossOfControl.GetNumEvents() == 0 and GetTime() - iStrikeDelay > 2 then
+				if mode.mover == 1 and not cast.last.infernalStrike(1) and charges.infernalStrike.count() == 2 and getDistance("target") <= 10 and C_LossOfControl.GetNumEvents() == 0 and GetTime() - iStrikeDelay > 2 then
                     --if cast.infernalStrike("player","ground",1,6) then return end
                     if iStrike("target") then return true end
 				end
@@ -504,9 +486,21 @@ local function runRotation()
 -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
+        elseif inCombat and IsAoEPending() then
+                SpellStopTargeting()
+                br.addonDebug("Canceling Spell")
+                return false
         elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or pause() or mode.rotation==4 then
             return true
         else
+            -- Infernal Strike
+            if SpecificToggle("Infernal Strike Key") and not GetCurrentKeyBoardFocus() and isChecked("Infernal Strike Key") and GetTime() - iStrikeDelay > 2 then
+                CastSpellByName(GetSpellInfo(spell.infernalStrike),"cursor") iStrikeDelay = GetTime() return true 
+            end
+            -- Sigil of Chains
+            if SpecificToggle("Sigil of Chains Key") and not GetCurrentKeyBoardFocus() and isChecked("Sigil of Chains Key") then
+                CastSpellByName(GetSpellInfo(spell.sigilOfChains),"cursor") return true 
+            end
 -----------------------
 --- Extras Rotation ---
 -----------------------
