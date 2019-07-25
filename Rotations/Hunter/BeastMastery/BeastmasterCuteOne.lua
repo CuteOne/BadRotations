@@ -448,7 +448,7 @@ actionList.Cooldowns = function()
             end
             -- guardian_of_azeroth,if=cooldown.aspect_of_the_wild.remains<10|target.time_to_die>cooldown+duration|target.time_to_die<30
             if cast.able.guardianOfAzeroth() and (cd.aspectOfTheWild.remain() < 10
-                or ttd(units.dyn40) > cd.guardianOfAzeroth.remian() + 180 or (ttd(units.dyn40) < 30 and useCDs()))
+                or ttd(units.dyn40) > cd.guardianOfAzeroth.remain() + 180 or (ttd(units.dyn40) < 30 and useCDs()))
             then
                 if cast.guardianOfAzeroth() then return end
             end
