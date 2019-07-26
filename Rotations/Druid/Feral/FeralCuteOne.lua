@@ -295,13 +295,16 @@ local function ferociousBiteFinish(thisUnit)
     local damage = 0
     local finishHim = false
     if getOptionValue("Ferocious Bite Execute") ~= 3 and comboPoints > 0 and not isDummy(thisUnit) then
-        local comboStart = desc:find(" "..comboPoints.." ",1,true)+2
-        local damageList = desc:sub(comboStart,desc:len())
-        comboStart = damageList:find(": ",1,true)+2
-        damageList = damageList:sub(comboStart,desc:len())
-        local comboEnd = damageList:find(" ",1,true)-1
-        damageList = damageList:sub(1,comboEnd)
-        damage = damageList:gsub(",","")
+        local comboStart = desc:find(" "..comboPoints.." ",1,true)
+        if comboStart ~= nil then
+            comboStart = comboStart + 2
+            local damageList = desc:sub(comboStart,desc:len())
+            comboStart = damageList:find(": ",1,true)+2
+            damageList = damageList:sub(comboStart,desc:len())
+            local comboEnd = damageList:find(" ",1,true)-1
+            damageList = damageList:sub(1,comboEnd)
+            damage = damageList:gsub(",","")
+        end
         finishHim = tonumber(damage) >= UnitHealth(thisUnit)
     end
     return finishHim
@@ -728,7 +731,7 @@ actionList.Cooldowns = function()
             if buff.tigersFury.exists() then
                 -- Essence: Concentrated Flame
                 if cast.able.concentratedFlame() then
-                    if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
+                    if cast.concentratedFlame() then debug("Casting Concentrated Flame") return true end
                 end
                 -- Essence: Guardian of Azeroth
                 if useCDs() and cast.able.guardianOfAzeroth() then
@@ -931,7 +934,7 @@ actionList.Finisher = function()
                 then
                     if cast.pool.rip() then ChatOverlay("Pooling For Rip") return true end
                     if cast.able.rip(thisUnit) then
-                        if cast.rip(thisUnit) then debug("Casting Rip on "..UnitName(units.dyn5)) return true end
+                        if cast.rip(thisUnit) then debug("Casting Rip") return true end
                     end
                 end
             end
@@ -952,7 +955,7 @@ actionList.Finisher = function()
     if (cast.pool.maim() or cast.able.maim()) and (buff.ironJaws.exists()) and range.dyn5 then
         if cast.pool.maim() then ChatOverlay("Pooling For Maim") return true end
         if cast.able.maim() then
-            if cast.maim() then debug("Casting Maim on "..UnitName(units.dyn5)) return true end
+            if cast.maim() then debug("Casting Maim") return true end
         end
     end
     -- Ferocious Bite
@@ -964,9 +967,9 @@ actionList.Finisher = function()
             or UnitIsCharmed(units.dyn5) or not canDoT(units.dyn5) or isDummy(units.dyn5))
     then
         if getOptionValue("Ferocious Bite Execute") == 1 and ferociousBiteFinish(units.dyn5) then
-            Print("Ferocious Bite Finished! "..UnitName(units.dyn5).." with "..round2(thp(units.dyn5),0).."% health remaining.")
+            --Print("Ferocious Bite Finished! "..UnitName(units.dyn5).." with "..round2(thp(units.dyn5),0).."% health remaining.")
         end
-        if cast.ferociousBite() then debug("Casting Ferocious Bite on "..UnitName(units.dyn5)) return true end
+        if cast.ferociousBite() then debug("Casting Ferocious Bite") return true end
     end
 end -- End Action List - Finisher
 
@@ -1151,7 +1154,7 @@ actionList.Generator = function()
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
             or level < 12 or isExplosive("target"))
     then
-        if cast.shred() then debug("Casting Shred on "..UnitName(units.dyn5).."") return true end
+        if cast.shred() then debug("Casting Shred") return true end
     end
 end -- End Action List - Generator
 
@@ -1438,9 +1441,9 @@ local function runRotation()
                 if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5) 
                     or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
                 then
-                    if cast.rake(units.dyn5) then debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
+                    if cast.rake(units.dyn5) then --[[debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
-                    if cast.shred(units.dyn5) then debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]"); return true end
+                    if cast.shred(units.dyn5) then --[[debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 end
             elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
                 -- auto_attack
