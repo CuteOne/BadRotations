@@ -1031,7 +1031,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- swipe_cat,if=buff.scent_of_blood.up
     if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash 
-        and not isExplosive("target") and buff.scentOfBlood.exists() and range.dyn8AOE < 8
+        and not isExplosive("target") and buff.scentOfBlood.exists() and range.dyn8AOE
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
         if cast.able.swipeCat() then
