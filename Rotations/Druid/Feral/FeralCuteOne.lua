@@ -674,7 +674,8 @@ actionList.Cooldowns = function()
         -- Tiger's Fury
         -- tigers_fury,if=energy.deficit>=60
         if isChecked("Tiger's Fury") and cast.able.tigersFury() then
-            if cast.able.tigersFury() and (energyDeficit >= 60 or snipeTF()) then
+            if cast.able.tigersFury() and ((energyDeficit >= 80 or snipeTF()) and range.dyn5
+                or (buff.bloodtalons.exists() and energyDeficit >= 60 and range.dyn5)) then
                 if cast.tigersFury() then debug("Casting Tiger's Fury") return true end
             end
         end
