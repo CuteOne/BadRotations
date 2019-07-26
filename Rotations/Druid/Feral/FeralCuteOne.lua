@@ -751,12 +751,14 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if ((inRaid or (inInstance and ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
-            or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28)) then
+        if getOptionValue("Potion") ~= 5 and isBoss("target")
+        then
+            if ((inRaid or (inInstance and ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
+                or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28)) then
                 if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                     use.superiorBattlePotionOfAgility()
                     debug("Using Superior Battle Potion of Agility");
-		elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
+                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
                     use.potionOfUnbridledFury()
                     debug("Using Potion of Unbridled Fury");
                 elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
