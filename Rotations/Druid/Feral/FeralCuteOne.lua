@@ -771,12 +771,12 @@ actionList.Cooldowns = function()
         -- Shadowmeld
         -- shadowmeld,if=combo_points<5&energy>=action.rake.cost&dot.rake.pmultiplier<2.1&buff.tigers_fury.up&(buff.bloodtalons.up|!talent.bloodtalons.enabled)&(!talent.incarnation.enabled|cooldown.incarnation.remains>18)&!buff.incarnation.up
         if isChecked("Racial") and cast.able.shadowmeld() and useCDs() and race == "NightElf"
-            and getDistance(units.dyn5) < 5 and not solo and friendsInRange --findFriends() > 0
+            and getDistance(units.dyn5) < 5 and (not solo and friendsInRange) --findFriends() > 0
         then
-            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2.1
+            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.remain("target") < 4.6
                 and buff.tigersFury.exists() and (buff.bloodtalons.exists() or not talent.bloodtalons)
                 and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle.remain() > 18)
-                and not buff.incarnationKingOfTheJungle.exists())
+                and not buff.incarnationKingOfTheJungle.exists()) and ttd("target") > 4
             then
                 if cast.shadowmeld() then debug("Casting Shadowmeld") return true end
             end
