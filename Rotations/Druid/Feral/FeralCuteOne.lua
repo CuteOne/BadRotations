@@ -107,6 +107,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Berserk/Incarnation")
             -- Trinkets
             br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+	    -- Ashavne's Razor Coral
+            br.ui:createCheckbox(section,"Ashavne's Razor Coral")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -789,7 +791,8 @@ actionList.Cooldowns = function()
         end
         -- Trinkets
         -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
-        if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists()
+        if (use.able.slot(13) or use.able.slot(14)) and ((buff.tigersFury.exists()
+            or (equiped.ashvanesRazorCoral and isChecked("Ashavne's Razor Coral")))
             or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists())
         then
             local opValue = getOptionValue("Trinkets")
