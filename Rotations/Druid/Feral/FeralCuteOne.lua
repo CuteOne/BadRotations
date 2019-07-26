@@ -80,7 +80,7 @@ local function createOptions()
             -- Break Crowd Control
             br.ui:createCheckbox(section,"Break Crowd Control","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Shapeshifting to break crowd control.|cffFFBB00.")
             -- Wild Charge
-            br.ui:createCheckbox(section,"Displacer Beast / Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
+            br.ui:createCheckbox(section,"Wild Charge","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFAuto Charge usage.|cffFFBB00.")
             -- Brutal Slash Targets
             br.ui:createSpinnerWithout(section,"Brutal Slash Targets", 3, 1, 10, 1, "|cffFFFFFFSet to desired targets to use Brutal Slash on. Min: 1 / Max: 10 / Interval: 1")
             -- Multi-DoT Limit
@@ -93,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Potion of Unbridled Fury","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
@@ -754,17 +754,22 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if getOptionValue("Potion") ~= 4 and (inRaid or inInstance) and isBoss("target") then
-            if (ttd(units.dyn5) > 45 and (buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())) then
+        if getOptionValue("Potion") ~= 5 and isBoss("target")
+        then
+            if ((inRaid or (inInstance and ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
+                or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28)) then
                 if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                     use.superiorBattlePotionOfAgility()
-                    debug("Using Superior Battle Potion of Agility [Pre-pull]");
-                elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                    debug("Using Superior Battle Potion of Agility");
+                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
+                    use.potionOfUnbridledFury()
+                    debug("Using Potion of Unbridled Fury");
+                elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
                     use.battlePotionOfAgility()
-                    debug("Using Battle Potion of Agility [Pre-pull]");
-                elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
+                    debug("Using Battle Potion of Agility");
+                elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
                     use.potionOfProlongedPower()
-                    debug("Using Potion of Prolonged Power [Pre-pull]");
+                    debug("Using Potion of Prolonged Power");
                 end
             end
         end
@@ -1228,21 +1233,24 @@ actionList.PreCombat = function()
             if buff.prowl.exists() then
                 -- Pre-pot
                 -- potion,name=old_war
-                if getOptionValue("Potion") ~= 4 and pullTimer <= 1 and (inRaid or inInstance) then
+                if getOptionValue("Potion") ~= 5 and pullTimer <= 1 and (inRaid or inInstance) then
                     if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
                         use.superiorBattlePotionOfAgility()
                         debug("Using Superior Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 2 and use.able.battlePotionOfAgility() then
+                    elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
+                        use.potionOfUnbridledFury()
+                        debug("Using Potion of Unbridled Fury [Pre-pull]");
+                    elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
                         use.battlePotionOfAgility()
                         debug("Using Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 3 and use.able.potionOfProlongedPower() then
+                    elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
                         use.potionOfProlongedPower()
                         debug("Using Potion of Prolonged Power [Pre-pull]");
                     end
                 end
             end -- End Prowl
             -- Berserk/Tiger's Fury Pre-Pull
-            if isChecked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or #br.friend > 1) then
+            if isChecked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or inInstance) then
                 if cast.able.berserk() and cast.able.tigersFury() then
                     cast.berserk()
                     cast.tigersFury()
@@ -1428,8 +1436,7 @@ local function runRotation()
             and not isChecked("Death Cat Mode") and UnitExists("target") and opener.complete and cd.global.remain() == 0
         then
             -- Wild Charge
-            -- wild_charge
-            if isChecked("Displacer Beast / Wild Charge")
+            if isChecked("Wild Charge")
                 and cast.able.wildCharge("player") and isValidUnit("target")
             then
                 if cast.wildCharge("target") then debug("Casting Wild Charge on "..UnitName("target").." [Out of Melee]"); return true end
