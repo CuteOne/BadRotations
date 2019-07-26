@@ -1062,8 +1062,9 @@ actionList.Generator = function()
                 and canDoT(thisUnit) and getFacing("player",thisUnit)
             then
                 if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
-                    or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7
-                    and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
+                    or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 4.5)
+                    --Causing rake to not refresh properly
+                    --and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                 then
                     return true
                 end
