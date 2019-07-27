@@ -133,6 +133,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Sigil of Silence")
         -- Sigil of Misery
             br.ui:createCheckbox(section, "Sigil of Misery")
+        -- Imprison
+            br.ui:createCheckbox(section, "Imprison")
         -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
