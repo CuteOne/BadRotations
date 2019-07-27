@@ -115,8 +115,6 @@ local function createOptions()
             br.ui:createCheckbox(section, "Debuff Helper", "|cffFFFFFFHelp mitigate a few known debuff")
             --Pain Suppression Tank
             br.ui:createSpinner(section, "Pain Suppression Tank",  30,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 30")
-            --Pain Suppression
-            br.ui:createSpinner(section, "Pain Suppression",  15,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At. Default: 15")
             br.ui:createSpinner(section, "Revitalizing Voodoo Totem", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
             br.ui:createSpinner(section, "Inoculating Extract", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
             br.ui:createSpinner(section, "Ward of Envelopment", 75, 0 , 100, 5, "|cffFFFFFFHealth Percent to Cast At. Default: 75")
@@ -747,10 +745,8 @@ local function runRotation()
                     br.addonDebug("Using Sapphire of Brilliance")
                     useItem(166801)
                 end
-                if pullTimer < 5 and charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and not cast.last.powerWordRadiance() then
-                    for i = 1, charges.powerWordRadiance.count() do
-                        cast.powerWordRadiance(lowest.unit)
-                    end
+                if charges.powerWordRadiance.count() >= 1 and #br.friend - atonementCount >= 3 and not cast.last.powerWordRadiance() then
+                    cast.powerWordRadiance(lowest.unit)
                 end
             end
             if not isMoving("player") and isChecked("Drink") and mana <= getOptionValue("Drink") and canUseItem(159868) then
@@ -895,9 +891,9 @@ local function runRotation()
              -- Power Word: Barrier
             if (SpecificToggle("PW:B/LB Key") and not GetCurrentKeyBoardFocus()) and isChecked("PW:B/LB Key") then
                 if not talent.luminousBarrier then
-                    if CastSpellByName(GetSpellInfo(spell.powerWordBarrier),"cursor") then return true end
+                    CastSpellByName(GetSpellInfo(spell.powerWordBarrier),"cursor") return true 
                 else 
-                    if CastSpellByName(GetSpellInfo(spell.luminousBarrier),"cursor") then return true end
+                    CastSpellByName(GetSpellInfo(spell.luminousBarrier),"cursor") return true 
                 end
             end
             -- Temple of Seth
