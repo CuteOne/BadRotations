@@ -126,7 +126,7 @@ interruptWhitelist = {
 	[253544] = true, -- bwonsamdismantle
 	[253517] = true, -- mending word
 	[256849] = true, -- dinomight
-    [250368] = true, -- noxious-stench
+    [259572] = true, -- noxious-stench
     [250096] = true, -- wracking-pain
     [255041] = true, -- terrifying-screech
     [279118] = true, -- unstable-hex
@@ -247,6 +247,18 @@ interruptWhitelist = {
 	[300436] = true, -- Grasping Hex, Scrapbone Shamans
 	[301629] = true, -- Enlarge, Mechagon Renormalizer
 	[284219] = true, -- Shrink, Mechagon Renormalizer
+	[301689] = true, -- Charged Coil, Anodized Coilbearer
+	[301088] = true, -- Detonate, Bomb Tonk
+	[293930] = true, -- Overclock, Mechagon Mechanic
+	[293729] = true, -- Tune Up, Mechagon Mechanic
+	-- Mechagon End
+	-- Eternal Palace Start
+	[296673] = true, -- Chain Lightning, Stormling
+	[295822] = true, -- Conductive Pulse, Azsh'ari Witch
+	[297972] = true, -- Chain Lightning, Aethanel, Tidemistress
+	[300491] = true, -- Drain Ancient Ward, Tidemistress
+	[300490] = true, -- Energize Ward of Power, Tidemistress
+	-- Eternal Palace End
 
 
 	-- Old Content start 
