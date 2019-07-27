@@ -527,7 +527,7 @@ local function runRotation()
                 CastSpellByName(GetSpellInfo(spell.infernalStrike),"cursor") iStrikeDelay = GetTime() return  
             end
             -- Sigil of Chains
-            if SpecificToggle("Sigil of Chains Key") and not GetCurrentKeyBoardFocus() and isChecked("Sigil of Chains Key") then
+            if SpecificToggle("Sigil of Chains Key") and not GetCurrentKeyBoardFocus() and isChecked("Sigil of Chains Key") and cd.sigilOfChains.remain() <= gcd then
                 CastSpellByName(GetSpellInfo(spell.sigilOfChains),"cursor") return  
             end
 -----------------------
