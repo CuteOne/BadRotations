@@ -523,14 +523,6 @@ if not metaTable1 then
 				table.sort(br.friend, function(x,y)
 					return x.hp < y.hp
 				end)
-				-- Sorting with the Role
-				if getOptionCheck("Sorting with Role") then
-					table.sort(br.friend, function(x,y)
-						if x.role and y.role then return x.role > y.role
-						elseif x.role then return true
-						elseif y.role then return false end
-					end)
-				end
 				if getOptionCheck("Prioritize Special Targets") == true then
 					if GetUnitExists("focus") and br.memberSetup.cache[select(2, getGUID("focus"))] then
 						table.sort(br.friend, function(x)
