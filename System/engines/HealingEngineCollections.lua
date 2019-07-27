@@ -100,10 +100,14 @@ novaEngineTables.DispelID = {
 	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
 	-- Eternal Palace
 	[296737] = { stacks = 0, range = 15}, -- https://www.wowhead.com/spell=296737/arcane-bomb
+	[295327] = { stacks = 0}, --https://www.wowhead.com/spell=295327/shattered-psyche
 	-- Mechagon
 	[300659] = {stacks = 0}, --https://www.wowhead.com/spell=300659/consuming-slime
 	[298124] = {stacks = 0}, --https://www.wowhead.com/spell=298124/gooped
 	[300414] = {stacks = 0}, --https://www.wowhead.com/spell=300414/enrage
+	[294929] = {stacks = 0}, --https://www.wowhead.com/spell=294929/blazing-chomp
+	[294195] = {stacks = 0}, --https://www.wowhead.com/spell=294195/arcing-zap
+
 
 
 }
@@ -129,6 +133,8 @@ novaEngineTables.PurgeID = {
 	[265081] = true, -- Warcry (Underrot)
 	[266209] = true, -- Wicked Frenzy (Underrot)
 	[257476] = true, -- Bestial Wrath (Freehold)
+	-- Mechagon
+	[297133] = true, -- Defensive Countermeasure (Defense Bot Mk III)
 	
 }
 -- List of debuffs that we should never dispell
