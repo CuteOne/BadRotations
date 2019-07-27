@@ -284,6 +284,12 @@ local function runRotation()
             end
         end
 
+        local typesLoc = {
+            "Demon","Dämon","Démon","악마","Demonio","Demônio","Demonarca", "Demone", "Демон", "恶魔", "惡魔",
+            "Beast","Wildtier","Bête","야수","Bestia","Fera","Животное","野兽","野獸",
+            "Humanoid","Humanoid","Humanoide", "Humanoïde", "Umanoide", "Humanoide", "Гуманоид", "인간형",  "人型生物", "人型生物"
+        }
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -392,22 +398,28 @@ local function runRotation()
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
                         if isChecked("Disrupt") and getDistance(thisUnit) < 20 then
                             if cast.disrupt(thisUnit) then br.addonDebug("Casting Disrupt") return end
-                        end
                         -- Sigil of Silence
-                        if isChecked("Sigil of Silence") and cd.disrupt.remain() > 0 then
+                        elseif isChecked("Sigil of Silence") then
                             if not talent.concentratedSigils then
                                 if cast.sigilOfSilence(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Silence") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
                                 if cast.sigilOfSilence() then br.addonDebug("Casting Sigil of Silence") return end
                             end
-                        end
                         -- Sigil of Misery
-                        if isChecked("Sigil of Misery") and cd.disrupt.remain() > 0 and cd.sigilOfSilence.remain() > 0 and cd.sigilOfSilence.remain() < 45
-                        then
+                        elseif isChecked("Sigil of Misery") then
                             if not talent.concentratedSigils then
                                 if cast.sigilOfMisery(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Misery") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
                                 if cast.sigilOfMisery() then br.addonDebug("Casting Sigil of Misery") return end
+                            end
+                        elseif isChecked("Imprison") then
+                            local type = UnitCreatureType(thisUnit)
+                            for i = 1, #typesLoc do
+                                if type == typesLoc[i] then
+                                    if getDistance(thisUnit) < 20 then
+                                        if cast.imprison(thisUnit) then br.addonDebug("Casting Imprison") return end
+                                    end
+                                end
                             end
                         end
                     end
