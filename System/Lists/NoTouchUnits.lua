@@ -40,6 +40,9 @@ br.lists.noTouchUnits = {
     {unitID = 128652}, -- Viq'Goth
     -- Atal'Dazar
     {unitID = 129399 , buff =250192}, -- Vol'kaal with Bad Voodoo buff
+    -- Temple of Sethraliss
+    {unitID = 133379, buff = 263246}, -- Adderis with Lightning Shield
+    {unitID = 133944, buff = 263246}, -- Aspix with Lightning Shield
     -- Mechagon
     {unitID = 152703}, -- Walkie Shockie X1
     -- M+ Beguiling
