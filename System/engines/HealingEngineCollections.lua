@@ -98,7 +98,8 @@ novaEngineTables.DispelID = {
 	[272180] = { stacks = 0 }, -- https://www.wowhead.com/spell=272180/death-bolt
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
 	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
-	[296746] = { stacks = 0, range = 15}, -- https://www.wowhead.com/spell=296746/arcane-bomb
+	-- Eternal Palace
+	[296737] = { stacks = 0, range = 15}, -- https://www.wowhead.com/spell=296737/arcane-bomb
 	-- Mechagon
 	[300659] = {stacks = 0}, --https://www.wowhead.com/spell=300659/consuming-slime
 	[298124] = {stacks = 0}, --https://www.wowhead.com/spell=298124/gooped
