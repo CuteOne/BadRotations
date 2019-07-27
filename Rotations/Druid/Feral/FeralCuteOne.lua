@@ -106,7 +106,7 @@ local function createOptions()
             -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
             -- Trinkets
-            br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+            br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinkets.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -787,22 +787,32 @@ actionList.Cooldowns = function()
                 if cast.shadowmeld() then debug("Casting Shadowmeld") return true end
             end
         end
-        -- Trinkets
-        -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
-        if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists()
-            or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists())
+        local opValue = getOptionValue("Trinkets")
+        if ((use.able.slot(13) or use.able.slot(14)) and (opValue == 1 or (opValue == 2 and useCDs())) and getDistance(units.dyn5) < 5)
         then
-            local opValue = getOptionValue("Trinkets")
-            if (opValue == 1 or (opValue == 2 and useCDs()))
-                and getDistance(units.dyn5) < 5
+            local firstItemId = GetInventoryItemID("player", 13)
+            local secondItemId = GetInventoryItemID("player", 14)
+            if (not (firstItemId == 169311) and not (secondItemId == 169311))
             then
-                for i = 13, 14 do
-                    if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i) 
-                        or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1))) 
-                    then
-                        use.slot(i)
-                        debug("Using Trinket [Slot "..i.."]") 
+                -- Default logic.
+                if (buff.tigersFury.exists() or (tdd(units.dyn5) <= cd.tigersFury.remain() and (not talent.savageRoar or buff.savageRoar.exists())))
+                then
+                    for i = 13, 14 do
+                        if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i)
+                            or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672, 1)))
+                        then
+                            use.slot(i)
+                            debug("Using Trinket [Slot "..i.."]")
+                        end
                     end
+                end
+            else
+                -- Spam Ashvane's Razor Coral whenever it's available.
+                local razorCoralSlotID = ((firstItemId == 169311) and 13 or 14)
+                if (use.able.slot(razorCoralSlotID))
+                then
+                    use.slot(razorCoralSlotID)
+                    debug("Using Trinket [Slot "..razorCoralSlotID.."]")
                 end
             end
         end
