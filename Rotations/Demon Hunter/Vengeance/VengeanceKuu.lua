@@ -292,6 +292,18 @@ local function runRotation()
             "Humanoid","Humanoid","Humanoide", "Humanoïde", "Umanoide", "Humanoide", "Гуманоид", "인간형",  "人型生物", "人型生物"
         }
 
+        local function ShouldMitigate()
+            if UnitThreatSituation("player", "target") == 3 then
+                for i = 1, #br.activeMitigationList do
+                    local spell_id = Casting[i]
+                    if UnitCastingInfo("target") == GetSpellInfo(spell_id) then
+                        return true
+                    end
+                end
+            end
+            return false
+        end
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -522,7 +534,31 @@ local function runRotation()
 					if cast.sigilOfFlame("best",false,1,8) then br.addonDebug("Casting Sigil Of Flame") return end
 				end
             end
-        end -- End Action List - PreCombat
+        end -- End Action List - Fiery Brand
+
+        local function actionList_ActiveMitigation()
+            if ShouldMitigate() and #enemies.yards8 > 0 then
+                if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(169311,13) then  
+                    trinketLogic(13)
+                    return          
+                elseif isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(169311,14) then            
+                    trinketLogic(14)
+                    return
+                    -- Metamorphosis
+				elseif isChecked("Metamorphosis") and not buff.demonSpikes.exists()
+                and not debuff.fieryBrand.exists("target") and not buff.metamorphosis.exists() then
+                    if cast.metamorphosis() then br.addonDebug("Casting Metamorphosis (Active Mitigation)") return end
+                -- Demon Spikes
+                elseif isChecked("Demon Spikes") and charges.demonSpikes.count() > 0 then
+                    if not buff.demonSpikes.exists() and not debuff.fieryBrand.exists("target") and not buff.metamorphosis.exists() then
+                        if cast.demonSpikes() then br.addonDebug("Casting Demon Spikes (Active Mitigation)") return end
+                    end
+                -- Soul Barrier
+                elseif isChecked("Soul Barrier") then
+                   if cast.soulBarrier() then br.addonDebug("Casting Soul Barrier (Active Mitigation)") return end
+                end
+            end
+        end
 ---------------------
 --- Begin Profile ---
 ---------------------
@@ -555,7 +591,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and isValidUnit("target")  then
+            if inCombat and isValidUnit("target") and getFacing("player","target") then
                 -- if br.timer:useTimer("facingdelay", 0.5) then
                 --     if not getFacing("player","target") then
                 --         FaceDirection(GetAnglesBetweenObjects ("player", "target"),true)
@@ -657,7 +693,7 @@ local function runRotation()
 	                if cast.shear() then br.addonDebug("Casting Shear") return end
                 end
 				-- actions.normal+=/throw_glaive
-                if isChecked("Throw Glaive") and #enemies.yards30 > 0 and #enemies.yards8 == 0 then
+                if isChecked("Throw Glaive") and #enemies.yards30 > 0 and #enemies.yards5 == 0 then
                     if cast.throwGlaive() then br.addonDebug("Casting Throw Glaive") return end
                 end
 			end --End In Combat
