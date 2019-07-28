@@ -1188,6 +1188,11 @@ local function runRotation()
             end
         end
 
+        if br.data.settings[br.selectedSpec][br.selectedProfile]['HE ActiveCheck'] == false and br.timer:useTimer("Error delay",0.5) then
+            Print("Detecting Healing Engine is not turned on.  Please activate Healing Engine to use this profile.")
+            return
+        end
+
 -----------------
 --- Rotations ---
 -----------------
