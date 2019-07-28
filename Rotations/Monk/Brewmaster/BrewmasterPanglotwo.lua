@@ -46,7 +46,7 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Detox Disabled", tip = "Detox will not be used.", highlight = 0, icon = br.player.spell.ringOfPeace }
     };
     CreateButton("Detox",7,0)
-    
+
 end
 
 local function createOptions()
@@ -84,7 +84,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
 		--Invoke Niuzao
 			br.ui:createCheckbox(section,"Invoke Niuzao")
-		br.ui:checkSectionState(section)
+        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
+        br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
+
+        br.ui:checkSectionState(section)
         -------------------------
 		--- DEFENSIVE OPTIONS ---
         -------------------------
@@ -145,7 +148,7 @@ local function runRotation()
 --- Toggles ---
 ---------------
         UpdateToggle("Rotation",0.25)
-		UpdateToggle("Cooldown",0.25) 
+		UpdateToggle("Cooldown",0.25)
         UpdateToggle("Defensive",0.25)
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Brews",0.25)
@@ -207,10 +210,14 @@ local function runRotation()
         if leftCombat == nil then leftCombat = GetTime() end
         if profileStop == nil then profileStop = false end
 
+        --Laks edits - for essence
+        local lowest = br.friend[1]
+        local essence = br.player.essence
+
         units.get(5)
         units.get(8)
         enemies.get(5)
-        enemies.get(8) 
+        enemies.get(8)
         enemies.get(8,"target")
         enemies.get(20)
         enemies.get(30)
@@ -240,7 +247,7 @@ local function runRotation()
         if isChecked("Summon Dave - The Statue") then
             if pet ~= nil then
                 if cast.blackOxStatue("target") then return true end
-                    if br.player.mode.taunt == 3 then 
+                    if br.player.mode.taunt == 3 then
                         for k, v in pairs(pet) do
                             local thisUnit = pet[k] or 0
                             if thisUnit.id == 61146 then
@@ -250,7 +257,7 @@ local function runRotation()
                         end
                     end
             end
-        end 
+        end
 	end -- End Action List - Extras
 	-- Action List - Defensive
     local function actionList_Defensive()
@@ -312,7 +319,22 @@ local function runRotation()
 	    			if cast.invokeNiuzao() then return true end
                 end
             end
-            -- Trinkets    
+
+       -- Concentrated Flame Heal
+        if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+            if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
+                if cast.concentratedFlame(lowest.unit) then
+                    return true
+                end
+            end
+            if isChecked("ConcentratedFlame - DPS") and getTTD("target") > 3 and getLineOfSight("target") and getDistance("target") <= 40 then
+                if cast.concentratedFlame("target") then
+                    return true
+                end
+            end
+        end
+
+            -- Trinkets
 			if isChecked("Trinket 1") then
                     useItem(13)
             end
@@ -320,7 +342,7 @@ local function runRotation()
                     useItem(14)
             end
 
-        end    
+        end
 	-- Action List - Interrupts
         local function actionList_Interrupts()
             if useInterrupts() then
@@ -357,11 +379,11 @@ local function runRotation()
                     StartAttack()
                 end
             end --End Action List - Pre-Combat
-		
+
 ---------------------
 --- Rotations Code---
 ---------------------
-		
+
 	-- Single Target Rotation
     local function actionList_Single()
        -- Print("Single")
@@ -381,16 +403,16 @@ local function runRotation()
 			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
 				if cast.rushingJadeWind() then return true end
 			end
-		-- Chi Wave 
+		-- Chi Wave
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.chiWave() then return true end
 			end
-		-- Chi Burst 
+		-- Chi Burst
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.chiBurst() then return true end
 			end
 	end -- End Single Target
-	
+
 	-- Multi Target Rotation
     local function actionList_Multi()
        -- Print("Multi")
@@ -404,7 +426,7 @@ local function runRotation()
 			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire())) then
 				if cast.rushingJadeWind() then return true end
 			end
-		-- Chi Burst 
+		-- Chi Burst
 			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 				if cast.chiBurst() then return true end
 			end
@@ -419,7 +441,7 @@ local function runRotation()
 				if cast.tigerPalm() then return true end
 			end
 	end
-	
+
 	-- Blackout Combo Rotation
     local function actionList_AutoBlackout()
         if buff.blackoutCombo.exists() then
@@ -439,7 +461,7 @@ local function runRotation()
 				if cast.rushingJadeWind() then return true end
             end
         end
- 
+
 
         --Print("BoC")
 		-- Keg Smash
@@ -453,28 +475,28 @@ local function runRotation()
 --				if cast.tigerPalm() then return true end
 --			end
 		-- Breath of Fire
---			if not cast.able.kegSmash() and debuff.kegSmash.exists() then 
+--			if not cast.able.kegSmash() and debuff.kegSmash.exists() then
 --				if cast.breathOfFire() then return true end
 --			end
 		-- Rushing Jade Wind
 --			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
 --				if cast.rushingJadeWind() then return true end
 --			end
-		-- Chi Wave 
+		-- Chi Wave
 --			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 --				if cast.chiWave() then return true end
 --			end
-		-- Chi Burst 
+		-- Chi Burst
 --			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
 --				if cast.chiBurst() then return true end
 --			end
 	end
-	
+
 	-- Brews Rotations
 	local function actionList_Brews()
 		--Black Ox Brew
             if isChecked("Black Ox Brew") then
-                if ((charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew) or 
+                if ((charges.purifyingBrew.frac() < 0.75) and charges.purifyingBrew.count() == 0 and talent.blackoxBrew) or
                     (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
                     if cast.blackoxBrew() then return true end
                 end
@@ -490,14 +512,14 @@ local function runRotation()
                 if (staggerPct >= getValue("Stagger dmg % to purify") and (charges.purifyingBrew.frac() > 0.5)) then
                     if cast.purifyingBrew() then return true end
                 end
-            end	
+            end
 		-- Iron Skin Brew
             if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or (buff.ironskinBrew.remain() <= 2 and buff.ironskinBrew.remain() <=14)) then
                 if cast.ironskinBrew() then return true end
             end
 	end
-	
-	
+
+
 ----------------------
 --- Begin Rotation ---
 ----------------------
@@ -517,12 +539,12 @@ local function runRotation()
 			-- Precombat
 			if actionList_PreCombat() then return true end
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
   if inCombat and profileStop==false and not (IsMounted() or IsFlying()) and #enemies.yards8 >=1 then
     if getDistance(units.dyn5) < 5 then
         StartAttack()
-    end        
+    end
             -- Brews
 			if br.player.mode.brews == 1 then
 				if actionList_Brews() then return true end
