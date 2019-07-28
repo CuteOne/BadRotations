@@ -35,5 +35,8 @@ br.lists.burnUnits = {
 	[131824] = {coef = 150, name = "Sister Solena", buff = 260805, id = 131824}, -- Sister Solena (No Focusing Iris)
     [131825] = {coef = 150, name = "Sister Briar", buff = -260805, id = 131825}, -- Sister Briar (No Focusing Iris)
 	-- Uldir
-	[135016] = {coef = 200, name = "Plague Amalgam", id = 135016}
+	[135016] = {coef = 200, name = "Plague Amalgam", id = 135016},
+	-- M+
+	[155433] = {coef = 200, name = "Void-Touched Emissary", id = 155433, cast = 302415}, -- M+ beguiling mob, not teleporting
+	[155434] = {coef = 200, name = "Emissary of the Tides", id = 155434, cast = 302415} -- M+ beguiling mob, not teleporting
 }
