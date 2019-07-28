@@ -214,7 +214,7 @@ end
 			local unitID = GetObjectID(unit)
 			local burnUnit = br.lists.burnUnits[unitID]
 			-- if unit have selected debuff
-			if burnUnit then
+			if burnUnit and (burnUnit.cast == nil or not isCasting(burnUnit.cast,unitID)) then
 				if burnUnit.buff and UnitBuffID(unit,burnUnit.buff) then
 					coef = burnUnit.coef
 				end
