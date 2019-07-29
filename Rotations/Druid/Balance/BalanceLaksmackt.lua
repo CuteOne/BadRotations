@@ -83,6 +83,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Freehold - root grenadier")
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
+        br.ui:createCheckbox(section, "Punt Enchanted Emissary")
+
         br.ui:checkSectionState(section)
 
         ------------------------
@@ -784,6 +786,7 @@ local function runRotation()
                                 )
                                 and traits.streakingStars.active and debuff.moonfire.remain(thisUnit) > debuff.sunfire.remain(thisUnit) then
                             if cast.sunfire(thisUnit) then
+                                --
                                 br.addonDebug("QuickDot: Sunfire: " .. buff.celestialAlignment.remains())
                                 return
                             end
@@ -804,6 +807,13 @@ local function runRotation()
                         end
 
                         -- sunfire,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))*spell_targets>=ceil(floor(2%spell_targets)*1.5)+2*spell_targets&(spell_targets>1+talent.twin_moons.enabled|dot.moonfire.ticking)&(!variable.az_ss|!buff.ca_inc.up|!prev.sunfire)&(buff.ca_inc.remains>remains|!buff.ca_inc.up)
+
+                        if cast.able.sunfire() and debuff.sunfire.count() == 0 then
+                            if cast.sunfire(getBiggestUnitCluster(45, 8)) then
+                                br.addonDebug("Initial Sunfire - Cluster")
+                                return true
+                            end
+                        end
                         if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or debuff.sunfire.exists(thisUnit)) or isBoss(thisUnit) and
                                 astral_def >= 3 then
                             if not debuff.sunfire.exists(thisUnit) then
@@ -816,8 +826,7 @@ local function runRotation()
                                                 or isBoss(thisUnit)
                                 ) then
                                     if cast.sunfire(thisUnit) then
-                                        br.addonDebug("Initial Sunfire")
-
+                                        br.addonDebug("Initial Sunfire - non-Cluster")
                                         return true
                                     end
                                 end
@@ -848,6 +857,14 @@ local function runRotation()
 
                         -- Print(floor(ttd(thisUnit) / (2 * hasteAmount)) * #enemies.yards8t)
 
+
+
+                        if talent.twinMoons and debuff.moonfire.count() == 0 then
+                            if cast.moonfire(getBiggestUnitCluster(45, 15)) then
+                                br.addonDebug("Initial moonfire - Cluster")
+                                return true
+                            end
+                        end
 
                         if cast.able.moonfire() and (debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or debuff.moonfire.exists(thisUnit)) or isBoss(thisUnit) and
                                 astral_def >= 3 then
@@ -948,35 +965,61 @@ local function runRotation()
             end
 
             -- lunar_strike,if=buff.solar_empowerment.stack<3&(ap_check|buff.lunar_empowerment.stack=3)&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-
-            if cast.able.lunarStrike() and astral_def >= 12 then
+            if cast.able.lunarStrike() and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3) then
                 if (traits.streakingStars.active and pewbuff and not cast.last.lunarStrike(1) or not traits.streakingStars.active or not pewbuff) then
                     if traits.streakingStars.active and pewbuff and cast.last.solarWrath(1)
                             or buff.warriorOfElune.exists()
                             or (buff.lunarEmpowerment.exists() and #enemies.yards8t >= 2)
-                            or buff.lunarEmpowerment.stack() == 3 and not buff.solarEmpowerment.stack() == 3
+                            or buff.lunarEmpowerment.stack() == 3 and buff.solarEmpowerment.stack() < 3
                     then
-                        if cast.lunarStrike(units.dyn45) then
-                            return true
+                        --[[ if cast.lunarStrike(units.dyn45) then
+                             return true
+                         end]]
+
+                        if mode.DPS < 3 then
+                            if cast.lunarStrike(getBiggestUnitCluster(45, 8)) then
+                                br.addonDebug("Lunarstrike(cluster) Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                                return true
+                            end
+                        elseif mode.DPS == 3 then
+                            if cast.lunarStrike(units.dyn45) then
+                                br.addonDebug("Lunarstrike Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                                return true
+                            end
                         end
+
                     end
                 end
-                if cast.able.solarWrath() and
-                        (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff then
-                    if cast.solarWrath(units.dyn45) then
+            end
+
+            --    if cast.able.solarWrath() and (azSs < 3 or not buff.caInc.exists() or not prev.solar_wrath) then
+            if cast.able.solarWrath() and
+                    (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff then
+                if cast.solarWrath(units.dyn45) then
+                    br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
+                    return
+                end
+            end
+
+            --fallback / moving
+            if (traits.streakingStars.active and pewbuff and not cast.last.sunfire or not traits.streakingStars.active or not pewbuff) then
+                if cast.sunfire(units.dyn45) then
+                    if not isMoving("player") then
+                        br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
+                    else
+                        br.addonDebug("Fallback: Moving - sunfire")
                         return
                     end
                 end
-                --    if cast.able.solarWrath() and (azSs < 3 or not buff.caInc.exists() or not prev.solar_wrath) then
-                if cast.able.sunfire() then
-                    if cast.sunfire(units.dyn45) then
-                        br.addonDebug("FALLBACK!! Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
-
-                        return
+            else
+                if cast.moonfire(units.dyn45) then
+                    if isMoving("player") then
+                        br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
+                    else
+                        br.addonDebug("Fallback: Moving - moonfire")
+                        return true
                     end
                 end
-
-
             end
         end
     end
@@ -1170,19 +1213,11 @@ local function runRotation()
             end
         end
 
-        if isChecked("Auto Soothe") then
-            for i = 1, #enemies.yards45 do
-                local thisUnit = enemies.yards45[i]
-                if canDispel(thisUnit, spell.soothe) then
-                    if cast.soothe(thisUnit) then
-                        return true
-                    end
-                end
-            end
-        end
+
     end
 
     local function root_cc()
+
 
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") then
@@ -1191,25 +1226,57 @@ local function runRotation()
         if isChecked("Atal - root Spirit of Gold") then
             root_UnitList[131009] = "Spirit of Gold"
         end
-        if ischecked("All - root Emissary of the Tides") then
+        if isChecked("All - root Emissary of the Tides") then
             root_UnitList[155434] = "Emissary of the Tides"
         end
-        if cast.able.entanglingRoots() then
-            for i = 1, #enemies.yards40 do
-                thisUnit = enemies.yards40[i]
+
+        for i = 1, #enemies.yards45 do
+            thisUnit = enemies.yards45[i]
+
+            if isChecked("Auto Soothe") then
+                if cast.able.soothe() and canDispel(thisUnit, spell.soothe) then
+                    if cast.soothe(thisUnit) then
+                        return true
+                    end
+                end
+            end
+
+
+            --Enchanted emmisary == 155432
+            if isChecked("Punt Enchanted Emissary") and inInstance then
+                if GetObjectID(thisUnit) == 155432 then
+                    if #tanks > 0 and getDistance(tank, thisUnit) <= 30 then
+                        if cast.moonfire(thisUnit) then
+                            br.addonDebug("Punting Emissary")
+                            return true
+                        end
+                    end
+                end
+            end
+            if cast.able.entanglingRoots() then
                 if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffremain(thisUnit, 226510) <= 3) then
                     if cast.entanglingRoots(thisUnit) then
                         return true
                     end
                 end
             end
+
         end
+        --[[
+                if cast.able.entanglingRoots() then
+                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffremain(thisUnit, 226510) <= 3) then
+                        if cast.entanglingRoots(thisUnit) then
+                            return true
+                        end
+                    end
+                end
+            ]]
     end
 
     local function PreCombat()
         -- Pre-Pull Timer
         if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
-            if PullTimerremain() <= getOptionValue("Pre-Pull Timer") then
+            if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
                 if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
                     if cast.moonkinForm() then
                         return true
@@ -1428,11 +1495,11 @@ local function runRotation()
                     return true
                 end
             end
-            --[[
-                        if root_cc then
-                            return true
-                        end
-            ]]
+
+            if root_cc() then
+                return true
+            end
+
             if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
                 actionList_Opener()
             end
