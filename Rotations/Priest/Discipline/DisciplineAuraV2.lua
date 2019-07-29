@@ -1009,7 +1009,7 @@ local function runRotation()
             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
                 if isChecked("Shadow Mend") and norganBuff and atonementCount < 5 then
                     for i=1, #br.friend do
-                        if br.friend[i].hp <= getValue("Shadow Mend") and not buff.atonement.exists(br.friend[i].unit) then
+                        if br.friend[i].hp <= getValue("Shadow Mend") and (not buff.atonement.exists(br.friend[i].unit) or not IsInRaid()) then
                             if cast.shadowMend(br.friend[i].unit) then 
                                 healCount = healCount + 1 
                                 return true end
@@ -1130,7 +1130,7 @@ local function runRotation()
                     penanceTarget = "target"
                 end
                 if penanceTarget ~= nil then
-                    if debuff.schism.exists(schismBuff) and isValidUnit(schismBuff) then
+                    if isValidUnit(schismBuff) and debuff.schism.exists(schismBuff) then
                         penanceTarget = schismBuff
                     end
                     if ptwDebuff and isValidUnit(ptwDebuff) then
