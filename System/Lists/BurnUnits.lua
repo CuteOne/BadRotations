@@ -38,5 +38,4 @@ br.lists.burnUnits = {
 	[135016] = {coef = 200, name = "Plague Amalgam", id = 135016},
 	-- M+
 	[155433] = {coef = 200, name = "Void-Touched Emissary", id = 155433, cast = 302415}, -- M+ beguiling mob, not teleporting
-	[155434] = {coef = 200, name = "Emissary of the Tides", id = 155434, cast = 302415} -- M+ beguiling mob, not teleporting
 }
