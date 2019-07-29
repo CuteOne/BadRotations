@@ -1486,7 +1486,8 @@ local function runRotation()
                     -- Regrowth
                     -- regrowth,if=combo_points=5&buff.predatory_swiftness.up&talent.bloodtalons.enabled&buff.bloodtalons.down
                     if (cast.able.regrowth() and (((comboPoints == 5 and buff.predatorySwiftness.exists())
-                        or (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 5.1 and buff.predatorySwiftness.exists())))
+                        or (comboPoints == 4 and debuff.rake.remain(units.dyn5) < 5.1 and buff.predatorySwiftness.exists()
+                        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit")))))
                         and talent.bloodtalons and not buff.bloodtalons.exists())
                     then
                         local opValue = getOptionValue("Auto Heal")
