@@ -779,10 +779,10 @@ actionList.Cooldowns = function()
         if isChecked("Racial") and cast.able.shadowmeld() and useCDs() and race == "NightElf"
             and getDistance(units.dyn5) < 5 and not solo and friendsInRange --findFriends() > 0
         then
-            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2.1
+            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied("target") < 2
                 and buff.tigersFury.exists() and (buff.bloodtalons.exists() or not talent.bloodtalons)
                 and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle.remain() > 18)
-                and not buff.incarnationKingOfTheJungle.exists())
+                and not buff.incarnationKingOfTheJungle.exists()) and ttd("target") > 4
             then
                 if cast.shadowmeld() then debug("Casting Shadowmeld") return true end
             end
@@ -1062,8 +1062,13 @@ actionList.Generator = function()
                 and canDoT(thisUnit) and getFacing("player",thisUnit)
             then
                 if (not debuff.rake.exists(thisUnit) or (not talent.bloodtalons and debuff.rake.refresh(thisUnit)))
-                    or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 7
-                    and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
+                    or (talent.bloodtalons and buff.bloodtalons.exists() and debuff.rake.remain(thisUnit) <= 4.5)
+                    or (buff.prowl.exists() or buff.shadowmeld.exists())
+                    -- Snapshotting
+                    or (debuff.rake.applied(thisUnit) < 1.3 and buff.bloodtalons.exists())
+                    or (buff.incarnationKingOfTheJungle.exists() and debuff.rake.applied(thisUnit) < 2)
+                    -- Causing rake to not refresh properly
+                    --and debuff.rake.calc() > debuff.rake.applied(thisUnit) * 0.85)
                 then
                     return true
                 end
@@ -1447,7 +1452,8 @@ local function runRotation()
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
                 if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5) 
-                    or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
+		    -- Causing rake to now refresh properly
+                    --or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
                 then
                     if cast.rake(units.dyn5) then --[[debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
