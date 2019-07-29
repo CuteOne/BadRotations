@@ -1448,7 +1448,7 @@ local function runRotation()
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
                 if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5) 
-                    or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
+                    --or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
                 then
                     if cast.rake(units.dyn5) then --[[debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
