@@ -305,7 +305,7 @@ local function runRotation()
                 return false
             else
                 if UnitThreatSituation("player", "target") == 3 then
-                    if isCasting("target", ActiveMitigationSpells.Cast) then
+                    if isCasting(ActiveMitigationSpells.Cast, "target") then
                         return true
                     end
                     for _, Buff in pairs(ActiveMitigationSpells.Buff) do
