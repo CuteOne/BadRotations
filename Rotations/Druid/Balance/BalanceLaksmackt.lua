@@ -994,7 +994,7 @@ local function runRotation()
 
             --    if cast.able.solarWrath() and (azSs < 3 or not buff.caInc.exists() or not prev.solar_wrath) then
             if cast.able.solarWrath() and
-                    (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1)) or not pewbuff then
+                    (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1) or not traits.streakingStars.active or not pewbuff) then
                 if cast.solarWrath(units.dyn45) then
                     br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                     return
@@ -1002,7 +1002,7 @@ local function runRotation()
             end
 
             --fallback / moving
-            if (traits.streakingStars.active and pewbuff and not cast.last.sunfire or not traits.streakingStars.active or not pewbuff) then
+            if ((traits.streakingStars.active and pewbuff and not cast.last.sunfire(1)) or not traits.streakingStars.active or not pewbuff) then
                 if cast.sunfire(units.dyn45) then
                     if not isMoving("player") then
                         br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
@@ -1014,7 +1014,7 @@ local function runRotation()
             else
                 if cast.moonfire(units.dyn45) then
                     if isMoving("player") then
-                        br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
+                        br.addonDebug("FAIL! (moonfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
                     else
                         br.addonDebug("Fallback: Moving - moonfire")
                         return true
