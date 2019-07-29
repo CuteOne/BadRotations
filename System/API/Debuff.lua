@@ -3,6 +3,7 @@ if br.api == nil then br.api = {} end
 -- v is the spellID passed from the builder which cycles all the collected debuff spells from the spell list for the spec
 -- spell in the examples represent the name in the debuffs list (Spec, Shared Class, Shared Global Lists) defined in System/List/Spells.lua
 br.api.debuffs = function(debuff,k,v)
+    local spec = GetSpecializationInfo(GetSpecialization()) 
     debuff.exists = function(thisUnit,sourceUnit)
         if thisUnit == nil then thisUnit = 'target' end
         if sourceUnit == nil then sourceUnit = 'player' end
