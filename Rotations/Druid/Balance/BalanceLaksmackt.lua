@@ -1254,7 +1254,7 @@ local function runRotation()
                 end
             end
             if cast.able.entanglingRoots() then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffremain(thisUnit, 226510) <= 3) then
+                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                     if cast.entanglingRoots(thisUnit) then
                         return true
                     end
