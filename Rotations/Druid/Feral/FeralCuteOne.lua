@@ -835,35 +835,35 @@ actionList.Cooldowns = function()
                 end
             end
         end
-        -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
-        if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists()
-            or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists())
-        then
-            local opValue = getOptionValue("Trinkets")
-            if (opValue == 1 or (opValue == 2 and useCDs()))
-                and getDistance(units.dyn5) < 5
-            then
-                for i = 13, 14 do
-                    if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i) 
-                        or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1))) 
-                    then
-                        use.slot(i)
-                        debug("Using Trinket [Slot "..i.."]") 
-                    end
-                end
-            end
-        end
-        if useCDs() and equiped.pocketSizedComputationDevice() and equiped.socket.pocketSizedComputationDevice(167672,1) and ttm > 3
-            and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.memoryOfLucidDreams.exists())
-            and (debuff.rake.remain(units.dyn5) > 3 and debuff.rip.remain(units.dyn5) > 3)
-        then
-            for i = 13, 14 do
-                if use.able.slot(i) and equiped.pocketSizedComputationDevice(i) then
-                    use.slot(i)
-                    debug("Using Pocket Sized Computation Device [Slot "..i.."]") 
-                end
-            end
-        end
+        -- -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
+        -- if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists()
+        --     or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists())
+        -- then
+        --     local opValue = getOptionValue("Trinkets")
+        --     if (opValue == 1 or (opValue == 2 and useCDs()))
+        --         and getDistance(units.dyn5) < 5
+        --     then
+        --         for i = 13, 14 do
+        --             if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i) 
+        --                 or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1))) 
+        --             then
+        --                 use.slot(i)
+        --                 debug("Using Trinket [Slot "..i.."]") 
+        --             end
+        --         end
+        --     end
+        -- end
+        -- if useCDs() and equiped.pocketSizedComputationDevice() and equiped.socket.pocketSizedComputationDevice(167672,1) and ttm > 3
+        --     and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists() or buff.memoryOfLucidDreams.exists())
+        --     and (debuff.rake.remain(units.dyn5) > 3 and debuff.rip.remain(units.dyn5) > 3)
+        -- then
+        --     for i = 13, 14 do
+        --         if use.able.slot(i) and equiped.pocketSizedComputationDevice(i) then
+        --             use.slot(i)
+        --             debug("Using Pocket Sized Computation Device [Slot "..i.."]") 
+        --         end
+        --     end
+        -- end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         -- blood_fury,buff.tigers_fury | arcane_torrent,buff.tigers_fury
         if isChecked("Racial") and cast.able.racial() and useCDs()
