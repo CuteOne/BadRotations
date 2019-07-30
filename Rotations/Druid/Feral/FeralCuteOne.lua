@@ -797,9 +797,9 @@ actionList.Cooldowns = function()
                     if use.able.slot(i) then
                         -- Ashvanes Razor Coral
                         -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|debuff.conductive_ink_debuff.up&target.time_to_pct_30<1.5|!debuff.conductive_ink_debuff.up&(debuff.razor_coral_debuff.stack>=25-10*debuff.blood_of_the_enemy.up|target.time_to_die<40)&buff.tigers_fury.remains>10
-                        if equiped.ashvanesRazorCoral(i) and not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getHP(units.dyn5) <= 30)
+                        if equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getHP(units.dyn5) <= 30)
                             or not debuff.conductiveInk.exists(units.dyn30) and (debuff.razorCoral.stack() >= 25 - 10 * enemyBlood or (ttd(units.dyn5) < 40 and useCDs()))
-                            and buff.tigersFury.remain() > 10 
+                            and buff.tigersFury.remain() > 10) 
                         then
                             use.slot(i)
                             debug("Using Ashvane's Razor Coral [Slot "..i.."]")
@@ -812,7 +812,7 @@ actionList.Cooldowns = function()
                                 debug("Using Cyclotronic Blast [Slot "..i.."]") 
                             end
                             -- use_item,effect_name=cyclotronic_blast,if=buff.tigers_fury.up&azerite.jungle_fury.enabled
-                            if buff.tigersFury.exists() and trait.jungleFury.active then
+                            if buff.tigersFury.exists() and traits.jungleFury.active then
                                 use.slot(i)
                                 debug("Using Cyclotronic Blast [Slot "..i.."]") 
                             end
