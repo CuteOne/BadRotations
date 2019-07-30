@@ -381,7 +381,7 @@ actionList.Defensive = function()
             if cast.touchOfKarma() then debug("Casting Touch of Karma [Defensive]") return true end
         end
         -- Vivify
-        if option.checked("Vivify") and php <= option.value("Vivify") and not inCombat and cast.able.vivify() then
+        if option.checked("Vivify") and ((php <= option.value("Vivify") and not inCombat) or (php <= option.value("Vivify")/2 and inCombat)) and cast.able.vivify() then
             if cast.vivify() then debug("Casting Vivfy") return true end
         end
     end -- End Defensive Check
