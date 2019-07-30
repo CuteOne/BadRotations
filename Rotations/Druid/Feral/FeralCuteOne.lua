@@ -192,6 +192,7 @@ local debug
 local enemies
 local energy, energyRegen, energyDeficit
 local equiped
+local essence
 local flying, swimming, moving
 local gcd
 local gcdMax
@@ -1349,6 +1350,7 @@ local function runRotation()
     enemies                            = br.player.enemies
     energy, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
     equiped                            = br.player.equiped
+    essence                            = br.player.essence
     flying, swimming, moving           = IsFlying(), IsSwimming(), GetUnitSpeed("player")>0
     gcd                                = br.player.gcd
     gcdMax                             = br.player.gcdMax
@@ -1409,7 +1411,7 @@ local function runRotation()
     end
 
     -- Blood of the Enemy
-    if azerite.bloodOfTheEnemy.active then 
+    if essence.bloodOfTheEnemy.active then 
         enemyBlood = 1
     else
         enemyBlood = 0
