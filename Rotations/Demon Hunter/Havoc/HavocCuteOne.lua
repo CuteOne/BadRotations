@@ -346,9 +346,9 @@ actionList.Cooldowns = function()
                 -- if cast.metamorphosis("best",false,1,8) then return end
                 if cast.metamorphosis("player") then return end
             end
-            -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&cooldown.blade_dance.remains>gcd.max))
+            -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)))
             if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active 
-                or (cd.eyeBeam.remain() > 20 and cd.bladeDance.remain() > gcd)) and #enemies.yards8 > 0 
+                or (cd.eyeBeam.remain() > 20 and (not bladeDanceVar or cd.bladeDance.remain() > gcd))) and #enemies.yards8 > 0 
             then
                 if cast.metamorphosis("player") then return end
             end

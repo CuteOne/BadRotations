@@ -223,6 +223,7 @@ local units
 local use
 
 -- General Locals
+local enemyBlood
 local fbMaxEnergy
 local focusedTime = GetTime()
 local friendsInRange = false
@@ -788,6 +789,51 @@ actionList.Cooldowns = function()
             end
         end
         -- Trinkets
+        if (use.able.slot(13) or use.able.slot(14)) then
+            local opValue = getOptionValue("Trinkets")
+            if (opValue == 1 or (opValue == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
+                for i = 13, 14 do
+                    if use.able.slot(i) then
+                        -- Ashvanes Razor Coral
+                        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|debuff.conductive_ink_debuff.up&target.time_to_pct_30<1.5|!debuff.conductive_ink_debuff.up&(debuff.razor_coral_debuff.stack>=25-10*debuff.blood_of_the_enemy.up|target.time_to_die<40)&buff.tigers_fury.remains>10
+                        if equiped.ashvanesRazorCoral(i) and not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getHP(units.dyn5) <= 30)
+                            or not debuff.conductiveInk.exists(units.dyn30) and (debuff.razorCoral.stack() >= 25 - 10 * enemyBlood or (ttd(units.dyn5) < 40 and useCDs()))
+                            and buff.tigersFury.remain() > 10 
+                        then
+                            use.slot(i)
+                            debug("Using Ashvane's Razor Coral [Slot "..i.."]")
+                        end
+                        -- Cyclotronic Blast 
+                        if equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1) then
+                            -- use_item,effect_name=cyclotronic_blast,if=(energy.deficit>=energy.regen*3)&buff.tigers_fury.down&!azerite.jungle_fury.enabled
+                            if energyDeficit >= energyRegen * 3 and not buff.tigersFury.exists() and not traits.jungleFury.active then
+                                use.slot(i)
+                                debug("Using Cyclotronic Blast [Slot "..i.."]") 
+                            end
+                            -- use_item,effect_name=cyclotronic_blast,if=buff.tigers_fury.up&azerite.jungle_fury.enabled
+                            if buff.tigersFury.exists() and trait.jungleFury.active then
+                                use.slot(i)
+                                debug("Using Cyclotronic Blast [Slot "..i.."]") 
+                            end
+                        end
+                        --Azshara's Font of Power
+                        -- use_item,effect_name=azsharas_font_of_power,if=energy.deficit>=50
+                        if equiped.azsharasFontOfPower(i) and energyDeficit >= 50 then
+                            use.slot(i)
+                            debug("Using Azshara's Font of Power [Slot "..i.."]") 
+                        end
+                        -- All Others
+                        -- use_items,if=buff.tigers_fury.up|target.time_to_die<20
+                        if not (equiped.ashvanesRazorCoral(i) or (equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1)) 
+                            or equiped.azsharasFontOfPower(i)) and (buff.tigersFury.exists() or (ttd(units.dyn5) < 20 and useCDs()))
+                        then
+                            use.slot(i)
+                            debug("Using Trinket [Slot "..i.."]") 
+                        end
+                    end
+                end
+            end
+        end
         -- if=buff.tigers_fury.up&energy.time_to_max>3&(!talent.savage_roar.enabled|buff.savage_roar.up)
         if (use.able.slot(13) or use.able.slot(14)) and (buff.tigersFury.exists()
             or ttd(units.dyn5) <= cd.tigersFury.remain()) and (not talent.savageRoar or buff.savageRoar.exists())
@@ -1038,7 +1084,7 @@ actionList.Generator = function()
     end
     -- Swipe
     -- pool_resource,for_next=1
-    -- swipe_cat,if=buff.scent_of_blood.up
+    -- swipe_cat,if=buff.scent_of_blood.up|(action.swipe_cat.damage*spell_targets.swipe_cat>(action.rake.damage+(action.rake_bleed.tick_damage*5)))
     if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash 
         and not isExplosive("target") and buff.scentOfBlood.exists() and range.dyn8AOE
     then
@@ -1360,6 +1406,13 @@ local function runRotation()
     if profileStop == nil then profileStop = false end
     if not inCombat and not UnitExists("target") and profileStop == true then
         profileStop = false
+    end
+
+    -- Blood of the Enemy
+    if azerite.bloodOfTheEnemy.active then 
+        enemyBlood = 1
+    else
+        enemyBlood = 0
     end
 
     -- Jagged Wounds Rip Duration Adj

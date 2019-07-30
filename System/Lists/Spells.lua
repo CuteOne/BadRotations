@@ -727,6 +727,7 @@ br.lists.spells = {
             },
             traits                          = {
                 bloodMist                   = 279524,
+                jungleFury                  = 274424,
                 ironJaws                    = 276021,
                 twistedClaws                = 275906,
                 wildFleshrending            = 279527,
@@ -3449,6 +3450,7 @@ br.lists.spells = {
             },
             debuffs                             = {
                 concentratedFlame               = 295368,
+                conductiveInk                   = 302565,
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
                 razorCoral                      = 303568, --304877,
