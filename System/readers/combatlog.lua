@@ -224,7 +224,7 @@ function br.read.combatLog()
                     local destination = GetObjectWithGUID(destination)
                     local source = GetObjectWithGUID(source)
                     if source ~= nil and UnitName(source) == UnitName("player") then source = "player" end
-                    if destination ~= nil then
+                    if source == "player" and destination ~= nil then
                         if br.read.debuffTracker[destination] == nil then br.read.debuffTracker[destination] = {} end
                         if br.read.debuffTracker[destination][spell] == nil then br.read.debuffTracker[destination][spell] = {} end
                         br.read.debuffTracker[destination][spell][1] = source
