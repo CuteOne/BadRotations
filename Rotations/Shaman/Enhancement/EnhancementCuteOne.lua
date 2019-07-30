@@ -504,7 +504,7 @@ actionList.Priority = function()
     -- Sundering
     -- sundering,if=active_enemies>=3&(!essence.blood_of_the_enemy.major|(essence.blood_of_the_enemy.major&(buff.seething_rage.up|cooldown.blood_of_the_enemy.remains>40)))
     if cast.able.sundering() and activeEnemiesMore2 and (not essence.bloodOfTheEnemy.active
-        or (essence.bloodOfTheEnemy.active and (buff.seethingRage.exists() or cd.bloodOfTheEnemy.remian() > 40)))
+        or (essence.bloodOfTheEnemy.active and (buff.seethingRage.exists() or cd.bloodOfTheEnemy.remain() > 40)))
     then
         if cast.sundering(nil,"rect",3,11) then return true end
     end
@@ -837,7 +837,7 @@ local function runRotation()
     moving                                        = GetUnitSpeed("player") > 0
     playerMouse                                   = UnitIsPlayer("mouseover")
     playertar                                     = UnitIsPlayer("target")
-    pullTimer                                     = br.DBM:getPulltimer()
+    pullTimer                                     = PullTimerRemain()
     ttd                                           = getTTD
 
     -- Dynamic Units
