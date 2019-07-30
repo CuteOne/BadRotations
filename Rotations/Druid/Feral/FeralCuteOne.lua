@@ -805,7 +805,7 @@ actionList.Cooldowns = function()
                             debug("Using Ashvane's Razor Coral [Slot "..i.."]")
                         end
                         -- Cyclotronic Blast 
-                        if equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1) then
+                        if useCDs() and equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1) then
                             -- use_item,effect_name=cyclotronic_blast,if=(energy.deficit>=energy.regen*3)&buff.tigers_fury.down&!azerite.jungle_fury.enabled
                             if energyDeficit >= energyRegen * 3 and not buff.tigersFury.exists() and not traits.jungleFury.active then
                                 use.slot(i)
