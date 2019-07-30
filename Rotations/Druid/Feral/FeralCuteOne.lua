@@ -1153,7 +1153,7 @@ actionList.Generator = function()
     end
     -- Shred
     -- shred,if=dot.rake.remains>(action.shred.cost+action.rake.cost-energy)%energy.regen|buff.clearcasting.react
-    if cast.able.shred() and range.dyn5
+    if cast.able.shred() and range.dyn5 and not (buff.prowl.exists() or buff.shadowmeld.exists())
         and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0)
             or talent.brutalSlash or level < 32 or isExplosive("target"))
         and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)
