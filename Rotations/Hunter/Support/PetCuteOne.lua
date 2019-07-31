@@ -26,7 +26,7 @@ br.rotations.support["PetCuteOne"] = function()
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
+    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause(true) or buff.feignDeath.exists() or mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
@@ -115,7 +115,7 @@ br.rotations.support["PetCuteOne"] = function()
         if cast.survivalOfTheFittest("pet") then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem("pettarget") then
         if cast.able.bite() then
             if cast.bite("pettarget","pet") then return end
         end
