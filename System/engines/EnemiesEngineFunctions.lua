@@ -38,7 +38,7 @@ local function IsCritter(checkID)
 end
 
 --Check Totem
-local function isTotem(unit)
+function isTotem(unit)
 	local creatureType = UnitCreatureType(unit)
 	if creatureType ~= nil then
 	  if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
