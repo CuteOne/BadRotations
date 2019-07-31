@@ -45,6 +45,4 @@ br.lists.noTouchUnits = {
     {unitID = 133944, buff = 263246}, -- Aspix with Lightning Shield
     -- Mechagon
     {unitID = 152703}, -- Walkie Shockie X1
-    -- M+ Beguiling
-    {unitID = 155432}, -- Enchanted Emissary
 }
