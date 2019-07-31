@@ -224,7 +224,8 @@ local function runRotation()
             br.vengeance = {}
         end
         br.vengeance.groundOverride = {
-            [152364] = "Radiance of Azshara"
+            [152364] = "Radiance of Azshara",
+            [152671] = "Wekemara"
         }
         
         local function iStrike(unit)
