@@ -93,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Superior Battle Potion of Agility","Potion of Unbridled Fury","Battle Potion of Agility","Potion of Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Superior Agility","Unbridled Fury","Agility","Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
