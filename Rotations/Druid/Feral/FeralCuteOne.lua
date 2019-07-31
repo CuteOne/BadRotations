@@ -106,7 +106,7 @@ local function createOptions()
             -- Berserk / Incarnation: King of the Jungle
             br.ui:createCheckbox(section,"Berserk/Incarnation")
             -- Trinkets
-            br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Specter of Betrayal.")
+            br.ui:createDropdownWithout(section,"Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinkets.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -442,7 +442,7 @@ actionList.Defensive = function()
             elseif opValue == 2 then
                 thisUnit = "mouseover"
             end
-            if cast.able.rebirth(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit) 
+            if cast.able.rebirth(thisUnit,"dead") and UnitIsDeadOrGhost(thisUnit)
                 and (GetUnitIsFriend(thisUnit,"player") or UnitIsPlayer(thisUnit))
             then
                 if cast.rebirth(thisUnit,"dead") then debug("Casting Rebirth on "..UnitName(thisUnit)) return true end
@@ -502,13 +502,13 @@ actionList.Defensive = function()
             elseif hasNoControl() then
                 if GetShapeshiftForm() == 0 then
                     cast.catForm("player")
-                    debug("Casting Cat Form [Breaking CC]") 
+                    debug("Casting Cat Form [Breaking CC]")
                 else
                     for i=1, GetNumShapeshiftForms() do
                         if i == GetShapeshiftForm() then
                             lastForm = i
                             CastShapeshiftForm(i)
-                            debug("Casting Last Form [Breaking CC]") 
+                            debug("Casting Last Form [Breaking CC]")
                             return true
                         end
                     end
@@ -523,7 +523,7 @@ actionList.Defensive = function()
                 if use.healthstone() then debug("Using Healthstone") return true end
             elseif canUseItem(healPot) then
                 useItem(healPot)
-                debug("Using Health Potion") 
+                debug("Using Health Potion")
             end
         end
         -- Heirloom Neck
@@ -536,7 +536,7 @@ actionList.Defensive = function()
         end
         if talent.restorationAffinity and not (IsMounted() or IsFlying())
             and (getOptionValue("Auto Heal") ~= 1 or (getOptionValue("Auto Heal") == 1
-            and getDistance(br.friend[1].unit) < 40)) 
+            and getDistance(br.friend[1].unit) < 40))
         then
             local thisHP = php
             local thisUnit = "player"
@@ -545,21 +545,21 @@ actionList.Defensive = function()
             if getOptionValue("Auto Heal") == 1 then thisHP = fhp; thisUnit = lowestUnit end
             -- Swiftmend
             local swiftPercent = getOptionValue("Swiftmend")
-            if isChecked("Swiftmend") and cast.able.swiftmend() 
-                and ((not inCombbat and thisHP <= swiftPercent) or (inCombat and thisHP <= swiftPercent/2)) 
+            if isChecked("Swiftmend") and cast.able.swiftmend()
+                and ((not inCombbat and thisHP <= swiftPercent) or (inCombat and thisHP <= swiftPercent/2))
             then
                 if cast.swiftmend(thisUnit) then debug("Casting Swiftmend on "..UnitName(thisUnit)) return true end
             end
             -- Rejuvenation
             local rejuvPercent = getOptionValue("Rejuvenation")
-            if isChecked("Rejuvenation") and cast.able.rejuvenation() and buff.rejuvenation.refresh(thisUnit) 
-                and ((not inCombbat and thisHP <= rejuvPercent) or (inCombat and thisHP <= rejuvPercent/2)) 
+            if isChecked("Rejuvenation") and cast.able.rejuvenation() and buff.rejuvenation.refresh(thisUnit)
+                and ((not inCombbat and thisHP <= rejuvPercent) or (inCombat and thisHP <= rejuvPercent/2))
             then
                 if cast.rejuvenation(thisUnit) then debug("Casting Rejuvenation on "..UnitName(thisUnit)) return true end
             end
             -- Wild Growth
             if isChecked("Wild Growth") and not inCombat and cast.able.wildGrowth() then
-                for i = 1, #br.friend do 
+                for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     local thisHP = getHP(thisUnit)
                     local lowHealthCandidates = getUnitsToHealAround(thisUnit, 30, getOptionValue("Wild Growth"), #br.friend)
@@ -717,11 +717,11 @@ actionList.Cooldowns = function()
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
             if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50
                     and debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5))
-                and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())                
+                and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
             then
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 180) then
-                    debug("Casting Focused Azerite Beam") 
-                    return true 
+                    debug("Casting Focused Azerite Beam")
+                    return true
                 end
             end
             -- Essence: Purifying Blast
@@ -781,10 +781,10 @@ actionList.Cooldowns = function()
         if isChecked("Racial") and cast.able.shadowmeld() and useCDs() and race == "NightElf"
             and getDistance(units.dyn5) < 5 and not solo and friendsInRange --findFriends() > 0
         then
-            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2.1
+            if (comboPoints < 5 and energy >= cast.cost.rake() and debuff.rake.applied(units.dyn5) < 2
                 and buff.tigersFury.exists() and (buff.bloodtalons.exists() or not talent.bloodtalons)
                 and (not talent.incarnationKingOfTheJungle or cd.incarnationKingOfTheJungle.remain() > 18)
-                and not buff.incarnationKingOfTheJungle.exists())
+                and not buff.incarnationKingOfTheJungle.exists()) and ttd(units.dyn5) > 4
             then
                 if cast.shadowmeld() then debug("Casting Shadowmeld") return true end
             end
@@ -799,37 +799,37 @@ actionList.Cooldowns = function()
                         -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|debuff.conductive_ink_debuff.up&target.time_to_pct_30<1.5|!debuff.conductive_ink_debuff.up&(debuff.razor_coral_debuff.stack>=25-10*debuff.blood_of_the_enemy.up|target.time_to_die<40)&buff.tigers_fury.remains>10
                         if equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getHP(units.dyn5) <= 30)
                             or not debuff.conductiveInk.exists(units.dyn30) and (debuff.razorCoral.stack() >= 25 - 10 * enemyBlood or (ttd(units.dyn5) < 40 and useCDs()))
-                            and buff.tigersFury.remain() > 10) 
+                            and buff.tigersFury.remain() > 10)
                         then
                             use.slot(i)
                             debug("Using Ashvane's Razor Coral [Slot "..i.."]")
                         end
-                        -- Cyclotronic Blast 
+                        -- Cyclotronic Blast
                         if useCDs() and equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1) then
                             -- use_item,effect_name=cyclotronic_blast,if=(energy.deficit>=energy.regen*3)&buff.tigers_fury.down&!azerite.jungle_fury.enabled
                             if energyDeficit >= energyRegen * 3 and not buff.tigersFury.exists() and not traits.jungleFury.active then
                                 use.slot(i)
-                                debug("Using Cyclotronic Blast [Slot "..i.."]") 
+                                debug("Using Cyclotronic Blast [Slot "..i.."]")
                             end
                             -- use_item,effect_name=cyclotronic_blast,if=buff.tigers_fury.up&azerite.jungle_fury.enabled
                             if buff.tigersFury.exists() and traits.jungleFury.active then
                                 use.slot(i)
-                                debug("Using Cyclotronic Blast [Slot "..i.."]") 
+                                debug("Using Cyclotronic Blast [Slot "..i.."]")
                             end
                         end
                         --Azshara's Font of Power
                         -- use_item,effect_name=azsharas_font_of_power,if=energy.deficit>=50
                         if equiped.azsharasFontOfPower(i) and energyDeficit >= 50 then
                             use.slot(i)
-                            debug("Using Azshara's Font of Power [Slot "..i.."]") 
+                            debug("Using Azshara's Font of Power [Slot "..i.."]")
                         end
                         -- All Others
                         -- use_items,if=buff.tigers_fury.up|target.time_to_die<20
-                        if not (equiped.ashvanesRazorCoral(i) or (equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1)) 
+                        if not (equiped.ashvanesRazorCoral(i) or (equiped.pocketSizedComputationDevice(i) and equiped.socket.pocketSizedComputationDevice(167672,1))
                             or equiped.azsharasFontOfPower(i)) and (buff.tigersFury.exists() or (ttd(units.dyn5) < 20 and useCDs()))
                         then
                             use.slot(i)
-                            debug("Using Trinket [Slot "..i.."]") 
+                            debug("Using Trinket [Slot "..i.."]")
                         end
                     end
                 end
@@ -844,11 +844,11 @@ actionList.Cooldowns = function()
         --         and getDistance(units.dyn5) < 5
         --     then
         --         for i = 13, 14 do
-        --             if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i) 
-        --                 or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1))) 
+        --             if use.able.slot(i) and (not equiped.pocketSizedComputationDevice(i)
+        --                 or (equiped.pocketSizedComputationDevice(i) and not equiped.socket.pocketSizedComputationDevice(167672,1)))
         --             then
         --                 use.slot(i)
-        --                 debug("Using Trinket [Slot "..i.."]") 
+        --                 debug("Using Trinket [Slot "..i.."]")
         --             end
         --         end
         --     end
@@ -860,7 +860,7 @@ actionList.Cooldowns = function()
         --     for i = 13, 14 do
         --         if use.able.slot(i) and equiped.pocketSizedComputationDevice(i) then
         --             use.slot(i)
-        --             debug("Using Pocket Sized Computation Device [Slot "..i.."]") 
+        --             debug("Using Pocket Sized Computation Device [Slot "..i.."]")
         --         end
         --     end
         -- end
@@ -1059,8 +1059,8 @@ actionList.Generator = function()
     -- Thrash
     -- pool_resource,for_next=1
     -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") 
-        and ttd(units.dyn8AOE) > 4 and range.dyn8AOE 
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target")
+        and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
     then
         if (not debuff.thrashCat.exists(units.dyn8AOE) or debuff.thrashCat.refresh(units.dyn8AOE))
             and ((mode.rotation == 1 and #enemies.yards8 > 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
@@ -1073,7 +1073,7 @@ actionList.Generator = function()
     end
     -- pool_resource,for_next=1
     -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") 
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target")
         and (talent.scentOfBlood and not buff.scentOfBlood.exists()
         and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
         and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
@@ -1086,7 +1086,7 @@ actionList.Generator = function()
     -- Swipe
     -- pool_resource,for_next=1
     -- swipe_cat,if=buff.scent_of_blood.up|(action.swipe_cat.damage*spell_targets.swipe_cat>(action.rake.damage+(action.rake_bleed.tick_damage*5)))
-    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash 
+    if (cast.pool.swipeCat() or cast.able.swipeCat()) and not talent.brutalSlash
         and not isExplosive("target") and buff.scentOfBlood.exists() and range.dyn8AOE
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe - Scent of Blood") return true end
@@ -1099,7 +1099,7 @@ actionList.Generator = function()
     -- rake,target_if=!ticking|(!talent.bloodtalons.enabled&remains<duration*0.3)&target.time_to_die>4
     -- rake,target_if=talent.bloodtalons.enabled&buff.bloodtalons.up&((remains<=7)&persistent_multiplier>dot.rake.pmultiplier*0.85)&target.time_to_die>4
     if (cast.pool.rake() or cast.able.rake()) and (debuff.rake.count() < getOptionValue("Multi-DoT Limit")
-        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit") 
+        and (#enemies.yards5f < getOptionValue("Multi-DoT Limit")
             or not traits.wildFleshrending.active or traits.bloodMist.active))
         and range.dyn5
     then
@@ -1120,19 +1120,19 @@ actionList.Generator = function()
         if rakeLogic("target") then
             if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
             if cast.rake("target") then debug("Casting Rake on "..UnitName("target").." [Target]") return true end
-        end 
+        end
         for i = 1, #enemies.yards5f do
             local thisUnit = enemies.yards5f[i]
             if rakeLogic(thisUnit) then
                 if cast.pool.rake() then ChatOverlay("Pooling For Rake") return true end
                 if cast.rake(thisUnit) then debug("Casting Rake on "..UnitName(thisUnit).." [Multi-DoT]") return true end
-            end 
+            end
         end
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
     if cast.able.moonfireFeral() and talent.lunarInspiration and range.dyn40
-        and canDoT(units.dyn40) and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit") 
+        and canDoT(units.dyn40) and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit")
         and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
         if buff.bloodtalons.exists() and not buff.predatorySwiftness.exists() and comboPoints < 5 then
@@ -1204,7 +1204,7 @@ actionList.Generator = function()
         and ((mode.rotation == 1 and #enemies.yards5f == 1) or (mode.rotation == 3 and #enemies.yards5f > 0)
             or talent.brutalSlash or level < 32 or isExplosive("target"))
         and (debuff.rake.remain(units.dyn5) > ((cast.cost.shred() + cast.cost.rake() - energy) / energyRegen)
-            or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists() 
+            or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists()
             or level < 12 or isExplosive("target"))
     then
         if cast.shred() then debug("Casting Shred") return true end
@@ -1411,7 +1411,7 @@ local function runRotation()
     end
 
     -- Blood of the Enemy
-    if essence.bloodOfTheEnemy.active then 
+    if essence.bloodOfTheEnemy.active then
         enemyBlood = 1
     else
         enemyBlood = 0
@@ -1463,7 +1463,7 @@ local function runRotation()
     -- Profile Stop | Pause
     if not inCombat and not UnitExists("target") and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 
+    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4
         -- or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime())
     then
         return true
@@ -1501,8 +1501,8 @@ local function runRotation()
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
-                if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5) 
-                    or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85) 
+                if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5)
+                    or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85)
                 then
                     if cast.rake(units.dyn5) then --[[debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 elseif cast.able.shred() and debuff.rake.exists(units.dyn5) and debuff.rake.calc() <= debuff.rake.applied(units.dyn5) * 0.85 then
