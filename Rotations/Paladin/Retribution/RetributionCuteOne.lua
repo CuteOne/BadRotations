@@ -268,8 +268,8 @@ local function runRotation()
         -- variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down&buff.avenging_wrath_autocrit.down
         local dsCastable = ((mode.rotation == 1 and (#enemies.yards8 >= getOptionValue("Divine Storm Units"))) or (mode.rotation == 2 and #enemies.yards8 > 0))
             or (buff.empyreanPower.exists() and not debuff.judgment.exists(units.dyn8) and not buff.divinePurpose.exists() and not buff.avengingWrath.exists())
-        -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
-        local howVar = (not talent.hammerOfWrath or thp(units.dyn5) >= 20) and (not buff.avengingWrath.exists() or not buff.crusade.exists())
+        -- variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down))
+        local howVar = (not talent.hammerOfWrath or thp(units.dyn5) >= 20) and (not buff.avengingWrath.exists() or (talent.crusade and not buff.crusade.exists()))
 
         local greaterBuff
         greaterBuff = 0
@@ -557,10 +557,11 @@ local function runRotation()
         local function actionList_Cooldowns()
             if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
                 -- Potion
-                -- potion,if=(cooldown.guardian_of_azeroth.remains>90|!essence.condensed_lifeforce.major)&(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25)
+                -- potion,if=(cooldown.guardian_of_azeroth.remains>90|!essence.condensed_lifeforce.major)&(buff.bloodlust.react|buff.avenging_wrath.up&buff.avenging_wrath.remains>18|buff.crusade.up&buff.crusade.remains<25)
                 if isChecked("Potion") and use.able.potionOfFocusedResolve() and inRaid then
                     if (cd.guardianOfAzeroth.remain() > 90 or not essence.condensedLifeForce.active)
-                        and (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25))
+                        and (hasBloodlust() or (buff.avengingWrath.exists() and buff.avengingWrath.remain() > 18)
+                            or (buff.crusade.exists() and buff.crusade.remain() < 25))
                     then
                         use.potionOfFocusedResolve()
                     end
@@ -586,7 +587,7 @@ local function runRotation()
                     if cast.shieldOfVengeance() then return end
                 end
             -- Trinkets
-                if isChecked("Trinkets") then                     
+                if isChecked("Trinkets") then
                     for i = 13, 14 do
                         if use.able.slot(i) and not (equiped.ashvanesRazorCoral(i) or equiped.pocketSizedComputationDevice(i)) then
                             use.slot(i)
@@ -638,8 +639,8 @@ local function runRotation()
                         if cast.worldveinResonance() then return end
                     end
                 -- Essence: Focused Azerite Beam
-                    -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-                    if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() and not buff.crusade.exists())
+                    -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
+                    if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
                         and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
                         and (#enemies.yards8f >= 3 or useCDs()) and not moving
                     then
@@ -660,8 +661,8 @@ local function runRotation()
                     end
                 end
             -- Pocket Sized Computation Device: Cyclotronic Blast
-                -- use_item,effect_name=cyclotronic_blast,if=(buff.avenging_wrath.down|buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-                if isChecked("Trinkets") and equiped.pocketSizedComputationDevice() and (not buff.avengingWrath.exists() and not buff.crusade.exists())
+                -- use_item,effect_name=cyclotronic_blast,if=(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
+                if isChecked("Trinkets") and equiped.pocketSizedComputationDevice() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
                     and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
                 then
                     for i = 13, 14 do
