@@ -756,7 +756,7 @@ local function runRotation()
             end
         -- Divine Storm
             -- divine_storm,if=variable.ds_castable&variable.wings_pool&((!talent.execution_sentence.enabled|(spell_targets.divine_storm>=2|cooldown.execution_sentence.remains>gcd*2))|(cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10))
-            if cast.able.divineStorm() and dsCastable and wingsPool 
+            if cast.able.divineStorm() and dsCastable and wingsPool
                 and ((not talent.executionSentence or (#enemies.yards8 >= 2 or cd.executionSentence.remain() > gcd * 2))
                     or (not talent.crusade and ((cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) or not isChecked("Avenging Wrath")))
                     or (talent.crusade and ((cd.crusade.remain() > gcd * 3 and cd.crusade.remain() < 10) or not isChecked("Crusade")))
@@ -783,7 +783,9 @@ local function runRotation()
         local function actionList_Generator()
         -- Call Action List - Finisher
             -- call_action_list,name=finishers,if=holy_power>=5|buff.memory_of_lucid_dreams.up|buff.seething_rage.up|buff.inquisition.down&holy_power>=3
-            if holyPower >= 5 or buff.memoryOfLucidDreams.exists() or buff.seethingRage.exists() or (not buff.inquisition.exists() and holyPower >= 3) then
+            if holyPower >= 5 or buff.memoryOfLucidDreams.exists() or buff.seethingRage.exists()
+                or (not buff.inquisition.exists() and holyPower >= 3)
+            then
                 if actionList_Finisher() then return end
             end
         -- Wake of Ashes
@@ -917,6 +919,10 @@ local function runRotation()
             -- Action List - Cooldowns
                         -- call_action_list,name=cooldowns
                         if actionList_Cooldowns() then return end
+            -- Divine Storm
+                        if cast.able.divineStorm() and buff.empyreanPower.exists() then
+                            if cast.divineStorm("player","aoe",1,8) then return end
+                        end
             -- Action List - Priority
                         -- call_action_list,name=generators
                         if actionList_Generator() then return end
