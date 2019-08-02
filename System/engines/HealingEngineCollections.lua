@@ -107,6 +107,7 @@ novaEngineTables.DispelID = {
 	[300414] = {stacks = 0}, --https://www.wowhead.com/spell=300414/enrage
 	[294929] = {stacks = 0}, --https://www.wowhead.com/spell=294929/blazing-chomp
 	[294195] = {stacks = 0}, --https://www.wowhead.com/spell=294195/arcing-zap
+	[284219] = {stacks = 0}, --https://www.wowhead.com/spell=284219/shrink
 
 
 
