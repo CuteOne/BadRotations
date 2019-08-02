@@ -89,8 +89,10 @@ local function createOptions()
             br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
             --Memory of Lucid Dreams
             br.ui:createCheckbox(section, "Lucid Dreams")
-            -- Ever Rising Tide
-            br.ui:createCheckbox(section, "Ever-Rising Tide")
+           -- Ever-Rising Tide
+			br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Pair with CDs", "Based on Health" }, 1, "When to use this Essence")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -524,9 +526,26 @@ local function runRotation()
                             end
                         end
                     end
-                    if isChecked("Ever-Rising Tide") and buff.rapture.exists("player") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd then
-                        if cast.overchargeMana() then br.addonDebug("Casting Ever-Rising Tide") return true end
-                    end
+                    if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
+                        if getOptionValue("Ever-Rising Tide") == 1 then
+                            if cast.overchargeMana() then
+                                return
+                            end
+                        end
+                        if getOptionValue("Ever-Rising Tide") == 2 then
+                            if buff.rapture.exists() or buff.evangelism.exists() or burst == true then
+                                if cast.overchargeMana() then
+                                    return
+                                end
+                            end
+                        end
+                        if getOptionValue("Ever-Rising Tide") == 3 then
+                            if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
+                                if cast.overchargeMana() then
+                                    return
+                                end
+                            end
+                        end
                     -- Rapture when getting Innervate/Symbol
                     if isChecked("Rapture when get Innervate") and freeMana then
                         if cast.rapture() then br.addonDebug("Casting Rapture") return true end

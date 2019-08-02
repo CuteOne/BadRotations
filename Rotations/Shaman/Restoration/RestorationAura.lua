@@ -101,6 +101,10 @@ local function createOptions()
             br.ui:createSpinner(section, "Concentrated Flame", 75, 0, 100, 5, colorWhite.."Will cast Concentrated Flame if party member is below value. Default: 75")
         --Memory of Lucid Dreams
             br.ui:createCheckbox(section, "Lucid Dreams")
+        -- Ever-Rising Tide
+            br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Pair with CDs", "Based on Health" }, 1, "When to use this Essence")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -835,7 +839,28 @@ local function runRotation()
 						end
 					end
 				end
-			end
+            end
+            if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
+                if getOptionValue("Ever-Rising Tide") == 1 then
+                    if cast.overchargeMana() then
+                        return
+                    end
+                end
+                if getOptionValue("Ever-Rising Tide") == 2 then
+                    if buff.ascendance.exists() or buff.cloudburstTotem.exists() or (HTTimer ~= nil or HTTimer ~= 0) or burst == true then
+                        if cast.overchargeMana() then
+                            return
+                        end
+                    end
+                end
+                if getOptionValue("Ever-Rising Tide") == 3 then
+                    if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
+                        if cast.overchargeMana() then
+                            return
+                        end
+                    end
+                end
+            end
         -- Healing Tide Totem
             if isChecked("Healing Tide Totem") and useCDs() and not buff.ascendance.exists() and cd.healingTideTotem.remain() <= gcd then
                 if getLowAllies(getValue("Healing Tide Totem")) >= getValue("Healing Tide Totem Targets") or burst == true or (raidBurstInc and (not isChecked("Burst Count") or (isChecked("Burst Count") and burstCount == getOptionValue("Burst Count")))) then    
