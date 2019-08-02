@@ -546,6 +546,7 @@ local function runRotation()
                                 end
                             end
                         end
+                    end
                     -- Rapture when getting Innervate/Symbol
                     if isChecked("Rapture when get Innervate") and freeMana then
                         if cast.rapture() then br.addonDebug("Casting Rapture") return true end
