@@ -83,7 +83,8 @@ local function createOptions()
 		section = br.ui:createSection(br.ui.window.profile, "Essences")
 		br.ui:createSpinner(section, "Lucid Dreams", 1.5, 0, 3, 0.1,"Shield of the Righteousness Stacks to use Lucid Dreams")
 		br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
-        br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+		br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+		br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- DEFENSIVE OPTIONS ---
@@ -197,6 +198,7 @@ local function runRotation()
 	--------------
 	local artifact = br.player.artifact
 	local buff = br.player.buff
+	local burst = buff.seraphim.exists() 
 	local cast = br.player.cast
 	local cd = br.player.cd
 	local charges = br.player.charges
@@ -618,6 +620,9 @@ local function runRotation()
 			if isChecked("Lucid Dreams") and charges.shieldOfTheRighteous.frac() <= getOptionValue("Lucid Dreams") then
 				if cast.memoryOfLucidDreams("player") then return end
 			end
+			if isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or isBoss()) and php <= getOptionValue("Anima of Death") then
+				if cast.animaOfDeath("player") then return end
+			end
 			-- Lay On Hands
 			if isChecked("Lay On Hands") and cast.able.layOnHands() and inCombat then
 				-- Player
@@ -986,8 +991,8 @@ local function runRotation()
 	local function actionList_Interrupts()
 		if useInterrupts() then
 			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
-				for i = 1, #enemies.yards30f do
-					local thisUnit = enemies.yards30f[i]
+				for i = 1, #enemies.yards30 do
+					local thisUnit = enemies.yards30[i]
 					if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						if cast.avengersShield(thisUnit) then
 							return
@@ -1046,10 +1051,10 @@ local function runRotation()
 			end
 		end
 		-- Judgment
-		for i = 1, #enemies.yards30f do
+		for i = 1, #enemies.yards30 do
 			local thisUnit 
 			if mode.rotation == 1 then
-				thisUnit = enemies.yards30f[i]
+				thisUnit = enemies.yards30[i]
 			elseif mode.rotation == 2 then
 				thisUnit = "target"
 			end

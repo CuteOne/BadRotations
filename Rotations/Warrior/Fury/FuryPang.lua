@@ -170,12 +170,21 @@ local function createOptions()
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
         br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
         br.ui:checkSectionState(section)
-
+		-- Essences
         section = br.ui:createSection(br.ui.window.profile, "Essences")
+		-- Guardian of Azeroth
+		br.ui:createCheckbox(section, "GuardianOfAzeroth")
+		-- Focussing Iris
+		br.ui:createDropdown(section, "Meme-Beam", {"Always", "AoE Only"}, 1)
+		-- Crucible of Flame
         br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+		-- Lucid Dreams
         br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
+		--Blood of the Enemy
         br.ui:createDropdownWithout(section, "Blood of the Enemy", {"Always", "With Reck", "CDS", "Never"}, 1)
+		-- Purifying Blast
+        br.ui:createDropdown(section, "Purifying Blast", {"Always", "AoE only"}, 1)
         -- br.ui:createSpinner(section, "Min HP deathwish", 20, 1, 100, 5)
         -- br.ui:createSpinnerWithout(section, "Deathwish Stacks", 7, 1, 10, 1)
         br.ui:checkSectionState(section)
@@ -273,7 +282,7 @@ local function runRotation()
     local equiped = br.player.equiped
     local gcd = br.player.gcdMax
     local gcdMax = br.player.gcdMax
-    local healPot = getHealthPot()
+	local healPot = getHealthPot()
     local heirloomNeck = 122667 or 122668
     local inCombat = br.player.inCombat
     local inRaid = br.player.instance == "raid"
@@ -290,6 +299,8 @@ local function runRotation()
     local thp = getHP("target")
     local traits = br.player.traits
     local units = br.player.units
+	local ttd = getTTD
+
 
     --wipe timers table
     if timersTable then
@@ -466,8 +477,32 @@ local function runRotation()
                 return
             end
         end
-
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+		-- Focussing Iris
+		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
+		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
+			if cast.focusedAzeriteBeam() then
+				return
+			end
+		end	
+		-- Purifying Blast
+		-- actions+=/purifying_blast,if=!buff.recklessness.up&!buff.siegebreaker.up
+		if isChecked("Purifying Blast") and getSpellCD(295337) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Purifying Blast") == 1 or (getOptionValue("Purifying Blast") == 2 and #enemies.yards8 >= 3)) then
+			if cast.purifyingBlast() then
+				return
+			end
+		end	
+		
+		-- GuardianOfAzeroth
+		-- actions+=/guardian_of_azeroth,if=!buff.recklessness.up
+		if isChecked("GuardianOfAzeroth") and getSpellCD(295840) <=gcd and not buff.recklessness.exists("player") then
+			if cast.guardianOfAzeroth() then
+				return
+			end
+		end
+			
+		-- Lucid Dreams
+		-- actions+=/memory_of_lucid_dreams,if=!buff.recklessness.up
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
@@ -480,6 +515,7 @@ local function runRotation()
         end
 
         -- Recklessness
+		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
         if not buff.recklessness.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
@@ -601,12 +637,27 @@ local function runRotation()
             end
         end
 
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
 
+		-- Purifying Blast
+		-- actions+=/purifying_blast,if=!buff.recklessness.up&!buff.siegebreaker.up
+		if isChecked("Purifying Blast") and getSpellCD(295337) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Purifying Blast") == 1 or (getOptionValue("Purifying Blast") == 2 and #enemies.yards8 >= 3)) then
+			if cast.purifyingBlast() then
+				return
+			end
+		end	
+		
+		-- Focussing Iris
+		-- actions+=/focused_azerite_beam,if=!buff.recklessness.up&!buff.siegebreaker.up
+		if isChecked("Meme-Beam") and getSpellCD(295258) <=gcd and not buff.recklessness.exists("player") and (getOptionValue("Meme-Beam") == 1 or (getOptionValue("Meme-Beam") == 2 and #enemies.yards8 >= 3)) then
+			if cast.focusedAzeriteBeam() then
+				return
+			end
+		end	
         -- Recklessness
         if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
@@ -702,16 +753,39 @@ local function runRotation()
             end
         end
     end -- end multi target
-
+	
     function cooldownlist()
-        --trinkets
+        --trinkets 
+		--actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&buff.memory_of_lucid_dreams.up|prev_gcd.2.recklessness&(buff.guardian_of_azeroth.up|!essence.memory_of_lucid_dreams.major&!essence.condensed_lifeforce.major))
+		--Mechagon Trinket WITH enrage but WITHOUT CDs
         if isChecked("Trinkets") then
             if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs()) or (getOptionValue("Trinkets") == 3 and getSpellCD(1719) < 5 and br.player.mode.cooldown ~= 3) then
-                if canTrinket(13) then
+                if canTrinket(13) and not hasEquiped(169311,13) and not hasEquiped(167555,13) then
                     useItem(13)
+				elseif hasEquiped(169311,13) then
+					if (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5) or (getHP(thisUnit) <= 30.2 and debuff.conductiveInk.exists("target")) or buff.memoryOfLucidDreams.exists("player") or getBuffRemain("player", spell.recklessness) > 4.5 and br.timer:useTimer("Razor Coral Delay", 3) then
+						br.addonDebug("Using second activation of Ashvane's Razor Coral")
+						useItem(13)
+					elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
+						br.addonDebug("Using first activation of Ashvane's Razor Coral")
+                        useItem(13)
+					end
+			--	elseif hasEquiped(167555,13) then
+			--		if buff.enrage.exists("player") and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists("target") then
+			--			br.addonDebug("using mecha trinket beam")
+			--			useItem(13)
+			--		end
                 end
-                if canTrinket(14) then
+                if canTrinket(14) and not hasEquiped(169311,14) and not hasEquiped(167555,14) then
                     useItem(14)
+				elseif hasEquiped(169311,14) then
+					if (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5) or (getHP(thisUnit) <= 30.2 and debuff.conductiveInk.exists("target")) or buff.memoryOfLucidDreams.exists("player") or getBuffRemain("player", spell.recklessness) > 4.5 and br.timer:useTimer("Razor Coral Delay", 3) then
+						br.addonDebug("Using second activation of Ashvane's Razor Coral")
+						useItem(14)
+					elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
+						br.addonDebug("Using first activation of Ashvane's Razor Coral")
+                        useItem(14)
+					end
                 end
             end
         end

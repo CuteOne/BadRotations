@@ -805,12 +805,15 @@ local function runRotation()
 					if cast.fortifyingBrew() then return end
 				end
 				--Healthstone
-				if isChecked("Healthstone") and php <= getValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512)) then
-					if canUseItem(5512) then
-						useItem(5512) return true
-					elseif canUseItem(healPot) then
-						useItem(healPot) return true end
-				end
+				if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+                    if canUseItem(5512) then
+                        useItem(5512)
+                    elseif canUseItem(healPot) then
+                        useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        useItem(166799)
+                    end
+                end
 			end--End defensive check
 		end-- end defensives
 
