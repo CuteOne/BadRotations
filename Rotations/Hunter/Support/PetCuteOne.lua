@@ -50,7 +50,7 @@ br.rotations.support["PetCuteOne"] = function()
     local petExists = UnitExists("pet")
     local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+    local validTarget = UnitExists("pettarget") and (isValidUnit("pettarget") or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
     if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -86,7 +86,7 @@ br.rotations.support["PetCuteOne"] = function()
         if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
             if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
                 PetAttack(units.dyn40)
-            elseif getOptionValue("Pet Target") == 2 and validTarget then
+            elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
                 PetAttack("target")
             elseif getOptionValue("Pet Target") == 3 then
                 for i=1, #enemies.yards40 do
