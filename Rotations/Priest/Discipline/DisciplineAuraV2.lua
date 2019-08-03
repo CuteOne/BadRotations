@@ -93,6 +93,7 @@ local function createOptions()
 			br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Pair with CDs", "Based on Health" }, 1, "When to use this Essence")
             br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
             br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
+            br.ui:createCheckbox(section, "Well of Existence")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -1203,8 +1204,12 @@ local function runRotation()
             -- Concentrated Flame
             if isChecked("Concentrated Flame") and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd then
                 if lowest.hp <= getValue("Concentrated Flame") then
-                    if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
+                    if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return true end
                 end
+            end
+            -- Refreshment
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(11,UnitBuffID("player",296138)) >= 15000 then
+                if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
             end
             -- Shadow Mend
             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
