@@ -46,9 +46,9 @@ br.rotations.support["PetCuteOne"] = function()
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDead = UnitIsDeadOrGhost("pet")
     local petDistance = getDistance("pettarget","pet") or 99
     local petExists = UnitExists("pet")
+    local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
     local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
@@ -60,12 +60,12 @@ br.rotations.support["PetCuteOne"] = function()
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
-                if petDead or deadPet then
+                if deadPet or (petExists and petHealth == 0) then
                     if cast.able.revivePet() then
                         if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
                     end
-                elseif (not petDead and not deadPet) and not (petActive or petExists) and not buff.playDead.exists("pet") then
-                    if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
+                elseif not deadPet and not petExists and not buff.playDead.exists("pet") then
+                    if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
         end
@@ -106,13 +106,13 @@ br.rotations.support["PetCuteOne"] = function()
     if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP(friendUnit) <= getOptionValue("Spirit Mend") then
         if cast.spiritmend(friendUnit) then return end
     end
-    if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
-        if cast.catlikeReflexes("pet") then return end
+    if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= getOptionValue("Cat-like Reflexes") then
+        if cast.catlikeReflexes() then return end
     end
     if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
-        --[[and petCombat ]]and getHP("pet") <= getOptionValue("Survival of the Fittest")
+        --[[and petCombat ]]and petHealth <= getOptionValue("Survival of the Fittest")
     then
-        if cast.survivalOfTheFittest("pet") then return end
+        if cast.survivalOfTheFittest() then return end
     end
     -- Bite/Claw
     if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem("pettarget") then
@@ -178,12 +178,12 @@ br.rotations.support["PetCuteOne"] = function()
     -- Play Dead / Wake Up
     if isChecked("Play Dead / Wake Up") and not deadPet then
         if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
-            and getHP("pet") < getOptionValue("Play Dead / Wake Up")
+            and petHealth < getOptionValue("Play Dead / Wake Up")
         then
             if cast.playDead() then return end
         end
         if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
-            and getHP("pet") >= getOptionValue("Play Dead / Wake Up")
+            and petHealth >= getOptionValue("Play Dead / Wake Up")
         then
             if cast.wakeUp() then return end
         end
@@ -200,8 +200,8 @@ br.rotations.support["PetCuteOne"] = function()
         end
     end
     -- Mend Pet
-    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet and not buff.mendPet.exists("pet")
-        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not haltProfile
+    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
+        and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile
     then
         if cast.mendPet() then return end
     end

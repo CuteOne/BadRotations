@@ -583,12 +583,16 @@ function br.read.commonReaders()
 		end
 		if event == "UI_ERROR_MESSAGE" then
 			local errorMsg = select(1, ...)
-			if errorMsg == 277 or errorMsg == 275 then
-				if deadPet == false then
-					deadPet = true
-				elseif deadPet == true then
-					deadPet = false
-				end
+			local messageErr = select(2, ...)
+			-- Print("Error "..errorMsg..": "..messageErr)
+			-- 51 = "Your Pet is Dead"
+			-- 203 = "Cannot attack while dead"
+			if errorMsg == 51 or errorMsg == 203 then --or errorMsg == 277 or errorMsg == 275 then
+				deadPet = true
+				-- if deadPet == false then
+				-- elseif deadPet == true and UnitHealth("pet") > 0 then
+				-- 	deadPet = false
+				-- end
 			end
 		end
 		if event == "ENCOUNTER_START" then

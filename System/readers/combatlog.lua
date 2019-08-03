@@ -527,7 +527,7 @@ function cl:Hunter(...)
         end
     end
     --[[ Dead Pet Reset ]]
-    if deadPet and UnitHealth("pet") > 0 then deadPet = false end
+    if UnitHealth("pet") > 0 then deadPet = false end
 end
 function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
