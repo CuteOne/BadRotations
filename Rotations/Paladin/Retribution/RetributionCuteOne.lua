@@ -277,25 +277,26 @@ local function runRotation()
         local kingsUnit = "player"
         local wisdomUnit = "player"
         lowestUnit = "player"
-        for i = 1, #br.friend do
-            local thisUnit = br.friend[i].unit
-            local thisHP = getHP(thisUnit)
-            local lowestHP = getHP(lowestUnit)
-            local thisRole = UnitGroupRolesAssigned(thisUnit)
-            if thisHP < lowestHP then
-                lowestUnit = thisUnit
-            end
-            if getDistance(thisUnit) < 30 and not UnitIsDeadOrGhost(thisUnit) then
-                if (buff.greaterBlessingOfKings.remain(kingsUnit) < 600 and buff.greaterBlessingOfKings.exists()) or (thisRole == "TANK" and not buff.greaterBlessingOfKings.exists()) then
-                    kingsUnit = thisUnit
+        if #br.friend > 1 then
+            for i = 1, #br.friend do
+                local thisUnit = br.friend[i].unit
+                local thisRole = UnitGroupRolesAssigned(thisUnit)
+                if getDistance(thisUnit) < 30 and not UnitIsDeadOrGhost(thisUnit) then
+                    if (buff.greaterBlessingOfKings.exists(thisUnit) and kingsUnit ~= "player")
+                        or (thisRole == "TANK" and not buff.greaterBlessingOfKings.exists() and kingsUnit == "player")
+                    then
+                        kingsUnit = thisUnit
+                    end
+                    if (buff.greaterBlessingOfWisdom.exists(thisUnit) and wisdomUnit ~= "player")
+                        or (thisRole == "HEALER" and not buff.greaterBlessingOfWisdom.exists() and wisdomUnit == "player")
+                    then
+                        wisdomUnit = thisUnit
+                    end
                 end
-                if (buff.greaterBlessingOfWisdom.remain(wisdomUnit) < 600 and buff.greaterBlessingOfWisdom.exists()) or (thisRole == "HEALER" and not buff.greaterBlessingOfWisdom.exists()) then
-                    wisdomUnit = thisUnit
-                end
+                -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
+                --     greaterBuff = greaterBuff + 1
+                -- end
             end
-            -- if UnitBuffID(thisUnit,spell.buffs.greaterBlessingOfMight) ~= nil then
-            --     greaterBuff = greaterBuff + 1
-            -- end
         end
 
         local thisGlory = "player"
