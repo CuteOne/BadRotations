@@ -587,7 +587,7 @@ function br.read.commonReaders()
 			-- Print("Error "..errorMsg..": "..messageErr)
 			-- 51 = "Your Pet is Dead"
 			-- 203 = "Cannot attack while dead"
-			if errorMsg == 51 or errorMsg == 203 then --or errorMsg == 277 or errorMsg == 275 then
+			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
 				deadPet = true
 				-- if deadPet == false then
 				-- elseif deadPet == true and UnitHealth("pet") > 0 then
