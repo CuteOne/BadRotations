@@ -375,7 +375,7 @@ local function runRotation()
 	--------------
 	-- local artifact                                      = br.player.artifact
 	-- local combatTime                                    = getCombatTime()
-	-- local cd                                            = br.player.cd
+	-- local cd 										   = br.player.cd
 	-- local charges                                       = br.player.charges
 	-- local perk                                          = br.player.perk
 	-- local gcd                                           = br.player.gcd
@@ -383,6 +383,7 @@ local function runRotation()
 	-- local lowest                                        = br.friend[1]
 	local buff = br.player.buff
 	local cast = br.player.cast
+	local cd = br.player.cd
 	local combo = br.player.power.comboPoints.amount()
 	local debuff = br.player.debuff
 	local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
