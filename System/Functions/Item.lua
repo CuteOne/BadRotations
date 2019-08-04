@@ -107,7 +107,7 @@ function useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 end
 function hasHealthPot()
 	local locale = GetLocale()
-	if locale == "koKR" or locale == "zhCN" or locale == "zhTW" then
+	if locale ~= "enUS" and locale ~= "enGB" then
 		if hasItem(169451) then
 			return true
 		end
@@ -124,7 +124,7 @@ function hasHealthPot()
 end
 function getHealthPot()
 	local locale = GetLocale()
-	if (locale ~= "enUS" or locale ~= "enGB") then
+	if locale ~= "enUS" and locale ~= "enGB" then
 		if hasItem(169451) then
 			return 169451
 		end
