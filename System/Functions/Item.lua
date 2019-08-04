@@ -124,7 +124,7 @@ function hasHealthPot()
 end
 function getHealthPot()
 	local locale = GetLocale()
-	if locale ~= "enUS" or locale ~= "enGB" then
+	if (locale ~= "enUS" or locale ~= "enGB") then
 		if hasItem(169451) then
 			return 169451
 		end
