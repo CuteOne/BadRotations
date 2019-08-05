@@ -33,11 +33,11 @@ local function createToggles() -- Define custom toggles
     };
     CreateButton("Interrupt",4,0)
 -- Death And Decay Button
-    DnDModes = {
+    DndModes = {
         [1] = { mode = "On", value = 1 , overlay = "DnD Enabled", tip = "Will use DnD.", highlight = 1, icon = spell.deathAndDecay },
         [2] = { mode = "Off", value = 2 , overlay = "DnD Disabled", tip = "will NOT use DnD.", highlight = 0, icon = spell.deathAndDecay }
     };
-    CreateButton("DnD",5,0)
+    CreateButton("Dnd",5,0)
 
 end
 
@@ -517,24 +517,24 @@ local function runRotation()
     local function actionList_AOE()
     -- Death and Decay
         -- death_and_decay,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile
+        if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile
-        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) then
+        if mode.dnd == 1 and cast.able.defile() then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Epidemic
         -- epidemic,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay()) and runes < 2 and not poolForGargoyle then
             if cast.epidemic() then return end
         end
     -- Death Coil
         -- death_coil,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay()) and runes < 2 and not poolForGargoyle then
             if cast.deathCoil() then return end
         end
     -- Scourge Strike
@@ -635,14 +635,14 @@ local function runRotation()
         end
     -- Death and Decay
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile and talent.pestilence
+        if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile and talent.pestilence
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
+        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike
