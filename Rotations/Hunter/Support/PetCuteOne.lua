@@ -43,14 +43,28 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
+    local petTarget
+    if petTarget == nil or not UnitExists(petTarget) or not isValidUnit(petTarget) then
+        if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
+            petTarget = units.dyn40
+        elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
+            petTarget = "target"
+        elseif getOptionValue("Pet Target") == 3 then
+            for i=1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit break end
+            end
+        end
+    end
+
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDistance = getDistance("pettarget","pet") or 99
+    local petDistance = getDistance(petTarget,"pet") or 99
     local petExists = UnitExists("pet")
     local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists("pettarget") and (isValidUnit("pettarget") or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+    local validTarget = UnitExists(petTarget) and (isValidUnit(petTarget) or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
     if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -83,18 +97,9 @@ br.rotations.support["PetCuteOne"] = function()
             PetPassiveMode()
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
-            if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
-                PetAttack(units.dyn40)
-            elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
-                PetAttack("target")
-            elseif getOptionValue("Pet Target") == 3 then
-                for i=1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
-                end
-            end
-        elseif ((not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile)
+        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
+            PetAttack(petTarget)            
+        elseif not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile
             and IsPetAttackActive() and not isUnitCasting("player")
         then
             PetStopAttack()
@@ -115,16 +120,16 @@ br.rotations.support["PetCuteOne"] = function()
         if cast.survivalOfTheFittest() then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem("pettarget") then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(petTarget) then
         if cast.able.bite() then
-            if cast.bite("pettarget","pet") then return end
+            if cast.bite(petTarget,"pet") then return end
         end
         if cast.able.claw() then
-            if cast.claw("pettarget","pet") then return end
+            if cast.claw(petTarget,"pet") then return end
         end
     end
     -- Dash
-    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance("target") < 40 then
+    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(pertTarget) < 40 then
         if cast.dash("pet") then return end
     end
     -- Purge
