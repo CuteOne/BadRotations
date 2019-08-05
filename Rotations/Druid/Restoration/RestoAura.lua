@@ -1004,7 +1004,7 @@ local function runRotation()
 					end
 				end
 			end
-			if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
+			if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcdMax and getOptionValue("Ever-Rising Tide - Mana") <= mana then
 				if getOptionValue("Ever-Rising Tide") == 1 then
 					if cast.overchargeMana() then
 						return
