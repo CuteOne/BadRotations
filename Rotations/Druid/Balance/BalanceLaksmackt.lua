@@ -380,7 +380,6 @@ local function runRotation()
 
         end
     end
-
     local astral_max = 0
     local astral_def = 0
 
@@ -1213,8 +1212,8 @@ local function runRotation()
             if isChecked("Punt Enchanted Emissary") and inInstance then
                 if GetObjectID(thisUnit) == 155432 then
                     if #tanks > 0 and getDistance(tank, thisUnit) <= 40 then
-                        br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                         if cast.moonfire(thisUnit) then
+                            br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                             return true
                         end
                     end
