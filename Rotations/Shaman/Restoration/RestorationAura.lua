@@ -514,6 +514,12 @@ local function runRotation()
                     useItem(166801)
                 end
             end
+            -- Healing Rain
+            if movingCheck and cd.healingRain.remain() <= gcd then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
+                end
+            end
         -- Riptide
             if isChecked("Riptide") then
                 for i = 1, #br.friend do
@@ -552,12 +558,6 @@ local function runRotation()
                     if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
                 elseif getOptionValue("Chain Heal Logic") == 2 then
                     if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then br.addonDebug("Casting Chain Heal") return end
-                end
-            end
-        -- Healing Rain
-            if movingCheck and cd.healingRain.remain() <= gcd then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
-                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
             -- Healing Surge
@@ -618,6 +618,12 @@ local function runRotation()
             end
         end
         local function actionList_AMR()
+             -- Healing Rain
+             if movingCheck and cd.healingRain.remain() <= gcd then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
+                end
+            end
             --Spirit Link Key
             if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                 if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then br.addonDebug("Casting Spirit Link Totem") return end 
