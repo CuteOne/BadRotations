@@ -293,8 +293,17 @@ actionList.Defensive = function()
             if cast.chaosNova() then return end
         end
         -- Consume Magic
-        if isChecked("Consume Magic") and cast.able.consumeMagic("target") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
-            if cast.consumeMagic("target") then return end
+        -- if isChecked("Consume Magic") and cast.able.consumeMagic("target") and canDispel("target",spell.consumeMagic) and not isBoss() and GetObjectExists("target") then
+        --    if cast.consumeMagic("target") then return end
+			
+		if isChecked("Consume Magic") then
+            for i=1, #enemies.yards10 do
+                thisUnit = enemies.yards10[i]
+                if cast.able.consumeMagic(thisUnit) and canDispel(thisUnit,spell.consumeMagic) and not isBoss() and GetObjectExists(thisUnit) then
+                    if cast.consumeMagic(thisUnit) then return end
+                end
+            end
+        --end
         end
     end -- End Defensive Toggle
 end -- End Action List - Defensive

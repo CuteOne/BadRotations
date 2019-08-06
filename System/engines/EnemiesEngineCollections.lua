@@ -117,7 +117,44 @@ dispellOffensiveBuffs = {
 	[129016] = "Enrage",[129874] = "Enrage",[130196] = "Enrage",[130202] = "Enrage",[131150] = "Enrage",
 	[135524] = "Enrage",[135548] = "Enrage",[142760] = "Enrage",[148295] = "Enrage",[151553] = "Enrage",
 	[154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
-	[144351] = "Magic"
+	[144351] = "Magic",
+	
+	-- Atal
+	[255579] = "Magic",
+	-- Freehold
+	[257397] = "Magic",
+	-- Kings Rest
+	[273432] = "Magic",
+	[270901] = "Magic",
+	[267256] = "Magic",
+	-- SotS
+	[267977] = "Magic",
+	[276266] = "Magic",
+	[268030] = "Magic",
+	[274210] = "Magic",
+	[268375] = "Magic",
+	[276767] = "Magic",
+	-- Siege of Boralus
+	[256957] = "Magic",
+	[275826] = "Magic",
+	-- ToS
+	[272659] = "Magic",
+	[269896] = "Magic",
+	[265912] = "Magic",
+	-- Motherload
+	[268709] = "Magic",
+	[263215] = "Magic",
+	[262947] = "Magic",
+	[262540] = "Magic",
+	-- Underrot
+	[265091] = "Magic",
+	[266201] = "Magic",
+	-- Tol'Dagor
+	[258133] = "Magic",
+	[258153] = "Magic",
+	[257956] = "Magic",
+	-- Waycrest
+	[278567] = "Magic"
 }
 interruptWhitelist = {
 	-- Atal'Dazar start
