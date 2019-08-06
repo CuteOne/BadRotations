@@ -845,6 +845,10 @@ br.lists.spells = {
                 springBlossoms              = 207385,
                 stonebark                   = 197061,
             },
+            traits                          = {
+                dawningSun                  = 276152,
+                highNoon                    = 278505,
+            }
         },
         -- All
         Shared = {
