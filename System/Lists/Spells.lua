@@ -8,7 +8,7 @@ local function flipRace()
             return "Human"
         elseif race == "Troll" then
             if class == 7 then
-                return "Draenei" 
+                return "Draenei"
             elseif class == 9 then
                 return "Human"
             else
@@ -56,7 +56,7 @@ local function flipRace()
             return "MagharOrc"
         elseif race == "Human" then
             if class == 2 then
-                return "BloodElf" 
+                return "BloodElf"
             else
                 return "Undead"
             end
@@ -104,9 +104,9 @@ local function flipRace()
     end
 end
 
-        
 
-        
+
+
 
 function getRacial()
     local forTheAlliance = UnitBuffID("player",193863) or false
@@ -1754,6 +1754,7 @@ br.lists.spells = {
                 auraOfMercy                 = 183415,
                 auraMastery                 = 31821,
                 avengingWrath               = 31884,
+                avengingWrathCrit           = 294027,
                 beaconOfLight               = 53563,
                 beaconOfFaith               = 156910,
                 blessingOfSacrifice         = 6940,
@@ -2243,7 +2244,7 @@ br.lists.spells = {
             buffs                           = {
                 classHallSpeed              = 224098,
                 powerWordFortitude          = 21562,
-                
+
             },
             debuffs                         = {
 
