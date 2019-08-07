@@ -870,6 +870,11 @@ local function runRotation()
                         end
                     end
                 end
+                if norganBuff and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) and getSpellCD(spell.massDispel) <= gcdMax then
+                    CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
+                    br.addonDebug("Casting Mass Dispel")
+                    return true
+                end
                 --Purify
                 for i = 1, #br.friend do
                     --High Botanist Tel'arn Parasitic Fetter dispel helper
