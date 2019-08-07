@@ -764,7 +764,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Freehold - pig") and GetMinimapZoneText() == "Ring of Booty" then
+        if isChecked("Freehold - pig") and select(8, GetInstanceInfo()) == 1754 then
             bossHelper()
         end
 
@@ -802,7 +802,7 @@ local function runRotation()
             end
         end
 
-        if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation") then
+        if inInstance and inCombat and (select(8, GetInstanceInfo()) == 1862 or select(8, GetInstanceInfo()) == 1762) then
             for i = 1, #br.friend do
                 -- Jagged Nettles and Dessication logic
                 if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
@@ -824,7 +824,7 @@ local function runRotation()
         end
         -- Sacrifical Pits
         -- Devour
-        if inInstance and inCombat and (GetMinimapZoneText() == "Sacrificial Pits.") then
+        if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
             for i = 1, #br.friend do
                 if getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and br.friend[i].hp <= 90 then
                     if getSpellCD(102342) == 0 then
@@ -1497,12 +1497,12 @@ local function runRotation()
                 end
             end
         end
-        -- Nature's Cure / Cleanse
+        -- Nature's Cure / Cleanse   --Shrine == 1864
         if br.player.mode.decurse == 1 and cast.able.naturesCure() and not cast.last.naturesCure() then
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 and
-                        ((GetMinimapZoneText() == "Shrine of Shadows" and isChecked("Shrine - Dispel Whisper of Power"))
-                                or GetMinimapZoneText() ~= "Shrine of Shadows") then
+                        ((select(8, GetInstanceInfo()) == 1864 and isChecked("Shrine - Dispel Whisper of Power"))
+                                or select(8, GetInstanceInfo()) ~= 1864) then
                     if cast.naturesCure(br.friend[i].unit) then
                         return true
                     end
@@ -1520,10 +1520,10 @@ local function runRotation()
 
 
         local root_UnitList = {}
-        if isChecked("Freehold - root grenadier") then
+        if isChecked("Freehold - root grenadier") and select(8, GetInstanceInfo()) == 1754 then
             root_UnitList[129758] = "Irontide Grenadier"
         end
-        if isChecked("Atal - root Spirit of Gold") then
+        if isChecked("Atal - root Spirit of Gold") and select(8, GetInstanceInfo()) == 1763 then
             root_UnitList[131009] = "Spirit of Gold"
         end
         if isChecked("All - root Emissary of the Tides") then
@@ -1544,7 +1544,7 @@ local function runRotation()
                     end
                 end
             end
-            if cast.able.entanglingRoots() and not isCC(thisUnit) and thisUnit.hp > 90 then
+            if cast.able.entanglingRoots() and isCC(thisUnit) and thisUnit.hp > 90 then
                 if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                     if cast.entanglingRoots(thisUnit) then
                         br.addonDebug("Rooting: " .. thisUnit)
@@ -1557,6 +1557,13 @@ local function runRotation()
     end
 
     local function heal()
+
+        if buff.innervate.exists() then
+            freemana = true
+        else
+            freemana = false
+        end
+
         clearForm()
         --determine if we got any criticals
         --[[ for i = 1, #br.friend do
@@ -1653,6 +1660,7 @@ local function runRotation()
 
         --lifebloom
 
+        -- big dots
         if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation") then
             for i = 1, #br.friend do
                 if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
@@ -1696,12 +1704,12 @@ local function runRotation()
         -- Rejuvenation
         if isChecked("Rejuvenation") then
             for i = 1, #tanks do
-                if talent.germination and (tanks[i].hp <= getValue("Germination Tank") or freemana) and not buff.rejuvenationGermination.exists(tanks[i].unit) then
+                if talent.germination and (tanks[i].hp <= getValue("Germination Tank") or freemana) and (not buff.rejuvenationGermination.exists(tanks[i].unit) or buff.rejuvenationGermination.remain(tanks[i].unit) < 4.5) then
                     if cast.rejuvenation(tanks[i].unit) then
                         br.addonDebug("[Rejuv]Germination on: " .. tanks[i].unit)
                         return true
                     end
-                elseif not talent.germination and (tanks[i].hp <= getValue("Rejuvenation Tank") or freemana) and not buff.rejuvenation.exists(tanks[i].unit) then
+                elseif not talent.germination and (tanks[i].hp <= getValue("Rejuvenation Tank") or freemana) and (not buff.rejuvenation.exists(tanks[i].unit) or buff.rejuvenation.remain(tanks[i].unit) < 4.5) then
                     if cast.rejuvenation(tanks[i].unit) then
                         br.addonDebug("[Rejuv]rejuvenation on: " .. tanks[i].unit)
                         return true
@@ -1709,12 +1717,15 @@ local function runRotation()
                 end
             end
             for i = 1, #br.friend do
-                if talent.germination and (br.friend[i].hp <= getValue("Germination") or freemana) and ((rejuvCount < getValue("Max Rejuvenation Targets")) or freemana) and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+                if talent.germination and (br.friend[i].hp <= getValue("Germination") or freemana) and ((rejuvCount < getValue("Max Rejuvenation Targets")) or freemana) and
+                        (not buff.rejuvenationGermination.exists(br.friend[i].unit) or buff.rejuvenationGermination.remain(br.friend[i].unit) < 4.5) then
                     if cast.rejuvenation(br.friend[i].unit) then
                         br.addonDebug("[Rejuv]Germination on: " .. br.friend[i].unit)
                         return true
                     end
-                elseif (br.friend[i].hp <= getValue("Rejuvenation") or freemana) and not buff.rejuvenation.exists(br.friend[i].unit) and ((rejuvCount < getValue("Max Rejuvenation Targets")) or freemana) then
+                elseif (br.friend[i].hp <= getValue("Rejuvenation") or freemana) and
+                        (not buff.rejuvenation.exists(br.friend[i].unit) or buff.rejuvenation.remain(br.friend[i].unit) < 4.5)
+                        and ((rejuvCount < getValue("Max Rejuvenation Targets")) or freemana) then
                     if cast.rejuvenation(br.friend[i].unit) then
                         br.addonDebug("[Rejuv]rejuvenation on: " .. br.friend[i].unit)
                         return true
@@ -1859,7 +1870,7 @@ local function runRotation()
 
             if #tanks > 0 then
                 -- cenarionWard
-                if (mode.prehot == 1 or mode.prehot == 3) and #tanks > 0 and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tanks[1].unit) and cast.able.cenarionWard(tank) then
+                if (mode.prehot == 1 or mode.prehot == 3) and #tanks > 0 and not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tanks[1].unit) and cast.able.cenarionWard(tank) then
                     if cast.cenarionWard(tanks[1].unit) then
                         return true
                     end
