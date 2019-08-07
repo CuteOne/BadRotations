@@ -411,23 +411,23 @@ local function runRotation()
                     thisUnit = enemies.yards30[i]
                      -- Disrupt
                     if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
-                        if isChecked("Disrupt") and getDistance(thisUnit) < 20 then
+                        if isChecked("Disrupt") and getDistance(thisUnit) < 20 and cd.disrupt.remain() <= gcd then
                             if cast.disrupt(thisUnit) then br.addonDebug("Casting Disrupt") return end
                         -- Sigil of Silence
-                        elseif isChecked("Sigil of Silence") then
+                        elseif isChecked("Sigil of Silence") and cd.sigilOfSilence.remain() <= gcd then
                             if not talent.concentratedSigils then
                                 if cast.sigilOfSilence(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Silence") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
                                 if cast.sigilOfSilence() then br.addonDebug("Casting Sigil of Silence") return end
                             end
                         -- Sigil of Misery
-                        elseif isChecked("Sigil of Misery") then
+                        elseif isChecked("Sigil of Misery") and cd.sigilOfMisery.remain() <= gcd then
                             if not talent.concentratedSigils then
                                 if cast.sigilOfMisery(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Misery") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
                                 if cast.sigilOfMisery() then br.addonDebug("Casting Sigil of Misery") return end
                             end
-                        elseif isChecked("Imprison") then
+                        elseif isChecked("Imprison") and cd.imprison.remain() <= gcd then
                             local type = UnitCreatureType(thisUnit)
                             for i = 1, #typesLoc do
                                 if type == typesLoc[i] then
