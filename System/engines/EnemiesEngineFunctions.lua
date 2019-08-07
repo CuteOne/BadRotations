@@ -582,3 +582,23 @@ function getNonExecuteEnemiesPercent(executeHP)
     end
     return nonexecutePercent
 end
+
+function br.AoEDamageTracker()
+	for i = 1, #br.lists.AoEDamage do
+		if br.DBM:getTimer(br.lists.AoEDamage[i]) ~= 999 then
+			br.curAoESpell = br.lists.AoEDamage[i]
+			if br.lastAoESpell == nil then
+				br.lastAoESpell = br.curAoESpell
+			end
+			if br.curAoESpell == br.lastAoeSpell then
+				if br.burstCount == nil then br.burstCount = 0 end
+				br.burstCount = br.burstCount + 1
+			else
+				br.lastAoESpell = br.curAoESpell
+				br.burstCount = 1
+			end
+			return br.DBM:getTimer(br.lists.AoEDamage[i]), br.burstCount
+		end
+	end
+	return -1
+end
