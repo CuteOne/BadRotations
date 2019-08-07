@@ -232,6 +232,7 @@ local htTimer
 local lastForm
 local leftCombat
 local minCount
+local noDoT
 local profileStop
 local range
 local ripDuration = 24
@@ -257,6 +258,7 @@ end
 -- Multi-Dot HP Limit Set
 local function canDoT(unit)
     local unitHealthMax = UnitHealthMax(unit)
+    if noDoT then return false end
     if not isBoss(unit) then return ((unitHealthMax > UnitHealthMax("player") * 3)
         or (UnitHealth(unit) < unitHealthMax and getTTD(unit) > 10)) end
     local maxHealth = 0
@@ -715,11 +717,11 @@ actionList.Cooldowns = function()
         if isChecked("Use Essence") then
             -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=active_enemies>desired_targets|(raid_event.adds.in>90&energy.deficit>=50)
-            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and energyDeficit >= 50
+            if cast.able.focusedAzeriteBeam() and (enemies.yards30r >= 3 or (useCDs() and energyDeficit >= 50
                     and debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5))
                 and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
             then
-                if cast.focusedAzeriteBeam(nil,"cone",minCount, 180) then
+                if cast.focusedAzeriteBeam(nil,"rect",minCount,8) then
                     debug("Casting Focused Azerite Beam")
                     return true
                 end
@@ -967,13 +969,13 @@ actionList.Finisher = function()
     -- primal_wrath,target_if=spell_targets.primal_wrath>1&dot.rip.remains<4
     -- pool_resource,for_next=1
     -- primal_wrath,target_if=spell_targets.primal_wrath>=2
-    if usePrimalWrath() and range.dyn8AOE then
+    if usePrimalWrath() and (not noDoT or #enemies.yards8 > 1) and range.dyn8AOE then
         if cast.primalWrath(nil,"aoe",1,8) then debug("Casting Primal Wrath") return true end
     end
     -- Rip
     -- pool_resource,for_next=1
     -- rip,target_if=!ticking|(remains<=duration*0.3)&(!talent.sabertooth.enabled)|(remains<=duration*0.8&persistent_multiplier>dot.rip.pmultiplier)&target.time_to_die>8
-    if (cast.pool.rip() or cast.able.rip()) and not usePrimalWrath() and range.dyn5
+    if (cast.pool.rip() or cast.able.rip()) and not noDoT and not usePrimalWrath() and range.dyn5
         and (buff.savageRoar.exists() or not talent.savageRoar)
     then
         for i = 1, #enemies.yards5f do
@@ -1059,7 +1061,7 @@ actionList.Generator = function()
     -- Thrash
     -- pool_resource,for_next=1
     -- thrash_cat,if=(refreshable)&(spell_targets.thrash_cat>2)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target")
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and (not noDoT or #enemies.yards8 > 1) and not isExplosive("target")
         and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
     then
         if (not debuff.thrashCat.exists(units.dyn8AOE) or debuff.thrashCat.refresh(units.dyn8AOE))
@@ -1073,7 +1075,7 @@ actionList.Generator = function()
     end
     -- pool_resource,for_next=1
     -- thrash_cat,if=(talent.scent_of_blood.enabled&buff.scent_of_blood.down)&spell_targets.thrash_cat>3
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target")
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and (not noDoT or #enemies.yards8 > 1) and not isExplosive("target")
         and (talent.scentOfBlood and not buff.scentOfBlood.exists()
         and ((mode.rotation == 1 and #enemies.yards8 > 3) or (mode.rotation == 2 and #enemies.yards8 > 0)))
         and ttd(units.dyn8AOE) > 4 and range.dyn8AOE
@@ -1131,7 +1133,7 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,if=buff.bloodtalons.up&buff.predatory_swiftness.down&combo_points<5
-    if cast.able.moonfireFeral() and talent.lunarInspiration and range.dyn40
+    if cast.able.moonfireFeral() and talent.lunarInspiration and not noDoT and range.dyn40
         and canDoT(units.dyn40) and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit")
         and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
@@ -1151,7 +1153,7 @@ actionList.Generator = function()
     end
     -- Moonfire
     -- moonfire_cat,target_if=refreshable
-    if cast.able.moonfireFeral() and talent.lunarInspiration and range.dyn40
+    if cast.able.moonfireFeral() and talent.lunarInspiration and not noDoT and range.dyn40
         and (debuff.moonfireFeral.count() < getOptionValue("Multi-DoT Limit")
         and (#enemies.yards40 < getOptionValue("Multi-DoT Limit") or not traits.wildFleshrending.active or traits.bloodMist.active))
     then
@@ -1168,7 +1170,7 @@ actionList.Generator = function()
     -- pool_resource,for_next=1
     -- thrash_cat,if=refreshable&((variable.use_thrash=2&(!buff.incarnation.up|azerite.wild_fleshrending.enabled))|spell_targets.thrash_cat>1)
     -- thrash_cat,if=refreshable&variable.use_thrash=1&buff.clearcasting.react&(!buff.incarnation.up|azerite.wild_fleshrending.enabled)
-    if (cast.pool.thrashCat() or cast.able.thrashCat()) and not isExplosive("target") and ttd(units.dyn8AOE) > 4
+    if (cast.pool.thrashCat() or cast.able.thrashCat()) and (not noDoT or #enemies.yards8 > 1) and not isExplosive("target") and ttd(units.dyn8AOE) > 4
         and debuff.thrashCat.refresh(units.dyn8AOE) and mode.rotation < 3 and range.dyn8AOE
     then
         if (useThrash == 2 or (useThrash == 1 and buff.clearcasting.exists())
@@ -1309,7 +1311,7 @@ actionList.PreCombat = function()
         -- Rake/Shred
         -- buff.prowl.up|buff.shadowmeld.up
         if isValidUnit("target") and opener.complete and getDistance("target") < 5 then
-            if cast.able.rake() and level >= 12 and not debuff.rake.exists("target") then
+            if cast.able.rake() and level >= 12 and not noDoT and not debuff.rake.exists("target") then
                 if cast.rake("target") then debug("Casting Rake on "..UnitName("target").." [Pull]"); return true end
             elseif cast.able.shred() then
                 if cast.shred("target") then debug("Casting Shred on "..UnitName("target").." [Pull]"); return true end
@@ -1324,17 +1326,17 @@ end -- End Action List - PreCombat
 --- ROTATION ---
 ----------------
 local function runRotation()
-    ---------------
-    --- Toggles ---
-    ---------------
-    UpdateToggle("Rotation",0.25)
-    UpdateToggle("Cooldown",0.25)
-    UpdateToggle("Defensive",0.25)
-    UpdateToggle("Interrupt",0.25)
-    UpdateToggle("Cleave",0.25)
-    br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
-    UpdateToggle("Prowl",0.25)
-    br.player.mode.prowl = br.data.settings[br.selectedSpec].toggles["Prowl"]
+    -- ---------------
+    -- --- Toggles ---
+    -- ---------------
+    -- UpdateToggle("Rotation",0.25)
+    -- UpdateToggle("Cooldown",0.25)
+    -- UpdateToggle("Defensive",0.25)
+    -- UpdateToggle("Interrupt",0.25)
+    -- UpdateToggle("Cleave",0.25)
+    -- br.player.mode.cleave = br.data.settings[br.selectedSpec].toggles["Cleave"]
+    -- UpdateToggle("Prowl",0.25)
+    -- br.player.mode.prowl = br.data.settings[br.selectedSpec].toggles["Prowl"]
 
     --------------
     --- Locals ---
@@ -1395,6 +1397,7 @@ local function runRotation()
     -- Get List of Enemies for Range
     -- enemies.get(range, from unit, no combat, variable)
     enemies.get(40) -- makes enemies.yards40
+    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
     enemies.get(20,"player",true) -- makes enemies.yards20nc
     enemies.get(13,"player",false,true) -- makes enemies.yards13f
     enemies.get(8) -- makes enemies.yards8
@@ -1409,6 +1412,7 @@ local function runRotation()
     if not inCombat and not UnitExists("target") and profileStop == true then
         profileStop = false
     end
+    noDoT = GetObjectID(units.dyn5) == 153758
 
     -- Blood of the Enemy
     if essence.bloodOfTheEnemy.active then
@@ -1501,7 +1505,7 @@ local function runRotation()
             -- rake,if=buff.prowl.up|buff.shadowmeld.up
             if (buff.prowl.exists() or buff.shadowmeld.exists()) and range.dyn5 then
                 -- if debuff.rake.exists(units.dyn5) or level < 12 then
-                if cast.able.rake() and level >= 12 and (not debuff.rake.exists(units.dyn5)
+                if cast.able.rake() and level >= 12 and not noDoT and (not debuff.rake.exists(units.dyn5)
                     or debuff.rake.calc() > debuff.rake.applied(units.dyn5) * 0.85)
                 then
                     if cast.rake(units.dyn5) then --[[debug("Casting Rake on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
