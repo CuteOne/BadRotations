@@ -324,7 +324,7 @@ local function runRotation()
             --         table.insert(noAtone,br.friend[i].unit)
             --     end
             end
-        end
+        end        
 
         if not healCount then
             healCount = 0
@@ -870,7 +870,7 @@ local function runRotation()
         end
         local function actionList_Extras()
             -- Angelic Feather
-            if IsMovingTime(getOptionValue("Angelic Feather")) then
+            if IsMovingTime(getOptionValue("Angelic Feather")) and not IsSwimming() then
                 if not runningTime then runningTime = GetTime()
                 end
                 if isChecked("Angelic Feather") and talent.angelicFeather and (not buff.angelicFeather.exists("player") or GetTime() > runningTime + 5) then
@@ -1208,7 +1208,7 @@ local function runRotation()
                 end
             end
             -- Refreshment
-            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(11,UnitBuffID("player",296138)) >= 15000 then
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 then
                 if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
             end
             -- Shadow Mend
