@@ -57,7 +57,7 @@ local function createOptions()
             br.ui:createCheckbox(section,"OOC Healing","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat healing|cffFFBB00.",1)
             br.ui:createSpinner(section,"OOC Penance", 95, 0, 100, 5,"|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFout of combat penance healing|cffFFBB00.")
             -- Dispel Magic
-            br.ui:createCheckbox(section,"Dispel Magic","|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFDispel Magic usage|cffFFBB00.")
+            br.ui:createDropdown(section,"Dispel Magic", {"|cffFFFF00Selected Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
             -- Mass Dispel
             br.ui:createDropdown(section, "Mass Dispel", br.dropOptions.Toggle, 1, colorGreen.."Enables"..colorWhite.."/"..colorRed.."Disables "..colorWhite.." Mass Dispel usage.")
             --Body and Soul
@@ -856,15 +856,19 @@ local function runRotation()
         end
         local function actionList_Dispels()
             if mode.decurse == 1 then
-                -- Dispel Magic
-                if isChecked("Dispel Magic") and canDispel("target",spell.dispelMagic) and not isBoss() and not GetUnitIsFriend("target","player") and GetObjectExists("target") then
-                    if cast.dispelMagic("target") then br.addonDebug("Casting Dispel Magic") return true end
-                end
-                -- Mass Dispel
-                if norganBuff and isChecked("Mass Dispel") and (SpecificToggle("Mass Dispel") and not GetCurrentKeyBoardFocus()) and getSpellCD(spell.massDispel) <= gcdMax then
-                    CastSpellByName(GetSpellInfo(spell.massDispel),"cursor")
-                    br.addonDebug("Casting Mass Dispel")
-                    return true
+                if isChecked("Dispel Magic") then
+                    if getOptionValue("Dispel Magic") == 1 then
+                        if canDispel("target",spell.dispelMagic) and GetObjectExists("target") then
+                            if cast.dispelMagic("target") then br.addonDebug("Casting Dispel Magic") return true end
+                        end
+                    elseif getOptionValue("Dispel Magic") == 2 then
+                        for i = 1, #enemies.yards30 do
+                            local thisUnit = enemies.yards30[i]
+                            if canDispel(thisUnit,spell.dispelMagic) then
+                                if cast.dispelMagic(thisUnit) then br.addonDebug("Casting Dispel Magic") return true end
+                            end
+                        end
+                    end
                 end
                 --Purify
                 for i = 1, #br.friend do
