@@ -759,13 +759,14 @@ local function runRotation()
         -- Divine Storm
             -- divine_storm,if=variable.ds_castable&variable.wings_pool&((!talent.execution_sentence.enabled|(spell_targets.divine_storm>=2|cooldown.execution_sentence.remains>gcd*2))|(cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10))
             if cast.able.divineStorm() and dsCastable and wingsPool
-                and ((not talent.executionSentence or (#enemies.yards8 >= 2 or cd.executionSentence.remain() > gcd * 2))
+                and ((not talent.executionSentence or (mode.rotation == 2 or #enemies.yards8 >= 2 or cd.executionSentence.remain() > gcd * 2))
                     or (not talent.crusade and ((cd.avengingWrath.remain() > gcd * 3 and cd.avengingWrath.remain() < 10) or not isChecked("Avenging Wrath")))
                     or (talent.crusade and ((cd.crusade.remain() > gcd * 3 and cd.crusade.remain() < 10) or not isChecked("Crusade")))
                     or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() < 10)
                     or not useCDs())
             then
-                if cast.divineStorm("player","aoe",getOptionValue("Divine Storm Units"),8) then return end
+                local theseUnits = mode.roation == 2 and 1 or getOptionValue("Divine Storm Units")
+                if cast.divineStorm("player","aoe",theseUnits,8) then return end
             end
         -- Templar's Verdict
             -- templars_verdict,if=variable.wings_pool&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd*2|cooldown.avenging_wrath.remains>gcd*3&cooldown.avenging_wrath.remains<10|cooldown.crusade.remains>gcd*3&cooldown.crusade.remains<10|buff.crusade.up&buff.crusade.stack<10)
@@ -886,7 +887,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and profileStop==false then
+            if inCombat and isValidUnit("target") then
 ------------------------------
 --- In Combat - Interrupts ---
 ------------------------------
