@@ -50,6 +50,7 @@ System\Lists\Specs.lua
 System\Lists\Spells.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
+System\Lists\AoEDamage.lua
 
 ## Readers
 
