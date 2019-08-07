@@ -694,10 +694,10 @@ actionList.St = function()
     -- focused_azerite_beam,if=buff.bestial_wrath.down|target.time_to_die<5
     if isChecked("Use Essence") and cast.able.focusedAzeriteBeam()
         and not (buff.bestialWrath.exists() or (ttd(units.dyn40) < 5 and useCDs()))
-        and (#enemies.yards8f >= 3 or useCDs())
+        and (enemies.yards30r >= 3 or useCDs())
     then
         local minCount = useCDs() and 1 or 3
-        if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+        if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then
             focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
             return
         end
@@ -852,10 +852,10 @@ actionList.Cleave = function()
     if isChecked("Use Essence") then
         -- focused_azerite_beam
         if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists()
-            and (#enemies.yards8f >= 3 or useCDs())
+            and (#enemies.yards30r >= 3 or useCDs())
         then
             local minCount = useCDs() and 1 or 3
-            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+            if cast.focusedAzeriteBeam(nil,"rect",minCount, 8) then
                 focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
                 return
             end
@@ -998,6 +998,7 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(40,"player",true)
+    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
     enemies.get(30,"pet")
     enemies.get(20,"pet")
     enemies.get(8,"pet")
