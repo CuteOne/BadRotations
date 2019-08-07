@@ -1434,7 +1434,7 @@ local function runRotation()
                     and aoe_count < 5 then
                 if cast.ferociousBite(thisUnit)
                 then
-                    br.addonDebug("[CAT-DPS] Bite: " .. thisUnit .. " Combo points: " .. combo .. "ttd: " .. tdd(thisUnit))
+                    br.addonDebug("[CAT-DPS] Bite: " .. thisUnit .. " Combo points: " .. combo .. "ttd: " .. ttd(thisUnit))
                     return true
                 end
             end
@@ -1544,9 +1544,10 @@ local function runRotation()
                     end
                 end
             end
-            if cast.able.entanglingRoots() and inInstance and not isCC(thisUnit) then
+            if cast.able.entanglingRoots() and not isCC(thisUnit) and thisUnit.hp > 90 then
                 if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                     if cast.entanglingRoots(thisUnit) then
+                        br.addonDebug("Rooting: " .. thisUnit)
                         return true
                     end
                 end
