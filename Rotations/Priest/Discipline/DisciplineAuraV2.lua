@@ -79,6 +79,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Temple of Seth", 80, 0, 100, 5, "|cffFFFFFFMinimum Average Health to Heal Seth NPC. Default: 80")
             
             br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, Trinkets will be triggered.")
+            
+            br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
             --br.ui:createSpinner(section, "Tank Heal", 30, 0, 100, 5, "|cffFFFFFFMinimum Health to Heal Non-Tank units. Default: 30")
         br.ui:checkSectionState(section)
         -------------------------
@@ -403,6 +405,8 @@ local function runRotation()
 
         local penanceCheck = isMoving("player") or not isChecked("Raid Penance") or (buff.powerOfTheDarkSide.exists() and inRaid)
 
+
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -661,23 +665,27 @@ local function runRotation()
                         end
                     end
                     if isChecked("Trinket 1") and canTrinket(13) and not hasEquiped(165569,13) and not hasEquiped(160649,13) and not hasEquiped(158320,13) then
-                        if getOptionValue("Trinket 1 Mode") == 1 then
+                        if hasEquiped(158368,13) and mana <= 90 then
+                            useItem(13)
+                            br.addonDebug("Using Fangs of Intertwined Essence")
+                            return true
+                        elseif getOptionValue("Trinket 1 Mode") == 1 then
                             if getLowAllies(getValue("Trinket 1")) >= getValue("Min Trinket 1 Targets") or burst == true then
                                 useItem(13)
                                 br.addonDebug("Using Trinket 1")
                                 return true
                             end
-                            elseif getOptionValue("Trinket 1 Mode") == 2 then
-                                if lowest.hp <= getValue("Trinket 1") or (burst == true and lowest.hp ~= 250) then
+                        elseif getOptionValue("Trinket 1 Mode") == 2 then
+                            if lowest.hp <= getValue("Trinket 1") or (burst == true and lowest.hp ~= 250) then
                                 UseItemByName(GetInventoryItemID("player", 13), lowest.unit)
                                 br.addonDebug("Using Trinket 1 (Target)")
                                 return true
-                                end
-                            elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
-                                for i = 1, #tanks do
-                                    -- get the tank's target
-                                    local tankTarget = UnitTarget(tanks[i].unit)
-                                    if tankTarget ~= nil then
+                            end
+                        elseif getOptionValue("Trinket 1 Mode") == 3 and #tanks > 0 then
+                            for i = 1, #tanks do
+                                -- get the tank's target
+                                local tankTarget = UnitTarget(tanks[i].unit)
+                                if tankTarget ~= nil then
                                     -- get players in melee range of tank's target
                                     local meleeFriends = getAllies(tankTarget, 5)
                                     -- get the best ground circle to encompass the most of them
@@ -687,12 +695,12 @@ local function runRotation()
                                     else
                                         local meleeHurt = {}
                                         for j = 1, #meleeFriends do
-                                        if meleeFriends[j].hp < getValue("Trinket 1") then
-                                            tinsert(meleeHurt, meleeFriends[j])
-                                        end
+                                            if meleeFriends[j].hp < getValue("Trinket 1") then
+                                                tinsert(meleeHurt, meleeFriends[j])
+                                            end
                                         end
                                         if #meleeHurt >= getValue("Min Trinket 1 Targets") or burst == true then
-                                        loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
+                                            loc = getBestGroundCircleLocation(meleeHurt, 2, 6, 10)
                                         end
                                     end
                                     if loc ~= nil then
@@ -710,7 +718,11 @@ local function runRotation()
                         end
                     end
                     if isChecked("Trinket 2") and canTrinket(14) and not hasEquiped(165569,14) and not hasEquiped(160649,14) and not hasEquiped(158320,14) then
-                        if getOptionValue("Trinket 2 Mode") == 1 then
+                        if hasEquiped(158368,14) and mana <= 90 then
+                            useItem(14)
+                            br.addonDebug("Using Fangs of Intertwined Essence") 
+                            return true
+                        elseif getOptionValue("Trinket 2 Mode") == 1 then
                             if getLowAllies(getValue("Trinket 2")) >= getValue("Min Trinket 2 Targets") or burst == true then
                                 useItem(14)
                                 br.addonDebug("Using Trinket 2")
@@ -763,6 +775,9 @@ local function runRotation()
         end -- End Action List - Cooldowns
         -- Action List - Pre-Combat
         local function actionList_PreCombat()
+            if isChecked("Pig Catcher") then
+                bossHelper()
+            end
             local prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") and not buff.rapture.exists("player")
             if isChecked("Pre-Pot Timer") and (pullTimer <= getOptionValue("Pre-Pot Timer") or prepullOpener) and canUseItem(163222) and not solo then
                 useItem(163222)

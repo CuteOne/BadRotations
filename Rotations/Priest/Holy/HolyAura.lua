@@ -104,6 +104,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
 		-- Bursting Stack
 		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+
+		br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
@@ -381,6 +383,9 @@ local function runRotation()
                         if cast.powerWordFortitude() then br.addonDebug("Casting Power Word: Fortitude") return end
                     end
                 end
+			end
+			if isChecked("Pig Catcher") then
+                bossHelper()
             end
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat

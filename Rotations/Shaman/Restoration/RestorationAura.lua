@@ -90,6 +90,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
+
+            br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
         br.ui:checkSectionState(section)
     -- -- Burst Damage Options
         section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
@@ -506,6 +508,9 @@ local function runRotation()
        end
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+            if isChecked("Pig Catcher") then
+                bossHelper()
+            end
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
             -- Sapphire of Brilliance
             if prepullOpener then

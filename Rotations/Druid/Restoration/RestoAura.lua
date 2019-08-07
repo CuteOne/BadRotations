@@ -198,8 +198,8 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Auto Soothe")
 		-- Revive
 		br.ui:createDropdown(section, "Revive", {"|cffFFFF00Selected Target", "|cffFF0000Mouseover Target","|cffFFBB00Auto"}, 1, "|ccfFFFFFFTarget to Cast On")
-		-- Necrotic Rot
-		br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
+
+		br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
 		br.ui:checkSectionState(section)
 		-- Cooldown Options
 		section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -694,6 +694,9 @@ local function runRotation()
 
 	-- Action List - Pre-Combat
 	local function actionList_PreCombat()
+		if isChecked("Pig Catcher") then
+			bossHelper()
+		end
 		-- Pre-Pull Timer
 		if isChecked("Pre-Pull Timer") then
 			if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
