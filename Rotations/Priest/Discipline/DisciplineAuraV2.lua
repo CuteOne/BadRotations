@@ -903,21 +903,18 @@ local function runRotation()
              -- Atonement Key
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if #br.friend - atonementCount >= 3 and charges.powerWordRadiance.count() >= 1 and norganBuff then
-                    if cast.powerWordRadiance(lowest.unit) then br.addonDebug("Casting Power Word Radiance") end
+                    if cast.powerWordRadiance(lowest.unit) then br.addonDebug("Casting Power Word Radiance") return end
                 else 
-                    if getSpellCD(spell.rapture) <= gcdMax and isChecked("Rapture") then
-                        if cast.rapture() then br.addonDebug("Casting Rapture") end
-                    end
-                    if atonementCount ~= 0 or isMoving("player") then
+                    if atonementCount < 3 or isMoving("player") then
                         for i = 1, #br.friend do
                             if getBuffRemain(br.friend[i].unit,spell.buffs.atonement,"player") < 1 then 
-                                if cast.powerWordShield(br.friend[i].unit) then br.addonDebug("Casting Power Word Shield") end
+                                if cast.powerWordShield(br.friend[i].unit) then br.addonDebug("Casting Power Word Shield") return end
                             end
                         end
                     end
                 end
                 if talent.evangelism and getSpellCD(spell.evangelism) <= gcdMax and isChecked("Evangelism") then
-                    if cast.evangelism() then br.addonDebug("Casting Evangelism") end
+                    if cast.evangelism() then br.addonDebug("Casting Evangelism") return end
                 end
             end
              -- Evangelism
@@ -1208,7 +1205,7 @@ local function runRotation()
                 end
             end
             -- Refreshment
-            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 then
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Shadow Mend") then
                 if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
             end
             -- Shadow Mend
