@@ -852,7 +852,7 @@ actionList.Cleave = function()
     if isChecked("Use Essence") then
         -- focused_azerite_beam
         if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists()
-            and (#enemies.yards30r >= 3 or useCDs())
+            and (enemies.yards30r >= 3 or useCDs())
         then
             local minCount = useCDs() and 1 or 3
             if cast.focusedAzeriteBeam(nil,"rect",minCount, 8) then
