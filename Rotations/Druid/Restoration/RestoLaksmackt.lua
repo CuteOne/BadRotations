@@ -71,7 +71,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Break form for dispel", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
-
+        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold to trust hots to do the job")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
@@ -485,7 +485,7 @@ local function runRotation()
     --------------
     -- local artifact                                      = br.player.artifact
     -- local combatTime                                    = getCombatTime()
-    -- local cd                                            = br.player.cd
+    local cd = br.player.cd
     -- local charges                                       = br.player.charges
     -- local perk                                          = br.player.perk
     local gcd = br.player.gcd
@@ -1390,7 +1390,7 @@ local function runRotation()
 
 
         --lucid dreams
-        if cat and isChecked("Lucid Cat") and getSpellCD(298357) <= gcd then
+        if cat and inCombat and isChecked("Lucid Cat") and getSpellCD(298357) <= gcd and ttd("target") > 12 then
             if cast.memoryOfLucidDreams() then
                 br.addonDebug("Lucid Kitty Dreams ....")
                 return
@@ -1806,9 +1806,18 @@ local function runRotation()
                 return true
             end
         end
-        if cast.able.ironbark() then
-            if cast.ironbark("player") then
-                br.addonDebug("[BEAR]Ironbark")
+
+        StartAttack()
+
+        if isChecked("Bear Frenzies Regen HP") and talent.guardianAffinity and cast.able.frenziedRegeneration() and php <= getValue("Bear Frenzies Regen HP") then
+            if cast.frenziedRegeneration() then
+                br.addonDebug("[BEAR]Regen")
+                return true
+            end
+        end
+
+        if cast.able.ironfur() and br.player.power.rage.amount() >= 40 then
+            if cast.ironfur() then
                 return true
             end
         end
@@ -1816,21 +1825,30 @@ local function runRotation()
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
 
-            if #enemies.yards8 == 1 then
-                if cast.able.mangle(thisUnit) then
-                    if cast.mangle(thisUnit) then
-                        br.addonDebug("[BEAR]Mangle")
+            if talent.guardianAffinity and cd.thrashBear.remain() == 0 then
+                if cast.able.thrashBear() and (debuff.thrashBear.stack(thisUnit) < 3 or debuff.trashBear.remain(thisUnit) < 4.5 or cd.mangle.remain() > 0) then
+                    if cast.thrashBear(thisUnit) then
+                        br.addonDebug("[BEAR]trash - stacks[" .. debuff.thrashBear.stack(thisUnit) .. "]")
+                        return true
                     end
-                    return true
-                end
-            elseif #enemies.yards8 > 1 then
-                if cast.able.swipeResto(thisUnit) then
-                    if cast.swipeResto(thisUnit) then
-                        br.addonDebug("[BEAR]Swipe")
-                    end
-                    return true
                 end
             end
+
+            if cast.able.mangle(thisUnit) then
+                if cast.mangle(thisUnit) then
+                    br.addonDebug("[BEAR]Mangle")
+                end
+                return true
+            end
+
+            if cast.able.swipeResto(thisUnit) then
+                if cast.swipeResto(thisUnit) then
+                    br.addonDebug("[BEAR]Swipe")
+                end
+                return true
+            end
+
+
         end
     end
 
