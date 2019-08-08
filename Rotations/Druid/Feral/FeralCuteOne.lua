@@ -669,7 +669,7 @@ actionList.Cooldowns = function()
         -- Berserk
         -- berserk,if=energy>=30&(cooldown.tigers_fury.remains>5|buff.tigers_fury.up)
         if isChecked("Berserk/Incarnation") and cast.able.berserk()
-            and useCDs() and not talent.incarnationKingOfTheJungle
+            and useCDs() and not talent.incarnationKingOfTheJungle and range.dyn5
         then
             if cast.able.berserk() and (energy >= 30 and (cd.tigersFury.remain() > 5 or buff.tigersFury.exists())) then
                 if cast.berserk() then debug("Casting Berserk") return true end
