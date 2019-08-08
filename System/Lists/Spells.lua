@@ -8,7 +8,7 @@ local function flipRace()
             return "Human"
         elseif race == "Troll" then
             if class == 7 then
-                return "Draenei" 
+                return "Draenei"
             elseif class == 9 then
                 return "Human"
             else
@@ -56,7 +56,7 @@ local function flipRace()
             return "MagharOrc"
         elseif race == "Human" then
             if class == 2 then
-                return "BloodElf" 
+                return "BloodElf"
             else
                 return "Undead"
             end
@@ -104,9 +104,9 @@ local function flipRace()
     end
 end
 
-        
 
-        
+
+
 
 function getRacial()
     local forTheAlliance = UnitBuffID("player",193863) or false
@@ -727,6 +727,7 @@ br.lists.spells = {
             },
             traits                          = {
                 bloodMist                   = 279524,
+                jungleFury                  = 274424,
                 ironJaws                    = 276021,
                 twistedClaws                = 275906,
                 wildFleshrending            = 279527,
@@ -797,6 +798,7 @@ br.lists.spells = {
                 tranquility                 = 740,
                 ursolsVortex                = 102793,
                 yserasGift                  = 145108,
+                swipeResto                  = 213764,
             },
             artifacts                       = {
 
@@ -816,6 +818,7 @@ br.lists.spells = {
                 cultivat                    = 200389,
                 tranquility                 = 157982,
                 springblossom               = 207386,
+                symbolOfHope                = 64901,
                 fullbloom                   = 290213,
             },
             debuffs                         = {
@@ -843,6 +846,10 @@ br.lists.spells = {
                 springBlossoms              = 207385,
                 stonebark                   = 197061,
             },
+            traits                          = {
+                dawningSun                  = 276152,
+                highNoon                    = 278505,
+            }
         },
         -- All
         Shared = {
@@ -1747,6 +1754,7 @@ br.lists.spells = {
                 auraOfMercy                 = 183415,
                 auraMastery                 = 31821,
                 avengingWrath               = 31884,
+                avengingWrathCrit           = 294027,
                 beaconOfLight               = 53563,
                 beaconOfFaith               = 156910,
                 blessingOfSacrifice         = 6940,
@@ -1762,6 +1770,7 @@ br.lists.spells = {
                 theLightSaves               = 200423,
                 vindicator                  = 200376,
                 avengingCrusader            = 216331,
+                symbolOfHope                = 64901,
             },
             debuffs                         = {
                 judgement                   = 214222,
@@ -1821,6 +1830,7 @@ br.lists.spells = {
                 avengingWrath               = 31884,
                 bulwarkOfOrder              = 209388,
                 consecration                = 188370,
+                divineShield                = 642,
                 guardianOfAncientKings      = 86659,
                 seraphim                    = 152262,
                 shieldOfTheRighteous        = 132403,
@@ -1851,6 +1861,9 @@ br.lists.spells = {
                 retributionAura             = 203797,
                 righteousProtector          = 204074,
                 seraphim                    = 152262,
+            },
+            traits                          = {
+                bulwarkOfLight              = 272976,
             },
         },
         -- Retribution
@@ -2151,8 +2164,10 @@ br.lists.spells = {
                 voidTorrent                 = 205065,
             },
             buffs                           = {
+                chorusOfInsanity            = 278661,
                 dispersion                  = 47585,
                 harvestedThoughts           = 288343,
+                lingeringInsanity           = 199849,
                 powerWordShield             = 17,
                 powerInfusion               = 10060,
                 shadowyInsight              = 124430,
@@ -2231,7 +2246,7 @@ br.lists.spells = {
             buffs                           = {
                 classHallSpeed              = 224098,
                 powerWordFortitude          = 21562,
-                
+
             },
             debuffs                         = {
 
@@ -2692,7 +2707,9 @@ br.lists.spells = {
                 lightningCrash              = 242284, -- T20 - 2 piece buff
                 lightningShield             = 192106,
                 lightningShieldOvercharge   = 273323,
+                naturalHarmonyFire          = 279028,
                 naturalHarmonyFrost         = 279029,
+                naturalHarmonyNature        = 279033,
                 moltenWeapon                = 272664,
                 oldWar                      = 188028,
                 prolongedPower              = 229206,
@@ -3288,6 +3305,7 @@ br.lists.spells = {
                 revenge                     = 5302,
                 shieldBlock                 = 132404,
                 shieldWall                  = 871,
+                spellReflection             = 23920,
                 vengeanceFocusedRage        = 202573,
                 vengeanceIgnorePain         = 202574,
                 vengeanceRevenge            = 202573,
@@ -3424,18 +3442,23 @@ br.lists.spells = {
                 sephuz2                         = 208052, -- the proc, 70% movement, 25% haste buff
                 sephuzCooldown                  = 226262, -- CD (30 seconds) for the proc
                 shadowmeld                      = 58984,
+                symbolOfHope                    = 64901,
                 timeWarp                        = 80353,
                 whispersOfInsanity              = 176151,
                 cracklingTourmaline             = 290372,
                 saphireofBrilliance             = 290365,
                 vigorEngaged                    = 287916,
                 -- Essences
+                guardianOfAzeroth               = 295855,
+                lifeblood                       = 295137,
                 memoryOfLucidDreams             = 298357,
                 recklessForce                   = 302932,
+                recklessForceCounter            = 298452,
                 seethingRage                    = 297126,
             },
             debuffs                             = {
                 concentratedFlame               = 295368,
+                conductiveInk                   = 302565,
                 dampening                       = 110310,
                 eyeOfLeotheras                  = 206649,
                 razorCoral                      = 303568, --304877,
