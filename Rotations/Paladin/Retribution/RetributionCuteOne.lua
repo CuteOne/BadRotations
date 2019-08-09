@@ -1235,7 +1235,7 @@ local runRotation = function()
                 end
                 -- Action List - Interrupts
                 -- rebuke
-                if actionList_Interrupts() then return end
+                if actionList.Interrupts() then return end
                 -- Light's Judgment - Lightforged Draenei Racial
                 if isChecked("Racial") and race == "LightforgedDraenei" and #enemies.yards8 >= 3 then
                     if cast.racial() then debug("Casting Racial: Lightforged Draenei [AOE]") return true end
