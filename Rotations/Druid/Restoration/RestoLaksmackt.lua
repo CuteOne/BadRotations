@@ -797,7 +797,7 @@ local function runRotation()
                                 return true
                             end
                         end
-                        if cast.regrowth(lowest.unit) then
+                        if cast.regrowth(sethObject) then
                             br.addonDebug("[Seth]Regrowth on: " .. sethObject)
                             return true
                         end
