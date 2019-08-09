@@ -1534,9 +1534,8 @@ local function runRotation()
             root_UnitList[155434] = "Emissary of the Tides"
         end
         if isChecked("KR - Minions of Zul") then
-            -- root_UnitList[133943] = "minion-of-zul"
+            root_UnitList[133943] = "minion-of-zul"
            -- root_UnitList[126562] = "minion-of-zul"  testing purpose -  Irritable Deimetradon
-
         end
 
         for i = 1, #enemies.yards40 do
@@ -1554,7 +1553,7 @@ local function runRotation()
                 end
             end
 
-            if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") then
+            if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
                 if cast.able.massEntanglement() and isCC(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then

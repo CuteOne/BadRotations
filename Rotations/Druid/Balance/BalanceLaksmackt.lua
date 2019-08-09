@@ -82,8 +82,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Freehold - pig")
         br.ui:createCheckbox(section, "Freehold - root grenadier")
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
+        br.ui:createCheckbox(section, "KR - Minions of Zul")
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
         br.ui:createCheckbox(section, "Punt Enchanted Emissary")
+        br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 0)
         br.ui:checkSectionState(section)
 
         ------------------------
@@ -391,7 +393,24 @@ local function runRotation()
     astral_def = astral_max - power
 
     --Print(astral_def)
+    local queenBuff = false
 
+    local function noDamageCheck(unit)
+        if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
+            return true
+        end
+        if inInstance and UnitBuffID(unit, 290026) then
+            if not queenBuff and IsSpellInRange(GetSpellInfo(spell.moonfire), unit) == 1 then
+                queenBuff = true
+            end
+            return true
+        end
+        if isCasting(302415, unit) then
+            -- emmisary teleporting home
+            return true
+        end
+        return false
+    end
     local function castBeam(minUnits, safe, minttd)
         if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
             return false
@@ -440,7 +459,7 @@ local function runRotation()
     local aoe_count = 0
     for i = 1, #enemies.yards10tnc do
         local thisUnit = enemies.yards10tnc[i]
-        if ttd(thisUnit) > 4 then
+        if ttd(thisUnit) > 4 and not noDamageCheck(thisUnit) then
             aoe_count = aoe_count + 1
         end
     end
@@ -775,7 +794,7 @@ local function runRotation()
                     thisUnit = "target"
                 end
 
-                if (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
+                if not noDamageCheck(thisUnit) and (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) and not isChecked("Ignore dots during pewbuff")
                         or not (buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()) then
 
                     if isChecked("Safe Dots") and
@@ -954,8 +973,8 @@ local function runRotation()
             end
 
             --    if cast.able.solarWrath() and (azSs < 3 or not buff.caInc.exists() or not prev.solar_wrath) then
-            if cast.able.solarWrath() and
-                    (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1) or not traits.streakingStars.active or not pewbuff) then
+            if cast.able.solarWrath() and not noDamageCheck(units.dyn45)
+                    and (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1) or not traits.streakingStars.active or not pewbuff) then
                 if cast.solarWrath(units.dyn45) then
                     br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                     return
@@ -1211,18 +1230,31 @@ local function runRotation()
             --Enchanted emmisary == 155432
             if isChecked("Punt Enchanted Emissary") and inInstance then
                 if GetObjectID(thisUnit) == 155432 then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 40 then
+                    if #tanks > 0 and getDistance(tank, thisUnit) <= 25 then
+                        br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                         if cast.moonfire(thisUnit) then
-                            br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                             return true
                         end
                     end
                 end
             end
-            if cast.able.entanglingRoots() and not isCC(thisUnit) then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
-                    if cast.entanglingRoots(thisUnit) then
-                        return true
+
+            if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
+                --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
+                if cast.able.massEntanglement() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
+                        if cast.massEntanglement(thisUnit) then
+                            br.addonDebug("Mass Rooting: " .. thisUnit)
+                            return true
+                        end
+                    end
+                end
+                if cast.able.entanglingRoots() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
+                        if cast.entanglingRoots(thisUnit) then
+                            br.addonDebug("Rooting: " .. thisUnit)
+                            return true
+                        end
                     end
                 end
             end
