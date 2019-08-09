@@ -109,7 +109,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Wild Growth", 80, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Wild Growth Targets", 3, 0, 40, 1, "Minimum Wild Growth Targets")
         br.ui:createSpinner(section, "Photosynthesis", 50, 0, 100, 5, "Health % for switching to healer")
-        br.ui:createSpinnerWithout(section, "Photosynthesis Count", 3, 0, 40, 1, "Minimum Wild Growth Targets")
+        br.ui:createSpinnerWithout(section, "Photosynthesis Count", 3, 0, 40, 1, "Minimum hurt Targets")
         br.ui:createCheckbox(section, "pre-hot in combat", "apply pre-hotting while in combat")
 
         br.ui:checkSectionState(section)
@@ -764,7 +764,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Freehold - pig") and select(8, GetInstanceInfo()) == 1754 then
+        if isChecked("Freehold - pig") then
             bossHelper()
         end
 
@@ -1536,7 +1536,7 @@ local function runRotation()
             --Enchanted emmisary == 155432
             if isChecked("Punt Enchanted Emissary") and inInstance then
                 if GetObjectID(thisUnit) == 155432 then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 40 then
+                    if #tanks > 0 and getDistance(tank, thisUnit) <= 25 then
                         br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                         if cast.moonfire(thisUnit) then
                             return true
@@ -1558,6 +1558,11 @@ local function runRotation()
 
     local function heal()
 
+        if #tanks > 0 and inInstance then
+            tank = tanks[1].unit
+        else
+            tank = "Player"
+        end
         if buff.innervate.exists() then
             freemana = true
         else
@@ -1572,6 +1577,49 @@ local function runRotation()
              end
          end
          ]]
+
+        --lifebloom
+        local lifebloom_count = 0
+        -- big dots
+
+        if inInstance and inCombat and br.player.eID and (br.player.eID == 2127 or br.player.eID == 2142) then
+            for i = 1, #br.friend do
+                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
+                    if not buff.lifebloom.exists(br.friend[i].unit) or (buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) < 4.5) then
+                        if cast.lifebloom(br.friend[i].unit) then
+                            br.addonDebug("Lifebloom for big dot on : " .. br.friend[i].unit)
+                            return true
+                        end
+                    end
+                end
+            end
+        else
+            if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
+                if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
+                    if cast.lifebloom(tank) then
+                        br.addonDebug("Lifebloom on tank")
+                        return true
+                    end
+                end
+            elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
+                for i = 1, #br.friend do
+                    if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
+                        lifebloom_count = lifebloom_count + 1
+                    end
+                end
+                if lifebloom_count >= getValue("Photosynthesis Count") and (not buff.lifebloom.exists("Player") or (buff.lifebloom.exists("player") and buff.lifebloom.remain("player") < 4.5 and php < 80)) then
+                    if cast.lifebloom("player") then
+                        br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                        return true
+                    end
+                elseif lifebloom_count < getValue("Photosynthesis Count") and (not buff.lifebloom.exists(tanks[1].unit) or (buff.lifebloom.exists(tanks[1].unit) and buff.lifebloom.remain(tanks[1].unit) < 4.5 and tanks[1].hp < 80)) then
+                    if cast.lifebloom(tanks[1].unit) then
+                        br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                        return true
+                    end
+                end
+            end
+        end
 
         for i = 1, #br.friend do
             if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
@@ -1656,50 +1704,6 @@ local function runRotation()
                 return true
             end
         end
-
-
-        --lifebloom
-
-        -- big dots
-        if inInstance and inCombat and (GetMinimapZoneText() == "Ballroom" or GetMinimapZoneText() == "Chamber of Eternal Preservation") then
-            for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
-                    if not buff.lifebloom.exists(br.friend[i].unit) or (buff.lifebloom.exists(br.friend[i].unit) and buff.lifebloom.remain(br.friend[i].unit) < 4.5) then
-                        if cast.lifebloom(br.friend[i].unit) then
-                            br.addonDebug("Lifebloom for big dot on : " .. br.friend[i].unit)
-                            return true
-                        end
-                    end
-                end
-            end
-        else
-            if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
-                if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
-                    if cast.lifebloom(tank) then
-                        br.addonDebug("Lifebloom on tank")
-                        return true
-                    end
-                end
-            elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
-                for i = 1, #br.friend do
-                    if UnitInRange(br.friend[i].unit) then
-                        local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Photosynthesis"), #br.friend)
-                        if #lowHealthCandidates >= getValue("Photosynthesis Count") and not (buff.lifebloom.exists("Player")) then
-                            if cast.lifebloom("Player") then
-                                br.addonDebug("Lifebloom on healer - [" .. #lowHealthCandidates .. "] are under [" .. getValue("Photosynthesis Count") .. "]")
-                                return true
-                            end
-                        elseif #lowHealthCandidates < getValue("Photosynthesis Count") and not (buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80)) then
-                            if cast.lifebloom(tank) then
-                                br.addonDebug("Lifebloom on tank(photo)")
-                                return true
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
 
         -- Rejuvenation
         if isChecked("Rejuvenation") then
