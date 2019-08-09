@@ -877,8 +877,8 @@ actionList.Opener = function()
                     opener.count = opener.count - 1
                 elseif talent.hammerOfWrath then
                     if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWarth","HOW2",opener.count)
-                    elseif cast.able.hammerOfWarth() then
+                        castOpenerFail("hammerOfWrath","HOW2",opener.count)
+                    elseif cast.able.hammerOfWrath() then
                         castOpener("hammerOfWrath","HOW2",opener.count)
                     end
                 else
@@ -929,8 +929,8 @@ actionList.Opener = function()
                     opener.count = opener.count - 1
                 elseif talent.hammerOfWrath then
                     if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWarth","HOW3",opener.count)
-                    elseif cast.able.hammerOfWarth() then
+                        castOpenerFail("hammerOfWrath","HOW3",opener.count)
+                    elseif cast.able.hammerOfWrath() then
                         castOpener("hammerOfWrath","HOW3",opener.count)
                     end
                 else
@@ -1008,8 +1008,8 @@ actionList.Opener = function()
                     opener.count = opener.count - 1
                 elseif talent.hammerOfWrath then
                     if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWarth","HOW4",opener.count)
-                    elseif cast.able.hammerOfWarth() then
+                        castOpenerFail("hammerOfWrath","HOW4",opener.count)
+                    elseif cast.able.hammerOfWrath() then
                         castOpener("hammerOfWrath","HOW4",opener.count)
                     end
                 else
