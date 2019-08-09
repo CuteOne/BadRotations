@@ -71,6 +71,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Break form for dispel", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
+        br.ui:createCheckbox(section, "auto dash", 1)
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold to trust hots to do the job")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
@@ -78,6 +79,9 @@ local function createOptions()
         br.ui:createCheckbox(section, "Freehold - pig")
         br.ui:createCheckbox(section, "Freehold - root grenadier")
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
+        br.ui:createCheckbox(section, "KR - Minions of Zul")
+
+        --
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
         br.ui:createCheckbox(section, "Punt Enchanted Emissary")
         --("Emissary of the Tides"
@@ -1529,6 +1533,11 @@ local function runRotation()
         if isChecked("All - root Emissary of the Tides") then
             root_UnitList[155434] = "Emissary of the Tides"
         end
+        if isChecked("KR - Minions of Zul") then
+            -- root_UnitList[133943] = "minion-of-zul"
+           -- root_UnitList[126562] = "minion-of-zul"  testing purpose -  Irritable Deimetradon
+
+        end
 
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
@@ -1544,11 +1553,23 @@ local function runRotation()
                     end
                 end
             end
-            if cast.able.entanglingRoots() and isCC(thisUnit) and thisUnit.hp > 90 then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
-                    if cast.entanglingRoots(thisUnit) then
-                        br.addonDebug("Rooting: " .. thisUnit)
-                        return true
+
+            if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") then
+                --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
+                if cast.able.massEntanglement() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
+                        if cast.massEntanglement(thisUnit) then
+                            br.addonDebug("Mass Rooting: " .. thisUnit)
+                            return true
+                        end
+                    end
+                end
+                if cast.able.entanglingRoots() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
+                        if cast.entanglingRoots(thisUnit) then
+                            br.addonDebug("Rooting: " .. thisUnit)
+                            return true
+                        end
                     end
                 end
             end
