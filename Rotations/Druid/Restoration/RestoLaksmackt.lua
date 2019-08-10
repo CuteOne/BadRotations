@@ -1543,8 +1543,8 @@ local function runRotation()
 
             --Enchanted emmisary == 155432
             if isChecked("Punt Enchanted Emissary") and inInstance then
-                if GetObjectID(thisUnit) == 155432 then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 25 then
+                if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
+                    if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
                         br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                         if cast.moonfire(thisUnit) then
                             return true
@@ -1555,7 +1555,7 @@ local function runRotation()
 
             if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
-                if cast.able.massEntanglement() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.massEntanglement() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.massEntanglement(thisUnit) then
                             br.addonDebug("Mass Rooting: " .. thisUnit)
@@ -1563,7 +1563,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.entanglingRoots() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.entanglingRoots() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.entanglingRoots(thisUnit) then
                             br.addonDebug("Rooting: " .. thisUnit)
