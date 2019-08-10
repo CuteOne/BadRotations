@@ -67,6 +67,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Fel Devastation")
         -- Throw Glaive 
             br.ui:createCheckbox(section,"Throw Glaive")
+        -- Use Cyclotronic on Pull
+            br.ui:createCheckbox(section,"Cyclotronic on Pull")
         -- Infernal Strike Key
             br.ui:createDropdown(section,"Infernal Strike Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to manually infernal strike")
         -- Sigil of Chains Key
@@ -263,8 +265,15 @@ local function runRotation()
         end
 
         local function trinketLogic(slot)
-            if not hasEquiped(165572,slot) and not hasEquiped(167868,slot) and not hasEquiped(169311,slot) and php <= getOptionValue("Trinket 1") then
-                br.addonDebug("Using Trinket 1")
+            if not hasEquiped(165572,slot) and not hasEquiped(167868,slot) and not hasEquiped(169311,slot) and not hasEquiped(167555,slot) and ((slot == 13 and php <= getOptionValue("Trinket 1")) or slot == 14 and php <= getOptionValue("Trinket 2")) then
+                if slot == 13 then
+                    br.addonDebug("Using Trinket 1")
+                elseif slot == 14 then
+                    br.addonDebug("Using Trinket 2")
+                end
+                useItem(slot)
+            elseif hasEquiped(167555,slot) and br.timer:useTimer("Cyclo Delay",3) then
+                br.addonDebug("Using Cyclotronic Blast")
                 useItem(slot)
             elseif hasEquiped(165572,slot) then
                 if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
@@ -335,7 +344,7 @@ local function runRotation()
 		local function actionList_Defensive()
 			if useDefensive() then
         -- Demon Spikes
-                if isChecked("Demon Spikes") and inCombat and ((charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and php <= getOptionValue("Demon Spikes")) or charges.demonSpikes.count() == 2) and #enemies.yards8 > 0 then
+                if isChecked("Demon Spikes") and br.timer:useTimer("Spikes delay", 2) and inCombat and ((charges.demonSpikes.count() > getOptionValue("Hold Demon Spikes") and php <= getOptionValue("Demon Spikes")) or charges.demonSpikes.count() == 2) and #enemies.yards8 > 0 then
                     if not buff.demonSpikes.exists() and not debuff.fieryBrand.exists("target") and not buff.metamorphosis.exists() then
                         if cast.demonSpikes() then br.addonDebug("Casting Demon Spikes") return end
                     end
@@ -410,22 +419,22 @@ local function runRotation()
                 for i=1, #enemies.yards30 do
                     thisUnit = enemies.yards30[i]
                      -- Disrupt
-                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if canInterrupt(thisUnit,getOptionValue("Interrupt At")) and (sigilDelay == nil or GetTime() - sigilDelay > 2) then
                         if isChecked("Disrupt") and getDistance(thisUnit) < 20 and cd.disrupt.remain() <= gcd then
                             if cast.disrupt(thisUnit) then br.addonDebug("Casting Disrupt") return end
                         -- Sigil of Silence
                         elseif isChecked("Sigil of Silence") and cd.sigilOfSilence.remain() <= gcd then
                             if not talent.concentratedSigils then
-                                if cast.sigilOfSilence(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Silence") return end
+                                if cast.sigilOfSilence(thisUnit,"ground",1,8) then sigilDelay = GetTime() br.addonDebug("Casting Sigil of Silence") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
-                                if cast.sigilOfSilence() then br.addonDebug("Casting Sigil of Silence") return end
+                                if cast.sigilOfSilence() then sigilDelay = GetTime() br.addonDebug("Casting Sigil of Silence") return end
                             end
                         -- Sigil of Misery
                         elseif isChecked("Sigil of Misery") and cd.sigilOfMisery.remain() <= gcd then
                             if not talent.concentratedSigils then
-                                if cast.sigilOfMisery(thisUnit,"ground",1,8) then br.addonDebug("Casting Sigil of Misery") return end
+                                if cast.sigilOfMisery(thisUnit,"ground",1,8) then sigilDelay = GetTime() br.addonDebug("Casting Sigil of Misery") return end
                             elseif talent.concentratedSigils and getDistance(thisUnit) <= 8 then
-                                if cast.sigilOfMisery() then br.addonDebug("Casting Sigil of Misery") return end
+                                if cast.sigilOfMisery() then sigilDelay = GetTime() br.addonDebug("Casting Sigil of Misery") return end
                             end
                         elseif isChecked("Imprison") and cd.imprison.remain() <= gcd then
                             local type = UnitCreatureType(thisUnit)
@@ -478,7 +487,14 @@ local function runRotation()
                         end
                     end
                 end
+                if isChecked("Cyclotronic on Pull") and pullTimer <= 2 then
+                    if hasEquiped(167555) and canUseItem(167555) and br.timer:useTimer("Cyclo Delay",3) then
+                        br.addonDebug("Using Cyclotronic Blast")
+                        useItem(167555)
+                    end
+                end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                    
                     if isChecked("Worldvein Resonance") and essence.worldveinResonance.active and cd.worldveinResonance.remain() <= gcd then
                         if cast.worldveinResonance() then br.addonDebug("Casting Worldvein Resonance") return end
                     end
@@ -550,7 +566,7 @@ local function runRotation()
                 and not debuff.fieryBrand.exists("target") and not buff.metamorphosis.exists() then
                     if cast.metamorphosis() then br.addonDebug("Casting Metamorphosis (Active Mitigation)") return end
                 -- Demon Spikes
-                elseif isChecked("Demon Spikes") and charges.demonSpikes.count() > 0 then
+                elseif isChecked("Demon Spikes") and charges.demonSpikes.count() > 0 and br.timer:useTimer("Spikes delay", 1) then
                     if not buff.demonSpikes.exists() and not debuff.fieryBrand.exists("target") and not buff.metamorphosis.exists() then
                         if cast.demonSpikes() then br.addonDebug("Casting Demon Spikes (Active Mitigation)") return end
                     end
@@ -616,8 +632,13 @@ local function runRotation()
                      StartAttack()
                  end
 				-- Consume Magic
-				if isChecked("Consume Magic") and canDispel("target",spell.consumeMagic) and GetObjectExists("target") then
-					if cast.consumeMagic("target") then br.addonDebug("Casting Consume Magic") return end
+                if isChecked("Consume Magic") then
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
+                        if canDispel(thisUnit,spell.consumeMagic) then
+                            if cast.consumeMagic(thisUnit) then br.addonDebug("Casting Consume Magic") return end
+                        end
+                    end
                 end
                 --CDs
                 if actionList_Cooldowns() then return end
