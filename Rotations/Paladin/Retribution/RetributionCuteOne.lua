@@ -474,7 +474,7 @@ actionList.Defensive = function()
                 if cast.flashOfLight(folUnit) then debug("Casting Flash of Light on "..UnitName(folUnit).." [Instant]") return true end
             end
             -- Long Cast
-            folHP = getHP(br.friend[1])
+            folHP = getHP(br.friend[1].unit)
             if not isMoving("player") and (forceHeal or (inCombat and folHP <= folValue / 2) or (not inCombat and folHP <= folValue)) then
                 if cast.flashOfLight(folUnit) then debug("Casting Flash of Light on "..UnitName(folUnit).." [Long]") return true end
             end
@@ -789,6 +789,7 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
+            -- Blade of Judgment
             elseif opener.AW1 and not opener.BOJ1 then
                 if cd.bladeOfJustice.remain() > gcd then
                     castOpenerFail("bladeOfJustice","BOJ1",opener.count)
@@ -797,6 +798,7 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
+            -- Judgment
             elseif opener.BOJ1 and not opener.JUD1 then
                 if cd.judgment.remain() > gcd then
                     castOpenerFail("judgment","JUD1",opener.count)
@@ -805,19 +807,9 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.JUD1 and not opener.CS1 then
-                if ((not talent.inquisition or holyPower == 0) and (not talent.crusade or cd.crusade.remain() > gcd)) or not talent.divineJudgment then
-                    opener.CS1 = true
-                    opener.count = opener.count - 1
-                elseif charges.crusaderStrike.count() < 1 then
-                    castOpenerFail("crusaderStrike","CS1",opener.count)
-                elseif cast.able.crusaderStrike() then
-                    castOpener("crusaderStrike","CS1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.CS1 and not opener.HOW1 then
-                if not talent.divinePurpose then
+            -- Hammer of Wrath - Divine Purpose w/ Divine Judgment or Consecration 
+            elseif opener.JUD1 and not opener.HOW1 then
+                if not talent.hammerOfWrath or not talent.divinePurpose or (not talent.divineJudgment and not talent.consecration) then
                     opener.HOW1 = true
                     opener.count = opener.count - 1
                 elseif cd.hammerOfWrath.remain() > gcd then
@@ -827,18 +819,20 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.HOW1 and not opener.INQ1 then
-                if not talent.inquisition or not talent.divineJudgment then
-                    opener.INQ1 = true
+            -- Crusader Strike - Crusade w/ Divine Judgment
+            elseif opener.HOW1 and not opener.CS1 then
+                if not talent.crusade or cd.crusade.remain() > gcd or not talent.divineJudgment then
+                    opener.CS1 = true
                     opener.count = opener.count - 1
-                elseif holyPower == 0 then
-                    castOpenerFail("inquisition","INQ1",opener.count)
-                elseif cast.able.inquisition() then
-                    castOpener("inquisition","INQ1",opener.count)
+                elseif charges.crusaderStrike.count() < 1 then
+                    castOpenerFail("crusaderStrike","CS1",opener.count)
+                elseif cast.able.crusaderStrike() then
+                    castOpener("crusaderStrike","CS1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.INQ1 and not opener.CON1 then
+            -- Consecration
+            elseif opener.CS1 and not opener.CON1 then
                 if not talent.consecration then
                     opener.CON1 = true
                     opener.count = opener.count - 1
@@ -849,48 +843,8 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.CON1 and not opener.AW2 then
-                if not talent.avengingWrath or not (talent.inquisition and talent.divineJudgment) then
-                    opener.AW2 = true
-                    opener.count = opener.count - 1
-                elseif cd.avengingWrath.remain() > gcd then
-                    castOpenerFail("avengingWrath","AW2",opener.count)
-                elseif cast.able.avengingWrath() then
-                    castOpener("avengingWrath","AW2",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.AW2 and not opener.CRU1 then
-                if not talent.crusade then
-                    opener.CRU1 = true
-                    opener.count = opener.count - 1
-                elseif cd.crusade.remain() > gcd then
-                    castOpenerFail("crusade","CRU1",opener.count)
-                elseif cast.able.crusade() then
-                    castOpener("crusade","CRU1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.CRU1 and not opener.HOW2 then
-                if not talent.inquisition and not talent.divineJudgment then
-                    opener.HOW2 = true
-                    opener.count = opener.count - 1
-                elseif talent.hammerOfWrath then
-                    if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWrath","HOW2",opener.count)
-                    elseif cast.able.hammerOfWrath() then
-                        castOpener("hammerOfWrath","HOW2",opener.count)
-                    end
-                else
-                    if charges.crusaderStrike.count() < 1 then
-                        castOpenerFail("crusaderStrike","HOW2",opener.count)
-                    elseif cast.able.crusaderStrike() then
-                        castOpener("crusaderStrike","HOW2",opener.count)
-                    end
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.HOW2 and not opener.CS2 then
+            -- Crusader Strike - Inquisition w/ Divine Judgment or Consecration
+            elseif opener.CON1 and not opener.CS2 then
                 if not talent.inquisition or (not talent.divineJudgment and not talent.consecration) then
                     opener.CS2 = true
                     opener.count = opener.count - 1
@@ -901,49 +855,69 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.CS2 and not opener.INQ2 then
-                if not talent.inquisition or (not talent.wakeOfAshes and not talent.consecration) then
-                    opener.INQ2 = true
+            -- Inquisition
+            elseif opener.CS2 and not opener.INQ1 then
+                if not talent.inquisition then
+                    opener.INQ1 = true
                     opener.count = opener.count - 1
                 elseif holyPower == 0 then
-                    castOpenerFail("inquisition","INQ2",opener.count)
+                    castOpenerFail("inquisition","INQ1",opener.count)
                 elseif cast.able.inquisition() then
-                    castOpener("inquisition","INQ2",opener.count)
+                    castOpener("inquisition","INQ1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.INQ2 and not opener.AW3 then
-                if not talent.avengingWrath or not talent.inquisition or (not talent.wakeOfAshes and not talent.consecration) then
-                    opener.AW3 = true
+            -- Avenging Wrath - Inquisition
+            elseif opener.INQ1 and not opener.AW2 then
+                if not talent.inquisition then
+                    opener.AW2 = true
                     opener.count = opener.count - 1
                 elseif cd.avengingWrath.remain() > gcd then
-                    castOpenerFail("avengingWrath","AW3",opener.count)
+                    castOpenerFail("avengingWrath","AW2",opener.count)
                 elseif cast.able.avengingWrath() then
-                    castOpener("avengingWrath","AW3",opener.count)
+                    castOpener("avengingWrath","AW2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.AW3 and not opener.HOW3 then
-                if not talent.inquisition and not talent.consecration then
-                    opener.HOW3 = true
+            -- Wake of Ashes - Inquisition
+            elseif opener.AW2 and not opener.WOA1 then
+                if not talent.wakeOfAshes or not talent.inquisition then
+                    opener.WOA1 = true
                     opener.count = opener.count - 1
-                elseif talent.hammerOfWrath then
-                    if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWrath","HOW3",opener.count)
-                    elseif cast.able.hammerOfWrath() then
-                        castOpener("hammerOfWrath","HOW3",opener.count)
-                    end
-                else
-                    if charges.crusaderStrike.count() < 1 then
-                        castOpenerFail("crusaderStrike","HOW3",opener.count)
-                    elseif cast.able.crusaderStrike() then
-                        castOpener("crusaderStrike","HOW3",opener.count)
-                    end
+                elseif cd.wakeOfAshes.remain() > gcd then
+                    castOpenerFail("wakeOfAshes","WOA1",opener.count)
+                elseif cast.able.wakeOfAshes() then
+                    castOpener("wakeOfAshes","WOA1",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.HOW3 and not opener.ES1 then
-                if not talent.crusade and not talent.divinePurpose then
+            -- Crusade
+            elseif opener.WOA1 and not opener.CRU1 then
+                if not talent.crusade then
+                    opener.CRU1 = true
+                    opener.count = opener.count - 1
+                elseif cd.crusade.remain() > gcd then
+                    castOpenerFail("crusade","CRU1",opener.count)
+                elseif cast.able.crusade() then
+                    castOpener("crusade","CRU1",opener.count)
+                end
+                opener.count = opener.count + 1
+                return   
+            -- Hammer of Wrath - Crusade w/ Divine Judgment or Consecration 
+            elseif opener.CRU1 and not opener.HOW2 then
+                if not talent.hammerOfWrath or not talent.crusade or (not talent.divineJudgment and not talent.consecration) then
+                    opener.HOW2 = true
+                    opener.count = opener.count - 1
+                elseif cd.hammerOfWrath.remain() > gcd then
+                    castOpenerFail("hammerOfWrath","HOW2",opener.count)
+                elseif cast.able.hammerOfWrath() then
+                    castOpener("hammerOfWrath","HOW2",opener.count)
+                end
+                opener.count = opener.count + 1
+                return
+            -- Execution Sentence or Templar's Verdict - (Inquisition w/ Wake of Ashes) or Crusade or Divine Purpose
+            elseif opener.HOW2 and not opener.ES1 then
+                if not (talent.inquisition and talent.wakeOfAshes) and not talent.crusade and not talent.divinePurpose then
                     opener.ES1 = true
                     opener.count = opener.count - 1
                 elseif talent.executionSentence then
@@ -961,19 +935,65 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.ES1 and not opener.WOA1 then
-                if not talent.wakeOfAshes then
-                    opener.WOA1 = true
+            -- Wake of Ashes - Crusade or Divine Purpose
+            elseif opener.ES1 and not opener.WOA2 then
+                if not talent.wakeOfAshes or (not talent.crusade and not talent.divinePurpose) then
+                    opener.WOA2 = true
                     opener.count = opener.count - 1
                 elseif cd.wakeOfAshes.remain() > gcd then
-                    castOpenerFail("wakeOfAshes","WOA1",opener.count)
+                    castOpenerFail("wakeOfAshes","WOA2",opener.count)
                 elseif cast.able.wakeOfAshes() then
-                    castOpener("wakeOfAshes","WOA1",opener.count)
+                    castOpener("wakeOfAshes","WOA2",opener.count)
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.WOA1 and not opener.ES2 then
-                if not talent.inquisition or not talent.wakeOfAshes then
+            -- Templar's Verdict - Wake of Ashes w/ Crusade or Divine Purpose
+            elseif opener.WOA2 and not opener.TV1 then
+                if not talent.wakeOfAshes or (not talent.crusade and not talent.divinePurpose) then
+                    opener.TV1 = true
+                    opener.count = opener.count - 1
+                elseif holyPower < 3 then
+                    castOpenerFail("templarsVerdict","TV1",opener.count)
+                elseif cast.able.templarsVerdict() and holyPower >= 3 then
+                    castOpener("templarsVerdict","TV1",opener.count)
+                end
+                opener.count = opener.count + 1
+                return
+            -- Hammer of Wrath or Crusader Strike - (Wake of Ashes w/ Crusade or Divine Purpose) or Inquisition
+            elseif opener.TV1 and not opener.HOW3 then
+                if (not talent.wakeOfAshes or (not talent.crusade and not talent.divinePurpose)) and not talent.inquisition then
+                    opener.HOW3 = true
+                    opener.count = opener.count - 1
+                elseif talent.hammerOfWrath then
+                    if cd.hammerOfWrath.remain() > gcd then
+                        castOpenerFail("hammerOfWrath","HOW3",opener.count)
+                    elseif cast.able.hammerOfWrath() then
+                        castOpener("hammerOfWrath","HOW3",opener.count)
+                    end
+                else
+                    if charges.crusaderStrike.count() < 1 then
+                        castOpenerFail("crusaderStrike","HOW3",opener.count)
+                    elseif cast.able.crusaderStrike() then
+                        castOpener("crusaderStrike","HOW3",opener.count)
+                    end
+                end
+                opener.count = opener.count + 1
+                return
+            -- Crusader Strike - Inquisition w/ Divine Judgment
+            elseif opener.HOW3 and not opener.CS3 then
+                if not talent.inquisition or not talent.divineJudgment then
+                    opener.CS3 = true
+                    opener.count = opener.count - 1
+                elseif charges.crusaderStrike.count() < 1 then
+                    castOpenerFail("crusaderStrike","CS3",opener.count)
+                elseif cast.able.crusaderStrike() then
+                    castOpener("crusaderStrike","CS3",opener.count)
+                end
+                opener.count = opener.count + 1
+                return
+            -- Execution Sentence or Templar's Verdict - Inquisition w/ Divine Judgment or Consecration
+            elseif opener.CS3 and not opener.ES2 then
+                if not talent.inquisition or (not talent.divineJudgment and not talent.consecration) then
                     opener.ES2 = true
                     opener.count = opener.count - 1
                 elseif talent.executionSentence then
@@ -991,37 +1011,8 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
-            elseif opener.ES2 and not opener.TV1 then
-                if not talent.wakeOfAshes or (not talent.crusade and not talent.divinePurpose) then
-                    opener.TV1 = true
-                    opener.count = opener.count - 1
-                elseif holyPower < 3 then
-                    castOpenerFail("templarsVerdict","TV1",opener.count)
-                elseif cast.able.templarsVerdict() and holyPower >= 3 then
-                    castOpener("templarsVerdict","TV1",opener.count)
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.TV1 and not opener.HOW4 then
-                if not talent.wakeOfAshes then
-                    opener.HOW4 = true
-                    opener.count = opener.count - 1
-                elseif talent.hammerOfWrath then
-                    if cd.hammerOfWrath.remain() > gcd then
-                        castOpenerFail("hammerOfWrath","HOW4",opener.count)
-                    elseif cast.able.hammerOfWrath() then
-                        castOpener("hammerOfWrath","HOW4",opener.count)
-                    end
-                else
-                    if charges.crusaderStrike.count() < 1 then
-                        castOpenerFail("crusaderStrike","HOW4",opener.count)
-                    elseif cast.able.crusaderStrike() then
-                        castOpener("crusaderStrike","HOW4",opener.count)
-                    end
-                end
-                opener.count = opener.count + 1
-                return
-            elseif opener.HOW4 and not opener.TV2 then
+            -- Templar's Verdict - Wake of Ashes
+            elseif opener.ES2 and not opener.TV2 then
                 if not talent.wakeOfAshes then
                     opener.TV2 = true
                     opener.count = opener.count - 1
@@ -1032,6 +1023,7 @@ actionList.Opener = function()
                 end
                 opener.count = opener.count + 1
                 return
+            -- Finish
             elseif opener.TV2 and opener.OPN1 then
                 Print("Opener Complete")
                 opener.count = 0
@@ -1166,26 +1158,22 @@ local runRotation = function()
         opener.AW1      = false
         opener.BOJ1     = false
         opener.JUD1     = false
-        opener.CS1      = false
         opener.HOW1     = false
-        opener.INQ1     = false
+        opener.CS1      = false
         opener.CON1     = false
+        opener.CS2      = false
+        opener.INQ1     = false
         opener.AW2      = false
+        opener.WOA1     = false
         opener.CRU1     = false
         opener.HOW2     = false
-        opener.CS3      = false
-        opener.INQ2     = false
-        opener.AW3      = false
-        opener.HOW3     = false
         opener.ES1      = false
+        opener.WOA2     = false
         opener.TV1      = false
-        opener.WOA1     = false
+        opener.HOW3     = false
+        opener.CS3      = false
         opener.ES2      = false
         opener.TV2      = false
-        opener.TV3      = false
-        opener.HOW4     = false
-        opener.CS4      = false
-        opener.TV4      = false
     end
 
     -- Find Lowest Unit / Greater Buff Unit
