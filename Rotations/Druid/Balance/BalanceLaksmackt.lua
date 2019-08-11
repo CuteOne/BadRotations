@@ -399,18 +399,22 @@ local function runRotation()
         if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
             return true
         end
+        --[[
         if inInstance and UnitBuffID(unit, 290026) then
             if not queenBuff and IsSpellInRange(GetSpellInfo(spell.moonfire), unit) == 1 then
                 queenBuff = true
             end
             return true
         end
+        ]]
         if isCasting(302415, unit) then
             -- emmisary teleporting home
             return true
         end
         return false
     end
+
+
     local function castBeam(minUnits, safe, minttd)
         if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
             return false
@@ -1204,6 +1208,7 @@ local function runRotation()
     local function root_cc()
 
 
+
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") then
             root_UnitList[129758] = "Irontide Grenadier"
@@ -1261,7 +1266,6 @@ local function runRotation()
 
         end
     end
-
     local function PreCombat()
         -- Pre-Pull Timer
         if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
