@@ -313,10 +313,15 @@ local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
     end
+    --[[
     if inInstance and UnitBuffID(unit, 290026) then
         if not queenBuff and IsSpellInRange(GetSpellInfo(spell.crusaderStrike), unit) == 1 then
             queenBuff = true
         end
+        return true
+    end
+    ]]
+    if inInstance and isCasting(302415, unit) then
         return true
     end
     return false
