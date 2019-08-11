@@ -500,13 +500,6 @@ local function runRotation()
 			end
 		end
 			
-		-- Lucid Dreams
-		-- actions+=/memory_of_lucid_dreams,if=!buff.recklessness.up
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
-            if cast.memoryOfLucidDreams("player") then
-                return
-            end
-        end
         -- Rampage
         if buff.recklessness.exists("player") or (rage >= 75) or not buff.enrage.exists("player") then
             if cast.rampage() then
@@ -518,6 +511,14 @@ local function runRotation()
 		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
         if not buff.recklessness.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
+                return
+            end
+        end
+
+		-- Lucid Dreams
+		-- actions+=/memory_of_lucid_dreams,if=!buff.recklessness.up
+        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+            if cast.memoryOfLucidDreams("player") then
                 return
             end
         end
@@ -579,7 +580,7 @@ local function runRotation()
         end
 
         -- Bladestorm Single target
-        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and useCDs() then
+        if buff.enrage.exists("player") and isChecked("Bladestorm Units") and br.player.mode.cooldown ~= 3 and isBoss("target") then
             if cast.bladestorm() then
                 return
             end
@@ -809,6 +810,9 @@ local function runRotation()
         RunMacroText("/follow")
     end
 
+    if isCastingSpell(295258) then 
+        return true
+    end
     ---------------------
     --- Begin Profile ---
     ---------------------

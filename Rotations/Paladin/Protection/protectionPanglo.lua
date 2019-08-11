@@ -164,6 +164,7 @@ local function createOptions()
 		br.ui:createCheckbox(section, "Judgment")
 		-- Shield of the Righteous
 		br.ui:createCheckbox(section, "Shield of the Righteous")
+		br.ui:createCheckbox(section, "Dev Testing Stuff", "This option will break your rotation, leave it off")
 		br.ui:checkSectionState(section)
 	end
 	optionTable = {
@@ -398,7 +399,7 @@ local function runRotation()
 				end
 			end
 		end
-	end -- End Action List - Extras
+	end -- end Action List - Extras
 	local function BossEncounterCase()
 		local hammerOfJusticeCase = nil
 		local blessingOfFreedomCase = nil
@@ -928,7 +929,7 @@ local function runRotation()
 				end
 			end
 		end
-	end -- End Action List - Defensive
+	end -- end Action List - Defensive
 	-- Action List - Cooldowns
 	local function actionList_Cooldowns()
 		if useCDs() or burst then
@@ -985,14 +986,26 @@ local function runRotation()
 					end
 				end
 			end
-		end -- End Cooldown Usage Check
-	end -- End Action List - Cooldowns
+		end -- end Cooldown Usage Check
+	end -- end Action List - Cooldowns
 	-- Action List - Interrupts
 	local function actionList_Interrupts()
 		if useInterrupts() then
-			if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
-				for i = 1, #enemies.yards30 do
-					local thisUnit = enemies.yards30[i]
+			if isChecked("Dev Testing Stuff") then
+				if isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
+					for i = 1, #enemies.yards30 do
+						local thisUnit = enemies.yards30[i]
+						if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
+							if cast.avengersShield(thisUnit) then
+								return
+							end
+							InterruptTime = GetTime()
+						end
+					end
+				end
+			elseif isChecked("Avenger's Shield - INT") and cast.able.avengersShield() then
+				for i = 1, #enemies.yards30f do
+					local thisUnit = enemies.yards30f[i]
 					if canInterrupt(thisUnit, 95) and UnitCastingInfo(thisUnit) ~= GetSpellInfo(257899) then
 						if cast.avengersShield(thisUnit) then
 							return
@@ -1027,7 +1040,7 @@ local function runRotation()
 				end
 			end
 		end
-	end -- End Action List - Interrupts
+	end -- end Action List - Interrupts
 	local function actionList_Feng()
 		-- Shield of the Righteous
 		if isChecked("Shield of the Righteous") and cast.able.shieldOfTheRighteous() and GetUnitExists(units.dyn5) and not buff.shieldOfTheRighteous.exists("player") then
@@ -1051,21 +1064,44 @@ local function runRotation()
 			end
 		end
 		-- Judgment
-		for i = 1, #enemies.yards30 do
-			local thisUnit 
-			if mode.rotation == 1 then
-				thisUnit = enemies.yards30[i]
-			elseif mode.rotation == 2 then
-				thisUnit = "target"
+		if isChecked("Dev Testing Stuff") then
+			for i = 1, #enemies.yards30 do
+				local thisUnit 
+				if mode.rotation == 1 then
+					thisUnit = enemies.yards30[i]
+				elseif mode.rotation == 2 then
+					thisUnit = "target"
+				end
+				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() > 1) or not talent.crusadersJudgment) then  
+					if not debuff.judgmentOfLight.exists("target") or not talent.judgmentOfLight then
+						if cast.judgment("target") then return end
+					elseif (((talent.judgmentOfLight and not debuff.judgmentOfLight.exists(thisUnit)) or not talent.judgmentOfLight) or 
+							debuff.judgmentOfLight.count() >= #enemies.yards10) then
+						if cast.judgment(thisUnit) then
+							--Print("Judge")
+							return
+						end
+					end
+				end
 			end
-			if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() > 1) or not talent.crusadersJudgment) then  
-				if not debuff.judgmentOfLight.exists("target") or not talent.judgmentOfLight then
-					if cast.judgment("target") then return end
-				elseif (((talent.judgmentOfLight and not debuff.judgmentOfLight.exists(thisUnit)) or not talent.judgmentOfLight) or 
-						debuff.judgmentOfLight.count() >= #enemies.yards10) then
-					if cast.judgment(thisUnit) then
-						--Print("Judge")
-						return
+		end
+		if not isChecked("Dev Testing Stuff") then 
+			for i = 1, #enemies.yards30f do
+				local thisUnit 
+				if mode.rotation == 1 then
+					thisUnit = enemies.yards30f[i]
+				elseif mode.rotation == 2 then
+					thisUnit = "target"
+				end
+				if isChecked("Judgment") and cast.able.judgment() and ((talent.crusadersJudgment and charges.judgment.frac() > 1) or not talent.crusadersJudgment) then  
+					if not debuff.judgmentOfLight.exists("target") or not talent.judgmentOfLight then
+						if cast.judgment("target") then return end
+					elseif (((talent.judgmentOfLight and not debuff.judgmentOfLight.exists(thisUnit)) or not talent.judgmentOfLight) or 
+							debuff.judgmentOfLight.count() >= #enemies.yards10) then
+						if cast.judgment(thisUnit) then
+							--Print("Judge")
+							return
+						end
 					end
 				end
 			end
@@ -1120,7 +1156,7 @@ local function runRotation()
 	-- Action List - PreCombat
 	local function actionList_PreCombat()
 		-- PreCombat abilities listed here
-	end -- End Action List - PreCombat
+	end -- end Action List - PreCombat
 	---------------------
 	--- Begin Profile ---
 	---------------------
@@ -1190,8 +1226,8 @@ local function runRotation()
 			if actionList_Feng() then
 				return
 			end
-		end -- End In Combat
-	end -- End Profile
+		end -- end In Combat
+	end -- end Profile
 	-- end -- Timer
 end -- runRotation
 local id = 66
