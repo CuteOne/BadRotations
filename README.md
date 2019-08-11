@@ -142,18 +142,18 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 
 - Moonkin
 
-author  | support | patch | status |     raidable?
-:------ | :-----: | :---: | -----: | :----------------:
-Aura    |  None   | 8.1   |   80%  | :interrobang:
-
+author           | support | patch | status |     raidable?
+:--------------- | :-----: | :---: | -----: | :----------------:
+Aura             |  None   | 8.1   |   80%  | :interrobang:
+Laksmackt        |  Full   | 8.2   |   100%  | :white_check_mark:
 - Restoration
 
-author | support | patch | status |     raidable?
-:----- | :-----: | :---: | -----: | :----------------:
-Aura   |  Full   | 8.2   |   99%  | :white_check_mark:
+author           | support | patch | status |     raidable?
+:--------------- | :-----: | :---: | -----: | :----------------:
+Aura             |  Full   | 8.2   |   99%  | :white_check_mark:
+Laksmackt        |  M+     | 8.2   |   90%  | :x:
 
 ### Hunter
-
 - Beastmaster
 
 author   | support  | patch | status |     raidable?
@@ -218,7 +218,7 @@ CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt |  Full   | 8.1.5 |   99% | :white_check_mark:
+Laksmackt |  Full   | 8.2 |   99% | :white_check_mark:
 
 - Protection
 
