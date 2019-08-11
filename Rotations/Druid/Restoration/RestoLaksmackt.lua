@@ -1621,7 +1621,7 @@ local function runRotation()
                         return true
                     end
                 end
-            elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
+            elseif talent.photosynthesis and not cast.last.lifebloom(1) and inInstance then
                 for i = 1, #br.friend do
                     if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Photosynthesis") then
                         lifebloom_count = lifebloom_count + 1
@@ -1632,8 +1632,8 @@ local function runRotation()
                         br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                         return true
                     end
-                elseif lifebloom_count < getValue("Photosynthesis Count") and (not buff.lifebloom.exists(tanks[1].unit) or (buff.lifebloom.exists(tanks[1].unit) and buff.lifebloom.remain(tanks[1].unit) < 4.5 and tanks[1].hp < 80)) then
-                    if cast.lifebloom(tanks[1].unit) then
+                elseif lifebloom_count < getValue("Photosynthesis Count") and (not buff.lifebloom.exists(tank) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and getHP(tank) < 80)) then
+                    if cast.lifebloom(tank) then
                         br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                         return true
                     end
