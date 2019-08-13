@@ -93,9 +93,11 @@ local function createOptions()
             br.ui:createCheckbox(section, "Lucid Dreams")
            -- Ever-Rising Tide
 			br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Pair with CDs", "Based on Health" }, 1, "When to use this Essence")
-            br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
-            br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "Min mana to use")
+            br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "Health threshold to use")
             br.ui:createCheckbox(section, "Well of Existence")
+            br.ui:createSpinner(section, "Life Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
+            br.ui:createSpinner(section, "Life Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
@@ -531,23 +533,32 @@ local function runRotation()
                             end
                         end
                     end
+                    if isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcd and getLowAllies(getOptionValue("Life-Binder's Invocation")) >= getOptionValue("Life-Binder's Invocation Targets") then
+                        if cast.lifeBindersInvocation() then
+                            br.addonDebug("Casting Life-Binder's Invocation")
+                            return true
+                        end
+                    end
                     if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
                         if getOptionValue("Ever-Rising Tide") == 1 then
                             if cast.overchargeMana() then
-                                return
+                                br.addonDebug("Casting Ever-Rising Tide")
+                                return true
                             end
                         end
                         if getOptionValue("Ever-Rising Tide") == 2 then
                             if buff.rapture.exists() or buff.evangelism.exists() or burst == true then
                                 if cast.overchargeMana() then
-                                    return
+                                    br.addonDebug("Casting Ever-Rising Tide")
+                                    return true
                                 end
                             end
                         end
                         if getOptionValue("Ever-Rising Tide") == 3 then
                             if lowest.hp < getOptionValue("Ever Rising Tide - Health") or burst == true then
                                 if cast.overchargeMana() then
-                                    return
+                                    br.addonDebug("Casting Ever-Rising Tide")
+                                    return true
                                 end
                             end
                         end
