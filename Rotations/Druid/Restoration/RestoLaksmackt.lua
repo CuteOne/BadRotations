@@ -76,6 +76,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
         br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
+        br.ui:createSpinner(section, "Bursting", 1, 0, 10, 3, "", "|cffFFFFFFBurst Targets")
+
         br.ui:createCheckbox(section, "Freehold - pig")
         br.ui:createCheckbox(section, "Freehold - root grenadier")
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
@@ -145,7 +147,10 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "DPS")
-        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 4, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 30, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 30 / Interval: 1")
+
+        --"Max Sunfire Targets"
         br.ui:createSpinnerWithout(section, "DPS Save mana", 40, 0, 100, 5, "|cffFFFFFFMana Percent no Cast Sunfire and Moonfire")
         br.ui:createSpinnerWithout(section, "DPS Min % health", 40, 0, 100, 5, "Don't DPS if under this health % in group (cat enforced w/key")
         br.ui:createCheckbox(section, "Safe Dots")
@@ -1390,16 +1395,29 @@ local function runRotation()
 
     end
 
+    local function auto_combat()
+
+
+        --[[
+A	1.00	rake,if=buff.shadowmeld.up|buff.prowl.up
+B	1.00	auto_attack
+C	35.73	moonfire,target_if=refreshable|(prev_gcd.1.sunfire&remains<duration*0.8&spell_targets.sunfire=1)
+D	17.10	sunfire,target_if=refreshable|(prev_gcd.1.moonfire&remains<duration*0.8)
+E	4.81	solar_wrath,if=energy<=50&!buff.cat_form.up
+F	15.95	cat_form,if=!buff.cat_form.up&energy>50
+G	0.78	ferocious_bite,if=(combo_points>3&target.time_to_die<3)|(combo_points=5&energy>=50&dot.rip.remains>14)&spell_targets.swipe_cat<5
+0.00	swipe_cat,if=spell_targets.swipe_cat>=6
+H	11.52	rip,target_if=refreshable&combo_points=5
+I	33.48	rake,target_if=refreshable
+J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
+0.00	shred
+]]
+
+
+    end
+
     local function cat_combat()
 
-
-        --lucid dreams
-        if cat and inCombat and isChecked("Lucid Cat") and getSpellCD(298357) <= gcd and ttd("target") > 12 then
-            if cast.memoryOfLucidDreams() then
-                br.addonDebug("Lucid Kitty Dreams ....")
-                return
-            end
-        end
 
         --aoe_count
         local aoe_count = 0
@@ -1415,6 +1433,17 @@ local function runRotation()
                 return true
             end
         end
+        --auto attack
+        StartAttack(units.dyn5)
+
+        --lucid dreams
+        if cat and inCombat and isChecked("Lucid Cat") and getSpellCD(298357) <= gcd and ttd("target") > 12 then
+            if cast.memoryOfLucidDreams() then
+                br.addonDebug("Lucid Kitty Dreams ....")
+                return
+            end
+        end
+
 
         --rush if we can -
         if talent.wildCharge and isChecked("Cat Charge") and #enemies.yards8 < 1 then
@@ -1452,7 +1481,7 @@ local function runRotation()
             end
 
             -- rip,target_if=refreshable&combo_points=5
-            if combo == 5 and (not debuff.rip.exists(thisUnit) or debuff.rip.remain(thisUnit) < 4) then
+            if combo == 5 and (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 4) and ttd(thisUnit) >= 4) then
                 if cast.rip(thisUnit) then
                     br.addonDebug("[CAT-DPS] Applying Rip")
                     return true
@@ -1460,10 +1489,14 @@ local function runRotation()
             end
 
             -- Rake 	rake,target_if=refreshable
-            if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) then
-                if cast.rake(thisUnit) then
-                    br.addonDebug("[CAT-DPS] Raking")
-                    return true
+            --TODO lets rake different targets
+            for i = 1, #enemies.yards5 do
+                local thisUnit = enemies.yards5[i]
+                if not (debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
+                    if cast.rake(thisUnit) then
+                        br.addonDebug("[CAT-DPS] Raking")
+                        return true
+                    end
                 end
             end
 
@@ -1475,7 +1508,7 @@ local function runRotation()
                 end
             else
                 if cast.shred(thisUnit) then
-                    br.addonDebug("[CAT-DPS] Single target - shredding")
+                    br.addonDebug("[CAT-DPS] Shred")
                     return true
                 end
             end
@@ -1535,7 +1568,7 @@ local function runRotation()
         end
         if isChecked("KR - Minions of Zul") then
             root_UnitList[133943] = "minion-of-zul"
-           -- root_UnitList[126562] = "minion-of-zul"  testing purpose -  Irritable Deimetradon
+            -- root_UnitList[126562] = "minion-of-zul"  testing purpose -  Irritable Deimetradon
         end
 
         for i = 1, #enemies.yards40 do
