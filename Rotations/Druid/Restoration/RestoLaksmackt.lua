@@ -71,21 +71,20 @@ local function createOptions()
         br.ui:createCheckbox(section, "Break form for dispel", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
-        br.ui:createCheckbox(section, "auto dash", 1)
-        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold to trust hots to do the job")
+        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
-        br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
-        br.ui:createSpinner(section, "Bursting", 1, 0, 10, 3, "", "|cffFFFFFFBurst Targets")
+        -- br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
+        br.ui:createSpinner(section, "Bursting", 1, 0, 10, 4, "", "|cffFFFFFFBurst Targets")
 
-        br.ui:createCheckbox(section, "Freehold - pig")
-        br.ui:createCheckbox(section, "Freehold - root grenadier")
+        br.ui:createCheckbox(section, "Freehold - pig", 1)
+        br.ui:createCheckbox(section, "Freehold - root grenadier", 1)
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - Minions of Zul")
 
         --
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
-        br.ui:createCheckbox(section, "Punt Enchanted Emissary")
+        br.ui:createCheckbox(section, "Punt Enchanted Emissary", 1)
         --("Emissary of the Tides"
         br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 40, 0, 100, 5)
         br.ui:createCheckbox(section, "Shrine - Dispel Whisper of Power", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 0)
@@ -99,7 +98,7 @@ local function createOptions()
 
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Heals")
-        br.ui:createCheckbox(section, "Smart Hot", "Pre-hot based on DBM or incoming casts")
+        br.ui:createCheckbox(section, "Smart Hot", "Pre-hot based on DBM or incoming casts", 1)
         br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "", "When to stop what we do, emergency heals!")
         br.ui:createSpinner(section, "Swiftmend", 45, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Rejuvenation", 85, 0, 100, 5, "Health Percent to Cast At")
@@ -114,13 +113,10 @@ local function createOptions()
         br.ui:createSpinner(section, "Regrowth", 35, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
         br.ui:createSpinner(section, "Wild Growth", 80, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Wild Growth Targets", 3, 0, 40, 1, "Minimum Wild Growth Targets")
-        br.ui:createSpinner(section, "Photosynthesis", 50, 0, 100, 5, "Health % for switching to healer")
+        br.ui:createSpinner(section, "Photosynthesis", 60, 0, 100, 5, "Health % for switching to healer")
         br.ui:createSpinnerWithout(section, "Photosynthesis Count", 3, 0, 40, 1, "Minimum hurt Targets")
-        br.ui:createCheckbox(section, "pre-hot in combat", "apply pre-hotting while in combat")
-
+        br.ui:createCheckbox(section, "pre-hot in combat", "apply pre-hotting routine while in combat")
         br.ui:checkSectionState(section)
-
-        --essences
         -- Essences
         --"Memory of Lucid Dreams"
         section = br.ui:createSection(br.ui.window.profile, "Essences")
@@ -2021,16 +2017,18 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 auto_forms()
                 return true
             end
-            if cleanse() then
-                return true
-            end
-            if isChecked("OOC Healing") then
-                if heal() then
+            if mode.forms == 3 and noform or mode.forms ~= 3 then
+                if cleanse() then
                     return true
                 end
-            end
-            if pre_combat() then
-                return true
+                if isChecked("OOC Healing") then
+                    if heal() then
+                        return true
+                    end
+                end
+                if pre_combat() then
+                    return true
+                end
             end
 
         end
@@ -2061,38 +2059,53 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                     return true
                 end
             end
-            if cleanse() then
-                return true
-            end
-            if Defensive() then
-                return
-            end
-            if Cooldowns() then
-                return
-            end
-            if root_cc() then
-                return
-            end
-            if Interrupts() then
-                return
-            end
-            if BossEncounterCase() then
-                return
-            end
-            if heal() then
-                return true
-            end
-            if isChecked("pre-hot in combat") then
-                if pre_combat() then
+            if mode.forms == 3 then
+                if cat then
+                    cat_combat()
+                    return true
+                end
+                if bear then
+                    bear_combat()
+                    return true
+                end
+                if travel then
+                    travel_combat()
                     return true
                 end
             end
-            if mode.DPS == 2 and lowest.hp > getValue("DPS Min % health") then
-                if DPS() then
+            if mode.forms == 3 and noform or mode.forms ~= 3 then
+                if cleanse() then
                     return true
                 end
+                if Defensive() then
+                    return
+                end
+                if Cooldowns() then
+                    return
+                end
+                if root_cc() then
+                    return
+                end
+                if Interrupts() then
+                    return
+                end
+                if BossEncounterCase() then
+                    return
+                end
+                if heal() then
+                    return true
+                end
+                if isChecked("pre-hot in combat") then
+                    if pre_combat() then
+                        return true
+                    end
+                end
+                if mode.DPS == 2 and lowest.hp > getValue("DPS Min % health") then
+                    if DPS() then
+                        return true
+                    end
+                end
             end
-
         end -- End In Combat Rotation
     end -- Pause
     -- end -- End Timer
