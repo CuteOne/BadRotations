@@ -100,7 +100,6 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Auto Innervate", "Use Innervate if you have Lively Spirit traits for DPS buff")
-        br.ui:createDropdown(section, "Pots", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createCheckbox(section, "Racial")
         br.ui:createCheckbox(section, "Use Trinkets")
         br.ui:createCheckbox(section, "Warrior Of Elune")
@@ -139,8 +138,14 @@ local function createOptions()
         br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createDropdown(section, "Bear Form Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFGO BEAR GO!")
         br.ui:checkSectionState(section)
+        section = br.ui:createSection(br.ui.window.profile, "Forms")
+        br.ui:createDropdown(section, "Bear Form Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFGO BEAR GO!")
+        br.ui:createCheckbox(section, "auto stealth", 1)
+        br.ui:createCheckbox(section, "auto dash", 1)
+        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
+        br.ui:checkSectionState(section)
+
         -------------------------
         --- INTERRUPT OPTIONS --- -- Define Interrupt Options
         -------------------------
@@ -414,7 +419,6 @@ local function runRotation()
         return false
     end
 
-
     local function castBeam(minUnits, safe, minttd)
         if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
             return false
@@ -576,7 +580,7 @@ local function runRotation()
 
 
 
-        --Pots
+        --0
         --[[
                 1, none, frX
                 2, battle, 163222
@@ -1208,7 +1212,6 @@ local function runRotation()
     local function root_cc()
 
 
-
         local root_UnitList = {}
         if isChecked("Freehold - root grenadier") then
             root_UnitList[129758] = "Irontide Grenadier"
@@ -1375,145 +1378,168 @@ local function runRotation()
                 end
             end
         end -- End Shapeshift Form Management
-    end
-    local function actionList_Opener()
-        if ABOpener == false then
-            if not SW1 then
-                if cast.solarWrath() then
-                    -- or last cast
-                    SW1 = true
-                    br.addonDebug("Opener: Solar Wrath 1 cast")
-                    return
-                end
-            elseif SW1 and not SW2 then
-                if cast.solarWrath() then
-                    SW2 = true
-                    br.addonDebug("Opener: Solar Wrath 2 cast")
-                    return
-                end
-            elseif MF and not SF then
-                if cast.sunfire() then
-                    SF = true
-                    br.addonDebug("Opener: Sunfire cast")
-                    return
-                end
-            elseif SW2 and not MF then
-                if cast.moonfire() then
-                    MF = true
-                    br.addonDebug("Opener: Moonfire cast")
-                    return
-                end
-            elseif SF and not StF then
-                if talent.stellarFlare then
-                    if cast.stellarFlare() then
-                        StF = true
-                        br.addonDebug("Opener: Stellar Flare cast")
-                        return
-                    end
-                else
-                    StF = true
-                    br.addonDebug("Opener: Stellar Flare not talented, bypassing")
-                    return
-                end
-            elseif StF and not CA and power < 40 then
-                if cast.solarWrath() then
-                    br.addonDebug("Opener: Building Up AP")
-                    return
-                end
-            elseif StF and not CA and power >= 40 then
-                if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() <= 3 then
-                    if cast.incarnationChoseOfElune("player") then
-                        br.addonDebug("Opener: Inc cast")
-                        CA = true
-                    end
-                elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() <= 3 then
-                    if cast.celestialAlignment("player") then
-                        br.addonDebug("Opener: CA cast")
-                        CA = true
-                    end
-                else
-                    br.addonDebug("Opener: CA/Inc On CD, Bypassing")
-                    CA = true
-                end
-                return
-            elseif CA then
-                ABOpener = true
-                br.addonDebug("Opener Complete")
-            end
-        end
-    end
-    -----------------
-    --- Rotations ---
-    -----------------
-    -- Pause
-    if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
-        if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
-            return true
-        else
 
-            ---------------------------------
-            --- Out Of Combat - Rotations ---
-            ---------------------------------````````````````````````````````````````````
-            if not inCombat and not UnitBuffID("player", 115834) then
-                if extras() then
-                    return true
-                end
-                if useDefensive() then
-                    if defensive() then
+        --auto stuff in forms
+        if cat then
+            if isChecked("auto stealth") then
+                if not br.player.buff.prowl.exists() then
+                    if cast.prowl("Player") then
                         return true
                     end
                 end
-                if PreCombat() then
+            end
+
+            if isChecked("auto dash") and not catspeed then
+                if cast.tigerDash() then
+                    return true
+                end
+                if cast.dash() then
                     return true
                 end
             end
-        end -- End Out of Combat Rotation
-        -----------------------------
-        --- In Combat - Rotations ---
-        -----------------------------
-        if inCombat and not UnitBuffID("player", 115834) then
-            -----------------------
-            --- Opener Rotation ---
-            -----------------------
-            if openerACT() then
+        end
+
+    end
+
+
+local function actionList_Opener()
+    if ABOpener == false then
+        if not SW1 then
+            if cast.solarWrath() then
+                -- or last cast
+                SW1 = true
+                br.addonDebug("Opener: Solar Wrath 1 cast")
+                return
+            end
+        elseif SW1 and not SW2 then
+            if cast.solarWrath() then
+                SW2 = true
+                br.addonDebug("Opener: Solar Wrath 2 cast")
+                return
+            end
+        elseif MF and not SF then
+            if cast.sunfire() then
+                SF = true
+                br.addonDebug("Opener: Sunfire cast")
+                return
+            end
+        elseif SW2 and not MF then
+            if cast.moonfire() then
+                MF = true
+                br.addonDebug("Opener: Moonfire cast")
+                return
+            end
+        elseif SF and not StF then
+            if talent.stellarFlare then
+                if cast.stellarFlare() then
+                    StF = true
+                    br.addonDebug("Opener: Stellar Flare cast")
+                    return
+                end
+            else
+                StF = true
+                br.addonDebug("Opener: Stellar Flare not talented, bypassing")
+                return
+            end
+        elseif StF and not CA and power < 40 then
+            if cast.solarWrath() then
+                br.addonDebug("Opener: Building Up AP")
+                return
+            end
+        elseif StF and not CA and power >= 40 then
+            if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() <= 3 then
+                if cast.incarnationChoseOfElune("player") then
+                    br.addonDebug("Opener: Inc cast")
+                    CA = true
+                end
+            elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() <= 3 then
+                if cast.celestialAlignment("player") then
+                    br.addonDebug("Opener: CA cast")
+                    CA = true
+                end
+            else
+                br.addonDebug("Opener: CA/Inc On CD, Bypassing")
+                CA = true
+            end
+            return
+        elseif CA then
+            ABOpener = true
+            br.addonDebug("Opener Complete")
+        end
+    end
+end
+-----------------
+--- Rotations ---
+-----------------
+-- Pause
+if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
+    if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
+        return true
+    else
+
+        ---------------------------------
+        --- Out Of Combat - Rotations ---
+        ---------------------------------````````````````````````````````````````````
+        if not inCombat and not UnitBuffID("player", 115834) then
+            if extras() then
                 return true
-            end
-            if useInterrupts() then
-                if interrupts() then
-                    return true
-                end
             end
             if useDefensive() then
                 if defensive() then
                     return true
                 end
             end
-
-            if root_cc() then
+            if PreCombat() then
                 return true
             end
-
-            if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
-                actionList_Opener()
+        end
+    end -- End Out of Combat Rotation
+    -----------------------------
+    --- In Combat - Rotations ---
+    -----------------------------
+    if inCombat and not UnitBuffID("player", 115834) then
+        -----------------------
+        --- Opener Rotation ---
+        -----------------------
+        if openerACT() then
+            return true
+        end
+        if useInterrupts() then
+            if interrupts() then
+                return true
             end
-
-            if mode.rotation ~= 4 then
-                if dps() then
-                    return true
-                end
+        end
+        if useDefensive() then
+            if defensive() then
+                return true
             end
-        end -- End In Combat Rotation
-    end -- Pause
+        end
+
+        if root_cc() then
+            return true
+        end
+
+        if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
+            actionList_Opener()
+        end
+
+        if mode.rotation ~= 4 then
+            if dps() then
+                return true
+            end
+        end
+    end -- End In Combat Rotation
+end -- Pause
 end -- End runRotation
 
 local id = 102
 if br.rotations[id] == nil then
-    br.rotations[id] = {}
+br.rotations[id] = {}
 end
 
 tinsert(br.rotations[id], {
-    name = rotationName,
-    toggles = createToggles,
-    options = createOptions,
-    run = runRotation,
+name = rotationName,
+toggles = createToggles,
+options = createOptions,
+run = runRotation,
 })
