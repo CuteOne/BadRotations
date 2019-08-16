@@ -58,6 +58,7 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
+        --br.ui:createText(section, "Version 0.1d")
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2.5, 0, 10, 0.5, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         if br.player.talent.restorationAffinity then
@@ -72,8 +73,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Revive target")
         br.ui:createDropdown(section, "Remove Corruption", { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFFFFFFPlayer and Target", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
         br.ui:createDropdown(section, "Off-healing", { "Nope", "always", "No-Healer" }, 1, "", "offheal")
-
-        br.ui:checkSectionState(section)
 
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -272,6 +271,12 @@ local function runRotation()
         end
     else
         tank = "Player"
+    end
+
+
+    --wipe timers table
+    if timersTable then
+        wipe(timersTable)
     end
 
     enemies.get(45)
@@ -749,21 +754,37 @@ local function runRotation()
             end
         else
 
-            -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
+            -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))
+            --&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
+            --[[
+                                 |!solar_wrath.ap_check
+            ]]
+
             if cast.able.starsurge() and
-                    (
-                            (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
-                                    or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
-                            )
-                                    and (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
-                                    and (not traits.streakingStars.active or not pewbuff or not cast.last.starsurge(1))
-                                    or ttd(units.dyn45) <= (br.player.gcd * power / 40)
-                                    or astral_def <= 8
+                    (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
+                            or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
                     ) then
-                if cast.starsurge(units.dyn45) then
-                    return
+
+                if (buff.arcanicPulsar.stack() < 8 or not traits.arcanicPulsar.active) then
+                    if (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
+                            and (not traits.streakingStars.active or not pewbuff or not cast.last.starsurge(1))
+                            or ttd(units.dyn45) <= (br.player.gcd * power / 40)
+                            or astral_def < 10
+                    then
+                        if cast.starsurge(units.dyn45) then
+                            br.addonDebug("[SURGE] Pulsar stack: " .. buff.arcanicPulsar.stack() .. " Astral: " .. power)
+                            return
+                        end
+                    end
+
+                elseif buff.arcanicPulsar.stack() == 8 and astral_def < 10 then
+                    if cast.starsurge(units.dyn45) then
+                        br.addonDebug("[SURGE] Pulsar stack: " .. buff.arcanicPulsar.stack() .. " Astral: " .. power)
+                        return
+                    end
                 end
             end
+
             --[[
 
                         --starsurge
@@ -913,12 +934,12 @@ local function runRotation()
                             end
                         end
 
-                        if cast.able.stellarFlare() and lastSpellCast ~= spell.stellarFlare and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") or debuff.stellarFlare.exists(thisUnit)) or isBoss(thisUnit) and
+                        if cast.able.stellarFlare() and lastSpellCast ~= spell.stellarFlare and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") or debuff.stellarFlare.exists(thisUnit)) and
                                 astral_def >= 8 then
                             if not debuff.stellarFlare.exists(thisUnit) then
                                 if (floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5) or isBoss(thisUnit) then
                                     if cast.stellarFlare(thisUnit) then
-                                        br.addonDebug("Initial stellarFlare")
+                                        br.addonDebug("StellarFlare [" ..debuff.stellarFlare.count() .."/" ..getOptionValue("Max Stellar Flare Targets"))
                                         return true
                                     end
                                 end
@@ -959,6 +980,7 @@ local function runRotation()
                             or buff.warriorOfElune.exists()
                             or (buff.lunarEmpowerment.exists() and #enemies.yards8t >= 2)
                             or buff.lunarEmpowerment.stack() == 3 and buff.solarEmpowerment.stack() < 3
+                            or buff.lunarEmpowerment.stack() >= 1 and buff.solarEmpowerment.stack() == 0
                     then
                         --[[ if cast.lunarStrike(units.dyn45) then
                              return true
@@ -1401,145 +1423,144 @@ local function runRotation()
 
     end
 
-
-local function actionList_Opener()
-    if ABOpener == false then
-        if not SW1 then
-            if cast.solarWrath() then
-                -- or last cast
-                SW1 = true
-                br.addonDebug("Opener: Solar Wrath 1 cast")
-                return
-            end
-        elseif SW1 and not SW2 then
-            if cast.solarWrath() then
-                SW2 = true
-                br.addonDebug("Opener: Solar Wrath 2 cast")
-                return
-            end
-        elseif MF and not SF then
-            if cast.sunfire() then
-                SF = true
-                br.addonDebug("Opener: Sunfire cast")
-                return
-            end
-        elseif SW2 and not MF then
-            if cast.moonfire() then
-                MF = true
-                br.addonDebug("Opener: Moonfire cast")
-                return
-            end
-        elseif SF and not StF then
-            if talent.stellarFlare then
-                if cast.stellarFlare() then
-                    StF = true
-                    br.addonDebug("Opener: Stellar Flare cast")
+    local function actionList_Opener()
+        if ABOpener == false then
+            if not SW1 then
+                if cast.solarWrath() then
+                    -- or last cast
+                    SW1 = true
+                    br.addonDebug("Opener: Solar Wrath 1 cast")
                     return
                 end
-            else
-                StF = true
-                br.addonDebug("Opener: Stellar Flare not talented, bypassing")
-                return
-            end
-        elseif StF and not CA and power < 40 then
-            if cast.solarWrath() then
-                br.addonDebug("Opener: Building Up AP")
-                return
-            end
-        elseif StF and not CA and power >= 40 then
-            if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() <= 3 then
-                if cast.incarnationChoseOfElune("player") then
-                    br.addonDebug("Opener: Inc cast")
+            elseif SW1 and not SW2 then
+                if cast.solarWrath() then
+                    SW2 = true
+                    br.addonDebug("Opener: Solar Wrath 2 cast")
+                    return
+                end
+            elseif MF and not SF then
+                if cast.sunfire() then
+                    SF = true
+                    br.addonDebug("Opener: Sunfire cast")
+                    return
+                end
+            elseif SW2 and not MF then
+                if cast.moonfire() then
+                    MF = true
+                    br.addonDebug("Opener: Moonfire cast")
+                    return
+                end
+            elseif SF and not StF then
+                if talent.stellarFlare then
+                    if cast.stellarFlare() then
+                        StF = true
+                        br.addonDebug("Opener: Stellar Flare cast")
+                        return
+                    end
+                else
+                    StF = true
+                    br.addonDebug("Opener: Stellar Flare not talented, bypassing")
+                    return
+                end
+            elseif StF and not CA and power < 40 then
+                if cast.solarWrath() then
+                    br.addonDebug("Opener: Building Up AP")
+                    return
+                end
+            elseif StF and not CA and power >= 40 then
+                if talent.incarnationChoseOfElune and cd.incarnationChoseOfElune.remain() <= 3 then
+                    if cast.incarnationChoseOfElune("player") then
+                        br.addonDebug("Opener: Inc cast")
+                        CA = true
+                    end
+                elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() <= 3 then
+                    if cast.celestialAlignment("player") then
+                        br.addonDebug("Opener: CA cast")
+                        CA = true
+                    end
+                else
+                    br.addonDebug("Opener: CA/Inc On CD, Bypassing")
                     CA = true
                 end
-            elseif not talent.incarnationChoseOfElune and cd.celestialAlignment.remain() <= 3 then
-                if cast.celestialAlignment("player") then
-                    br.addonDebug("Opener: CA cast")
-                    CA = true
-                end
-            else
-                br.addonDebug("Opener: CA/Inc On CD, Bypassing")
-                CA = true
+                return
+            elseif CA then
+                ABOpener = true
+                br.addonDebug("Opener Complete")
             end
-            return
-        elseif CA then
-            ABOpener = true
-            br.addonDebug("Opener Complete")
         end
     end
-end
------------------
---- Rotations ---
------------------
--- Pause
-if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
-    if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
-        return true
-    else
+    -----------------
+    --- Rotations ---
+    -----------------
+    -- Pause
+    if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
+        if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
+            return true
+        else
 
-        ---------------------------------
-        --- Out Of Combat - Rotations ---
-        ---------------------------------````````````````````````````````````````````
-        if not inCombat and not UnitBuffID("player", 115834) then
-            if extras() then
+            ---------------------------------
+            --- Out Of Combat - Rotations ---
+            ---------------------------------````````````````````````````````````````````
+            if not inCombat and not UnitBuffID("player", 115834) then
+                if extras() then
+                    return true
+                end
+                if useDefensive() then
+                    if defensive() then
+                        return true
+                    end
+                end
+                if PreCombat() then
+                    return true
+                end
+            end
+        end -- End Out of Combat Rotation
+        -----------------------------
+        --- In Combat - Rotations ---
+        -----------------------------
+        if inCombat and not UnitBuffID("player", 115834) then
+            -----------------------
+            --- Opener Rotation ---
+            -----------------------
+            if openerACT() then
                 return true
+            end
+            if useInterrupts() then
+                if interrupts() then
+                    return true
+                end
             end
             if useDefensive() then
                 if defensive() then
                     return true
                 end
             end
-            if PreCombat() then
-                return true
-            end
-        end
-    end -- End Out of Combat Rotation
-    -----------------------------
-    --- In Combat - Rotations ---
-    -----------------------------
-    if inCombat and not UnitBuffID("player", 115834) then
-        -----------------------
-        --- Opener Rotation ---
-        -----------------------
-        if openerACT() then
-            return true
-        end
-        if useInterrupts() then
-            if interrupts() then
-                return true
-            end
-        end
-        if useDefensive() then
-            if defensive() then
-                return true
-            end
-        end
 
-        if root_cc() then
-            return true
-        end
-
-        if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
-            actionList_Opener()
-        end
-
-        if mode.rotation ~= 4 then
-            if dps() then
+            if root_cc() then
                 return true
             end
-        end
-    end -- End In Combat Rotation
-end -- Pause
+
+            if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
+                actionList_Opener()
+            end
+
+            if mode.rotation ~= 4 then
+                if dps() then
+                    return true
+                end
+            end
+        end -- End In Combat Rotation
+    end -- Pause
 end -- End runRotation
 
 local id = 102
 if br.rotations[id] == nil then
-br.rotations[id] = {}
+    br.rotations[id] = {}
 end
 
 tinsert(br.rotations[id], {
-name = rotationName,
-toggles = createToggles,
-options = createOptions,
-run = runRotation,
+    name = rotationName,
+    toggles = createToggles,
+    options = createOptions,
+    run = runRotation,
 })
