@@ -240,8 +240,8 @@ local function createOptions()
 		-- Well of Existence
 			br.ui:createCheckbox(section, "Well of Existence")
 		-- Life Binder's Invocation
-			br.ui:createSpinner(section, "Life Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
-            br.ui:createSpinner(section, "Life Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
+			br.ui:createSpinner(section, "Life-Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
+            br.ui:createSpinnerWithout(section, "Life-Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
 		 br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, "Defensive")

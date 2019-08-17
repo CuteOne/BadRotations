@@ -96,8 +96,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "Min mana to use")
             br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "Health threshold to use")
             br.ui:createCheckbox(section, "Well of Existence")
-            br.ui:createSpinner(section, "Life Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
-            br.ui:createSpinner(section, "Life Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
+            br.ui:createSpinner(section, "Life-Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
+            br.ui:createSpinnerWithout(section, "Life-Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
         br.ui:checkSectionState(section)
         -------------------------
         ---- SINGLE TARGET ------
