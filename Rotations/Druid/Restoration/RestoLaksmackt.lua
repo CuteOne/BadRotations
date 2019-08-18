@@ -1077,7 +1077,7 @@ local function runRotation()
             end
         end
         --Seed of Eonar
-        if essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
+        if isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
             for i = 1, #br.friend do
                 if UnitInRange(br.friend[i].unit) then
                     local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
@@ -1936,44 +1936,37 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
 
     local function pre_combat()
         clearForm()
-        if not cat and not travel then
+        if not cat and not travel and not bear then
 
 
-            if #tanks > 0 then
+            if #tanks > 0 and mode.prehot == 1 then
                 -- cenarionWard
-                if (mode.prehot == 1 or mode.prehot == 3) and #tanks > 0 and not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tanks[1].unit) and cast.able.cenarionWard(tank) then
+                if not isChecked("Smart Hot") and talent.cenarionWard and isChecked("Cenarion Ward") and not buff.cenarionWard.exists(tanks[1].unit) and cast.able.cenarionWard(tank) then
                     if cast.cenarionWard(tanks[1].unit) then
+                        br.addonDebug("[PRE-HOT]:CW on: " .. tanks[1].unit)
                         return true
                     end
                 end
 
-                if mode.prehot == 1 and #tanks > 0 and not buff.lifebloom.exists(tanks[1].unit) then
+                if not buff.lifebloom.exists(tanks[1].unit) then
                     if cast.lifebloom(tanks[1].unit) then
-                        return true
-                    end
-                elseif mode.prehot == 1 and #tanks == 0 and not buff.lifebloom.exists("player") then
-                    if cast.lifebloom("player") then
+                        br.addonDebug("[PRE-HOT]:Lifebloom on: " .. tanks[1].unit)
                         return true
                     end
                 end
-            end
 
+                --rejuvenation
 
-            --rejuvenation
-            if mode.prehot == 1 then
                 for i = 1, #br.friend do
-                    if not buff.rejuvenation.exists(br.friend[i].unit) then
-                        clearForm()
+
+                    if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then
+                            br.addonDebug("[PRE-HOT]Germination on: " .. br.friend[1].name)
                             return true
                         end
-                    end
-                end
-            elseif mode.prehot == 3 then
-                for i = 1, #br.friend do
-                    if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
-                        clearForm()
+                    elseif not buff.rejuvenation.exists(br.friend[i].unit) then
                         if cast.rejuvenation(br.friend[i].unit) then
+                            br.addonDebug("[PRE-HOT]Rejuv on: " .. br.friend[1].name)
                             return true
                         end
                     end
