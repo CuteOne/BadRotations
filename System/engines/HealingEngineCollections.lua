@@ -148,6 +148,8 @@ novaEngineTables.PurgeID = {
 	[265081] = true, -- Warcry (Underrot)
 	[266209] = true, -- Wicked Frenzy (Underrot)
 	[278567] = true, -- Soul Fetish (Waycrest Manor)
+	[299584] = true, -- Coral Growth (Coral Ancients)
+	[299428] = true, -- Defensive Countermeasure (Sentries)
 	-- Mechagon
 	[297133] = true, -- Defensive Countermeasure (Defense Bot Mk III)
 }
