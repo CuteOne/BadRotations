@@ -1,6 +1,3 @@
-if _brMotherFight == nil then
-	_brMotherFight = false
-end
 -- getLatency()
 function getLatency()
 	-- local lag = ((select(3,GetNetStats()) + select(4,GetNetStats())) / 1000)
@@ -79,7 +76,7 @@ function getLineOfSight(Unit1, Unit2)
 		local X2, Y2, Z2 = GetObjectPosition(Unit2)
 		local pX, pY, pZ = GetObjectPosition("player")
 		if TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil then
-			if _brMotherFight == true then
+			if br.player and br.player.eID and br.player.eID == 2141 then
 				if pX < -108 and X2 < -108 then
 					return true
 				elseif (pX > -108 and pX < -54) and (X2 > -108 and X2 < -54) then
