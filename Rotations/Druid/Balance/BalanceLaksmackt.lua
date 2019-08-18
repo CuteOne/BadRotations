@@ -58,7 +58,6 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
-        --br.ui:createText(section, "Version 0.1d")
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2.5, 0, 10, 0.5, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
         if br.player.talent.restorationAffinity then
@@ -73,6 +72,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Revive target")
         br.ui:createDropdown(section, "Remove Corruption", { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFFFFFFPlayer and Target", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
         br.ui:createDropdown(section, "Off-healing", { "Nope", "always", "No-Healer" }, 1, "", "offheal")
+
+        br.ui:checkSectionState(section)
 
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -272,7 +273,6 @@ local function runRotation()
     else
         tank = "Player"
     end
-
 
     --wipe timers table
     if timersTable then
@@ -671,19 +671,21 @@ local function runRotation()
         --aPrint("Group TTD: " .. groupTTD)
 
         -- Incarnation  ap_check&!buff.ca_inc.up
-        if useCDs() and isChecked("Incarnation/Celestial Alignment") then
-            if cast.able.incarnationChoseOfElune() and talent.incarnationChoseOfElune and
-                    debuff.sunfire.remain("target") > 8 and debuff.moonfire.remain("target") > 12 and not pewbuff and
-                    (debuff.stellarFlare.remain("target") > 6 or not talent.stellarFlare) and power >= 40 and groupTTD >= 30
-                    or hasBloodLust() and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare)
-            then
-                if cast.incarnationChoseOfElune() then
-                    return true
+        if useCDs() and isChecked("Incarnation/Celestial Alignment") and not pewbuff and power >= 40 then
+            if cast.able.incarnationChoseOfElune() and talent.incarnationChoseOfElune then
+                --buff.memory_of_lucid_dreams.up|((cooldown.memory_of_lucid_dreams.remains>20|!essence.memory_of_lucid_dreams.major)
+                if debuff.sunfire.remain("target") > 8
+                        and debuff.moonfire.remain("target") > 12
+                        and (debuff.stellarFlare.remain("target") > 6 or not talent.stellarFlare)
+                        and groupTTD >= 30
+                        or hasBloodLust() and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare)
+                then
+                    if cast.incarnationChoseOfElune() then
+                        return true
+                    end
                 end
-            end
-            -- celestial_alignment,if=!buff.ca_inc.up&(!talent.starlord.enabled|buff.starlord.up)&(buff.memory_of_lucid_dreams.up|((cooldown.memory_of_lucid_dreams.remains>20|!essence.memory_of_lucid_dreams.major)&ap_check))&(!azerite.lively_spirit.enabled|buff.lively_spirit.up),target_if=(dot.sunfire.remains>2&dot.moonfire.ticking&(dot.stellar_flare.ticking|!talent.stellar_flare.enabled))
-
-            if cast.able.celestialAlignment() and useCDs() and isChecked("Incarnation/Celestial Alignment") then
+                
+            elseif cast.able.celestialAlignment() and not talent.incarnationChoseOfElune then
                 if not pewbuff
                         and (buff.starLord.exists or not talent.starlord)
                         and (buff.memoryOfLucidDreams.exists() or ((cd.memoryOfLucidDreams.remains() > 20 or not essence.memoryOfLucidDreams.active) and power >= 40))
@@ -754,37 +756,21 @@ local function runRotation()
             end
         else
 
-            -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))
-            --&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
-            --[[
-                                 |!solar_wrath.ap_check
-            ]]
-
+            -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
             if cast.able.starsurge() and
-                    (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
-                            or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
+                    (
+                            (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
+                                    or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
+                            )
+                                    and (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
+                                    and (not traits.streakingStars.active or not pewbuff or not cast.last.starsurge(1))
+                                    or ttd(units.dyn45) <= (br.player.gcd * power / 40)
+                                    or astral_def <= 8
                     ) then
-
-                if (buff.arcanicPulsar.stack() < 8 or not traits.arcanicPulsar.active) then
-                    if (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
-                            and (not traits.streakingStars.active or not pewbuff or not cast.last.starsurge(1))
-                            or ttd(units.dyn45) <= (br.player.gcd * power / 40)
-                            or astral_def < 10
-                    then
-                        if cast.starsurge(units.dyn45) then
-                            br.addonDebug("[SURGE] Pulsar stack: " .. buff.arcanicPulsar.stack() .. " Astral: " .. power)
-                            return
-                        end
-                    end
-
-                elseif buff.arcanicPulsar.stack() == 8 and astral_def < 10 then
-                    if cast.starsurge(units.dyn45) then
-                        br.addonDebug("[SURGE] Pulsar stack: " .. buff.arcanicPulsar.stack() .. " Astral: " .. power)
-                        return
-                    end
+                if cast.starsurge(units.dyn45) then
+                    return
                 end
             end
-
             --[[
 
                         --starsurge
@@ -934,12 +920,12 @@ local function runRotation()
                             end
                         end
 
-                        if cast.able.stellarFlare() and lastSpellCast ~= spell.stellarFlare and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") or debuff.stellarFlare.exists(thisUnit)) and
+                        if cast.able.stellarFlare() and lastSpellCast ~= spell.stellarFlare and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets") or debuff.stellarFlare.exists(thisUnit)) or isBoss(thisUnit) and
                                 astral_def >= 8 then
                             if not debuff.stellarFlare.exists(thisUnit) then
                                 if (floor(ttd(thisUnit) / (2 * hasteAmount)) >= 5) or isBoss(thisUnit) then
                                     if cast.stellarFlare(thisUnit) then
-                                        br.addonDebug("StellarFlare [" ..debuff.stellarFlare.count() .."/" ..getOptionValue("Max Stellar Flare Targets"))
+                                        br.addonDebug("Initial stellarFlare")
                                         return true
                                     end
                                 end
@@ -950,28 +936,28 @@ local function runRotation()
                                 end
                             end
                         end
-
-                        --new/half/full moon ...will we ever use them ;)
-                        if cast.able.newMoon(thisUnit) and (power <= 90) then
-                            if cast.newMoon(thisUnit) then
-                                return
-                            end
-                        end
-                        -- half_moon,if=ap_check
-                        if cast.able.halfMoon(thisUnit) and (power <= 80) then
-                            if cast.halfMoon(thisUnit) then
-                                return
-                            end
-                        end
-                        -- full_moon,if=ap_check
-                        if cast.able.fullMoon(thisUnit) and (power <= 60) then
-                            if cast.fullMoon(thisUnit) then
-                                return
-                            end
-                        end
+                    end
+                end
+                --new/half/full moon ...will we ever use them ;)
+                if cast.able.newMoon(thisUnit) and (power <= 90) then
+                    if cast.newMoon(thisUnit) then
+                        return
+                    end
+                end
+                -- half_moon,if=ap_check
+                if cast.able.halfMoon(thisUnit) and (power <= 80) then
+                    if cast.halfMoon(thisUnit) then
+                        return
+                    end
+                end
+                -- full_moon,if=ap_check
+                if cast.able.fullMoon(thisUnit) and (power <= 60) then
+                    if cast.fullMoon(thisUnit) then
+                        return
                     end
                 end
             end
+
 
             -- lunar_strike,if=buff.solar_empowerment.stack<3&(ap_check|buff.lunar_empowerment.stack=3)&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
             if cast.able.lunarStrike() and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3) then
@@ -980,7 +966,6 @@ local function runRotation()
                             or buff.warriorOfElune.exists()
                             or (buff.lunarEmpowerment.exists() and #enemies.yards8t >= 2)
                             or buff.lunarEmpowerment.stack() == 3 and buff.solarEmpowerment.stack() < 3
-                            or buff.lunarEmpowerment.stack() >= 1 and buff.solarEmpowerment.stack() == 0
                     then
                         --[[ if cast.lunarStrike(units.dyn45) then
                              return true
