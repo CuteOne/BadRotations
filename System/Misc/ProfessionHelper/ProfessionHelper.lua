@@ -34,7 +34,8 @@ function ProfessionHelper()
             152506, -- Star Moss
             152507, -- Akunda's Bite
             152508, -- Winter's Kiss
-            152510 -- Anchor Weed
+            152510, -- Anchor Weed
+            168487, -- Zin'anthid
           }
           processThatTable(tableMillBFA, 51005)
         end
