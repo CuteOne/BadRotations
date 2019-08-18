@@ -2066,7 +2066,7 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                     return true
                 end
             end
-            if mode.forms == 3 and noform or mode.forms ~= 3 then
+            if mode.forms == 3 and noform or mode.forms ~= 3 or buff.incarnationTreeOfLife.exists() then
                 if cleanse() then
                     return true
                 end
