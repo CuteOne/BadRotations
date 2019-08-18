@@ -598,24 +598,11 @@ function br.read.commonReaders()
 		if event == "ENCOUNTER_START" then
 			if br.player ~= nil then 
 				br.player.eID = select(1, ...)
-				if br.player.eID and br.player.eID == 2141 then -- MOTHER Uldir fight
-					_brMotherFight = true
-				end
 			end
 		end
 		if event == "ENCOUNTER_END" then
-			local eID = select(1, ...)
-			if eID and eID == 2141 then -- MOTHER Uldir fight
-				_brMotherFight = false
-			end
-			if br.player ~= nil then br.player.eID = nil end
-		end
-		if event == "CHAT_MSG_ADDON" then
-			local prefix, message = ...
-			if prefix == "D4" and string.find(message, "PT") then
-				_brPullTimer = GetTime() + tonumber(string.sub(message, 4, 5))
-			elseif prefix == "BigWigs" and string.find(message, "Pull") then
-				_brPullTimer = GetTime() + tonumber(string.sub(message, 8, 9))
+			if br.player ~= nil then 
+				br.player.eID = 0
 			end
 		end
 		if event == "LOADING_SCREEN_ENABLED" and disableControl == false then
