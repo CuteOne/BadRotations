@@ -81,7 +81,7 @@ br.lists.items = {
     -- 8.2 Potions
     abyssalHealingPotion            = 169451,
     potionOfUnbridledFury           = 169299, -- DPS Potion
-    potionOfEmpoweredProximity      = 168592, -- DPS Potion (AoE)
+    potionOfEmpoweredProximity      = 168529, -- DPS Potion (AoE)
     potionOfFocusedResolve          = 168506, -- Crit Damage Potion
     potionOfWildMending             = 169300, -- Healer Potion
     superiorSteelskinPotion         = 168501, -- Armor Potion
