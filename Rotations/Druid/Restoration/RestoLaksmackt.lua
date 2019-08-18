@@ -1725,7 +1725,7 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
 
         --Swiftmend
         --Print("Lowest is: " .. lowest.unit)
-        if lowest.hp <= getValue("Swiftmend") and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
+        if (lowest.hp <= getValue("Swiftmend") or talent.soulOfTheForest and burst == true) and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot")))  then
             if cast.swiftmend(lowest.unit) then
                 return true
             end
@@ -1737,7 +1737,7 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 if UnitInRange(br.friend[i].unit) then
                     local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Wild Growth"), #br.friend)
                     --local lowHealthCandidates2 = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Soul of the Forest + Wild Growth"), #br.friend)
-                    if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana) and not moving then
+                    if (#lowHealthCandidates >= getValue("Wild Growth Targets") or freemana or buff.soulOfTheForest.exists()) and not moving then
                         if cast.wildGrowth(br.friend[i].unit) then
                             return true
                         end
@@ -2088,7 +2088,7 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 if heal() then
                     return true
                 end
-                if isChecked("pre-hot in combat") then
+                if isChecked("pre-hot in combat") or buff.incarnationTreeOfLife.exists() then
                     if pre_combat() then
                         return true
                     end
