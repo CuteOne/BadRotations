@@ -416,8 +416,10 @@ actionList.Cooldowns = function()
     -- Heart Essences
     if isChecked("Use Essence") then
         -- Essence: Concentrated Flame
-        -- concentrated_flame
-        if cast.able.concentratedFlame() then
+        -- concentrated_flame,if=(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
+        if cast.able.concentratedFlame() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame()
+            or charges.concentratedFlame.timeTillFull() < gcd)
+        then
             if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
         end
         -- Essence: Blood of the Enemy
@@ -863,7 +865,7 @@ local function runRotation()
     -- if IsHackEnabled("NoKnockback") then
     --     SetHackEnabled("NoKnockback", false)
     -- end
-    -- Fell Rush Special
+    -- Fel Rush Special
     if inCombat and isChecked("Auto Fel Rush After Retreat") and cast.able.felRush()
         and buff.prepared.exists() and not buff.momentum.exists() and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
     then
@@ -872,9 +874,7 @@ local function runRotation()
         elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
             if cast.felRush() then return end
         end
-    end            
-
-    -- ChatOverlay("Pools - Meta: "..tostring(poolForMeta)..", BD: "..tostring(poolForBladeDance)..", CS: "..tostring(poolForChaosStrike))
+    end
 
     ---------------------
     --- Begin Profile ---
@@ -919,8 +919,8 @@ local function runRotation()
                     if actionList.Cooldowns() then return end
                 end
                 -- Pickup Fragments
-                -- pick_up_fragment,if=fury.deficit>=35
-                if powerDeficit >= 35 then
+                -- pick_up_fragment,if=fury.deficit>=35&(!azerite.eyes_of_rage.enabled|cooldown.eye_beam.remains>1.4)
+                if powerDeficit >= 35 and (not traits.eyesOfRage.active or cd.eyeBeam.remain() > 1.4) then
                     ChatOverlay("Low Fury - Pickup Fragments!")
                 end
                 -- Call Action List - Dark Slash
