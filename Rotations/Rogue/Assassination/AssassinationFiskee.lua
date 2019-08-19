@@ -1088,7 +1088,7 @@ local function runRotation()
                 end
             end
             --tricks
-            if tricksUnit ~= nil and validTarget and targetDistance < 5 then
+            if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") >= 2 then
                 cast.tricksOfTheTrade(tricksUnit)
             end
             -- # Restealth if possible (no vulnerable enemies in combat)
