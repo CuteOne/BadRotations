@@ -890,6 +890,8 @@ local function runRotation()
 
     local function actionList_Cooldowns()
         if useCDs() and not moving and targetUnit.ttd >= getOptionValue("CDs TTD Limit") then
+            --actions.cooldowns=guardian_of_azeroth
+            if cast.guardianOfAzeroth() then return end
             -- actions.cooldowns=icy_veins
             if cast.icyVeins("player") then return true end
             -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
