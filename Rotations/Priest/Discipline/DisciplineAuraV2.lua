@@ -639,7 +639,7 @@ local function runRotation()
                             end
                         end
                         if getOptionValue("Ever-Rising Tide") == 2 then
-                            if buff.rapture.exists() or buff.evangelism.exists() or burst == true then
+                            if buff.rapture.exists() or cd.evangelism.remain() >= 80 or burst == true then
                                 if cast.overchargeMana() then
                                     br.addonDebug("Casting Ever-Rising Tide")
                                     return true
@@ -1101,6 +1101,11 @@ local function runRotation()
                                 return
                             end
                         end
+                    end
+                elseif isChecked("Ever-Rising Tide") and getOptionValue("Ever-Rising Tide") == 2 and ((#br.friend - atonementCount >= 3 and inInstance) or (#br.friend - atonementCount >= 5 and inRaid)) and norganBuff then
+                    if cast.overchargeMana() then
+                        br.addonDebug("Casting Ever-Rising Tide")
+                        return true
                     end
                 elseif (isChecked("Shadowfiend") or isChecked("Mindbender")) and cast.last.powerWordRadiance() then
                     if isChecked("Shadowfiend") then
