@@ -334,7 +334,7 @@ function br.loader:new(spec,specName)
             return enemyTable  -- Backwards compatability for old way
         end
 
-        if self.spell.pets ~= nil then
+        if self.pets ~= nil then
             if self.pet.active == nil then self.pet.active = {} end
             self.pet.active.exists = function()
                 return GetObjectExists("pet")
@@ -408,7 +408,7 @@ function br.loader:new(spec,specName)
             if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
 
             br.api.items(self.cd,k,v,"cd")
-            
+
             br.api.items(self.charges,k,v,"charges")
 
             br.api.items(self.equiped,k,v,"equiped")
