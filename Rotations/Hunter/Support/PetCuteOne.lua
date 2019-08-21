@@ -98,7 +98,7 @@ br.rotations.support["PetCuteOne"] = function()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
-            PetAttack(petTarget)            
+            PetAttack(petTarget)
         elseif not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile
             and IsPetAttackActive() and not isUnitCasting("player")
         then
@@ -206,7 +206,7 @@ br.rotations.support["PetCuteOne"] = function()
     end
     -- Mend Pet
     if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
-        and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile
+        and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
     then
         if cast.mendPet() then return end
     end

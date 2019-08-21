@@ -101,6 +101,7 @@ br.lists.items = {
     dribblingInkpod                 = 169319,
     feloiledInfernalMachine         = 144482,
     galecallersBeak                 = 161379,
+    galecallersBoon                 = 159614,
     grongsPrimalRage                = 165574,
     hornOfValor                     = 133642,
     jesHowler                       = 159627,
