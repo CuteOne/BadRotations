@@ -352,11 +352,6 @@ br.lists.spells = {
             glyphs                          = {
 
             },
-            pets                            = {
-                activePet                   = activePet,
-                gargoyle                    = 27829,
-                risenSkulker                = 99541,
-            },
             talents                         = {
                 allWillServe                = 194916,
                 armyOfTheDead               = 276837,
@@ -380,7 +375,7 @@ br.lists.spells = {
                 unholyFrenzy                = 207289,
             },
             traits                          = {
-
+                magusOfTheDead              = 288417,
             },
         },
         -- All
@@ -1197,9 +1192,6 @@ br.lists.spells = {
             },
             glyphs                          = {
 
-            },
-            pets                            = {
-                activePet                   = activePet,
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
@@ -3125,20 +3117,6 @@ br.lists.spells = {
             },
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,
-            },
-            pets                            = {
-                darkglare                   = 103673,
-                demonicTyrant               = 135002,
-                doomguard                   = 78158,
-                dreadstlaker                = 98035,
-                felguard                    = 17252,
-                felhunter                   = 417,
-                imp                         = 416,
-                infernal                    = 78217,
-                succubus                    = 1863,
-                voidwalker                  = 1860,
-                wildImp                     = 55659,
-                wrathguard                  = 58965,
             },
             talents                         = {
                 burningRush                 = 111400,

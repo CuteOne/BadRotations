@@ -140,6 +140,7 @@ function br.loader:new(spec,specName)
     end
 
     self.items = br.lists.items
+    self.pets  = br.lists.pets
 
     -- Update Talent Info
     local function getTalentInfo()
@@ -348,7 +349,7 @@ function br.loader:new(spec,specName)
                 return count
             end
 
-            for k,v in pairs(self.spell.pets) do
+            for k,v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
 
                 local pet = self.pet[k]
