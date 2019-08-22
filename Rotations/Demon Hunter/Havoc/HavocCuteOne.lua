@@ -556,7 +556,7 @@ actionList.Demonic = function()
     end
     -- Demon's Bite
     -- demons_bite
-    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades then
+    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and powerDeficit > 30 then
         if cast.demonsBite(units.dyn5) then return end
     end
     -- Throw Glaive
@@ -678,7 +678,7 @@ actionList.Normal = function()
     end
     -- Demon's Bite
     -- demons_bite
-    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades then
+    if cast.able.demonsBite(units.dyn5) and not talent.demonBlades and powerDeficit > 30 then
         if cast.demonsBite(units.dyn5) then return end
     end
     -- Fel Rush
