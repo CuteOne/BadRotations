@@ -1674,6 +1674,8 @@ br.lists.spells = {
                 whirlingDragonPunch         = 152175,
             },
             traits                          = {
+                gloryOfTheDawn              = 288634,
+                openPalmStrikes             = 279918,
                 swiftRoundhouse             = 277669,
             }
         },

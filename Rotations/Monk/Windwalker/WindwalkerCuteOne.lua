@@ -503,7 +503,7 @@ actionList.SingleTarget = function()
     -- Rushing Jade Wind
     -- rushing_jade_wind,if=buff.rushing_jade_wind.down&active_enemies>1
     if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not isExplosive("target")
-    and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
+        and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
         if cast.rushingJadeWind() then debug("Casting Rushing Jade Wind [ST]") return true end
     end
@@ -515,7 +515,7 @@ actionList.SingleTarget = function()
     -- Energizing Elixir
     -- energizing_elixir,if=chi<=3&energy<50
     if cast.able.energizingElixir() and (option.value("Energizing Elixir") == 1 or (option.value("Energizing Elixir") == 2 and useCDs()))
-    and chi <= 3 and energy < 50 and getDistance("target") < 5
+        and chi <= 3 and energy < 50 and getDistance("target") < 5
     then
         if cast.energizingElixir() then debug("Casting Energizing Elixir [ST]") return true end
     end
@@ -525,8 +525,8 @@ actionList.SingleTarget = function()
         if cast.spinningCraneKick(nil,"aoe",1,8) then debug("Casting Spinning Crane Kick [ST]") return true end
     end
     -- Blackout kick
-    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))&buff.swift_roundhouse.stack<2
-    if cast.able.blackoutKick() and (not wasLastCombo(spell.blackoutKick) and buff.swiftRoundhouse.stack() < 2 and (cd.risingSunKick.remain() > 3 or chi >= 3)
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))
+    if cast.able.blackoutKick() and (not wasLastCombo(spell.blackoutKick) and (cd.risingSunKick.remain() > 3 or chi >= 3)
         and (cd.fistsOfFury.remain() > 4 or chi >= 4 or ((chi == 2 or ttm <= 3) and wasLastCombo(spell.tigerPalm)) or ttd <= 3
         or #enemies.yards8f < option.value("Fists of Fury Targets") or mode.fof == 2 or buff.blackoutKick.exists() or isExplosive("target")))
     then
@@ -553,8 +553,8 @@ actionList.SingleTarget = function()
         if cast.tigerPalm() then debug("Casting Tiger Palm [ST]") return true end
     end
     -- Flying Serpent Kick
-    -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&chi>3&buff.swift_roundhouse.stack<2,interrupt=1
-    if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 and buff.swiftRoundhouse.stack() < 2 then
+    -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&chi>3,interrupt=1
+    if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 then
         if cast.flyingSerpentKick() then debug("Casting Flying Serpent Kick [ST]") return true end
     end
 end -- End Action List - Single Target
@@ -637,6 +637,101 @@ actionList.AoE = function()
         if cast.blackoutKick(lowestMark) then debug("Casting Blackout Kick [AOE]") return true end
     end
 end -- End Action List - AoE
+
+-- Action List - RSKLess
+actionList.RSKLess = function()
+    -- Whirling Dragon Punch
+    -- whirling_dragon_punch
+    if cast.able.whirlingDragonPunch() and option.checked("Whirling Dragon Punch") and talent.whirlingDragonPunch and not moving and not isExplosive("target")
+        and cd.fistsOfFury.exists() and cd.risingSunKick.exists() and #enemies.yards8 >= option.value("Whirling Dragon Punch Targets")
+    then
+        if cast.whirlingDragonPunch("player","aoe") then debug("Casting Whirling Dragon Punch [RSKLess]") return true end
+    end
+    -- Fists of Fury
+    -- fists_of_fury
+    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and #enemies.yards8f >= option.value("Fists of Fury Targets")
+        and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
+    then
+        if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [RSKLess]") return true end
+    end
+    -- Rising Sun Kick
+    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=buff.storm_earth_and_fire.up|cooldown.whirling_dragon_punch.remains<4
+    if cast.able.risingSunKick() and (buff.stormEarthAndFire.exists() or cd.whirlingDragonPunch.remain() < 4) then
+        if cast.risingSunKick() then debug("Casting Rising Sun Kick [RSKLess - SEF/WDP]") return true end
+    end
+    -- Rushing Jade Wind
+    -- rushing_jade_wind,if=buff.rushing_jade_wind.down&active_enemies>1
+    if cast.able.rushingJadeWind() and not buff.rushingJadeWind.exists() and not isExplosive("target")
+        and ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0))
+    then
+        if cast.rushingJadeWind() then debug("Casting Rushing Jade Wind [RSKLess]") return true end
+    end
+    -- Reverse Harm
+    -- reverse_harm,if=chi.max-chi>=2
+
+    -- Fist of the White Tiger
+    -- fist_of_the_white_tiger,if=chi<=2
+    if cast.able.fistOfTheWhiteTiger() and chi <= 2 then
+        if cast.fistOfTheWhiteTiger() then debug("Casting Fist of the White Tiger [RSKLess]") return true end
+    end
+    -- Energizing Elixir
+    -- energizing_elixir,if=chi<=3&energy<50
+    if cast.able.energizingElixir() and (option.value("Energizing Elixir") == 1 or (option.value("Energizing Elixir") == 2 and useCDs()))
+        and chi <= 3 and energy < 50 and getDistance("target") < 5
+    then
+        if cast.energizingElixir() then debug("Casting Energizing Elixir [RSKLess]") return true end
+    end
+    -- Spinning Crane Kick
+    -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&buff.dance_of_chiji.up
+    if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+        and buff.danceOfChiJi.exists() and not isExplosive("target")
+    then
+        if cast.spinningCraneKick(nil,"aoe") then debug("Casting Spinning Crane Kick [RSKLess]") return true end
+    end
+    -- Blackout Kick
+    -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))
+    if cast.able.blackoutKick() and (not wasLastCombo(spell.blackoutKick)
+        and (cd.fistsOfFury.remain() > 4 or chi >= 4 or ((chi == 2 or ttm <= 3) and wasLastCombo(spell.tigerPalm)) or ttd <= 3
+        or #enemies.yards8f < option.value("Fists of Fury Targets") or mode.fof == 2 or buff.blackoutKick.exists() or isExplosive("target")))
+    then
+        if cast.blackoutKick() then debug("Casting Blackout Kick [RSKLess]") return end
+    end
+    -- Chi Wave
+    -- chi_wave
+    if cast.able.chiWave() then
+        if cast.chiWave(nil,"aoe") then debug("Casting Chi Wave [RSKLess]") return true end
+    end
+    -- Chi Burst
+    -- chi_burst,if=chi.max-chi>=1&active_enemies=1|chi.max-chi>=2
+    if cast.able.chiBurst() and ((chiMax - chi >= 1 and enemies.yards40r == 1) or (chiMax - chi >= 2
+        and ((mode.rotation == 1 and enemies.yards40r >= option.value("Chi Burst Min Units"))
+            or (mode.rotation == 3 and enemies.yards40r > 1))))
+    then
+        if cast.chiBurst(nil,"rect",1,12) then debug("Casting Chi Burst [RSKLess]") return true end
+    end
+    -- Flying Serpent Kick
+    -- flying_serpent_kick,if=prev_gcd.1.blackout_kick&chi>3,interrupt=1
+    if mode.fsk == 1 and cast.able.flyingSerpentKick() and wasLastCombo(spell.blackoutKick) and chi > 3 then
+        if cast.flyingSerpentKick() then debug("Casting Flying Serpent Kick [RSKLess]") return true end
+    end
+    -- Rising Sun Kick
+    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi<2
+    if cast.able.risingSunKick() and chiMax - chi < 2 then
+        if cast.risingSunKick() then debug("Casting Rising Sun Kick [RSKLess - 2 from Max]") return true end
+    end
+    -- Tiger Palm
+    -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
+    if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm)
+        and (chiMax - chi >= 2 or ttd < 3 or ttm < 3 or isExplosive("target"))
+    then
+        if cast.tigerPalm() then debug("Casting Tiger Palm [RSKLess]") return true end
+    end
+    -- Rising Sun Kick
+    -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
+    if cast.able.risingSunKick() then
+        if cast.risingSunKick() then debug("Casting Rising Sun Kick [RSKLess]") return true end
+    end
+end -- End Action List - RSKLess
 
 -- Action List - Essence
 actionList.Essence = function()
@@ -1116,15 +1211,15 @@ local function runRotation()
         -----------------------
         --- Extras Rotation ---
         -----------------------
-        if actionList.Extras() then debug("=== Extras [Action List] ===") return true end
+        if actionList.Extras() then return true end
         --------------------------
         --- Defensive Rotation ---
         --------------------------
-        if actionList.Defensive() then debug("=== Defensive [Action List] ===") return true end
+        if actionList.Defensive() then return true end
         ---------------------------
         --- Pre-Combat Rotation ---
         ---------------------------
-        if actionList.PreCombat() then debug("=== PreCombat [Action List] ===") return true end
+        if actionList.PreCombat() then return true end
         --------------------------
         --- In Combat Rotation ---
         --------------------------
@@ -1136,7 +1231,7 @@ local function runRotation()
             --- Interrupts ---
             ------------------
             -- Run Action List - Interrupts
-            if actionList.Interrupts() then debug("=== Interrupts [Action List] ===") return true end
+            if actionList.Interrupts() then return true end
             ----------------------
             --- Start Rotation ---
             ----------------------
@@ -1171,41 +1266,50 @@ local function runRotation()
                 -- Call Action List - Serenity
                 -- call_action_list,name=serenity,if=buff.serenity.up
                 if buff.serenity.exists() then
-                    if actionList.Serenity() then debug("=== Serenity [Action List] ===") return true end
+                    if actionList.Serenity() then return true end
                 end
                 -- Xuen
                 if cast.able.invokeXuenTheWhiteTiger() and useCDs() and option.checked("Xuen") then
                     if cast.invokeXuenTheWhiteTiger() then debug("Casting Invoke Xuen [Cooldown 2]") return true end
                 end
                 -- Fist of the White Tiger
-                -- fist_of_the_white_tiger,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2))&chi.max-chi>=3
-                if cast.able.fistOfTheWhiteTiger() and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2)) and chiMax - chi >= 3 then
+                -- fist_of_the_white_tiger,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2)|(energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5))&chi.max-chi>=3
+                if cast.able.fistOfTheWhiteTiger() and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2) or (ttm < 4 and cd.fistsOfFury.remain() < 1.5))
+                    and chiMax - chi >= 3
+                then
                     if cast.fistOfTheWhiteTiger() then debug("Casting Fist of the White Tiger [Max Energy / Pre-Serenity]") return true end
                 end
                 -- Tiger Palm
-                -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2))&chi.max-chi>=2&!prev_gcd.1.tiger_palm
-                if cast.able.tigerPalm(lowestMark) and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2))
+                -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=(energy.time_to_max<1|(talent.serenity.enabled&cooldown.serenity.remains<2)|(energy.time_to_max<4&cooldown.fists_of_fury.remains<1.5))&chi.max-chi>=2&!prev_gcd.1.tiger_palm
+                if cast.able.tigerPalm(lowestMark) and (ttm < 1 or (talent.serenity and cd.serenity.remain() < 2) or (ttm < 4 and cd.fistsOfFury.remain() < 1.5))
                     and chiMax - chi >= 2 and not wasLastCombo(spell.tigerPalm)
                 then
                     if cast.tigerPalm(lowestMark) then debug("Casting Tiger Palm [Max Energy / Pre-Serenity]") return true end
                 end
                 -- Call Action List - Cooldowns
                 -- call_action_list,name=cd
-                if actionList.Cooldowns() then debug("=== Cooldowns [Action List] ===") return true end
+                if actionList.Cooldowns() then return true end
                 -- Call Action List - Essence
                 -- call_action_list,name=essences
                 if option.checked("Use Essence") then
-                    if actionList.Essence() then debug("=== Essence [Action List] ===") return end
+                    if actionList.Essence() then return end
+                end
+                -- Call Action List - RSKLess
+                -- call_action_list,name=rskless,if=active_enemies<3&azerite.open_palm_strikes.enabled&!azerite.glory_of_the_dawn.enabled
+                if ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0))
+                    and traits.openPalmStrikes.active and not traits.gloryOfTheDawn.active
+                then
+                    if actionList.RSKLess() then return true end
                 end
                 -- Call Action List - Single Target
                 -- call_action_list,name=st,if=active_enemies<3
                 if level < 40 or ((mode.rotation == 1 and #enemies.yards8 < 3) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
-                    if actionList.SingleTarget() then debug("=== ST [Action List] ===") return true end
+                    if actionList.SingleTarget() then return true end
                 end
                 -- Call Action List - AoE
                 -- call_action_list,name=aoe,if=active_enemies>=3
                 if level >= 40 and ((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
-                    if actionList.AoE() then debug("=== AOE [Action List] ===") return true end
+                    if actionList.AoE() then return true end
                 end
             end -- End Simulation Craft APL
             ----------------------------
