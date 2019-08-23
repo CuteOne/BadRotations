@@ -644,7 +644,7 @@ local function runRotation()
             if isChecked("Fade") then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if not solo and UnitThreatSituation("player", thisUnit) > 1 then
+                    if not solo and UnitThreatSituation("player") > 1 then
                         if cast.fade("player") then
                             return
                         end
