@@ -1334,7 +1334,7 @@ local function runRotation()
             end
 
             -- Flight Form
-            if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and level >= 58 and not buff.prowl.exists() then
+            if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and br.player.level >= 58 and not buff.prowl.exists() then
                 if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
                     -- CancelShapeshiftForm()
                     RunMacroText("/CancelForm")
