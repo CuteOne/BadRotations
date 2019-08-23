@@ -1106,7 +1106,12 @@ local function runRotation()
 				end
 			end
 		end
-		-- Avenger's Shield
+		if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+            if cast.concentratedFlame("target") then
+                return
+            end
+		end	
+			-- Avenger's Shield
 		if isChecked("Avenger's Shield") and cast.able.avengersShield() then
 			if cast.avengersShield() then
 				return
@@ -1124,11 +1129,6 @@ local function runRotation()
 				return
 			end
 		end
-		if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
-            if cast.concentratedFlame("target") then
-                return
-            end
-        end
 		-- Consecration
 		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 then
 			if cast.consecration("player") then
