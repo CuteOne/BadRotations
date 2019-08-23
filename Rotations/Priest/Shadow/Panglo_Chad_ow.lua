@@ -159,6 +159,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Dark Void")
         br.ui:createCheckbox(section, "Use lucid dreams", "Ensure Essence Toggle is ON to use")
         br.ui:createCheckbox(section, "Use Laser Beam", "Ensure Essence Toggle is ON to use")
+		br.ui:createCheckbox(section, "Moving SW:P")
         br.ui:createSpinnerWithout(section, "Laser Units", 3, 1, 50, 1)
         br.ui:createSpinnerWithout(section, "Lucid - void stacks", 20, 1, 40, 1)
         br.ui:createSpinnerWithout(section, "Lucid - insanity", 55, 1, 100, 5)
@@ -314,26 +315,38 @@ local function runRotation()
     end
 
     local function actionlist_Moving()
+
+	    if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+			if castGround("target", 205385, 40, 0, 8, 0) then
+			SpellStopTargeting()
+                return
+            end
+		end
+		
         if voidForm then
             if cast.voidBolt() then
                 return
             end
         end
-
-        for i = 1, #enemies.yards40 do
-            local thisUnit
-            if mode.rotation == 1 and debuff.shadowWordPain.exists("target") then
-                thisUnit = enemies.yards40[i]
-            elseif mode.rotation == 2 or not debuff.shadowWordPain.exists("target") then
-                thisUnit = "target"
-            end
-            if (voidForm and cd.voidBolt.remain() > (gcd/3)) or not voidForm then
-                if cast.shadowWordPain(thisUnit) then
+		
+		if isChecked("Moving SW:P") and (not voidForm or cd.voidBolt.remain() > (gcd/3)) then
+            if not debuff.shadowWordPain.exists("target") then
+                if cast.shadowWordPain("target") then
                     return
+                end
+            else
+                local thisUnit
+                for i = 1, #enemies.yards40 do
+                    thisUnit = enemies.yards40[i]
+                    if not debuff.shadowWordPain.exists(thisUnit) then
+                        if cast.shadowWordPain(thisUnit) then
+                            return
+                        end
+                    end
                 end
             end
         end
-    end
+	end
 
     local function actionlist_Extra()
         if not buff.shadowform.exists() and not buff.voidForm.exists() then
@@ -357,7 +370,7 @@ local function runRotation()
             end
         end
 
-        if mode.essence == 1 and inCombat and not moving and not br.player.mode.cooldown ~= 3 and not voidForm and isChecked("Use Laser Beam") and (getEnemiesInRect(5, 30) >= getOptionValue("Laser Units") or useCDs()) then
+        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and not voidForm and isChecked("Use Laser Beam") and (getEnemiesInRect(5, 30) >= getOptionValue("Laser Units") or useCDs()) then
             if cast.focusedAzeriteBeam("player") then
                 return
             end
