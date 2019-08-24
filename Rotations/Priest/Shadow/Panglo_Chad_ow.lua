@@ -267,7 +267,7 @@ local function runRotation()
     if debugVariable == nil then
         debugVariable = false
     end
-
+    local lowestPain = debuff.shadowWordPain.lowest(40,"remain") or units.dyn40
     local dotsUP = debuff.vampiricTouch.exists("target") and debuff.shadowWordPain.exists("target")
 
     local buffedSear = isCastingSpell(spell.mindSear) and buff.harvestedThoughts.exists()
@@ -316,7 +316,7 @@ local function runRotation()
 
     local function actionlist_Moving()
 
-	    if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+	    if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
 			if castGround("target", 205385, 40, 0, 8, 0) then
 			SpellStopTargeting()
                 return
@@ -330,19 +330,13 @@ local function runRotation()
         end
 		
 		if isChecked("Moving SW:P") and (not voidForm or cd.voidBolt.remain() > (gcd/3)) then
-            if not debuff.shadowWordPain.exists("target") then
+            if mode.rotation == 2 then
                 if cast.shadowWordPain("target") then
                     return
                 end
             else
-                local thisUnit
-                for i = 1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) then
-                        if cast.shadowWordPain(thisUnit) then
-                            return
-                        end
-                    end
+                if cast.shadowWordPain(lowestPain) then
+                    return
                 end
             end
         end
@@ -467,8 +461,8 @@ local function runRotation()
     end
     local function actionlist_Single()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 then
-            if cast.voidEruption() then
+        if power > 60 and mode.void == 1 and getDistance("player","target") <= 40 then
+            if cast.voidEruption("target") then
                 return
             end
         end
@@ -505,7 +499,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
             if castGround("target", 205385, 40, 0, 8, 0) then
                 SpellStopTargeting()
                 return
@@ -531,8 +525,8 @@ local function runRotation()
 
     local function actionlist_Multi()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 then
-            if cast.voidEruption() then
+        if power > 60 and mode.void == 1  and getDistance("player",units.dyn40) <= 40 then
+            if cast.voidEruption(units.dyn40) then
                 return
             end
         end
@@ -595,7 +589,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
             if castGround("best", 205385, 40, 0, 8, 0) then
                 SpellStopTargeting()
                 return
@@ -642,12 +636,9 @@ local function runRotation()
 
             -- Fade
             if isChecked("Fade") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not solo and UnitThreatSituation("player") > 1 then
-                        if cast.fade("player") then
-                            return
-                        end
+                if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
+                    if cast.fade("player") then
+                        return
                     end
                 end
             end
@@ -662,7 +653,7 @@ local function runRotation()
                 end
             end
 
-            if (moving and not debuff.weakenedSoul.exists("player") and isChecked("Power Word: Shield")) or (isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists()) then
+            if (moving and not debuff.weakenedSoul.exists("player") and isChecked("Power Word: Shield") and talent.bodyAndSoul) or (isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() and not debuff.weakenedSoul.exists("player")) then
                 if cast.powerWordShield("player") then
                     return
                 end
@@ -744,7 +735,7 @@ local function runRotation()
                 return
             end
         end
-        if inCombat and profileStop == false and not (IsMounted() or IsFlying()) then
+        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player",units.dyn40) < 40 then
             if moving then
                 if actionlist_Moving() then
                     return
