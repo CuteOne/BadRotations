@@ -762,6 +762,25 @@ function talentAnywhere()
 		end
 	end
 end
+function getEssenceRank(essenceName)
+	if GetSpellInfo(essenceName) == nil then
+		return 0
+	end
+	local essenceRank = 0
+	local essenceTable = C_AzeriteEssence.GetMilestones()
+	local icon = select(3,GetSpellInfo(essenceName))
+	for i = 1, #essenceTable do
+		local milestone = essenceTable[i]
+		if milestone.slot ~= nil and milestone.unlocked == true then
+			local eRank = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).rank
+			local eIcon = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).icon
+			if icon == eIcon then
+				essenceRank = eRank
+			end
+		end
+		return essenceRank
+	end
+end
 
 function br.addonDebug(msg)
 	if msg == nil then
