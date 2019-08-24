@@ -4,4 +4,5 @@ br.api.essences = function(essence,k,v)
     essence.key = k
     essence.id = v
     essence.spellID = select(7,GetSpellInfo(GetSpellInfo(v))) or v
+    essence.rank = getEssenceRank(GetSpellInfo(v))
 end
