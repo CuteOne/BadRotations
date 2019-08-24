@@ -394,14 +394,14 @@ actionList.Cooldowns = function()
             use.pocketSizedComputationDevice()
         end
         -- Ashvane's Razor Coral
-        -- ashvanes_razor_coral,if=buff.aspect_of_the_wild.remains>15|debuff.razor_coral_debuff.down|target.time_to_die<20
+        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.up)&(target.health.pct<35|!essence.condensed_lifeforce.major)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
         if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral()
-            and (not equiped.pocketSizedComputationDevice() or (equiped.pocketSizedComputationDevice() and cd.pocketSizedComputationDevice.remain() > 0))
-            and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(units.dyn40) or ttd(units.dyn40) < 20)
+            and debuff.razorCoral.exists("target") and (cast.last.aspectOfTheWild() or not equiped.pocketSizedComputationDevice() and buff.aspectOfTheWild.exists("player")) 
+            and (thp("target") < 35 or not essences.guardianOfAzeroth.active) or (not debuff.razorCoral.exists("target") or ttd("target") < 26)
         then
             use.ashvanesRazorCoral()
         end
-
+        -- Trinkets
         if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
             and use.able.slot(13) and not equiped.vigorTrinket(13)
             and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
@@ -756,8 +756,8 @@ actionList.St = function()
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
     end
-        -- Cobra Shot
-        -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
+    -- Cobra Shot
+    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
     if cast.able.cobraShot() and ((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand()
         or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDreams.exists()) and cd.killCommand.remain() > 1)
     then
