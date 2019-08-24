@@ -196,6 +196,7 @@ local charges
 local debuff
 local enemies
 local equiped
+local essence
 local focus
 local focusMax
 local focusRegen
@@ -396,8 +397,8 @@ actionList.Cooldowns = function()
         -- Ashvane's Razor Coral
         -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.up)&(target.health.pct<35|!essence.condensed_lifeforce.major)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
         if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral()
-            and debuff.razorCoral.exists("target") and (cast.last.aspectOfTheWild() or not equiped.pocketSizedComputationDevice() and buff.aspectOfTheWild.exists("player")) 
-            and (thp("target") < 35 or not essences.guardianOfAzeroth.active) or (not debuff.razorCoral.exists("target") or ttd("target") < 26)
+            and debuff.razorCoral.exists("target") and (cast.last.aspectOfTheWild() --[[or not equiped.pocketSizedComputationDevice()]] and buff.aspectOfTheWild.exists("player")) 
+            and (thp("target") < 35 or not essence.guardianOfAzeroth.active) or (not debuff.razorCoral.exists("target") or ttd("target") < 26)
         then
             use.ashvanesRazorCoral()
         end
@@ -952,6 +953,7 @@ local function runRotation()
     debuff                             = br.player.debuff
     enemies                            = br.player.enemies
     equiped                            = br.player.equiped
+    essence                            = br.player.essence
     focus                              = br.player.power.focus.amount()
     focusMax                           = br.player.power.focus.max()
     focusRegen                         = br.player.power.focus.regen()
