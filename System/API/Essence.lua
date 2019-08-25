@@ -17,16 +17,18 @@ br.api.essences = function(essence,k,v)
             if not thisMilestone.unlocked then break end
             if thisMilestone.slot ~= nil then
                 local milestoneEssence = C_AzeriteEssence.GetMilestoneEssence(thisMilestone.ID)
-                local rank = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).rank
-                local icon = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).icon
-                if essenceIcon == icon then
-                    essence.rank = rank
-                    essence.active = true
-                end
-                if essence.active then
-                    if thisMilestone.slot == 0 then essence.major = true end
-                    if thisMilestone.slot == 1 or thisMilestone.slot == 2 then essence.minor = true end
-                    break
+                if milestoneEssence ~= nil then
+                    local rank = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).rank
+                    local icon = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).icon
+                    if essenceIcon == icon then
+                        essence.rank = rank
+                        essence.active = true
+                    end
+                    if essence.active then
+                        if thisMilestone.slot == 0 then essence.major = true end
+                        if thisMilestone.slot == 1 or thisMilestone.slot == 2 then essence.minor = true end
+                        break
+                    end
                 end
             end
         end
