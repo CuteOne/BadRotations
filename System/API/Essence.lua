@@ -21,8 +21,8 @@ br.api.essences = function(essence,k,v)
                 local icon = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).icon
                 if essenceIcon == icon then
                     essence.rank = rank
+                    essence.active = true
                 end
-                essence.active = essence.essenceID == milestoneEssence
                 if essence.active then
                     if thisMilestone.slot == 0 then essence.major = true end
                     if thisMilestone.slot == 1 or thisMilestone.slot == 2 then essence.minor = true end
