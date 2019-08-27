@@ -451,7 +451,7 @@ local function runRotation()
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=essence.vision_of_perfection.enabled|(essence.condensed_lifeforce.enabled&pet.apoc_ghoul.active)|debuff.festering_wound.stack<4&!(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)|cooldown.apocalypse.remains<2&(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)
-            if essence.visionOfPerfection.active or (essence.condensedLifeforce.active and pet.apocalypseGhoul.active()) or debuff.festeringWound.stack(units.dyn5) < 4
+            if essence.visionOfPerfection.active or (essence.condensedLifeforce.active and pet.apocalypseGhoul.exists()) or debuff.festeringWound.stack(units.dyn5) < 4
                 and not (equiped.rampingAmplitudeGigavoltEngine() or trait.magusOfTheDead.active) or cd.apocalypse.remain() < 2
                 and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active)
             then
