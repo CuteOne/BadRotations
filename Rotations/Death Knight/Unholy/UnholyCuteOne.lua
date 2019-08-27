@@ -813,7 +813,7 @@ local function runRotation()
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
                                 if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
-                                    or (cd.apocalypse.remain() < gcd and not essense.condensedLifeforce.active and not talent.unholyFrenzy)
+                                    or (cd.apocalypse.remain() < gcd and not essence.condensedLifeforce.active and not talent.unholyFrenzy)
                                     or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeforce.remain() + 20)
                                     or (buff.unholyFrenzy.exists() and not essence.condensedLifeforce.active))
                                 then
@@ -822,7 +822,7 @@ local function runRotation()
                                 -- Vision of Demise
                                 -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.active
                                 if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
-                                    and essense.visionOfPerfection.active) or buff.unholyFrenzy.exists() or pet.gargoyle.active())
+                                    and essence.visionOfPerfection.active) or buff.unholyFrenzy.exists() or pet.gargoyle.active())
                                 then
                                     use.slot(i)
                                 end
