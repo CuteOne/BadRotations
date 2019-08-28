@@ -90,6 +90,8 @@ local function createOptions()
             br.ui:createSpinner(section, "Critical HP", 30, 0, 100, 5, "|cffFFFFFFWill stop casting a DPS Spell if party member drops below value. Default: 30" )
         -- Mana Pot
             br.ui:createSpinner(section, "Mana Pot", 30, 0, 100, 5, "|cffFFFFFFWill use mana pot if mana below this value. Default: 30")
+
+            br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
         br.ui:checkSectionState(section)
     -- -- Burst Damage Options
         section = br.ui:createSection(br.ui.window.profile, "Raid Burst Damage Options")
@@ -105,6 +107,11 @@ local function createOptions()
             br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Pair with CDs", "Based on Health" }, 1, "When to use this Essence")
             br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
             br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
+        -- Well of Existence
+            br.ui:createCheckbox(section, "Well of Existence")
+        -- Life Binder's Invocation
+            br.ui:createSpinner(section, "Life-Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
+            br.ui:createSpinnerWithout(section, "Life-Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
         br.ui:checkSectionState(section)
     -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -506,12 +513,21 @@ local function runRotation()
        end
         -- Action List - Pre-Combat
         function actionList_PreCombat()
+            if isChecked("Pig Catcher") then
+                bossHelper()
+            end
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
             -- Sapphire of Brilliance
             if prepullOpener then
                 if hasItem(166801) and canUseItem(166801) then
                     br.addonDebug("Using Sapphire of Brilliance")
                     useItem(166801)
+                end
+            end
+            -- Healing Rain
+            if movingCheck and cd.healingRain.remain() <= gcd then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
         -- Riptide
@@ -552,12 +568,6 @@ local function runRotation()
                     if chainHealUnits(spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets")) then br.addonDebug("Casting Chain Heal") return true end
                 elseif getOptionValue("Chain Heal Logic") == 2 then
                     if castWiseAoEHeal(br.friend,spell.chainHeal,15,getValue("Chain Heal"),getValue("Chain Heal Targets"),5,false,true) then br.addonDebug("Casting Chain Heal") return end
-                end
-            end
-        -- Healing Rain
-            if movingCheck and cd.healingRain.remain() <= gcd then
-                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
-                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
                 end
             end
             -- Healing Surge
@@ -618,6 +628,12 @@ local function runRotation()
             end
         end
         local function actionList_AMR()
+             -- Healing Rain
+             if movingCheck and cd.healingRain.remain() <= gcd then
+                if (SpecificToggle("Healing Rain Key") and not GetCurrentKeyBoardFocus()) and isChecked("Healing Rain Key") then
+                    if CastSpellByName(GetSpellInfo(spell.healingRain),"cursor") then br.addonDebug("Casting Healing Rain") return end 
+                end
+            end
             --Spirit Link Key
             if (SpecificToggle("Spirit Link Totem Key") and not GetCurrentKeyBoardFocus()) and isChecked("Spirit Link Totem Key") then
                 if CastSpellByName(GetSpellInfo(spell.spiritLinkTotem),"cursor") then br.addonDebug("Casting Spirit Link Totem") return end 
@@ -840,6 +856,12 @@ local function runRotation()
 					end
 				end
             end
+            if isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcd and getLowAllies(getOptionValue("Life-Binder's Invocation")) >= getOptionValue("Life-Binder's Invocation Targets") then
+                if cast.lifeBindersInvocation() then
+                    br.addonDebug("Casting Life-Binder's Invocation")
+                    return true
+                end
+            end
             if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
                 if getOptionValue("Ever-Rising Tide") == 1 then
                     if cast.overchargeMana() then
@@ -990,6 +1012,10 @@ local function runRotation()
                     if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
                 end
             end
+            -- Refreshment
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Shadow Mend") then
+                if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
+            end
             -- Healing Surge (2 stacks)
             if isChecked("Healing Surge") and movingCheck then
                 if lowest.hp <= getValue("Healing Surge") and buff.tidalWaves.stack() == 2 then
@@ -1089,7 +1115,7 @@ local function runRotation()
         end
         ghostWolf()
         if inCombat then
-           if IsAoEPending()then print('1')  SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
+           if IsAoEPending()then SpellStopTargeting() br.addonDebug(colorRed.."Canceling Spell") end
         end
         -- Dps Spell Cancel
         for i = 1, #dpsSpells do

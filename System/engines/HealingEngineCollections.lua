@@ -107,6 +107,7 @@ novaEngineTables.DispelID = {
 	[300414] = {stacks = 0}, --https://www.wowhead.com/spell=300414/enrage
 	[294929] = {stacks = 0}, --https://www.wowhead.com/spell=294929/blazing-chomp
 	[294195] = {stacks = 0}, --https://www.wowhead.com/spell=294195/arcing-zap
+	[284219] = {stacks = 0}, --https://www.wowhead.com/spell=284219/shrink
 
 
 
@@ -117,25 +118,40 @@ novaEngineTables.PurgeID = {
 	[283619] = true, -- Wave of Light (Champion of Light)
 	[289623] = true, -- Guardian Spirit (BoD Trash)
 	[254974] = true, -- Gathered Souls (Atal'Dazar)
+	[255579] = true, -- Gilded Claws (Atal'Dazar)
 	[257397] = true, -- Healing Balm (Freehold)
+	[257476] = true, -- Bestial Wrath (Freehold)
 	[269935] = true, -- Bound by Shadow (King's Rest)
 	[270901] = true, -- Induce Regeneration (King's Rest)
+	[269976] = true, -- Ancestral Fury (King's Rest)
+	[267256] = true, -- Earthwall (King's Rest)
+	[267977] = true, -- Tidal Surge (Shrine of Storms)
+	[276266] = true, -- Spirit's Swiftness (Shrine of Storms)
 	[268030] = true, -- Mending Rapids (Shrine of Storms)
+	[274210] = true, -- Reanimated Bones (Shrine of Storms)
+	[268375] = true, -- Detect Thoughts (Shrine of Storms)
+	[276767] = true, -- Consuming Void (Shrine of Storms)
 	[256957] = true, -- Watertight Shell (Siege of Boralus)
 	[275826] = true, -- Bolstering Shout (Siege of Boralus)
+	[265912] = true, -- Accumulate Charge (Temple of Sethraliss)
+	[272659] = true, -- Electrified Scales (Temple of Sethraliss)
 	[269896] = true, -- Embryonic Vigor (Temple of Sethraliss)
+	[262947] = true, -- Azerite Injection (Motherlode)
+	[268709] = true, -- Earth Shield (Motherlode)
 	[263215] = true, -- Tectonic Barrier (Motherlode)
 	[262540] = true, -- Overcharge (Motherlode)
 	[258153] = true, -- Watery Dome (Tol Dagor)
+	[258133] = true, -- Darkstep (Tol Dagor)
+	[257956] = true, -- Motivated (Tol Dagor)
 	[265091] = true, -- Gift of G'huun (Underrot)
-	[278551] = true, -- Soul Fetish (waycrest Manor)
-	[269976] = true, -- Ancestral Fury (King's Rest)
+	[266201] = true, -- Bone Shield (Underrot)
 	[265081] = true, -- Warcry (Underrot)
 	[266209] = true, -- Wicked Frenzy (Underrot)
-	[257476] = true, -- Bestial Wrath (Freehold)
+	[278567] = true, -- Soul Fetish (Waycrest Manor)
+	[299584] = true, -- Coral Growth (Coral Ancients)
+	[299428] = true, -- Defensive Countermeasure (Sentries)
 	-- Mechagon
 	[297133] = true, -- Defensive Countermeasure (Defense Bot Mk III)
-	
 }
 -- List of debuffs that we should never dispell
 novaEngineTables.DoNotDispellList = {

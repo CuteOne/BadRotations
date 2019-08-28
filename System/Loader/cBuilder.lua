@@ -140,6 +140,7 @@ function br.loader:new(spec,specName)
     end
 
     self.items = br.lists.items
+    self.pets  = br.lists.pets
 
     -- Update Talent Info
     local function getTalentInfo()
@@ -333,7 +334,7 @@ function br.loader:new(spec,specName)
             return enemyTable  -- Backwards compatability for old way
         end
 
-        if self.spell.pets ~= nil then
+        if self.pets ~= nil then
             if self.pet.active == nil then self.pet.active = {} end
             self.pet.active.exists = function()
                 return GetObjectExists("pet")
@@ -348,7 +349,7 @@ function br.loader:new(spec,specName)
                 return count
             end
 
-            for k,v in pairs(self.spell.pets) do
+            for k,v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
 
                 local pet = self.pet[k]
@@ -407,7 +408,7 @@ function br.loader:new(spec,specName)
             if self.use.able        == nil then self.use.able   = {} end -- Useable Item Check Functions
 
             br.api.items(self.cd,k,v,"cd")
-            
+
             br.api.items(self.charges,k,v,"charges")
 
             br.api.items(self.equiped,k,v,"equiped")

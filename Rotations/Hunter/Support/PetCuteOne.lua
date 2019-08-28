@@ -43,14 +43,28 @@ br.rotations.support["PetCuteOne"] = function()
     enemies.get(40,"player",false,true)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
 
+    local petTarget
+    if petTarget == nil or not UnitExists(petTarget) or not isValidUnit(petTarget) then
+        if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
+            petTarget = units.dyn40
+        elseif getOptionValue("Pet Target") == 2 and isValidUnit("target") then
+            petTarget = "target"
+        elseif getOptionValue("Pet Target") == 3 then
+            for i=1, #enemies.yards40 do
+                local thisUnit = enemies.yards40[i]
+                if (isValidUnit(thisUnit) or isDummy()) then petTarget = thisUnit break end
+            end
+        end
+    end
+
     local friendUnit = br.friend[1].unit
     local petActive = IsPetActive()
     local petCombat = UnitAffectingCombat("pet")
-    local petDead = UnitIsDeadOrGhost("pet")
-    local petDistance = getDistance("pettarget","pet") or 99
+    local petDistance = getDistance(petTarget,"pet") or 99
     local petExists = UnitExists("pet")
+    local petHealth = getHP("pet")
     local petMode = getCurrentPetMode()
-    local validTarget = UnitExists("pettarget") or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
+    local validTarget = UnitExists(petTarget) and (isValidUnit(petTarget) or isDummy()) --or (not UnitExists("pettarget") and isValidUnit("target")) or isDummy()
 
     if IsMounted() or IsFlying() or UnitHasVehicleUI("player") or CanExitVehicle("player") then
         waitForPetToAppear = GetTime()
@@ -60,12 +74,12 @@ br.rotations.support["PetCuteOne"] = function()
             if cast.able.dismissPet() and petExists and petActive and (callPet == nil or UnitName("pet") ~= select(2,GetCallPetSpellInfo(callPet))) then
                 if cast.dismissPet() then waitForPetToAppear = GetTime(); return true end
             elseif callPet ~= nil then
-                if petDead or deadPet then
+                if deadPet or (petExists and petHealth == 0) then
                     if cast.able.revivePet() then
                         if cast.revivePet("player") then waitForPetToAppear = GetTime(); return true end
                     end
-                elseif (not petDead and not deadPet) and not (petActive or petExists) and not buff.playDead.exists("pet") then
-                    if castSpell("player",callPet,false,false,false) then waitForPetToAppear = GetTime(); return true end
+                elseif not deadPet and not petExists and not buff.playDead.exists("pet") then
+                    if castSpell("player",callPet,false,false,false,true,true,true,true,false) then waitForPetToAppear = GetTime(); return true end
                 end
             end
         end
@@ -83,18 +97,9 @@ br.rotations.support["PetCuteOne"] = function()
             PetPassiveMode()
         end
         -- Pet Attack / retreat
-        if (not UnitExists("pettarget") or not validTarget) and (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
-            if getOptionValue("Pet Target") == 1 and isValidUnit(units.dyn40) then
-                PetAttack(units.dyn40)
-            elseif getOptionValue("Pet Target") == 2 and validTarget then
-                PetAttack("target")
-            elseif getOptionValue("Pet Target") == 3 then
-                for i=1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if (isValidUnit(thisUnit) or isDummy()) then PetAttack(thisUnit); break end
-                end
-            end
-        elseif ((not inCombat or (inCombat and not validTarget and not isValidUnit("target") and not isDummy())) or haltProfile)
+        if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
+            PetAttack(petTarget)
+        elseif not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile
             and IsPetAttackActive() and not isUnitCasting("player")
         then
             PetStopAttack()
@@ -106,25 +111,25 @@ br.rotations.support["PetCuteOne"] = function()
     if isChecked("Spirit Mend") and cast.able.spiritmend() and getHP(friendUnit) <= getOptionValue("Spirit Mend") then
         if cast.spiritmend(friendUnit) then return end
     end
-    if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and getHP("pet") <= getOptionValue("Cat-like Reflexes") then
-        if cast.catlikeReflexes("pet") then return end
+    if isChecked("Cat-like Reflexes") and cast.able.catlikeReflexes() and petHealth <= getOptionValue("Cat-like Reflexes") then
+        if cast.catlikeReflexes() then return end
     end
     if isChecked("Survival of the Fittest") and cast.able.survivalOfTheFittest()
-        --[[and petCombat ]]and getHP("pet") <= getOptionValue("Survival of the Fittest")
+        --[[and petCombat ]]and petHealth <= getOptionValue("Survival of the Fittest")
     then
-        if cast.survivalOfTheFittest("pet") then return end
+        if cast.survivalOfTheFittest() then return end
     end
     -- Bite/Claw
-    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem("pettarget") then
+    if isChecked("Bite / Claw") and petCombat and validTarget and petDistance < 5 and not haltProfile and not isTotem(petTarget) then
         if cast.able.bite() then
-            if cast.bite("pettarget","pet") then return end
+            if cast.bite(petTarget,"pet") then return end
         end
         if cast.able.claw() then
-            if cast.claw("pettarget","pet") then return end
+            if cast.claw(petTarget,"pet") then return end
         end
     end
     -- Dash
-    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance("target") < 40 then
+    if isChecked("Dash") and cast.able.dash() and validTarget and petDistance > 10 and getDistance(pertTarget) < 40 then
         if cast.dash("pet") then return end
     end
     -- Purge
@@ -178,12 +183,12 @@ br.rotations.support["PetCuteOne"] = function()
     -- Play Dead / Wake Up
     if isChecked("Play Dead / Wake Up") and not deadPet then
         if cast.able.playDead() and petCombat and not buff.playDead.exists("pet")
-            and getHP("pet") < getOptionValue("Play Dead / Wake Up")
+            and petHealth < getOptionValue("Play Dead / Wake Up")
         then
             if cast.playDead() then return end
         end
         if cast.able.wakeUp() and buff.playDead.exists("pet") and not buff.feignDeath.exists()
-            and getHP("pet") >= getOptionValue("Play Dead / Wake Up")
+            and petHealth >= getOptionValue("Play Dead / Wake Up")
         then
             if cast.wakeUp() then return end
         end
@@ -200,8 +205,8 @@ br.rotations.support["PetCuteOne"] = function()
         end
     end
     -- Mend Pet
-    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet and not buff.mendPet.exists("pet")
-        and not petDead and getHP("pet") < getOptionValue("Mend Pet") and not haltProfile
+    if isChecked("Mend Pet") and cast.able.mendPet() and petExists and not deadPet
+        and not buff.mendPet.exists("pet") and petHealth < getOptionValue("Mend Pet") and not haltProfile and not pause()
     then
         if cast.mendPet() then return end
     end

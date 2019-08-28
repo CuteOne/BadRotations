@@ -386,27 +386,14 @@ function br.read.combatLog()
         -- Big Raid Damage Tracker
         if isInCombat("player") then
             if param == "SPELL_CAST_START" then
-                if spell == 281936 or spell == 282399 or spell == 284941 or spell == 282742 then
-                    if burstCount == nil then burstCount = 0 end
-                    burstCount = burstCount + 1
-                    raidBurstInc = true
-                elseif spell == 282107 then
-                    if burstCount == nil then burstCount = 0 end
-                    burstCount = burstCount + 1
-                    raidBurstInc = true
+                if spell == 282107 then
                     pakuWrath = true
                 end
             elseif param == "SPELL_CAST_SUCCESS" then
-                if spell == 281936 or spell == 282399 or spell == 284941 or spell == 282742 then
-                    raidBurstInc = false
-                elseif spell == 282107 then
-                    raidBurstInc = false
+                if spell == 282107 then
                     pakuWrath = false
                 end
             end
-        else
-            burstCount = 0
-            raidBurstInc = false
         end
     end
     function cl:Deathknight(...)
@@ -527,7 +514,7 @@ function cl:Hunter(...)
         end
     end
     --[[ Dead Pet Reset ]]
-    if deadPet and UnitHealth("pet") > 0 then deadPet = false end
+    if UnitHealth("pet") > 0 then deadPet = false end
 end
 function cl:Mage(...)
     local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()

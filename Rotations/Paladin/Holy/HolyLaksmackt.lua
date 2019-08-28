@@ -313,10 +313,15 @@ local function noDamageCheck(unit)
     if isChecked("Dont DPS spotter") and GetObjectID(unit) == 135263 then
         return true
     end
+    --[[
     if inInstance and UnitBuffID(unit, 290026) then
         if not queenBuff and IsSpellInRange(GetSpellInfo(spell.crusaderStrike), unit) == 1 then
             queenBuff = true
         end
+        return true
+    end
+    ]]
+    if inInstance and isCasting(302415, unit) then
         return true
     end
     return false
@@ -383,6 +388,7 @@ local function runRotation()
     local BleedFriend = nil
     local BleedFriendCount = 0
     local BleedStack = 0
+    local clumsy_counter_to_fix_bliz_bug = 0
 
     -------------
     -- Raid
@@ -1108,8 +1114,9 @@ local function runRotation()
         end
 
         if isChecked("Group Avenger w/ Wrath") then
-            if cast.able.holyAvenger() and (buff.avengingWrath.exists() and buff.avengingWrath.remain() >= 15) or buff.avengingCrusader.exists() then
+            if cast.able.holyAvenger() and (buff.avengingWrathCrit.remain() >= 15 or buff.avengingCrusader.remain() >= 15) then
                 if cast.holyAvenger() then
+                    br.addonDebug("Grouping HA w/wings")
                     return true
                 end
             end
@@ -1827,7 +1834,7 @@ local function runRotation()
         local holyLight40 = nil
         local lightOfTheMartyrM10 = nil
         local lightOfTheMartyrM20 = nil
-        local lightOfTheMartyrM30 = nil
+        local lightOfTheMartyrM30
         local lightOfTheMartyrM40 = nil
 
 

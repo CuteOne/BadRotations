@@ -33,11 +33,11 @@ local function createToggles() -- Define custom toggles
     };
     CreateButton("Interrupt",4,0)
 -- Death And Decay Button
-    DnDModes = {
+    DndModes = {
         [1] = { mode = "On", value = 1 , overlay = "DnD Enabled", tip = "Will use DnD.", highlight = 1, icon = spell.deathAndDecay },
         [2] = { mode = "Off", value = 2 , overlay = "DnD Disabled", tip = "will NOT use DnD.", highlight = 0, icon = spell.deathAndDecay }
     };
-    CreateButton("DnD",5,0)
+    CreateButton("Dnd",5,0)
 
 end
 
@@ -185,6 +185,7 @@ local function runRotation()
     local debuff                                        = br.player.debuff
     local enemies                                       = br.player.enemies
     local equiped                                       = br.player.equiped
+    local essence                                       = br.player.essence
     local gcd                                           = br.player.gcdMax
     local inCombat                                      = br.player.inCombat
     local inRaid                                        = br.player.instance=="raid"
@@ -196,9 +197,11 @@ local function runRotation()
     local runicPower                                    = br.player.power.runicPower.amount()
     local runicPowerDeficit                             = br.player.power.runicPower.deficit()
     local talent                                        = br.player.talent
+    local trait                                         = br.player.traits
     local units                                         = br.player.units
     local use                                           = br.player.use
     -- Other Locals
+    local combatTime                                    = getCombatTime()
     local level                                         = UnitLevel("player")
     local petCombat                                     = UnitAffectingCombat("pet")
     local php                                           = getHP("player")
@@ -447,6 +450,13 @@ local function runRotation()
             if debuff.festeringWound.stack(units.dyn5) < 4 then
                 if cast.unholyFrenzy() then return end
             end
+            -- unholy_frenzy,if=essence.vision_of_perfection.enabled|(essence.condensed_lifeforce.enabled&pet.apoc_ghoul.active)|debuff.festering_wound.stack<4&!(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)|cooldown.apocalypse.remains<2&(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)
+            if essence.visionOfPerfection.active or (essence.condensedLifeforce.active and pet.apocalypseGhoul.active()) or debuff.festeringWound.stack(units.dyn5) < 4
+                and not (equiped.rampingAmplitudeGigavoltEngine() or trait.magusOfTheDead.active) or cd.apocalypse.remain() < 2
+                and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active)
+            then
+                if cast.unholyFrenzy() then return end
+            end
             -- unholy_frenzy,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
                 and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile))
@@ -517,24 +527,24 @@ local function runRotation()
     local function actionList_AOE()
     -- Death and Decay
         -- death_and_decay,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile
+        if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile
-        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) then
+        if mode.dnd == 1 and cast.able.defile() then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Epidemic
         -- epidemic,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+        if cast.able.epidemic() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay()) and runes < 2 and not poolForGargoyle then
             if cast.epidemic() then return end
         end
     -- Death Coil
         -- death_coil,if=death_and_decay.ticking&rune<2&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay("best",nil,1,8)) and runes < 2 and not poolForGargoyle then
+        if cast.able.deathCoil() and (deathAndDecayRemain > 0 or not cast.able.deathAndDecay()) and runes < 2 and not poolForGargoyle then
             if cast.deathCoil() then return end
         end
     -- Scourge Strike
@@ -589,17 +599,18 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
     -- Scourge Strike
-        -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
+        -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows
-            and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
-        -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
-        if cast.able.clawingShadows() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
+        -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
+        if cast.able.clawingShadows() and talent.clawingShadows
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.clawingShadows() then return end
         end
@@ -609,7 +620,7 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
     -- Festering Strike
-        -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&cooldown.army_of_the_dead.remains>5
+        -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists())
                 or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
@@ -635,26 +646,26 @@ local function runRotation()
         end
     -- Death and Decay
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.deathAndDecay("best",nil,1,8) and not talent.defile and talent.pestilence
+        if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile and talent.pestilence
             and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.defile("best",nil,1,8) and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
+        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike
-        -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
+        -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
-        -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&cooldown.army_of_the_dead.remains>5
-        if cast.able.clawingShadows() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
+        -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
+        if cast.able.clawingShadows() and talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.clawingShadows() then return end
@@ -665,7 +676,7 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
     -- Festering Strike
-        -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&cooldown.army_of_the_dead.remains>5
+        -- festering_strike,if=((((debuff.festering_wound.stack<4&!buff.unholy_frenzy.up)|debuff.festering_wound.stack<3)&cooldown.apocalypse.remains<3)|debuff.festering_wound.stack<1)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.festeringStrike() and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
             and ((((debuff.festeringWound.stack(units.dyn5) < 4 and not buff.unholyFrenzy.exists())
                 or debuff.festeringWound.stack(units.dyn5) < 3) and cd.apocalypse.remain() < 3)
@@ -779,26 +790,73 @@ local function runRotation()
                     then
                         if cast.racial("player") then return end
                     end
-            -- Trinkets
-                    -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
-                    -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.active
-                    -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
-                    -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                    -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                    -- use_item,name=galecallers_beak,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                    -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
+            -- Augment Rune
                     if isChecked("Augment Rune") and use.able.battleScarredAugmentRune() and inRaid then
                         use.battleScarredAugmentRune()
                     end
+            -- Trinkets
                     if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
                         for i = 13, 14 do
-                            if use.able.slot(i)
-                                and (not (equiped.bygoneBeeAlmanac(i) or equiped.jesHowler(i) or equiped.galecallersBeak(i))
-                                    or (equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60 or not talent.summonGargoyle))
-                                    or (equiped.jesHowler(i) and (pet.gargoyle.exists() or not talent.summonGargoyle))
-                                    or (equiped.galecallersBeak(i) and (pet.gargoyle.exist() or not talent.summonGargoyle)))
-                            then
-                                use.slot(i)
+                            if use.able.slot(i) then
+                                -- All Others
+                                -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
+                                if combatTime > 20 or not (equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
+                                    or equiped.rampingAmplitudeGigavoltEngine(i) or equiped.bygoneBeeAlmanac(i)
+                                    or equiped.jesHowler(i) or equiped.galecallersBeak(i) or equiped.grongsPrimalRage(i))
+                                then
+                                    use.slot(i)
+                                end
+                                -- Ashvanes Razor Coral
+                                -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
+                                if equiped.ashvanesRazorCoral(i) and debuff.razorCoral.stack(units.dyn5) < 1 then
+                                    use.slot(i)
+                                end
+                                -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
+                                if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
+                                    or (cd.apocalypse.remain() < gcd and not essense.condensedLifeforce.active and not talent.unholyFrenzy)
+                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeforce.remain() + 20)
+                                    or (buff.unholyFrenzy.exists() and not essence.condensedLifeforce.active))
+                                then
+                                    use.slot(i)
+                                end
+                                -- Vision of Demise
+                                -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.active
+                                if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
+                                    and essense.visionOfPerfection.active) or buff.unholyFrenzy.exists() or pet.gargoyle.active())
+                                then
+                                    use.slot(i)
+                                end
+                                -- Ramping Amplitude Gigavolt Engine
+                                -- use_item,name=ramping_amplitude_gigavolt_engine,if=cooldown.apocalypse.remains<2|talent.army_of_the_damned.enabled|raid_event.adds.in<5
+                                if equiped.rampingAmplitudeGigavoltEngine(i) and (cd.apocalypse.remain() < 2 or talent.armyOfTheDamned) then
+                                    use.slot(i)
+                                end
+                                -- Bygone Bee Almanac
+                                -- use_item,name=bygone_bee_almanac,if=cooldown.summon_gargoyle.remains>60|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                                if equiped.bygoneBeeAlmanac(i) and (cd.summonGargoyle.remain() > 60
+                                    or (not talent.summonGargoyle and combatTime > 20) or not equiped.rampingAmplitudeGigavoltEngine(i))
+                                then
+                                    use.slot(i)
+                                end
+                                -- Jes Howler
+                                -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                                if equiped.jesHowler(i) and (pet.gargoyle.active() or (not talent.summonGargoyle and combatTime > 20)
+                                    or not equiped.rampingAmplitudeGigavoltEngine(i))
+                                then
+                                    use.slot(i)
+                                end
+                                -- Galecaller's Beak
+                                -- use_item,name=galecallers_beak,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                                if equiped.galecallersBeak(i) and (pet.gargoyle.active() or (not talent.summonGargoyle and combatTime > 20)
+                                    or not equiped.rampingAmplitudeGigavoltEngine(i))
+                                then
+                                    use.slot(i)
+                                end
+                                -- Grong's Primal Rage
+                                -- use_item,name=grongs_primal_rage,if=rune<=3&(time>20|!equipped.ramping_amplitude_gigavolt_engine)
+                                if equiped.grongsPrimalRage(i) and runes <= 3 and (combatTime > 20 or not equiped.rampingAmplitudeGigavoltEngine()) then
+                                    use.slot(i)
+                                end
                             end
                         end
                     end

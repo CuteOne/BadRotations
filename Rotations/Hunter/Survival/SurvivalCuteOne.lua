@@ -187,6 +187,7 @@ local charges
 local debuff
 local enemies
 local equiped
+local essence
 local focus
 local focusMax
 local focusRegen
@@ -409,11 +410,10 @@ actionList.Cooldown = function()
     if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
         if isChecked("Trinkets") then
-            if use.able.slot(13) and not equiped.ashvanesRazorCoral(13) then
-                use.slot(13)
-            end
-            if use.able.slot(14) and not equiped.ashvanesRazorCoral(14) then
-                use.slot(14)
+            for i = 13, 14 do
+                if use.able.slot(i) and not (equiped.ashvanesRazorCoral(i) or equiped.galecallersBoon(i) or equiped.azsharasFontOfPower(i)) then
+                    use.slot(i)
+                end
             end
         end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
@@ -450,11 +450,28 @@ actionList.Cooldown = function()
         if cast.aspectOfTheEagle() then return end
     end
     -- Ashvane's Razor Coral
-    -- use_item,name=ashvanes_razor_coral,if=buff.memory_of_lucid_dreams.up|buff.guardian_of_azeroth.up|debuff.razor_coral_debuff.down|target.time_to_die<20
-    if equiped.ashvanesRazorCoral() and (buff.memoryOfLucidDreams.exists() or buff.guardianOfAzeroth.exists()
-        or not debuff.razorCoral.exists(eagleUnit) or (ttd(eagleUnit) < 20 and useCDs()))
+    -- use_item,name=ashvanes_razor_coral,if=equipped.dribbling_inkpod&(debuff.razor_coral_debuff.down|time_to_pct_30<1|(health.pct<30&buff.guardian_of_azeroth.up|buff.memory_of_lucid_dreams.up))|(!equipped.dribbling_inkpod&(buff.memory_of_lucid_dreams.up|buff.guardian_of_azeroth.up)|debuff.razor_coral_debuff.down)|target.time_to_die<20
+    if equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and equiped.dribblingInkpod() and (not debuff.razorCoral.exists(eagleUnit)
+        or getHP(eagleUnit) <= 30 or (getHP(eagleUnit) < 30 and buff.guardianOfAzeroth.exists() or buff.memoryOfLucidDreams.exists()))
+        or (not equiped.dribblingInkpod() and (buff.memoryOfLucidDreams.exists() or buff.guardianOfAzeroth.exists()) or not debuff.razorCoral.exists(eqgleUnit))
+        or (ttd(eagleUnit) < 20 and useCDs())
     then
         use.ashvanesRazorCoral()
+        return
+    end
+    -- Galecaller's Boon
+    -- use_item,name=galecallers_boon,if=cooldown.memory_of_lucid_dreams.remains|talent.wildfire_infusion.enabled&cooldown.coordinated_assault.remains|cooldown.cyclotronic_blast.remains|!essence.memory_of_lucid_dreams.major&cooldown.coordinated_assault.remains
+    if equiped.galecallersBoon() and use.able.galecallersBoon() and (cd.memoryOfLucidDreams.remain() > 0
+        or talent.wildfireInfusion and cd.coordinatedAssault.remain() > 0 or cd.pocketSizedComputationDevice.remain() > 0
+        or not essence.memoryOfLucidDreams.active and cd.coordinatedAssault.remain() > 0)
+    then
+        use.galecallersBoon()
+        return
+    end
+    -- Azshara's Font of Power
+    -- use_item,name=azsharas_font_of_power
+    if equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower() then
+        use.azsharasFontOfPower()
         return
     end
     -- Heart Essence
@@ -1152,6 +1169,7 @@ local function runRotation()
     debuff                                        = br.player.debuff
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
+    essence                                       = br.player.essence
     focus                                         = br.player.power.focus.amount()
     focusMax                                      = br.player.power.focus.max()
     focusRegen                                    = br.player.power.focus.regen()

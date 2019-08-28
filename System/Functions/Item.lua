@@ -30,10 +30,10 @@ end
 -- if canTrinket(13) then
 function canTrinket(trinketSlot)
 	if trinketSlot == 13 or trinketSlot == 14 then
-		if trinketSlot == 13 and select(3,GetInventoryItemCooldown("player",13)) == 1 and GetInventoryItemCooldown("player", 13) == 0 then
+		if trinketSlot == 13 and select(3,GetInventoryItemCooldown("player",13)) == 1 and GetInventoryItemCooldown("player", 13) <= br.player.gcdMax then
 			return true
 		end
-		if trinketSlot == 14 and select(3,GetInventoryItemCooldown("player",14)) == 1 and GetInventoryItemCooldown("player", 14) == 0 then
+		if trinketSlot == 14 and select(3,GetInventoryItemCooldown("player",14)) == 1 and GetInventoryItemCooldown("player", 14) <= br.player.gcdMax then
 			return true
 		end
 	else
@@ -107,7 +107,7 @@ function useItemGround(Unit, itemID, maxDistance, minDistance, radius)
 end
 function hasHealthPot()
 	local locale = GetLocale()
-	if locale == "koKR" or locale == "zhCN" or locale == "zhTW" then
+	if locale ~= "enUS" and locale ~= "enGB" then
 		if hasItem(169451) then
 			return true
 		end
@@ -124,7 +124,7 @@ function hasHealthPot()
 end
 function getHealthPot()
 	local locale = GetLocale()
-	if locale == "koKR" or locale == "zhCN" or locale == "zhTW" then
+	if locale ~= "enUS" and locale ~= "enGB" then
 		if hasItem(169451) then
 			return 169451
 		end

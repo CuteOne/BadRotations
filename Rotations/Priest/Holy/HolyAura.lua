@@ -104,6 +104,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Temple of Sethraliss", 70,0,100,1, "Will heal the NPC whenever the debuff is removed and party health is above set value.")
 		-- Bursting Stack
 		br.ui:createSpinnerWithout(section, "Bursting", 1, 1, 10, 1, "", "|cffFFFFFFWhen Bursting stacks are above this amount, CDs will be triggered.")
+
+		br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
 		br.ui:checkSectionState(section)
 		-- Dispel and Purify Settings
 		section = br.ui:createSection(br.ui.window.profile, colorwarlock.."Dispel and Purify Options")
@@ -143,7 +145,12 @@ local function createOptions()
 		-- Ever-Rising Tide
 			br.ui:createDropdown(section, "Ever-Rising Tide", { "Always", "Based on Health" }, 1, "When to use this Essence")
             br.ui:createSpinner(section, "Ever-Rising Tide - Mana", 30, 0, 100, 5, "", "Min mana to use")
-            br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
+			br.ui:createSpinner(section, "Ever-Rising Tide - Health", 30, 0, 100, 5, "", "Health threshold to use")
+		-- Well of Existence
+			br.ui:createCheckbox(section, "Well of Existence")
+		-- Life Binder's Invocation
+			br.ui:createSpinner(section, "Life-Binder's Invocation", 85, 1, 100, 5, "Health threshold to use")
+            br.ui:createSpinnerWithout(section, "Life-Binder's Invocation Targets", 5, 1, 40, 1, "Number of targets to use")
 		br.ui:checkSectionState(section)
 		-- Defensive Options
 		section = br.ui:createSection(br.ui.window.profile, colorwarrior.."Defensive")
@@ -381,6 +388,9 @@ local function runRotation()
                         if cast.powerWordFortitude() then br.addonDebug("Casting Power Word: Fortitude") return end
                     end
                 end
+			end
+			if isChecked("Pig Catcher") then
+                bossHelper()
             end
 		end -- End Action List - Extras
 		-- Action List - Pre-Combat
@@ -651,6 +661,12 @@ local function runRotation()
 								end
 							end
 						end
+					end
+				end
+				if isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcd and getLowAllies(getOptionValue("Life-Binder's Invocation")) >= getOptionValue("Life-Binder's Invocation Targets") then
+					if cast.lifeBindersInvocation() then
+						br.addonDebug("Casting Life-Binder's Invocation")
+						return true
 					end
 				end
 				if isChecked("Ever-Rising Tide") and essence.overchargeMana.active and cd.overchargeMana.remain() <= gcd and getOptionValue("Ever-Rising Tide - Mana") <= mana then
@@ -950,6 +966,10 @@ local function runRotation()
 					if cast.concentratedFlame(lowest.unit) then br.addonDebug("Casting Concentrated Flame") return end
 				end
 			end
+			-- Refreshment
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcdMax and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Shadow Mend") then
+                if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
+            end
 			-- Flash Heal
 			if isChecked("Flash Heal") and getDebuffRemain("player",240447) == 0 and not moving then
 				if lowest.hp <= getValue("Flash Heal") then

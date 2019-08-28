@@ -81,6 +81,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Frost Shock")
             --
             br.ui:createSpinner(section, "Capacitor Totem - Tank Stuns", 3 , 1 ,10, 1, "|cff0070deWill use capacitor totem on groups of mobs when in a party.")
+            
+            br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
         br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
@@ -339,6 +341,9 @@ local function runRotation()
         end
         --Action List PreCombat
         local function actionList_PreCombat()
+            if isChecked("Pig Catcher") then
+                bossHelper()
+            end
             prepullOpener = inRaid and isChecked("Pre-pull Opener") and pullTimer <= getOptionValue("Pre-pull Opener") 
             -- Totem Mastery
             if prepullOpener then

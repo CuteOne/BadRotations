@@ -33,7 +33,7 @@ br.lists.noTouchUnits = {
     {unitID = 144942, buff = 289644}, -- Spark Bot,High Tinker Mekkatorque, Mythic 
     {unitID = 145644, buff = 284377}, -- Bwonsamdi with Unliving buff
     -- The Motherlode!
-    {unitID = 131227, buff = 260189}, -- Mogul Razdunk with Configuration: Drill buff
+    {unitID = 129232, buff = 260189}, -- Mogul Razdunk with Configuration: Drill buff
     -- Underrot
     {unitID = 137458}, -- Rotting Spore
     -- Siege of Boralus

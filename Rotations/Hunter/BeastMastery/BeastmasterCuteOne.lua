@@ -196,6 +196,7 @@ local charges
 local debuff
 local enemies
 local equiped
+local essence
 local focus
 local focusMax
 local focusRegen
@@ -394,14 +395,14 @@ actionList.Cooldowns = function()
             use.pocketSizedComputationDevice()
         end
         -- Ashvane's Razor Coral
-        -- ashvanes_razor_coral,if=buff.aspect_of_the_wild.remains>15|debuff.razor_coral_debuff.down|target.time_to_die<20
+        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.up)&(target.health.pct<35|!essence.condensed_lifeforce.major)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
         if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral()
-            and (not equiped.pocketSizedComputationDevice() or (equiped.pocketSizedComputationDevice() and cd.pocketSizedComputationDevice.remain() > 0))
-            and (buff.aspectOfTheWild.remain() > 15 or not debuff.razorCoral.exists(units.dyn40) or ttd(units.dyn40) < 20)
+            and debuff.razorCoral.exists("target") and (cast.last.aspectOfTheWild() --[[or not equiped.pocketSizedComputationDevice()]] and buff.aspectOfTheWild.exists("player")) 
+            and (thp("target") < 35 or not essence.guardianOfAzeroth.active) or (not debuff.razorCoral.exists("target") or ttd("target") < 26)
         then
             use.ashvanesRazorCoral()
         end
-
+        -- Trinkets
         if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
             and use.able.slot(13) and not equiped.vigorTrinket(13)
             and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
@@ -694,10 +695,10 @@ actionList.St = function()
     -- focused_azerite_beam,if=buff.bestial_wrath.down|target.time_to_die<5
     if isChecked("Use Essence") and cast.able.focusedAzeriteBeam()
         and not (buff.bestialWrath.exists() or (ttd(units.dyn40) < 5 and useCDs()))
-        and (#enemies.yards8f >= 3 or useCDs())
+        and (enemies.yards30r >= 3 or useCDs())
     then
         local minCount = useCDs() and 1 or 3
-        if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+        if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then
             focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
             return
         end
@@ -756,8 +757,8 @@ actionList.St = function()
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
     end
-        -- Cobra Shot
-        -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
+    -- Cobra Shot
+    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
     if cast.able.cobraShot() and ((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand()
         or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDreams.exists()) and cd.killCommand.remain() > 1)
     then
@@ -852,10 +853,10 @@ actionList.Cleave = function()
     if isChecked("Use Essence") then
         -- focused_azerite_beam
         if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists()
-            and (#enemies.yards8f >= 3 or useCDs())
+            and (enemies.yards30r >= 3 or useCDs())
         then
             local minCount = useCDs() and 1 or 3
-            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+            if cast.focusedAzeriteBeam(nil,"rect",minCount, 8) then
                 focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
                 return
             end
@@ -952,6 +953,7 @@ local function runRotation()
     debuff                             = br.player.debuff
     enemies                            = br.player.enemies
     equiped                            = br.player.equiped
+    essence                            = br.player.essence
     focus                              = br.player.power.focus.amount()
     focusMax                           = br.player.power.focus.max()
     focusRegen                         = br.player.power.focus.regen()
@@ -998,6 +1000,7 @@ local function runRotation()
     enemies.get(40)
     enemies.get(40,"player",false,true)
     enemies.get(40,"player",true)
+    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
     enemies.get(30,"pet")
     enemies.get(20,"pet")
     enemies.get(8,"pet")
