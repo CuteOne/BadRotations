@@ -81,7 +81,7 @@ br.lists.items = {
     -- 8.2 Potions
     abyssalHealingPotion            = 169451,
     potionOfUnbridledFury           = 169299, -- DPS Potion
-    potionOfEmpoweredProximity      = 168592, -- DPS Potion (AoE)
+    potionOfEmpoweredProximity      = 168529, -- DPS Potion (AoE)
     potionOfFocusedResolve          = 168506, -- Crit Damage Potion
     potionOfWildMending             = 169300, -- Healer Potion
     superiorSteelskinPotion         = 168501, -- Armor Potion
@@ -101,11 +101,15 @@ br.lists.items = {
     dribblingInkpod                 = 169319,
     feloiledInfernalMachine         = 144482,
     galecallersBeak                 = 161379,
+    galecallersBoon                 = 159614,
+    grongsPrimalRage                = 165574,
     hornOfValor                     = 133642,
     jesHowler                       = 159627,
     pocketSizedComputationDevice    = 167555,
+    rampingAmplitudeGigavoltEngine  = 165580,
     specterOfBetrayal               = 151190,
     umbralMoonglaives               = 147012,
-    vigorTrinket                    = 165572,
     vialOfCeaselessToxins           = 147011,
+    vigorTrinket                    = 165572,
+    visionOfDemise                  = 169307,
 }

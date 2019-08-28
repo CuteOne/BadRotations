@@ -8,7 +8,7 @@ local function flipRace()
             return "Human"
         elseif race == "Troll" then
             if class == 7 then
-                return "Draenei" 
+                return "Draenei"
             elseif class == 9 then
                 return "Human"
             else
@@ -56,7 +56,7 @@ local function flipRace()
             return "MagharOrc"
         elseif race == "Human" then
             if class == 2 then
-                return "BloodElf" 
+                return "BloodElf"
             else
                 return "Undead"
             end
@@ -104,9 +104,9 @@ local function flipRace()
     end
 end
 
-        
 
-        
+
+
 
 function getRacial()
     local forTheAlliance = UnitBuffID("player",193863) or false
@@ -352,11 +352,6 @@ br.lists.spells = {
             glyphs                          = {
 
             },
-            pets                            = {
-                activePet                   = activePet,
-                gargoyle                    = 27829,
-                risenSkulker                = 99541,
-            },
             talents                         = {
                 allWillServe                = 194916,
                 armyOfTheDead               = 276837,
@@ -380,7 +375,7 @@ br.lists.spells = {
                 unholyFrenzy                = 207289,
             },
             traits                          = {
-
+                magusOfTheDead              = 288417,
             },
         },
         -- All
@@ -485,6 +480,7 @@ br.lists.spells = {
             },
             traits                          = {
                 chaoticTransformation       = 288754,
+                eyesOfRage                  = 278500,
                 furiousGaze                 = 273231,
                 revolvingBlades             = 279581,
                 unboundChaos                = 275144,
@@ -798,6 +794,7 @@ br.lists.spells = {
                 tranquility                 = 740,
                 ursolsVortex                = 102793,
                 yserasGift                  = 145108,
+                swipeResto                  = 213764,
             },
             artifacts                       = {
 
@@ -845,6 +842,10 @@ br.lists.spells = {
                 springBlossoms              = 207385,
                 stonebark                   = 197061,
             },
+            traits                          = {
+                dawningSun                  = 276152,
+                highNoon                    = 278505,
+            }
         },
         -- All
         Shared = {
@@ -1191,9 +1192,6 @@ br.lists.spells = {
             },
             glyphs                          = {
 
-            },
-            pets                            = {
-                activePet                   = activePet,
             },
             talents                         = {
                 aMurderOfCrows              = 131894,
@@ -1676,6 +1674,8 @@ br.lists.spells = {
                 whirlingDragonPunch         = 152175,
             },
             traits                          = {
+                gloryOfTheDawn              = 288634,
+                openPalmStrikes             = 279918,
                 swiftRoundhouse             = 277669,
             }
         },
@@ -1749,6 +1749,7 @@ br.lists.spells = {
                 auraOfMercy                 = 183415,
                 auraMastery                 = 31821,
                 avengingWrath               = 31884,
+                avengingWrathCrit           = 294027,
                 beaconOfLight               = 53563,
                 beaconOfFaith               = 156910,
                 blessingOfSacrifice         = 6940,
@@ -2160,6 +2161,7 @@ br.lists.spells = {
             buffs                           = {
                 dispersion                  = 47585,
                 harvestedThoughts           = 288343,
+                lingeringInsanity            = 199849,
                 powerWordShield             = 17,
                 powerInfusion               = 10060,
                 shadowyInsight              = 124430,
@@ -2190,7 +2192,7 @@ br.lists.spells = {
                 --dominantMind                = 205367,
                 fortressOfTheMind           = 193195,
                 legacyOfTheVoid             = 193225,
-                lingeringInsanty            = 199849,
+                lingeringInsanity            = 199849,
                 --mania                       = 193173,
                 --masochism                   = 193063,
                 mindBomb                    = 205369,
@@ -2238,7 +2240,7 @@ br.lists.spells = {
             buffs                           = {
                 classHallSpeed              = 224098,
                 powerWordFortitude          = 21562,
-                
+
             },
             debuffs                         = {
 
@@ -3118,20 +3120,6 @@ br.lists.spells = {
             glyphs                          = {
                 glyphOfTheFelImp            = 219424,
             },
-            pets                            = {
-                darkglare                   = 103673,
-                demonicTyrant               = 135002,
-                doomguard                   = 78158,
-                dreadstlaker                = 98035,
-                felguard                    = 17252,
-                felhunter                   = 417,
-                imp                         = 416,
-                infernal                    = 78217,
-                succubus                    = 1863,
-                voidwalker                  = 1860,
-                wildImp                     = 55659,
-                wrathguard                  = 58965,
-            },
             talents                         = {
                 burningRush                 = 111400,
                 darkPact                    = 108416,
@@ -3391,6 +3379,8 @@ br.lists.spells = {
                 battlePotionOfAgility           = 279152,
                 battlePotionOfIntellect         = 279151,
                 battlePotionOfStrength          = 279153,
+                superiorBattlePotionOfAgility   = 298146,
+                potionOfUnbridledFury           = 300714,
                 blessingOfSacrifice 	        = 6940,
                 greaterBlessingOfKings 	        = 203538,
                 greaterBlessingOfWisdom	        = 203539,
