@@ -3467,6 +3467,7 @@ br.lists.spells = {
                 standstill                      = 299882,
                 suppressingPulse                = 300009,
                 theUnboundForce                 = 299376,
+                visionOfPerfection              = 299370,
                 vitalityConduit                 = 299958,
                 worldveinResonance              = 295186
             },
