@@ -6,138 +6,55 @@ local rotationName = "MonkaGiga" -- Change to name of profile listed in options 
 local function createToggles() -- Define custom toggles
     -- Rotation Button
     RotationModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Automatic Rotation",
-            tip = "Swaps between Single and Multiple based on number of #enemies.yards8 in range.",
-            highlight = 1,
-            icon = br.player.spell.shadowWordVoid
-        },
-        [2] = {
-            mode = "Sing",
-            value = 2,
-            overlay = "Single Target Rotation",
-            tip = "Single target rotation used.",
-            highlight = 0,
-            icon = br.player.spell.mindFlay
-        },
-        [3] = {
-            mode = "Off",
-            value = 3,
-            overlay = "DPS Rotation Disabled",
-            tip = "Disable DPS Rotation",
-            highlight = 0,
-            icon = br.player.spell.psychicHorror
-        }
+		[1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps Between Single and Multiple based on numbers of targets in range", highlight = 1, icon = br.player.spell.shadowWordVoid },
+		[2] = { mode = "Singletarget", value = 2, overlay = "Single Target  Rotation", tip = "Single Target Rotation being used.", highlight = 0, icon = br.player.spell.mindFlay },
+		[3] = { mode = "Off", value = 3, overlay = "DPS Rotation Disabled", tip = "DPS Rotation Disabled", highlight = 0, icon = br.player.spell.psychicHorror }
     }
-    CreateButton("Rotation", 1, 0)
+	CreateButton("Rotation", 1, 0) 
+	
     -- Cooldown Button
     CooldownModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Cooldowns Automated",
-            tip = "Automatic Cooldowns - Boss Detection.",
-            highlight = 1,
-            icon = br.player.spell.shadowfiend
-        },
-        [2] = {
-            mode = "On",
-            value = 2,
-            overlay = "Cooldowns Enabled",
-            tip = "Cooldowns used regardless of target.",
-            highlight = 0,
-            icon = br.player.spell.shadowfiend
-        },
-        [3] = {
-            mode = "Off",
-            value = 3,
-            overlay = "Cooldowns Disabled",
-            tip = "No Cooldowns will be used.",
-            highlight = 0,
-            icon = br.player.spell.shadowform
-        }
-    }
-    CreateButton("Cooldown", 2, 0)
+        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowfiend },
+		[2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowfiend },
+		[3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform }
+	}
+	CreateButton("Cooldown", 2, 0)
+
     -- Defensive Button
     DefensiveModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Defensive Enabled",
-            tip = "Includes Defensive Cooldowns.",
-            highlight = 1,
-            icon = br.player.spell.dispersion
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Defensive Disabled",
-            tip = "No Defensives will be used.",
-            highlight = 0,
-            icon = br.player.spell.dispersion
-        }
-    }
-    CreateButton("Defensive", 3, 0)
+        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
+		[2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0,  icon = br.player.spell.dispersion }
+	}
+	CreateButton("Defensive", 3, 0)
+
     -- Interrupt Button
     InterruptModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Interrupts Enabled",
-            tip = "Includes Basic Interrupts.",
-            highlight = 1,
-            icon = br.player.spell.silence
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Interrupts Disabled",
-            tip = "No Interrupts will be used.",
-            highlight = 0,
-            icon = br.player.spell.silence
-        }
-    }
-    CreateButton("Interrupt", 4, 0)
+        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
+		[2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
+	}
+	CreateButton("Interrupt", 4, 0)
+
+	-- Shadow Crash Button
+	ShadowCrashModes = {
+		[1] = { mode = "On", value = 1, overlay = "Shadow Crash enabled", tip = "Will use Shadow Crash if talented", highlight = 1, icon = br.player.spell.shadowCrash },
+		[2] = {	mode = "Off", value = 2, overlay = "Shadow crash disabled", tip = "Will not use Shadow Crash", highlight = 0, icon = br.player.spell.shadowCrash }
+	}
+	CreateButton("ShadowCrash", 5, 0)
+	
+	-- Void Button
     VoidModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "VF Enabled",
-            tip = "Will enter VF",
-            highlight = 1,
-            icon = br.player.spell.voidEruption
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "VF disabled",
-            tip = "Will not enter VF",
-            highlight = 0,
-            icon = br.player.spell.voidEruption
-        }
-    }
-    CreateButton("Void", 0, 1)
+        [1] = { mode = "On", value = 1, overlay = "VF Enabled", tip = "Will enter VF", highlight = 1, icon = br.player.spell.voidEruption },
+		[2] = { mode = "Off", value = 2, overlay = "VF disabled", tip = "Will not enter VF", highlight = 0, icon = br.player.spell.voidEruption }
+	}
+	CreateButton("Void", 0, 1)
+
+	-- Essence Button	
     EssenceModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Essence Enabled",
-            tip = "Will use Essences",
-            highlight = 1,
-            icon = br.player.spell.voidEruption
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Essence disabled",
-            tip = "Will not use Essence",
-            highlight = 0,
-            icon = br.player.spell.voidEruption
-        }
-    }
-    CreateButton("Essence", 1, 1)
+        [1] = { mode = "On", value = 1, overlay = "Essence Enabled", tip = "Will use Essences",  highlight = 1, icon = br.player.spell.voidEruption },
+		[2] = { mode = "Off", value = 2, overlay = "Essence disabled", tip = "Will not use Essence", highlight = 0, icon = br.player.spell.voidEruption }
+	}
+	CreateButton("Essence", 1, 1)
+    
 end
 
 local function createOptions()
@@ -174,7 +91,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
         br.ui:createCheckbox(section, "Dark Ascension")
         br.ui:createCheckbox(section, "Dispel Magic")
-        br.ui:createCheckbox(section, "Shadow Crash")
         br.ui:createCheckbox(section, "Trinkets")
         br.ui:createCheckbox(section, "Racials")
         br.ui:checkSectionState(section)
@@ -267,7 +183,7 @@ local function runRotation()
     if debugVariable == nil then
         debugVariable = false
     end
-
+    local lowestPain = debuff.shadowWordPain.lowest(40,"remain") or units.dyn40
     local dotsUP = debuff.vampiricTouch.exists("target") and debuff.shadowWordPain.exists("target")
 
     local buffedSear = isCastingSpell(spell.mindSear) and buff.harvestedThoughts.exists()
@@ -316,13 +232,13 @@ local function runRotation()
 
     local function actionlist_Moving()
 
-	    if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
-			if castGround("target", 205385, 40, 0, 8, 0) then
-			SpellStopTargeting()
-                return
-            end
+	    if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
+				if castGround("target", 205385, 40, 0, 8, 0) then
+				SpellStopTargeting()
+					return
+				end
 		end
-		
+
         if voidForm then
             if cast.voidBolt() then
                 return
@@ -330,19 +246,13 @@ local function runRotation()
         end
 		
 		if isChecked("Moving SW:P") and (not voidForm or cd.voidBolt.remain() > (gcd/3)) then
-            if not debuff.shadowWordPain.exists("target") then
+            if mode.rotation == 2 then
                 if cast.shadowWordPain("target") then
                     return
                 end
             else
-                local thisUnit
-                for i = 1, #enemies.yards40 do
-                    thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) then
-                        if cast.shadowWordPain(thisUnit) then
-                            return
-                        end
-                    end
+                if cast.shadowWordPain(lowestPain) then
+                    return
                 end
             end
         end
@@ -400,12 +310,12 @@ local function runRotation()
             end
         end
 
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
-            if castGround("target", 205385, 40, 0, 8, 0) then
-                SpellStopTargeting()
-                return
-            end
-        end
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") then 
+				if castGround("target", 205385, 40, 0, 8, 0) then
+					SpellStopTargeting()
+					return
+				end
+		end
 
         if not talent.misery then
             if debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") or not debuff.shadowWordPain.exists("target") then
@@ -465,10 +375,11 @@ local function runRotation()
             end
         end
     end
+
     local function actionlist_Single()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 then
-            if cast.voidEruption() then
+        if power > 60 and mode.void == 1 and getDistance("player","target") <= 40 then
+            if cast.voidEruption("target") then
                 return
             end
         end
@@ -505,12 +416,12 @@ local function runRotation()
             end
         end
 
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
-            if castGround("target", 205385, 40, 0, 8, 0) then
-                SpellStopTargeting()
-                return
-            end
-        end
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
+				if castGround("target", 205385, 40, 0, 8, 0) then
+					SpellStopTargeting()
+					return
+				end
+		end
 
         if dotsUP then
             if talent.shadowWordVoid then
@@ -531,8 +442,8 @@ local function runRotation()
 
     local function actionlist_Multi()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 then
-            if cast.voidEruption() then
+        if power > 60 and mode.void == 1  and getDistance("player",units.dyn40) <= 40 then
+            if cast.voidEruption(units.dyn40) then
                 return
             end
         end
@@ -595,7 +506,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
             if castGround("best", 205385, 40, 0, 8, 0) then
                 SpellStopTargeting()
                 return
@@ -642,12 +553,9 @@ local function runRotation()
 
             -- Fade
             if isChecked("Fade") then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not solo and UnitThreatSituation("player", thisUnit) > 1 then
-                        if cast.fade("player") then
-                            return
-                        end
+                if not solo and UnitThreatSituation("player") ~= nil and UnitThreatSituation("player") > 1 then
+                    if cast.fade("player") then
+                        return
                     end
                 end
             end
@@ -662,7 +570,7 @@ local function runRotation()
                 end
             end
 
-            if (moving and not debuff.weakenedSoul.exists("player") and isChecked("Power Word: Shield")) or (isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists()) then
+            if (moving and not debuff.weakenedSoul.exists("player") and isChecked("Power Word: Shield") and talent.bodyAndSoul) or (isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() and not debuff.weakenedSoul.exists("player")) then
                 if cast.powerWordShield("player") then
                     return
                 end
@@ -744,7 +652,7 @@ local function runRotation()
                 return
             end
         end
-        if inCombat and profileStop == false and not (IsMounted() or IsFlying()) then
+        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player",units.dyn40) < 40 then
             if moving then
                 if actionlist_Moving() then
                     return
