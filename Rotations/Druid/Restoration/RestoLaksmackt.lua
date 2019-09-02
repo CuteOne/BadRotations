@@ -69,6 +69,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
         br.ui:createCheckbox(section, "Break form for critical", 1)
         br.ui:createCheckbox(section, "Break form for dispel", 1)
+        br.ui:createCheckbox(section, "Break form for dots", 1)
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
@@ -1340,7 +1341,7 @@ local function runRotation()
                     end
                 end
 
-                if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
                     if not debuff.sunfire.exists(thisUnit) then
                         if cast.sunfire(thisUnit) then
                             br.addonDebug("Initial Sunfire - non-Cluster")
@@ -1354,7 +1355,7 @@ local function runRotation()
                     end
                 end
 
-                if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or isBoss(thisUnit) and ttd(thisUnit) > 5 then
+                if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or not debuff.moonfire.exists("target") or isBoss(thisUnit) and ttd(thisUnit) > 5 then
                     if not debuff.moonfire.exists(thisUnit) then
                         if cast.moonfire(thisUnit) then
                             br.addonDebug("Initial Moonfire")
@@ -1373,8 +1374,10 @@ local function runRotation()
                 end
 
                 -- Solar Wrath
-                if cast.solarWrath(units.dyn40) then
-                    return true
+                if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if cast.solarWrath(units.dyn40) then
+                        return true
+                    end
                 end
             end
         end
@@ -1459,11 +1462,11 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
 
             -- Ferocious Bite
             --ferocious_bite,if=(combo_points>3&target.time_to_die<3)|(combo_points=5&energy>=50&dot.rip.remains>14)&spell_targets.swipe_cat<5
-            if cat and combo > 3 and ttd(thisUnit) < 3 or (combo == 5 and br.player.power.energy.amount() >= 50 and debuff.rip.remain(thisUnit) > 14)
+            if cat and combo > 3 and ttd(thisUnit) < 3 or (combo == 5 and br.player.power.energy.amount() >= 50 and debuff.rip.remain(thisUnit) > 10)
                     and aoe_count < 5 then
                 if cast.ferociousBite(thisUnit)
                 then
-                    br.addonDebug("[CAT-DPS] Bite: " .. thisUnit .. " Combo points: " .. combo .. "ttd: " .. ttd(thisUnit))
+                    br.addonDebug("[CAT-DPS] Bite: " .. thisUnit .. " Combo points: " .. combo .. " ttd: " .. ttd(thisUnit))
                     return true
                 end
             end
@@ -1484,17 +1487,15 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 end
             end
 
-            -- Rake 	rake,target_if=refreshable
-            --TODO lets rake different targets
-            for i = 1, #enemies.yards5 do
-                local thisUnit = enemies.yards5[i]
-                if not (debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit) then
-                    if cast.rake(thisUnit) then
-                        br.addonDebug("[CAT-DPS] Raking")
-                        return true
-                    end
+            -- Rake 	rake,target_if=refreshable   --and not noDamageCheck(thisUnit) and not UnitIsDeadOrGhost(thisUnit)
+            -- br.addonDebug("target: " .. thisUnit .. " Buff: " .. tostring(debuff.rake.exists(thisUnit)))
+            if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) then
+                if cast.rake(thisUnit) then
+                    br.addonDebug("[CAT-DPS] Raking")
+                    return true
                 end
             end
+
 
             --swipe_cat,if=spell_targets.swipe_cat>=2
             if aoe_count >= 2 then
@@ -1510,7 +1511,9 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
             end
         end -- end cat loop
 
-        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
+                and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                and isChecked("Break form for dots") and (not debuff.moonfire.exists("target") or not debuff.sunfire.exists("target")) or not isChecked("Break form for dots")
         then
             return
         end
@@ -1725,7 +1728,7 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
 
         --Swiftmend
         --Print("Lowest is: " .. lowest.unit)
-        if (lowest.hp <= getValue("Swiftmend") or talent.soulOfTheForest and burst == true) and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot")))  then
+        if (lowest.hp <= getValue("Swiftmend") or talent.soulOfTheForest and burst == true and not buff.soulOfTheForest.exists()) and (not inInstance or (inInstance and getDebuffStacks(lowest.unit, 209858) < getValue("Necrotic Rot"))) then
             if cast.swiftmend(lowest.unit) then
                 return true
             end
@@ -1929,7 +1932,9 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
             end
         end
 
-        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical")) then
+        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
+                and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+        then
             return
         end
     end
@@ -1996,7 +2001,9 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 end
             end
             if mode.forms == 2 then
-                if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical")) then
+                if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                then
                     cat_rest()
                     return true
                 elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
@@ -2041,7 +2048,11 @@ J	28.64	swipe_cat,if=spell_targets.swipe_cat>=2
                 end
             end
             if mode.forms == 2 then
-                if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical")) then
+                if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
+                        and (isChecked("Break form for critical") and lowest.hp > getOptionValue("Critical HP") or not isChecked("Break form for critical"))
+                        and (isChecked("Break form for dots") and (debuff.moonfire.exists("target") and debuff.sunfire.exists("target"))
+                        or not isChecked("Break form for dots"))
+                then
                     cat_combat()
                     return true
                 elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
