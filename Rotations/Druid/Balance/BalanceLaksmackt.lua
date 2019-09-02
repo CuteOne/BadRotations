@@ -134,10 +134,11 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         br.ui:createSpinner(section, "Potion/Healthstone", 20, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Renewal", 25, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 5, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Renewal", 25, 0, 100, 1, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 1, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 1, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 1, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 1, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Forms")
         br.ui:createDropdown(section, "Bear Form Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFGO BEAR GO!")
@@ -497,12 +498,25 @@ local function runRotation()
         end
 
         --Essence Support
+
+        --memory_of_lucid_dreams,if=!buff.ca_inc.up&(astral_power<25|cooldown.ca_inc.remains>30),target_if=dot.sunfire.remains>10&dot.moonfire.remains>10&(!talent.stellar_flare.enabled|dot.stellar_flare.remains>10)
+        if useCDs() and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then
+            if not pewbuff and (power < 25 or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
+                if debuff.sunfire.remain("target") > 10 and debuff.sunfire.remain("target") > 10 and (debuff.stellarFlare.remain("target") > 10 or not talent.stellarFlare) then
+                    if cast.memoryOfLucidDreams() then
+                        return true
+                    end
+                end
+            end
+        end
+
         if useCDs() and isChecked("ConcentratedFlame - DPS") then
             if cast.concentratedFlame("target") then
                 return true
             end
         end
-        if useCDs() and standingTime > 1 and isChecked("Focused Azerite Beam") and (aoe_count >= 3 or isBoss("target")) then
+        if useCDs() and standingTime > 1 and isChecked("Focused Azerite Beam") and (aoe_count >= getValue("Focused Azerite Beam") or isBoss("target"))
+                and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare) then
             if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then
                 return true
             end
@@ -545,7 +559,7 @@ local function runRotation()
             aoeTarget = getValue("Starfall Targets (0 for auto)")
         end
 
-        if (race == "Troll") and isChecked("Racial") and useCDs() and pewbuff and ttd("target") >= 12 then
+        if (race == "Troll") and isChecked("Racial") and useCDs() and ttd("target") >= 12 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
             cast.racial("player")
         end
 
@@ -673,6 +687,7 @@ local function runRotation()
         -- Incarnation  ap_check&!buff.ca_inc.up
         if useCDs() and isChecked("Incarnation/Celestial Alignment") and not pewbuff and power >= 40 then
             if cast.able.incarnationChoseOfElune() and talent.incarnationChoseOfElune then
+
                 --buff.memory_of_lucid_dreams.up|((cooldown.memory_of_lucid_dreams.remains>20|!essence.memory_of_lucid_dreams.major)
                 if debuff.sunfire.remain("target") > 8
                         and debuff.moonfire.remain("target") > 12
@@ -684,7 +699,7 @@ local function runRotation()
                         return true
                     end
                 end
-                
+
             elseif cast.able.celestialAlignment() and not talent.incarnationChoseOfElune then
                 if not pewbuff
                         and (buff.starLord.exists or not talent.starlord)
@@ -737,8 +752,8 @@ local function runRotation()
                     return true
                 end
             ]]
-
-        if buff.starLord.exists() and buff.starLord.stack() == 3 and buff.starLord.remain() < 3 and astral_def < 8 then
+        --and buff.starLord.stack() == 3
+        if buff.starLord.exists() and buff.starLord.remain() < 3 and astral_def < 8 then
             cancelBuff(279709)
         end
 
@@ -1074,6 +1089,13 @@ local function runRotation()
         -- Regrowth
         if isChecked("Regrowth") and not moving and php <= getValue("Regrowth") then
             if cast.regrowth("player") then
+                return true
+            end
+        end
+
+        --rejuvenation
+        if isChecked("Rejuvination") and php <= getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
+            if cast.rejuvenation("player") then
                 return true
             end
         end
