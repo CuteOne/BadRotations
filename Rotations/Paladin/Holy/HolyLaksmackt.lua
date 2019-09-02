@@ -202,6 +202,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Ever Rising Tide - Mana", 30, 0, 100, 5, "", "min mana to use")
         br.ui:createSpinner(section, "Ever Rising Tide - Health", 30, 0, 100, 5, "", "health threshold to pop at")
         br.ui:createSpinner(section, "Well of Existence  - Health", 30, 0, 100, 5, "", "health threshold to pop at")
+        br.ui:createSpinner(section, "Seed of Eonar", 80, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Seed of Eonar Targets", 3, 0, 40, 1, "Minimum hurting friends")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -1112,7 +1114,19 @@ local function runRotation()
                 end
             end
         end
-
+        --Seed of Eonar
+        if isChecked("Seed of Eonar") and essence.lifeBindersInvocation.active and cast.able.lifeBindersInvocation and not moving then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) then
+                    local lowHealthCandidates = getUnitsToHealAround(br.friend[i].unit, 30, getValue("Seed of Eonar"), #br.friend)
+                    if #lowHealthCandidates >= getValue("Seed of Eonar Targets") and not moving or burst == true then
+                        if cast.lifeBindersInvocation() then
+                            return true
+                        end
+                    end
+                end
+            end
+        end
         if isChecked("Group Avenger w/ Wrath") then
             if cast.able.holyAvenger() and (buff.avengingWrathCrit.remain() >= 15 or buff.avengingCrusader.remain() >= 15) then
                 if cast.holyAvenger() then
