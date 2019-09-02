@@ -1013,7 +1013,7 @@ local function runRotation()
                 end
             end
             -- Refreshment
-            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Shadow Mend") then
+            if isChecked("Well of Existence") and essence.refreshment.active and cd.refreshment.remain() <= gcd and UnitBuffID("player",296138) and select(16,UnitBuffID("player",296138,"EXACT")) >= 15000 and lowest.hp <= getValue("Healing Wave") then
                 if cast.refreshment(lowest.unit) then br.addonDebug("Casting Refreshment") return true end
             end
             -- Healing Surge (2 stacks)

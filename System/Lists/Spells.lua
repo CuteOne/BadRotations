@@ -3379,6 +3379,8 @@ br.lists.spells = {
                 battlePotionOfAgility           = 279152,
                 battlePotionOfIntellect         = 279151,
                 battlePotionOfStrength          = 279153,
+                superiorBattlePotionOfAgility   = 298146,
+                potionOfUnbridledFury           = 300714,
                 blessingOfSacrifice 	        = 6940,
                 greaterBlessingOfKings 	        = 203538,
                 greaterBlessingOfWisdom	        = 203539,
@@ -3465,6 +3467,7 @@ br.lists.spells = {
                 standstill                      = 299882,
                 suppressingPulse                = 300009,
                 theUnboundForce                 = 299376,
+                visionOfPerfection              = 299370,
                 vitalityConduit                 = 299958,
                 worldveinResonance              = 295186
             },

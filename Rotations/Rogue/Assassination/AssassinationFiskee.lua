@@ -94,7 +94,8 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "|cffFFFFFF Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "|cffFFFFFF Will use Trinkets")
-            br.ui:createDropdown(section, "Potion", {"Agility", "Bursting Blood"}, 1, "|cffFFFFFFPotion to use")
+            br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
+            br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vanish", "|cffFFFFFF Will use Vanish")
             br.ui:createCheckbox(section, "Vendetta", "|cffFFFFFF Will use Vendetta")
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
@@ -195,7 +196,7 @@ local function runRotation()
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
-    --local pullTimer                                     = br.DBM:getPulltimer()
+    local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
@@ -760,16 +761,30 @@ local function runRotation()
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
         -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
+
+        -- # Precombat Font_of_Azshara (channel time 4 seconds), Prepots
+        if isChecked("Trinkets") and pullTimer <= 6 then
+            if hasEquiped(169314) and canUseItem(169314) then
+                useItem(169314)
+                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+                    use.superiorBattlePotionOfAgility()
+                    return true
+                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+                    use.potionOfUnbridledFury()
+                    return true
+                end
+            end
+        end
     end
 
     local function actionList_Cooldowns()
         -- actions.cds=potion,if=buff.bloodlust.react|debuff.vendetta.up
         if useCDs() and ttd("target") > 15 and isChecked("Potion") and (hasBloodLust() or debuff.vendetta.exists("target")) and targetDistance < 5 then
-            if getOptionValue("Potion") == 1 and ttd("target") > 15 and use.able.battlePotionOfAgility() and not buff.battlePotionOfAgility.exists() then
-                use.battlePotionOfAgility()
+            if getOptionValue("Potion") == 1 and ttd("target") > 15 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+                use.superiorBattlePotionOfAgility()
                 return true
-            elseif getOptionValue("Potion") == 2 and ttd("target") > getOptionValue("CDs TTD Limit") and use.able.potionOfBurstingBlood() and not buff.potionOfBurstingBlood.exists() then
-                use.potionOfBurstingBlood()
+            elseif getOptionValue("Potion") == 2 and ttd("target") > getOptionValue("CDs TTD Limit") and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+                use.potionOfUnbridledFury()
                 return true
             end
         end
@@ -789,6 +804,13 @@ local function runRotation()
                 useItem(14)
             end
         end
+        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent
+        if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
+            if hasEquiped(169314) and canUseItem(169314) then
+                useItem(169314)
+            end
+        end
+
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
         -- actions.cds+=/fireblood,if=debuff.vendetta.up
@@ -849,7 +871,7 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
-            if debuff.rupture.exists("target") then
+            if useCDs() and isChecked("Essences") and debuff.rupture.exists("target") then
                 --Worldvein Resonance
                 if cast.worldveinResonance("player") then return true end
                 --Memory of lucid Dreams
@@ -857,9 +879,13 @@ local function runRotation()
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian
-                if cast.guardianOfAzeroth("player") then return true end
+                if debuff.vendetta.exists("target") then
+                    if cast.guardianOfAzeroth("player") then return true end
+                end
                 --Blood Of The Enemy
-                if cast.bloodOfTheEnemy("player") then return true end
+                if debuff.vendetta.exists("target") then
+                    if cast.bloodOfTheEnemy("player") then return true end
+                end
                 --The Unbound Force
                 if cast.theUnboundForce("target") then return true end
             end

@@ -451,7 +451,7 @@ local function runRotation()
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=essence.vision_of_perfection.enabled|(essence.condensed_lifeforce.enabled&pet.apoc_ghoul.active)|debuff.festering_wound.stack<4&!(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)|cooldown.apocalypse.remains<2&(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)
-            if essence.visionOfPerfection.active or (essence.condensedLifeforce.active and pet.apocalypseGhoul.active()) or debuff.festeringWound.stack(units.dyn5) < 4
+            if essence.visionOfPerfection.active or (essence.condensedLifeforce.active and pet.apocalypseGhoul.exists()) or debuff.festeringWound.stack(units.dyn5) < 4
                 and not (equiped.rampingAmplitudeGigavoltEngine() or trait.magusOfTheDead.active) or cd.apocalypse.remain() < 2
                 and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active)
             then
@@ -588,7 +588,7 @@ local function runRotation()
         if cast.able.deathCoil() and buff.suddenDoom.exists() and runeDeficit >= 4 then
             if cast.deathCoil() then return end
         end
-        -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
+        -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.exists
         if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then
             if cast.deathCoil() then return end
         end
@@ -636,7 +636,7 @@ local function runRotation()
     end -- End Action List - AOE
     local function actionList_Single()
     -- Death Coil
-        -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.active
+        -- death_coil,if=buff.sudden_doom.react&!variable.pooling_for_gargoyle|pet.gargoyle.exists
         if cast.able.deathCoil() and buff.suddenDoom.exists() and (not poolForGargoyle or pet.gargoyle.exists()) then
             if cast.deathCoil() then return end
         end
@@ -782,8 +782,8 @@ local function runRotation()
                 if getDistance(units.dyn5) < 5 then
             -- Racial
                     -- arcane_torrent,if=runic_power.deficit>65&(cooldown.summon_gargoyle.remains|!talent.summon_gargoyle.enabled)&rune.deficit>=5
-                    -- blood_fury,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
-                    -- berserking,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled
+                    -- blood_fury,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled
+                    -- berserking,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled
                     if isChecked("Racial") and cast.able.racial()
                         and ((race == "BloodElf" and runicPowerDeficit > 65 and (cd.summonGargoyle.remain() > 0 or not talent.summonGargoyle) and runeDeficit >= 5)
                             or ((race == "Orc" or race == "Troll") and (pet.gargoyle.exists() or not talent.summonGargoyle)))
@@ -813,16 +813,16 @@ local function runRotation()
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
                                 if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
-                                    or (cd.apocalypse.remain() < gcd and not essense.condensedLifeforce.active and not talent.unholyFrenzy)
+                                    or (cd.apocalypse.remain() < gcd and not essence.condensedLifeforce.active and not talent.unholyFrenzy)
                                     or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeforce.remain() + 20)
                                     or (buff.unholyFrenzy.exists() and not essence.condensedLifeforce.active))
                                 then
                                     use.slot(i)
                                 end
                                 -- Vision of Demise
-                                -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.active
+                                -- use_item,name=vision_of_demise,if=(cooldown.apocalypse.ready&debuff.festering_wound.stack>=4&essence.vision_of_perfection.enabled)|buff.unholy_frenzy.up|pet.gargoyle.exists
                                 if equiped.visionOfDemise(i) and ((cd.apocalypse.remain() == 0 and debuff.festeringWound.stack(units.dyn5) >= 4
-                                    and essense.visionOfPerfection.active) or buff.unholyFrenzy.exists() or pet.gargoyle.active())
+                                    and essence.visionOfPerfection.active) or buff.unholyFrenzy.exists() or pet.gargoyle.exists())
                                 then
                                     use.slot(i)
                                 end
@@ -839,15 +839,15 @@ local function runRotation()
                                     use.slot(i)
                                 end
                                 -- Jes Howler
-                                -- use_item,name=jes_howler,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                                if equiped.jesHowler(i) and (pet.gargoyle.active() or (not talent.summonGargoyle and combatTime > 20)
+                                -- use_item,name=jes_howler,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                                if equiped.jesHowler(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and combatTime > 20)
                                     or not equiped.rampingAmplitudeGigavoltEngine(i))
                                 then
                                     use.slot(i)
                                 end
                                 -- Galecaller's Beak
-                                -- use_item,name=galecallers_beak,if=pet.gargoyle.active|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
-                                if equiped.galecallersBeak(i) and (pet.gargoyle.active() or (not talent.summonGargoyle and combatTime > 20)
+                                -- use_item,name=galecallers_beak,if=pet.gargoyle.exists|!talent.summon_gargoyle.enabled&time>20|!equipped.ramping_amplitude_gigavolt_engine
+                                if equiped.galecallersBeak(i) and (pet.gargoyle.exists() or (not talent.summonGargoyle and combatTime > 20)
                                     or not equiped.rampingAmplitudeGigavoltEngine(i))
                                 then
                                     use.slot(i)
@@ -861,7 +861,7 @@ local function runRotation()
                         end
                     end
             -- Potion
-                    -- potion,if=cooldown.army_of_the_dead.ready|pet.gargoyle.active|buff.unholy_frenzy.up
+                    -- potion,if=cooldown.army_of_the_dead.ready|pet.gargoyle.exists|buff.unholy_frenzy.up
                     if isChecked("Potion") and inRaid and useCDs() and use.able.battlePotionOfStrength()
                         and (cd.armyOfTheDead.remain() == 0 or pet.gargoyle.exists() or buff.unholyFrenzy.exists())
                     then
