@@ -196,7 +196,7 @@ local function runRotation()
     local mode                                          = br.player.mode
     local moving                                        = isMoving("player") ~= false or br.player.moving
     local php                                           = br.player.health
-    --local pullTimer                                     = br.DBM:getPulltimer()
+    local pullTimer                                     = br.DBM:getPulltimer()
     local race                                          = br.player.race
     local spell                                         = br.player.spell
     local stealth                                       = br.player.buff.stealth.exists()
@@ -761,6 +761,20 @@ local function runRotation()
     local function actionList_PreCombat()
         -- actions.precombat+=/potion
         -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
+
+        -- # Precombat Font_of_Azshara (channel time 4 seconds), Prepots
+        if isChecked("Trinkets") and pullTimer <= 6 then
+            if hasEquiped(169314) and canUseItem(169314) then
+                useItem(169314)
+                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
+                    use.superiorBattlePotionOfAgility()
+                    return true
+                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() and not buff.potionOfUnbridledFury.exists() then
+                    use.potionOfUnbridledFury()
+                    return true
+                end
+            end
+        end
     end
 
     local function actionList_Cooldowns()
@@ -790,6 +804,13 @@ local function runRotation()
                 useItem(14)
             end
         end
+        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent
+        if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
+            if hasEquiped(169314) and canUseItem(169314) then
+                useItem(169314)
+            end
+        end
+
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
         -- actions.cds+=/fireblood,if=debuff.vendetta.up
