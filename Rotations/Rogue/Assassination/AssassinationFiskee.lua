@@ -819,7 +819,6 @@ local function runRotation()
                 useItem(14)
             end
         end
-        -- # Cyclonic Blast
 
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
