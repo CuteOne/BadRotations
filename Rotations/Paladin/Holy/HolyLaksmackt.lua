@@ -1128,9 +1128,11 @@ local function runRotation()
             end
         end
         if isChecked("Group Avenger w/ Wrath") then
-            if cast.able.holyAvenger() and (buff.avengingWrathCrit.remain() >= 15 or buff.avengingCrusader.remain() >= 15) then
+            if cast.able.holyAvenger()
+                    and (buff.avengingWrath.exists() or buff.avengingCrusader.exists())
+                    and ((buff.avengingWrath.remain() > 12 and buff.avengingWrath.remain() < 17) or (buff.avengingCrusader.remain() > 12 and buff.avengingCrusader.remain() < 19)) then
                 if cast.holyAvenger() then
-                    br.addonDebug("Grouping HA w/wings")
+                    br.addonDebug("Grouping HA w/wings - Wings remain:" .. buff.avengingWrath.remain())
                     return true
                 end
             end
