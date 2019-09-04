@@ -802,14 +802,24 @@ local function runRotation()
                 useItem(13)
             elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
                 useItem(14)
+        end
+        -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit
+        if useCDs() and isCheced("Trinkets") then
+            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and ((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32 then
+                useItem(13)
+            elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and ((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32 then
+                useItem(14)
             end
         end
         -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent
         if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
-            if hasEquiped(169314) and canUseItem(169314) then
-                useItem(169314)
+            if hasEquiped(169314, 13) and canUseItem(13) then
+                useItem(13)
+            elseif hasEquiped(169314, 14) and canUseItem(14) then
+                useItem(14)
             end
         end
+        -- # Cyclonic Blast
 
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
