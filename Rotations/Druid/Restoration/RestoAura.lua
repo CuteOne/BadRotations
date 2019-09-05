@@ -1012,7 +1012,7 @@ local function runRotation()
 					end
 				end
 			end
-			if isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcd and getLowAllies(getOptionValue("Life-Binder's Invocation")) >= getOptionValue("Life-Binder's Invocation Targets") then
+			if isChecked("Life-Binder's Invocation") and essence.lifeBindersInvocation.active and cd.lifeBindersInvocation.remain() <= gcdMax and getLowAllies(getOptionValue("Life-Binder's Invocation")) >= getOptionValue("Life-Binder's Invocation Targets") then
                 if cast.lifeBindersInvocation() then
                     br.addonDebug("Casting Life-Binder's Invocation")
                     return true
