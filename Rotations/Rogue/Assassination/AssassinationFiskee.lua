@@ -94,6 +94,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
             br.ui:createCheckbox(section, "Racial", "|cffFFFFFF Will use Racial")
             br.ui:createCheckbox(section, "Trinkets", "|cffFFFFFF Will use Trinkets")
+            br.ui:createCheckbox(section, "Precombat", "|cffFFFFFF Will use items on pulltimer (don't move on pull timer)")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createDropdown(section, "Potion", {"Agility", "Unbridled Fury"}, 1, "|cffFFFFFFPotion to use")
             br.ui:createCheckbox(section, "Vanish", "|cffFFFFFF Will use Vanish")
@@ -284,7 +285,7 @@ local function runRotation()
             return nlX, nlY, nrX, nrY, frX, frY
         end
         local enemiesTable = getEnemies("player", length, true)
-        local facing = ObjectFacing("player")        
+        local facing = ObjectFacing("player")
         local unitsInRect = 0
         local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
         local thisUnit
@@ -295,8 +296,8 @@ local function runRotation()
                 if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
                     unitsInRect = 0
                     break
-                end            
-                if ttd(thisUnit) >= minttd then                
+                end
+                if ttd(thisUnit) >= minttd then
                     unitsInRect = unitsInRect + 1
                 end
             end
@@ -390,8 +391,8 @@ local function runRotation()
         end
     end
     function getmutidamage()
-        return            
-        (getapdmg() + getapdmg(true) * 0.5) * 0.35 * 1.27 * 
+        return
+        (getapdmg() + getapdmg(true) * 0.5) * 0.35 * 1.27 *
         (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
     end
     --YOINK @IMMY
@@ -403,7 +404,7 @@ local function runRotation()
         local masterymult   = (1 + (GetMasteryEffect("player") / 100))
         local versmult      = (1 + ((GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE)) / 100))
         local dsmod, tbmod
-        if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end 
+        if talent.DeeperStratagem then dsmod = 1.05 else dsmod = 1 end
         if debuff.toxicBlade.exists(unit) then tbmod = 1.3 else tbmod = 1 end
         return (apMod * combo * envcoef * auramult * tbmod * dsmod * masterymult * versmult)
     end
@@ -486,7 +487,7 @@ local function runRotation()
             for i = 1, #enemies.yards5 do
                 local thisUnit = enemies.yards5[i]
                 local objID = GetObjectID(thisUnit)
-                if autoTargetUnits[objID] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then                    
+                if autoTargetUnits[objID] ~= nil and (isChecked("Auto Facing") or getFacing("player", thisUnit)) then
                     if (objID == 120651 and getCastTimeRemain(thisUnit) > 0 and getCastTimeRemain(thisUnit) < 5) or objID ~= 120651 then
                         TargetUnit(thisUnit)
                     end
@@ -576,7 +577,7 @@ local function runRotation()
                 local boss2ID = GetObjectID("boss2")
                 local boss3ID = GetObjectID("boss3")
                 local boss = "boss1"
-                if boss2ID == 126848 then 
+                if boss2ID == 126848 then
                     bossID = 126848
                     boss = "boss2"
                 end
@@ -586,7 +587,7 @@ local function runRotation()
                     elseif getOptionValue("Evasion Unavoidables HP Limit") >= php then
                         if cast.evasion() then return true end
                     end
-                end                
+                end
                 --Azerite Powder Shot (1st boss freehold)
                 if not fhbossPool and bossID == 126832 and br.DBM:getTimer(256106) <= 1 then -- pause 1 sec before cast for pooling
                     fhbossPool = true
@@ -763,7 +764,7 @@ local function runRotation()
         -- actions.precombat+=/marked_for_death,precombat_seconds=5,if=raid_event.adds.in>40
 
         -- # Precombat Font_of_Azshara (channel time 4 seconds), Prepots
-        if isChecked("Trinkets") and pullTimer <= 6 then
+        if isChecked("Trinkets") and isChecked("Precombat") and pullTimer <= 6 then
             if hasEquiped(169314) and canUseItem(169314) then
                 useItem(169314)
                 if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() and not buff.superiorBattlePotionOfAgility.exists() then
@@ -797,28 +798,29 @@ local function runRotation()
                 useItem(14)
             end
         end
+        -- # Razor Coral
         if useCDs() and isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
             if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
                 useItem(13)
             elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
                 useItem(14)
         end
-        -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit
+        -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
         if useCDs() and isCheced("Trinkets") then
-            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and ((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32 then
+            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and ((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32 then
+            elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
                 useItem(14)
             end
         end
-        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent
-        if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
-            if hasEquiped(169314, 13) and canUseItem(13) then
-                useItem(13)
-            elseif hasEquiped(169314, 14) and canUseItem(14) then
-                useItem(14)
-            end
-        end
+        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent (channeled cast, not worth placing it in rotation)
+        -- if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
+        --     if hasEquiped(169314, 13) and canUseItem(13) then
+        --         useItem(13)
+        --     elseif hasEquiped(169314, 14) and canUseItem(14) then
+        --         useItem(14)
+        --     end
+        -- end
 
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
@@ -1054,7 +1056,7 @@ local function runRotation()
             end
         end
         -- # Subterfuge + Shrouded Suffocation: Apply early Rupture that will be refreshed for pandemic.
-        -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking&variable.single_target 
+        -- actions.stealthed+=/rupture,if=talent.subterfuge.enabled&azerite.shrouded_suffocation.enabled&!dot.rupture.ticking&variable.single_target
         if talent.subterfuge and trait.shroudedSuffocation.active and not debuff.rupture.exists("target") and #enemies.yards30 == 1 then
             if cast.rupture("target") then return true end
         end
@@ -1072,14 +1074,14 @@ local function runRotation()
                     tinsert(garroteTable, addUnit)
                 end
             end
-            if #garroteTable > 0 then 
+            if #garroteTable > 0 then
                 if cast.pool.garrote() then return true end
                 if #garroteTable > 1 then
                     table.sort(garroteTable, function(x,y)
                         return x.garroteRemain < y.garroteRemain
                     end)
                     for i = 1, #garroteTable do
-                        if cast.garrote(garroteTable[i].unit) then return true end                        
+                        if cast.garrote(garroteTable[i].unit) then return true end
                     end
                 else
                     if cast.garrote(garroteTable[1].unit) then return true end
@@ -1109,7 +1111,7 @@ local function runRotation()
         end -- End Out of Combat Rotation
         if actionList_Opener() then return true end
 -----------------------------
---- In Combat - Rotations --- 
+--- In Combat - Rotations ---
 -----------------------------
         if (inCombat or (not isChecked("Disable Auto Combat") and (cast.last.vanish(1) or cast.last.vanish(2) or (validTarget and targetDistance < 5)))) and opener == true then
             if cast.last.vanish(1) then StopAttack() end
@@ -1161,7 +1163,7 @@ local function runRotation()
             end
         end -- End In Combat Rotation
     end -- Pause
-end -- End runRotation 
+end -- End runRotation
 local id = 259 --Change to the spec id profile is for.
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
