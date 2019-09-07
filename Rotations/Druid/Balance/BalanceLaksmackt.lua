@@ -12,8 +12,8 @@ local function createToggles()
         [3] = { mode = "Sing", value = 3, overlay = "Force single target", tip = "Force single target", highlight = 0, icon = br.player.spell.solarWrath },
         [4] = { mode = "Off", value = 4, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.soothe }
     };
-
     CreateButton("Rotation", 1, 0)
+
     -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.celestialAlignment },
@@ -21,18 +21,21 @@ local function createToggles()
         [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.celestialAlignment }
     };
     CreateButton("Cooldown", 2, 0)
+
     -- Defensive Button
     DefensiveModes = {
         [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.barkskin },
         [2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.barkskin }
     };
     CreateButton("Defensive", 3, 0)
+
     -- Interrupt Button
     InterruptModes = {
         [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.solarBeam },
         [2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.solarBeam }
     };
     CreateButton("Interrupt", 4, 0)
+
     -- FoN Button
     ForceofNatureModes = {
         [1] = { mode = "On", value = 1, overlay = "Force of Nature Enabled", tip = "Will Use Force of Nature", highlight = 0, icon = br.player.spell.forceOfNature },
@@ -47,6 +50,14 @@ local function createToggles()
     };
     CreateButton("Forms", 6, 0)
 
+    --[[
+    --pots
+    PotsModes = {
+        [1] = { mode = "On", value = 1, overlay = "Auto Pots Enabled", tip = "Auto Pots Enabled", highlight = 0, icon = 197524 },
+        [2] = { mode = "Off", value = 2, overlay = "Auto Pots Disabled", tip = "Auto Pots Disabled", highlight = 0, icon = 197524 },
+    };
+    CreateButton("Pots", 7, 0)
+]]
 end
 ---------------
 --- OPTIONS ---
@@ -193,6 +204,7 @@ local function runRotation()
     UpdateToggle("Interrupt", 0.25)
     UpdateToggle("ForceofNature", 0.25)
     UpdateToggle("Forms", 0.25)
+    --UpdateToggle("Pots", 0.25)
 
     br.player.mode.forceOfNature = br.data.settings[br.selectedSpec].toggles["ForceofNature"]
     br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["Rotation"]
@@ -267,10 +279,9 @@ local function runRotation()
     local pewbuff = buff.incarnationChoseOfElune.exists() or buff.celestialAlignment.exists()
     local starfallRadius = nil
 
+    local tank = nil
     if #tanks > 0 and inInstance then
-        for i = 1, #tanks do
-            tank = tanks[i].unit
-        end
+        tank = tanks[1].unit
     else
         tank = "Player"
     end
@@ -559,7 +570,7 @@ local function runRotation()
             aoeTarget = getValue("Starfall Targets (0 for auto)")
         end
 
-        if (race == "Troll") and isChecked("Racial") and useCDs() and ttd("target") >= 12 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
+        if race == "Troll" and isChecked("Racial") and useCDs() and ttd("target") >= 12 and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13)) then
             cast.racial("player")
         end
 
@@ -580,22 +591,28 @@ local function runRotation()
                 end
             end
 
+            --pocket size computing device
+            if (Trinket13 == 167555 or Trinket14 == 167555) and ttd("target") > 10 and not isMoving("player")
+                    and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare) then
+                if canUseItem(167555) then
+                    useItem(167555)
+                end
+            end
+
             -- Generic fallback
             if (pewbuff or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
-                if Trinket13 ~= 168905 then
+                if Trinket13 ~= 168905 and Trinket13 ~= 167555 then
                     if canUseItem(13) then
                         useItem(13)
                     end
                 end
-                if Trinket14 ~= 168905 then
+                if Trinket14 ~= 168905 and Trinket14 ~= 167555  then
                     if canUseItem(14) then
                         useItem(14)
                     end
                 end
             end
         end
-
-
 
 
 
@@ -652,7 +669,8 @@ local function runRotation()
 
         if isChecked("Auto Innervate") and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 12 or (traits.livelySpirit.active and (cd.incarnationChoseOfElune.remain() < 2 or cd.celestialAlignment.remain() < 12))) then
             for i = 1, #br.friend do
-                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) then
+                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid
+                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then
                     --Print("Healer is: " .. br.friend[i].unit)
                     if cast.innervate(br.friend[i].unit) then
                         return true
@@ -705,7 +723,7 @@ local function runRotation()
                         and (buff.starLord.exists or not talent.starlord)
                         and (buff.memoryOfLucidDreams.exists() or ((cd.memoryOfLucidDreams.remains() > 20 or not essence.memoryOfLucidDreams.active) and power >= 40))
                         and groupTTD >= 20 and not pewbuff and
-                        (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remain() >= 30) or not isChecked("Auto Innervate")) and
+                        (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remains() >= 30) or not isChecked("Auto Innervate")) and
                         debuff.sunfire.remain("target") > 2 and debuff.moonfire.exists("target") and
                         (debuff.stellarFlare.exists("target") or not talent.stellarFlare)
                         or hasBloodLust() and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare)
@@ -975,7 +993,7 @@ local function runRotation()
 
 
             -- lunar_strike,if=buff.solar_empowerment.stack<3&(ap_check|buff.lunar_empowerment.stack=3)&((buff.warrior_of_elune.up|buff.lunar_empowerment.up|spell_targets>=2&!buff.solar_empowerment.up)&(!variable.az_ss|!buff.ca_inc.up)|variable.az_ss&buff.ca_inc.up&prev.solar_wrath)
-            if cast.able.lunarStrike() and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3) then
+            if not isMoving("player") and cast.able.lunarStrike() and (astral_def >= 12 or buff.lunarEmpowerment.stack() == 3) then
                 if (traits.streakingStars.active and pewbuff and not cast.last.lunarStrike(1) or not traits.streakingStars.active or not pewbuff) then
                     if traits.streakingStars.active and pewbuff and cast.last.solarWrath(1)
                             or buff.warriorOfElune.exists()
@@ -1003,7 +1021,7 @@ local function runRotation()
             end
 
             --    if cast.able.solarWrath() and (azSs < 3 or not buff.caInc.exists() or not prev.solar_wrath) then
-            if cast.able.solarWrath() and not noDamageCheck(units.dyn45)
+            if not isMoving("player") and cast.able.solarWrath() and not noDamageCheck(units.dyn45)
                     and (traits.streakingStars.active and pewbuff and not cast.last.solarWrath(1) or not traits.streakingStars.active or not pewbuff) then
                 if cast.solarWrath(units.dyn45) then
                     br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
@@ -1012,7 +1030,9 @@ local function runRotation()
             end
 
             --fallback / moving
-            if ((traits.streakingStars.active and pewbuff and not cast.last.sunfire(1)) or not traits.streakingStars.active or not pewbuff) then
+            --if ((traits.streakingStars.active and pewbuff and not cast.last.sunfire(1)) or not traits.streakingStars.active or not pewbuff) then
+            if not cast.last.sunfire(1) then
+
                 if cast.sunfire(units.dyn45) then
                     if not isMoving("player") then
                         br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
@@ -1075,7 +1095,7 @@ local function runRotation()
             end
         end
         -- Barkskin
-        if isChecked("Barkskin") and php <= getValue("Barkskin") then
+        if isChecked("Barkskin") and inCombat and php <= getValue("Barkskin") then
             if cast.barkskin() then
                 return
             end
@@ -1094,7 +1114,7 @@ local function runRotation()
         end
 
         --rejuvenation
-        if isChecked("Rejuvination") and php <= getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
+        if isChecked("Rejuvenation") and php <= getValue("Rejuvenation") and not buff.rejuvenation.exists("player") then
             if cast.rejuvenation("player") then
                 return true
             end
@@ -1111,7 +1131,7 @@ local function runRotation()
                         end
                     end
                 end
-            elseif getOptionValue("Rebirth") == 2 then
+            elseif inCombat and getOptionValue("Rebirth") == 2 then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     if UnitIsDeadOrGhost(thisUnit) and UnitGroupRolesAssigned(thisUnit) == "HEALER" and UnitIsPlayer(thisUnit) then
@@ -1120,7 +1140,7 @@ local function runRotation()
                         end
                     end
                 end
-            elseif getOptionValue("Rebirth") == 3 then
+            elseif inCombat and getOptionValue("Rebirth") == 3 then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     if UnitIsDeadOrGhost(thisUnit) and (UnitGroupRolesAssigned(thisUnit) == "TANK" or UnitGroupRolesAssigned(thisUnit) == "HEALER") and UnitIsPlayer(thisUnit) then
@@ -1129,13 +1149,13 @@ local function runRotation()
                         end
                     end
                 end
-            elseif getOptionValue("Rebirth") == 4 then
+            elseif inCombat and getOptionValue("Rebirth") == 4 then
                 if GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
                     if cast.rebirth("mouseover", "dead") then
                         return true
                     end
                 end
-            elseif getOptionValue("Rebirth") == 5 then
+            elseif inCombat and getOptionValue("Rebirth") == 5 then
                 for i = 1, #br.friend do
                     local thisUnit = br.friend[i].unit
                     if UnitIsDeadOrGhost(thisUnit) and UnitIsPlayer(thisUnit) then
@@ -1264,10 +1284,12 @@ local function runRotation()
             end
 
 
+
             --Enchanted emmisary == 155432
-            if isChecked("Punt Enchanted Emissary") and inInstance then
-                if GetObjectID(thisUnit) == 155432 then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 25 then
+            if isChecked("Punt Enchanted Emissary") then
+                --and inInstance then
+                if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
+                    if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
                         br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
                         if cast.moonfire(thisUnit) then
                             return true
@@ -1278,7 +1300,7 @@ local function runRotation()
 
             if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
-                if cast.able.massEntanglement() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.massEntanglement() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.massEntanglement(thisUnit) then
                             br.addonDebug("Mass Rooting: " .. thisUnit)
@@ -1286,7 +1308,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.entanglingRoots() and isCC(thisUnit) and getHP(thisUnit) > 90 then
+                if cast.able.entanglingRoots() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
                     if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
                         if cast.entanglingRoots(thisUnit) then
                             br.addonDebug("Rooting: " .. thisUnit)
