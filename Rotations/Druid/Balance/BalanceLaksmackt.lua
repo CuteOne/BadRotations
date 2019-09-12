@@ -46,9 +46,11 @@ local function createToggles()
 
     FormsModes = {
         [1] = { mode = "On", value = 1, overlay = "Auto Forms Enabled", tip = "Will change forms", highlight = 0, icon = br.player.spell.travelForm },
-        [2] = { mode = "Off", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm },
+        [2] = { mode = "Key", value = 2, overlay = "Auto Forms hotkey", tip = "Key triggers Auto Forms", highlight = 0, icon = br.player.spell.travelForm },
+        [3] = { mode = "Off", value = 3, overlay = "Auto Forms Disabled", tip = "Will Not change forms", highlight = 0, icon = br.player.spell.travelForm }
     };
     CreateButton("Forms", 6, 0)
+
 
     --[[
     --pots
@@ -69,10 +71,22 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS --- -- Define General Options
         -----------------------
+
+        section = br.ui:createSection(br.ui.window.profile, "Forms")
+        br.ui:createDropdownWithout(section, "Cat Key", br.dropOptions.Toggle, 6, "Set a key for cat")
+        br.ui:createDropdownWithout(section, "Bear Key", br.dropOptions.Toggle, 6, "Set a key for bear")
+        br.ui:createDropdownWithout(section, "Travel Key", br.dropOptions.Toggle, 6, "Set a key for travel")
+        br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
+        br.ui:createCheckbox(section, "Cat Charge", "Use Wild Charge to close distance.", 1)
+        br.ui:createCheckbox(section, "auto stealth", 1)
+        br.ui:createCheckbox(section, "auto dash", 1)
+        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
+        br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2.5, 0, 10, 0.5, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+
+        br.ui:createSpinner(section, "OOC Regrowth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
         if br.player.talent.restorationAffinity then
-            br.ui:createSpinner(section, "OOC Regrowth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
             br.ui:createSpinner(section, "OOC Wild Growth", 50, 1, 100, 5, "Set health to heal while out of combat. Min: 1 / Max: 100 / Interval: 5")
         end
         br.ui:createCheckbox(section, "Auto Soothe")
@@ -80,7 +94,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Healing")
         br.ui:createDropdown(section, "Rebirth", { "|cff00FF00Tanks", "|cffFFFF00Healers", "|cffFFFFFFTanks and Healers", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
-        br.ui:createCheckbox(section, "Revive target")
+        br.ui:createDropdown(section, "Revive", { "Target", "mouseover" }, 1, "", "|ccfFFFFFFTarget to Cast On")
         br.ui:createDropdown(section, "Remove Corruption", { "|cff00FF00Player Only", "|cffFFFF00Selected Target", "|cffFFFFFFPlayer and Target", "|cffFF0000Mouseover Target", "|cffFFFFFFAny" }, 3, "", "|ccfFFFFFFTarget to Cast On")
         br.ui:createDropdown(section, "Off-healing", { "Nope", "always", "No-Healer" }, 1, "", "offheal")
 
@@ -120,8 +134,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Incarnation/Celestial Alignment")
         br.ui:createSpinnerWithout(section, "Treant Targets", 3, 1, 10, 1, "How many baddies before using Treant?")
         br.ui:createCheckbox(section, "Group treants with CD")
-        br.ui:createDropdown(section, "Treants Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFTreant Key")
-        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 5, 0, 100, 5, "", "health to heal at")
+        br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
         br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
         br.ui:createCheckbox(section, "Guardian Of Azeroth")
         br.ui:createSpinner(section, "Focused Azerite Beam", 3, 1, 10, 1, "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
@@ -133,8 +146,8 @@ local function createOptions()
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Targets")
         br.ui:createSpinnerWithout(section, "Max Stellar Flare Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Stellar Flare. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
-        br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Max Moonfire Targets", 5, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Moonfire. Min: 1 / Max: 10 / Interval: 1")
+        br.ui:createSpinnerWithout(section, "Max Sunfire Targets", 10, 1, 10, 1, "|cff0070deSet to maximum number of targets to dot with Sunfire. Min: 1 / Max: 10 / Interval: 1")
         br.ui:createCheckbox(section, "Safe Dots")
         br.ui:createSpinnerWithout(section, "Starfall Targets (0 for auto)", 0, 0, 10, 1, "|cff0070deSet to minimum number of targets to use Starfall. 0 to calculate")
         br.ui:createSpinnerWithout(section, "Fury of Elune Targets", 2, 1, 10, 1, "|cff0070deSet to minimum number of targets to use Fury of Elune. Min: 1 / Max: 10 / Interval: 1")
@@ -148,14 +161,10 @@ local function createOptions()
         br.ui:createSpinner(section, "Renewal", 25, 0, 100, 1, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Barkskin", 60, 0, 100, 1, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Regrowth", 30, 0, 100, 1, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 1, "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 1, "Health Percent to Cast At")
-        br.ui:checkSectionState(section)
-        section = br.ui:createSection(br.ui.window.profile, "Forms")
-        br.ui:createDropdown(section, "Bear Form Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFGO BEAR GO!")
-        br.ui:createCheckbox(section, "auto stealth", 1)
-        br.ui:createCheckbox(section, "auto dash", 1)
-        br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
+        if br.player.talent.restorationAffinity then
+            br.ui:createSpinner(section, "Swiftmend", 15, 0, 100, 1, "Health Percent to Cast At")
+            br.ui:createSpinner(section, "Rejuvenation", 50, 0, 100, 1, "Health Percent to Cast At")
+        end
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -168,22 +177,26 @@ local function createOptions()
         -- Interrupt Percentage
         br.ui:createSpinner(section, "InterruptAt", 0, 0, 95, 5, "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
-        ----------------------
-        --- TOGGLE OPTIONS --- -- Define Toggle Options
-        ----------------------
-        section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
-        -- Single/Multi Toggle
-        br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
-        --Cooldown Key Toggle
-        br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
-        --Defensive Key Toggle
-        br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
-        -- Interrupts Key Toggle
-        br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
-        -- Pause Toggle
-        br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
-        br.ui:checkSectionState(section)
+
+        --[[
+           ----------------------
+           --- TOGGLE OPTIONS --- -- Define Toggle Options
+           ----------------------
+           section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
+           -- Single/Multi Toggle
+           br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
+           --Cooldown Key Toggle
+           br.ui:createDropdown(section, "Cooldown Mode", br.dropOptions.Toggle, 3)
+           --Defensive Key Toggle
+           br.ui:createDropdown(section, "Defensive Mode", br.dropOptions.Toggle, 6)
+           -- Interrupts Key Toggle
+           br.ui:createDropdown(section, "Interrupt Mode", br.dropOptions.Toggle, 6)
+           -- Pause Toggle
+           br.ui:createDropdown(section, "Pause Mode", br.dropOptions.Toggle, 6)
+           br.ui:checkSectionState(section)
+       ]]
     end
+
     optionTable = { {
                         [1] = "Rotation Options",
                         [2] = rotationOptions,
@@ -260,6 +273,10 @@ local function runRotation()
     local aoeTarget = 0
     local essence = br.player.essence
     local healPot = getHealthPot()
+    local travel = br.player.buff.travelForm.exists()
+    local cat = br.player.buff.catForm.exists()
+    local moonkin = br.player.buff.moonkinForm.exists()
+    local bear = br.player.buff.bearForm.exists()
 
     -------------
     -- Raid
@@ -606,7 +623,7 @@ local function runRotation()
                         useItem(13)
                     end
                 end
-                if Trinket14 ~= 168905 and Trinket14 ~= 167555  then
+                if Trinket14 ~= 168905 and Trinket14 ~= 167555 then
                     if canUseItem(14) then
                         useItem(14)
                     end
@@ -683,8 +700,7 @@ local function runRotation()
         if talent.forceOfNature and cast.able.forceOfNature() and astral_def > 20 then
             if br.player.mode.forceOfNature == 1 and getTTD("target") >= 10
                     and (isChecked("Group treants with CD") and (pewbuff or cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30) or not isChecked("Group treants with CD"))
-                    and (#enemies.yards12t >= getValue("Treant Targets") or isBoss())
-            then
+                    and (#enemies.yards12t >= getValue("Treant Targets") or isBoss()) then
                 if cast.forceOfNature("best", nil, 1, 15, true) then
                     return true
                 end
@@ -792,11 +808,12 @@ local function runRotation()
             -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
             if cast.able.starsurge() and
                     (
-                            (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
-                                    or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
+                            (
+                                    talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
+                                            or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
                             )
                                     and (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
-                                    and (not traits.streakingStars.active or not pewbuff or not cast.last.starsurge(1))
+                                    and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.starsurge)
                                     or ttd(units.dyn45) <= (br.player.gcd * power / 40)
                                     or astral_def <= 8
                     ) then
@@ -1056,19 +1073,20 @@ local function runRotation()
 
     local function defensive()
 
-        --Bear Form Key-br.player.buff.bearForm.exists()
-        if isChecked("Bear Form Key") and not buff.bearForm.exists("player") and SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
-            if cast.bearForm("player") then
-                return true
+        --[[
+            --Bear Form Key-br.player.buff.bearForm.exists()
+            if isChecked("Bear Key") and not buff.bearForm.exists("player") and SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                if cast.bearForm("player") then
+                    return true
+                end
+            elseif isChecked("Bear Key") and buff.bearForm.exists("player") and SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                return
+            elseif isChecked("Bear Key") and buff.bearForm.exists("player") and not SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                if cast.moonkinForm() then
+                    return true
+                end
             end
-        elseif isChecked("Bear Form Key") and buff.bearForm.exists("player") and SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
-            return
-        elseif isChecked("Bear Form Key") and buff.bearForm.exists("player") and not SpecificToggle("Bear Form Key") and not GetCurrentKeyBoardFocus() then
-            if cast.moonkinForm() then
-                return true
-            end
-        end
-
+    ]]
         -- Pot/Stoned
         if isChecked("Potion/Healthstone") and php <= getValue("Potion/Healthstone") then
             if inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
@@ -1343,96 +1361,54 @@ local function runRotation()
             bossHelper()
         end
     end
-    local function extras()
-        --Resurrection
-        if isChecked("Revive target") and not inCombat and not isMoving("player") then
-            if UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
-                if cast.revive("target", "dead") then
+
+    local function travel_form()
+
+        if SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+            if not travel then
+                if cast.travelForm("Player") then
                     return true
                 end
             end
-        end
-        -- Wild Growth
-        if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
-            if cast.wildGrowth() then
-                return true
+            if SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus()
+            then
+                return
             end
-        end
-        -- Regrowth
-        if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
-            if cast.regrowth("player") then
-                return true
-            end
-        end
-        -- Shapeshift Form Management
-        local standingTime = 0
-        if DontMoveStartTime then
-            standingTime = GetTime() - DontMoveStartTime
         end
 
-        if mode.forms == 1 then
-            if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 1 then
-                if cast.moonkinForm("player") then
+    end
+
+    local function bear_form()
+
+        if SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+            if not bear then
+                if cast.bearForm("Player") then
+                    return true
+                end
+            end
+            if isChecked("Bear Frenzies Regen HP") and talent.guardianAffinity and cast.able.frenziedRegeneration() and php <= getValue("Bear Frenzies Regen HP") then
+                if cast.frenziedRegeneration() then
+                    br.addonDebug("[BEAR]Regen")
+                    return true
+                end
+            end
+            if SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus()
+            then
+                return
+            end
+        end
+
+    end
+
+    local function cat_form()
+        if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+            if not cat then
+                if cast.catForm("player") then
                     return true
                 end
             end
 
-            -- Flight Form
-            if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and br.player.level >= 58 and not buff.prowl.exists() then
-                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                    -- CancelShapeshiftForm()
-                    RunMacroText("/CancelForm")
-                    CastSpellByID(783, "player")
-                    return true
-                else
-                    CastSpellByID(783, "player")
-                    return true
-                end
-            end
-            -- Aquatic Form
-            if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
-                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                    -- CancelShapeshiftForm()
-                    RunMacroText("/CancelForm")
-                    CastSpellByID(783, "player")
-                    return true
-                else
-                    CastSpellByID(783, "player")
-                    return true
-                end
-            end
-            -- Travel Form
-            if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
-                if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
-                    RunMacroText("/CancelForm")
-                    CastSpellByID(783, "player")
-                    return true
-                else
-                    CastSpellByID(783, "player")
-                    return true
-                end
-            end
-            -- Cat Form
-            if not cat and not IsMounted() and not flying and IsIndoors() then
-                -- Cat Form when not swimming or flying or stag and not in combat
-                if moving and IsMovingTime(3) and not swimming and not flying and not travel then
-                    if cast.catForm("player") then
-                        return true
-                    end
-                end
-                -- Cat Form - Less Fall Damage
-                if (not canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
-                    --falling > getOptionValue("Fall Timer") then
-                    if cast.catForm("player") then
-                        return true
-                    end
-                end
-            end
-        end -- End Shapeshift Form Management
-
-        --auto stuff in forms
-        if cat then
-            if isChecked("auto stealth") then
+            if isChecked("auto stealth") and not inCombat and cat then
                 if not br.player.buff.prowl.exists() then
                     if cast.prowl("Player") then
                         return true
@@ -1448,8 +1424,123 @@ local function runRotation()
                     return true
                 end
             end
+
+            if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus()
+            then
+                return
+            end
+        end
+    end
+
+    local function extras()
+
+        --Forms key management, in and out of combat
+        if mode.forms == 2 then
+            if not moonkin then
+                if cast.moonkinForm() then
+                    return true
+                end
+
+            end
         end
 
+        if not inCombat then
+            --Resurrection
+
+            if getOptionValue("Revive") == 1 then
+                if isChecked("Revive") and not inCombat and not isMoving("player") then
+                    if UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+                        if cast.revive("target", "dead") then
+                            return true
+                        end
+                    end
+                end
+            elseif getOptionValue("Revive") == 2 then
+                if GetUnitExists("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+                    if cast.revive("mouseover", "dead") then
+                        return true
+                    end
+                end
+
+            end
+            -- Wild Growth
+            if isChecked("OOC Wild Growth") and not isMoving("player") and php <= getValue("OOC Wild Growth") then
+                if cast.wildGrowth() then
+                    return true
+                end
+            end
+            -- Regrowth
+            if isChecked("OOC Regrowth") and not isMoving("player") and php <= getValue("OOC Regrowth") then
+                if cast.regrowth("player") then
+                    return true
+                end
+            end
+            -- Shapeshift Form Management
+            local standingTime = 0
+            if DontMoveStartTime then
+                standingTime = GetTime() - DontMoveStartTime
+            end
+
+            if mode.forms == 1 then
+                if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 3 then
+                    if cast.moonkinForm("player") then
+                        return true
+                    end
+                end
+
+                -- Flight Form
+                if not inCombat and canFly() and not swimming and br.fallDist > 90 --[[falling > getOptionValue("Fall Timer")]] and br.player.level >= 58 and not buff.prowl.exists() then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        -- CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783, "player")
+                        return true
+                    else
+                        CastSpellByID(783, "player")
+                        return true
+                    end
+                end
+                -- Aquatic Form
+                if (not inCombat --[[or getDistance("target") >= 10--]]) and swimming and not travel and not buff.prowl.exists() and isMoving("player") then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        -- CancelShapeshiftForm()
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783, "player")
+                        return true
+                    else
+                        CastSpellByID(783, "player")
+                        return true
+                    end
+                end
+                -- Travel Form
+                if not inCombat and not swimming and br.player.level >= 58 and not buff.prowl.exists() and not catspeed and not travel and not IsIndoors() and IsMovingTime(1) then
+                    if GetShapeshiftForm() ~= 0 and not cast.last.travelForm() then
+                        RunMacroText("/CancelForm")
+                        CastSpellByID(783, "player")
+                        return true
+                    else
+                        CastSpellByID(783, "player")
+                        return true
+                    end
+                end
+                -- Cat Form
+                if not cat and not IsMounted() and not flying and IsIndoors() then
+                    -- Cat Form when not swimming or flying or stag and not in combat
+                    if moving and IsMovingTime(3) and not swimming and not flying and not travel then
+                        if cast.catForm("player") then
+                            return true
+                        end
+                    end
+                    -- Cat Form - Less Fall Damage
+                    if (not canFly() or inCombat or br.player.level < 58) and (not swimming or (not moving and swimming and #enemies.yards5 > 0)) and br.fallDist > 90 then
+                        --falling > getOptionValue("Fall Timer") then
+                        if cast.catForm("player") then
+                            return true
+                        end
+                    end
+                end
+            end -- End Shapeshift Form Management
+        end
     end
 
     local function actionList_Opener()
@@ -1522,7 +1613,8 @@ local function runRotation()
     --- Rotations ---
     -----------------
     -- Pause
-    if not (IsMounted() or br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists()) or mode.rotation == 4 then
+    if not IsMounted() or mode.rotation == 4 then
+        -- br.player.buff.travelForm.exists() or br.player.buff.flightForm.exists())
         if pause() or drinking or mode.rotation == 4 or cast.current.focusedAzeriteBeam() then
             return true
         else
@@ -1531,6 +1623,19 @@ local function runRotation()
             --- Out Of Combat - Rotations ---
             ---------------------------------````````````````````````````````````````````
             if not inCombat and not UnitBuffID("player", 115834) then
+                if mode.forms == 2 then
+                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                        cat_form()
+                        return true
+                    elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                        bear_form()
+                        return true
+                    elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+                        travel_form()
+                        return true
+                    end
+                end
+
                 if extras() then
                     return true
                 end
@@ -1542,40 +1647,54 @@ local function runRotation()
                 if PreCombat() then
                     return true
                 end
-            end
-        end -- End Out of Combat Rotation
-        -----------------------------
-        --- In Combat - Rotations ---
-        -----------------------------
-        if inCombat and not UnitBuffID("player", 115834) then
-            -----------------------
-            --- Opener Rotation ---
-            -----------------------
-            if openerACT() then
-                return true
-            end
-            if useInterrupts() then
-                if interrupts() then
+
+            end -- End Out of Combat Rotation
+            -----------------------------
+            --- In Combat - Rotations ---
+            -----------------------------
+            if inCombat and not UnitBuffID("player", 115834) then
+
+                if mode.forms == 2 then
+                    if SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                        cat_form()
+                        return true
+                    elseif SpecificToggle("Bear Key") and not GetCurrentKeyBoardFocus() then
+                        bear_form()
+                        return true
+                    elseif SpecificToggle("Travel Key") and not GetCurrentKeyBoardFocus() then
+                        travel_form()
+                        return true
+                    end
+                end
+                if extras() then
                     return true
                 end
-            end
-            if useDefensive() then
-                if defensive() then
+                if openerACT() then
                     return true
                 end
-            end
+                if useInterrupts() then
+                    if interrupts() then
+                        return true
+                    end
+                end
+                if useDefensive() then
+                    if defensive() then
+                        return true
+                    end
+                end
 
-            if root_cc() then
-                return true
-            end
-
-            if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
-                actionList_Opener()
-            end
-
-            if mode.rotation ~= 4 then
-                if dps() then
+                if root_cc() then
                     return true
+                end
+
+                if ABOpener == false and isChecked("Opener") and (GetObjectExists("target") and isBoss("target")) then
+                    actionList_Opener()
+                end
+
+                if mode.rotation ~= 4 then
+                    if dps() then
+                        return true
+                    end
                 end
             end
         end -- End In Combat Rotation
