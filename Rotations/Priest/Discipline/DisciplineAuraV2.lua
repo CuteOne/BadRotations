@@ -172,6 +172,7 @@ local function createOptions()
         ----- DAMAGE OPTIONS ----
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Damage")
+        br.ui:createSpinnerWithout(section, "Damage Mana Threshold")
         --Shadow Word: Pain/Purge The Wicked
         br.ui:createCheckbox(section, "Shadow Word: Pain/Purge The Wicked")
         br.ui:createSpinner(section, "SW:P/PtW Targets", 3, 0, 20, 1, "|cffFFFFFFMaximum SW:P/PtW Targets. Default: 3")
@@ -215,10 +216,10 @@ local function createOptions()
             section,
             "Pre-pull Opener",
             12,
-            10,
+            1,
             15,
             1,
-            "|cffFFFFFFSet to desired time for Pre-pull Atonement blanket (DBM Required). Second: Min: 10 / Max: 15 / Interval: 1. Default: 12"
+            "|cffFFFFFFSet to desired time for Pre-pull Atonement blanket (DBM Required). Second: Min: 1 / Max: 15 / Interval: 1. Default: 12"
         )
         --Int Pot
         br.ui:createSpinner(section, "Int Pot", 50, 0, 100, 5, "|cffFFFFFFUse Battle Potion of Intellect. Default: 50")
@@ -465,6 +466,7 @@ local function runRotation()
         end
 
         local penanceCheck = isMoving("player") or not isChecked("Raid Penance") or (buff.powerOfTheDarkSide.exists() and inRaid)
+        local dpsCheck = mana >= getOptionValue("Damage Mana Threshold") or (mana <= getOptionValue("Damage Mana Threshold") and atonementCount >= 1)
 
         --------------------
         --- Action Lists ---
@@ -1093,49 +1095,90 @@ local function runRotation()
         local function actionList_AMR()
             -- Atonement Key
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
-                if ((atonementCount < 3 and inInstance) or (atonementCount < 5 and inRaid)) or isMoving("player") then
-                    for i = 1, #br.friend do
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                            if cast.powerWordShield(br.friend[i].unit) then
-                                br.addonDebug("Casting Power Word Shield")
+                if talent.evangelism and essence.overchargeMana.active and cd.evangelism.remains() <= gcdMax then
+                    if cd.overchargeMana.remains() <= gcdMax then
+                        if cast.overchargeMana() then br.addonDebug("Casting Ever-Rising Tide") return end
+                    elseif cd.overchargeMana.remains() > 22 then
+                        if buff.overchargeMana.stack() < 5 then
+                            for i = 1, #br.friend do
+                                if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                                    if cast.powerWordShield(br.friend[i].unit) then
+                                        br.addonDebug("Casting Power Word Shield")
+                                        return
+                                    end
+                                end
+                            end
+                        elseif cast.last.powerWordShield() and buff.overchargeMana.stack() >= 5 then
+                            for i = 1, #br.friend do
+                                if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                                    if cast.powerWordRadiance(br.friend[i].unit) then
+                                        br.addonDebug("Casting Power Word Radiance")
+                                        return
+                                    end
+                                end
+                            end
+                        elseif cast.last.powerWordRadiance() and buff.overchargeMana.stack() >= 5 then
+                            if cast.shadowWordPain("target") then br.addonDebug("Casting Shadow Word Pain") return end
+                        end
+                    elseif cd.overchargeMana.remains() < 22 then
+                        if cast.last.shadowfiend() or cast.last.mindbender() then
+                            if cast.powerWordRadiance(lowest.unit) then br.addonDebug("Casting Power Word Radiance") return end
+                        elseif cast.last.shadowWordPain() and ((not talent.mindbender and cd.shadowfiend.remains() <= gcdMax) or (talent.mindbender and cd.mindbender.remains() <= gcdMax)) then
+                            if isChecked("Shadowfiend") then
+                                if cast.shadowfiend() then
+                                    br.addonDebug("Casting Shadowfiend")
+                                    return
+                                end
+                            elseif isChecked("Mindbender") then
+                                if cast.mindbender() then
+                                    br.addonDebug("Casting Mindbender")
+                                    return
+                                end
+                            end
+                        elseif cast.last.powerWordRadiance() then
+                            if cast.evangelism() then br.addonDebug("Casting Evangelism") return end
+                        end
+                    end
+                else
+                    if ((atonementCount < 3 and inInstance) or (atonementCount < 5 and inRaid)) or isMoving("player") then
+                        for i = 1, #br.friend do
+                            if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                                if cast.powerWordShield(br.friend[i].unit) then
+                                    br.addonDebug("Casting Power Word Shield")
+                                    return
+                                end
+                            end
+                        end
+                    elseif (isChecked("Shadowfiend") or isChecked("Mindbender")) and cast.last.powerWordRadiance() then
+                        if isChecked("Shadowfiend") then
+                            if cast.shadowfiend() then
+                                br.addonDebug("Casting Shadowfiend")
+                                return
+                            end
+                        elseif isChecked("Mindbender") then
+                            if cast.mindbender() then
+                                br.addonDebug("Casting Mindbender")
                                 return
                             end
                         end
-                    end
-                elseif isChecked("Ever-Rising Tide") and getOptionValue("Ever-Rising Tide") == 2 and ((#br.friend - atonementCount >= 3 and inInstance) or (#br.friend - atonementCount >= 5 and inRaid)) and norganBuff then
-                    if cast.overchargeMana() then
-                        br.addonDebug("Casting Ever-Rising Tide")
-                        return true
-                    end
-                elseif (isChecked("Shadowfiend") or isChecked("Mindbender")) and cast.last.powerWordRadiance() then
-                    if isChecked("Shadowfiend") then
-                        if cast.shadowfiend then
-                            br.addonDebug("Casting Shadowfiend")
-                            return
-                        end
-                    elseif isChecked("Mindbender") then
-                        if cast.mindbender then
-                            br.addonDebug("Casting Mindbender")
-                            return
-                        end
-                    end
-                elseif ((#br.friend - atonementCount >= 3 and inInstance) or (#br.friend - atonementCount >= 5 and inRaid)) and charges.powerWordRadiance.count() >= 1 and norganBuff then
-                    for i = 1, #br.friend do
-                        if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
-                            if cast.powerWordRadiance(br.friend[i].unit) then
-                                br.addonDebug("Casting Power Word Radiance")
-                                return
+                    elseif ((#br.friend - atonementCount >= 3 and inInstance) or (#br.friend - atonementCount >= 5 and inRaid)) and charges.powerWordRadiance.count() >= 1 and norganBuff then
+                        for i = 1, #br.friend do
+                            if getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 then
+                                if cast.powerWordRadiance(br.friend[i].unit) then
+                                    br.addonDebug("Casting Power Word Radiance")
+                                    return
+                                end
                             end
                         end
-                    end
-                    if cast.powerWordRadiance(lowest.unit) then
-                        br.addonDebug("Casting Power Word Radiance")
-                        return
-                    end
-                elseif isChecked("Evangelism") and talent.evangelism and getSpellCD(spell.evangelism) <= gcdMax and (atonementCount / #br.friend >= 0.8 or charges.powerWordRadiance.count() == 0) then
-                    if cast.evangelism() then
-                        br.addonDebug("Casting Evangelism")
-                        return
+                        if cast.powerWordRadiance(lowest.unit) then
+                            br.addonDebug("Casting Power Word Radiance")
+                            return
+                        end
+                    elseif isChecked("Evangelism") and talent.evangelism and getSpellCD(spell.evangelism) <= gcdMax and (atonementCount / #br.friend >= 0.8 or charges.powerWordRadiance.count() == 0) then
+                        if cast.evangelism() then
+                            br.addonDebug("Casting Evangelism")
+                            return
+                        end
                     end
                 end
             end
@@ -1215,6 +1258,18 @@ local function runRotation()
             end
             -- Power Word: Shield with Rapture
             if buff.rapture.exists("player") then
+                if essence.overchargeMana.active and cd.overchargeMana.remains() <= gcdMax then
+                    if cast.overchargeMana() then br.addonDebug("Casting Ever-Rising Tide") return end
+                elseif essence.overchargeMana.active and cd.overchargeMana.remains() > 22 then
+                    for i = 1, #br.friend do
+                        if not buff.atonement.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
+                            if cast.powerWordShield(br.friend[i].unit) then
+                                br.addonDebug("Casting Power Word Shield")
+                                return true
+                            end
+                        end
+                    end
+                end
                 if isChecked("Obey Atonement Limits") then
                     for i = 1, #br.friend do
                         if
@@ -1451,7 +1506,7 @@ local function runRotation()
                 end
             end
             -- Penance
-            if isChecked("Penance") and penanceCheck then
+            if isChecked("Penance") and penanceCheck and dpsCheck then
                 if GetUnitExists("target") then
                     penanceTarget = "target"
                 end
@@ -1513,7 +1568,7 @@ local function runRotation()
                 end
             end
             -- Smite
-            if isChecked("Smite") and norganBuff then
+            if isChecked("Smite") and norganBuff and dpsCheck then
                 if mana > 20 or freeCast then
                     if debuff.schism.exists(schismBuff) then
                         if cast.smite(schismBuff) then
