@@ -209,7 +209,9 @@ function ProfessionHelper()
           152549, -- Redtail Loach
           152543, -- Sand Shifter
           152544, -- Slimy Mackerel
-          152548 -- Tiragarde Perch
+          152548, -- Tiragarde Perch
+          168646, -- Mauve Stinger
+          
         }
         for i = 1, #tableFish do
           local thisItem = tableFish[i]
@@ -223,6 +225,18 @@ function ProfessionHelper()
           end
         end
       end
+    end
+  end
+end
+
+function br.fishing()
+  if isChecked("Fishing") then
+    if not IsHackEnabled("fish") then
+      SetHackEnabled("fish",true)
+    end
+  elseif not isChecked("Fishing") then
+    if IsHackEnabled("fish") then
+      SetHackEnabled("fish",false)
     end
   end
 end
