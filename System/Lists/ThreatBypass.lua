@@ -35,4 +35,5 @@ br.lists.threatBypass = {
     [154175] = "Horrific Summoner", -- Za'qul
     [151581] = "Horrific Vision", -- Za'qul
     [151900] = "Horrific Summoner", -- Za'qul
+    [155278] = "Shimmerskin Pufferfish", --EP Trash
 }
