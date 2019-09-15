@@ -99,6 +99,10 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 			else
 				return false
 			end
+		elseif buffSpellID == 296737 and not isChecked("Range Check Arcane Bomb") then
+			return true
+		elseif buffSpellID == 303657 and isChecked("Arcane Burst") then
+			return true
 		elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
 			if stacks >= novaEngineTables.DispelID[buffSpellID].stacks
 			then
