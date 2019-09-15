@@ -6,139 +6,53 @@ local rotationName = "Panglo2"
 local function createToggles()
     -- Rotation Button
     RotationModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Automatic Rotation",
-            tip = "Enable Rotation",
-            highlight = 1,
-            icon = br.player.spell.thunderClap
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "DPS Rotation Disabled",
-            tip = "Disable DPS Rotation",
-            highlight = 0,
-            icon = br.player.spell.enragedRegeneration
-        }
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Enable Rotation", highlight = 1, icon = br.player.spell.thunderClap},
+        [2] = {mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.enragedRegeneration}
     }
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
     CooldownModes = {
-        [1] = {
-            mode = "Auto",
-            value = 1,
-            overlay = "Cooldowns Automated",
-            tip = "Automatic Cooldowns - Based on settings",
-            highlight = 1,
-            icon = br.player.spell.avatar
-        },
-        [2] = {
-            mode = "On",
-            value = 2,
-            overlay = "Cooldowns Enabled",
-            tip = "Cooldowns used regardless of target.",
-            highlight = 0,
-            icon = br.player.spell.avatar
-        },
-        [3] = {
-            mode = "Off",
-            value = 3,
-            overlay = "Cooldowns Disabled",
-            tip = "No Cooldowns will be used.",
-            highlight = 0,
-            icon = br.player.spell.avatar
-        }
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Based on settings", highlight = 1, icon = br.player.spell.avatar},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.avatar},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.avatar}
     }
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Defensive Enabled",
-            tip = "Includes Defensive Cooldowns.",
-            highlight = 1,
-            icon = br.player.spell.shieldWall
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Defensive Disabled",
-            tip = "No Defensives will be used.",
-            highlight = 0,
-            icon = br.player.spell.shieldWall
-        }
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.shieldWall},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.shieldWall}
     }
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
     InterruptModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Interrupts Enabled",
-            tip = "Includes Basic Interrupts.",
-            highlight = 1,
-            icon = br.player.spell.pummel
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Interrupts Disabled",
-            tip = "No Interrupts will be used.",
-            highlight = 0,
-            icon = br.player.spell.pummel
-        }
+        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.pummel},
+        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.pummel}
     }
     CreateButton("Interrupt", 4, 0)
     -- Movement Button
     MoverModes = {
-        [1] = {
-            mode = "On",
-            value = 1,
-            overlay = "Mover Enabled",
-            tip = "Will use Charge/Heroic Leap.",
-            highlight = 1,
-            icon = br.player.spell.charge
-        },
-        [2] = {
-            mode = "Off",
-            value = 2,
-            overlay = "Mover Disabled",
-            tip = "Will NOT use Charge/Heroic Leap.",
-            highlight = 0,
-            icon = br.player.spell.charge
-        }
+        [1] = {mode = "On", value = 1, overlay = "Mover Enabled", tip = "Will use Charge/Heroic Leap.", highlight = 1, icon = br.player.spell.charge},
+        [2] = {mode = "Off", value = 2, overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge}
     }
     CreateButton("Mover", 5, 0)
     TauntModes = {
-        [1] = {
-            mode = "Dun",
-            value = 1,
-            overlay = "Taunt only in Dungeon",
-            tip = "Taunt will be used in dungeons.",
-            highlight = 1,
-            icon = br.player.spell.taunt
-        },
-        [2] = {
-            mode = "All",
-            value = 2,
-            overlay = "Auto Taunt Enabled",
-            tip = "Taunt will be used everywhere.",
-            highlight = 1,
-            icon = br.player.spell.taunt
-        },
-        [3] = {
-            mode = "Off",
-            value = 3,
-            overlay = "Auto Taunt Disabled",
-            tip = "Taunt will not be used.",
-            highlight = 0,
-            icon = br.player.spell.taunt
-        }
+        [1] = {mode = "Dun", value = 1, overlay = "Taunt only in Dungeon", tip = "Taunt will be used in dungeons.", highlight = 1, icon = br.player.spell.taunt},
+        [2] = {mode = "All", value = 2, overlay = "Auto Taunt Enabled", tip = "Taunt will be used everywhere.", highlight = 1, icon = br.player.spell.taunt},
+        [3] = {mode = "Off", value = 3, overlay = "Auto Taunt Disabled", tip = "Taunt will not be used.", highlight = 0, icon = br.player.spell.taunt}
     }
     CreateButton("Taunt", 6, 0)
+    -- Movement Button
+    ShieldModes = {
+        [1] = {mode = "On", value = 1, overlay = "Shield Block Enabled", tip = "Will use Shield Block", highlight = 1, icon = br.player.spell.shieldBlock},
+        [2] = {mode = "Off", value = 2, overlay = "Shield Block Disabled", tip = "Will NOT use Shield Block", highlight = 0, icon = br.player.spell.shieldBlock}
+    }
+    CreateButton("Shield", 0, 1)
+    -- Movement Button
+    ReflectModes = {
+        [1] = {mode = "On", value = 1, overlay = "Spell Reflect Enabled", tip = "Will use Spell Reflect", highlight = 1, icon = br.player.spell.spellReflection},
+        [2] = {mode = "Off", value = 2, overlay = "Spell Reflect Disabled", tip = "Will NOT use Spell Reflect", highlight = 0, icon = br.player.spell.spellReflection}
+    }
+    CreateButton("Reflect", 1, 1)
 end
 
 ---------------
@@ -262,6 +176,8 @@ local function runRotation()
         UpdateToggle("Holdcd", 0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
         br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
+        br.player.mode.shield = br.data.settings[br.selectedSpec].toggles["Shield"]
+        br.player.mode.reflect = br.data.settings[br.selectedSpec].toggles["Reflect"]
         --------------
         --- Locals ---
         --------------
@@ -510,13 +426,13 @@ local function runRotation()
             if inCombat and (getOptionValue("Trinkets") == 1 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) then
                 if canTrinket(13) and getOptionValue("Trinket 1 Mode") == 1 then
                     useItem(13)
-                elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then 
+                elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then
                     useItemGround("target", 13, 40, 0, nil)
                 end
-                     
+
                 if canTrinket(14) and getOptionValue("Trinket 2 Mode") == 1 then
                     useItem(14)
-                elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then 
+                elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then
                     useItemGround("target", 14, 40, 0, nil)
                 end
             end
@@ -673,13 +589,13 @@ local function runRotation()
                 if inCombat and (getOptionValue("Trinkets") == 2 or (buff.avatar.exists() and getOptionValue("Trinkets") == 4)) then
                     if canTrinket(13) and getOptionValue("Trinket 1 Mode") == 1 then
                         useItem(13)
-                    elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then 
+                    elseif canTrinket(13) and getOptionValue("Trinket 1 Mode") == 2 then
                         useItemGround("target", 13, 40, 0, nil)
                     end
-                         
+
                     if canTrinket(14) and getOptionValue("Trinket 2 Mode") == 1 then
                         useItem(14)
-                    elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then 
+                    elseif canTrinket(14) and getOptionValue("Trinket 2 Mode") == 2 then
                         useItemGround("target", 14, 40, 0, nil)
                     end
                 end
@@ -689,7 +605,7 @@ local function runRotation()
         local function actionList_Defensives()
             if useDefensive() then
                 --Spell Reflect logic
-                if isChecked("Smart Spell Reflect") then
+                if mode.reflect == 1 and isChecked("Smart Spell Reflect") then
                     for i = 1, #enemies.yards30 do
                         local thisUnit = enemies.yards30[i]
                         local _, _, _, startCast, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
@@ -701,7 +617,7 @@ local function runRotation()
                         end
                     end
                 end
-                if cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
+                if mode.shield == 1 and cast.able.shieldBlock() and mainTank() and (not buff.shieldBlock.exists() or (buff.shieldBlock.remain() <= (gcd * 1.5))) and not buff.lastStand.exists() and rage >= 30 then
                     if cast.shieldBlock() then
                         return
                     end
@@ -766,7 +682,7 @@ local function runRotation()
                         return
                     end
                 end
-                if isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
+                if mode.reflect == 1 and isChecked("Spell Reflection") and php <= getOptionValue("Spell Reflection") then
                     if cast.spellReflection() then
                         return
                     end
