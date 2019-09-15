@@ -60,6 +60,17 @@ function ObjectManagerUpdate(self)
 	end
 end
 
+function br.antiAfk()
+	if isChecked("Anti-Afk") then
+		if not IsHackEnabled("antiafk") then
+			SetHackEnabled("antiafk",true)
+		end
+	elseif not isChecked("Anti-Afk") then
+		if IsHackEnabled("antiafk") then
+			SetHackEnabled("antiafk",false)
+		end
+	end
+end
 -- Key Pause from Beniamin
 -- local rotationPause
 -- local buttonName
@@ -297,6 +308,12 @@ function BadRotationsUpdate(self)
 					end
 					-- Accept dungeon queues
 					br:AcceptQueues()
+
+					-- Anti-Afk
+					br.antiAfk()
+					
+					-- Fishing
+					br.fishing()
 
 					-- Profession Helper
 					ProfessionHelper()
