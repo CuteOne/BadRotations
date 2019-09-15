@@ -6,55 +6,61 @@ local rotationName = "MonkaGiga" -- Change to name of profile listed in options 
 local function createToggles() -- Define custom toggles
     -- Rotation Button
     RotationModes = {
-		[1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps Between Single and Multiple based on numbers of targets in range", highlight = 1, icon = br.player.spell.shadowWordVoid },
-		[2] = { mode = "Singletarget", value = 2, overlay = "Single Target  Rotation", tip = "Single Target Rotation being used.", highlight = 0, icon = br.player.spell.mindFlay },
-		[3] = { mode = "Off", value = 3, overlay = "DPS Rotation Disabled", tip = "DPS Rotation Disabled", highlight = 0, icon = br.player.spell.psychicHorror }
+        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps Between Single and Multiple based on numbers of targets in range", highlight = 1, icon = br.player.spell.shadowWordVoid},
+        [2] = {mode = "Singletarget", value = 2, overlay = "Single Target  Rotation", tip = "Single Target Rotation being used.", highlight = 0, icon = br.player.spell.mindFlay},
+        [3] = {mode = "Off", value = 3, overlay = "DPS Rotation Disabled", tip = "DPS Rotation Disabled", highlight = 0, icon = br.player.spell.psychicHorror}
     }
-	CreateButton("Rotation", 1, 0) 
-	
+    CreateButton("Rotation", 1, 0)
+
     -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowfiend },
-		[2] = { mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowfiend },
-		[3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform }
-	}
-	CreateButton("Cooldown", 2, 0)
+        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.shadowfiend},
+        [2] = {mode = "On", value = 2, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.shadowfiend},
+        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.shadowform}
+    }
+    CreateButton("Cooldown", 2, 0)
 
     -- Defensive Button
     DefensiveModes = {
-        [1] = { mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion },
-		[2] = { mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0,  icon = br.player.spell.dispersion }
-	}
-	CreateButton("Defensive", 3, 0)
+        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.dispersion},
+        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.dispersion}
+    }
+    CreateButton("Defensive", 3, 0)
 
     -- Interrupt Button
     InterruptModes = {
-        [1] = { mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence },
-		[2] = { mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence }
-	}
-	CreateButton("Interrupt", 4, 0)
+        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.silence},
+        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.silence}
+    }
+    CreateButton("Interrupt", 4, 0)
 
-	-- Shadow Crash Button
-	ShadowCrashModes = {
-		[1] = { mode = "On", value = 1, overlay = "Shadow Crash enabled", tip = "Will use Shadow Crash if talented", highlight = 1, icon = br.player.spell.shadowCrash },
-		[2] = {	mode = "Off", value = 2, overlay = "Shadow crash disabled", tip = "Will not use Shadow Crash", highlight = 0, icon = br.player.spell.shadowCrash }
-	}
-	CreateButton("ShadowCrash", 5, 0)
-	
-	-- Void Button
+    -- Shadow Crash Button
+    ShadowCrashModes = {
+        [1] = {mode = "On", value = 1, overlay = "Shadow Crash enabled", tip = "Will use Shadow Crash if talented", highlight = 1, icon = br.player.spell.shadowCrash},
+        [2] = {mode = "Off", value = 2, overlay = "Shadow crash disabled", tip = "Will not use Shadow Crash", highlight = 0, icon = br.player.spell.shadowCrash}
+    }
+    CreateButton("ShadowCrash", 5, 0)
+
+    -- Void Button
     VoidModes = {
-        [1] = { mode = "On", value = 1, overlay = "VF Enabled", tip = "Will enter VF", highlight = 1, icon = br.player.spell.voidEruption },
-		[2] = { mode = "Off", value = 2, overlay = "VF disabled", tip = "Will not enter VF", highlight = 0, icon = br.player.spell.voidEruption }
-	}
-	CreateButton("Void", 0, 1)
+        [1] = {mode = "On", value = 1, overlay = "VF Enabled", tip = "Will enter VF", highlight = 1, icon = br.player.spell.voidEruption},
+        [2] = {mode = "Off", value = 2, overlay = "VF disabled", tip = "Will not enter VF", highlight = 0, icon = br.player.spell.voidEruption}
+    }
+    CreateButton("Void", 0, 1)
 
-	-- Essence Button	
+    -- Essence Button
     EssenceModes = {
-        [1] = { mode = "On", value = 1, overlay = "Essence Enabled", tip = "Will use Essences",  highlight = 1, icon = br.player.spell.voidEruption },
-		[2] = { mode = "Off", value = 2, overlay = "Essence disabled", tip = "Will not use Essence", highlight = 0, icon = br.player.spell.voidEruption }
-	}
-	CreateButton("Essence", 1, 1)
+        [1] = {mode = "On", value = 1, overlay = "Essence Enabled", tip = "Will use Essences", highlight = 1, icon = br.player.spell.voidEruption},
+        [2] = {mode = "Off", value = 2, overlay = "Essence disabled", tip = "Will not use Essence", highlight = 0, icon = br.player.spell.voidEruption}
+    }
+    CreateButton("Essence", 1, 1)
     
+    -- Essence Button
+    DotCleaveModes = {
+        [1] = {mode = "Off", value = 1, overlay = "Dot Cleave Off", tip = "Normal Rotation", highlight = 0, icon = br.player.spell.shadowWordPain},
+        [2] = {mode = "On", value = 2, overlay = "Dot Cleave On", tip = "Single Target Rotation, Cleave with Dots", highlight = 1, icon = br.player.spell.shadowWordPain}
+    }
+    CreateButton("DotCleave", 2, 1)
 end
 
 local function createOptions()
@@ -76,7 +82,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Dark Void")
         br.ui:createCheckbox(section, "Use lucid dreams", "Ensure Essence Toggle is ON to use")
         br.ui:createCheckbox(section, "Use Laser Beam", "Ensure Essence Toggle is ON to use")
-		br.ui:createCheckbox(section, "Moving SW:P")
+        br.ui:createCheckbox(section, "Moving SW:P")
         br.ui:createSpinnerWithout(section, "Laser Units", 3, 1, 50, 1)
         br.ui:createSpinnerWithout(section, "Lucid - void stacks", 20, 1, 40, 1)
         br.ui:createSpinnerWithout(section, "Lucid - insanity", 55, 1, 100, 5)
@@ -134,6 +140,7 @@ local function runRotation()
     UpdateToggle("Interrupt", 0.25)
     br.player.mode.void = br.data.settings[br.selectedSpec].toggles["Void"]
     br.player.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
+    br.player.mode.dotcleave = br.data.settings[br.selectedSpec].toggles["DotCleave"]
 
     local addsExist = false
     local addsIn = 999
@@ -183,7 +190,7 @@ local function runRotation()
     if debugVariable == nil then
         debugVariable = false
     end
-    local lowestPain = debuff.shadowWordPain.lowest(40,"remain") or units.dyn40
+    local lowestPain = debuff.shadowWordPain.lowest(40, "remain") or units.dyn40
     local dotsUP = debuff.vampiricTouch.exists("target") and debuff.shadowWordPain.exists("target")
 
     local buffedSear = isCastingSpell(spell.mindSear) and buff.harvestedThoughts.exists()
@@ -231,21 +238,20 @@ local function runRotation()
     end
 
     local function actionlist_Moving()
-
-	    if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
-				if castGround("target", 205385, 40, 0, 8, 0) then
-				SpellStopTargeting()
-					return
-				end
-		end
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player", "target") <= 40 then
+            if castGround("target", 205385, 40, 0, 8, 0) then
+                SpellStopTargeting()
+                return
+            end
+        end
 
         if voidForm then
             if cast.voidBolt() then
                 return
             end
         end
-		
-		if isChecked("Moving SW:P") and (not voidForm or cd.voidBolt.remain() > (gcd/3)) then
+
+        if isChecked("Moving SW:P") and (not voidForm or cd.voidBolt.remain() > (gcd / 3)) then
             if mode.rotation == 2 then
                 if cast.shadowWordPain("target") then
                     return
@@ -256,7 +262,7 @@ local function runRotation()
                 end
             end
         end
-	end
+    end
 
     local function actionlist_Extra()
         if not buff.shadowform.exists() and not buff.voidForm.exists() then
@@ -287,10 +293,10 @@ local function runRotation()
         end
 
         if mode.essence == 1 and dotsUP and (getOptionValue("Guardian Of Azeroth") == 1 or (getOptionValue("Guardian Of Azeroth") == 2 and useCDs())) then
-			if cast.guardianOfAzeroth() then
-				return
-			end
-		end
+            if cast.guardianOfAzeroth() then
+                return
+            end
+        end
     end -- end Extra
 
     local function actionlist_Void()
@@ -298,7 +304,7 @@ local function runRotation()
             return
         end
 
-        if buff.harvestedThoughts.exists() and (cd.voidBolt.remain() > (gcd * 0.2)) and traits.searingDialogue.rank >= 1 then
+        if buff.harvestedThoughts.exists() and (cd.voidBolt.remain() > (gcd * 0.2)) and traits.searingDialogue.rank >= 1 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -310,12 +316,12 @@ local function runRotation()
             end
         end
 
-        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") then 
-				if castGround("target", 205385, 40, 0, 8, 0) then
-					SpellStopTargeting()
-					return
-				end
-		end
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") then
+            if castGround("target", 205385, 40, 0, 8, 0) then
+                SpellStopTargeting()
+                return
+            end
+        end
 
         if not talent.misery then
             if debuff.shadowWordPain.count() < getOptionValue("SWP Max Targets") or not debuff.shadowWordPain.exists("target") then
@@ -364,7 +370,7 @@ local function runRotation()
         end
 
         if not (cast.current.mindFlay() or cast.current.mindSear()) and cd.voidBolt.remain() >= 0.3 then
-            if #enemies.yards10t < 2 or mode.rotation == 2 then
+            if #enemies.yards10t < 2 or mode.rotation == 2 or mode.dotcleave == 2 then
                 if cast.mindFlay() then
                     return
                 end
@@ -378,7 +384,7 @@ local function runRotation()
 
     local function actionlist_Single()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1 and getDistance("player","target") <= 40 then
+        if power > 60 and mode.void == 1 and getDistance("player", "target") <= 40 then
             if cast.voidEruption("target") then
                 return
             end
@@ -390,7 +396,7 @@ local function runRotation()
             end
         end
 
-        if buff.harvestedThoughts.exists() and traits.searingDialogue.rank >= 1 then
+        if buff.harvestedThoughts.exists() and traits.searingDialogue.rank >= 1 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -416,12 +422,12 @@ local function runRotation()
             end
         end
 
-        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
-				if castGround("target", 205385, 40, 0, 8, 0) then
-					SpellStopTargeting()
-					return
-				end
-		end
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player", "target") <= 40 then
+            if castGround("target", 205385, 40, 0, 8, 0) then
+                SpellStopTargeting()
+                return
+            end
+        end
 
         if dotsUP then
             if talent.shadowWordVoid then
@@ -442,7 +448,7 @@ local function runRotation()
 
     local function actionlist_Multi()
         -- print(vampUnit)
-        if power > 60 and mode.void == 1  and getDistance("player",units.dyn40) <= 40 then
+        if power > 60 and mode.void == 1 and getDistance("player", units.dyn40) <= 40 then
             if cast.voidEruption(units.dyn40) then
                 return
             end
@@ -454,7 +460,7 @@ local function runRotation()
             end
         end
 
-        if buff.harvestedThoughts.exists() and traits.searingDialogue.rank >= 1 and not cast.current.mindSear() then
+        if buff.harvestedThoughts.exists() and traits.searingDialogue.rank >= 1 and not cast.current.mindSear() and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -466,7 +472,7 @@ local function runRotation()
             end
         end
 
-        if (dotsUP and #enemies.yards10t >= 8) and not cast.current.mindSear() then
+        if (dotsUP and #enemies.yards10t >= 8) and not cast.current.mindSear() and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -506,14 +512,14 @@ local function runRotation()
             end
         end
 
-        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player","target") <= 40 then
+        if mode.shadowCrash == 1 and talent.shadowCrash and not isMoving("target") and getDistance("player", "target") <= 40 then
             if castGround("best", 205385, 40, 0, 8, 0) then
                 SpellStopTargeting()
                 return
             end
         end
 
-        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 6 then
+        if dotsUP and not cast.current.mindSear() and #enemies.yards10t >= 6 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
@@ -529,13 +535,13 @@ local function runRotation()
             end
         end
 
-        if dotsUP and not cast.current.mindSear() and #enemies.yards10t > 1 and #enemies.yards10t <= 5 then
+        if dotsUP and not cast.current.mindSear() and #enemies.yards10t > 1 and #enemies.yards10t <= 5 and mode.dotcleave == 1 then
             if cast.mindSear("best", false, 1, 10) then
                 return
             end
         end
 
-        if dotsUP and not cast.current.mindFlay() and #enemies.yards10t == 1 then
+        if dotsUP and not cast.current.mindFlay() and (#enemies.yards10t == 1 or mode.dotcleave == 2) then
             if cast.mindFlay() then
                 return
             end
@@ -605,7 +611,7 @@ local function runRotation()
         return true
     end
 
---[[     if (debugReset ~= nil and ((GetTime() - debugReset) > 5)) or not wtfKey then
+    --[[     if (debugReset ~= nil and ((GetTime() - debugReset) > 5)) or not wtfKey then
         debugVariable = false
     end
 
@@ -613,7 +619,6 @@ local function runRotation()
     local vtTar = debuff.vampiricTouch.exists("target")
     local swpDyn = debuff.shadowWordPain.exists(thisUnit)
     local vtDyn = debuff.vampiricTouch.exists(thisUnit) ]]
-
     --[[ if wtfKey and debugVariable == false then
         Print("debuff.vampiricTouch.count() is " .. debuff.vampiricTouch.count())
         Print("debuff.shadowWordPain.count() is " .. debuff.shadowWordPain.count())
@@ -633,7 +638,6 @@ local function runRotation()
         debugVariable = true
         debugReset = GetTime()
     end ]]
-
     if (pause() or (IsMounted() or IsFlying() or UnitOnTaxi("player") or UnitInVehicle("player")) or mode.rotation == 3) and not cast.current.mindFlay() and not (cast.current.mindSear and not traits.searingDialogue.active) then
         return true
     else
@@ -652,7 +656,7 @@ local function runRotation()
                 return
             end
         end
-        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player",units.dyn40) < 40 then
+        if inCombat and profileStop == false and not mode.rotation ~= 3 and not (IsMounted() or IsFlying()) and getDistance("player", units.dyn40) < 40 then
             if moving then
                 if actionlist_Moving() then
                     return
