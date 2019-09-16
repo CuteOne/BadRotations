@@ -61,11 +61,11 @@ function ObjectManagerUpdate(self)
 end
 
 function br.antiAfk()
-	if isChecked("Anti-Afk") then
+	if isChecked("Anti-Afk") and EasyWoWToolbox ~= nil then
 		if not IsHackEnabled("antiafk") then
 			SetHackEnabled("antiafk",true)
 		end
-	elseif not isChecked("Anti-Afk") then
+	elseif not isChecked("Anti-Afk") and EasyWoWToolbox ~= nil then
 		if IsHackEnabled("antiafk") then
 			SetHackEnabled("antiafk",false)
 		end
