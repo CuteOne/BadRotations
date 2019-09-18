@@ -233,7 +233,7 @@ local function runRotation()
     enemies.get(10, "target")
     enemies.get(40)
 
-    if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target") then
+    if isChecked("Enemy Target Lock") and inCombat and UnitIsFriend("target", "player") then
         TargetLastEnemy()
     end
 
