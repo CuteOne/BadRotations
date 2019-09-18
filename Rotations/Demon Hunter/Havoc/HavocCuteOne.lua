@@ -420,7 +420,7 @@ actionList.Cooldowns = function()
         if cast.able.concentratedFlame() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame()
             or charges.concentratedFlame.timeTillFull() < gcd)
         then
-            if cast.concentratedFlame() then debug("Casting Concentrated Flame on "..UnitName(units.dyn5)) return true end
+            if cast.concentratedFlame() then debug("Casting Concentrated Flame") return true end
         end
         -- Essence: Blood of the Enemy
         -- blood_of_the_enemy,if=buff.metamorphosis.up|target.time_to_die<=10
