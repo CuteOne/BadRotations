@@ -97,6 +97,18 @@ br.api.spells = function(spells,k,v,subtable)
             return tracker[index] and tracker[index] == v
         end
 
+        if cast.last.time == nil then cast.last.time = {} end
+        cast.last.time[k] = function()
+            local castTime = br.lastCast.castTime[v] or 0
+            return castTime
+        end
+
+        if cast.timeSinceLast == nil then cast.timeSinceLast = {} end
+        cast.timeSinceLast[k] = function()
+            local castTime = br.lastCast.castTime[v] or 0
+            return GetTime() - castTime
+        end
+
         if cast.pool == nil then cast.pool = {} end
         cast.pool[k] = function(altPower, specificAmt, multiplier)
             local powerType = select(2, UnitPowerType("player")):lower()

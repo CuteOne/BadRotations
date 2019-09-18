@@ -1,6 +1,8 @@
 br.lastCast = {}
 br.lastCast.tracker = {}
+br.lastCast.castTime = {}
 local tracker = br.lastCast.tracker
+local castTime = br.lastCast.castTime
 local waitForSuccess
 local lastCastFrame = CreateFrame("Frame")
 
@@ -22,6 +24,14 @@ local function addSpell(spellID)
     end
 end
 
+local function addCastTime(spellID)
+    for k, v in pairs(br.player.spell.abilities) do
+        if v == spellID then
+            castTime[v] = GetTime()
+        end
+    end
+end
+
 local function eventTracker(self, event, ...)
     local sourceUnit = select(1, ...)
     local spellID = select(3, ...)
@@ -29,11 +39,13 @@ local function eventTracker(self, event, ...)
         if event == "UNIT_SPELLCAST_START" then
             waitForSuccess = spellID
             addSpell(spellID)
+            addCastTime(spellID)
         elseif event == "UNIT_SPELLCAST_SUCCEEDED" then
             if waitForSuccess == spellID then
                 waitForSuccess = nil
             else
                 addSpell(spellID)
+                addCastTime(spellID)
             end
         elseif event == "UNIT_SPELLCAST_STOP" then
             if waitForSuccess == spellID then
