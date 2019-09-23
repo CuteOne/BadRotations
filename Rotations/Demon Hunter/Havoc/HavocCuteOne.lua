@@ -100,6 +100,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Metamorphosis")
             -- Heart Essences
             br.ui:createCheckbox(section,"Use Essence")
+            -- Azerite Beam Units
+            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
         br.ui:checkSectionState(section)
         -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -434,8 +436,8 @@ actionList.Cooldowns = function()
         end
         -- Essence: Focused Azerite Beam
         -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= 3 or (useCDs() and #enemies.yards8f > 0)) then
-            local minCount = useCDs() and 1 or 3
+        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) then
+            local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
             if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
                 debug("Casting Focused Azerite Beam")
                 return true
