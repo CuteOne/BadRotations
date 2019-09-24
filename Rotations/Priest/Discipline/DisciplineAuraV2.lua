@@ -221,12 +221,14 @@ local function createOptions()
             1,
             "|cffFFFFFFSet to desired time for Pre-pull Atonement blanket (DBM Required). Second: Min: 1 / Max: 15 / Interval: 1. Default: 12"
         )
+        br.ui:createSpinner(section, "Azshara's Font Prepull", 6, 0, 10, 1, "Pre pull timer to start channeling Font")
         --Int Pot
         br.ui:createSpinner(section, "Int Pot", 50, 0, 100, 5, "|cffFFFFFFUse Battle Potion of Intellect. Default: 50")
         br.ui:createSpinnerWithout(section, "Pro Pot Targets", 3, 0, 40, 1, "|cffFFFFFFMinimum Prolonged Pot Targets. Default: 3")
         --Mana Potion
         br.ui:createSpinner(section, "Mana Potion", 30, 0, 100, 5, "|cffFFFFFFMana Percent to use Ancient Mana Potion. Default: 30")
         --Trinkets
+        br.ui:createSpinner(section, "Azshara's Font", 40, 0, 100, 5, "Lowest Unit Health to use Font")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 1 Mode", {"|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround"}, 1, "", "")
@@ -307,7 +309,7 @@ local function createOptions()
         {
             [1] = "Defensive",
             [2] = defenseOptions
-        },
+        }
     }
     return optionTable
 end
@@ -906,6 +908,12 @@ local function runRotation()
                 br.addonDebug("Using Pre-Pot")
             end
             -- Pre-pull Opener
+            if isChecked("Azshara's Font Prepull") and pullTimer <= getOptionValue("Azshara's Font Prepull") and not isMoving("player") then
+                if hasEquiped(169314) and canUseItem(169314) and br.timer:useTimer("Font Delay", 4) then
+                    br.addonDebug("Using Font Of Azshara")
+                    useItem(169314)
+                end
+            end
             if prepullOpener then
                 if hasItem(166801) and canUseItem(166801) then
                     br.addonDebug("Using Sapphire of Brilliance")
@@ -924,6 +932,31 @@ local function runRotation()
         --OOC
         local function actionList_OOCHealing()
             if isChecked("OOC Healing") and (not inCombat or #enemies.yards40 < 1) then -- ooc or in combat but nothing to attack
+                 --Resurrection
+                 if isChecked("Resurrection") and not inCombat and not isMoving("player") then
+                    if getOptionValue("Resurrection - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+                        if cast.resurrection("target", "dead") then
+                            br.addonDebug("Casting Resurrection (Target)")
+                            return true
+                        end
+                    end
+                    if getOptionValue("Resurrection - Target") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+                        if cast.resurrection("mouseover", "dead") then
+                            br.addonDebug("Casting Resurrection (Mouseover)")
+                            return true
+                        end
+                    end
+                    if getOptionValue("Resurrection - Target") == 3 then
+                        for i = 1, #br.friend do
+                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
+                                if cast.massResurrection() then
+                                    br.addonDebug("Casting Resurrection (Auto)")
+                                    return true
+                                end
+                            end
+                        end
+                    end
+                end
                 for i = 1, #br.friend do
                     if UnitDebuffID(br.friend[i].unit, 225484) or UnitDebuffID(br.friend[i].unit, 240559) or UnitDebuffID(br.friend[i].unit, 209858) then
                         flagDebuff = br.friend[i].guid
@@ -967,31 +1000,6 @@ local function runRotation()
                         if cast.concentratedFlame(lowest.unit) then
                             br.addonDebug("Casting Concentrated Flame")
                             return
-                        end
-                    end
-                end
-                --Resurrection
-                if isChecked("Resurrection") and not inCombat and not isMoving("player") then
-                    if getOptionValue("Resurrection - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
-                        if cast.resurrection("target", "dead") then
-                            br.addonDebug("Casting Resurrection (Target)")
-                            return true
-                        end
-                    end
-                    if getOptionValue("Resurrection - Target") == 2 and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
-                        if cast.resurrection("mouseover", "dead") then
-                            br.addonDebug("Casting Resurrection (Mouseover)")
-                            return true
-                        end
-                    end
-                    if getOptionValue("Resurrection - Target") == 3 then
-                        for i = 1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) then
-                                if cast.resurrection(br.friend[i].unit, "dead") then
-                                    br.addonDebug("Casting Resurrection (Auto)")
-                                    return true
-                                end
-                            end
                         end
                     end
                 end
@@ -1097,7 +1105,10 @@ local function runRotation()
             if (SpecificToggle("Atonement Key") and not GetCurrentKeyBoardFocus()) and isChecked("Atonement Key") then
                 if talent.evangelism and essence.overchargeMana.active and cd.evangelism.remains() <= gcdMax then
                     if cd.overchargeMana.remains() <= gcdMax then
-                        if cast.overchargeMana() then br.addonDebug("Casting Ever-Rising Tide") return end
+                        if cast.overchargeMana() then
+                            br.addonDebug("Casting Ever-Rising Tide")
+                            return
+                        end
                     elseif cd.overchargeMana.remains() > 22 then
                         if buff.overchargeMana.stack() < 5 then
                             for i = 1, #br.friend do
@@ -1118,11 +1129,17 @@ local function runRotation()
                                 end
                             end
                         elseif cast.last.powerWordRadiance() and buff.overchargeMana.stack() >= 5 then
-                            if cast.shadowWordPain("target") then br.addonDebug("Casting Shadow Word Pain") return end
+                            if cast.shadowWordPain("target") then
+                                br.addonDebug("Casting Shadow Word Pain")
+                                return
+                            end
                         end
                     elseif cd.overchargeMana.remains() < 22 then
                         if cast.last.shadowfiend() or cast.last.mindbender() then
-                            if cast.powerWordRadiance(lowest.unit) then br.addonDebug("Casting Power Word Radiance") return end
+                            if cast.powerWordRadiance(lowest.unit) then
+                                br.addonDebug("Casting Power Word Radiance")
+                                return
+                            end
                         elseif cast.last.shadowWordPain() and ((not talent.mindbender and cd.shadowfiend.remains() <= gcdMax) or (talent.mindbender and cd.mindbender.remains() <= gcdMax)) then
                             if isChecked("Shadowfiend") then
                                 if cast.shadowfiend() then
@@ -1136,7 +1153,10 @@ local function runRotation()
                                 end
                             end
                         elseif cast.last.powerWordRadiance() then
-                            if cast.evangelism() then br.addonDebug("Casting Evangelism") return end
+                            if cast.evangelism() then
+                                br.addonDebug("Casting Evangelism")
+                                return
+                            end
                         end
                     end
                 else
@@ -1259,7 +1279,10 @@ local function runRotation()
             -- Power Word: Shield with Rapture
             if buff.rapture.exists("player") then
                 if essence.overchargeMana.active and cd.overchargeMana.remains() <= gcdMax then
-                    if cast.overchargeMana() then br.addonDebug("Casting Ever-Rising Tide") return end
+                    if cast.overchargeMana() then
+                        br.addonDebug("Casting Ever-Rising Tide")
+                        return
+                    end
                 elseif essence.overchargeMana.active and cd.overchargeMana.remains() > 22 then
                     for i = 1, #br.friend do
                         if not buff.atonement.exists(br.friend[i].unit) and getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1 then
@@ -1552,6 +1575,12 @@ local function runRotation()
                     br.addonDebug("Casting Refreshment")
                     return true
                 end
+            end
+            -- Azshara's Font of Power
+            if isChecked("Azshara's Font") and hasEquiped(169314) and lowest.hp > getOptionValue("Azshara's Font") and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) and canUseItem(169314) and not isMoving("player") then
+                useItem(169314)
+                br.addonDebug("Using Font of Azshara")
+                return true
             end
             -- Shadow Mend
             if ((isChecked("Alternate Heal & Damage") and healCount < getValue("Alternate Heal & Damage")) or not isChecked("Alternate Heal & Damage")) and schismCount < 1 then
