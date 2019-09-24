@@ -230,11 +230,11 @@ function ProfessionHelper()
 end
 
 function br.fishing()
-  if isChecked("Fishing") and EasyWoWToolbox ~= nil then
+  if isChecked("Fishing") and EasyWoWToolbox ~= nil and getOptionValue("Fishing") == 1 then
     if not IsHackEnabled("fish") then
       SetHackEnabled("fish",true)
     end
-  elseif not isChecked("Fishing") and EasyWoWToolbox ~= nil then
+  elseif isChecked("Fishing") and EasyWoWToolbox ~= nil and getOptionValue("Fishing") == 2 then
     if IsHackEnabled("fish") then
       SetHackEnabled("fish",false)
     end
