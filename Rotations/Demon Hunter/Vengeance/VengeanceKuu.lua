@@ -319,8 +319,11 @@ local function runRotation()
                 useItem(slot)
             end
         elseif hasEquiped(169314, slot) then
-            local tank = getFocusedTank()
-            if not UnitIsUnit("player", tank) and php >= 75 and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) then
+            local tank = "player"
+            if #getFocusedTank() >= 1 then
+                tank = getFocusedTank()[1]
+            end
+            if not GetUnitIsUnit("player", tank) and php >= 75 and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) and not isMoving("player") then
                 br.addonDebug("Using Font Of Azshara")
                 useItem(169314)
                 return true
@@ -933,13 +936,14 @@ local function runRotation()
                 end
             end
             -- Font of Azshara
-            if isChecked("Font of Azshara") then
-                local tank = getFocusedTank()
-                if not UnitIsUnit(getFocusedTank(), "player") and php >= 75 and not UnitBuffID("player", 296962) then
-                    if hasEquiped(169314) and canUseItem(169314) and br.timer:useTimer("Font Delay", 4) then
-                        br.addonDebug("Using Font Of Azshara")
-                        useItem(169314)
-                    end
+            if isChecked("Font of Azshara") and hasEquiped(169314) and canUseItem(169314) and br.timer:useTimer("Font Delay", 4) and not isMoving("player") then
+                local tank = "player"
+                if #getFocusedTank() >= 1 then
+                   tank = getFocusedTank()[1]
+                end
+                if not GetUnitIsUnit(tank, "player") and php >= 75 and not UnitBuffID("player", 296962) then
+                    br.addonDebug("Using Font Of Azshara")
+                    useItem(169314)
                 end
             end
             -- Worldvein Resonance
