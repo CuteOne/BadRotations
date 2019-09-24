@@ -959,8 +959,11 @@ local function runRotation()
 				end
 			end
 			-- Racials
+			if isChecked("Racial") and cast.able.racial() and (not talent.seraphim or buff.seraphim.exists()) and race == "LightforgedDraenei" then
+				if cast.racial() then return end
+			end
 			if isChecked("Racial") then
-				if race == "Orc" or race == "Troll" and getSpellCD(racial) == 0 then
+				if (race == "Orc" or race == "Troll") and getSpellCD(racial) == 0 then
 					if castSpell("player", racial, false, false, false) then
 						return
 					end
