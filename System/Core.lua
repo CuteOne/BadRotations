@@ -62,10 +62,10 @@ end
 
 function br.antiAfk()
 	if isChecked("Anti-Afk") and EasyWoWToolbox ~= nil then
-		if not IsHackEnabled("antiafk") then
+		if not IsHackEnabled("antiafk") and getOptionValue("Anti-Afk") == 1 then
 			SetHackEnabled("antiafk",true)
 		end
-	elseif not isChecked("Anti-Afk") and EasyWoWToolbox ~= nil then
+	elseif isChecked("Anti-Afk") and EasyWoWToolbox ~= nil and getOptionValue("Anti-Afk") == 2 then
 		if IsHackEnabled("antiafk") then
 			SetHackEnabled("antiafk",false)
 		end
