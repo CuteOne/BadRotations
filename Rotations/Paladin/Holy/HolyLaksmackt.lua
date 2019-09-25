@@ -1752,9 +1752,8 @@ local function runRotation()
 
         --Glimmer support
 
-        if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and
-                isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
-                isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") then
+        if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player")
+                and  isChecked("Critical HP") and lowest.hp > getValue("Critical HP")  then
             if not debuff.glimmerOfLight.exists("target") then
                 if cast.holyShock("target") then
                     br.addonDebug("glimmerOfLight on target")
@@ -1883,7 +1882,8 @@ local function runRotation()
 
 
         --and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot")
-        if #br.friend < 0 then
+
+        if #br.friend > 0 then
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
                     --count grievance stacks here
@@ -1899,6 +1899,7 @@ local function runRotation()
                             --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
                         end
                     end
+
                     if isChecked("Mastery bonus") and inRaid then
                         if br.friend[i].hp <= getValue("Holy Shock") and not buff.beaconOfFaith.exists(br.friend[i].unit) and not buff.beaconOfVirtue.exists(br.friend[i].unit) and br.friend[i].distance <= (10 * master_coff) then
                             holyshocktarget = br.friend[i].unit
@@ -1949,12 +1950,12 @@ local function runRotation()
                             folTarget = br.friend[i].unit
                         end
                     end
+
                     if folTarget == nil and br.friend[i].hp <= getValue("FoL Infuse") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) and buff.infusionOfLight.remain("player") > gcd then
                         folTarget = br.friend[i].unit
                     elseif folTarget == nil and br.friend[i].hp <= getValue("Flash of Light") and (not inInstance or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
                         folTarget = br.friend[i].unit
                     end
-
                     if isChecked("Mastery bonus") and inRaid then
                         if br.friend[i].hp <= getValue("Bestow Faith") and not GetUnitIsUnit(br.friend[i].unit, "player") and br.friend[i].distance <= (10 * master_coff) then
                             lightOfTheMartyrBF10 = br.friend[i].unit
