@@ -119,7 +119,15 @@ local frame = CreateFrame("FRAME")
 frame:RegisterEvent("ADDON_LOADED");
 frame:RegisterEvent("PLAYER_LOGOUT")
 frame:RegisterUnitEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("LOADING_SCREEN_ENABLED")
+frame:RegisterEvent("LOADING_SCREEN_DISABLED")
 function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
+	if event == "LOADING_SCREEN_ENABLED" then
+		br.disablePulse = true
+	end
+	if event == "LOADING_SCREEN_DISABLED" then
+		br.disablePulse = false
+	end
 	if event == "ADDON_LOADED" and arg1 == "BadRotations" then
 		-- Load Settings
 		br.data = deepcopy(brdata)
@@ -160,16 +168,16 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 			raiddata = deepcopy(br.raid)
 			mraiddata = deepcopy(br.mraid)
         end
-    end
-    if event == "PLAYER_ENTERING_WORLD" then
+	end
+	if event == "PLAYER_ENTERING_WORLD" then
 		-- Update Selected Spec
-        br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
-        br.activeSpecGroup = GetActiveSpecGroup()
+		br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization()))
+		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true
 		if not br.loadedIn then
 			bagsUpdated = true
 			br:Run()
-        end
-    end
+		end
+	end
 end
 frame:SetScript("OnEvent", frame.OnEvent)

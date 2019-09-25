@@ -117,6 +117,7 @@ local brcurrVersion
 local brUpdateTimer
 local collectGarbage = true
 function BadRotationsUpdate(self)
+	if br.disablePulse == true then return end
 	local startTime = debugprofilestop()
 	-- Check for Unlocker
 	if not EWT then
