@@ -35,7 +35,7 @@ function UnitBuffID(unit, spellID, filter)
 			end
 		end
 	else
-		if filter ~= nil then return AuraUtil.FindAuraByName(spellName, unit, filter) end
+		if filter ~= nil and strfind(strupper(filter), "PLAYER") then return AuraUtil.FindAuraByName(spellName, unit, "HELPFUL|PLAYER") end
 		return AuraUtil.FindAuraByName(spellName, unit)
 	end
 end
