@@ -19,19 +19,19 @@ end
 
 function getFallDistance()
 	local zDist
-	local _, _, position = GetObjectPosition("player")
+	-- local _, _, position = GetObjectPosition("player")
 
-	if zCoord == nil then
-		zCoord = position
-	end
-	if not IsFalling() or IsFlying() then
-		zCoord = position
-	end
-	if position - zCoord < 0 then
-		zDist = math.sqrt(((position - zCoord) ^ 2))
-	else
+	-- if zCoord == nil then
+	-- 	zCoord = position
+	-- end
+	-- if not IsFalling() or IsFlying() then
+	-- 	zCoord = position
+	-- end
+	-- if position - zCoord < 0 then
+	-- 	zDist = math.sqrt(((position - zCoord) ^ 2))
+	-- else
 		zDist = 0
-	end
+	-- end
 
 	return zDist
 end
