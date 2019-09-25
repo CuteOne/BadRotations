@@ -490,7 +490,7 @@ actionList.SingleTarget = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets"))
+    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets"))
         and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
     then
         if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [ST]") return true end
@@ -547,8 +547,8 @@ actionList.SingleTarget = function()
     end
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.tiger_palm&chi.max-chi>=2
-    if cast.able.tigerPalm() and not wasLastCombo(spell.tigerPalm)
-        and (chiMax - chi >= 2 or ttd < 3 or ttm < 3 or isExplosive("target"))
+    if cast.able.tigerPalm() and ((not wasLastCombo(spell.tigerPalm) and chiMax - chi >= 2)
+        or ttm < 3 or ttd < 3 or isExplosive("target"))        
     then
         if cast.tigerPalm() then debug("Casting Tiger Palm [ST]") return true end
     end
@@ -584,7 +584,7 @@ actionList.AoE = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3
+    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3
         and #enemies.yards8f >= option.value("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target")
     then
         if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [AOE]") return true end
@@ -616,7 +616,9 @@ actionList.AoE = function()
     end
     -- Tiger Palm
     -- tiger_palm,target_if=min:debuff.mark_of_the_crane.remains,if=chi.max-chi>=2&(!talent.hit_combo.enabled|!prev_gcd.1.tiger_palm)
-    if cast.able.tigerPalm(lowestMark) and (chiMax - chi >= 2 or ttd < 3 or ttm < 3 or isExplosive("target")) and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)) then
+    if cast.able.tigerPalm(lowestMark) and ((chiMax - chi >= 2 and (not talent.hitCombo or not wasLastCombo(spell.tigerPalm)))
+        or ttd < 3 or ttm < 3 or isExplosive("target"))
+    then
         if cast.tigerPalm(lowestMark) then debug("Casting Tiger Palm [AOE]") return true end
     end
     -- Chi Wave
@@ -631,8 +633,9 @@ actionList.AoE = function()
     end
     -- Blackout Kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(buff.bok_proc.up|(talent.hit_combo.enabled&prev_gcd.1.tiger_palm&chi<4))
-    if cast.able.blackoutKick(lowestMark) and not wasLastCombo(spell.blackoutKick)
-        and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4) or ttd <= 3 or ttm <= 3 or isExplosive("target"))
+    if cast.able.blackoutKick(lowestMark) and ((not wasLastCombo(spell.blackoutKick)
+        and (buff.blackoutKick.exists() or (talent.hitCombo and wasLastCombo(spell.tigerPalm) and chi < 4)))
+        or ttd <= 3 or ttm <= 3 or isExplosive("target"))
     then
         if cast.blackoutKick(lowestMark) then debug("Casting Blackout Kick [AOE]") return true end
     end
