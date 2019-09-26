@@ -39,24 +39,26 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
     scrollFrame.parent = window
 
     if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
-    if br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
-    if br.data.settings[br.selectedSpec][name] == nil then br.data.settings[br.selectedSpec][name] = {} end
-    local windows = br.data.settings[br.selectedSpec][name]
-    if windows["point"] ~= nil then
-        local point, relativeTo = windows["point"], windows["relativeTo"]
-        local relativePoint     = windows["relativePoint"]
-        local xOfs, yOfs        = windows["xOfs"], windows["yOfs"]
-        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-    end
-    if windows["point2"] ~= nil then
-        local point, relativeTo = windows["point2"], windows["relativeTo2"]
-        local relativePoint     = windows["relativePoint2"]
-        local xOfs, yOfs        = windows["xOfs2"], windows["yOfs2"]
-        scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
-    end
-    if windows["width"] and windows["height"] then
-        scrollFrame.parent:SetWidth(windows["width"])
-        scrollFrame.parent:SetHeight(windows["height"])
+    if br.data.settings and br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
+    if br.data.settings and br.data.settings[br.selectedSpec] and br.data.settings[br.selectedSpec][name] == nil then br.data.settings[br.selectedSpec][name] = {} end
+    if br.data.settings[br.selectedSpec][name] then
+        local windows = br.data.settings[br.selectedSpec][name]
+        if windows["point"] ~= nil then
+            local point, relativeTo = windows["point"], windows["relativeTo"]
+            local relativePoint     = windows["relativePoint"]
+            local xOfs, yOfs        = windows["xOfs"], windows["yOfs"]
+            scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+        end
+        if windows["point2"] ~= nil then
+            local point, relativeTo = windows["point2"], windows["relativeTo2"]
+            local relativePoint     = windows["relativePoint2"]
+            local xOfs, yOfs        = windows["xOfs2"], windows["yOfs2"]
+            scrollFrame.parent:SetPoint(point, relativeTo, relativePoint, xOfs, yOfs)
+        end
+        if windows["width"] and windows["height"] then
+            scrollFrame.parent:SetWidth(windows["width"])
+            scrollFrame.parent:SetHeight(windows["height"])
+        end
     end
 
     if messageWindow == nil or messageWindow == false then
