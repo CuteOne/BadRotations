@@ -415,15 +415,15 @@ local function runRotation()
                     hp = hp - calcDamage(v, unit)
                 end
             end
-            if UnitIsVisible("pet") then
-                castID, _, castTarget = UnitCastID("pet")
-                if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
-                    local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
-                    if castRemain < 0.5 then
-                        hp = hp - calcDamage(castID, unit)
-                    end
-                end
-            end
+            -- if UnitIsVisible("pet") then
+            --     castID, _, castTarget = UnitCastID("pet")
+            --     if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
+            --         local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
+            --         if castRemain < 0.5 then
+            --             hp = hp - calcDamage(castID, unit)
+            --         end
+            --     end
+            -- end
         end
         return hp
     end
