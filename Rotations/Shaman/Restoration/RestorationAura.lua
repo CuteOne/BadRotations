@@ -309,13 +309,15 @@ local function runRotation()
             end
         end
 
-        if inInstance and select(3,GetInstanceInfo()) == 8 then
+        if inInstance and select(3, GetInstanceInfo()) == 8 then
             for i = 1, #tanks do
                 local ourtank = tanks[i].unit
                 local Burststack = getDebuffStacks(ourtank, 240443)
                 if Burststack >= getOptionValue("Bursting") then
                     burst = true
                     break
+                else 
+                    burst = false
                 end
             end
         end

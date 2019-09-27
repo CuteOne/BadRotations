@@ -443,6 +443,8 @@ local function runRotation()
                 if Burststack >= getOptionValue("Bursting") then
                     burst = true
                     break
+                else 
+                    burst = false
                 end
             end
         end
