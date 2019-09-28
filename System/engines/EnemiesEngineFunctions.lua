@@ -453,7 +453,7 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
 
     for i = 1, #enemiesTable do
         local thisUnit = enemiesTable[i]
-        local unitX, unitY, unitZ = GetObjectPosition(thisUnit)
+        local unitX, unitY, unitZ = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))--GetObjectPosition(thisUnit)
         if playerX and unitX then
             local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
             local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
@@ -511,7 +511,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
 --			if thisUnit ~= "target" then
-				local tX, tY = GetObjectPosition(thisUnit)
+				local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit)) --GetObjectPosition(thisUnit)
 --			end
 			if tX and tY then
 				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
