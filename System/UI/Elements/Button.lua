@@ -40,65 +40,128 @@ function br.ui:createSaveButton(parent, buttonName, x, y)
     saveButton:SetStylesheet(br.ui.buttonStyleSheet)
     saveButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
     saveButton:SetText(buttonName)
-    saveButton:SetWidth(100)
+    saveButton:SetWidth(20)
     saveButton:SetHeight(20)
-    saveButton:SetEventListener("OnClick", function()
-        if getOptionValue("Load Prior Saved Settings") == 1 then
-            if br.dungeon == nil then
-                br.dungeon = {}
+    saveButton:SetEventListener('OnClick', function()
+
+        local newWindow = DiesalGUI:Create('Window')
+        parent:AddChild(newWindow)
+        newWindow:SetTitle("Create Profile")
+        newWindow.settings.width = 200
+        newWindow.settings.height = 75
+        newWindow.settings.minWidth = newWindow.settings.width
+        newWindow.settings.minHeight = newWindow.settings.height
+        newWindow.settings.maxWidth = newWindow.settings.width
+        newWindow.settings.maxHeight = newWindow.settings.height
+        newWindow:ApplySettings()
+  
+        local profileInput = DiesalGUI:Create('Input')
+        newWindow:AddChild(profileInput)
+        profileInput:SetParent(newWindow.content)
+        profileInput:SetPoint("TOPLEFT", newWindow.content, "TOPLEFT", 5, -5)
+        profileInput:SetPoint("BOTTOMRIGHT", newWindow.content, "TOPRIGHT", -5, -25)
+        profileInput:SetText("New Profile Name")
+  
+        local profileButton = DiesalGUI:Create('Button')
+        newWindow:AddChild(profileButton)
+        profileButton:SetParent(newWindow.content)
+        profileButton:SetPoint("TOPLEFT", newWindow.content, "TOPLEFT", 5, -30)
+        profileButton:SetPoint("BOTTOMRIGHT", newWindow.content, "TOPRIGHT", -5, -50)
+        if profileButton.SetStylesheet then profileButton:SetStylesheet(br.ui.buttonStyleSheet) end
+        profileButton:SetText("Create New Profile")
+        profileButton:SetEventListener('OnClick', function()
+
+            
+          local profiles = br.fetch(br.selectedSpec .. '_' .. 'profiles', {{key='default',text='Default'}})
+          local profileName = profileInput:GetText()
+          local pkey = string.gsub(profileName, "%s+", "")
+          if profileName ~= '' then
+            for _,p in ipairs(profiles) do
+              if p.key == pkey then
+                profileButton:SetText('|cffff3300Profile with that name exists!|r')
+                C_Timer.NewTicker(2, function()
+                  profileButton:SetText("Create New Profile")
+                end, 1)
+                return false
+              end
             end
-            if br.dungeon.settings == nil then
-                br.dungeon.settings = {}
-                br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            else
-                br.dungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
+            table.insert(profiles, { key = pkey, text = deepcopy(br.data.settings[br.selectedSpec])})
+            br.store(br.selectedSpec .. '_' .. 'profiles', profiles)
+            br.store(br.selectedSpec .. '_' .. 'profile', pkey)
+            newWindow:Hide()
+            parent:Hide()
+            parent:Release()
+            br.rotationChanged = true
+          end
+  
+        end)
+        profileInput:SetEventListener("OnEnterPressed", function()
+  
+          local profiles = br.fetch(br.selectedSpec .. '_' .. 'profiles', {{key='default',text='Default'}})
+          local profileName = profileInput:GetText()
+          local pkey = string.gsub(profileName, "%s+", "")
+          if profileName ~= '' then
+            for _,p in ipairs(profiles) do
+              if p.key == pkey then
+                profileButton:SetText('|cffff3300Profile with that name exists!|r')
+                C_Timer.NewTicker(2, function()
+                  profileButton:SetText("Create New Profile")
+                end, 1)
+                return false
+              end
             end
-            print("Dungeon Data Saved")
-        elseif getOptionValue("Load Prior Saved Settings") == 2 then
-            if br.mdungeon == nil then
-                br.mdungeon = {}
-            end
-            if br.mdungeon.settings == nil then
-                br.mdungeon.settings = {}
-                br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            else
-                br.mdungeon.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            end
-            --raiddata = brdata
-            print("Mythic Dungeon Data Saved")
-         elseif getOptionValue("Load Prior Saved Settings") == 3 then
-            if br.raid == nil then
-                br.raid = {}
-            end
-            if br.raid.settings == nil then
-                br.raid.settings = {}
-                br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            else
-                br.raid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            end
-            --raiddata = brdata
-            print("Raid Data Saved")
-         elseif getOptionValue("Load Prior Saved Settings") == 4 then
-            if br.mraid == nil then
-                br.mraid = {}
-            end
-            if br.mraid.settings == nil then
-                br.mraid.settings = {}
-                br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            else
-                br.mraid.settings[br.selectedSpec] = deepcopy(br.data.settings[br.selectedSpec])
-            end
-            --raiddata = brdata
-            print("Mythic Raid Data Saved")
-        else
-            print("Save Error")
-        end
-    --    parent:Release()
+            table.insert(profiles, { key = pkey, text = deepcopy(br.data.settings[br.selectedSpec]) })
+            br.store(br.selectedSpec .. '_' .. 'profiles', profiles)
+            br.store(br.selectedSpec .. '_' .. 'profile', pkey)
+            newWindow:Hide()
+            parent:Hide()
+            parent:Release()
+            br.rotationChanged = true
+          end
+  
+        end)
+  
     end)
 
     parent:AddChild(saveButton)
 
     return saveButton
+end
+
+function br.ui:createDeleteButton(parent, buttonName, x, y)
+    local deleteButton = DiesalGUI:Create('Button')
+    local parent = parent
+
+  --  parent:AddChild(saveButton)
+    deleteButton:SetParent(parent.content)
+    deleteButton:SetStylesheet(br.ui.buttonStyleSheet)
+    deleteButton:SetPoint("TOPLEFT", parent.content, "TOPLEFT", x, y)
+    deleteButton:SetText(buttonName)
+    deleteButton:SetWidth(20)
+    deleteButton:SetHeight(20)
+    deleteButton:SetEventListener('OnClick', function()
+        local selectedProfile = br.profileDropValue
+        local profiles = br.fetch(br.selectedSpec .. '_' .. 'profiles', {{key='default',text='Default'}})
+        if selectedProfile ~= 'default' then
+            for i,p in ipairs(profiles) do
+                if p.key == selectedProfile then
+                    profiles[i] = nil
+                    Print("Deleting "..selectedProfile.." profile!")
+                    br.store(br.selectedSpec .. '_' .. 'profiles', profiles)
+                    br.store(br.selectedSpec .. '_' .. 'profile', 'default')
+                    parent:Hide()
+                    parent:Release()
+                    br.rotationChanged = true
+                end
+            end
+        else
+        Print("Cannot delete default profile!")
+      end
+    end)
+
+    parent:AddChild(deleteButton)
+
+    return deleteButton
 end
 
 function br.ui:createLoadButton(parent, buttonName, x, y)
@@ -113,74 +176,90 @@ function br.ui:createLoadButton(parent, buttonName, x, y)
     loadButton:SetWidth(100)
     loadButton:SetHeight(20)
     loadButton:SetEventListener("OnClick", function()
-        if getOptionValue("Load Prior Saved Settings") == 1 then
-            if br.dungeon ~= nil then
-                if br.dungeon.settings ~= nil then
-                    if br.dungeon.settings[br.selectedSpec] ~= nil then
-                        br.data.settings[br.selectedSpec] = {}
-                        br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
-                        print("Dungeon Data Loaded")
-                        br.rotationChanged = true  
-                    else
-                        print("Dungeon Settings do not exist.")
-                    end
-                else
-                    print("Dungeon Settings do not exist.")
-                end
-            else
-                print("Dungeon Settings do not exist.")
-            end
-        elseif getOptionValue("Load Prior Saved Settings") == 2 then
-            if br.mdungeon ~= nil then
-                if br.mdungeon.settings ~= nil then
-                    if br.mdungeon.settings[br.selectedSpec] ~= nil then
-                        br.data.settings[br.selectedSpec] = {}
-                        br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
-                        print("Mythic Dungeon Data Loaded")
+        if br.profileDropValue == 'default' then
+            Print("Please select a profile other than default!")
+            return
+        end
+        if br.profile ~= nil then
+            if br.profile[br.selectedSpec .. '_' .. 'profiles'] ~= nil then
+                local lProfile = br.profile[br.selectedSpec .. '_' .. 'profiles']
+                for k,v in pairs(lProfile) do
+                    if v.key == br.profileDropValue then
+                        br.data.settings[br.selectedSpec] = deepcopy(v.text)
+                        Print(v.key.." profile found!")
                         br.rotationChanged = true
-                    else
-                        print("Mythic Dungeon settings do not exist.")
+                        break
                     end
-                else
-                    print("Mythic Dungeon settings do not exist.")
                 end
-            else
-                print("Mythic Dungeon settings do not exist.")
             end
-        elseif getOptionValue("Load Prior Saved Settings") == 3 then
-            if br.raid ~= nil then
-                if br.raid.settings ~= nil then
-                    if br.raid.settings[br.selectedSpec] ~= nil then
-                        br.data.settings[br.selectedSpec] = {}
-                        br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
-                        print("Raid Data Loaded")
-                        br.rotationChanged = true
-                    else
-                        print("Raid settings do not exist.")
-                    end
-                else
-                    print("Raid settings do not exist.")
-                end
-            else
-                print("Raid settings do not exist.")
-            end
-        elseif getOptionValue("Load Prior Saved Settings") == 4 then
-            if br.mraid ~= nil then
-                if br.mraid.settings ~= nil then
-                    if br.mraid.settings[br.selectedSpec] ~= nil then
-                        br.data.settings[br.selectedSpec] = {}
-                        br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
-                        print("Mythic Raid Data Loaded")
-                        br.rotationChanged = true
-                    else
-                        print("Mythic Raid settings do not exist.")
-                    end
-                else
-                    print("Mythic Raid settings do not exist.")
-                end
-            else
-                print("Mythic Raid settings do not exist.")
-            end
+        -- if getOptionValue("Load Prior Saved Settings") == 1 then
+        --     if br.dungeon ~= nil then
+        --         if br.dungeon.settings ~= nil then
+        --             if br.dungeon.settings[br.selectedSpec] ~= nil then
+        --                 br.data.settings[br.selectedSpec] = {}
+        --                 br.data.settings[br.selectedSpec] = deepcopy(br.dungeon.settings[br.selectedSpec])
+        --                 print("Dungeon Data Loaded")
+        --                 br.rotationChanged = true  
+        --             else
+        --                 print("Dungeon Settings do not exist.")
+        --             end
+        --         else
+        --             print("Dungeon Settings do not exist.")
+        --         end
+        --     else
+        --         print("Dungeon Settings do not exist.")
+        --     end
+        -- elseif getOptionValue("Load Prior Saved Settings") == 2 then
+        --     if br.mdungeon ~= nil then
+        --         if br.mdungeon.settings ~= nil then
+        --             if br.mdungeon.settings[br.selectedSpec] ~= nil then
+        --                 br.data.settings[br.selectedSpec] = {}
+        --                 br.data.settings[br.selectedSpec] = deepcopy(br.mdungeon.settings[br.selectedSpec])
+        --                 print("Mythic Dungeon Data Loaded")
+        --                 br.rotationChanged = true
+        --             else
+        --                 print("Mythic Dungeon settings do not exist.")
+        --             end
+        --         else
+        --             print("Mythic Dungeon settings do not exist.")
+        --         end
+        --     else
+        --         print("Mythic Dungeon settings do not exist.")
+        --     end
+        -- elseif getOptionValue("Load Prior Saved Settings") == 3 then
+        --     if br.raid ~= nil then
+        --         if br.raid.settings ~= nil then
+        --             if br.raid.settings[br.selectedSpec] ~= nil then
+        --                 br.data.settings[br.selectedSpec] = {}
+        --                 br.data.settings[br.selectedSpec] = deepcopy(br.raid.settings[br.selectedSpec])
+        --                 print("Raid Data Loaded")
+        --                 br.rotationChanged = true
+        --             else
+        --                 print("Raid settings do not exist.")
+        --             end
+        --         else
+        --             print("Raid settings do not exist.")
+        --         end
+        --     else
+        --         print("Raid settings do not exist.")
+        --     end
+        -- elseif getOptionValue("Load Prior Saved Settings") == 4 then
+        --     if br.mraid ~= nil then
+        --         if br.mraid.settings ~= nil then
+        --             if br.mraid.settings[br.selectedSpec] ~= nil then
+        --                 br.data.settings[br.selectedSpec] = {}
+        --                 br.data.settings[br.selectedSpec] = deepcopy(br.mraid.settings[br.selectedSpec])
+        --                 print("Mythic Raid Data Loaded")
+        --                 br.rotationChanged = true
+        --             else
+        --                 print("Mythic Raid settings do not exist.")
+        --             end
+        --         else
+        --             print("Mythic Raid settings do not exist.")
+        --         end
+        --     else
+        --         print("Mythic Raid settings do not exist.")
+        --     end
         else
             print("Load Error")
         end

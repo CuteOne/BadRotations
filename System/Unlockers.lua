@@ -8,6 +8,6 @@ elseif EasyWoWToolbox == nil then
     SetHackEnabled = SetHackEnabled
     ObjectTypes = ObjectTypes
     ObjectExists = ObjectExists
-    ObjectIsUnit = UnitIsUnit
+    ObjectIsUnit = GetUnitIsUnit
     ObjectIsVisible = UnitIsVisible
 end

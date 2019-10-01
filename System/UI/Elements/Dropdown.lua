@@ -87,3 +87,34 @@ end
 function br.ui:createDropdownWithout(parent, text, itemlist, default, tooltip, tooltipDrop)
     return br.ui:createDropdown(parent, text, itemlist, default, tooltip, tooltipDrop, true)
 end
+
+function br.ui:createProfileDropdown(parent)
+    -------------------------------
+    ----Need to calculate Y Pos----
+    -------------------------------
+    local Y = -5
+    for i=1, #parent.children do
+        if parent.children[i].type ~= "Spinner" and parent.children[i].type ~= "Dropdown" then
+            Y = Y - parent.children[i].frame:GetHeight()*1.2
+        end
+    end
+    Y = DiesalTools.Round(Y)
+
+    local profiles = br.fetch(br.selectedSpec .. '_' .. 'profiles', {{key='default',text='Default'}})
+    local selectedProfile = br.fetch(br.selectedSpec .. '_' .. 'profile', 'default')
+    local profile_drop = DiesalGUI:Create('Dropdown')
+    parent:AddChild(profile_drop)
+    profile_drop:SetParent(parent.content)
+    profile_drop:SetPoint("TOPLEFT", parent.content, "TOPLEFT", 1, Y)
+    profile_drop:SetHeight(18)
+    profile_drop:SetWidth(200)
+    local list = { }
+    for i, value in pairs(profiles) do
+      list[value.key] = value.key
+    end
+    profile_drop:SetList(list)
+    profile_drop:SetValue(br.fetch(br.selectedSpec .. '_' .. 'profile', 'Default Profile'))
+    profile_drop:SetEventListener('OnValueChanged', function(this, event, key, value, selection)
+        br.profileDropValue = key
+     end)
+end

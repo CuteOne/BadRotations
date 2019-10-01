@@ -52,17 +52,23 @@ local function createOptions()
             -- Dummy DPS Test
             br.ui:createSpinner(section, "DPS Testing",  1,  1,  60,  1,  "Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
-            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  0.1,  "Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Body and Soul
             br.ui:createCheckbox(section,"PWS: Body and Soul")
+            br.ui:createCheckbox(section,"PWS Insanity Gain")
             -- Auto Buff Fortitude
             br.ui:createCheckbox(section,"Power Word: Fortitude", "Check to auto buff Fortitude on party.")
+            br.ui:createCheckbox(section, "Pull Spell")
             -- Out of Combat Attack
-            br.ui:createCheckbox(section,"Pull OoC", "Check to Engage the Target out of Combat.")
-             -- Elixir
+            --br.ui:createCheckbox(section,"Pull OoC", "Check to Engage the Target out of Combat.")
+            -- Opener
+            --br.ui:createCheckbox(section, "Opener")
+            -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Flask of Endless Fathoms","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "Set Elixir to use.")
             -- Mouseover Dotting
             br.ui:createCheckbox(section,"Mouseover Dotting")
+            -- Mind Sear before max Dots
+            br.ui:createSpinnerWithout(section, "MS b4 Dots",  8,  1,  20,  1, "Use Mindsear instead of dotting X Value of Units.")
             -- SWP before VT
             br.ui:createCheckbox(section,"SWP b4 VT", "Check to dot SWP before VT.")
             -- Use 1st Trinket off CD
@@ -71,18 +77,20 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- AoE Options
         section = br.ui:createSection(br.ui.window.profile, "AoE Options")
+            -- Dark Void Targets
+            br.ui:createSpinnerWithout(section, "Dark Void Targets",  5,  1,  10,  1, "Unit Count Limit before Dark Void is being used.")
+            -- Dark Ascension AoE
+            br.ui:createSpinner(section, "Dark Ascension AoE",  5,  1,  10,  1, "Use DA as AoE Damage Burst at desired Unit Count Limit.")
+            -- Focused Beam
+            br.ui:createSpinnerWithout(section, "Focused Beam Targets",  3,  2,  10,  1, "Unit Count Limit before casting Focused Beam.")
+            -- Mind Sear Targets
+            br.ui:createSpinnerWithout(section, "Mind Sear Targets",  2,  2,  10,  1, "Unit Count Limit before Mind Sear is being used.")
             -- Shadow Crash
             br.ui:createCheckbox(section,"Shadow Crash")
             -- SWP Max Targets
             br.ui:createSpinnerWithout(section, "SWP Max Targets",  3,  1,  7,  1, "Unit Count Limit that SWP will be cast on.")
             -- VT Max Targets
             br.ui:createSpinnerWithout(section, "VT Max Targets",  3,  1,  7,  1, "Unit Count Limit that VT will be cast on.")
-            -- Mind Sear Targets
-            br.ui:createSpinnerWithout(section, "Mind Sear Targets",  2,  2,  10,  1, "Unit Count Limit before Mind Sear is being used.")
-            -- Dark Void Targets
-            br.ui:createSpinnerWithout(section, "Dark Void Targets",  5,  1,  10,  1, "Unit Count Limit before Dark Void is being used.")
-            -- Dark Ascension AoE
-            br.ui:createSpinner(section, "Dark Ascension AoE",  5,  1,  10,  1, "Use DA as AoE Damage Burst at desired Unit Count Limit.")
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -102,7 +110,7 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "  Lucid Dreams Insanity",  50,  25,  100,  1, "Insanity Power when to use Lucid Dreams.")
             -- Shadowfiend
             br.ui:createCheckbox(section, "Shadowfiend / Mindbender", "Use Shadowfiend or Mindbender on CD")
-            br.ui:createSpinner(section, "  Mindbender in VF", 10, 0, 50, 1, "Set to desired Void Form stacks to use at.")
+            br.ui:createSpinner(section, "Mindbender in VF", 19, 0, 50, 1, "Set to desired Void Form stacks to use at.")
             -- Surrender To Madness
             br.ui:createCheckbox(section,"Surrender To Madness")
             -- Dispersion
@@ -132,11 +140,11 @@ local function createOptions()
             -- Vampiric Embrace
             br.ui:createSpinner(section, "Vampiric Embrace",  25,  0,  100,  5,  "Health Percentage to use at.")
             -- Power Word: Shield
-            br.ui:createSpinner(section, "Power Word: Shield",  60,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Power Word: Shield",  65,  0,  100,  5,  "Health Percentage to use at.")
             -- Shadow Mend
-            br.ui:createSpinner(section, "Shadow Mend",  60,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Shadow Mend",  35,  0,  100,  5,  "Health Percentage to use at.")
             -- Psychic Scream / Mind Bomb
-            br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  40,  0,  100,  5,  "Health Percentage to use at.")
+            br.ui:createSpinner(section, "Psychic Scream / Mind Bomb",  45,  0,  100,  5,  "Health Percentage to use at.")
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -205,6 +213,7 @@ local function runRotation()
     local charges                                       = br.player.charges
     local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local debuff                                        = br.player.debuff
+    local dPrint                                        = br.addonDebug
     local enemies                                       = br.player.enemies
     local essence                                       = br.player.essence
     local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
@@ -230,7 +239,7 @@ local function runRotation()
     local php                                           = br.player.health
     local playerMouse                                   = UnitIsPlayer("mouseover")
     local power, powmax, powgen, powerDeficit           = br.player.power.insanity.amount(), br.player.power.insanity.max(), br.player.power.insanity.regen(), br.player.power.insanity.deficit()
-    local pullTimer                                     = br.DBM:getPulltimer()
+    local pullTimer                                     = PullTimerRemain()
     local racial                                        = br.player.getRacial()
     local solo                                          = #br.friend < 2
     local spell                                         = br.player.spell
@@ -242,12 +251,13 @@ local function runRotation()
     local talent                                        = br.player.talent
     local traits                                        = br.player.traits
     local thp                                           = getHP("target")
+    local totalHaste                                    = UnitSpellHaste("player") / 100
     local ttd                                           = getTTD
     local ttm                                           = br.player.power.insanity.ttm()
     local units                                         = br.player.units
     local use                                           = br.player.use
  
-    local chgMax                                        = max(0.75, 1.5 * 2 / (1 + GetHaste() / 100))
+    local chgMax                                        = max(0.7, 1.64 * 2 / (1 + GetHaste() / 100))
     local DAmaxTargets                                  = getOptionValue("Dark Ascension AoE")
     local MSmaxTargets                                  = getOptionValue("Mind Sear Targets")
     local SWPmaxTargets                                 = getOptionValue("SWP Max Targets")
@@ -278,6 +288,15 @@ local function runRotation()
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
 
+	if not inCombat and not GetObjectExists("target") then
+		opener = false
+        OPN1 = false
+        OPN2 = false
+        OPN3 = false
+        VEO = false
+        go_one = false
+	end
+
     if cmbLast == nil or not UnitExists(units.dyn40) then cmbLast = UnitGUID("player") end
     if cmvtLast == nil or not UnitExists(units.dyn40) then cmvtLast = UnitGUID("player") end
     if cmvtaLast == nil or not UnitExists(thisUnit) then cmvtaLast = UnitGUID("player") end
@@ -294,6 +313,12 @@ local function runRotation()
     if swvLast == nil or not UnitExists("target") then swvLast = UnitGUID("player") end
     if vtLast == nil or not UnitExists("target") then vtLast = UnitGUID("player") end
     if vtVFLast == nil or not UnitExists("target") then vtVFLast = UnitGUID("player") end
+
+    if preVoidErupt == nil or not UnitAffectingCombat("player") then preVoidErupt = false end
+
+    if not inCombat and not GetObjectExists("target") then
+        preVoidErupt = false
+    end
 
     -- if HackEnabled("NoKnockback") ~= nil then HackEnabled("NoKnockback", false) end
 
@@ -315,6 +340,7 @@ local function runRotation()
     local activeEnemies = #enemies.yards20t
     local dAEnemies = getEnemies(units.dyn40, 8, true)
     local dVEnemies = getEnemies(units.dyn40, 8, true)
+    local maxDotsEnemies = #enemies.yards8t
     local searEnemies = getEnemies(units.dyn40, 8, true)
 
     if mode.rotation == 3 then
@@ -340,29 +366,82 @@ local function runRotation()
         drainStacks = buff.voidForm.stack() - nonDrainTicks
     end
 
+    --Shadow Word Pain Anti Clip
+    swpTickTable = {}
+
+        local swpTickRate                                   = 2 / (1 + totalHaste)
+        local swpTotalTicks                                 = 16 / swpTickRate
+        local swpDuration                                   = 16
+        local swpTickInTime                                 = 0
+        local y = 0
+        while y < swpTotalTicks do
+            swpTickInTime = swpDuration - swpTickRate
+            swpDuration   = swpDuration - swpTickRate
+            y = y + 1
+            tinsert(swpTickTable, swpTickInTime)
+        end
+        local swpAntiClip = swpTickTable[getn(swpTickTable) - 2]
+        --Print(b[getn(b)] .. " = Last")
+        --Print(b[getn(b) - 1] .. " = Second to last")
+        --Print(b[getn(b) - 2] .. " = Third to last")
+
+    --Vamp Touch Anti Clip
+    vtTickTable = {}
+
+        local vtTickRate                                    = 3 / (1 + totalHaste)      -- Vamp Touch Tick Rate
+        local vtTotalTicks                                  = 21 / vtTickRate           -- Total Vamp Touch Ticks
+        local vampDuration = 21
+        local i = 0
+        local vtTickInTime = 0
+        local count = 0
+        while i < vtTotalTicks do
+            vtTickInTime = vampDuration - vtTickRate
+            vampDuration = vampDuration - vtTickRate
+            i = i + 1
+            tinsert(vtTickTable, vtTickInTime)
+        end
+    local vtAntiClip = vtTickTable[getn(vtTickTable) - 2]
+
     -- Insanity Drain
     insanityDrain = 6 + (0.68 * (drainStacks))
     --insanityDrained = insanityDrain + (15.6 * gcdMax)
-    insanityDrained = insanityDrain * gcdMax * 3
+    --(current_insanity_drain*((gcd.max*2)+action.mind_blast.cast_time))
+    insanityDrained = insanityDrain * ((gcdMax * 2) + cast.time.mindBlast())
 
     local lucisDreams = essence.memoryOfLucidDreams.active
+    local focusedBeam = essence.focusedAzeriteBeam.active
 
+    local dotsMax = maxDotsEnemies < getOptionValue("MS b4 Dots")
     local dotsUp = debuff.shadowWordPain.exists() and debuff.vampiricTouch.exists()
     local dotsTick = debuff.shadowWordPain.remain() > 4.3 and debuff.vampiricTouch.remain() > 4.3
     local noHarvest = not buff.harvestedThoughts.exists() and not cast.current.mindSear()
     local noSdHarvest = not traits.searingDialogue.active and not cast.current.mindSear()
     local noTH = noHarvest or noSdHarvest
     local SWPb4VT = isChecked("SWP b4 VT") --or debuff.shadowWordPain.exists()
+    local vbReady = cd.voidBolt.remain() > 1.33
     local mindblastTargets = math.floor((4.5 + traits.whispersOfTheDamned.rank) / (1 + 0.27 * traits.searingDialogue.rank))
     local swp_trait_ranks_check = (1 - 0.07 * traits.deathThroes.rank + 0.2 * traits.thoughtHarvester.rank) * (1 - 0.09 * traits.thoughtHarvester.rank * traits.searingDialogue.rank)
     local vt_trait_ranks_check = (1 - 0.04 * traits.thoughtHarvester.rank - 0.05 * traits.spitefulApparitions.rank)
     local vt_mis_trait_ranks_check = (1 - 0.07 * traits.deathThroes.rank - 0.03 * traits.thoughtHarvester.rank - 0.055 * traits.spitefulApparitions.rank) * (1 - 0.27 * traits.thoughtHarvester.rank * traits.searingDialogue.rank)
     local vt_mis_sd_check = 1 - 0.014 * traits.searingDialogue.rank
 
+    if timersTable then
+        wipe(timersTable)
+    end
+
     --Clear last cast table ooc to avoid strange casts
     if not inCombat and #br.lastCast.tracker > 0 then
         wipe(br.lastCast.tracker)
     end
+
+    if inCombat and not buff.voidForm.exists() and (power >= 90 or talent.legacyOfTheVoid and power >= 60) and mode.voidForm == 1 then
+        if cast.current.mindFlay() or cast.current.mindSear() then
+        --if br.timer:useTimer("VE stop Delay", 0.17 / (1 + GetHaste() / 100)) then
+        --CancelPendingSpell()
+        SpellStopCasting()
+        ChatOverlay("ERUPTING WITH THE VOID!")
+    return true end end --end
+
 
 --------------------
 --- Action Lists ---
@@ -439,7 +518,7 @@ local function runRotation()
             --        if cast.psychicHorror(units.dyn30) then return end
             --    end
             -- Power Word: Shield
-            if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and not buff.powerWordShield.exists() then
+            if isChecked("Power Word: Shield") and php <= getOptionValue("Power Word: Shield") and cast.able.powerWordShield() and not debuff.weakenedSoul.exists() then
                 if cast.powerWordShield("player") then return end
             end
             -- Shadow Mend
@@ -450,7 +529,7 @@ local function runRotation()
     end -- End Action List - Defensive
 -- Action List - Interrupts
     function actionList_Interrupts()
-       if useInterrupts() then
+       if mode.interrupt == 1 then
         -- Silence
          if isChecked("Silence") then
              for i=1, #enemies.yards30 do
@@ -640,96 +719,211 @@ local function runRotation()
             -- TODO
         end
     end -- End Action List - Cooldowns
+-- Action List - Opener
+	local function actionList_Opener()
+		-- if isChecked("Opener") and (isBoss("target") or isDummy("target")) and opener == false then
+		-- 	if isValidUnit("target") and getDistance("target") < 40 then
+		-- 		if not OPN1 then
+		-- 			Print("Starting Opener")
+		-- 			OPN1 = true
+
+        --         elseif OPN1 and not OPN2 then
+        --             if mode.voidForm == 1 and cast.able.voidEruption() and not buff.voidForm.exists() and power >= 60 and not moving then
+		-- 			    if castOpener("voidEruption","OPN2",1) then return end
+        --             end
+
+        --         elseif OPN2 and not OPN3 then
+        --             if not moving then
+        --                 if castOpener("voidBolt","OPN3",2) then return end
+        --             end
+
+		-- 		elseif OPN5 and not OPN6 then
+		-- 			if talent.inquisition then
+		-- 				if castOpener("avengingWrath","OPN6",5) then return end
+		-- 			else
+		-- 				if castOpener("templarsVerdict","OPN6",5) then return end
+		-- 			end
+		-- 		elseif OPN6 and not OPN7 then
+		-- 			if castOpener("wakeOfAshes","OPN7",6) then return end
+
+		-- 		elseif OPN7 and not OPN8 then
+		-- 			if talent.hammerOfWrath then
+		-- 				if castOpener("hammerOfWrath","OPN8",7) then return end
+		-- 			else
+		-- 				if castOpener("crusaderStrike","OPN8",7) then return end
+		-- 			end
+		-- 		elseif OPN8 and not OPN9 then
+		-- 			if talent.executionSentence then
+		-- 				if castOpener("executionSentence","OPN9",8) then return end
+		-- 			else
+		-- 				if castOpener("templarsVerdict","OPN9",8) then return end
+		-- 			end
+		-- 		elseif OPN3 then
+		-- 			opener = true;
+		-- 			Print("Opener Complete")
+		-- 			return
+		-- 		end
+
+		-- 	end
+		-- elseif (UnitExists("target") and (not isBoss("target") or not isDummy("target"))) or not isChecked("Opener") then
+		-- 	opener = true
+		-- 	return
+		-- end
+	end -- End Action List - Opener
 -- Action List - Pre-Combat
     function actionList_PreCombat()
-     -- Shadow Form
-         -- shadowform,if=!buff.shadowform.up
-         if not buff.shadowform.exists() then
-             cast.shadowform()
-         end
-     -- comment out Fort so you are not over casting other priests in raids. if you uncomment it will keep applying so its your fort up. easier to just manual cast i think.
-     -- Power Word: Fortitude
-         --if not buff.powerWordFortitude.exists() then
-         --    cast.powerWordFortitude()
-         --end
-         if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", mrdm(3,5)) then
-             for i = 1, #br.friend do
-                 if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
-                     if cast.powerWordFortitude() then return end
-                 end
-             end
-         end
-     -- Flask/Elixir
-         -- flask,type=flask_of_the_whispered_pact
-           -- Endless Fathoms Flask
-         if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
-             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-             if buff.felFocus.exists() then buff.felFocus.cancel() end
-             if use.flaskOfEndlessFathoms() then return end
-         end
-         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
-             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
-             if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
-             if use.repurposedFelFocuser() then return end
-         end
-         if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
-             if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
-             if buff.felFocus.exists() then buff.felFocus.cancel() end
-             if use.oraliusWhisperingCrystal() then return end
-         end
-     -- Mind Blast
-         if isChecked("Pull OoC") and isValidUnit("target") then
-             if activeEnemies == 1 or mode.rotation == 3 then
-                if not moving then
-                    if not talent.shadowWordVoid and br.timer:useTimer("mbRecast", gcdMax + getSpellCD(spell.mindBlast)) then
-                        if UnitExists("target") and UnitGUID("target") ~= pmbLast then
-                            if cast.mindBlast("target") then pmbLast = UnitGUID("target")
-                            --Print("OoC MB")
-                            return end
-                        end
-                    elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 and br.timer:useTimer("swvRecast", gcdMax + getSpellCD(spell.mindBlast)) then
-                        if UnitExists("target") and UnitGUID("target") ~= pswvLast then
-                            if cast.shadowWordVoid("target") then pswvLast = UnitGUID("target")
-                                --Print("OoC swv")
-                            return end
-                        end
-                    end
-                elseif moving then
-                    if not debuff.shadowWordPain.exists() then
-                        if cast.shadowWordPain("target") then
-                        --Print("OoC SWP")
-                        return end 
+        if not inCombat and not (IsFlying() or IsMounted()) then
+        -- Shadow Form
+            -- shadowform,if=!buff.shadowform.up
+            if not buff.shadowform.exists() then
+                cast.shadowform()
+            end
+        -- Flask/Elixir
+            -- flask,type=flask_of_the_whispered_pact
+            -- Endless Fathoms Flask
+            -- if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
+            --     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+            --     if buff.felFocus.exists() then buff.felFocus.cancel() end
+            --     if use.flaskOfEndlessFathoms() then return end
+            -- end
+            if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and canUseItem(item.repurposedFelFocuser) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
+                if use.repurposedFelFocuser() then return end
+            end
+            if getOptionValue("Elixir") == 3 and not buff.whispersOfInsanity.exists() and canUseItem(item.oraliusWhisperingCrystal) then
+                if buff.flaskOfTheWhisperedPact.exists() then buff.flaskOfTheWhisperedPact.cancel() end
+                if buff.felFocus.exists() then buff.felFocus.cancel() end
+                if use.oraliusWhisperingCrystal() then return end
+            end
+         -- comment out Fort so you are not over casting other priests in raids. if you uncomment it will keep applying so its your fort up. easier to just manual cast i think.
+        -- Power Word: Fortitude
+            --if not buff.powerWordFortitude.exists() then
+            --    cast.powerWordFortitude()
+            --end
+            if isChecked("Power Word: Fortitude") and br.timer:useTimer("PW:F Delay", mrdm(3,5)) then
+                for i = 1, #br.friend do
+                    if not buff.powerWordFortitude.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                        if cast.powerWordFortitude() then return end
                     end
                 end
-             elseif activeEnemies > 1 or mode.rotation == 2 then 
-                if not moving then
-                    if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() and br.timer:useTimer("vtRecast", gcdMax + getSpellCD(spell.vampiricTouch)) then
-                        if UnitExists("target") and UnitGUID("target") ~= pvtLast then
-                            if cast.vampiricTouch("target") then pvtLast = UnitGUID("target")
-                                --Print("OoC VT")
-                            return end 
+            end
+        -- Power Word: Shield Insanity
+            -- if inRaid or inInstance then
+            --     if PWSITimer == nil then PWSITimer = GetTime() - 6 end
+            --     if isChecked("PWS Insanity Gain") and power < 80 then
+            --         for i = 1, #br.friend do
+            --             if not buff.powerWordShield.exists(br.friend[i].unit) and getDistance("player", br.friend[i].unit) < 40 and br.timer:useTimer("PW:S Ins Delay", 3) then --and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+            --                 if cast.powerWordShield(br.friend[i].unit) then return true end
+            --             end
+            --         end
+            --     end
+            -- end
+        -- Power Word: Shield Insanity
+            if inRaid or inInstance then
+                --for i = 1, #enemies.yards40 do
+                    --local thisUnit = enemies.yards40[i]
+                    --if isBoss(thisUnit) and getDistance("player", thisUnit) < 40 then
+                        if PWSITimer == nil then PWSITimer = GetTime() - 6 end
+                        if isChecked("PWS Insanity Gain") and power < 80 then
+                            for i = 1, #br.friend do
+                                if not buff.powerWordShield.exists(br.friend[i].unit) and getDistance("player", br.friend[i].unit) < 40 and br.timer:useTimer("PW:S Ins Delay", 4.8) then --and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                                    if cast.powerWordShield(br.friend[i].unit) then return true end
+                                end
+                            end
+                        end
+                    --end
+                --end
+            end
+        -- Pre-Pull
+            if isChecked("Pre-Pull Timer") and ((inInstance or inRaid) and isValidUnit("target")) or isDummy() then
+            --Void Eruption
+                if pullTimer <= getOptionValue("Pre-Pull Timer") * gcdMax then
+                    if not buff.voidForm.exists() and power >= 60 then
+                        if cast.able.voidEruption() then
+                            if cast.voidEruption() then preVoidErupt = true return true end
                         end
                     end
-                elseif moving then
-                    if not debuff.shadowWordPain.exists() then
-                        if cast.shadowWordPain("target") then
-                        --Print("OoC SWP")
-                        return end 
-                    end
                 end
-             end
-         end
-     --[[ Power Word: Shield Body and Soul
-     --    if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
-     --        if cast.powerWordShield("player") then return end
-     --    end
-        if IsMovingTime(mrdm(60,120)/100) then
-            if bnSTimer == nil then bnSTimer = GetTime() - 6 end
-            if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
-                 if cast.powerWordShield("player") then
-                 bnSTimer = GetTime() return end
-             end
-        end--]]
+            -- Mindblast / ShadowWord: Void
+                -- if cast.last.voidEruption() --[[and buff.voidForm.exists()]] and not moving then preVoidErupt = true
+                --     if not talent.shadowWordVoid and cast.able.mindBlast() then
+                --         --if UnitExists("target") and UnitGUID("target") ~= pmbLast then
+                --             if cast.mindBlast("target") then
+                --                  pmbLast = UnitGUID("target")
+                --                  --go_on = true
+                --                  --VEO = false
+                --                 Print("OoC MB")
+                --             return true end
+                --         --end
+                --     elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 and cast.able.shadowWordVoid() then
+                --         --if UnitExists("target") and UnitGUID("target") ~= pswvLast then
+                --             if cast.shadowWordVoid("target") then
+                --                  pswvLast = UnitGUID("target")
+                --                  --go_on = true
+                --                  --VEO = false
+                --                 Print("OoC swv")
+                --             return true end
+                --         --end
+                --     end
+                -- end
+            end -- End Pre-Pull
+        -- Mind Blast
+            -- if isChecked("Pull OoC") and isValidUnit("target") then
+            --     if activeEnemies == 1 or mode.rotation == 3 then
+            --         if not moving then
+            --             if not talent.shadowWordVoid and br.timer:useTimer("mbRecast", gcdMax + getSpellCD(spell.mindBlast)) then
+            --                 if UnitExists("target") and UnitGUID("target") ~= pmbLast then
+            --                     if cast.mindBlast("target") then pmbLast = UnitGUID("target")
+            --                     --Print("OoC MB")
+            --                     return end
+            --                 end
+            --             elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 and br.timer:useTimer("swvRecast", gcdMax + getSpellCD(spell.mindBlast)) then
+            --                 if UnitExists("target") and UnitGUID("target") ~= pswvLast then
+            --                     if cast.shadowWordVoid("target") then pswvLast = UnitGUID("target")
+            --                         --Print("OoC swv")
+            --                     return end
+            --                 end
+            --             end
+            --         elseif moving then
+            --             if not debuff.shadowWordPain.exists() then
+            --                 if cast.shadowWordPain("target") then
+            --                 --Print("OoC SWP")
+            --                 return end 
+            --             end
+            --         end
+            --     elseif activeEnemies > 1 or mode.rotation == 2 then 
+            --         if not moving then
+            --             if not debuff.vampiricTouch.exists() and not cast.current.vampiricTouch() and br.timer:useTimer("vtRecast", gcdMax + getSpellCD(spell.vampiricTouch)) then
+            --                 if UnitExists("target") and UnitGUID("target") ~= pvtLast then
+            --                     if cast.vampiricTouch("target") then pvtLast = UnitGUID("target")
+            --                         --Print("OoC VT")
+            --                     return end 
+            --                 end
+            --             end
+            --         elseif moving then
+            --             if not debuff.shadowWordPain.exists() then
+            --                 if cast.shadowWordPain("target") then
+            --                 --Print("OoC SWP")
+            --                 return end 
+            --             end
+            --         end
+            --     end
+            -- end
+        --[[ Power Word: Shield Body and Soul
+            --if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and isMoving("player") and buff.powerWordShield.remain() <= 8.5 and not buff.classHallSpeed.exists() then
+            --   if cast.powerWordShield("player") then return end
+            --end
+            if IsMovingTime(mrdm(60,120)/100) then
+                if bnSTimer == nil then bnSTimer = GetTime() - 6 end
+                if isChecked("PWS: Body and Soul") and talent.bodyAndSoul and buff.powerWordShield.remain("player") <= mrdm(6,8) and GetTime() >= bnSTimer + 6 then
+                    if cast.powerWordShield("player") then
+                    bnSTimer = GetTime() return end
+                end
+            end--]]
+        end
+        -- Opener
+        --if actionList_Opener() then return true end
     end  -- End Action List - Pre-Combat
 -- Action List - Cleave
     function actionList_Cleave()
@@ -750,18 +944,18 @@ local function runRotation()
         end
     --Void Eruption
         -- void_eruption
-        if mode.voidForm == 1 and cast.able.voidEruption() and not moving then
+        if mode.voidForm == 1 and not buff.voidForm.exists() and cast.able.voidEruption() and not moving then
             if talent.darkVoid and cd.darkVoid.remain() ~= 30 then
-                if cast.voidEruption(units.dyn40) then return end
+                if cast.voidEruption(units.dyn40) then dPrint("clv DV voidErupt") return end
             elseif not talent.darkVoid then
-                if cast.voidEruption(units.dyn40) then return end
+                if cast.voidEruption(units.dyn40) then dPrint("clv DV voidErupt") return end
             end
         end
     --Dark Ascension
         if isChecked("Dark Ascension") and not isChecked("Dark Ascension AoE") and useCDs() then
             if power <= 60 and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
-                    --Print("Cleave DA no VF")
+                    dPrint("clv DA no VF")
                  return end
             end
         end
@@ -770,87 +964,98 @@ local function runRotation()
         if isChecked("Dark Ascension Burst") and useCDs() then --and #searEnemies < mindblastTargets then
             if insanityDrain * gcdMax > power and buff.voidForm.exists() or not isChecked("Dark Ascension AoE") and #dAEnemies < getOptionValue("Dark Ascension AoE") and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
-                    --Print("Cleave DA Burst VF")
+                    dPrint("clv DA Burst VF")
                 return end
             end
         end
-     -- Vampiric Touch + Thought Harvester
-        if traits.thoughtHarvester.active and traits.thoughtHarvester.rank >= 1 and not debuff.vampiricTouch.exists(units.dyn40) and not cast.current.vampiricTouch() then
-            if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cvtLast or not cast.last.vampiricTouch() then
-                if cast.vampiricTouch(units.dyn40) then cvtLast = UnitGUID(units.dyn40) return end
+    --Vampiric Touch + Thought Harvester
+        if traits.thoughtHarvester.active and traits.thoughtHarvester.rank >= 1 and not SWPb4VT and not moving then
+            if not debuff.vampiricTouch.exists(units.dyn40) and not cast.current.vampiricTouch() then
+                if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cvtLast or not cast.last.vampiricTouch() then
+                    if cast.vampiricTouch(units.dyn40) then cvtLast = UnitGUID(units.dyn40) dPrint("clv vt th") return end
+                end
             end
         end
-     -- Mind Sear
+    --Mind Sear
         --mind_sear,if=buff.harvested_thoughts.up
         if traits.thoughtHarvester.active and buff.harvestedThoughts.exists() and not cast.current.mindSear() then
             if cast.mindSear() then
-                --Print("Cleave TH MS")
+                dPrint("clv TH MS")
                 return end
         end
     --Void Bolt
-        if buff.voidForm.exists() and cast.able.voidBolt() then
-           if cast.voidBolt(units.dyn40) then return end
+        if buff.voidForm.exists() and cast.able.voidBolt() and noTH then
+            if cast.voidBolt(units.dyn40) then
+                dPrint("clv VB")
+            return end
         end
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
         if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
             if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
-                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+                if cast.memoryOfLucidDreams("player") then dPrint("clv Lucid") return end
             elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
-                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+                if cast.memoryOfLucidDreams("player") then dPrint("clv Lucid") return end
+            end
+        end
+    --Focused Azerite Beam
+        --focused_azerite_beam
+        if focusedBeam and not buff.voidForm.exists() and (power < 60 and power > 35)  and dotsUp then
+            if getDistance("target") <= 16 and activeEnemies >= getOptionValue("Focused Beam Targets") or isBoss() then
+                if cast.focusedAzeriteBeam("player") then dPrint("Focused Beam") return end
             end
         end
     --Shadow Word: Death
         -- shadow_word_death,target_if=target.time_to_die<3|buff.voidform.down
         if talent.shadowWordDeath and thp < 20 then
             if ttd(units.dyn40) < 3 or not buff.voidForm.exists() then
-                if cast.shadowWordDeath(units.dyn40) then return end
+                if cast.shadowWordDeath(units.dyn40) then dPrint("clv swd") return end
             end
         end
     --Surrender To Madness
         -- surrender_to_madness,if=buff.voidform.stack>10+(10*buff.bloodlust.up)
         if isChecked("Surrender To Madness") and useCDs() then 
             if talent.surrenderToMadness and buff.voidForm.stack() > 10 + (10 * lusting) then
-                if cast.surrenderToMadness() then return end
+                if cast.surrenderToMadness() then dPrint("clv s2m") return end
             end
         end
-     -- Dark Void
+    --Dark Void
         -- dark_void,if=raid_event.adds.in>10&(dot.shadow_word_pain.refreshable|target.time_to_die>30)
         if not buff.voidForm.exists() and not moving then
             if talent.darkVoid and #dVEnemies >= getOptionValue("Dark Void Targets") and (debuff.shadowWordPain.refresh(units.dyn40) or ttd(units.dyn40) > 30) then
                 if cast.darkVoid(units.dyn40) then
-                    --Print("Cleave DV AoE")
+                    dPrint("clv DV AoE")
                 return end
             end
         end
-     --Dark Ascension AoE
+    --Dark Ascension AoE
         if isChecked("Dark Ascension AoE") and not buff.voidForm.exists() then
             if #dAEnemies >= getOptionValue("Dark Ascension AoE") or (talent.darkVoid and cd.darkVoid.remain() ~= 30) then --or debuff.shadowWordPain.count() >= 3 then --math.min(getOptionValue("SWP Max Targets"),getOptionValue("Dark Ascension AoE")) then
                 if cast.darkAscension(units.dyn40) then
-                    --Print("Cleave DA AoE")
+                    dPrint("clv DA AoE")
                 return end
             end
         end
     --Shadowfiend / Mindbender
         -- mindbender,if=talent.mindbender.enabled|(buff.voidform.stack>18|target.time_to_die<15)
         if isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
-                    if cast.mindbender() then return end --Print("SFMB VF Stack") return end
+            if isChecked("Mindbender in VF") and getOptionValue("Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= getOptionValue("Mindbender in VF") then
+                    if cast.mindbender() then dPrint("clv SFMB VF Stack") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and useCDs() then
+            elseif not isChecked("Mindbender in VF") and useCDs() then
                 if not buff.voidForm.exists() or buff.voidForm.stack() >= 1 then
-                    if cast.mindbender() then return end --Print("SFMB CD") return end
+                    if cast.mindbender() then dPrint("clv SFMB CD") return end
                 end
             end
         end
         if isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
-                    if cast.shadowfiend() then return end --Print("SF CD") return end
+            if isChecked("Mindbender in VF") and getOptionValue("Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= getOptionValue("Mindbender in VF") then
+                    if cast.shadowfiend() then dPrint("clv SF CD") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
-                if cast.shadowfiend() then return end --Print("SF CD") return end
+            elseif not isChecked("Mindbender in VF") and ttd("target") < 15 and useCDs() then
+                if cast.shadowfiend() then dPrint("clv SF CD") return end
             end
         end
     --Mind Blast
@@ -860,14 +1065,14 @@ local function runRotation()
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cmbLast or not cast.last.mindBlast() then
                     if cast.mindBlast(units.dyn40) then cmbLast = UnitGUID(units.dyn40)
                 --if cast.mindBlast(units.dyn40) then
-                    --Print("Cleave MB VF")
+                    dPrint("clv MB VF")
                     --Print(mindblastTargets)
                     return end
                 end
             elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.01 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswvLast or not cast.last.shadowWordVoid() then
                     if cast.shadowWordVoid(units.dyn40) then cswvLast = UnitGUID(units.dyn40)
-                    --Print("CLeave swv VF")
+                    dPrint("clv swv VF")
                     --Print(mindblastTargets)
                     return end
                 end
@@ -875,96 +1080,80 @@ local function runRotation()
         end
     --Shadow Crash
         -- shadow_crash,if=raid_event.adds.in>5&raid_event.adds.duration<20
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
-            if cast.shadowCrash("best",nil,1,8) then return end
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") and not cast.current.mindSear() then
+            if cast.shadowCrash("best",nil,1,8) then dPrint("clv SC") return end
         end
-     --Shadow Word: Pain - on dyn40 target and extra targets with no Misery
+    --Shadow Word: Pain SWPb4VT
         -- shadow_word_pain,target_if=refreshable&target.time_to_die>((-1.2+3.3*spell_targets.mind_sear)*variable.swp_trait_ranks_check*(1-0.012*azerite.searing_dialogue.rank*spell_targets.mind_sear)),if=!talent.misery.enabled
-        if not talent.misery and noHarvest and SWPb4VT then
-            if debuff.shadowWordPain.remain(units.dyn40) < 4.8 and ttd(units.dyn40) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
+        if not talent.misery and noHarvest and SWPb4VT and dotsMax then
+            if debuff.shadowWordPain.remain(units.dyn40) < swpAntiClip and ttd(units.dyn40) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswpb4vtLast or not cast.last.shadowWordPain() then
                     if cast.shadowWordPain(units.dyn40) then cswpb4vtLast = UnitGUID(units.dyn40)
-                    --Print("cast Cleave SWPb4VT on dyn40")
+                    dPrint("clv SWPb4VT on dyn40")
                     return end
                 end
             end
-            if debuff.shadowWordPain.remainCount(3) < SWPmaxTargets and SWPb4VT then
+            if debuff.shadowWordPain.remainCount(swpAntiClip) < SWPmaxTargets then
                 for i = 1, #enemies.yards40 do
                     local thisUnit = enemies.yards40[i]
-                    if debuff.shadowWordPain.remain(thisUnit) < 3 and ttd(thisUnit) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
+                    if debuff.shadowWordPain.remain(thisUnit) < swpAntiClip and ttd(thisUnit) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
                         if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswpb4vtLast or not cast.last.shadowWordPain() then
                             if cast.shadowWordPain(thisUnit) then
-                        --Print("cast Cleave SWPb4VT on adds")
+                        dPrint("clv SWPb4VT")
                             return end
                         end
                     end
                 end
             end
         end
-     --Vampiric Touch - on dyn40 target and extra targets with no Misery
+    --Vampiric Touch
         -- vampiric_touch,target_if=refreshable,if=target.time_to_die>((1+3.3*spell_targets.mind_sear)*variable.vt_trait_ranks_check*(1+0.10*azerite.searing_dialogue.rank*spell_targets.mind_sear))
-        if not talent.misery and not moving and not cast.current.vampiricTouch() and noTH then
-            if debuff.vampiricTouch.remain(units.dyn40) < 6.3 and ttd(units.dyn40) > ((1 + 3.3 * #searEnemies) * vt_trait_ranks_check * (1 + 0.10 * traits.searingDialogue.rank * #searEnemies)) then
-                if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cvtLast or not cast.last.vampiricTouch() then
-                    if cast.vampiricTouch(units.dyn40) then cvtLast = UnitGUID(units.dyn40)
-                    -- Print("cast Cleave VT on dyn40")
-                    return end
-                end
-            end
-            if debuff.vampiricTouch.remainCount(4) < VTmaxTargets then
+        if not talent.misery and not moving and not cast.current.vampiricTouch() and dotsMax and noTH then
+            if debuff.vampiricTouch.remainCount(vtAntiClip * gHaste + VTmaxTargets - 1 / 2) < VTmaxTargets then
                 for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.vampiricTouch.remain(thisUnit) < 4 and ttd(thisUnit) > ((1 + 3.3 * #searEnemies) * vt_trait_ranks_check * (1 + 0.10 * traits.searingDialogue.rank * #searEnemies)) then
+                local thisUnit 
+                    if debuff.vampiricTouch.exists(units.dyn40) then
+                        thisUnit = enemies.yards40[i]
+                    elseif not debuff.vampiricTouch.exists(units.dyn40) then
+                        thisUnit = "target"
+                    end
+                    if debuff.vampiricTouch.remain(thisUnit) < vtAntiClip * gHaste + VTmaxTargets - 1 / 2 or not debuff.vampiricTouch.exists() and ttd(thisUnit) > ((1 + 3.3 * #searEnemies) * vt_trait_ranks_check * (1 + 0.10 * traits.searingDialogue.rank * #searEnemies)) then
                         if UnitExists(thisUnit) and UnitGUID(thisUnit) ~= cvtaLast or not cast.last.vampiricTouch() then
                             if cast.vampiricTouch(thisUnit) then cvtaLast = UnitGUID(thisUnit)
-                            -- Print("cast Cleave VT on adds")
+                            dPrint("clv VT")
                             return end
                         end
                     end
                 end
             end
         end
-     -- Vampiric Touch - on dyn target and extra targets with Misery
+    --Vampiric Touch Misery
         -- vampiric_touch,target_if=dot.shadow_word_pain.refreshable,if=(talent.misery.enabled&target.time_to_die>((1.0+2.0*spell_targets.mind_sear)*variable.vt_mis_trait_ranks_check*(variable.vt_mis_sd_check*spell_targets.mind_sear)))
-        if talent.misery and not moving and not cast.current.vampiricTouch() and noTH then
-            if debuff.shadowWordPain.remain(units.dyn40) < 4.8  or not debuff.vampiricTouch.exists() and ttd(units.dyn40) > ((1.0 + 2.0 * #searEnemies) * vt_mis_trait_ranks_check * (vt_mis_sd_check * #searEnemies)) then
-                if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cmvtLast or not cast.last.vampiricTouch() then
-                    if cast.vampiricTouch(units.dyn40) then cmvtLast = UnitGUID(units.dyn40)
-                     --Print("cast Cleave Mis VT on dyn40")
-                    return end
-                end
-            end
-            --[[if debuff.shadowWordPain.count() < VTmaxTargets then
+        if talent.misery and not moving and not cast.current.vampiricTouch() and dotsMax and noTH then
+            if debuff.shadowWordPain.remainCount(swpAntiClip * gHaste + VTmaxTargets - 1 / 2) < VTmaxTargets then
                 for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if not debuff.shadowWordPain.exists(thisUnit) and ttd(thisUnit) > ((1.0 + 2.0 * #searEnemies) * vt_mis_trait_ranks_check * (vt_mis_sd_check * #searEnemies)) then --and not cast.last.vampiricTouch(1) then
-                        if UnitExists(thisUnit) and UnitGUID(thisUnit) ~= cmvtaLast or not cast.last.vampiricTouch() then
-                            if cast.vampiricTouch(thisUnit) then cmvtaLast = UnitGUID(thisUnit)
-                            Print("cast Cleave Mis VT on adds")
-                            return end
-                        end
+                local thisUnit 
+                    if debuff.shadowWordPain.exists(units.dyn40) then
+                        thisUnit = enemies.yards40[i]
+                    elseif not debuff.shadowWordPain.exists(units.dyn40) then
+                        thisUnit = "target"
                     end
-                end
-            end--]]
-            if debuff.shadowWordPain.remainCount(4) < VTmaxTargets then
-                for i = 1, #enemies.yards40 do
-                    local thisUnit = enemies.yards40[i]
-                    if debuff.shadowWordPain.remain(thisUnit) < 4  or not debuff.vampiricTouch.exists() and ttd(thisUnit) > ((1.0 + 2.0 * #searEnemies) * vt_mis_trait_ranks_check * (vt_mis_sd_check * #searEnemies)) then
+                    if debuff.shadowWordPain.remain(thisUnit) < swpAntiClip * gHaste + VTmaxTargets - 1 / 2 or not debuff.shadowWordPain.exists() and ttd(thisUnit) > ((1.0 + 2.0 * #searEnemies) * vt_mis_trait_ranks_check * (vt_mis_sd_check * #searEnemies)) then
                         if UnitExists(thisUnit) and UnitGUID(thisUnit) ~= cmvtaLast or not cast.last.vampiricTouch() then
                             if cast.vampiricTouch(thisUnit) then cmvtaLast = UnitGUID(thisUnit)
-                            --Print("rfrsh Cleave Mis VT on adds")
+                            dPrint("clv Mis VT")
                             return end
                         end
                     end
                 end
             end
         end
-     --Shadow Word: Pain - on dyn40 target and extra targets with no Misery
+    --Shadow Word: Pain
         -- shadow_word_pain,target_if=refreshable&target.time_to_die>((-1.2+3.3*spell_targets.mind_sear)*variable.swp_trait_ranks_check*(1-0.012*azerite.searing_dialogue.rank*spell_targets.mind_sear)),if=!talent.misery.enabled
-        if not talent.misery and noTH then
+        if not talent.misery and dotsMax and noTH then
             if debuff.shadowWordPain.remain(units.dyn40) < 4.8 and ttd(units.dyn40) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
                 if cast.shadowWordPain(units.dyn40) then
-                --Print("cast Cleave SWP on dyn40")
+                    dPrint("clv SWP on dyn40")
                 return end
             end
             if debuff.shadowWordPain.remainCount(3) < SWPmaxTargets then
@@ -972,7 +1161,7 @@ local function runRotation()
                     local thisUnit = enemies.yards40[i]
                     if debuff.shadowWordPain.remain(thisUnit) < 3 and ttd(thisUnit) > ((-1.2 + 3.3 * #searEnemies) * swp_trait_ranks_check * (1 - 0.012 * traits.searingDialogue.rank * #searEnemies)) then
                         if cast.shadowWordPain(thisUnit) then
-                        --Print("cast Cleave SWP on adds")
+                            dPrint("clv SWP on adds")
                         return end
                     end
                 end
@@ -984,35 +1173,37 @@ local function runRotation()
             if not talent.shadowWordVoid then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cmbLast or not cast.last.mindBlast() then
                     if cast.mindBlast(units.dyn40) then cmbLast = UnitGUID(units.dyn40)
-                    --Print("Cleave MB no VF")
+                    dPrint("Cleave MB no VF")
                     return end
                 end
             elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.01 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= cswvLast or not cast.last.shadowWordVoid() then
                     if cast.shadowWordVoid(units.dyn40) then cswvLast = UnitGUID(units.dyn40)
-                    --Print("CLeave swv no VF")
+                    dPrint("CLeave swv no VF")
                     return end
                 end
             end
         end
-     -- Void Torrent
+    --Void Torrent
         -- void_torrent,if=buff.voidform.up
         if isChecked("Void Torrent") and talent.voidTorrent and useCDs() and buff.voidForm.exists() and noTH then
-            if cast.voidTorrent() then return end
+            if cast.voidTorrent() then dPrint("clv voidTorrent") return end
         end
     --Mind Sear
         -- mind_sear,target_if=spell_targets.mind_sear>1,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
         if #searEnemies >= getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then
             if not moving and not cast.current.mindSear() then
                 if cast.mindSear() then
-                    --Print("Cleave VF MS")
+                    dPrint("Cleave VF MS")
                 return end
             end
         elseif #searEnemies >= getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then
-            if not moving and not cast.current.mindSear() or (cast.active.mindSear() and mindSearRecast) then
-                if cast.mindSear() then
-                    --Print("Cleave MS")
-                return end
+            if not moving then
+                if not cast.current.mindSear() or (cast.current.mindSear() and mindSearRecast) then
+                    if cast.mindSear() then
+                        dPrint("Cleave MS")
+                    return end
+                end
             end
         end
     --Mind Flay
@@ -1020,13 +1211,13 @@ local function runRotation()
         if #searEnemies < getOptionValue("Mind Sear Targets") and not buff.voidForm.exists() and noTH then 
             if not moving and not cast.current.mindFlay() and (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.2) or (cast.active.mindFlay() and mindFlayRecast) then
                 if cast.mindFlay() then
-                --Print("refresh Cleave mf")
+                dPrint("refresh clv mf")
                 return end
             end
         elseif #searEnemies < getOptionValue("Mind Sear Targets") and buff.voidForm.exists() and noTH then 
             if not moving and not cast.current.mindFlay() and cd.voidBolt.remain() < 3.4 then --or cd.mindBlast.remain() < 4.2 * gHaste) then
                 if cast.mindFlay() then
-                --Print("refresh Cleave VF mf")
+                dPrint("refresh clv VF mf")
                 return end
             end
         end
@@ -1037,7 +1228,7 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                 if not debuff.shadowWordPain.exists(thisUnit) then
                     if cast.shadowWordPain(thisUnit) then
-                    --Print("cast SWP last resort")
+                    dPrint("SWP last resort")
                     return end
                 end
             end
@@ -1046,6 +1237,7 @@ local function runRotation()
 -- Action List - Single
     function actionList_Single()
     --Mouseover Dotting
+
         if isChecked("Mouseover Dotting") and hasMouse and (UnitIsEnemy("player","mouseover") or isDummy("mouseover")) and not moving then
             if getDebuffRemain("mouseover",spell.vampiricTouch,"player") <= 6.3 then
                 if cast.vampiricTouch("mouseover") then
@@ -1060,44 +1252,72 @@ local function runRotation()
                 end
             end
         end
+
     --Void Eruption
+
         -- void_eruption
-        if cast.current.mindFlay() and not buff.voidForm.exists() and (power >= 90 or talent.legacyOfTheVoid and power >= 60) then
-            RunMacroText('/stopcasting')
-            --Print("stop for VE2")
-            return true end
+        -- if cast.current.mindFlay() and not buff.voidForm.exists() and (power >= 90 or talent.legacyOfTheVoid and power >= 60) and mode.voidForm == 1 then
+        --     RunMacroText('/stopcasting')
+        --     --Print("stop for VE2")
+        --     return true end
         --end
-        if mode.voidForm == 1 and cast.able.voidEruption() and not moving then
-            if cast.voidEruption() then return end
+        if mode.voidForm == 1 and not buff.voidForm.exists() and cast.able.voidEruption() and not moving then
+            if cast.voidEruption("target") then dPrint("vE") return end
         end
+        -- if buff.voidForm.exists() and cast.last.voidEruption() and preVoidErupt and not moving then preVoidErupt = false
+        --     if not talent.shadowWordVoid then
+        --         if UnitExists("target") and UnitGUID("target") ~= pmbLast then
+        --             if cast.mindBlast("target") then pmbLast = UnitGUID("target")
+        --             Print("Pre MB")
+        --             return end
+        --         end
+        --     elseif talent.shadowWordVoid and charges.shadowWordVoid.count() > 1 then
+        --         if UnitExists("target") and UnitGUID("target") ~= pswvLast then
+        --             if cast.shadowWordVoid("target") then pswvLast = UnitGUID("target")
+        --                 Print("Pre swv")
+        --             return end
+        --         end
+        --     end
+        -- end
+
     --Dark Ascension
+
         if isChecked("Dark Ascension") and dotsUp and useCDs() then
             if power <= 60 and not buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
-                --Print("no VF")
+                --Print("DA no VF")
                  return end
             end
         end
+    
     --Dark Ascension
+
             --if power <= getOptionValue("  Insanity Percentage") and buff.voidForm.exists() then
         if isChecked("Dark Ascension Burst") and useCDs() then
             if insanityDrain * gcdMax > power and buff.voidForm.exists() then
                 if cast.darkAscension(units.dyn40) then
-                --Print("VF")
+                dPrint("DA VF Burst")
                 return end
             end
         end
+
     --Void Bolt
-        if buff.voidForm.exists() and cast.able.voidBolt() then
-            if cast.voidBolt(units.dyn40) then return end
+
+        if buff.voidForm.exists() and cast.able.voidBolt() and not cast.current.mindSear() then
+            if cast.voidBolt(units.dyn40) then
+                dPrint("VB")
+            return end
         end
+
     --Lucid Dreams
         --memory_of_lucid_dreams,if=buff.voidform.stack>(20+5*buff.bloodlust.up)&insanity<=50
-        if lucisDreams and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() and buff.voidForm.exists() and useCDs() then 
-            if hasBloodLust() and buff.voidForm.stack() > (getOptionValue("  Lucid Dreams VF Stacks") + 5 + 5 * lusting) then
-                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
-            elseif buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") or power <= getOptionValue("  Lucid Dreams Insanity") or insanityDrained > power then
-                if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+        --memory_of_lucid_dreams,if=(buff.voidform.stack>20&insanity<=50)|buff.voidform.stack>(25+5*buff.bloodlust.up)|(current_insanity_drain*gcd.max*3)>insanity
+        if lucisDreams and isChecked("Lucid Dreams") --[[and cast.able.memoryOfLucidDreams()]] and buff.voidForm.exists() and useCDs() then 
+            --if hasBloodLust() and buff.voidForm.stack() > (25 + 5 * lusting) then
+                --if cast.memoryOfLucidDreams("player") then --[[Print("Lucid")--]] return end
+        --memory_of_lucid_dreams,if=(buff.voidform.stack>20&insanity<=50)|buff.voidform.stack>(26+7*buff.bloodlust.up)|(current_insanity_drain*((gcd.max*2)+action.mind_blast.cast_time))>insanity
+            if (hasBloodLust() and buff.voidForm.stack() > (26 + 7 * lusting)) or (buff.voidForm.stack() > getOptionValue("  Lucid Dreams VF Stacks") and power <= getOptionValue("  Lucid Dreams Insanity")) or (insanityDrained > power) then
+                if cast.memoryOfLucidDreams("player") then dPrint("Lucid") return end
             end
         end
     --Mind Sear
@@ -1105,7 +1325,7 @@ local function runRotation()
         if traits.searingDialogue.active and traits.thoughtHarvester.active and buff.voidForm.exists() then 
             if buff.harvestedThoughts.exists() and cd.voidBolt.remain() >= 1.5 and traits.searingDialogue.rank >= 1 and not cast.current.mindSear() then
                 if cast.mindSear() then
-                --Print("MS TH ST")
+                dPrint("MS TH ST")
                 return end
             end
         end
@@ -1113,36 +1333,37 @@ local function runRotation()
         -- shadow_word_death,if=target.time_to_die<3|cooldown.shadow_word_death.charges=2|(cooldown.shadow_word_death.charges=1&cooldown.shadow_word_death.remains<gcd.max)
         if talent.shadowWordDeath and thp < 20 then
             if ttd("target") < 3 or charges.shadowWordDeath.count() == 2 or (charges.shadowWordDeath.count() == 1 and cd.shadowWordDeath.remain() < gcdMax) then
-                if cast.shadowWordDeath(units.dyn40) then return end
+                if cast.shadowWordDeath(units.dyn40) then dPrint("swd") return end
             end
         end
     --Surrender To Madness
         -- surrender_to_madness,if=buff.voidform.stack>10+(10*buff.bloodlust.up)
         if isChecked("Surrender To Madness") and useCDs() then 
             if talent.surrenderToMadness and buff.voidForm.stack() > 10 + (10 * lusting) then
-                if cast.surrenderToMadness() then return end
+                if cast.surrenderToMadness() then dPrint("s2m") return end
             end
         end
     --Shadowfiend / Mindbender
         -- mindbender,if=talent.mindbender.enabled|(buff.voidform.stack>18|target.time_to_die<15)
         if isChecked("Shadowfiend / Mindbender") and talent.mindbender and useCDs() then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
-                    if cast.mindbender() then return end --Print("SFMB VF Stack") return end
+            if isChecked("Mindbender in VF") and getOptionValue("Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= getOptionValue("Mindbender in VF") 
+                or ttd("target") < 15 then
+                    if cast.mindbender() then dPrint("SFMB VF Stack") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and useCDs() then
+            elseif not isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
                 if not buff.voidForm.exists() or buff.voidForm.stack() >= 1 then
-                    if cast.mindbender() then return end --Print("SFMB CD") return end
+                    if cast.mindbender() then dPrint("SFMB CD") return end
                 end
             end
         end
         if isChecked("Shadowfiend / Mindbender") and not talent.mindbender and useCDs() and dotsUp then
-            if isChecked("  Mindbender in VF") and getOptionValue("  Mindbender in VF") > 0 then
-                if buff.voidForm.stack() >= getOptionValue("  Mindbender in VF") then
-                    if cast.shadowfiend() then return end --Print("SF CD") return end
+            if isChecked("Mindbender in VF") and getOptionValue("Mindbender in VF") > 0 then
+                if buff.voidForm.stack() >= getOptionValue("Mindbender in VF") or ttd("target") < 15 then
+                    if cast.shadowfiend() then dPrint("SF CD") return end
                 end
-            elseif not isChecked("  Mindbender in VF") and ttd("target") < 15 and useCDs() then
-                if cast.shadowfiend() then return end --Print("SF CD") return end
+            elseif not isChecked("Mindbender in VF") and ttd("target") < 15 and useCDs() then
+                if cast.shadowfiend() then dPrint("SF CD") return end
             end
         end
     --Shadow Word: Death
@@ -1152,27 +1373,52 @@ local function runRotation()
                 if cast.shadowWordDeath(units.dyn40) then return end
             end
         end
+
     --Shadow Crash
         -- shadow_crash,if=raid_event.adds.in>5&raid_event.adds.duration<20
-        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") then
-            if cast.shadowCrash("best",nil,1,8) then return end
+
+        if isChecked("Shadow Crash") and talent.shadowCrash and not isMoving("target") and not cast.current.mindFlay() and noTH then
+            if cast.shadowCrash("best",nil,1,8) then dPrint("SC") return end
+            --if castGround(units.dyn40,spell.shadowCrash,30) then return end
         end
+
     --Mind Blast
         -- mind_blast,if=variable.dots_up&((!talent.shadow_word_void.enabled|buff.voidform.down|buff.voidform.stack>14&(insanity<70|charges_fractional>1.33)|buff.voidform.stack<=14&(insanity<60|charges_fractional>1.33))
-        if buff.voidForm.exists() and dotsUp and noTH and cd.voidBolt.remain() >= mrdm(0.93,1.02) or ((buff.voidForm.stack() > 14 and power < 75) or (buff.voidForm.stack() <= 14 and power < 64)) and not moving then
+        if buff.voidForm.exists() --[[and vbReady]] and dotsUp and noTH and not moving then 
             if not talent.shadowWordVoid then
-                if UnitExists("target") and UnitGUID("target") ~= mbLast or not cast.last.mindBlast() then
-                    if cast.mindBlast("target") then mbLast = UnitGUID("target")
-                    --Print("mb VF")
-                    return end
+                if ((buff.voidForm.stack() > 14 and power < 70) or (buff.voidForm.stack() <= 14 and power < 64)) then
+                    if UnitExists("target") and UnitGUID("target") ~= mbLast or not cast.last.mindBlast() then
+                        if cast.mindBlast("target") then mbLast = UnitGUID("target")
+                        dPrint("mb VF")
+                        return end
+                    end
                 end
-            elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.02 then
-                if UnitExists("target") and UnitGUID("target") ~= swvLast or not cast.last.shadowWordVoid() then
-                    if cast.shadowWordVoid("target") then swvLast = UnitGUID("target")
-                    --Print("swv VF")
-                    return end
+            elseif talent.shadowWordVoid then -- >= 1.02
+                if ((buff.voidForm.stack() > 14 and (power < 70 or -charges.shadowWordVoid.frac() > 1.33)) or (buff.voidForm.stack() <= 14 and (power < 64 or charges.shadowWordVoid.frac() > 1.33))) then
+                    if UnitExists("target") and UnitGUID("target") ~= swvLast or not cast.last.shadowWordVoid() then
+                        if cast.shadowWordVoid("target") then swvLast = UnitGUID("target")
+                        dPrint("swv VF")
+                        return end
+                    end
                 end
             end
+        end
+        -- if buff.voidForm.exists() --[[and dotsUp]] and noTH and not moving then 
+        --     if ((buff.voidForm.stack() > 14 and power < 75) or (buff.voidForm.stack() <= 14 and power < 64) and vbReady) and not moving then
+        --         if not talent.shadowWordVoid then
+        --             if UnitExists("target") and UnitGUID("target") ~= mbLast or not cast.last.mindBlast() then
+        --                 if cast.mindBlast("target") then mbLast = UnitGUID("target")
+        --                 --Print("mb VF")
+        --                 return end
+        --             end
+        --         elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() > 1.02 then -- >= 1.02
+        --             if UnitExists("target") and UnitGUID("target") ~= swvLast or not cast.last.shadowWordVoid() then
+        --                 if cast.shadowWordVoid("target") then swvLast = UnitGUID("target")
+        --                 --Print("swv VF")
+        --                 return end
+        --             end
+        --         end
+        --     end
             --[[elseif talent.shadowWordVoid then
                 if (buff.voidForm.stack() > 14 and (power < 70 or charges.shadowWordVoid.frac() >= 1.03)) or (buff.voidForm.stack() <= 14 and (power < 60 or charges.shadowWordVoid.frac() >= 1.03)) then
                     if UnitExists("target") and UnitGUID("target") ~= swvLast or not cast.last.shadowWordVoid() then
@@ -1187,19 +1433,20 @@ local function runRotation()
                 --Print("mb no lotv")
                 return end
             end--]]
-        end
-     --Void Torrent
+
+    --Void Torrent
         -- void_torrent,if=dot.shadow_word_pain.remains>4&dot.vampiric_touch.remains>4&buff.voidform.up
         if isChecked("Void Torrent") and talent.voidTorrent and useCDs() and dotsTick and buff.voidForm.exists() then
-            if cast.voidTorrent(units.dyn40) then return end
+            if cast.voidTorrent(units.dyn40) then dPrint("void Torrent") return end
         end
+
     --Shadow Word: Pain -- cast on target and refresh if expiring soon
         -- shadow_word_pain,if=refreshable&target.time_to_die>4&!talent.misery.enabled&!talent.dark_void.enabled
         if not talent.misery and buff.voidForm.exists() and noTH and SWPb4VT then
             if debuff.shadowWordPain.remain("target") < 2.4 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= swpb4vtLast or not cast.last.shadowWordPain() then
                     if cast.shadowWordPain(units.dyn40) then swpb4vtLast = UnitGUID(units.dyn40)
-                    --Print("cast VF SWPb4VT on target not misery")
+                    dPrint("VF SWPb4VT")
                     return end
                 end
             end
@@ -1207,7 +1454,7 @@ local function runRotation()
             if debuff.shadowWordPain.remain("target") < 4.8 and ttd("target") > 4 then
                 if UnitExists(units.dyn40) and UnitGUID(units.dyn40) ~= swpb4vtLast or not cast.last.shadowWordPain() then
                     if cast.shadowWordPain(units.dyn40) then swpb4vtLast = UnitGUID(units.dyn40)
-                    --Print("cast SWPb4VT on target not misery")
+                    dPrint("SWPb4VT")
                     return end
                 end
             end
@@ -1215,18 +1462,18 @@ local function runRotation()
     --Vampiric Touch -- cast target and refresh if expiring soon
         -- vampiric_touch,if=refreshable&target.time_to_die>6|(talent.misery.enabled&dot.shadow_word_pain.refreshable)
         if not talent.misery and buff.voidForm.exists() and noTH then
-            if debuff.vampiricTouch.remain("target") < 3.1 and ttd("target") > 6 and not moving and not cast.current.vampiricTouch() then
+            if debuff.vampiricTouch.remain("target") < vtAntiClip - 1 and ttd("target") > 6 and not moving and not cast.current.vampiricTouch() then
                 if UnitExists("target") and UnitGUID("target") ~= vtLast or not cast.last.vampiricTouch() then
                     if cast.vampiricTouch("target") then vtLast = UnitGUID("target")
-                    --Print("cast VF VT on target")
+                    dPrint("VF VT")
                     return end
                 end
             end
         elseif not talent.misery and not buff.voidForm.exists() then 
-            if debuff.vampiricTouch.remain("target") < 6.3 and ttd("target") > 6 and not moving and not cast.current.vampiricTouch() then
+            if debuff.vampiricTouch.remain("target") < vtAntiClip and ttd("target") > 6 and not moving and not cast.current.vampiricTouch() then
                 if UnitExists("target") and UnitGUID("target") ~= vtLast or not cast.last.vampiricTouch() then
                     if cast.vampiricTouch("target") then vtLast = UnitGUID("target")
-                    --Print("cast VT on target")
+                    dPrint("VT")
                    return end
                 end
             end
@@ -1235,8 +1482,7 @@ local function runRotation()
             if debuff.shadowWordPain.remain("target") < 2.4 or not debuff.vampiricTouch.exists() and not moving and not cast.current.vampiricTouch() then
                 if UnitExists("target") and UnitGUID("target") ~= mvtLast or not cast.last.vampiricTouch() then
                     if cast.vampiricTouch("target") then mvtLast = UnitGUID("target")
-                --if cast.vampiricTouch(units.dyn40) then
-                    --Print("cast VF VT  / Mis VT on target")
+                    dPrint("VF Mis VT")
                     return end
                 end
             end
@@ -1244,7 +1490,7 @@ local function runRotation()
             if debuff.shadowWordPain.remain("target") < 4.8 or not debuff.vampiricTouch.exists() and not moving and not cast.current.vampiricTouch() then
                 if UnitExists("target") and UnitGUID("target") ~= mvtLast or not cast.last.vampiricTouch() then
                     if cast.vampiricTouch("target") then mvtLast = UnitGUID("target")
-                    --Print("cast Mis VT on target")
+                    dPrint("Mis VT")
                     return end
                 end
             end
@@ -1254,13 +1500,13 @@ local function runRotation()
         if not talent.misery and buff.voidForm.exists() and noTH then
             if debuff.shadowWordPain.remain("target") < 2.4 then
                 if cast.shadowWordPain(units.dyn40) then
-                    --Print("cast VF SWP on target not misery")
+                    dPrint("VF swp")
                 return end
             end
         elseif not talent.misery and not buff.voidForm.exists() then
             if debuff.shadowWordPain.remain("target") < 4.8 and ttd("target") > 4 then
                 if cast.shadowWordPain(units.dyn40) then
-                    --Print("cast SWP on target not misery")
+                    dPrint("swp")
                 return end
             end
         end
@@ -1270,46 +1516,44 @@ local function runRotation()
             if not talent.shadowWordVoid then
                 if UnitExists("target") and UnitGUID("target") ~= mbLast or not cast.last.mindBlast() then
                     if cast.mindBlast("target") then mbLast = UnitGUID("target")
-                        --Print("mb no VF")
+                        dPrint("mb")
                     return end
                 end
-            elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.01 then
+            elseif talent.shadowWordVoid and charges.shadowWordVoid.frac() >= 1.02 then
                 if UnitExists("target") and UnitGUID("target") ~= swvLast or not cast.last.shadowWordVoid() then
                     if cast.shadowWordVoid("target") then swvLast = UnitGUID("target")
-                    --Print("swv no VF")
+                    dPrint("swv")
                     return end
                 end
             end
         end
-    --[[Mind Sear
+    --Mind Sear
         -- mind_sear,if=azerite.searing_dialogue.rank>=3,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2
-        if traits.searingDialogue.active and not buff.voidForm.exists() then
-            if not moving and traits.searingDialogue.rank >= 3 and not cast.current.mindSear() or (cast.active.mindSear() and mindSearRecast) then
-                    if cast.mindSear() then
-                return end
-            end
-        elseif traits.searingDialogue.active and buff.voidForm.exists() and noTH then
-            if not moving and traits.searingDialogue.rank >= 3 and not cast.current.mindSear() then
-                    if cast.mindSear() then
-                return end
-            end
-        end--]]
+        -- if traits.searingDialogue.active and not buff.voidForm.exists() then
+        --     if not moving and traits.searingDialogue.rank >= 3 and not cast.current.mindSear() or (cast.active.mindSear() and mindSearRecast) then
+        --             if cast.mindSear() then
+        --         return end
+        --     end
+        -- elseif traits.searingDialogue.active and buff.voidForm.exists() and noTH then
+        --     if not moving and traits.searingDialogue.rank >= 3 and not cast.current.mindSear() then
+        --             if cast.mindSear() then
+        --         return end
+        --     end
+        -- end
     --Mind Flay
         -- mind_flay,chain=1,interrupt_immediate=1,interrupt_if=ticks>=2&(cooldown.void_bolt.up|cooldown.mind_blast.up)
         if activeEnemies == 1 and not buff.voidForm.exists() then --and --[[and not cast.able.voidEruption()--]] (power < 90 or talent.legacyOfTheVoid and power < 60) then --or mode.voidForm == 2 then--]]
-            --if cast.active.mindFlay() and cast.able.voidEruption() then
-                --RunMacroText('/stopcasting')
-            --    Print("stop for VE2")
-            --    return true end
-            if not moving and (not cast.able.voidEruption() or mode.voidForm == 2) and not cast.current.mindFlay() and (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.2) or (cast.active.mindFlay() and mindFlayRecast) then
-                if cast.mindFlay() then
-                    --Print("refresh mf")
-                return end
+            if not moving and (not cast.able.voidEruption() or mode.voidForm == 2) then
+                if not cast.current.mindFlay() and (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.8) or (cast.active.mindFlay() and mindFlayRecast) then
+                    if cast.mindFlay() then
+                        dPrint("mF")
+                    return end
+                end
             end
         elseif activeEnemies == 1 and buff.voidForm.exists() and noTH then 
-            if not moving and not cast.current.mindFlay() and cd.voidBolt.remain() < 3.4 then --or (cd.mindBlast.remain() > 0.5 or talent.shadowWordVoid and cd.shadowWordVoid.remain() < 4.2)) then
+            if not moving and not cast.current.mindFlay() and cd.voidBolt.remain() <= 3.2 then --or cd.mindBlast.remain() > 0.5 or (talent.shadowWordVoid and cd.shadowWordVoid.remain() > 4.8) then
                 if cast.mindFlay() then
-                    --Print("refresh VF mf")
+                    dPrint("VF mF")
                 return end
             end
         end
@@ -1320,7 +1564,7 @@ local function runRotation()
                 local thisUnit = enemies.yards40[i]
                 if not debuff.shadowWordPain.exists(thisUnit) then
                     if cast.shadowWordPain(thisUnit) then
-                        --Print("cast SWP last resort")
+                        dPrint("SWP last resort")
                         return
                     end
                 end
@@ -1334,7 +1578,7 @@ local function runRotation()
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
     elseif (inCombat and profileStop==true) or IsMounted() or IsFlying() or (pause(true) and not isCastingSpell(spell.mindFlay)) or mode.rotation==4 then
-        return true
+         return true
     else
 -----------------
 --- Rotations ---
@@ -1351,13 +1595,17 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
-        if not inCombat then --  and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
+        --if not inCombat then --  and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player")
             if actionList_PreCombat() then return end
-        end
+            if not inCombat and GetUnitExists("target") and isValidUnit("target") and getDistance("target","player") < 40 and isChecked("Pull Spell") then
+        if cast.shadowWordPain() then br.addonDebug("Casting Shadow Word Pain") return true end
+    end
+        --end
 -----------------------------
 --- In Combat - Rotations ---
 -----------------------------
-        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 and not isCastingSpell(spell.voidTorrent) and not isCastingSpell(spell.mindBlast) and not isCastingSpell(303769) then
+        if inCombat and not IsMounted() and isValidUnit(units.dyn40) and getDistance(units.dyn40) < 40 --[[and preVoidErupt == true]] and not isCastingSpell(spell.voidTorrent) --[[and not isCastingSpell(spell.mindBlast)]] and not cast.current.focusedAzeriteBeam() and not isCastingSpell(303769) then
+        --Print(mrdm(93,102)/100)
         -- Action List - Defensive
             if actionList_Defensive() then return end
         -- Action List - Cooldowns
@@ -1366,24 +1614,14 @@ local function runRotation()
             --if useInterrupts() then
                 if actionList_Interrupts() then return end
             --end
-        -- Trinkets off Cooldown
-            --if isChecked("Trinket 1 Off CD") and canUseItem(13) then
-            --    useItem(13)
-            --    return true
-            --end
-            --if isChecked("Trinket 2 Off CD") and canUseItem(14) then
-            --    useItem(14)
-            --    return true
-            --end
         -- Action List - Cleave
             -- run_action_list,name=cleave,if=active_enemies>1
-            if activeEnemies > 1 or (mode.rotation == 2 and not mode.rotation == 3) then --Print("Cleave")
-                --Print(mindblastTargets)
+            if activeEnemies > 1 or (mode.rotation == 2 and not mode.rotation == 3) then 
                 if actionList_Cleave() then return end
             end
         -- Action List - Main
             -- run_action_list,name=single,if=active_enemies=1
-            if activeEnemies == 1 or mode.rotation == 3 then --Print(insanityDrained) --Print("Single")
+            if activeEnemies == 1 or mode.rotation == 3 then
                 if actionList_Single() then return end
             end
         end -- End Combat Rotation

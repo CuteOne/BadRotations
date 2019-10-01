@@ -286,12 +286,16 @@ local function runRotation()
             if useDefensive() then
         -- Pot/Stoned
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
-                    and inCombat and (hasHealthPot() or hasItem(5512))
-                then
+                and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                     if canUseItem(5512) then
+                        br.addonDebug("Using Healthstone")
                         useItem(5512)
                     elseif canUseItem(healPot) then
+                        br.addonDebug("Using Health Pot")
                         useItem(healPot)
+                    elseif hasItem(166799) and canUseItem(166799) then
+                        br.addonDebug("Using Emerald of Vigor")
+                        useItem(166799)
                     end
                 end
         -- Heirloom Neck
@@ -418,6 +422,10 @@ local function runRotation()
                     if cast.lightningShield() then return true end
                 end
                 if isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                    if hasItem(166801) and canUseItem(166801) then
+                        br.addonDebug("Using Sapphire of Brilliance")
+                        useItem(166801)
+                    end
                         -- Flask / Crystal
                     -- flask,type=flask_of_the_seventh_demon
                     if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
@@ -531,6 +539,10 @@ local function runRotation()
             end 
         end
         local function actionList_CD()
+            if hasItem(166801) and canUseItem(166801) then
+                br.addonDebug("Using Sapphire of Brilliance")
+                useItem(166801)
+            end
             if isChecked("Racial") and race == "Troll" and ((talent.ascendance and buff.ascendance.exists())
             or (talent.elementalSpirits and feralSpiritRemain > 5) or (not talent.ascendance and not talent.elementalSpirits))
             then

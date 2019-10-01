@@ -257,7 +257,7 @@ function BadRotationsUpdate(self)
 							groupSize = 1
 						end
 						if #br.friend < groupSize and br.timer:useTimer("Reform", 5) then
-							br.addonDebug("Group size ("..groupSize..") does not match #br.friend ("..#br.friend.."). Recreating br.friend.")
+							br.addonDebug("Group size ("..groupSize..") does not match #br.friend ("..#br.friend.."). Recreating br.friend.", true)
 							table.wipe(br.memberSetup.cache)
 							table.wipe(br.friend)
 							SetupTables()

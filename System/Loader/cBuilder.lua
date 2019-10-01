@@ -249,6 +249,26 @@ function br.loader:new(spec,specName)
         --     end
         -- end
 
+        function getEssenceRank(essenceName)
+            if GetSpellInfo(essenceName) == nil then
+                return 0
+            end
+            local essenceRank = 0
+            local essenceTable = C_AzeriteEssence.GetMilestones()
+            local icon = select(3,GetSpellInfo(essenceName))
+            for i = 1, #essenceTable do
+                local milestone = essenceTable[i]
+                if milestone.slot ~= nil and milestone.unlocked == true then
+                    local eRank = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).rank
+                    local eIcon = C_AzeriteEssence.GetEssenceInfo(C_AzeriteEssence.GetMilestoneEssence(milestone.ID)).icon
+                    if icon == eIcon then
+                        essenceRank = eRank
+                    end
+                end
+                return essenceRank
+            end
+        end
+
         -- Get Azerite Essence Info
         for k,v in pairs(self.spell.essences) do
             local heartEssence = self.spell.essences['heartEssence']
@@ -617,7 +637,6 @@ function br.loader:new(spec,specName)
 ------------------------
 --- CUSTOM FUNCTIONS ---
 ------------------------
-
     function useAoE()
         local rotation = self.mode.rotation
         if (rotation == 1 and #self.enemies.get(8) >= 3) or rotation == 2 then

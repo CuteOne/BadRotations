@@ -311,7 +311,7 @@ local function runRotation()
         end]]
 
 
-        function TankInRange()
+        local function TankInRange()
             if isChecked("Auto Growl") then
                     if #br.friend > 1 then
                         for i = 1, #br.friend do
@@ -322,19 +322,6 @@ local function runRotation()
                         end
                     end
             end
-            return false
-        end
-
-
-        function TankInRange()
-                    if #br.friend > 1 then
-                        for i = 1, #br.friend do
-                            local friend = br.friend[i]
-                            if friend.GetRole()== "TANK" and not UnitIsDeadOrGhost(friend.unit) and getDistance(friend.unit) < 100 then
-                            return true
-                            end
-                        end
-                    end
             return false
         end
 
@@ -725,7 +712,7 @@ local function runRotation()
             end -- End useCooldowns check
         end -- End Action List - Cooldowns
     -- Action List - Opener
-        function actionList_Opener()
+        local function actionList_Opener()
 		-- Start Attack
             -- auto_attack
             if isChecked("Opener") and isBoss("target") and opener == false and GetUnitReaction("target","player") < 4 then

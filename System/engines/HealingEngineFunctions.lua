@@ -47,7 +47,7 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
 		-- find best candidate with list of units
 		for i = 1, #unitTable do
 			-- added a visible check as its not in healing engine.
-			if (GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or getFacing("player",unitTable[i].unit)) or UnitIsUnit(unitTable[i].unit,"player")) then
+			if (GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or getFacing("player",unitTable[i].unit)) or GetUnitIsUnit(unitTable[i].unit,"player")) then
 				local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount)
 				if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
 					bestCandidate = candidate
@@ -58,7 +58,7 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
 		if bestCandidate ~= nil and #bestCandidate >= minCount and getLineOfSight("player",bestCandidate[0].unit) and getDistance("player",bestCandidate[0].unit) <= 40 then
 			-- here we would like instead to cast on unit
 			if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
-				if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell") end
+				if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
 				return true
 			end
 		end
@@ -555,7 +555,7 @@ function castGroundAtLocation(loc, SpellID)
 	if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
 		ClickPosition(loc.x,loc.y,loc.z)
 		if mouselookup then MouselookStart() end
-    	if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell") return false end
+    	if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell", true) return false end
 		return true
 	end
 end

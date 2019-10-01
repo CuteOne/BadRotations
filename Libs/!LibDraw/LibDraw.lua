@@ -6,6 +6,7 @@ local tinsert, tremove = tinsert, tremove
 
 
 local function WorldToScreen (wX, wY, wZ)
+	if wZ == nil then wZ = select(3,GetObjectPosition("player")) end
 	local sX, sY = _G.WorldToScreen(wX, wY, wZ);
 	if sX and sY then
 		return sX, -(WorldFrame:GetTop() - sY);

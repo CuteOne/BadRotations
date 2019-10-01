@@ -2159,6 +2159,7 @@ br.lists.spells = {
                 voidTorrent                 = 205065,
             },
             buffs                           = {
+                chorusOfInsanity            = 279572,
                 dispersion                  = 47585,
                 harvestedThoughts           = 288343,
                 lingeringInsanity            = 199849,

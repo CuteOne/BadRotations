@@ -139,7 +139,7 @@ br.rotations.support["PetCuteOne"] = function()
             local dispelledUnit = "player"
             for i = 1, #enemies.yards5p do
                 local thisUnit = enemies.yards5p[i]
-                if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
+                if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and GetUnitIsUnit(thisUnit,"target")) then
                     if canDispel(thisUnit,spell.spiritShock) then
                         if cast.able.spiritShock(thisUnit,"pet") then
                             if cast.spiritShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
