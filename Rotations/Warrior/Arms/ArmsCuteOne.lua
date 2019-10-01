@@ -438,10 +438,13 @@ local function runRotation()
         end  -- End Action List - Pre-Combat
     -- Action List - Movement
         function actionList_Movement()
-            if mode.mover == 1 and isValidUnit("target") then
+            if mode.mover == 1 then
         -- Heroic Leap
                 -- heroic_leap
-                if isChecked("Heroic Leap") and cast.able.heroicLeap() and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap") and not GetCurrentKeyBoardFocus())) then
+                if isChecked("Heroic Leap") and cast.able.heroicLeap() 
+                    and (getOptionValue("Heroic Leap")==6 or (SpecificToggle("Heroic Leap")
+                    and not GetCurrentKeyBoardFocus()))
+                then
                     -- Best Location
                     if getOptionValue("Heroic Leap - Target") == 1 then
                         if cast.heroicLeap("best",nil,1,8) then return end
@@ -455,21 +458,22 @@ local function runRotation()
                 -- charge
                 if isChecked("Charge") and cast.able.charge("target") and getDistance("target") >= 8 then
                     if (cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 43) 
-		        or (talent.boundingStride and cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 28)
-			or not isChecked("Heroic Leap") or level < 26 then
-                     if cast.charge("target") then return end
+		                or (talent.boundingStride and cd.heroicLeap.remain() > 0 and cd.heroicLeap.remain() < 28)
+                        or not isChecked("Heroic Leap") or level < 26 
+                    then
+                        if cast.charge("target") then return end
                     end
                 end
         -- Storm Bolt
                 -- storm_bolt
-                if isChecked("Storm Bolt")
-    	           and cast.able.stormBolt("target") then
-                        if cast.stormBolt("target") then return end
+                if isChecked("Storm Bolt") and cast.able.stormBolt("target") then
+                    if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
-                if isChecked("Heroic Throw")
-	           and not cast.last.heroicLeap() and cast.able.heroicThrow() and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0) then
-                       if cast.heroicThrow then return end
+                if isChecked("Heroic Throw") and not cast.last.heroicLeap() and cast.able.heroicThrow()
+                    and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0)
+                then
+                    if cast.heroicThrow then return end
                 end
             end
         end
@@ -862,9 +866,9 @@ local function runRotation()
 ---------------------------------
             if not inCombat and isValidUnit("target") then
                 if actionList_PreCombat() then return end
-                if getDistance(units.dyn5)<5 then
+                if getDistance("target")<5 then
                     if not IsCurrentSpell(6603) then
-                        StartAttack(units.dyn5)
+                        StartAttack("target")
                     end
                 else
             -- Action List - Movement
