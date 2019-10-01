@@ -234,25 +234,17 @@ function hasThreat(unit,playerUnit)
 		return targetFriend
 	elseif UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil then
 		return true
-	elseif UnitDetailedThreatSituation(playerUnit, unit)~=nil then
-		if select(5,UnitDetailedThreatSituation(playerUnit, unit)) > 0 then
-			if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening you."); end
-			return true
-		end
+	elseif threatSituation(playerUnit, unit) then
+		return true
 	elseif #br.friend > 1 then
 		for i = 1, #br.friend do
 			local thisUnit = br.friend[i].unit
-			if UnitDetailedThreatSituation(thisUnit,unit) ~= nil then
-				if select(5,UnitDetailedThreatSituation(thisUnit,unit)) > 0 then
-					if isChecked("Cast Debug") and not UnitExists("target") then Print(UnitName(unit).." is threatening "..UnitName(thisUnit).."."); end
-					return true
-				end
+			if threatSituation(thisUnit,unit) then
+				return true
 			end
 		end
 	elseif isBoss() and UnitAffectingCombat(unit) and (instance == "party" or instance == "raid") then
 		return true
-	-- elseif UnitAffectingCombat(unit) and UnitDetailedThreatSituation(thisUnit,unit) == nil then
-	-- 	return true
 	end
 	return false
 end

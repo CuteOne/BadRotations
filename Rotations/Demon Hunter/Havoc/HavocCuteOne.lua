@@ -436,7 +436,7 @@ actionList.Cooldowns = function()
         end
         -- Essence: Focused Azerite Beam
         -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and (#enemies.yards8f > 0 or (getFacing("player","target") and getDistance("target") < 6 and isBoss("target"))))) then
+        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) then
             local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
             if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
                 debug("Casting Focused Azerite Beam")
@@ -501,10 +501,10 @@ actionList.Demonic = function()
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and not moving and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target")))
-        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target"))))
+    if mode.eyeBeam == 1 and cast.able.eyeBeam() and not moving and enemies.yards8r > 0
+        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
             or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-            or (mode.rotation == 2 and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target"))))) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
     then
         -- if cast.eyeBeam(units.dyn5) then return end
         if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -623,7 +623,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target"))) and not moving and not waitForMomentum and (not talent.momentum or buff.momentum.exists())
+    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum and (not talent.momentum or buff.momentum.exists())
         and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
         -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 1)
         --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
@@ -644,7 +644,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target"))) and not moving and not talent.blindFury and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists())
+    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists())
         and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
         -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
         --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
@@ -669,7 +669,7 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and (enemies.yards8r > 0 or (getDistance("target") < 6 and isBoss("target"))) and not moving and talent.blindFury and (not talent.momentum or buff.momentum.exists())
+    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury and (not talent.momentum or buff.momentum.exists())
         and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
         -- and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
         --     or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))

@@ -407,7 +407,7 @@ local function runRotation()
         local hp = UnitHealth(thisUnit)
         if EasyWoWToolbox ~= nil then
             local castID, _, castTarget = UnitCastID("player")
-            if castID and castTarget and GetUnitIsUnit(unit, castTarget) and playerCasting then
+            if castID and castTarget and UnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)
             end
             for k, v in pairs(spell.abilities) do
@@ -415,15 +415,15 @@ local function runRotation()
                     hp = hp - calcDamage(v, unit)
                 end
             end
-            if GetUnitIsVisible("pet") then
-                castID, _, castTarget = UnitCastID("pet")
-                if castID and castTarget and GetUnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
-                    local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
-                    if castRemain < 0.5 then
-                        hp = hp - calcDamage(castID, unit)
-                    end
-                end
-            end
+            -- if UnitIsVisible("pet") then
+            --     castID, _, castTarget = UnitCastID("pet")
+            --     if castID and castTarget and UnitIsUnit(unit, castTarget) and UnitCastingInfo("pet") then
+            --         local castRemain = (select(5, UnitCastingInfo("pet")) / 1000) - GetTime()
+            --         if castRemain < 0.5 then
+            --             hp = hp - calcDamage(castID, unit)
+            --         end
+            --     end
+            -- end
         end
         return hp
     end
@@ -575,7 +575,7 @@ local function runRotation()
             return true
         end
         for i = 1, #enemyTable40 do
-            if GetUnitIsUnit(enemyTable40[i].unit, "target") then
+            if UnitIsUnit(enemyTable40[i].unit, "target") then
                 targetUnit = enemyTable40[i]
             end
         end
@@ -672,7 +672,7 @@ local function runRotation()
         end
     end
 
-    local function mageDamage()
+    function mageDamage()
         local X,Y,Z = ObjectPosition("player")
         print(Z)
         Z = select(3, TraceLine(X, Y, Z + 10, X, Y, Z - 10, 0x110))

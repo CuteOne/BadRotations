@@ -38,7 +38,6 @@ function br.ui:createWindow(name, width, height, title, color, messageWindow)
     scrollFrame:SetAllPoints(window.content)
     scrollFrame.parent = window
 
---    if select(2,GetSpecializationInfo(GetSpecialization())) == nil then return end
     if br.selectedSpec == nil then br.selectedSpec = select(2,GetSpecializationInfo(GetSpecialization())) end
     if br.data.settings and br.data.settings[br.selectedSpec] == nil then br.data.settings[br.selectedSpec] = {} end
     if br.data.settings and br.data.settings[br.selectedSpec] and br.data.settings[br.selectedSpec][name] == nil then br.data.settings[br.selectedSpec][name] = {} end

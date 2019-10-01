@@ -45,9 +45,4 @@ br.lists.noTouchUnits = {
     {unitID = 133944, buff = 263246}, -- Aspix with Lightning Shield
     -- Mechagon
     {unitID = 152703}, -- Walkie Shockie X1
-    -- Eternal Palace
-    {unitID = 152364, buff = 295916}, -- Radiance of Azshara
-    {unitID = 155434, buff = 302415}, -- Emissary of Tides Teleporting Home
-    {unitID = 155432, buff = 302415}, -- Enchanted Emissary Teleporting Home
-    {unitID = 155433, buff = 302415}, -- Void Touched Emissary Teleporting Home
 }

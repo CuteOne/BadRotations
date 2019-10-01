@@ -313,7 +313,7 @@ local function runRotation()
     -- @return Wether the boss is a boss1-2-3-4-5
     local function isTargetUnitEqualBossFrameUnit_local (thisUnit)
         if isDummy() then return true end
-        return GetUnitIsUnit(thisUnit, "Boss1") or GetUnitIsUnit(thisUnit, "Boss2") or GetUnitIsUnit(thisUnit, "Boss3") or GetUnitIsUnit(thisUnit, "Boss4") or GetUnitIsUnit(thisUnit, "Boss5")
+        return UnitIsUnit(thisUnit, "Boss1") or UnitIsUnit(thisUnit, "Boss2") or UnitIsUnit(thisUnit, "Boss3") or UnitIsUnit(thisUnit, "Boss4") or UnitIsUnit(thisUnit, "Boss5")
     end
 
     --- Get whether the unit is a boss.

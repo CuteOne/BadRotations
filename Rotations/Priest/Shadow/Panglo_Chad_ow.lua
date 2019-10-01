@@ -219,6 +219,7 @@ local function runRotation()
         wipe(timersTable)
     end
 
+    units.get(5)
     units.get(8)
     enemies.get(5)
     enemies.get(8)
@@ -272,7 +273,7 @@ local function runRotation()
 
         for i = 1, #enemies.yards30 do
             thisUnit = enemies.yards30[i]
-            if isChecked("Dispel Magic") and canDispel(thisUnit, spell.dispelMagic) then
+            if isChecked("Dispel Magic") and canDispel(thisUnit, spell.dispelMagic) and not isBoss() then
                 if cast.dispelMagic() then
                     return
                 end

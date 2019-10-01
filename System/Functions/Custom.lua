@@ -181,7 +181,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
                 else
                   tX, tY, tZ = GetFuturePostion(combination, castTime)
                 end
-                if(j==#val) and temp.xi ~= nil then
+                if(j==#val) then
                     temp.xii = tX;
                     temp.yii = tY;
                     temp.zii = tZ;
@@ -302,7 +302,7 @@ function castGroundAtBestLocation(spellID, radius, minUnits, maxRange, minRange,
                 end
             end
         end
-        bestCircle.x, bestCircle.y = (newBestCircleX + math.random() * 2), (newBestCircleY + math.random() * 2)
+        bestCircle.x, bestCircle.y = newBestCircleX, newBestCircleY
         if castAtPosition(bestCircle.x,bestCircle.y,bestCircle.z, spellID) then return true else return false end
     end
 end
@@ -777,16 +777,18 @@ function br.DBM:getPulltimer(time, specificID)
                         if currentTimer <= time then
                             isBelowTime = true
                         end
-                        if hasTimer and isBelowTime then
-                            return true
-                        else
-                            return false
-                        end
-                    else
-                        if hasTimer then
-                            return currentTimer
-                        end
                     end
+                end
+            end
+            if time ~= nil then
+                if hasTimer and isBelowTime then
+                    return true
+                else
+                    return false
+                end
+            else
+                if hasTimer then
+                    return currentTimer
                 end
             end
         end
@@ -859,16 +861,18 @@ end
                             if currentTimer <= time then
                                 isBelowTime = true
                             end
-                            if hasTimer and isBelowTime then
-                                return true
-                            else
-                                return false
-                            end
-                        else
-                            if hasTimer then
-                                return currentTimer
-                            end
                         end
+                    end
+                end
+                if time ~= nil then
+                    if hasTimer and isBelowTime then
+                        return true
+                    else
+                        return false
+                    end
+                else
+                    if hasTimer then
+                        return currentTimer
                     end
                 end
             elseif IsAddOnLoaded("BigWigs") then
@@ -885,16 +889,18 @@ end
                             if currentTimer <= time then
                                 isBelowTime = true
                             end
-                            if hasTimer and isBelowTime then
-                                return true
-                            else
-                                return false
-                            end
-                        else
-                            if hasTimer then
-                                return currentTimer
-                            end
                         end
+                    end
+                end
+                if time ~= nil then
+                    if hasTimer and isBelowTime then
+                        return true
+                    else
+                        return false
+                    end
+                else
+                    if hasTimer then
+                        return currentTimer
                     end
                 end
             end
