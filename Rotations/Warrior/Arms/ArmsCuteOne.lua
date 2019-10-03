@@ -474,6 +474,12 @@ local function runRotation()
                     and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0)
                 then
                     if cast.heroicThrow then return end
+                end        
+        -- Hamstring
+                if isChecked("Hamstring") and cast.able.hamstring() --and not debuff.hamstring.exists("target")
+                    and not getFacing("target","player") and getDistance("target") < 5 and GetUnitSpeed("target")>0
+                then
+                    if cast.hamstring("target") then return end
                 end
             end
         end

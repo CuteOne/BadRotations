@@ -3168,6 +3168,7 @@ br.lists.spells = {
                 colossusSmash               = 208086,
                 deepWounds                  = 262115,
                 executionersPrecision       = 272870,
+                hamstring                   = 1715,
                 rend                        = 772,
             },
             glyphs                          = {
