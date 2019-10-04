@@ -81,6 +81,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "auto stealth", 1)
         br.ui:createCheckbox(section, "auto dash", 1)
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
+        br.ui:createSpinner(section, "Standing Time", 2.5, 0.5, 10, 0.5, "How long you will stand still before changing to owl - in seconds")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createSpinner(section, "Pre-Pull Timer", 2.5, 0, 10, 0.5, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
@@ -1487,9 +1488,11 @@ local function runRotation()
             end
 
             if mode.forms == 1 then
-                if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > 3 then
-                    if cast.moonkinForm("player") then
-                        return true
+                if   isChecked("Standing Time") then
+                    if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > getValue("Standing Time") then
+                        if cast.moonkinForm("player") then
+                            return true
+                        end
                     end
                 end
 
