@@ -82,6 +82,8 @@ local function createOptions()
             br.ui:createDropdown(section,"Heroic Leap", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
             br.ui:createDropdownWithout(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             br.ui:createSpinner(section, "Heroic Charge",  15,  8,  25,  1,  "|cffFFFFFFSet to desired yards to Heroic Leap out to. Min: 8 / Max: 25 / Interval: 1")
+            -- Storm Bolt - Movement
+            br.ui:createCheckbox(section,"Storm Bolt - Charge/Leap")
             -- Sweeping Strikes
             br.ui:createCheckbox(section,"Sweeping Strikes")
             -- Warbreaker
@@ -466,7 +468,7 @@ local function runRotation()
                 end
         -- Storm Bolt
                 -- storm_bolt
-                if isChecked("Storm Bolt") and cast.able.stormBolt("target") then
+                if isChecked("Storm Bolt - Charge/Leap") and cast.able.stormBolt("target") then
                     if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
