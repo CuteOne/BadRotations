@@ -308,15 +308,20 @@ local function runRotation()
         wipe(timersTable)
     end
 
-    enemies.get(45)
-    enemies.get(40)
-    enemies.get(15)
+    enemies.get(5)
+
     enemies.get(8, "target") -- enemies.yards8t
     enemies.get(10, "target", true)
     enemies.get(11, "target") -- enemies.yards8t
-    enemies.get(15, "target") -- enemies.yards15t
     enemies.get(12)
     enemies.get(12, "target") -- enemies.yards12t
+    enemies.get(15)
+    enemies.get(15, "target") -- enemies.yards15t
+    enemies.get(45)
+    enemies.get(40)
+
+
+
 
 
     --Print(tostring(mode.DPS))
@@ -736,7 +741,7 @@ local function runRotation()
 
             elseif cast.able.celestialAlignment() and not talent.incarnationChoseOfElune then
                 if not pewbuff
-                        and (buff.starLord.exists or not talent.starlord)
+                        and (buff.starLord.exists() or not talent.starlord)
                         and (buff.memoryOfLucidDreams.exists() or ((cd.memoryOfLucidDreams.remains() > 20 or not essence.memoryOfLucidDreams.active) and power >= 40))
                         and groupTTD >= 20 and not pewbuff and
                         (not traits.livelySpirit.active or buff.livelySpirit.exists() or solo or (traits.livelySpirit.active and cd.innervate.remains() >= 30) or not isChecked("Auto Innervate")) and
@@ -1536,6 +1541,7 @@ local function runRotation()
                         --falling > getOptionValue("Fall Timer") then
                         if cast.catForm("player") then
                             return true
+
                         end
                     end
                 end
