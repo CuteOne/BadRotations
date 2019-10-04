@@ -470,10 +470,10 @@ local function runRotation()
                     if cast.stormBolt("target") then return end
                 end
         -- Heroic Throw
-                if isChecked("Heroic Throw") and not cast.last.heroicLeap() and cast.able.heroicThrow()
+                if isChecked("Heroic Throw") and not cast.last.heroicLeap() and cast.able.heroicThrow("target")
                     and getDistance("target") >= 8 and (cast.last.charge() or charges.charge.count() == 0)
                 then
-                    if cast.heroicThrow then return end
+                    if cast.heroicThrow("target") then return end
                 end        
         -- Hamstring
                 if isChecked("Hamstring") and cast.able.hamstring() --and not debuff.hamstring.exists("target")
