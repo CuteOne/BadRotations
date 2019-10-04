@@ -42,7 +42,7 @@ local function toggle(name, index, check)
 		toggleFound = false
 	end
 	for k, v in pairs(br.data.settings[br.selectedSpec].toggles) do
-		local toggle = name --(name:gsub("^%l", string.upper))
+		local toggle = string.upper(name) --name --(name:gsub("^%l", string.upper))
 		local name = string.lower(name)
 		local k = string.lower(k)
 		if name == k then
