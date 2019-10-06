@@ -813,9 +813,9 @@ local function runRotation()
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
                                 if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
-                                    or (cd.apocalypse.remain() < gcd and not essence.condensedLifeforce.active and not talent.unholyFrenzy)
-                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeforce.remain() + 20)
-                                    or (buff.unholyFrenzy.exists() and not essence.condensedLifeforce.active))
+                                    or (cd.apocalypse.remain() < gcd and not essence.condensedLifeForce.active and not talent.unholyFrenzy)
+                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeForce.remain() + 20)
+                                    or (buff.unholyFrenzy.exists() and not essence.condensedLifeForce.active))
                                 then
                                     use.slot(i)
                                 end
