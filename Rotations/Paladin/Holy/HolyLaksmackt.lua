@@ -2039,13 +2039,14 @@ local function runRotation()
         end
 
         -- Grievous stuff
-        if BleedFriend ~= nil and BleedFriend ~= player then
-            if cast.able.lightOfTheMartyr() and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
+
+        if BleedFriend ~= nil  then
+
+            if cast.able.lightOfTheMartyr() and isChecked("Light of the Martyr") and BleedFriend ~= player and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
                 if cast.lightOfTheMartyr(BleedFriend.unit) then
                     return true
                 end
             end
-
             if cast.able.flashOfLight() then
                 if cast.flashOfLight(BleedFriend.unit) then
                     return true
