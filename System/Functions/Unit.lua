@@ -31,6 +31,10 @@ function GetUnitIsVisible(Unit)
 	if Unit == nil then return false end
 	return UnitIsVisible(Unit)
 end
+function GetUnitIsDeadOrGhost(Unit)
+	if Unit == nil then return false end
+	return UnitIsDeadOrGhost(Unit)
+end
 function GetObjectFacing(Unit)
     if EWT and GetObjectExists(Unit) then
         return ObjectFacing(Unit)
