@@ -325,19 +325,14 @@ local function runRotation()
             end
             if not GetUnitIsUnit("player", tank) and php >= 75 and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) and not isMoving("player") then
                 br.addonDebug("Using Font Of Azshara")
-                useItem(169314)
+                useItem(slot)
                 return true
             end
         elseif hasEquiped(169311, slot) then
-            if
-                ((debuff.razorCoral.stack("target") >= 10 and debuff.razorCoral.remain("target") < 5) or (ttd("target") < 20 and debuff.razorCoral.stack("target") >= 5)) and
-                    br.timer:useTimer("Razor Coral Delay", 3)
-             then
-                br.addonDebug("Using second activation of Ashvane's Razor Coral")
+            if not debuff.razorCoral.exists("target") or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (getHP("target") < 31)) or ttd("target") < 20) then
+                br.addonDebug("Using Ashvane's Razor Coral")
                 useItem(slot)
-            elseif not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3) then
-                br.addonDebug("Using first activation of Ashvane's Razor Coral")
-                useItem(slot)
+                return true
             end
         end
     end
