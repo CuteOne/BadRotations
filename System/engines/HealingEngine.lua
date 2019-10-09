@@ -526,7 +526,7 @@ if not metaTable1 then
 				if getOptionCheck("Prioritize Special Targets") == true then
 					if GetUnitExists("focus") and br.memberSetup.cache[select(2, getGUID("focus"))] then
 						table.sort(br.friend, function(x)
-							if UnitIsUnit(x.unit,"focus") then
+							if GetUnitIsUnit(x.unit,"focus") then
 								return true
 							else
 								return false
@@ -535,7 +535,7 @@ if not metaTable1 then
 					end
 					if GetUnitExists("target") and br.memberSetup.cache[select(2, getGUID("target"))] then
 						table.sort(br.friend, function(x)
-							if UnitIsUnit(x.unit,"target") then
+							if GetUnitIsUnit(x.unit,"target") then
 								return true
 							else
 								return false
@@ -544,7 +544,7 @@ if not metaTable1 then
 					end
 					if GetUnitExists("mouseover") and br.memberSetup.cache[select(2, getGUID("mouseover"))] then
 						table.sort(br.friend, function(x)
-							if UnitIsUnit(x.unit,"mouseover") then
+							if GetUnitIsUnit(x.unit,"mouseover") then
 								return true
 							else
 								return false
