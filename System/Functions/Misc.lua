@@ -565,9 +565,10 @@ function pause(skipCastingCheck)
 		(UnitChannelInfo("player") and not skipCastingCheck) or
 		UnitIsDeadOrGhost("player") or
 		-- or (UnitIsDeadOrGhost("target") and not UnitIsPlayer("target"))
-		UnitBuffID("player", 257427) or -- Eating
-		UnitBuffID("player", 274914) or -- Drinking
-		UnitDebuffID("player", 252753) -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
+		UnitBuffID("player", 257427) or UnitBuffID("player", 225737) or  -- Eating
+		UnitBuffID("player", 274914) or UnitBuffID("player", 192001) or-- Drinking
+		UnitDebuffID("player", 252753) or -- Potion of Replenishment (BFA Mana channel) Apparently a debuff
+		UnitBuffID("player", 114018)
 		-- or UnitBuffID("target",117961) --Impervious Shield - Qiang the Merciless
 		-- or UnitDebuffID("player",135147) --Dead Zone - Iron Qon: Dam'ren
 		-- or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
@@ -782,12 +783,32 @@ function getEssenceRank(essenceName)
 	end
 end
 
-function br.addonDebug(msg)
+function br.addonDebug(msg,system)
 	if msg == nil then
 		return
 	end
-	if isChecked("Addon Debug Messages") then
-		print(br.classColor .. "[BadRotations] Debug: |cffFFFFFF" .. msg)
+	if isChecked("Addon Debug Messages") then 
+		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
+			print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
+			print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+		end
 	end
 end
+
+function br.store(key, value)
+	if br.profile == nil then
+		br.profile = {}
+	end
+	br.profile[key] = value
+	return true
+  end
+  
+  function br.fetch(key, default)
+	if br.profile == nil then
+		br.profile = {}
+	end
+	local value = br.profile[key]
+	return value == nil and default or value
+  end
 
