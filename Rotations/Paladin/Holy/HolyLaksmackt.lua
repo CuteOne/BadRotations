@@ -114,8 +114,8 @@ local function createOptions()
         br.ui:createCheckbox(section, "Shrine - Dispel Whisper of Power", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFto dispel or not :)|cffFFBB00.", 0)
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 1)
 
-
-        --
+        br.ui:createSpinner(section, "Auto Drink", 45, 0, 100, 5, "Mana Percent to Drink At")
+        br.ui:createCheckbox(section, "Sugar Crusted Fish Feast", "Use feasts for mana?")
         br.ui:checkSectionState(section)
         -------------------------
         ------ DEFENSIVES -------
@@ -1753,7 +1753,7 @@ local function runRotation()
         --Glimmer support
 
         if isChecked("Aggressive Glimmer") and (mode.DPS == 1 or mode.DPS == 3) and inCombat and UnitIsEnemy("target", "player")
-                and  isChecked("Critical HP") and lowest.hp > getValue("Critical HP")  then
+                and isChecked("Critical HP") and lowest.hp > getValue("Critical HP") then
             if not debuff.glimmerOfLight.exists("target") then
                 if cast.holyShock("target") then
                     br.addonDebug("glimmerOfLight on target")
@@ -2040,7 +2040,14 @@ local function runRotation()
 
         -- Grievous stuff
 
-        if BleedFriend ~= nil  then
+        if BleedFriend ~= nil then
+
+            if cast.able.lightOfDawn() and isChecked("Light of Dawn") then
+                if bestConeHeal(spell.lightOfDawn, 1, 80, 45, lightOfDawn_distance * lightOfDawn_distance_coff, 5)
+                then
+                    return true
+                end
+            end
 
             if cast.able.lightOfTheMartyr() and isChecked("Light of the Martyr") and BleedFriend ~= player and php >= getOptionValue("LotM player HP limit") and BleedFriend.hp > 70 and getDebuffStacks("player", 267034) < 2 then
                 if cast.lightOfTheMartyr(BleedFriend.unit) then
@@ -2239,6 +2246,52 @@ local function runRotation()
             --- Out Of Combat - Rotations ---
             ---------------------------------
             if not inCombat and not UnitBuffID("player", 115834) then
+                           -- auto drinking
+            if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 then
+                --240443 == bursting
+                --drink list
+                --[[
+                item=163784/seafoam-coconut-water
+                item=113509/conjured-mana-bun
+                item=126936/sugar-crusted-fish-feast
+                ]]
+                local fishfeast = 0
+                if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) then
+                    if hasItem(113509) and canUseItem(113509) then
+                        useItem(113509)
+                    end
+                    if hasItem(163784) and canUseItem(163784) then
+                        useItem(163784)
+                    end
+                elseif isChecked("Sugar Crusted Fish Feast") then
+                    if EWT ~= nil then
+                        for i = 1, GetObjectCount() do
+                            local ID = ObjectID(GetObjectWithIndex(i))
+                            local object = GetObjectWithIndex(i)
+                            local x1, y1, z1 = ObjectPosition("player")
+                            local x2, y2, z2 = ObjectPosition(object)
+                            local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
+                            if ID == 242405 and distance < 15 then
+                                --print(tostring(distance))
+                                InteractUnit(object)
+                                fishfeast = 0
+                            else
+                                if hasItem(126936) and canUseItem(126936) and fishfeast == 0 and not hasBuff(185710) then
+                                    useItem(126936)
+                                    x1 = x1 + math.random(-2, 2)
+                                    ClickPosition(x1, y1, z1)
+                                    br.addonDebug("Placing fish thingy")
+                                    fishfeast = 1
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
+
+
                 if QOL() then
                     return
                 end
