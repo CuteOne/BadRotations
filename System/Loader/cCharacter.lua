@@ -109,6 +109,10 @@ function cCharacter:new(class)
 			self.potion.strength 	= {}	-- Strength Potions
 			self.potion.versatility = {} 	-- Versatility Potions
 			self.potion.waterwalk = {}
+			self.flask.agility 		= {}
+			self.flask.intellect  = {}
+			self.flask.stamina		= {}
+			self.flask.strength   = {}
 			self.getConsumables()		-- Find All The Tasty Things!
 			bagsUpdated = false
 		end
@@ -154,6 +158,7 @@ function cCharacter:new(class)
 			self.queue = {} -- Reset Queue Casting Table out of combat
 			Print("Out of Combat - Queue List Cleared")
 		end
+		self.ignoreCombat = getOptionCheck("Ignore Combat")
 	end
 
 -- Updates toggle data
@@ -186,9 +191,23 @@ function cCharacter:new(class)
 		end
 	end
 
+	function self.tankAggro()
+		if self.instance=="raid" or self.instance=="party" then
+			if getTanksTable() ~= nil then
+				for i = 1, #getTanksTable() do
+					if UnitAffectingCombat(getTanksTable()[i].unit) and getTanksTable()[i].distance < 40 then
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
+
+
 -- Returns if in combat
 	function self.getInCombat()
-		if UnitAffectingCombat("player") or self.ignoreCombat
+		if UnitAffectingCombat("player") or self.ignoreCombat or (isChecked("Tank Aggro = Player Aggro") and self.tankAggro())
 		or (GetNumGroupMembers()>1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target"))) then
 			self.inCombat = true
 		else
@@ -330,7 +349,7 @@ function cCharacter:new(class)
 							local itemInfo = { --Collect Item Data
 								itemID 		= itemID,
 								itemCD 		= GetItemCooldown(itemID),
-								itemName 	= select(1,GetItemInfo(itemID)),
+								itemName 	= GetItemInfo(itemID),
 								minLevel 	= select(5,GetItemInfo(itemID)),
 								itemType 	= select(7,GetItemInfo(itemID)),
 								itemEffect 	= itemEffect,
@@ -366,6 +385,22 @@ function cCharacter:new(class)
 								end
 							end
 							if itemInfo.itemType == "Flask" and self.level >= itemInfo.minLevel then -- Is the item a Flask and am I level to use it?
+								local flaskList = {
+									{id = 152638,   type = "agility"},
+									{id = 152639,   type = "intellect"},
+									{id = 152640,   type = "stamina"},
+									{id = 152641,   type = "strength"},
+								}
+								for y = 1, #flaskList do
+									local flasktype = flaskList[y].type
+									local flaskID = flaskList[y].id
+									if strmatch(itemInfo.itemID,flaskID)~=nil then
+										tinsert(self.flask[flasktype],itemInfo)
+										table.sort(self.flask[flasktype], function(x,y)
+											return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+										end)
+									end
+								end
 								--TODO
 							end
 						end
