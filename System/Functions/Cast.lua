@@ -73,7 +73,7 @@ function castGround(Unit,SpellID,maxDistance,minDistance,radius,castTime)
 		end
 		--local distanceToGround = getGroundDistance(Unit) or 0
 		if groundDistance > maxDistance then X,Y,Z = GetPositionBetweenObjects(Unit,"player",groundDistance-maxDistance) end
-		ClickPosition(X,Y,Z) --distanceToGround
+		ClickPosition((X + math.random() * 2),(Y + math.random() * 2),Z) --distanceToGround
 		if mouselookActive then
 			MouselookStart()
 		end
