@@ -2159,6 +2159,7 @@ br.lists.spells = {
                 voidTorrent                 = 205065,
             },
             buffs                           = {
+                chorusOfInsanity            = 279572,
                 dispersion                  = 47585,
                 harvestedThoughts           = 288343,
                 lingeringInsanity            = 199849,
@@ -3412,6 +3413,7 @@ br.lists.spells = {
                 fruitfulMachinatins             = 242623, -- Absorb Shield from Deceiver's Grand Design
                 greaterFlaskOfTheCurrents       = 298836,
                 greaterFlaskOfTheUndertow       = 298841,
+                greaterFlaskOfEndlessFathoms    = 298837,
                 guidingHand                     = 242622, -- from The Deceiver's Grand Design
                 heroism                         = 32182,
                 netherwinds                     = 160452,
