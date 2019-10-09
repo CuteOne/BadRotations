@@ -60,6 +60,7 @@ br.lists.items = {
     -- Greater Flasks
     greaterFlaskOfTheCurrents       = 168651,
     greaterFlaskOfTheUndertow       = 168654,
+    greaterFlaskOfEndlessFathoms    = 168652,
     -- Healthstones
     healthstone                     = 5512,
     -- Heirlooms
@@ -91,6 +92,8 @@ br.lists.items = {
     superiorBattlePotionOfStamina   = 168499,
     -- Rings
     ringOfCollapsingFutures         = 142173,
+    -- Wrists
+    hyperthreadWristWraps           = 168989,
     --Trinkets
     ashvanesRazorCoral              = 169311,
     azsharasFontOfPower             = 169314,
