@@ -1829,7 +1829,7 @@ local function runRotation()
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
                     if select(8, GetInstanceInfo()) == 1864 then
-                        if not isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) == 0 then
+                        if not isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) == 0 or isChecked("Shrine - Dispel Whisper of Power") then
                             if cast.naturesCure(br.friend[i].unit) then
                                 return true
                             end
