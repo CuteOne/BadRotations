@@ -1169,9 +1169,7 @@ local function runRotation()
             end
         end
 
-        --LoH / LayonHands
-
-
+--BoP
         for i = 1, #br.friend do
             if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
                 if br.friend[i].hp <= getValue("Blessing of Protection") then
@@ -1194,12 +1192,12 @@ local function runRotation()
                 end
             end
         end
-        -- Lay on Hands
+        -- Lay on Hands        --LoH / LayonHands
         if isChecked("Lay on Hands - min") and getSpellCD(633) == 0 then
             for i = 1, #br.friend do
                 if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) and not UnitDebuffID(br.friend[i].unit, 25771) then
                     if getOptionValue("Lay on Hands Target") == 1 then
-                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
+                        if br.friend[i].hp <= math.random(getValue("Lay on Hands - min"), getValue("Lay on Hands - max")) and (solo or inRaid or (inInstance and getDebuffStacks(br.friend[i].unit, 209858) < getValue("Necrotic Rot"))) then
                             layOnHandsTarget = br.friend[i].unit
                         end
                     elseif getOptionValue("Lay on Hands Target") == 2 then
