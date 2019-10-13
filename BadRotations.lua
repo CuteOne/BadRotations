@@ -12,6 +12,7 @@ br.dropOptions = {}
 br.dropOptions.Toggle ={"LeftCtrl","LeftShift","RightCtrl","RightShift","RightAlt","None","MMouse","Mouse4","Mouse5" }
 br.dropOptions.CD = {"Never","CDs","Always" }
 br.loadedIn = false
+br.loadFile = false
 br.rotations = {}
 -- developers debug, use /run br.data.settings[br.selectedSpec].toggles["isDebugging"] = true
 br.debug = {}

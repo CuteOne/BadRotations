@@ -242,7 +242,7 @@ function BadRotationsUpdate(self)
 					br.ui:toggleDebugWindow()
 
 					-- Settings Garbage Collection
-					if collectGarbage then
+					if not br.loadFile and collectGarbage then
 						-- Ensure we have all the settings recorded
 						br.ui:recreateWindows()
 						-- Compare br.data.settings for the current spec/profile to the ui options

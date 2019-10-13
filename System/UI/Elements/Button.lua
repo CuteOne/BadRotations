@@ -454,5 +454,6 @@ br.tableLoad = function( sfile )
             tables[idx][v[2]],tables[idx][v[1]] =  tables[idx][v[1]],nil
         end
     end
+    br.loadFile = true
     return tables[1]
 end

@@ -111,6 +111,10 @@ function br.ui:createConfigWindow()
         br.ui:createSaveButton(section, " +", 200, -5)
         br.ui:createDeleteButton(section, " -", 220, -5)
         br.ui:createLoadButton(section, "Load", 20, -40)
+        br.ui:createText(section,"Export/Import from Settings Folder")
+        br.ui:createExportButton(section, "Export", 40, -90)
+        br.ui:createImportButton(section, "Import", 140, -90)
+        br.ui:createText(section,"FileName: "..br.selectedSpec..br.selectedProfileName..".lua")
         br.ui:checkSectionState(section)
     end
 
