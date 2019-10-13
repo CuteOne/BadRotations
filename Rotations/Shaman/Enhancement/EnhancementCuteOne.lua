@@ -550,7 +550,7 @@ actionList.Maintenance = function()
     end
     -- Frostbrand
     -- frostbrand,if=talent.hailstorm.enabled&!buff.frostbrand.up&variable.furyCheck_FB
-    if cast.able.frostbrand() and talent.hailstorm and not buff.forstbrand.exists() and furyCheckFB then
+    if cast.able.frostbrand() and talent.hailstorm and not buff.frostbrand.exists() and furyCheckFB then
         if cast.frostbrand() then return true end
     end
 end -- End Action List - Maintenance
