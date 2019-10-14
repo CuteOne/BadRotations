@@ -804,6 +804,7 @@ local function runRotation()
                 useItem(13)
             elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
                 useItem(14)
+            end
         end
         -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
         if useCDs() and isCheced("Trinkets") then
