@@ -432,7 +432,7 @@ actionList.Cooldowns = function()
                 if cast.racial() then return end
             end
             -- lights_judgment,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains>gcd.max|!pet.cat.buff.frenzy.up
-            if (buff.frenzy.exists("pet") and buff.frenzy.remains("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
+            if (buff.frenzy.exists("pet") and buff.frenzy.remain("pet") > gcdMax or not buff.frenzy.exists("pet") and race == "LightforgedDraenei") then
                 if cast.racial() then return end
             end
         end
@@ -657,7 +657,7 @@ end -- End Action List - Opener
 actionList.St = function()
     -- Barbed Shot
     -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
-    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remains("pet") <= gcdMax + 0.1)
+    if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1)
         or (cd.bestialWrath.remain() > gcdMax and (charges.barbedShot.timeTillFull() < gcdMax
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))))
     then
