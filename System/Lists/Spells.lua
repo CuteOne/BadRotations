@@ -1330,6 +1330,7 @@ br.lists.spells = {
             },
             debuffs                         = {
                 meteorBurn                  = 155158,
+                cauterized                  = 87024,
 
             },
             glyphs                          = {
@@ -1450,6 +1451,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 arcaneIntellect             = 1459,
+                iceBlock                    = 45438,
                 incantersFlow               = 1463,
                 runeOfPower                 = 116014,
             },
