@@ -714,7 +714,7 @@ actionList.Generator = function()
     -- Hammer of Wrath
     -- hammer_of_wrath,if=holy_power<=4
     if cast.able.hammerOfWrath() and holyPower <= 4 then
-        if buff.avengingWrath.exists() then
+        if buff.avengingWrath.exists() or buff.crusade.exists() then
             if cast.hammerOfWrath() then debug("Casting Hammer of Wrath [Avenging Wrath]") return true end
         end
         for i = 1, #enemies.yards30f do
