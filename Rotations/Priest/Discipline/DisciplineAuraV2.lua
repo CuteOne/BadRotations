@@ -1579,7 +1579,7 @@ local function runRotation()
                 end
             end
             -- Azshara's Font of Power
-            if isChecked("Azshara's Font") and hasEquiped(169314) and lowest.hp > getOptionValue("Azshara's Font") and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) and canUseItem(169314) and not isMoving("player") then
+            if isChecked("Azshara's Font") and hasEquiped(169314) and lowest.hp > getOptionValue("Azshara's Font") and not UnitBuffID("player", 296962) and br.timer:useTimer("Font Delay", 4) and canUseItem(169314) and not isMoving("player") and ttd("target") > 30 then
                 useItem(169314)
                 br.addonDebug("Using Font of Azshara")
                 return true
