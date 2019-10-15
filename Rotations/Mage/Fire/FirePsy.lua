@@ -54,8 +54,6 @@ local function createOptions()
             br.ui:createCheckbox(section,"Arcane Intellect", "Check to auto buff Arcane Intellect on party.")
         -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-        -- Opener
-            br.ui:createCheckbox(section, "Opener")
         -- Out of Combat Attack
             br.ui:createCheckbox(section,"Pull OoC", "Check to Engage the Target out of Combat.")
         br.ui:checkSectionState(section)
@@ -388,59 +386,6 @@ local function runRotation()
                 end
             end -- End useCDs check
         end -- End Action List - Cooldowns
-    -- Action List - Opener
-        local function actionList_Opener()
-            if isChecked("Opener") --[[and (isBoss("target") or isDummy("target"))]] and opener == false then
-                if isValidUnit("target") and getDistance("target") < 40 then
-                    if not OPN1 then
-                        Print("Starting Opener")
-                        OPN1 = true
-
-                    elseif OPN1 and not OPN2 then
-                        if not cast.last.fireball() and not moving then
-                            if castOpener("fireball","OPN2",1) then return end
-                        end
-
-                    elseif OPN2 and not OPN3 then
-                        if lucisDreamsand then
-                            if castOpener("memoryOfLucidDreams","OPN3",2) then return end
-                        elseif not lucisDreams then
-                            OPN3 = true
-                        end
-
-                    elseif OPN3 and not OPN4 then
-                        if buff.heatingUp.exists() then
-                            if castOpener("fireBlast","OPN4",3) then return end
-                        elseif not buff.heatingUp.exists() and not buff.hotStreak.exists() then
-                            OPN4 = true
-                        end
-
-                    elseif OPN4 and not OPN5 then
-                        if talent.runeOfPower then
-                            if castOpener("runeOfPower","OPN5",4) then return end
-                        elseif not talent.runeOfPower then
-                            OPN5 = true
-                        end
-
-                    elseif OPN5 and not OPN6 then
-                            if castOpener("combustion","OPN6",5) then return end
-
-                    elseif OPN6 and not OPN7 then
-                        if not cast.last.fireBlast() then
-                            if castOpener("fireBlast","OPN7",6) then return end
-                        end
-
-                    elseif OPN7 then
-                        opener = true;
-                        Print("Opener Complete")
-                        return
-                    end
-                end
-            elseif (UnitExists("target") and (not isBoss("target") or not isDummy("target"))) or not isChecked("Opener") then
-            	opener = true
-            	return
-            end
-        end -- End Action List - Opener
     -- Action List - PreCombat
         local function actionList_PreCombat()
             if not inCombat and not (IsFlying() or IsMounted()) then
