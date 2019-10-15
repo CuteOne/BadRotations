@@ -529,7 +529,7 @@ local function runRotation()
             -- Meteor
                 if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
                     if talent.runeOfPower and talent.firestarter then
-                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
+                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
                             if not isBoss("target") then
                                 if cast.meteor("best",false,1,8) then
                                     br.addonDebug("Casting Meteor")
@@ -585,19 +585,19 @@ local function runRotation()
                     end
                 end
             -- Blood of the Enemy
-                if isChecked("Use Essence") and useCDs() and essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains <= gcd and not buff.combustion.exists("player") 
+                if isChecked("Use Essence") and useCDs() and essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and not buff.combustion.exists("player") 
                     and (#enemies.yards10t >= 2 or isBoss("target"))
                 then
                     if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return end
                 end
             -- Worldvein Resonance
-                if isChecked("Use Essence") and useCDs() and essence.worldveinResonance.active and cd.worldveinResonance.remains <= gcd and not buff.combustion.exists("player") 
+                if isChecked("Use Essence") and useCDs() and essence.worldveinResonance.active and cd.worldveinResonance.remains() <= gcd and not buff.combustion.exists("player") 
                     and not buff.runeOfPower("player") 
                 then
                     if cast.worldveinResonance() then br.addonDebug("Casting Worldvein Resonance") return end
                 end 
         -- Focused Azerite Beam
-                if isChecked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
+                if isChecked("Use Essence") and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
                     or essence.focusedAzeriteBeam.rank >= 3) and not buff.combustion.exists("player") and not buff.runeOfPower.exists("player")
                     and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
                 then
