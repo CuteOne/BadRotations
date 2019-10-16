@@ -394,7 +394,7 @@ local function runRotation()
                 end
                 if isChecked("Pre-Pull") then
                     -- Flask / Crystal
-                    if ((pullTimer <= 7 and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 10)) then
+                    if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 10)) then
                         if getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and canUseItem(item.greaterFlaskOfEndlessFathoms) then
                             if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms") return end
                         elseif getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
@@ -418,8 +418,8 @@ local function runRotation()
                                 useItem(169314)
                             end
                         end
-                    elseif pullTimer <= 4 and not cast.last.pyroblast() then
-                        if cast.pyroblast("target") then br.addonDebug("Casting Pyroblast (Pre-pull)") return end
+                    elseif pullTimer <= 4 and isValidUnit("target") then
+                        if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
                     end
                 end -- End Pre-Pull        
             end -- End No Combat
@@ -580,7 +580,7 @@ local function runRotation()
                             fbTracker = fbTracker + 1
                         end
                     end
-                    if useCDs() and buff.combustion.exists('player') and charges.fireBlast.count() <= 1 and fbTracker >= 2 then
+                    if useCDs() and buff.combustion.exists('player') and ((talent.flameOn and charges.fireBlast.count() <= 1) or charges.fireBlast.count() == 0) and fbTracker >= 2 then
                         if use.hyperthreadWristWraps() then br.addonDebug("Using Hyperthread Wristwraps") return end
                     end
                 end
