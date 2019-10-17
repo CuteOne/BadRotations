@@ -455,7 +455,7 @@ local function runRotation()
 --- Begin Profile ---
 ---------------------
         if buff.iceBlock.exists("player") and php >= 75 then
-            cancelBuff(buff.iceBlock)
+            cancelBuff(spell.iceBlock)
             br.addonDebug("Cancelling Iceblock")
         end
     -- Profile Stop | Pause
