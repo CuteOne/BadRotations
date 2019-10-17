@@ -110,6 +110,7 @@ br.lists.items = {
     jesHowler                       = 159627,
     pocketSizedComputationDevice    = 167555,
     rampingAmplitudeGigavoltEngine  = 165580,
+    shiverVenomRelic                = 168905,
     specterOfBetrayal               = 151190,
     umbralMoonglaives               = 147012,
     vialOfCeaselessToxins           = 147011,
