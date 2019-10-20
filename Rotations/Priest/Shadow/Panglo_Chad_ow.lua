@@ -280,7 +280,7 @@ local function runRotation()
             end
         end
 
-        if mode.essence == 1 and inCombat and useCDs() and not br.player.mode.cooldown ~= 3 and voidForm and isChecked("Use lucid dreams") and ((power <= getOptionValue("Lucid - insanity")) and (buff.voidForm.stack() >= getOptionValue("Lucid - void stacks"))) then
+        if mode.essence == 1 and inCombat and not br.player.mode.cooldown ~= 3 and voidForm and isChecked("Use lucid dreams") and ((power <= getOptionValue("Lucid - insanity")) and (buff.voidForm.stack() >= getOptionValue("Lucid - void stacks"))) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end

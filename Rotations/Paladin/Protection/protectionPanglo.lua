@@ -1133,7 +1133,7 @@ local function runRotation()
 			end
 		end
 		-- Consecration
-		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 then
+		if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= 1 and not buff.consecration.exists() then
 			if cast.consecration("player") then
 				return
 			end
