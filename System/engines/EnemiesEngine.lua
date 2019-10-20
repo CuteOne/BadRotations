@@ -143,7 +143,7 @@ if not metaTable2 then
 			local function cacheDebuff(buffUnit,buffName,buffCaster)
 				-- Print("Caching Debuff!")
 				-- Cache it to the OM
-				if buffCaster ~= nil and (buffCaster == "player" or UnitIsFriend("player",buffCaster)) then
+				if buffCaster ~= nil and buffCaster == "player" then --(buffCaster == "player" or UnitIsFriend("player",buffCaster)) then
 					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
 					if debuffList[buffCaster][buffName] == nil then
 						-- Print("Adding player debuff")

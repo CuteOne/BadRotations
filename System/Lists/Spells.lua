@@ -3048,7 +3048,9 @@ br.lists.spells = {
             },
             buffs                           = {
                 backdraft                   = 117828, --196406,
+                crashingChaos               = 277706,
                 darkSoul                    = 113858,
+                darkSoulInstability         = 113858,
                 demonicPower                = 196099,
                 empoweredLifeTap            = 235156,
                 lessonsOfSpaceTime          = 236174,
@@ -3067,18 +3069,21 @@ br.lists.spells = {
                 cataclysm                   = 152108,
                 channelDemonfire            = 196447,
                 darkSoul                    = 113858,
+                darkSoulInstability         = 113858,
                 eradication                 = 196412,
                 flashover                   = 267115,
                 fireAndBrimstone            = 196408,
                 grimoireOfSacrifice         = 108503,
                 inferno                     = 270545,
                 internalCombustion          = 266134,
-                eradication                 = 196412,
                 reverseEntropy              = 205148,
                 roaringBlaze                = 205184,
                 shadowburn                  = 17877,
                 soulFire                    = 6353,
             },
+            traits =                        {
+                crashingChaos               = 277644
+            }
         },
         -- All
         Shared = {
