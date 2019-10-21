@@ -510,7 +510,7 @@ actionList.Demonic = function()
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
     if getDistance("target") < 6 and buff.metamorphosis.exists("player") and bladeDanceVar then
-        if cast.deathSweep("player","aoe",1,8) then debug("Casting Death Sweep") return end
+        if cast.deathSweep("target","aoe",1,8) then debug("Casting Death Sweep") return end
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
@@ -526,14 +526,14 @@ actionList.Demonic = function()
     if talent.felBarrage and mode.felBarrage == 1 and (cd.eyeBeam.remain() > gcd or buff.metamorphosis.exists("player")) and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE"))
             or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
-        if cast.felBarrage("player","aoe",1,8) then debug("Casting Fel Barrage") return end
+        if cast.felBarrage("target","aoe",1,8) then debug("Casting Fel Barrage") return end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if not buff.metamorphosis.exists("player") and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis"))
+    if bladeDanceVar and not buff.metamorphosis.exists("player") and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis")) and #enemies.yards8 > 0 
         and ((cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank*3)) or mode.eyeBeam == 2)
     then
-        if cast.bladeDance("player","aoe",1,20) then debug("Casting Blade Dance") return end
+        if cast.bladeDance("target","aoe",1,20) then debug("Casting Blade Dance") return end
     end
     -- Immolation Aura
     -- immolation_aura
@@ -614,12 +614,12 @@ actionList.Normal = function()
     if talent.felBarrage and mode.felBarrage == 1 and not waitForMomentum and 
     ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
     then
-        if cast.felBarrage("player","aoe",1,8) then debug("Casting Fel Barrage") return end
+        if cast.felBarrage("target","aoe",1,8) then debug("Casting Fel Barrage") return end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
     if #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
-        if cast.deathSweep("player","aoe",1,8) then debug("Casting Death Sweep") return end
+        if cast.deathSweep("target","aoe",1,8) then debug("Casting Death Sweep") return end
     end
     -- Immolation Aura
     -- immolation_aura
@@ -637,7 +637,7 @@ actionList.Normal = function()
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
     if #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
-        if cast.bladeDance("player","aoe",1,8) then debug("Casting Blade Dance") return end
+        if cast.bladeDance("target","aoe",1,8) then debug("Casting Blade Dance") return end
     end
     -- Felblade
     -- felblade,if=fury.deficit>=40
