@@ -96,6 +96,7 @@ br.lists.items = {
     hyperthreadWristWraps           = 168989,
     --Trinkets
     ashvanesRazorCoral              = 169311,
+    aquipotentNautilus              = 169305,
     azsharasFontOfPower             = 169314,
     bygoneBeeAlmanac                = 163936,
     convergenceOfFates              = 140806,
@@ -110,10 +111,13 @@ br.lists.items = {
     jesHowler                       = 159627,
     pocketSizedComputationDevice    = 167555,
     rampingAmplitudeGigavoltEngine  = 165580,
+    rotcrustedVoodooDoll            = 159624,
     shiverVenomRelic                = 168905,
     specterOfBetrayal               = 151190,
+    tidestormCodex                  = 165576,
     umbralMoonglaives               = 147012,
     vialOfCeaselessToxins           = 147011,
+    vialOfStorms                    = 158224,
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
 }
