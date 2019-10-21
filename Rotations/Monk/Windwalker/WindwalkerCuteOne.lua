@@ -784,20 +784,32 @@ end
 actionList.Serenity = function()
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=active_enemies<3|prev_gcd.1.spinning_crane_kick
-    if chi >= 2 and  cast.able.risingSunKick(lowestMark) and (#enemies.yards8 < 3 or wasLastCombo(spell.spinningCraneKick)) then
+    if chi >= 2 and cast.able.risingSunKick(lowestMark) and (#enemies.yards8 < 3 or wasLastCombo(spell.spinningCraneKick)) then
         if cast.risingSunKick(lowestMark) then debug("Casting Rising Sun Kick [Serenity]") return true end
     end
     -- Fists of Fury
     -- fists_of_fury,if=(buff.bloodlust.up&prev_gcd.1.rising_sun_kick)|buff.serenity.remains<1|(active_enemies>1&active_enemies<5)
-    if chi >= 3 and  cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
+    if chi >= 3 and cast.able.fistsOfFury() and ((buff.bloodLust.exists() and wasLastCombo(spell.risingSunKick)) or buff.serenity.remain() < 1
         or (#enemies.yards8f > 1 and #enemies.yards8f < 5)) and mode.fof == 1
     then
         if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [Serenity]") return true end
     end
+    -- Fist of the White Tiger
+    -- fist_of_the_white_tiger,if=talent.hit_combo.enabled&energy.time_to_max<2&prev_gcd.1.blackout_kick&chi<=2
+    if cast.able.fistOfTheWhiteTiger() and talent.hitCombo and ttm < 2 and cast.last.blackoutKick() and chi <= 2 then
+        if cast.fistOfTheWhiteTiger() then debug("Casting Fist of the White Tiger [Serenity]") return true end
+    end
+    -- Tiger Palm
+    -- tiger_palm,if=talent.hit_combo.enabled&energy.time_to_max<1&prev_gcd.1.blackout_kick&chi.max-chi>=2
+    if cast.able.tigerPalm() and talent.hitCombo and ttm < 1 and cast.last.blackoutKick() and chi <= 2 then
+        if cast.tigerPalm() then debug("Casting Tiger Palm [Serenity]") return true end
+    end
     -- Spinning Crane Kick
-    -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(active_enemies>=3|(active_enemies=2&prev_gcd.1.blackout_kick))
-    if chi >= 2 and cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and (((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
-        or (((mode.rotation == 1 and #enemies.yards8 == 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and wasLastCombo(spell.blackoutKick)))
+    -- spinning_crane_kick,if=combo_strike&(active_enemies>=3|(talent.hit_combo.enabled&prev_gcd.1.blackout_kick)|(active_enemies=2&prev_gcd.1.blackout_kick))
+    if chi >= 2 and cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick)
+        and (((mode.rotation == 1 and #enemies.yards8 >= 3) or (mode.rotation == 2 and #enemies.yards8 > 0))
+            or (talent.hitCombo and cast.last.blackoutKick())
+            or ((mode.rotation == 1 and #enemies.yards8 == 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) and cast.last.blackoutKick())
     then
         if cast.spinningCraneKick(nil,"aoe") then debug("Casting Spinning Crance Kick [Serenity]") return true end
     end

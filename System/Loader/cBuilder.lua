@@ -335,38 +335,58 @@ function br.loader:new(spec,specName)
         end
 
         if self.pets ~= nil then
-            if self.pet.active == nil then self.pet.active = {} end
-            self.pet.active.exists = function()
-                return GetObjectExists("pet")
-            end
-
-            self.pet.active.count = function()
-                local count = 0
-                for k,v in pairs(self.pet.list) do
-                    local listID = self.pet.list[k].id
-                    if GetObjectID("pet") == listID then count = count + 1 end
-                end
-                return count
-            end
-
             for k,v in pairs(self.pets) do
                 if self.pet[k] == nil then self.pet[k] = {} end
-
                 local pet = self.pet[k]
-                pet.count = function()
-                    local count = 0
-                    for l,w in pairs(self.pet.list) do
-                        local listID = self.pet.list[l].id
-                        if v == listID then count = count + 1 end
-                    end
-                    return count
-                end
-
-                pet.exists = function()
-                    return self.pet[k].count() > 0
-                end
+                br.api.pets(pet,k,v,self)
             end
         end
+
+            -- if self.pet.active == nil then self.pet.active = {} end
+            -- self.pet.active.exists = function()
+            --     return GetObjectExists("pet")
+            -- end
+
+            -- self.pet.active.count = function()
+            --     local count = 0
+            --     for k,v in pairs(self.pet.list) do
+            --         local listID = self.pet.list[k].id
+            --         if GetObjectID("pet") == listID then count = count + 1 end
+            --     end
+            --     return count
+            -- end
+
+            -- self.pet.active.id =  function()
+            --     return GetObjectID("pet")
+            -- end
+
+            -- for k,v in pairs(self.pets) do
+            --     if self.pet[k] == nil then self.pet[k] = {} end
+
+            --     local pet = self.pet[k]
+
+            --     pet.count = function()
+            --         local count = 0
+            --         for l,w in pairs(self.pet.list) do
+            --             local listID = self.pet.list[l].id
+            --             if v == listID then count = count + 1 end
+            --         end
+            --         return count
+            --     end
+
+            --     pet.active = function()
+            --         return self.pet[k].count() > 0
+            --     end
+
+            --     pet.exists = function()
+            --         return self.pet[k].count() > 0
+            --     end
+
+            --     pet.id = function()
+            --         return v
+            --     end
+            -- end
+        -- end
 
         -- if self.pet.buff == nil then self.pet.buff = {} end
         -- self.pet.buff.exists = function(buffID,petID)
