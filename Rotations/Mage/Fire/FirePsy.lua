@@ -60,7 +60,13 @@ local function createOptions()
     -- AoE Options
         section = br.ui:createSection(br.ui.window.profile, "Area of Effect")
         -- AoE Meteor
-            br.ui:createSpinnerWithout(section,"FS/Met/Com/RoP Targets",  3,  1,  10,  1, "Min AoE Units")
+            br.ui:createSpinnerWithout(section,"Meteor Targets",  3,  1,  10,  1, "Min AoE Units")
+        -- Flamestrike
+            br.ui:createSpinnerWithout(section,"FS Targets",  3,  1,  10,  1, "Min AoE Units")
+        -- Rune of Power
+            br.ui:createSpinnerWithout(section,"RoP Targets",  3,  1,  10,  1, "Min AoE Units")
+        -- Combustion (Firestarter)
+            br.ui:createSpinnerWithout(section,"Combustion Targets",  3,  1,  10,  1, "Min AoE Units to use Combustion with Firestarter Talent")
         -- Focused Beam
             br.ui:createSpinnerWithout(section, "Focused Beam Targets",  3,  2,  10,  1, "Unit Count Limit before casting Focused Beam.")
         br.ui:checkSectionState(section)
@@ -242,7 +248,7 @@ local function runRotation()
         -- Dummy Test
             if isChecked("DPS Testing") then
                 if GetObjectExists("target") then
-                    if combatTime() >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
+                    if combatTime >= (tonumber(getOptionValue("DPS Testing"))*60) and isDummy() then
                         StopAttack()
                         ClearTarget()
                         Print(tonumber(getOptionValue("DPS Testing")) .." Minute Dummy Test Concluded - Profile Stopped")
@@ -394,7 +400,7 @@ local function runRotation()
                 end
                 if isChecked("Pre-Pull") then
                     -- Flask / Crystal
-                    if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 10)) then
+                    if ((pullTimer <= getValue("Pre-Pull") and pullTimer > 4 and (not equiped.azsharasFontOfPower or not canUseItem(item.azsharasFontOfPower))) or (equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 20 and pullTimer > 8)) then
                         if getOptionValue("Elixir") == 1 and inRaid and not buff.greaterFlaskOfEndlessFathoms.exists() and canUseItem(item.greaterFlaskOfEndlessFathoms) then
                             if use.greaterFlaskOfEndlessFathoms() then br.addonDebug("Using Greater Flask of Endless Fathoms") return end
                         elseif getOptionValue("Elixir") == 2 and inRaid and not buff.flaskOfEndlessFathoms.exists() and canUseItem(item.flaskOfEndlessFathoms) then
@@ -412,13 +418,12 @@ local function runRotation()
                         if isChecked("Mirror Image") and talent.mirrorImage and br.timer:useTimer("MI Delay", 2) then
                             if cast.mirrorImage() then br.addonDebug("Casting Mirror Image") return end
                         end
-                        if equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 8 and pullTimer > 4 then
-                            if br.timer:useTimer("Font Delay", 4) then
-                                br.addonDebug("Using Font Of Azshara")
-                                useItem(169314)
-                            end
+                    elseif equiped.azsharasFontOfPower and canUseItem(item.azsharasFontOfPower) and pullTimer <= 8 and pullTimer > 4 then
+                        if br.timer:useTimer("Font Delay", 4) then
+                            br.addonDebug("Using Font Of Azshara")
+                            useItem(169314)
                         end
-                    elseif pullTimer <= 4 and isValidUnit("target") then
+                    elseif pullTimer <= 4 and isValidUnit("target") and br.timer:useTimer("PB Delay",5) then
                         if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
                     end
                 end -- End Pre-Pull        
@@ -427,7 +432,7 @@ local function runRotation()
 
         local function actionList_Multi()
         -- Flamestrike
-            if buff.hotStreak.exists("player") and ((#enemies.yards8t >= 5 and not talent.flamePatch) or talent.flamePatch) then
+            if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets") then
                 if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Fire Blast
@@ -513,7 +518,7 @@ local function runRotation()
                     if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
         -- Rune of Power
-                if  (useCDs() or (#enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
+                if  (useCDs() or (#enemies.yards8t >= getValue("RoP Targets") and charges.runeOfPower.count() == 2)) and not moving and talent.runeOfPower and not buff.runeOfPower.exists("player") then
                     if talent.firestarter then
                         if (cd.combustion.remains() <= gcd and getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or getHP("target") >= 90)) then
                             if cast.runeOfPower() then br.addonDebug("Casting Rune of Power")
@@ -527,9 +532,9 @@ local function runRotation()
                     end
                 end
             -- Meteor
-                if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
+                if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
                     if talent.runeOfPower and talent.firestarter then
-                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
+                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("Meteor Targets") then
                             if not isBoss("target") then
                                 if cast.meteor("best",false,1,8) then
                                     br.addonDebug("Casting Meteor")
@@ -540,7 +545,7 @@ local function runRotation()
                             end
                         end
                     elseif talent.runeOfPower and not talent.firestarter then
-                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or cd.combustion.remains() <= gcd or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
+                        if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or #enemies.yards8t >= getValue("Meteor Targets") then
                             if not isBoss("target") then
                                 if cast.meteor("best",false,1,8) then
                                     br.addonDebug("Casting Meteor")
@@ -551,7 +556,7 @@ local function runRotation()
                             end
                         end
                     elseif not talent.runeOfPower then
-                        if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
+                        if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= getValue("Meteor Targets") then
                             if not isBoss("target") then
                                 if cast.meteor("best",false,1,8) then
                                     br.addonDebug("Casting Meteor")
@@ -567,7 +572,7 @@ local function runRotation()
                 if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) then
                     if not talent.firestarter then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
-                    elseif talent.firestarter and (getHP("target") <= 90 or #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets")) then
+                    elseif talent.firestarter and (getHP("target") <= 90 or #enemies.yards8t >= getValue("Combustion Targets")) then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
                     end
                 end
@@ -610,7 +615,7 @@ local function runRotation()
                     if createCastFunction("best", false, 1, 8, spell.purifyingBlast, nil, true) then br.addonDebug("Casting Purifying Blast") return end
                 end
         -- Multi Target ActionList
-                if #enemies.yards8t >= getValue("FS/Met/Com/RoP Targets") then
+                if #enemies.yards8t >= 2 then
                     if actionList_Multi() then return end
                 end
         -- Pyroblast
