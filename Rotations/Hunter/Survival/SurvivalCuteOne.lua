@@ -555,9 +555,10 @@ actionList.St = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)
     if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
-        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
+        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
+        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1)
     then
         if cast.wildfireBomb(nil,"aoe") then return end
     end
@@ -747,9 +748,10 @@ actionList.ApSt = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)
     if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
-        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists())
+        and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
+        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1)
     then
         if cast.wildfireBomb(nil,"aoe") then return end
     end

@@ -611,9 +611,9 @@ local function runRotation()
         local function actionList_BoSTicking()
             profileDebug = "Breath Of Sindragosa - Ticking"
         -- Obliterate
-            -- obliterate,target_if=(debuff.razorice.stack<5|debuff.razorice.remains<10)&runic_power<=30&!talent.frostscythe.enabled
+            -- obliterate,target_if=(debuff.razorice.stack<5|debuff.razorice.remains<10)&runic_power<=32&!talent.frostscythe.enabled
             if cast.able.obliterate() and (debuff.razorice.stack(units.dyn5) < 5 or debuff.razorice.remain(units.dyn5) < 10)
-                and runicPower <= 20 and not talent.frostscythe
+                and runicPower <= 32 and not talent.frostscythe
             then
                 if cast.obliterate() then return true end
             end
@@ -674,8 +674,8 @@ local function runRotation()
                 if cast.obliterate() then return true end
             end
         -- Racial: Arcane Torrent
-            -- arcane_torrent,if=runic_power.deficit>20
-            if cast.able.racial() and (runicPowerDeficit > 20 and race == "BloodElf") then
+            -- arcane_torrent,if=runic_power.deficit>50
+            if cast.able.racial() and (runicPowerDeficit > 50 and race == "BloodElf") then
                 if cast.racial() then return true end
             end
         end
