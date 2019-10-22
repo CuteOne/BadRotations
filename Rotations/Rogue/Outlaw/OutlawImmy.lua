@@ -767,17 +767,41 @@ local function runRotation()
         local function actionList_Cooldowns()
             local startTime = debugprofilestop()
         -- Trinkets
-            if isChecked("Trinkets") then
-                if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUseItem(13) then
-                        useItem(13)
-                    end
-                    if canUseItem(14) then
-                        useItem(14)
-                    end
+            -- if isChecked("Trinkets") then
+            --     if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
+            --         if canUseItem(13) then
+            --             useItem(13)
+            --         end
+            --         if canUseItem(14) then
+            --             useItem(14)
+            --         end
+            --     end
+            -- end
+
+            -- # Razor Coral
+            if isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.exists()) then
+                    useItem(13)
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.exists()) then
+                useItem(14)
                 end
             end
-    
+
+            -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
+            if isChecked("Trinkets") then
+                if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                    useItem(13)
+                elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                    useItem(14)
+                end
+            end
+
+            --Essences 8.2
+            --Blood Of The Enemy
+            if buff.adrenalineRush.exists() then
+                if cast.bloodOfTheEnemy("player") then return true end
+            end
+
     -- Non-NE Racial
             --blood_fury
             --berserking
@@ -829,7 +853,9 @@ local function runRotation()
             if not inCombat and not stealthingAll then
                 if isChecked("Stealth") then
                     if getOptionValue("Stealth") == 1 or #enemies.yards20nc > 0 then
-                        if cast.stealth("player") then end
+                        if (not IsMounted() and not IsFlying()) then
+                            if cast.stealth("player") then end
+                        end
                     end
                 end
             end
