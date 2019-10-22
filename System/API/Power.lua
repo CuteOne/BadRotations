@@ -23,7 +23,7 @@ if br.api == nil then br.api = {} end
     -- pain
 br.api.power = function(power,v)
     local isDKRunes = select(2,UnitClass("player")) == "DEATHKNIGHT" and v == 5
-    local isDestruction = GetSpecializationInfo() == 267 and v == 7
+    local isDestruction = GetSpecializationInfo(GetSpecialization()) == 267 and v == 7
     -- br.player.power.spell.amount() - Returns current amount of the specified power
     power.amount = function()
         if isDKRunes then
@@ -42,21 +42,22 @@ br.api.power = function(power,v)
     end
     -- br.player.power.spell.frac() - Used by DKs to return fractional counts of their available runes
     power.frac = function()
+        -- Death Knights
         if isDKRunes then
             local runeCount = 0
             for i = 1, 6 do
                 runeCount = runeCount + GetRuneCount(i)
             end
             return runeCount + math.max(runeCDPercent(1),runeCDPercent(2),runeCDPercent(3),runeCDPercent(4),runeCDPercent(5),runeCDPercent(6))
-        else
-            return 0
         end
+        -- Destruction Warlocks
         if isDestruction then
             local shardPower = getPower("player",v)
             local shardModifier = UnitPowerDisplayMod(Enum.PowerType.SoulShards)
-            local fragmentCount = (shardModifier ~= 0) and ((shardPower / shardModifier) / 10) or 0
+            local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return shardPower + fragmentCount
         end
+        return 0
     end
     -- br.player.power.spell.max() - Returns maximum amount of the specified power
     power.max = function()
