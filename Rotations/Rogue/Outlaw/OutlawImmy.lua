@@ -94,6 +94,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Offensive")
             br.ui:createCheckbox(section, "Trinkets")
+            br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createCheckbox(section, "Vanish")
             br.ui:createCheckbox(section, "Racial")
             br.ui:createSpinnerWithout(section, "BF HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *10k hp for Blade FLurry to be used")
@@ -209,6 +210,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
         local debuff                                        = br.player.debuff
+        local essence                                       = br.player.essence
         -- local pullTimer                                     = br.BossMods:getPulltimer()
         local enemies                                       = br.player.enemies
         local gcd                                           = getSpellCD(61304)
@@ -780,10 +782,10 @@ local function runRotation()
 
             -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.exists()) then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.exists()) then
-                useItem(14)
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
+                    useItem(14)
                 end
             end
 
@@ -798,7 +800,7 @@ local function runRotation()
 
             --Essences 8.2
             --Blood Of The Enemy
-            if buff.adrenalineRush.exists() then
+            if buff.adrenalineRush.exists() and isChecked("Essences") then
                 if cast.bloodOfTheEnemy("player") then return true end
             end
 
@@ -812,11 +814,11 @@ local function runRotation()
 
             if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
-                    if isChecked("Trinkets") then
+                    if isChecked("Trinkets") and not hasEquiped(169311, 13) then
                         if canUseItem(13) then
                             useItem(13)
                         end
-                        if canUseItem(14) then
+                        if canUseItem(14) and not hasEquiped(169311, 14) then
                             useItem(14)
                         end
                     end
