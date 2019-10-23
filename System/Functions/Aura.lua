@@ -99,9 +99,9 @@ local function Dispel(unit,stacks,buffDuration,buffRemain,buffSpellID,buff)
 			else
 				return false
 			end
-		elseif buffSpellID == 296737 and not isChecked("Arcane Bomb Range Check") then
+		elseif buffSpellID == 296737 and not isChecked("Arcane Bomb Range Check") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 			return true
-		elseif buffSpellID == 303657 and isChecked("Arcane Burst") then
+		elseif buffSpellID == 303657 and isChecked("Arcane Burst") and buffDuration - buffRemain > (getValue("Dispel delay") - 0.3 + math.random() * 0.6) then
 			return true
 		elseif novaEngineTables.DispelID[buffSpellID] ~= nil then
 			if stacks >= novaEngineTables.DispelID[buffSpellID].stacks
