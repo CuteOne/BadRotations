@@ -52,12 +52,12 @@ br.api.power = function(power,v)
         end
         -- Destruction Warlocks
         if isDestruction then
-            local shardPower = getPower("player",v)
+            local shardPower = UnitPower("player", Enum.PowerType.SoulShards, true)
             local shardModifier = UnitPowerDisplayMod(Enum.PowerType.SoulShards)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
             return shardPower + fragmentCount
         end
-        return 0
+        return getPower("player",v)
     end
     -- br.player.power.spell.max() - Returns maximum amount of the specified power
     power.max = function()
