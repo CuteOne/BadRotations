@@ -66,6 +66,12 @@ local function createToggles()
         [2] = { mode = "simc", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.rollTheBones}
     };
     CreateButton("Rollforone",5,1)    
+    EssenceModes = {
+        [1] = { mode = "off", value = 1 , overlay = "Essence disabled", tip = "Won't use essence", highlight = 0, icon = br.player.spell.bloodOfTheEnemy},
+        [2] = { mode = "Multi", value = 2 , overlay = "Essence enabled MT", tip = "Will use essence multitarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy},
+        [3] = { mode = "Single", value = 3 , overlay = "Essence enabled ST", tip = "Will use essence singletarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy}
+    };
+    CreateButton("Essence",6,0)  
 end
 
 forpro = false
@@ -94,6 +100,7 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Offensive")
             br.ui:createCheckbox(section, "Trinkets")
+            br.ui:createCheckbox(section, "AdrenalineRush", "|cffFFFFFF Will use Adrenaline Rush")
             br.ui:createCheckbox(section, "Vanish")
             br.ui:createCheckbox(section, "Racial")
             br.ui:createSpinnerWithout(section, "BF HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *10k hp for Blade FLurry to be used")
@@ -194,6 +201,7 @@ local function runRotation()
         br.player.mode.special = br.data.settings[br.selectedSpec].toggles["Special"]
         br.player.mode.tierseven = br.data.settings[br.selectedSpec].toggles["Tierseven"]
         br.player.mode.nobte = br.data.settings[br.selectedSpec].toggles["NoBTE"]
+        br.player.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
 --------------
 --- Locals ---
 --------------
@@ -209,6 +217,7 @@ local function runRotation()
         local cd                                            = br.player.cd
         local combo, comboDeficit, comboMax                 = br.player.power.comboPoints.amount(), br.player.power.comboPoints.deficit(), br.player.power.comboPoints.max()
         local debuff                                        = br.player.debuff
+        local essence                                       = br.player.essence
         -- local pullTimer                                     = br.BossMods:getPulltimer()
         local enemies                                       = br.player.enemies
         local gcd                                           = getSpellCD(61304)
@@ -767,17 +776,50 @@ local function runRotation()
         local function actionList_Cooldowns()
             local startTime = debugprofilestop()
         -- Trinkets
-            if isChecked("Trinkets") then
-                if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
-                    if canUseItem(13) then
-                        useItem(13)
-                    end
-                    if canUseItem(14) then
-                        useItem(14)
-                    end
+            -- if isChecked("Trinkets") then
+            --     if hasBloodLust() or (ttd("target") <= 20 and isBoss("target"))  then
+            --         if canUseItem(13) then
+            --             useItem(13)
+            --         end
+            --         if canUseItem(14) then
+            --             useItem(14)
+            --         end
+            --     end
+            -- end
+
+            -- # Razor Coral
+            if isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
+                    useItem(13)
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
+                    useItem(14)
                 end
             end
-    
+
+            -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
+            if isChecked("Trinkets") then
+                if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                    useItem(13)
+                elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                    useItem(14)
+                end
+            end
+
+            --Essences 8.2
+            --Blood Of The Enemy Multi Target
+            if mode.essence == 2 and cd.betweenTheEyes.remain() < 1 and buff.bladeFlurry.exists("player") then
+                if cast.bloodOfTheEnemy("player") then return true end
+            end
+            --Blood Of The Enemy Single Target
+            if mode.essence == 3 and cd.betweenTheEyes.remain() < 1 then
+                if cast.bloodOfTheEnemy("player") then return true end
+            end
+
+            --Guardian of Azeroth
+            --if mode.essence == 2 or mode.essence == 3 then
+            --    if cast.guardianOfAzeroth("player") then return true end
+            --end
+
     -- Non-NE Racial
             --blood_fury
             --berserking
@@ -786,18 +828,20 @@ local function runRotation()
                 if cast.racial("player") then return true end
             end
 
-            if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
+            if mode.special == 1 and isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
-                    if isChecked("Trinkets") then
+                    if isChecked("Trinkets") and not hasEquiped(169311, 13) then
                         if canUseItem(13) then
                             useItem(13)
                         end
-                        if canUseItem(14) then
+                        if canUseItem(14) and not hasEquiped(169311, 14) then
                             useItem(14)
                         end
                     end
                 return true end
-            end    
+            end
+            
+            --Adrenaline rush logic for mythic
 
             if bladeFlurrySync() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0)) then
                 if cast.ghostlyStrike("target") then return true end
@@ -829,7 +873,9 @@ local function runRotation()
             if not inCombat and not stealthingAll then
                 if isChecked("Stealth") then
                     if getOptionValue("Stealth") == 1 or #enemies.yards20nc > 0 then
-                        if cast.stealth("player") then end
+                        if (not IsMounted() and not IsFlying()) then
+                            if cast.stealth("player") then end
+                        end
                     end
                 end
             end
@@ -1275,7 +1321,7 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and (ttd(units.dyn8) > 15 or isDummy()) then
             if cast.bladeFlurry("player") then return true end
         end
 
