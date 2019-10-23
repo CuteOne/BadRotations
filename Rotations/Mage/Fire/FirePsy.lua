@@ -240,6 +240,16 @@ local function runRotation()
             end
         end
 
+        local fbTracker = 0
+        for i = 1, 3 do
+            local cast = br.lastCast.tracker[i]
+            if cast == 108853 then
+                fbTracker = fbTracker + 1
+            end
+        end
+
+        local instantPyro = getCastTime(spell.pyroblast) == 0 or false
+
 --------------------
 --- Action Lists ---
 --------------------
@@ -469,9 +479,15 @@ local function runRotation()
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
-            if isChecked("Pull OoC") and solo and not inCombat and not moving then
-                if br.timer:useTimer("FB Delay", 1.5) then
-                    if cast.fireball() then br.addonDebug("Casting Fireball (Pull Spell)") return end
+            if isChecked("Pull OoC") and solo and not inCombat then 
+                if not moving then
+                    if br.timer:useTimer("FB Delay", 1.5) then
+                        if cast.fireball() then br.addonDebug("Casting Fireball (Pull Spell)") return end
+                    end
+                else
+                    if br.timer:useTimer("Scorch Delay", 1.5) then
+                        if cast.scorch() then br.addonDebug("Casting Scorch (Pull Spell)") return end
+                    end
                 end
             end
 -----------------------
@@ -512,8 +528,8 @@ local function runRotation()
                     if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return end
                 end
         -- Memory of Lucid Dreams
-                if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd and (not talent.firestarter
-                    or (talent.firestarter and (getHP("target") <= 90) and #enemies.yards8t >= 3))
+                if isChecked("Use Essence") and useCDs() and essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and cd.combustion.remains() <= gcd 
+                    and not moving and (not talent.firestarter or (talent.firestarter and (getHP("target") <= 90) and #enemies.yards8t >= 3))
                 then
                     if cast.memoryOfLucidDreams() then br.addonDebug("Casting Memory of Lucid Dreams") return end
                 end
@@ -522,11 +538,13 @@ local function runRotation()
                     if talent.firestarter then
                         if (cd.combustion.remains() <= gcd and getHP("target") < 90) or (charges.runeOfPower.count() == 2 and (cd.combustion.remains() > 20 or getHP("target") >= 90)) then
                             if cast.runeOfPower() then br.addonDebug("Casting Rune of Power")
+                                return
                             end
                         end
                     elseif not talent.firestarter then
-                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 and cd.combustion.remains() > 20) then
+                        if cd.combustion.remains() <= gcd or (charges.runeOfPower.count()== 2 or charges.runeOfPower.timeTillFull() < 2) then
                             if cast.runeOfPower() then br.addonDebug("Casting Rune of Power")
+                                return
                             end
                         end
                     end
@@ -569,7 +587,7 @@ local function runRotation()
                     end
                 end
             -- Combustion
-                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) then
+                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) and (cast.last.meteor() or cd.meteor.remains() > gcd) then
                     if not talent.firestarter then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
                     elseif talent.firestarter and (getHP("target") <= 90 or #enemies.yards8t >= getValue("Combustion Targets")) then
@@ -577,17 +595,10 @@ local function runRotation()
                     end
                 end
             -- Hyperthread Wristwraps
-                if equiped.hyperthreadWristWraps and canUseItem(item.hyperthreadWristWraps) then
-                    local fbTracker = 0
-                    for i = 1, 3 do
-                        local cast = br.lastCast.tracker[i]
-                        if cast == 108853 then
-                            fbTracker = fbTracker + 1
-                        end
-                    end
-                    if useCDs() and buff.combustion.exists('player') and ((talent.flameOn and charges.fireBlast.count() <= 1) or charges.fireBlast.count() == 0) and fbTracker >= 2 then
-                        if use.hyperthreadWristWraps() then br.addonDebug("Using Hyperthread Wristwraps") return end
-                    end
+                if equiped.hyperthreadWristWraps and canUseItem(item.hyperthreadWristWraps) and useCDs() and buff.combustion.exists('player') 
+                    and ((talent.flameOn and charges.fireBlast.count() <= 1) or charges.fireBlast.count() == 0) and fbTracker >= 2 
+                then
+                    if use.hyperthreadWristWraps() then br.addonDebug("Using Hyperthread Wristwraps") end
                 end
             -- Blood of the Enemy
                 if isChecked("Use Essence") and useCDs() and essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and not buff.combustion.exists("player") 
@@ -623,7 +634,7 @@ local function runRotation()
                     if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
                 end
         -- Fire Blast
-                if buff.heatingUp.exists("player") and br.timer:useTimer("FB Delay", 0.5) and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
+                if buff.heatingUp.exists("player") and not cast.last.fireBlast() and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
                     if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
                 end
         -- Living Bomb
