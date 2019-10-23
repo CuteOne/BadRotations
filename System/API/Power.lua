@@ -55,7 +55,7 @@ br.api.power = function(power,v)
             local shardPower = UnitPower("player", Enum.PowerType.SoulShards, true)
             local shardModifier = UnitPowerDisplayMod(Enum.PowerType.SoulShards)
             local fragmentCount = (shardModifier ~= 0) and (shardPower / shardModifier) or 0
-            return shardPower + fragmentCount
+            return (shardPower + fragmentCount)/10
         end
         return getPower("player",v)
     end
