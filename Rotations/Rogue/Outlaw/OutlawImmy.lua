@@ -65,7 +65,13 @@ local function createToggles()
         [1] = { mode = "any", value = 1 , overlay = "", tip = "", highlight = 0, icon = br.player.spell.rollTheBones},
         [2] = { mode = "simc", value = 2 , overlay = "", tip = "", highlight = 1, icon = br.player.spell.rollTheBones}
     };
-    CreateButton("Rollforone",5,1)    
+    CreateButton("Rollforone",5,1)
+    EssenceModes = {
+        [1] = { mode = "off", value = 1 , overlay = "Essence disabled", tip = "Won't use essence", highlight = 0, icon = br.player.spell.bloodOfTheEnemy},
+        [2] = { mode = "Multi", value = 2 , overlay = "Essence enabled MT", tip = "Will use essence multitarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy},
+        [3] = { mode = "Single", value = 3 , overlay = "Essence enabled ST", tip = "Will use essence singletarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy}
+    };
+    CreateButton("Essence",6,0)  
 end
 
 forpro = false
@@ -95,6 +101,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile,  "Offensive")
             br.ui:createCheckbox(section, "Trinkets")
             br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
+            br.ui:createCheckbox(section, "AdrenalineRush", "|cffFFFFFF Will use Adrenaline Rush")
             br.ui:createCheckbox(section, "Vanish")
             br.ui:createCheckbox(section, "Racial")
             br.ui:createSpinnerWithout(section, "BF HP Limit", 15, 0, 105, 1, "|cffFFFFFFHP *10k hp for Blade FLurry to be used")
@@ -195,6 +202,7 @@ local function runRotation()
         br.player.mode.special = br.data.settings[br.selectedSpec].toggles["Special"]
         br.player.mode.tierseven = br.data.settings[br.selectedSpec].toggles["Tierseven"]
         br.player.mode.nobte = br.data.settings[br.selectedSpec].toggles["NoBTE"]
+        br.player.mode.essence = br.data.settings[br.selectedSpec].toggles["Essence"]
 --------------
 --- Locals ---
 --------------
@@ -780,7 +788,6 @@ local function runRotation()
             --     end
             -- end
 
-            -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
                 if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
                     useItem(13)
@@ -799,10 +806,19 @@ local function runRotation()
             end
 
             --Essences 8.2
-            --Blood Of The Enemy
-            if buff.adrenalineRush.exists() and isChecked("Essences") then
+            --Blood Of The Enemy Multi Target
+            if mode.essence == 2 and cd.betweenTheEyes.remain() < 1 and buff.bladeFlurry.exists("player") then
                 if cast.bloodOfTheEnemy("player") then return true end
             end
+            --Blood Of The Enemy Single Target
+            if mode.essence == 3 and cd.betweenTheEyes.remain() < 1 then
+                if cast.bloodOfTheEnemy("player") then return true end
+            end
+
+            --Guardian of Azeroth
+            --if mode.essence == 2 or mode.essence == 3 then
+            --    if cast.guardianOfAzeroth("player") then return true end
+            --end
 
     -- Non-NE Racial
             --blood_fury
@@ -812,7 +828,7 @@ local function runRotation()
                 if cast.racial("player") then return true end
             end
 
-            if mode.special == 1 and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
+            if mode.special == 1 and isChecked("AdrenalineRush") and not buff.adrenalineRush.exists() and ttd("target") >= 10 then
                 if cast.adrenalineRush("player") then
                     if isChecked("Trinkets") and not hasEquiped(169311, 13) then
                         if canUseItem(13) then
@@ -1303,7 +1319,7 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and (ttd(units.dyn8) > 15 or isDummy()) then
             if cast.bladeFlurry("player") then return true end
         end
 
