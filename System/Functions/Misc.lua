@@ -574,7 +574,13 @@ function pause(skipCastingCheck)
 		-- or (((UnitHealth("target")/UnitHealthMax("target"))*100) > 10 and UnitBuffID("target",143593)) --Defensive Stance - General Nagrazim
 		-- or UnitBuffID("target",140296) --Conductive Shield - Thunder Lord / Lightning Guardian
 	then
-		if (UnitCastingInfo("player") and not skipCastingCheck) or (UnitChannelInfo("player") and not skipCastingCheck) then
+		if (UnitCastingInfo("player") and not skipCastingCheck) then
+			local _, _, _, _, endTime = UnitCastingInfo("player")
+			local finish = endTime/1000 - GetTime()
+			if finish > getValue("Spell Queue") then 
+				return true
+			end
+		elseif (UnitChannelInfo("player") and not skipCastingCheck) then
 			return true
 		else
 			ChatOverlay("Profile Paused")
