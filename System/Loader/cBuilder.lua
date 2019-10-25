@@ -1,83 +1,56 @@
 br.loader = {}
-function br.loader.loadProfiles()
-    local specID = GetSpecializationInfo(GetSpecialization())
-    local class = select(2,UnitClass('player'))
-
-    local function getFolderClassName(class)
-        local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
-        if formatClass == "Deathknight" then formatClass = "Death Knight" end
-        if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
-
-        return formatClass
-    end
-
-    local function getFolderSpecName(class)
-        for k, v in pairs(br.lists.spec[class]) do
-            if v == specID then return tostring(k) end
-        end
-    end
-
-    local function rotationsDirectory()
-        return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
-    end
-
-    local function profiles(class, spec)
-        return GetDirectoryFiles(rotationsDirectory() .. class .. '\\' .. spec .. '\\*.lua')
-    end
-
-    -- Search each Profile in the Spec Folder
-    wipe(br.rotations)
-    local folderClass = getFolderClassName(class)
-    local folderSpec = getFolderSpecName(class)
-    for _, file in pairs(profiles(folderClass, folderSpec)) do
-        local profile = ReadFile(rotationsDirectory()..folderClass.."\\"..folderSpec.."\\"..file)
-        local start = string.find(profile,"local id = ",1,true) or 0
-        local profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
-        if profileID == specID then
-            local loadProfile = loadstring(profile,file)
-            if loadProfile == nil then
-                Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
-            else
-                loadProfile()
-            end
-        end
+local class = select(2,UnitClass('player'))
+local function getFolderClassName(class)
+    local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
+    if formatClass == "Deathknight" then formatClass = "Death Knight" end
+    if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
+    return formatClass
+end
+local function getFolderSpecName(class,specID)
+    for k, v in pairs(br.lists.spec[class]) do
+        if v == specID then return tostring(k) end
     end
 end
-
-function loadSupport(thisFile) -- Loads support rotation file from Class Folder
-    if thisFile == nil then return end
-    local class = select(2,UnitClass('player'))
-
-    local function getFolderClassName(class)
-        local formatClass = class:sub(1,1):upper()..class:sub(2):lower()
-        if formatClass == "Deathknight" then formatClass = "Death Knight" end
-        if formatClass == "Demonhunter" then formatClass = "Demon Hunter" end
-
-        return formatClass
-    end
-
-    local function rotationsDirectory()
-        return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
-    end
-
-    local function profiles(class)
-        return GetDirectoryFiles(rotationsDirectory() .. class .. '\\Support\\' .. thisFile .. '.lua')
-    end
-
-    -- Search each Profile in the Spec Folder
-    if br.rotations.support == nil then br.rotations.support = {} end
-    wipe(br.rotations.support)
-    local folderClass = getFolderClassName(class)
-    local profile = ReadFile(rotationsDirectory()..folderClass..'\\Support\\'..thisFile..'.lua')
-    local loadProfile = loadstring(profile,thisFile..".lua")
+local function rotationsDirectory()
+    return GetWoWDirectory() .. '\\Interface\\AddOns\\BadRotations\\Rotations\\'
+end
+local function loadFile(profile,file,support)
+    local loadProfile = loadstring(profile,file)
     if loadProfile == nil then
-        Print("|cffff0000Failed to Load - |r"..tostring(thisFile).."|cffff0000, contact dev.");
+        Print("|cffff0000Failed to Load - |r"..tostring(file).."|cffff0000, contact dev.");
     else
-        Print("Loaded Support Rotation: "..thisFile)
+        if support then Print("Loaded Support Rotation: "..file) end
         loadProfile()
     end
 end
 
+-- Load Rotation Files
+function br.loader.loadProfiles()
+    -- Search each Profile in the Spec Folder
+    wipe(br.rotations)
+    local specID = GetSpecializationInfo(GetSpecialization())
+    local folderSpec = getFolderSpecName(class,specID)
+    local path = rotationsDirectory() .. getFolderClassName(class) .. '\\' .. folderSpec .. "\\"
+    local profiles = GetDirectoryFiles(path .. '*.lua')
+    for _, file in pairs(profiles) do
+        local profile = ReadFile(path..file)
+        local start = string.find(profile,"local id = ",1,true) or 0
+        local profileID = tonumber(string.sub(profile,start+10,start+13)) or 0
+        if profileID == specID then loadFile(profile,file,false) end
+    end
+end
+
+-- Load Support Files - Specified in Rotation File
+function loadSupport(thisFile) -- Loads support rotation file from Class Folder
+    if thisFile == nil then return end
+    if br.rotations.support == nil then br.rotations.support = {} end
+    wipe(br.rotations.support)
+    local file = thisFile..".lua"
+    local profile = ReadFile(rotationsDirectory()..getFolderClassName(class)..'\\Support\\'..file)
+    loadFile(profile,file,true)
+end
+
+-- Generate Profile API
 function br.loader:new(spec,specName)
     local loadStart = debugprofilestop()
     local self = cCharacter:new(tostring(select(1,UnitClass("player"))))
@@ -202,13 +175,6 @@ function br.loader:new(spec,specName)
     end
 
     local function getFunctions()
-        -- Build Talent Info
-        -- for k,v in pairs(self.spell.talents) do
-        --     if self.talent == nil then self.talent = {} end
-
-        -- end
-
-        -- if not UnitAffectingCombat("player") then
         -- Build Artifact Info
         for k,v in pairs(self.spell.artifacts) do
             if not self.artifact[k] then self.artifact[k] = {} end
@@ -221,33 +187,6 @@ function br.loader:new(spec,specName)
                 return getPerkRank(v)
             end
         end
-
-        -- --Build Azerite Info
-        -- for k,v in pairs(self.spell.traits) do
-        --     if not self.traits[k] then self.traits[k] = {} end
-        --     local traits = self.traits[k]
-
-        --     traits.rank = function()
-        --         local rank = 0
-        --         for _, itemLocation in AzeriteUtil.EnumerateEquipedAzeriteEmpoweredItems() do
-        --             local tierInfo = C_AzeriteEmpoweredItem.GetAllTierInfo(itemLocation)
-        --             for tier, info in next, tierInfo do
-        --                 for _, powerID in next, info.azeritePowerIDs do
-        --                     local isSelected = C_AzeriteEmpoweredItem.IsPowerSelected(itemLocation, powerID)
-        --                     local powerInfo = C_AzeriteEmpoweredItem.GetPowerInfo(powerID)
-        --                     if powerInfo.spellID == v and isSelected then
-        --                         rank = rank + 1
-        --                     end
-        --                 end
-        --             end
-        --         end
-        --         return rank
-        --     end
-
-        --     traits.active = function()
-        --         return traits.rank() > 0
-        --     end
-        -- end
 
         -- Get Azerite Essence Info
         for k,v in pairs(self.spell.essences) do
@@ -342,52 +281,6 @@ function br.loader:new(spec,specName)
             end
         end
 
-            -- if self.pet.active == nil then self.pet.active = {} end
-            -- self.pet.active.exists = function()
-            --     return GetObjectExists("pet")
-            -- end
-
-            -- self.pet.active.count = function()
-            --     local count = 0
-            --     for k,v in pairs(self.pet.list) do
-            --         local listID = self.pet.list[k].id
-            --         if GetObjectID("pet") == listID then count = count + 1 end
-            --     end
-            --     return count
-            -- end
-
-            -- self.pet.active.id =  function()
-            --     return GetObjectID("pet")
-            -- end
-
-            -- for k,v in pairs(self.pets) do
-            --     if self.pet[k] == nil then self.pet[k] = {} end
-
-            --     local pet = self.pet[k]
-
-            --     pet.count = function()
-            --         local count = 0
-            --         for l,w in pairs(self.pet.list) do
-            --             local listID = self.pet.list[l].id
-            --             if v == listID then count = count + 1 end
-            --         end
-            --         return count
-            --     end
-
-            --     pet.active = function()
-            --         return self.pet[k].count() > 0
-            --     end
-
-            --     pet.exists = function()
-            --         return self.pet[k].count() > 0
-            --     end
-
-            --     pet.id = function()
-            --         return v
-            --     end
-            -- end
-        -- end
-
         -- if self.pet.buff == nil then self.pet.buff = {} end
         -- self.pet.buff.exists = function(buffID,petID)
         --     for k, v in pairs(self.pet) do
@@ -470,18 +363,18 @@ function br.loader:new(spec,specName)
     if spec == GetSpecializationInfo(GetSpecialization()) and (self.talent == nil or self.cast == nil) then 
         getSpellsForSpec(spec); getTalentInfo(); getAzeriteTraitInfo(); getFunctions(); br.updatePlayerInfo = false 
     end
-------------------
---- OOC UPDATE ---
-------------------
+    ------------------
+    --- OOC UPDATE ---
+    ------------------
 
     function self.updateOOC()
         -- Call baseUpdateOOC()
         self.baseUpdateOOC()
     end
 
---------------
---- UPDATE ---
---------------
+    --------------
+    --- UPDATE ---
+    --------------
 
     function self.update()
         if spec == GetSpecializationInfo(GetSpecialization()) then 
@@ -497,9 +390,9 @@ function br.loader:new(spec,specName)
         end
     end
 
----------------
---- BLEEDS  ---
----------------
+    ---------------
+    --- BLEEDS  ---
+    ---------------
     function self.getBleeds()
         if spec == 103 or spec == 259 then
             for k, v in pairs(self.debuff) do
@@ -532,9 +425,9 @@ function br.loader:new(spec,specName)
         end
     end
 
----------------
---- TOGGLES ---
----------------
+    ---------------
+    --- TOGGLES ---
+    ---------------
 
     function self.getToggleModes()
         for k,v in pairs(br.data.settings[br.selectedSpec].toggles) do
@@ -554,9 +447,9 @@ function br.loader:new(spec,specName)
         end
     end
 
----------------
---- OPTIONS ---
----------------
+    ---------------
+    --- OPTIONS ---
+    ---------------
 
     -- Class options
     -- Options which every Rogue should have
@@ -634,9 +527,9 @@ function br.loader:new(spec,specName)
         -- end
     end
 
-------------------------
---- CUSTOM FUNCTIONS ---
-------------------------
+    ------------------------
+    --- CUSTOM FUNCTIONS ---
+    ------------------------
 
     function useAoE()
         local rotation = self.mode.rotation
@@ -730,9 +623,9 @@ function br.loader:new(spec,specName)
 
     -- Debugging
     br.debug.cpu.rotation.loadTime = debugprofilestop()-loadStart
------------------------------
---- CALL CREATE FUNCTIONS ---
------------------------------
+    -----------------------------
+    --- CALL CREATE FUNCTIONS ---
+    -----------------------------
     -- Return
     return self
 end --End function
