@@ -28,25 +28,27 @@ local function FindToggle(toggleValue)
 end
 
 function ToggleToValue(toggleValue,index)
+	local modesCount = #_G[toggleValue.."Modes"]
+	local oldValue = toggleValue
 	local toggleValue = FindToggle(toggleValue)
 	local index = tonumber(index)
-	local modesCount = #_G[toggleValue.."Modes"]
 	if index > modesCount then
 		Print("Invalid Toggle Index for |cffFFDD11"..toggleValue..": |cFFFF0000 Index ( |r"..index.."|cFFFF0000) exceeds Max ( |r".. modesCount .."|cFFFF0000)|r.")
 	else
 		specialToggleCodes(toggleValue,index)
 		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = index
-		changeButton(toggleValue,index)
+		changeButton(oldValue,index)
 		-- We reset the tip
-		ResetTip(toggleValue,index)
+		ResetTip(oldValue,index)
 	end
 end
 
 function ToggleValue(toggleValue)
+	local modesCount = #_G[toggleValue.."Modes"]
+	local oldValue = toggleValue
 	local toggleValue = FindToggle(toggleValue)
 	-- prevent nil fails
 	local toggleOldValue = br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] or 1
-	local modesCount = #_G[toggleValue.."Modes"]
 	if toggleOldValue == nil then
 		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = 1
 		toggleOldValue = br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)]
@@ -58,20 +60,20 @@ function ToggleValue(toggleValue)
 			if modesCount > i then
 				-- calculate newValue
 				newValue = i + 1
-				specialToggleCodes(toggleValue,newValue)
+				specialToggleCodes(oldValue,newValue)
 				-- We set the value in DB
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
-				changeButton(toggleValue,newValue)
+				changeButton(oldValue,newValue)
 				-- We reset the tip
-				ResetTip(toggleValue,newValue)
+				ResetTip(oldValue,newValue)
 				break
 			else
 				specialToggleCodes(toggleValue,1)
 				-- if cannot go higher we define mode to 1.
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = 1
-				changeButton(toggleValue,1)
+				changeButton(oldValue,1)
 				-- We reset the tip
-				ResetTip(toggleValue,1)
+				ResetTip(oldValue,1)
 				break
 			end
 		end
@@ -79,12 +81,13 @@ function ToggleValue(toggleValue)
 end
 
 function ToggleMinus(toggleValue)
+	local modesCount = #_G[toggleValue.."Modes"]
+	local oldValue = toggleValue
 	local toggleValue = FindToggle(toggleValue)
 	-- prevent nil fails
 	if br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] == nil then
 		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = 1
 	end
-	local modesCount = #_G[toggleValue.."Modes"]
 	-- Scan Table and find which mode = our i
 	for i = 1,modesCount do
 		local thisValue = br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] or 1
@@ -94,21 +97,21 @@ function ToggleMinus(toggleValue)
 			if i > 1 then
 				-- calculate newValue
 				newValue = i - 1
-				specialToggleCodes(toggleValue,newValue)
+				specialToggleCodes(oldValue,newValue)
 				-- We set the value in DB
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
 				-- change the button
-				changeButton(toggleValue,newValue)
+				changeButton(oldValue,newValue)
 				-- We reset the tip
-				ResetTip(toggleValue,newValue)
+				ResetTip(oldValue,newValue)
 				break
 			else
 				-- if cannot go higher we define to last mode
 				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = modesCount
 				specialToggleCodes(toggleValue,newValue)
-				changeButton(toggleValue,newValue)
+				changeButton(oldValue,newValue)
 				-- We reset the tip
-				ResetTip(toggleValue,newValue)
+				ResetTip(oldValue,newValue)
 				break
 			end
 		end
@@ -163,11 +166,11 @@ end
 
 -- set to desired button value
 function changeButton(toggleValue,newValue)
-	
+	local modes = _G[toggleValue.. "Modes"]
 	-- define text
-	_G["text"..toggleValue]:SetText(_G[toggleValue.. "Modes"][newValue].mode)
+	_G["text"..toggleValue]:SetText(modes[newValue].mode)
 	-- define icon
-	if type(_G[toggleValue.. "Modes"][newValue].icon) == "number" then
+	if type(modes[newValue].icon) == "number" then
 		Icon = select(3,GetSpellInfo(_G[toggleValue.."Modes"][newValue].icon))
 	else
 		Icon = _G[toggleValue.."Modes"][newValue].icon
@@ -180,7 +183,7 @@ function changeButton(toggleValue,newValue)
 		_G["frame"..toggleValue].texture:SetTexture(genericIconOn)
 	end
 	-- We tell the user we changed mode
-	ChatOverlay("\124cFF3BB0FF".._G[toggleValue.. "Modes"][newValue].overlay)
+	ChatOverlay("\124cFF3BB0FF"..modes[newValue].overlay)
 	-- We reset the tip
 	ResetTip(toggleValue,newValue)
 end
