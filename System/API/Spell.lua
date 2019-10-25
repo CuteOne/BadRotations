@@ -50,13 +50,13 @@ br.api.spells = function(spells,k,v,subtable)
     end
     if subtable == "cast" then
         local cast = spells
-        cast[k] = function(thisUnit,debug,minUnits,effectRng,predict)
-            return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k,predict)
+        cast[k] = function(thisUnit,debug,minUnits,effectRng,predict,predictPad)
+            return createCastFunction(thisUnit,debug,minUnits,effectRng,v,k,predict,predictPad)
         end
 
         if cast.able == nil then cast.able = {} end
-        cast.able[k] = function(thisUnit,debug,minUnits,effectRng,predict)
-            return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k,predict)
+        cast.able[k] = function(thisUnit,debug,minUnits,effectRng,predict,predictPad)
+            return createCastFunction(thisUnit,"debug",minUnits,effectRng,v,k,predict,predictPad)
             -- return self.cast[v](nil,"debug")
         end
 
