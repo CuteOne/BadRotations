@@ -790,7 +790,7 @@ local function runRotation()
 
         local function technoViking()
             --Use Demo Shout on CD
-            if isChecked("Demoralizing Shout - CD") and rage <= 100 then
+            if getOptionValue("Demoralizing Shout - CD") == 1 and rage <= 100 then
                 if cast.demoralizingShout() then
                     return
                 end

@@ -28,7 +28,7 @@ local function FindToggle(toggleValue)
 end
 
 function ToggleToValue(toggleValue,index)
-	if br.data.toggles[toggleValue.."Modes"] == nil then
+	if br.data.settings[br.selectedSpec].toggles[toggleValue.."Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
 	local index = tonumber(index)
@@ -45,7 +45,7 @@ function ToggleToValue(toggleValue,index)
 end
 
 function ToggleValue(toggleValue)
-	if br.data.toggles[toggleValue.."Modes"] == nil then
+	if br.data.settings[br.selectedSpec].toggles[toggleValue.."Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
 	-- prevent nil fails
@@ -83,7 +83,7 @@ function ToggleValue(toggleValue)
 end
 
 function ToggleMinus(toggleValue)
-	if br.data.toggles[toggleValue.."Modes"] == nil then
+	if br.data.settings[br.selectedSpec].toggles[toggleValue.."Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
 	-- prevent nil fails
@@ -163,7 +163,7 @@ function specialToggleCodes(toggleValue,newValue)
 end
 
 function changeButtonValue(toggleValue,newValue)
-	if br.data.toggles[toggleValue.."Modes"] == nil then
+	if br.data.settings[br.selectedSpec].toggles[toggleValue.."Modes"] == nil then
 		toggleValue = FindToggle(toggleValue)
 	end
 	br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue

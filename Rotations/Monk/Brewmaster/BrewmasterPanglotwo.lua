@@ -46,6 +46,11 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Detox Disabled", tip = "Detox will not be used.", highlight = 0, icon = br.player.spell.ringOfPeace }
     };
     CreateButton("Detox",7,0)
+    SuperBrewModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Avoid Brew Capping Enabled", tip = "Dont waste the brews brah", highlight = 1, icon = br.player.spell.purifyingBrew },
+        [2] = { mode = "Off", value = 2 , overlay = "Allow Brew Capping", tip = "Pour one out for the homies", highlight = 0, icon = br.player.spell.resuscitate }
+    };
+    CreateButton("SuperBrew",0,1)
 
 end
 
@@ -63,33 +68,34 @@ local function createOptions()
         -----------------------
         --- GENERAL OPTIONS ---
         -----------------------
-        section = br.ui:createSection(br.ui.window.profile,  "General")
+        section = br.ui:createSection(br.ui.window.profile,  "|cff5AC18EGeneral")
 		-- Let Rotation Deal with Purifying (SIMC)
-			br.ui:createCheckbox(section,"High Stagger Debuff")
+			br.ui:createCheckbox(section, "High Stagger Debuff")
         -- Stagger dmg % to purify
             br.ui:createSpinner(section, "Stagger dmg % to purify",  100,  0,  300,  5,  "Stagger dmg % to purify")
         -- Trinkets
-            br.ui:createCheckbox(section,"Trinket 1")
-            br.ui:createCheckbox(section,"Trinket 2")
+            br.ui:createCheckbox(section, "Trinket 1")
+            br.ui:createCheckbox(section, "Trinket 2")
         -- Racial
-            br.ui:createCheckbox(section,"Racial")
+            br.ui:createCheckbox(section, "Racial")
         -- BoB usage
             br.ui:createCheckbox(section, "Black Ox Brew")
         -- Small Dave  
             br.ui:createCheckbox(section, "Summon Dave - The Statue")
             br.ui:createCheckbox(section, "Pig Catcher")
+            br.ui:createDropdown(section, "Ring of Peace", br.dropOptions.Toggle, 6, "Hold this key to cast Ring of Peace at Mouseover")
 		br.ui:checkSectionState(section)
         -------------------------
 		---  COOLDOWN OPTIONS ---
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        section = br.ui:createSection(br.ui.window.profile, "|cff5AC18ECooldowns")
 		--Invoke Niuzao
-			br.ui:createCheckbox(section,"Invoke Niuzao")
+			br.ui:createCheckbox(section, "Invoke Niuzao")
         br.ui:checkSectionState(section)
         -------------------------
 		---- ESSENCE OPTIONS ----
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        section = br.ui:createSection(br.ui.window.profile, "|cff5AC18EEssences")
             br.ui:createSpinner(section, "ConcentratedFlame - Heal", 50, 0, 100, 5, "", "health to heal at")
             br.ui:createCheckbox(section, "ConcentratedFlame - DPS")
             br.ui:createSpinner(section, "Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
@@ -97,7 +103,7 @@ local function createOptions()
         -------------------------
 		--- DEFENSIVE OPTIONS ---
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Defensive")
+        section = br.ui:createSection(br.ui.window.profile, "|cff5AC18EDefensive")
         -- Healthstone
             br.ui:createSpinner(section, "Healthstone/Potion",  60,  0,  100,  5,  "|cffFFBB00Health Percentage to use at.")
         -- Healing Elixir
@@ -107,13 +113,13 @@ local function createOptions()
         -- Dampen Harm
             br.ui:createSpinner(section, "Dampen Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
         -- Detox
-            br.ui:createCheckbox(section,"Detox Me")
+            br.ui:createCheckbox(section, "Detox Me")
         -- Detox
-            br.ui:createCheckbox(section,"Detox Mouseover")
+            br.ui:createCheckbox(section, "Detox Mouseover")
         -- Expel Harm
             br.ui:createSpinner(section, "Expel Harm",  50,  0,  100,  5,  "|cffFFFFFFHealth Percent to Cast At")
 		-- Guard
-			br.ui:createCheckbox(section,"Use Guard")
+			br.ui:createCheckbox(section, "Use Guard")
 		-- Expel Harm Orbs
             br.ui:createSpinnerWithout(section, "Expel Harm Orbs",  3,  0,  15,  1,  "|cffFFFFFFMin amount of Gift of the Ox Orbs to cast.")
         -- Vivify
@@ -122,7 +128,7 @@ local function createOptions()
         -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
-        section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+        section = br.ui:createSection(br.ui.window.profile, "|cff5AC18EInterrupts")
         -- Spear Hand Strike
             br.ui:createCheckbox(section, "Spear Hand Strike")
         -- Paralysis
@@ -161,6 +167,7 @@ local function runRotation()
         br.player.mode.brews = br.data.settings[br.selectedSpec].toggles["Brews"]
         br.player.mode.taunt = br.data.settings[br.selectedSpec].toggles["Taunt"]
         br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
+        br.player.mode.superbrew = br.data.settings[br.selectedSpec].toggles["SuperBrew"]
 
 --------------
 --- Locals ---
@@ -311,6 +318,14 @@ local function runRotation()
 --------------------
 --- Action Lists ---
 --------------------
+
+    local function key()
+        if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+            if cast.able.ringOfPeace() then
+                if CastSpellByName(GetSpellInfo(spell.ringOfPeace),"cursor") then return true end
+            end
+        end
+    end
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Taunt
@@ -499,10 +514,10 @@ local function runRotation()
 	-- Single Target Rotation
     local function actionList_Single()
        -- Print("Single")
-		-- Black Out Strike
-			if cast.blackoutStrike() then return end
 		-- Keg Smash
-			if cast.kegSmash() then return end
+            if cast.kegSmash() then return end
+        -- Black Out Strike
+			if cast.blackoutStrike() then return end
 		-- Breath of Fire
 			if debuff.kegSmash.exists() then
 				if cast.breathOfFire() then return end
@@ -606,7 +621,7 @@ local function runRotation()
 
 	-- Brews Rotations
 	local function actionList_Brews()
-		--Black Ox Brew
+        --Black Ox Brew
             if isChecked("Black Ox Brew") and talent.blackoxBrew then
                 if (charges.purifyingBrew.frac() < 0.7) or
                     (charges.purifyingBrew.count() == 0 and (staggerPct >= getValue("Stagger dmg % to purify"))) then
@@ -621,7 +636,7 @@ local function runRotation()
             end
 		-- Percentage Purify
 			if isChecked("Stagger dmg % to purify") then
-                if (staggerPct >= getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.8) and buff.ironskinBrew.exists("player") then
+                if (staggerPct >= getValue("Stagger dmg % to purify") and charges.purifyingBrew.frac() > 0.5) and buff.ironskinBrew.exists("player") then
                     if cast.purifyingBrew() then return end
                 end
             end
@@ -629,7 +644,21 @@ local function runRotation()
             if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or buff.ironskinBrew.remain() <= 2) then
                 if cast.ironskinBrew() then return end
             end
-	end
+        --Brew Capper
+            if mode.superbrew == 1 then
+                if charges.purifyingBrew.frac() == charges.purifyingBrew.max() and inCombat then
+                    if buff.ironskinBrew.remain() <= 5 then
+                        if cast.ironskinBrew() then return end
+                    elseif debuff.heavyStagger.exists("player") then
+                        if cast.purifyingBrew() then return end
+                    elseif buff.ironskinBrew.remain() <= 14 then
+                        if cast.ironskinBrew() then return end
+                    elseif staggerPct > 0 then
+                        if cast.purifyingBrew() then return end 
+                    end
+                end
+            end
+    	end
 
     if isCastingSpell(115176) or buff.zenMeditation.exists("player") then
         return true
@@ -647,6 +676,7 @@ local function runRotation()
 ---------------------------------
 --- Out Of Combat - Rotations ---
 ---------------------------------
+            if key() then return end
 			-- Extras
 			if actionList_Extras() then return end
 			-- Defensives

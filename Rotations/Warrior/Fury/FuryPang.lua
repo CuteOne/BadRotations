@@ -509,7 +509,7 @@ local function runRotation()
 
         -- Recklessness
 		-- actions+=/recklessness,if=!essence.condensed_lifeforce.major&!essence.blood_of_the_enemy.major|cooldown.guardian_of_azeroth.remains>20|buff.guardian_of_azeroth.up|cooldown.blood_of_the_enemy.remains<gcd
-        if not buff.recklessness.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists("player") and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
@@ -517,7 +517,7 @@ local function runRotation()
 
 		-- Lucid Dreams
 		-- actions+=/memory_of_lucid_dreams,if=!buff.recklessness.up
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+        if br.player.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
@@ -638,7 +638,7 @@ local function runRotation()
             end
         end
 
-        if isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
+        if br.player.mode.cooldown ~= 3 and isChecked("Lucid Dreams") and getSpellCD(298357) <= gcd and not buff.recklessness.exists("player") and (getOptionValue("Lucid Dreams") == 1 or (getOptionValue("Lucid Dreams") == 2 and useCDs())) then
             if cast.memoryOfLucidDreams("player") then
                 return
             end
@@ -660,7 +660,7 @@ local function runRotation()
 			end
 		end	
         -- Recklessness
-        if not buff.recklessness.exists() and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
+        if not buff.recklessness.exists() and not buff.memoryOfLucidDreams.exists("player") and (getOptionValue("Recklessness") == 1 or (getOptionValue("Recklessness") == 2 and useCDs())) and br.player.mode.cooldown ~= 3 and (cd.siegebreaker.remain() > 10 or cd.siegebreaker.remain() < gcdMax) then
             if cast.recklessness() then
                 return
             end
