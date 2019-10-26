@@ -77,6 +77,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Trinkets")
             -- Breath of Sindragosa
             br.ui:createSpinner(section,"Breath of Sindragosa", 30, 10, 100, 5, "|cffFFFFFFSet to desired runic power level to use. Min: 10 / Max: 100 / Interval: 5")
+            -- Cold Heart
+            br.ui:createDropdownWithout(section, "Cold Heart", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Cold Heart.")
             -- Empower Rune Weapon
             br.ui:createCheckbox(section,"Empower Rune Weapon")
             -- Frostwyrm's Fury
@@ -451,7 +453,9 @@ local function runRotation()
                 end
         -- Call Action List - Cold Heart
                 -- call_action_list,name=cold_heart,if=talent.cold_heart.enabled&((buff.cold_heart.stack>=10&debuff.razorice.stack=5)|target.time_to_die<=gcd)
-                if useCDs() and talent.coldHeart and ((buff.coldHeart.stack() >= 10 and debuff.razorice.stack(units.dyn5) == 5) or ttd(units.dyn5) <= gcdMax) then
+                if (getOptionValue("Cold Heart") == 1 or (getOptionValue("Cold Heart") == 2 and useCDs() and buff.pillarOfFrost.exists()))
+                    and talent.coldHeart and ((buff.coldHeart.stack() >= 10 and debuff.razorice.stack(units.dyn5) == 5) or ttd(units.dyn5) <= gcdMax)
+                then
                     if actionList_ColdHeart() then return true end
                 end
         -- Frostwyrm's Fury
