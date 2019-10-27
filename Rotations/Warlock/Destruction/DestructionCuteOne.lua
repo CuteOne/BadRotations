@@ -433,9 +433,9 @@ actionList.Cooldowns = function()
         -- use_items,if=pet.infernal.active&(!talent.grimoire_of_supremacy.enabled|pet.infernal.remains<=20)|target.time_to_die<=20
         if option.checked("Trinkets") then
             for i = 13, 14 do
-                if use.able.slot(i) and not (equiped.azsharasFontOfPower(i) and equiped.pocketSizedComputationDevice(i)
-                    and equiped.rotcrustedVoodooDoll(i) and equiped.shiverVenomRelic(i) and equiped.aquipotentNautilus(i)
-                    and equiped.tidestormCodex(i) and equiped.vialOfStorms(i)) and ((pet.infernal.active()
+                if use.able.slot(i) and not (equiped.azsharasFontOfPower(i) or equiped.pocketSizedComputationDevice(i)
+                    or equiped.rotcrustedVoodooDoll(i) or equiped.shiverVenomRelic(i) or equiped.aquipotentNautilus(i)
+                    or equiped.tidestormCodex(i) or equiped.vialOfStorms(i)) and ((pet.infernal.active()
                     and (not talent.grimoireOfSupremacy or infernalRemain <= 20)) or ttd(units.dyn40) <= 20)
                 then
                     if use.slot(i) then debug("Using Trinket in slot "..i.." [CD]") return true end
