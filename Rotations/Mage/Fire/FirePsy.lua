@@ -318,7 +318,7 @@ local function runRotation()
                     if cast.blazingBarrier("player") then return end
                 end
         -- Iceblock
-                if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and not solo then
+                if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and cd.iceBlock.remains() <= gcd and not solo then
                     if UnitCastingInfo("player") then
                         RunMacroText('/stopcasting')
                     end
@@ -375,12 +375,18 @@ local function runRotation()
                     local iValue = i - 12
                     if (opValue == iValue or opValue == 3) and use.able.slot(i) then
                         if equiped.azsharasFontOfPower(i) and not buff.combustion.exists("player") and not buff.runeOfPower.exists("player") and not UnitBuffID("player",296962) then
+                            if UnitCastingInfo("player") then
+                                SpellStopCasting()
+                            end
                             use.slot(i)
                             br.addonDebug("Using Azshara's Font of Power")
                             return
                         end
                         if equiped.shiverVenomRelic(i) and isChecked("Shiver Venoms") then
                             if  getDebuffStacks("target", 301624) == 5 then
+                                if UnitCastingInfo("player") then
+                                    SpellStopCasting()
+                                end
                                 use.slot(i)
                             end
                         end
@@ -389,12 +395,18 @@ local function runRotation()
                 if buff.combustion.exists("player") then 
                     if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) 
                     and not equiped.azsharasFontOfPower(13) then
+                        if UnitCastingInfo("player") then
+                            SpellStopCasting()
+                        end
                         useItem(13)
                         br.addonDebug("Using Trinket 1")
                         return
                     end
                     if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) 
                     and not equiped.azsharasFontOfPower(14) then
+                        if UnitCastingInfo("player") then
+                            SpellStopCasting()
+                        end
                         useItem(14)
                         br.addonDebug("Using Trinket 2")
                         return
@@ -434,7 +446,7 @@ local function runRotation()
                             useItem(169314)
                         end
                     elseif pullTimer <= 4 and isValidUnit("target") and br.timer:useTimer("PB Delay",5) then
-                        if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
+                        if cast.pyroblast("target") then br.addonDebug("Casting Pyroblast") return end
                     end
                 end -- End Pre-Pull        
             end -- End No Combat
