@@ -119,9 +119,9 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Pots")
         br.ui:createCheckbox(section, "Auto use Pots")
-        br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
-        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
-        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -524,10 +524,11 @@ local function runRotation()
         if (traits.streakingStars.active and pewbuff) or UnitDebuffID("player", 304409) then
             norepeat = true
         end
-
-        if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
-            if cast.moonkinForm() then
-                return true
+        if mode.forms ~= 3 then
+            if not br.player.buff.moonkinForm.exists() and not buff.prowl.exists() and not cast.last.moonkinForm(1) then
+                if cast.moonkinForm() then
+                    return true
+                end
             end
         end
 
@@ -549,7 +550,11 @@ local function runRotation()
                 return true
             end
         end
-        if useCDs() and standingTime > 1 and isChecked("Focused Azerite Beam") and (aoe_count >= getValue("Focused Azerite Beam") or isBoss("target"))
+
+        --and ((essence.focusedAzeriteBeam.rank < 3 and not moving)
+        --                    or essence.focusedAzeriteBeam.rank >= 3)
+
+        if useCDs() and ((essence.focusedAzeriteBeam.rank < 3 and standingTime > 1 or essence.focusedAzeriteBeam.rank >= 3)) and isChecked("Focused Azerite Beam") and (aoe_count >= getValue("Focused Azerite Beam") or isBoss("target"))
                 and debuff.sunfire.exists("target") and debuff.moonfire.exists("target") and (debuff.stellarFlare.exists("target") or not talent.stellarFlare) then
             if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then
                 return true
@@ -677,6 +682,8 @@ local function runRotation()
                     useItem(168506)
                 elseif auto_pot == 8 and canUseItem(168498) then
                     useItem(168498)
+                elseif auto_pot == 9 and canUseItem(169299) then
+                    useItem(169299)
                 end
             end
         end
@@ -812,14 +819,11 @@ local function runRotation()
         else
 
             -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
-            if cast.able.starsurge() and
+            if cast.able.starsurge() and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.starsurge) and
                     (
-                            (
-                                    talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
-                                            or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff)
-                            )
+                            (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
+                                    or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff))
                                     and (buff.lunarEmpowerment.stack() + buff.solarEmpowerment.stack()) < 4 and buff.solarEmpowerment.stack() < 3 and buff.lunarEmpowerment.stack() < 3
-                                    and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.starsurge)
                                     or ttd(units.dyn45) <= (br.player.gcd * power / 40)
                                     or astral_def <= 8
                     ) then
@@ -1105,9 +1109,9 @@ local function runRotation()
                 elseif hasItem(166799) and canUseItem(166799) then
                     br.addonDebug("Using Emerald of Vigor")
                     useItem(166799)
-                elseif canUseItem(healPot) then
+                elseif hasitem(169451) and casnUseItem(169451) then
                     br.addonDebug("Using Health Pot")
-                    useItem(healPot)
+                    useItem(169451)
                 end
             end
         end
@@ -1348,9 +1352,11 @@ local function runRotation()
         -- Pre-Pull Timer
         if isChecked("Pre-Pull Timer") and GetObjectExists("target") and not UnitIsDeadOrGhost("target") and UnitCanAttack("target", "player") then
             if PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
-                if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
-                    if cast.moonkinForm() then
-                        return true
+                if mode.forms ~= 3 then
+                    if not br.player.buff.moonkinForm.exists() and not cast.last.moonkinForm(1) and not isMoving("player") then
+                        if cast.moonkinForm() then
+                            return true
+                        end
                     end
                 end
                 if cast.solarWrath() then
@@ -1488,7 +1494,7 @@ local function runRotation()
             end
 
             if mode.forms == 1 then
-                if   isChecked("Standing Time") then
+                if isChecked("Standing Time") then
                     if (travel or buff.catForm.exists()) and not buff.prowl.exists() and standingTime > getValue("Standing Time") then
                         if cast.moonkinForm("player") then
                             return true
