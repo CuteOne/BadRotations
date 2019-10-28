@@ -87,19 +87,18 @@ local function createOptions()
         -- br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
         br.ui:createSpinner(section, "Bursting", 1, 0, 10, 4, "", "Burst Targets")
 
-        br.ui:createCheckbox(section, "Freehold - pig", 1)
-        br.ui:createCheckbox(section, "Freehold - root grenadier", 1)
+        br.ui:createCheckbox(section, "Freehold - pig", 0)
+        br.ui:createCheckbox(section, "Freehold - root grenadier", 0)
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - Minions of Zul")
 
         --
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
-        br.ui:createCheckbox(section, "Punt Enchanted Emissary", 1)
+        br.ui:createCheckbox(section, "Punt Enchanted Emissary", 0)
         --("Emissary of the Tides"
         br.ui:createSpinnerWithout(section, "Temple of Seth Heal", 40, 0, 100, 5)
-        br.ui:createCheckbox(section, "Shrine - Dispel Whisper of Power", "|cff15FF00Enables|cffFFFFFF/|cffD60000Disables |cffFFFFFFBubble Devour target|cffFFBB00.", 0)
-        br.ui:createSpinner(section, "Grievous Wounds", 80, 0, 100, 5, "HP Threshold to trust hots to do the job")
-        br.ui:createCheckbox(section, "Decaying Mind", 1)
+        br.ui:createSpinner(section, "Grievous Wounds", 2, 0, 10, 1, "Hot Value (calculated to see how much healing is needed for Griev")
+        br.ui:createCheckbox(section, "Decaying Mind", 0)
 
         br.ui:checkSectionState(section)
 
@@ -146,14 +145,15 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Auto Stuff")
-        br.ui:createCheckbox(section, "Auto Soothe")
+        --br.ui:createCheckbox(section, "Auto Soothe")
+        br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createDropdownWithout(section, "Ironbark Target", { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny" }, 7, "|cffFFFFFFcast Ironbark Target")
         br.ui:createSpinner(section, "Auto Innervate", 10, 0, 100, 50, "Health Percent to Cast At")
         br.ui:createDropdown(section, "Revive", { "Target", "Mouseover" }, 1, "|ccfFFFFFFTarget to Cast On")
         -- Rebirth
         br.ui:createDropdown(section, "Rebirth", { "Target", "Mouseover", "Tank", "Healer", "Healer/Tank", "Any" }, 1, "|cffFFFFFFTarget to cast on")
-
+        br.ui:createCheckbox(section, "Auto mass Resurrection")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
 
         br.ui:checkSectionState(section)
@@ -242,7 +242,7 @@ local function noDamageCheck(unit)
         -- shields on last boss in MOTHERLODE
         return true
     end
-        if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
+    if hasBuff(261264, unit) or hasBuff(261265, unit) or hasBuff(261266, unit) then
         -- shields on witches in wm
         return true
     end
@@ -978,17 +978,28 @@ local function runRotation()
             end
         end
 
-        if isChecked("Aggressive Dots") and mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false  then
-            if not debuff.sunfire.exists("target") then
-                if cast.sunfire("target") then
-                    br.addonDebug("Initial Sunfire - non-Cluster")
-                    return true
+        -- aggressive dots
+        if isChecked("Aggressive Dots") and mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
+            thisUnit = "target"
+            if isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
+                    ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                            or (inInstance and #tanks == 0)
+                            or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                            or solo
+                            or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                            --need to add, or if tank is dead
+                    ) or not isChecked("Safe Dots") then
+                if not debuff.sunfire.exists("target") then
+                    if cast.sunfire("target") then
+                        br.addonDebug("Aggressive  Sunfire - target")
+                        return true
+                    end
                 end
-            end
-            if not debuff.moonfire.exists("target") then
-                if cast.moonfire("target") then
-                    br.addonDebug("Initial Moonfire - non-Cluster")
-                    return true
+                if not debuff.moonfire.exists("target") then
+                    if cast.moonfire("target") then
+                        br.addonDebug("Aggressive Moonfire - target")
+                        return true
+                    end
                 end
             end
         end
@@ -1055,7 +1066,8 @@ local function runRotation()
         -- Devour
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
             for i = 1, #br.friend do
-                if getDebuffRemain(br.friend[i].unit, 255421) ~= 0 and br.friend[i].hp <= 90 then
+                if (getDebuffRemain(br.friend[i].unit, 255421) or getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 and br.friend[i].hp <= 90 then
+                    --
                     if getSpellCD(102342) == 0 then
                         if cast.ironbark(br.friend[i].unit) then
                             return true
@@ -1174,63 +1186,61 @@ local function runRotation()
                 end
             end
             -- Rebirth
-            if inCombat then
-                if isChecked("Rebirth") and not moving then
-                    if getOptionValue("Rebirth") == 1 -- Target
-                            and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
-                        if cast.rebirth("target", "dead") then
-                            return true
-                        end
+
+            if isChecked("Rebirth") and not moving and inCombat then
+                if getOptionValue("Rebirth") == 1 -- Target
+                        and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") then
+                    if cast.rebirth("target", "dead") then
+                        return true
                     end
-                    if getOptionValue("Rebirth") == 2 -- Mouseover
-                            and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
-                        if cast.rebirth("mouseover", "dead") then
-                            return true
-                        end
+                end
+                if getOptionValue("Rebirth") == 2 -- Mouseover
+                        and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover", "player") then
+                    if cast.rebirth("mouseover", "dead") then
+                        return true
                     end
-                    if getOptionValue("Rebirth") == 3 then
-                        -- Tank
-                        for i = 1, #tanks do
-                            if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") then
-                                if cast.rebirth(tanks[i].unit, "dead") then
-                                    return true
-                                end
+                end
+                if getOptionValue("Rebirth") == 3 then
+                    -- Tank
+                    for i = 1, #tanks do
+                        if UnitIsPlayer(tanks[i].unit) and UnitIsDeadOrGhost(tanks[i].unit) and GetUnitIsFriend(tanks[i].unit, "player") then
+                            if cast.rebirth(tanks[i].unit, "dead") then
+                                return true
                             end
                         end
                     end
-                    if getOptionValue("Rebirth") == 4 then
-                        -- Healer
-                        for i = 1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") then
-                                if cast.rebirth(br.friend[i].unit, "dead") then
-                                    return true
-                                end
+                end
+                if getOptionValue("Rebirth") == 4 then
+                    -- Healer
+                    for i = 1, #br.friend do
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER") then
+                            if cast.rebirth(br.friend[i].unit, "dead") then
+                                return true
                             end
                         end
                     end
-                    if getOptionValue("Rebirth") == 5 then
-                        -- Tank/Healer
-                        for i = 1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
-                                if cast.rebirth(br.friend[i].unit, "dead") then
-                                    return true
-                                end
+                end
+                if getOptionValue("Rebirth") == 5 then
+                    -- Tank/Healer
+                    for i = 1, #br.friend do
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and (UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" or br.friend[i].role == "HEALER" or br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") then
+                            if cast.rebirth(br.friend[i].unit, "dead") then
+                                return true
                             end
                         end
                     end
-                    if getOptionValue("Rebirth") == 6 then
-                        -- Any
-                        for i = 1, #br.friend do
-                            if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
-                                if cast.rebirth(br.friend[i].unit, "dead") then
-                                    return true
-                                end
+                end
+                if getOptionValue("Rebirth") == 6 then
+                    -- Any
+                    for i = 1, #br.friend do
+                        if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+                            if cast.rebirth(br.friend[i].unit, "dead") then
+                                return true
                             end
                         end
                     end
                 end
             end
-
         end -- End Defensive Toggle
     end -- End Action List - Defensive
 
@@ -1589,60 +1599,61 @@ local function runRotation()
 
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
-            if isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
-                    ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
-                            or (inInstance and #tanks == 0)
-                            or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
-                            or solo
-                            or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                            --need to add, or if tank is dead
-                    ) or not isChecked("Safe Dots") then
-
-                if debuff.sunfire.count() == 0 then
-                    if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius)) then
-                        br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
-                        return true
+            if not noDamageCheck(thisUnit) then
+                if isChecked("Safe Dots") and
+                        ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                                or (inInstance and #tanks == 0)
+                                or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                                or solo
+                                or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                                --need to add, or if tank is dead
+                        ) or not isChecked("Safe Dots") then
+                    if debuff.sunfire.count() == 0 then
+                        if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius)) then
+                            br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
+                            return true
+                        end
                     end
-                end
 
-                if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
-                    if not debuff.sunfire.exists(thisUnit) then
+                    if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                        if not debuff.sunfire.exists(thisUnit) then
+                            if cast.sunfire(thisUnit) then
+                                br.addonDebug("Initial Sunfire - non-Cluster")
+                                return true
+                            end
+                        end
+                    elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
                         if cast.sunfire(thisUnit) then
-                            br.addonDebug("Initial Sunfire - non-Cluster")
+                            br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
                             return true
                         end
                     end
-                elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
-                    if cast.sunfire(thisUnit) then
-                        br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
-                        return true
-                    end
-                end
 
-                if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or not debuff.moonfire.exists("target") or isBoss(thisUnit) and ttd(thisUnit) > 5 then
-                    if not debuff.moonfire.exists(thisUnit) then
+                    if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or not debuff.moonfire.exists("target") or isBoss(thisUnit) and ttd(thisUnit) > 5 then
+                        if not debuff.moonfire.exists(thisUnit) then
+                            if cast.moonfire(thisUnit) then
+                                br.addonDebug("Initial Moonfire")
+                                return true
+                            end
+                        end
+                    elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
                         if cast.moonfire(thisUnit) then
-                            br.addonDebug("Initial Moonfire")
+                            br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
                             return true
                         end
                     end
-                elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
-                    if cast.moonfire(thisUnit) then
-                        br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
-                        return true
-                    end
-                end
 
-                if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) then
-                    if cast.concentratedFlame(thisUnit) then
-                        return true
+                    if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) then
+                        if cast.concentratedFlame(thisUnit) then
+                            return true
+                        end
                     end
-                end
 
-                -- Solar Wrath
-                if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
-                    if cast.solarWrath(thisUnit) then
-                        return true
+                    -- Solar Wrath
+                    if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                        if cast.solarWrath(thisUnit) then
+                            return true
+                        end
                     end
                 end
             end
@@ -1765,7 +1776,7 @@ local function runRotation()
             end
 
             --swipe_cat,if=spell_targets.swipe_cat>=6
-            if  #enemies.yards8 >= 6 then
+            if #enemies.yards8 >= 6 then
                 if cast.swipeCat() then
                     br.addonDebug("[CAT-DPS] Swipe - aoe: " .. aoe_count)
                     return true
@@ -1817,7 +1828,7 @@ local function runRotation()
         if isChecked("Auto Soothe") and cast.able.soothe() then
             for i = 1, #enemies.yards40 do
                 local thisUnit = enemies.yards40[i]
-                if canDispel(thisUnit, spell.soothe) then
+                if canDispel(thisUnit, spell.soothe) and ttd(thisUnit) > getValue("Auto Soothe") then
                     if cast.soothe(thisUnit) then
                         return true
                     end
@@ -1828,21 +1839,14 @@ local function runRotation()
         if br.player.mode.decurse == 1 and cast.able.naturesCure() and not cast.last.naturesCure() then
             for i = 1, #br.friend do
                 if canDispel(br.friend[i].unit, spell.naturesCure) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
-                    if select(8, GetInstanceInfo()) == 1864 then
-                        if not isChecked("Shrine - Dispel Whisper of Power") and getDebuffStacks("player", 267034) == 0 or isChecked("Shrine - Dispel Whisper of Power") then
-                            if cast.naturesCure(br.friend[i].unit) then
-                                return true
-                            end
-                        end
-                    else
-                        if cast.naturesCure(br.friend[i].unit) then
-                            return true
-                        end
+                    if cast.naturesCure(br.friend[i].unit) then
+                        return true
                     end
                 end
             end
         end
-    end
+    end -- end cleanse
+
     local function isCC(unit)
         if getOptionCheck("Don't break CCs") then
             return isLongTimeCCed(Unit)
@@ -1981,10 +1985,41 @@ local function runRotation()
                 end
             end
 
-            for i = 1, #br.friend do
-                if br.friend[i].hp < 100 and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
-                    --count grievance stacks here
-                    if isChecked("Grievous Wounds") then
+            if isChecked("Grievous Wounds") then
+                for i = 1, #br.friend do
+                    thisUnit = br.friend[i].unit
+                    local hotCount = 0
+
+                    if buff.lifebloom.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.rejuvenation.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.regrowth.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.wildGrowth.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.cenarionWard.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.cultivat.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.rejuvenationGermination.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+                    if buff.groveTending.exists(thisUnit) then
+                        hotCount = hotCount + 1
+                    end
+
+                    local hotvalue = getValue("Grievous Wounds")
+                    local grievance_value = 90
+
+                    if br.friend[i].hp < grievance_value - (hotCount * hotvalue) and UnitInRange(br.friend[i].unit) or GetUnitIsUnit(br.friend[i].unit, "player") then
+                        --count grievance stacks here
                         local CurrentBleedstack = getDebuffStacks(br.friend[i].unit, 240559)
                         if getDebuffStacks(br.friend[i].unit, 240559) > 0 then
                             BleedFriendCount = BleedFriendCount + 1
@@ -1992,6 +2027,7 @@ local function runRotation()
                         if CurrentBleedstack > BleedStack then
                             BleedStack = CurrentBleedstack
                             BleedFriend = br.friend[i]
+                            --br.addonDebug("Hotcount: " .. hotCount .. " Check: " .. (grievance_value - (hotCount * hotvalue)))
                             --debug stuff
                             --Print("Griev Debug Target: " .. BleedFriend.unit .. " Stacks: " ..CurrentBleedstack .. " HP: " .. BleedFriend.hp)
                         end
@@ -2069,8 +2105,6 @@ local function runRotation()
                     return true
                 end
             end
-
-
 
 
             --Efflorescence
@@ -2347,6 +2381,32 @@ local function runRotation()
         --- Out Of Combat - Rotations ---
         ---------------------------------
         if not inCombat then
+
+            local friendlydeadcount = 0
+            local friendlydeadcountinrange = 0
+            if isChecked("Auto mass Resurrection") then
+                for i = 1, #br.friend do
+                    if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") then
+                        friendlydeadcount = friendlydeadcount + 1
+                    end
+                    if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) then
+                        friendlydeadcount = friendlydeadcountinrange + 1
+                    end
+                end
+                if friendlydeadcount == 1 and friendlydeadcount == 1 then
+                    for i = 1, #br.friend do
+                        if cast.revive(br.friend[i].unit, "dead") then
+                            return true
+                        end
+                    end
+                elseif friendlydeadcount > 0 then
+                    if cast.Revitalize() then
+                        return true
+                    end
+                end
+            end -- end auto mass rez
+
+
 
             -- auto drinking
             if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 then
