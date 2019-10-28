@@ -586,7 +586,7 @@ actionList.Aoe = function()
     end
     -- Azerite Essence - Concentrated Flame
     -- concentrated_flame,if=!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight&active_enemies<5
-    if cast.able.concentratedFlame() and (not debuff.concentratedFlameBurn.remain(units.dyn40)
+    if cast.able.concentratedFlame() and (not debuff.concentratedFlame.remain(units.dyn40)
         and not cast.last.concentratedFlame() and #enemies.yards40f < 5)
     then
         if cast.concentratedFlame() then debug("Cast Concentrated Flame [AOE]") return true end
@@ -997,7 +997,7 @@ local function runRotation()
             end
             -- Azerite Essence - Concentrated Flame
             -- concentrated_flame,if=!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight
-            if cast.able.concentratedFlame() and (not debuff.concentratedFlameBurn.remain(units.dyn40)
+            if cast.able.concentratedFlame() and (not debuff.concentratedFlame.remain(units.dyn40)
                 and not cast.last.concentratedFlame())
             then
                 if cast.concentratedFlame() then debug("Cast Concentrated Flame") return true end
