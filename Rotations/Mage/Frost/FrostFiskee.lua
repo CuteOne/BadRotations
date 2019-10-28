@@ -407,7 +407,7 @@ local function runRotation()
         local hp = UnitHealth(thisUnit)
         if EasyWoWToolbox ~= nil then
             local castID, _, castTarget = UnitCastID("player")
-            if castID and castTarget and UnitIsUnit(unit, castTarget) and playerCasting then
+            if castID and castTarget and GetUnitIsUnit(unit, castTarget) and playerCasting then
                 hp = hp - calcDamage(castID, unit)
             end
             for k, v in pairs(spell.abilities) do
