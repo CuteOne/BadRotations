@@ -149,7 +149,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Auto Soothe", 1, 0, 100, 5, "TTD for soothing")
         br.ui:createSpinner(section, "Ironbark", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createDropdownWithout(section, "Ironbark Target", { "|cffFFFFFFPlayer", "|cffFFFFFFTarget", "|cffFFFFFFMouseover", "|cffFFFFFFTank", "|cffFFFFFFHealer", "|cffFFFFFFHealer/Tank", "|cffFFFFFFAny" }, 7, "|cffFFFFFFcast Ironbark Target")
-        br.ui:createSpinner(section, "Auto Innervate", 10, 0, 100, 50, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Auto Innervate", 10, 0, 100, 50, "Mana Percent to Cast At")
         br.ui:createDropdown(section, "Revive", { "Target", "Mouseover" }, 1, "|ccfFFFFFFTarget to Cast On")
         -- Rebirth
         br.ui:createDropdown(section, "Rebirth", { "Target", "Mouseover", "Tank", "Healer", "Healer/Tank", "Any" }, 1, "|cffFFFFFFTarget to cast on")
@@ -453,6 +453,8 @@ local debuff_list = {
     { spellID = 260455, stacks = 0, secs = 1 }, -- Serrated Fangs
     { spellID = 273226, stacks = 0, secs = 1 }, -- Decaying Spores
     { spellID = 269301, stacks = 0, secs = 5 }, -- Putrid Blood
+    -- all
+    { spellID = 302421, stacks = 0, secs = 5 }, -- Queen's Decree
 }
 local pre_hot_list = {
     --Battle of Dazar'alor
@@ -1160,12 +1162,17 @@ local function runRotation()
 
             -- Barkskin
             if isChecked("Barkskin") and cast.able.barkskin() then
-                if
-                php <= getOptionValue("Barkskin")
-                        or UnitDebuffID("player", 265773) -- spit-gold from KR
-                then
-                    if cast.barkskin() then
-                        return
+                for i = 1, #enemies.yards40 do
+                    local thisUnit = enemies.yards40[i]
+                    local _, _, _, startCast, endCast, _, _, _, spellcastID = UnitCastingInfo(thisUnit)
+
+                    if php <= getOptionValue("Barkskin")
+                            or UnitDebuffID("player", 265773) -- spit-gold from KR
+                            or UnitDebuffID("player", 302420) and thisUnit == 155433 and getCastTimeRemain(thisUnit)  < 4   -- 302420
+                    then
+                        if cast.barkskin() then
+                            return
+                        end
                     end
                 end
             end
@@ -1861,6 +1868,7 @@ local function runRotation()
         end
         if isChecked("Atal - root Spirit of Gold") and select(8, GetInstanceInfo()) == 1763 then
             root_UnitList[131009] = "Spirit of Gold"
+            root_UnitList[135406] = "Spirit of Gold 2"
         end
         if isChecked("All - root Emissary of the Tides") then
             root_UnitList[155434] = "Emissary of the Tides"
