@@ -1145,23 +1145,23 @@ local function runRotation()
                         end
                         -- Essence
                         if isChecked("Use Essence") then
-                            if essence.concentratedFlame.active and getSpellCD(295373) <= gcd then
+                            if essence.concentratedFlame.active and cd.concentratedFlame.remains() <= gcd then
                                 if cast.concentratedFlame("target") then return true end
-                            elseif essence.memoryOfLucidDreams.active and getSpellCD(298357) <= gcd and #enemies.yards10 >= 1 then
+                            elseif essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and #enemies.yards10 >= 1 then
                                 if cast.memoryOfLucidDreams("player") then return true end
-                            elseif essence.bloodOfTheEnemy.active and getSpellCD(298277) <= gcd and #enemies.yards10 >= 1 then
+                            elseif essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and #enemies.yards10 >= 1 then
                                 if cast.bloodOfTheEnemy() then return true end
-                            elseif essence.guardianOfAzeroth.action and getSpellCD(299355) <= gcd and #enemies.yards30 >= 1 then
+                            elseif essence.guardianOfAzeroth.action and cd.guardianOfAzeroth.remains() <= gcd and #enemies.yards30 >= 1 then
                                 if cast.guardianOfAzeroth() then return true end
-                            elseif essence.focusedAzeriteBeam.active and getSpellCD(292258) <= gcd and getDistance("target") <= 30 and getFacing("player","target") and not isMoving("player") then
+                            elseif essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and getDistance("target") <= 30 and getFacing("player","target") and not isMoving("player") then
                                 if cast.focusedAzeriteBeam() then return true end
-                            elseif essence.purifyingBlast.active and getSpellCD(299345) <= gcd and getDistance("target") <= 30 then
+                            elseif essence.purifyingBlast.active and cd.purifyingBlast.remains() <= gcd and getDistance("target") <= 30 then
                                 if cast.purifyingBlast("best", nil, 1, 8) then return true end
-                            elseif essence.theUnboundForce.active and getSpellCD(299376) <= gcd and getDistance("target") <= 30 then
+                            elseif essence.theUnboundForce.active and cd.theUnboundForce.remains() <= gcd and getDistance("target") <= 30 then
                                 if cast.theUnboundForce() then return true end
-                            elseif essence.rippleInSpace.active and getSpellCD(302731) <= gcd and getDistance("target") <= 25 then
+                            elseif essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd and getDistance("target") <= 25 then
                                 if cast.rippleInSpace("target") then return true end
-                            elseif essence.worldveinResonance.active and getSpellCD(295186) <= gcd then
+                            elseif essence.worldveinResonance.active and cd.worldveinResonance.remains() <= gcd then
                                 if cast.worldveinResonance() then return true end
                             end
                         end
