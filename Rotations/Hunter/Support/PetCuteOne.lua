@@ -26,7 +26,8 @@ br.rotations.support["PetCuteOne"] = function()
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause(true) or buff.feignDeath.exists() or mode.rotation==4
+    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) 
+                                                            or (pause() and not isUnitCasting("player")) or buff.feignDeath.exists() or mode.rotation==4
     -- Units
     units.get(5)
     units.get(40)
@@ -93,14 +94,14 @@ br.rotations.support["PetCuteOne"] = function()
             PetAssistMode()
         elseif not inCombat and petMode == "Assist" and #enemies.yards40nc > 0 and not haltProfile then
             PetDefensiveMode()
-        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) and not isUnitCasting("player") then
+        elseif petMode ~= "Passive" and ((inCombat and #enemies.yards40 == 0) or haltProfile) then
             PetPassiveMode()
         end
         -- Pet Attack / retreat
         if (inCombat or petCombat) and not buff.playDead.exists("pet") and not haltProfile then
             PetAttack(petTarget)
-        elseif not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile
-            and IsPetAttackActive() and not isUnitCasting("player")
+        elseif (not inCombat or (inCombat and not isValidUnit(petTarget)) or haltProfile)
+            and IsPetAttackActive()
         then
             PetStopAttack()
             PetFollow()
