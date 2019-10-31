@@ -524,7 +524,7 @@ function pause(skipCastingCheck)
 		if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted) end
 		if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) end
 	end
-	if GetTime() < br.pauseCast then
+	if GetTime() < br.pauseCast and not skipCastingCheck then
 		return true
 	elseif GetTime() >= br.pauseCast then 
 		br.pauseCast = GetTime()
