@@ -103,10 +103,12 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+            -- Azerite Beam Units
+            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             -- Apocalypse
             br.ui:createDropdownWithout(section, "Apocalypse", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Apocalypse.")
             -- Army of the Dead
-            br.ui:createCheckbox(section, "Army of the Dead")
+            br.ui:createDropdownWithout(section, "Army of the Dead", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Army of the Dead.")
             -- Dark Transformation
             br.ui:createDropdownWithout(section, "Dark Transformation", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Dark Transformation.")
             -- Soul Reaper
@@ -216,11 +218,13 @@ local function runRotation()
     enemies.get(5)
     enemies.get(8)
     enemies.get(8,"target")
+    enemies.get(8,"player",false,true) -- makes enemies.yards8f
     enemies.get(15)
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
     enemies.get(40,"player",true)
+    enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
     -- Nil Checks
     if leftCombat == nil then leftCombat = GetTime() end
@@ -422,7 +426,9 @@ local function runRotation()
     local function actionList_Cooldowns()
     -- Army of the Dead
         -- army_of_the_dead
-        if isChecked("Army of the Dead") and useCDs() and cast.able.armyOfTheDead() then
+        if (getOptionValue("Army of the Dead") == 1 or (getOptionValue("Army of the Dead") == 2 and useCDs()))
+            and cast.able.armyOfTheDead() 
+        then
             if cast.armyOfTheDead() then return end
         end
     -- Apocalypse
@@ -503,8 +509,11 @@ local function runRotation()
                 if cast.theUnboundForce() then return end
             end
             -- focused_azerite_beam,if=!death_and_decay.ticking
-            if cast.able.focusedAzeriteBeam() and deathAndDecayRemain == 0 then
-                if cast.focusedAzeriteBeam() then return end
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) and deathAndDecayRemain == 0 then
+                local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
+                if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+                    return true
+                end    
             end
             -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
             if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then
