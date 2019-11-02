@@ -445,8 +445,8 @@ local function runRotation()
                             br.addonDebug("Using Font Of Azshara")
                             useItem(169314)
                         end
-                    elseif pullTimer <= 4 and isValidUnit("target") and br.timer:useTimer("PB Delay",5) then
-                        if cast.pyroblast("target") then br.addonDebug("Casting Pyroblast") return end
+                    elseif pullTimer <= 4 and br.timer:useTimer("PB Delay",5) then
+                        CastSpellByName(GetSpellInfo(spell.pyroblast)) br.addonDebug("Casting Pyroblast") return
                     end
                 end -- End Pre-Pull        
             end -- End No Combat
@@ -455,11 +455,15 @@ local function runRotation()
         local function actionList_Multi()
         -- Flamestrike
             if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets") then
-                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
+                if not cast.last.flamestrike() then
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
+                end
             end
         -- Fire Blast
-            if buff.heatingUp.exists("player") and br.timer:useTimer("FB Delay", 0.5) then
-                if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
+            if buff.heatingUp.exists("player") then
+                if br.timer:useTimer("FB Delay", 0.5) then
+                    if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
+                end
             end
         -- Living Bomb
             if talent.livingBomb and ttd("target") >= 8 then
@@ -530,8 +534,10 @@ local function runRotation()
                 end
         -- Mirror Image
                 -- mirror_image,if=buff.combustion.down
-                if useCDs() and isChecked("Mirror Image") and talent.mirrorImage and br.timer:useTimer("MI Delay", 2) and not buff.combustion.exists() and cd.combustion.remains() > gcd then
-                    if cast.mirrorImage() then br.addonDebug("Casting Mirror Image") return end
+                if useCDs() and isChecked("Mirror Image") and talent.mirrorImage and not buff.combustion.exists() and cd.combustion.remains() > gcd then
+                    if br.timer:useTimer("MI Delay", 2) then
+                        if cast.mirrorImage() then br.addonDebug("Casting Mirror Image") return end
+                    end
                 end
         -- Guardian of Azeroth
                 if isChecked("Use Essence") and useCDs() and essence.condensedLifeForce.active and cd.condensedLifeForce.remains() <= gcd and not buff.combustion.exists("player") 
@@ -642,8 +648,14 @@ local function runRotation()
                     if actionList_Multi() then return end
                 end
         -- Pyroblast
-                if buff.hotStreak.exists("player") or (talent.pyroclasm and (buff.pyroclasm.exists("player") and (buff.combustion.remains() > getCastTime(spell.pyroblast) or not buff.combustion.exists("player")))) then
-                    if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
+                if buff.hotStreak.exists("player") then 
+                    if not cast.last.pyroblast() then
+                        if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
+                    end
+                elseif talent.pyroclasm and (buff.pyroclasm.exists("player") and (buff.combustion.remains() > getCastTime(spell.pyroblast) or not buff.combustion.exists("player"))) then
+                    if br.timer:useTimer("PB Delay",5) then
+                        if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
+                    end
                 end
         -- Fire Blast
                 if buff.heatingUp.exists("player") and not cast.last.fireBlast() and (buff.combustion.exists("player") or (talent.runeOfPower and buff.runeOfPower.exists("player")) or (charges.fireBlast.timeTillFull() < cd.combustion.remains() or not useCDs())) then
@@ -688,7 +700,7 @@ local function runRotation()
                     if cast.scorch() then br.addonDebug("Casting Scorch") return end
                 end
         -- Fireball
-                if not moving then
+                if not moving and not buff.hotStreak.exists("player") then
                     if cast.fireball() then br.addonDebug("Casting Fireball") return end
                 end
         -- Scorch
