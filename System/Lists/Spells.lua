@@ -805,6 +805,7 @@ br.lists.spells = {
                 clearcasting                = 16870,
                 incarnationTreeOfLife       = 33891,
                 innervate                   = 29166,
+                groveTending                = 279793,
                 rejuvenationGermination     = 155777,
                 lifebloom                   = 33763,
                 lunarEmpowerment            = 164547,
