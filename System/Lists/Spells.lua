@@ -2008,6 +2008,7 @@ br.lists.spells = {
                 atonement                   = 194384,
                 bodyAndSoul                 = 65081,
                 borrowedTime                = 197763,
+                depthOfTheShadows           = 275544,
               --clarityOfWill               = 152118,
                 innervate                   = 29166,
                 overloadedWithLight         = 223166,

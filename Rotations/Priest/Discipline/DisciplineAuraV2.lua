@@ -131,6 +131,7 @@ local function createOptions()
             "|cffFFFFFFApply Atonement to Tank using Power Word: Shield and Power Word: Radiance. Health Percent to Cast At. Default: 95"
         )
         br.ui:createSpinnerWithout(section, "Max Atonements", 3, 1, 40, 1, "|cffFFFFFFMax Atonements to Keep Up At Once. Default: 3")
+        br.ui:createSpinner(section, "Depths of the Shadows", 5, 0, 40, 1, "Number of stacks to use Shadow Mend instead of Shield")
         br.ui:createDropdown(section, "Atonement Key", br.dropOptions.Toggle, 6, "|cffFFFFFFSet key to press to spam atonements on everyone.")
         --Alternate Heal & Damage
         br.ui:createSpinner(section, "Alternate Heal & Damage", 1, 1, 5, 1, "|cffFFFFFFAlternate Heal & Damage. How many Atonement applied before back to doing damage. Default: 1")
@@ -1297,8 +1298,7 @@ local function runRotation()
                 end
                 if isChecked("Obey Atonement Limits") then
                     for i = 1, #br.friend do
-                        if
-                            maxAtonementCount < getValue("Max Atonements") and not buff.atonement.exists(br.friend[i].unit) and
+                        if maxAtonementCount < getValue("Max Atonements") and not buff.atonement.exists(br.friend[i].unit) and
                                 getBuffRemain(br.friend[i].unit, spell.buffs.powerWordShield, "player") < 1
                          then
                             if cast.powerWordShield(br.friend[i].unit) then
@@ -1403,7 +1403,12 @@ local function runRotation()
                         (tanks[i].hp <= getValue("Tank Atonement HP") or getValue("Tank Atonement HP") == 100) and not buff.powerWordShield.exists(tanks[i].unit) and
                             getBuffRemain(tanks[i].unit, spell.buffs.atonement, "player") < 1
                      then
-                        if cast.powerWordShield(tanks[i].unit) then
+                        if isChecked("Depths of the Shadows") and buff.depthOfTheShadows.stack() >= getValue("Depths of the Shadows") then
+                            if cast.shadowMend(tanks[i].unit) then
+                                br.addonDebug("Casting Shadow Mend")
+                                healCount = healCount + 1
+                            end
+                        elseif cast.powerWordShield(tanks[i].unit) then
                             br.addonDebug("Casting Power Word Shield")
                             healCount = healCount + 1
                             return true
@@ -1417,7 +1422,12 @@ local function runRotation()
                             getBuffRemain(br.friend[i].unit, spell.buffs.atonement, "player") < 1 and
                             maxAtonementCount < getValue("Max Atonements")
                      then
-                        if cast.powerWordShield(br.friend[i].unit) then
+                        if isChecked("Depths of the Shadows") and buff.depthOfTheShadows.stack() >= getValue("Depths of the Shadows") then
+                            if cast.shadowMend(br.friend[i].unit) then
+                                br.addonDebug("Casting Shadow Mend")
+                                healCount = healCount + 1
+                            end
+                        elseif cast.powerWordShield(br.friend[i].unit) then
                             br.addonDebug("Casting Power Word Shield")
                             healCount = healCount + 1
                             return true
@@ -1599,19 +1609,17 @@ local function runRotation()
                 end
             end
             -- Smite
-            if isChecked("Smite") and norganBuff and dpsCheck then
-                if mana > 20 or freeCast then
-                    if debuff.schism.exists(schismBuff) then
-                        if cast.smite(schismBuff) then
-                            br.addonDebug("Casting Smite")
-                            healCount = 0
-                            return true
-                        end
-                    elseif cast.smite() then
+            if isChecked("Smite") and norganBuff and (freeCast or dpsCheck) then
+                if debuff.schism.exists(schismBuff) then
+                    if cast.smite(schismBuff) then
                         br.addonDebug("Casting Smite")
                         healCount = 0
                         return true
                     end
+                elseif cast.smite() then
+                    br.addonDebug("Casting Smite")
+                    healCount = 0
+                    return true
                 end
             end
             -- Fade
