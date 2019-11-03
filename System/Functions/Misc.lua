@@ -399,7 +399,7 @@ function isValidUnit(Unit)
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
 	local dummy = isDummy(Unit)
-	local threatBypassUnit = br.lists.threatBypass[GetObjectID(Unit)] ~= nil
+	local threatBypassUnit = UnitAffectingCombat("player") and br.lists.threatBypass[GetObjectID(Unit)] ~= nil and (UnitAffectingCombat(Unit) or targeting)
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
@@ -409,13 +409,13 @@ function isValidUnit(Unit)
 	if not pause(true) and Unit ~= nil and
 		(br.units[Unit] ~= nil or Unit == "target" or threatBypassUnit or burnUnit) and
 		mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit) and		
-			((not hostileOnly and reaction < 5) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
+			((not hostileOnly and (reaction < 5 or playerTarget or targeting)) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
 	 then
 		local instance = IsInInstance()
 		local distanceToTarget = getDistance("target",Unit)
 		local distanceToPlayer = getDistance("player",Unit)
 		local inCombat = UnitAffectingCombat("player") or (GetObjectExists("pet") and UnitAffectingCombat("pet"))
-		local unitThreat = hasThreat(Unit) or targeting or isInProvingGround() or burnUnit or threatBypassUnit
+		local unitThreat = targeting or isInProvingGround() or burnUnit or threatBypassUnit or hasThreat(Unit)
 		return unitThreat 
 			or ((not instance and (playerTarget or (distanceToTarget < 8 and (reaction < 4 or isDummy())))) 
 			or (instance and (#br.friend == 1 or (UnitAffectingCombat(Unit) and distanceToPlayer < 40)))) -- (not hasThreat and (
@@ -517,12 +517,13 @@ function pause(skipCastingCheck)
 	else
 		pausekey = SpecificToggle("Pause Mode")
 	end
-	-- Focused Azerite Beam / Cyclotronic Blast
+	-- Focused Azerite Beam / Cyclotronic Blast / Azshara's Font of Power
 	local lastCast = br.lastCast.tracker[1]
 	if br.pauseCast - GetTime() <= 0 then
 		local hasted = (1-UnitSpellHaste("player")/100)
 		if lastCast == 295258 and getSpellCD(295258) == 0 then br.pauseCast = GetTime() + getCastTime(295258) + (getCastTime(295261) * hasted) end
 		if lastCast == 293491 and GetItemCooldown(167555) == 0 then br.pauseCast = GetTime() + getCastTime(293491) + (2.5 * hasted) end
+		if lastCast == 296962 and GetItemCooldown(169314) == 0 then br.pauseCast = GetTIme() + getCastTime(296962) + (2.5 * haster) end
 	end
 	if GetTime() < br.pauseCast then
 		return true
