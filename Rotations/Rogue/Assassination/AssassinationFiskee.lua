@@ -791,10 +791,10 @@ local function runRotation()
         end
         -- actions.cds+=/use_item,name=galecallers_boon,if=cooldown.vendetta.remains<=1&(!talent.subterfuge.enabled|dot.garrote.pmultiplier>1)|cooldown.vendetta.remains>45
         if useCDs() and isChecked("Trinkets") and ((cd.vendetta.remain() <= 1 and (not talent.subterfuge or debuff.garrote.applied() > 1)) or cd.vendetta.remain() > 45 or not isChecked("Vendetta")) and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13) or hasEquiped(169311, 13)) then
+            if canUseItem(13) and not (hasEquiped(140808, 13) or hasEquiped(151190, 13) or hasEquiped(169311, 13) or hasEquiped(169314, 13)) then
                 useItem(13)
             end
-            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14) or hasEquiped(169311, 14)) then
+            if canUseItem(14) and not (hasEquiped(140808, 14) or hasEquiped(151190, 14) or hasEquiped(169311, 14) or hasEquiped(169314, 14)) then
                 useItem(14)
             end
         end
@@ -814,14 +814,6 @@ local function runRotation()
                 useItem(14)
             end
         end
-        -- # Font of Azshara channel time 4 sec, 14 because Vendetta lasts 20 sec, combo >= to max elaborate planning talent (channeled cast, not worth placing it in rotation)
-        -- if useCDs() and isChecked("Trinkets") and energy < 100 and combo >= 3 and cd.vendetta.remain() <= 14 then
-        --     if hasEquiped(169314, 13) and canUseItem(13) then
-        --         useItem(13)
-        --     elseif hasEquiped(169314, 14) and canUseItem(14) then
-        --         useItem(14)
-        --     end
-        -- end
 
         -- actions.cds+=/blood_fury,if=debuff.vendetta.up
         -- actions.cds+=/berserking,if=debuff.vendetta.up
