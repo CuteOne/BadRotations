@@ -73,9 +73,6 @@ local function createOptions()
         --    br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Dark Command
             br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
-        -- Active Mitigation
-            br.ui:createCheckbox(section,"Active Mitigation","|cffFFFFFF to use Active Mitigation for select spells.")
-        -- Active Mitigation
             br.ui:createCheckbox(section,"Blooddrinker")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -186,7 +183,6 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
-        --local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
         local canFlask                                      = canUseItem(br.player.flask.wod.staminaBig)
         local cast                                          = br.player.cast
@@ -245,14 +241,6 @@ local function runRotation()
         if MRCastTime == nil then MRCastTime = GetTime() end
         if DSCastTime == nil then DSCastTime = GetTime() end
 
-        local function HasMitigationUp()
-            if MRCastTime + 2.5 <= GetTime() or DSCastTime + 2.5 <= GetTime() then
-                return true
-            else 
-                return false
-            end
-        end
-
         UnitsWithoutBloodPlague = 0;
         for _, CycleUnit in pairs(enemies.yards10) do
             if not debuff.bloodPlague.exists(CycleUnit) then
@@ -260,78 +248,9 @@ local function runRotation()
             end
         end
 
-        -- list stolen from AR
-        local ActiveMitigationSpells = {
-            Buff = {
-                -- PR Legion
-                191941, -- Darkstrikes (VotW - 1st)
-                204151, -- Darkstrikes (VotW - 1st)
-                -- T20 ToS
-                239932 -- Felclaws (KJ)
-            },
-            Debuff = {
-
-            },
-            Cast = {
-                -- PR Legion
-                197810, -- Wicked Slam (ARC - 3rd)
-                197418, -- Vengeful Shear (BRH - 2nd)
-                198079, -- Hateful Gaze (BRH - 3rd)
-                214003, -- Coup de Grace (BRH - Trash)
-                235751, -- Timber Smash (CotEN - 1st)
-                193092, -- Bloodletting Sweep (HoV - 1st)
-                193668, -- Savage Blade (HoV - 4th)
-                227493, -- Mortal Strike (LOWR - 4th)
-                228852, -- Shared Suffering (LOWR - 4th)
-                193211, -- Dark Slash (MoS - 1st)
-                200732, -- Molten Crash (NL - 4th)
-                -- T20 ToS
-                241635, -- Hammer of Creation (Maiden)
-                241636, -- Hammer of Obliteration (Maiden)
-                236494, -- Desolate (Avatar)
-                239932, -- Felclaws (KJ)
-                -- T21 Antorus
-                254919, -- Forging Strike (Kin'garoth)
-                244899, -- Fiery Strike (Coven)
-                245458, -- Foe Breaker (Aggramar)
-                248499, -- Sweeping Scythe (Argus)
-                258039 -- Deadly Scythe (Argus)
-            }
-        }
-        -- 193092, -- Bloodletting Sweep (HoV - 1st)
-
-        local function ShouldMitigate()
-            if HasMitigationUp() == true then
-                return false
-            else
-                if UnitThreatSituation("player", "target") == 3 then
-                    if isCasting(ActiveMitigationSpells.Cast, "target") then
-                        return true
-                    end
-                    for _, Buff in pairs(ActiveMitigationSpells.Buff) do
-                        if isBuffed("target", Buff) then
-                            return true
-                        end
-                    end
-                end
-            end
-            return false
-        end
-
 --------------------
 --- Action Lists ---
 --------------------
-    -- Action List - Active Mitigation
-        local function actionList_ActiveMitigation()
-            if ShouldMitigate() then
-                if isCastingSpell(spell.blooddrinker) then StopCasting() end
-                if buff.boneShield.stack >= 7 then
-                    if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS"); return end
-                end
-                if cast.marrowrend() then MRCastTime = GetTime(); Print("AM: MR"); return end
-                if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS2"); return end
-            end
-        end
     -- Action List - Extras
         local function actionList_Extras()
         -- Dummy Test
@@ -510,12 +429,6 @@ local function runRotation()
                 -- auto_attack
                 if getDistance("target") < 5 then
                     StartAttack()
-                end
-    ------------------------------
-    ------ Active Mitigation -----
-    ------------------------------
-                if isChecked("Active Mitigation") then
-                    if actionList_ActiveMitigation() then return end
                 end
     ------------------------------
     --- In Combat - Interrupts ---
