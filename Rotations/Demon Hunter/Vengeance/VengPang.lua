@@ -13,33 +13,33 @@ local rotationName = red .."M"..orange.."o"..yellow.."n"..green.."k"..blue.."a".
 local function createToggles()
     -- Rotation Button
     RotationModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
-        [2] = {mode = "Off", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
+        [1] = {mode = red.."A"..orange.."u"..yellow.."t"..green.."o", value = 1, overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.soulCleave},
+        [2] = {mode = blue.."O"..indigo.."f"..violet.."f", value = 2, overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.spectralSight}
     }
     CreateButton("Rotation", 1, 0)
     -- Cooldown Button
     CooldownModes = {
-        [1] = {mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
-        [2] = {mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
-        [3] = {mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
+        [1] = {mode = red.."A"..orange.."u"..yellow.."t"..green.."o", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.metamorphosis},
+        [2] = {mode = blue.."O"..indigo.."n", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.metamorphosis},
+        [3] = {mode = violet.."O"..red.."f"..orange.."f", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.metamorphosis}
     }
     CreateButton("Cooldown", 2, 0)
     -- Defensive Button
     DefensiveModes = {
-        [1] = {mode = "On", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
-        [2] = {mode = "Off", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
+        [1] = {mode = red.."O"..orange.."n", value = 1, overlay = "Defensive Enabled", tip = "Includes Defensive Cooldowns.", highlight = 1, icon = br.player.spell.demonSpikes},
+        [2] = {mode = yellow.."O"..green.."f"..blue.."f", value = 2, overlay = "Defensive Disabled", tip = "No Defensives will be used.", highlight = 0, icon = br.player.spell.demonSpikes}
     }
     CreateButton("Defensive", 3, 0)
     -- Interrupt Button
     InterruptModes = {
-        [1] = {mode = "On", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
-        [2] = {mode = "Off", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
+        [1] = {mode = red.."O"..orange.."n", value = 1, overlay = "Interrupts Enabled", tip = "Includes Basic Interrupts.", highlight = 1, icon = br.player.spell.consumeMagic},
+        [2] = {mode = yellow.."O"..green.."f"..blue.."f", value = 2, overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.consumeMagic}
     }
     CreateButton("Interrupt", 4, 0)
     -- Mover
     MoverModes = {
-        [1] = {mode = "On", value = 2, overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
-        [2] = {mode = "Off", value = 1, overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
+        [1] = {mode = red.."O"..orange.."n", value = 2, overlay = "Auto Movement Enabled", tip = "Will Cast Movement Abilities.", highlight = 1, icon = br.player.spell.infernalStrike},
+        [2] = {mode = yellow.."O"..green.."f"..blue.."f", value = 1, overlay = "Auto Movement Disabled", tip = "Will NOT Cast Movement Abilities", highlight = 0, icon = br.player.spell.infernalStrike}
     }
     CreateButton("Mover", 5, 0)
 end
@@ -60,6 +60,24 @@ local function createOptions()
         ---  COOLDOWN OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        br.ui:createDropdownWithout(section, red.."T"..orange.."r"..yellow.."i"..green.."n"..blue.."k"..indigo.."e"..violet.."t"..red.."s", {
+            red.."A"..orange.."l"..yellow.."w"..green.."a"..blue.."y"..indigo.."s", 
+            yellow.."W"..green.."h"..blue.."e"..indigo.."n"..violet.." C"..red.."D"..orange.."s"..yellow.." a"..green.."r"..blue.."e"..indigo.." e"..violet.."n"..red.."a"..orange.."b"..yellow.."l"..green.."e"..blue.."d", 
+            orange.."N"..yellow.."e"..green.."v"..blue.."e"..indigo.."r"}, 
+            1, 
+            "")
+        br.ui:createDropdownWithout(section,orange.."T"..yellow.."r"..green.."i"..blue.."n"..indigo.."k"..violet.."e"..red.."t"..orange.." 1"..yellow.." M"..green.."o"..blue.."d"..indigo.."e",
+            {red.."N"..orange.."o"..yellow.."r"..green.."m"..blue.."a"..indigo.."l",
+            orange.."G"..yellow.."r"..green.."o"..blue.."u"..indigo.."n"..violet.."d"},
+            1,
+                "",
+                "")
+        br.ui:createDropdownWithout(section, yellow.."T"..green.."r"..blue.."i"..indigo.."n"..violet.."k"..red.."e"..orange.."t"..yellow.." 2"..green.." M"..blue.."o"..indigo.."d"..violet.."e",
+            {red.."N"..orange.."o"..yellow.."r"..green.."m"..blue.."a"..indigo.."l",
+            orange.."G"..yellow.."r"..green.."o"..blue.."u"..indigo.."n"..violet.."d"},
+            1,
+                "",
+                "")
         br.ui:checkSectionState(section)
         -------------------------
         ---- ESSENCE OPTIONS ----
@@ -187,15 +205,44 @@ local function runRotation()
     end
 
     local function coolies()
+        if inCombat and getOptionValue(red.."T"..orange.."r"..yellow.."i"..green.."n"..blue.."k"..indigo.."e"..violet.."t"..red.."s") == 2 then
+            if canTrinket(13) and getOptionValue(orange.."T"..yellow.."r"..green.."i"..blue.."n"..indigo.."k"..violet.."e"..red.."t"..orange.." 1"..yellow.." M"..green.."o"..blue.."d"..indigo.."e") == 1 then
+                useItem(13)
+            elseif canTrinket(13) and getOptionValue(orange.."T"..yellow.."r"..green.."i"..blue.."n"..indigo.."k"..violet.."e"..red.."t"..orange.." 1"..yellow.." M"..green.."o"..blue.."d"..indigo.."e") == 2 then
+                useItemGround("target", 13, 40, 0, nil)
+            end
+
+            if canTrinket(14) and getOptionValue(yellow.."T"..green.."r"..blue.."i"..indigo.."n"..violet.."k"..red.."e"..orange.."t"..yellow.." 2"..green.." M"..blue.."o"..indigo.."d"..violet.."e") == 1 then
+                useItem(14)
+            elseif canTrinket(14) and getOptionValue(yellow.."T"..green.."r"..blue.."i"..indigo.."n"..violet.."k"..red.."e"..orange.."t"..yellow.." 2"..green.." M"..blue.."o"..indigo.."d"..violet.."e") == 2 then
+                useItemGround("target", 14, 40, 0, nil)
+            end
+        end
     end
 
     local function extras()
+        --if bossHelper() then return end
+
         if isChecked(orange.."T"..yellow.."a"..green.."u"..blue.."n"..indigo.."t") and inInstance or solo then
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
                 if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
                     if cast.torment(thisUnit) then return end
                 end
+            end
+        end
+
+        if inCombat and getOptionValue(red.."T"..orange.."r"..yellow.."i"..green.."n"..blue.."k"..indigo.."e"..violet.."t"..red.."s") == 1 then
+            if canTrinket(13) and getOptionValue(orange.."T"..yellow.."r"..green.."i"..blue.."n"..indigo.."k"..violet.."e"..red.."t"..orange.." 1"..yellow.." M"..green.."o"..blue.."d"..indigo.."e") == 1 then
+                useItem(13)
+            elseif canTrinket(13) and getOptionValue(orange.."T"..yellow.."r"..green.."i"..blue.."n"..indigo.."k"..violet.."e"..red.."t"..orange.." 1"..yellow.." M"..green.."o"..blue.."d"..indigo.."e") == 2 then
+                useItemGround("target", 13, 40, 0, nil)
+            end
+
+            if canTrinket(14) and getOptionValue(yellow.."T"..green.."r"..blue.."i"..indigo.."n"..violet.."k"..red.."e"..orange.."t"..yellow.." 2"..green.." M"..blue.."o"..indigo.."d"..violet.."e") == 1 then
+                useItem(14)
+            elseif canTrinket(14) and getOptionValue(yellow.."T"..green.."r"..blue.."i"..indigo.."n"..violet.."k"..red.."e"..orange.."t"..yellow.." 2"..green.." M"..blue.."o"..indigo.."d"..violet.."e") == 2 then
+                useItemGround("target", 14, 40, 0, nil)
             end
         end
 
@@ -240,13 +287,13 @@ local function runRotation()
             end
         end
 
-        if not debuff.sigilOfFlame.exists("target") and (not talent.flameCrash or charges.infernalStrike.frac() <= 1.8) then
+        if mode.mover == 2 or (not debuff.sigilOfFlame.exists("target") and (not talent.flameCrash or charges.infernalStrike.frac() <= 1.8)) then
             if cast.sigilOfFlame("player") then
                 return
             end
         end
 
-        if not debuff.sigilOfFlame.exists("target") and talent.flameCrash and charges.infernalStrike.frac() > 1.9 then
+        if mode.mover == 1 and not debuff.sigilOfFlame.exists("target") and talent.flameCrash and charges.infernalStrike.frac() > 1.9 then
             if cast.infernalStrike("player") then
                 return
             end
