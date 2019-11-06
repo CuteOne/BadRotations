@@ -3459,6 +3459,7 @@ br.lists.spells = {
                 eyeOfLeotheras                  = 206649,
                 razorCoral                      = 303568, --304877,
                 repeatPerformance               = 304409,
+                shiverVenom                     = 301624,
                 temptation                      = 234143,
             },
             essences                            = {
