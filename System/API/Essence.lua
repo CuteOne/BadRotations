@@ -12,7 +12,7 @@ br.api.essences = function(essence,k,v)
     local essenceIdName = GetSpellInfo(GetSpellInfo(v)) or "None"
     local essenceIcon = select(3,GetSpellInfo(v)) or 0
     if milestoneTable then
-            for i = 1, #milestoneTable do
+        for i = 1, #milestoneTable do
             local thisMilestone = milestoneTable[i]
             if not thisMilestone.unlocked then break end
             if thisMilestone.slot ~= nil then
@@ -21,13 +21,12 @@ br.api.essences = function(essence,k,v)
                     local rank = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).rank
                     local icon = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).icon
                     if essenceIcon == icon then
-                        essence.rank = rank
-                        essence.active = true
-                    end
-                    if essence.active then
-                        if thisMilestone.slot == 0 then essence.major = true end
+                        if thisMilestone.slot == 0 then 
+                            essence.major = true 
+                            essence.active = true
+                        end
                         if thisMilestone.slot == 1 or thisMilestone.slot == 2 then essence.minor = true end
-                        break
+                        essence.rank = rank
                     end
                 end
             end
