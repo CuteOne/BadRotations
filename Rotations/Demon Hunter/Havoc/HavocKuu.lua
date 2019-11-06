@@ -359,7 +359,7 @@ actionList.Cooldowns = function()
                 if cast.metamorphosis("player") then debug("Casting Metamorphosis") return end
             end
             -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)))
-            if talent.demonic and (not traits.chaoticTransformation.active or (cd.eyeBeam.remain() > 20 and (not bladeDanceVar or cd.bladeDance.remain() > gcd))) then
+            if talent.demonic and (not traits.chaoticTransformation.active or ((cd.eyeBeam.remain() > 20 or mode.eyeBeam == 2) and (not bladeDanceVar or cd.bladeDance.remain() > gcd))) then
                 if cast.metamorphosis("player") then debug("Casting Metamorphosis") return end
             end
         end
@@ -405,8 +405,8 @@ actionList.Cooldowns = function()
                     debug("Using Cyclotronic Blast")
                     return
                 -- actions.cooldown+=/use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|(debuff.conductive_ink_debuff.up|buff.metamorphosis.remains>20)&target.health.pct<31|target.time_to_die<20
-                elseif equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists("target") or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target")
-                 or buff.metamorphosis.remain("player") > 20) and getHP("target") < 31) or ttd("target") < 20)
+                elseif equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists("target") or ((equiped.dribblingInkpod() and debuff.conductiveInk.exists("target") and getHP("target") < 31)
+                 or (buff.metamorphosis.remain("player") > 20 and debuff.razorCoral.stack() >= 15 and cd.eyeBeam.remain() > gcd)) or ttd("target") < 20)
                 then
                     use.slot(i)
                     debug("Using Ashvane's Razor Coral")
@@ -530,7 +530,7 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if bladeDanceVar and not buff.metamorphosis.exists("player") and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis")) and #enemies.yards8 > 0 
+    if bladeDanceVar and not buff.metamorphosis.exists("player") and #enemies.yards8 > 0 
         and ((cd.eyeBeam.remain() > (5 - traits.revolvingBlades.rank*3)) or mode.eyeBeam == 2)
     then
         if cast.bladeDance("target","aoe",1,20) then debug("Casting Blade Dance") return end
