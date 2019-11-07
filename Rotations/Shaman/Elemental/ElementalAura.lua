@@ -196,6 +196,7 @@ local function runRotation()
         local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
+        local equiped                                       = br.player.equiped
         local essence                                       = br.player.essence
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
@@ -547,7 +548,7 @@ local function runRotation()
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-            if cd.lavaBurst.remains <= gcd and buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) 
+            if cd.lavaBurst.remain() <= gcd and buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) 
 			then
                 if debuff.flameShock.exists("target") then
                     if UnitCastingInfo("player") then
