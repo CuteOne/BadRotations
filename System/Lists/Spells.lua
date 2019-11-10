@@ -612,6 +612,7 @@ br.lists.spells = {
                 onethsOverconfidence        = 209407,
                 onethsIntuition             = 209406,
                 solarEmpowerment            = 164545,
+                innervate                   = 29166,
                 lunarEmpowerment            = 164547,
                 warriorOfElune              = 202425,
                 balanceForm                 = 24858,
@@ -3460,6 +3461,7 @@ br.lists.spells = {
                 eyeOfLeotheras                  = 206649,
                 razorCoral                      = 303568, --304877,
                 repeatPerformance               = 304409,
+                shiverVenom                     = 301624,
                 temptation                      = 234143,
             },
             essences                            = {

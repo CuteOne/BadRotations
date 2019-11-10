@@ -796,9 +796,13 @@ function br.addonDebug(msg,system)
 	end
 	if isChecked("Addon Debug Messages") then 
 		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
-			print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+			if br.timer:useTimer("System Delay", 0.6) then
+				print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+			end
 		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
-			print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+			if br.timer:useTimer("Profile Delay", 0.6) then
+				print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+			end
 		end
 	end
 end

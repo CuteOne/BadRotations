@@ -697,10 +697,10 @@ local function runRotation()
         -- Innverate
         --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
 
-        if isChecked("Auto Innervate") and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 12 or (traits.livelySpirit.active and (cd.incarnationChoseOfElune.remain() < 2 or cd.celestialAlignment.remain() < 12))) then
+        if isChecked("Auto Innervate") and inCombat and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 12 or (traits.livelySpirit.active and (cast.able.incarnationChoseOfElune() or cd.incarnationChoseOfElune.remain() < 2 or cast.able.celestialAlignment() or cd.celestialAlignment.remain() < 12))) then
             for i = 1, #br.friend do
-                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and inInstance or inRaid
-                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then
+                if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and (inInstance or inRaid)
+                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then --innervate
                     --Print("Healer is: " .. br.friend[i].unit)
                     if cast.innervate(br.friend[i].unit) then
                         return true
@@ -819,7 +819,7 @@ local function runRotation()
         else
 
             -- starsurge,if=(talent.starlord.enabled&(buff.starlord.stack<3|buff.starlord.remains>=5&buff.arcanic_pulsar.stack<8)|!talent.starlord.enabled&(buff.arcanic_pulsar.stack<8|buff.ca_inc.up))&spell_targets.starfall<variable.sf_targets&buff.lunar_empowerment.stack+buff.solar_empowerment.stack<4&buff.solar_empowerment.stack<3&buff.lunar_empowerment.stack<3&(!variable.az_ss|!buff.ca_inc.up|!prev.starsurge)|target.time_to_die<=execute_time*astral_power%40|!solar_wrath.ap_check
-            if cast.able.starsurge() and (not traits.streakingStars.active or not pewbuff or lastSpellCast ~= spell.starsurge) and
+            if cast.able.starsurge() and (not traits.streakingStars.active or not pewbuff or (pewbuff and br.lastCast.tracker[1] ~= 78674)) and
                     (
                             (talent.starlord and (buff.starLord.stack() < 3 or buff.starLord.remain() >= 5 and buff.arcanicPulsar.stack() < 8)
                                     or not talent.starlord and (buff.arcanicPulsar.stack() < 8 or pewbuff))
@@ -828,6 +828,7 @@ local function runRotation()
                                     or astral_def <= 8
                     ) then
                 if cast.starsurge(units.dyn45) then
+                    br.addonDebug("xxx: " .. buff.celestialAlignment.remains())
                     return
                 end
             end

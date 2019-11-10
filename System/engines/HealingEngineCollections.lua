@@ -265,6 +265,10 @@ novaEngineTables.SpecificHPDebuffs = {
 	[286779] = {value = 30}, --https://www.wowhead.com/spell=286779/focused-demise
 
 	[260741] = {value = 30}, --https://www.wowhead.com/spell=260741/jagged-nettles
+	-- King's Rest
+	[266231] = {value = 30}, --https://www.wowhead.com/spell=266231/severing-axe
+	[265773] = {value = 30}, --https://www.wowhead.com/spell=265773/spit-gold
+
 
 }
 -- this table will assign role to any unit wearing the unit name
