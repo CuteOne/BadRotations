@@ -1439,6 +1439,7 @@ br.lists.spells = {
                 invisibility                = 66,
                 mirrorImage                 = 55342,
                 polymorph                   = 118,
+                removeCurse                 = 475,
                 ringOfFrost                 = 113724,
                 runeOfPower                 = 116011,
                 --shimmer                     = 212653,
