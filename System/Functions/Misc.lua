@@ -399,7 +399,7 @@ function isValidUnit(Unit)
 	local reaction = GetUnitReaction(Unit, "player") or 10
 	local targeting = isTargeting(Unit)
 	local dummy = isDummy(Unit)
-	local threatBypassUnit = UnitAffectingCombat("player") and br.lists.threatBypass[GetObjectID(Unit)] ~= nil and (UnitAffectingCombat(Unit) or targeting)
+	local threatBypassUnit = UnitAffectingCombat("player") and br.lists.threatBypass[GetObjectID(Unit)] ~= nil and GetUnitIsUnit("target",Unit)
 	local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(Unit) > 0
 	local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(Unit) or false
 	local mcCheck = (isChecked("Attack MC Targets") and	(not GetUnitIsFriend(Unit, "player") or (UnitIsCharmed(Unit) and UnitCanAttack("player", Unit)))) or not GetUnitIsFriend(Unit, "player")
@@ -796,9 +796,13 @@ function br.addonDebug(msg,system)
 	end
 	if isChecked("Addon Debug Messages") then 
 		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
-			print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+			if br.timer:useTimer("System Delay", 0.6) then
+				print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
+			end
 		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
-			print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+			if br.timer:useTimer("Profile Delay", 0.6) then
+				print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
+			end
 		end
 	end
 end

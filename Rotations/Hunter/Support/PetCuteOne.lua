@@ -26,7 +26,7 @@ br.rotations.support["PetCuteOne"] = function()
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) 
+    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying())
                                                             or (pause() and not isUnitCasting("player")) or buff.feignDeath.exists() or mode.rotation==4
     -- Units
     units.get(5)
@@ -141,7 +141,7 @@ br.rotations.support["PetCuteOne"] = function()
             for i = 1, #enemies.yards5p do
                 local thisUnit = enemies.yards5p[i]
                 if getOptionValue("Purge") == 1 or (getOptionValue("Purge") == 2 and UnitIsUnit(thisUnit,"target")) then
-                    if canDispel(thisUnit,spell.spiritShock) then
+                    if isValidUnit(thisUnit) and canDispel(thisUnit,spell.spiritShock) then
                         if cast.able.spiritShock(thisUnit,"pet") then
                             if cast.spiritShock(thisUnit,"pet") then dispelled = true; dispelledUnit = thisUnit; break end
                         elseif cast.able.chiJiTranq(thisUnit,"pet") then

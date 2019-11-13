@@ -98,6 +98,7 @@ local function createOptions()
         ---  TARGET OPTIONS   ---  -- Define Target Options
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Targets")
+            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Azerite Beam in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum FlameShock Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use FlameShock in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum LB Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Lava Burst in AoE. Min: 1 / Max: 10 / Interval: 1" )
             br.ui:createSpinnerWithout(section, "Maximum EB Targets", 2, 1, 10, 1, "|cff0070deSet to maximum number of targets to use Elemental Blast in AoE. Min: 1 / Max: 10 / Interval: 1" )
@@ -195,6 +196,7 @@ local function runRotation()
         local deadtar, playertar                            = UnitIsDeadOrGhost("target"), UnitIsPlayer("target")
         local debuff                                        = br.player.debuff
         local enemies                                       = br.player.enemies
+        local equiped                                       = br.player.equiped
         local essence                                       = br.player.essence
         local falling, swimming, flying, moving             = getFallTime(), IsSwimming(), IsFlying(), GetUnitSpeed("player")>0
         local gcd                                           = br.player.gcd
@@ -351,7 +353,9 @@ local function runRotation()
                     br.addonDebug("Using Sapphire of Brilliance")
                     useItem(166801)
                 end
-                if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
+                if not isMoving("player") then
+                    if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
+                end
             end
             if isChecked("Auto Engage On Target") then
                 if cast.flameShock() then br.addonDebug("Casting Flameshock") return true end
@@ -544,14 +548,20 @@ local function runRotation()
             end
             -- Lava Burst (Instant)
             --actions.aoe+=/lava_burst,if=(buff.lava_surge.up|buff.ascendance.up)&spell_targets.chain_lightning<4
-            if buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) 
+            if cd.lavaBurst.remain() <= gcd and buff.lavaSurge.exists()  and #enemies.yards10t <= getValue("Maximum LB Targets") and (not talent.stormElemental or not stormEle) 
 			then
                 if debuff.flameShock.exists("target") then
+                    if UnitCastingInfo("player") then
+                        SpellStopCasting()
+                    end
                     if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return true end
                 else
                     for i = 1, #enemies.yards10t do
                         local thisUnit = enemies.yards10t[i]
                         if debuff.flameShock.exists(thisUnit) then
+                            if UnitCastingInfo("player") then
+                                SpellStopCasting()
+                            end
                             if cast.lavaBurst(thisUnit) then br.addonDebug("Casting Lava Burst") return true end
                         end
                     end
@@ -782,6 +792,9 @@ local function runRotation()
              end
              -- actions.single_target+=/lava_burst,if=cooldown_react&charges>talent.echo_of_the_elements.enabled
              if cd.lavaBurst.remains() <= gcdMax and charges.lavaBurst.count() > 1 then
+                if UnitCastingInfo("player") then
+                    SpellStopCasting()
+                end 
                 if cast.lavaBurst() then br.addonDebug("Casting Lava Burst") return true end
              end
              --# Slightly delay using Icefury empowered Frost Shocks to empower them with Master of the Elements too.
@@ -813,7 +826,7 @@ local function runRotation()
             end
             -- Totem Mastery            
             --actions.single_target+=/totem_mastery,if=talent.totem_mastery.enabled&(buff.resonance_totem.remains<6|(buff.resonance_totem.remains<(buff.ascendance.duration+cooldown.ascendance.remains)&cooldown.ascendance.remains<15))
-            if talent.totemMastery and not cast.last.totemMastery(1) and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and holdBreak then
+            if talent.totemMastery and not isMoving("player") and not cast.last.totemMastery(1) and (not buff.resonanceTotem.exists() or buff.resonanceTotem.remain() < 6 or (buff.resonanceTotem.remain() < (buff.ascendance.duration() + cd.ascendance.remain()) and cd.ascendance.remain() < 15)) and holdBreak then
                 if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
             end
             -- Frost Shock
@@ -900,7 +913,7 @@ local function runRotation()
                 if cast.flameShock("target") then br.addonDebug("Casting Flameshock") return true end
             end
             -- Totem Mastery
-            if buff.emberTotem.remain() < 0.3 * buff.emberTotem.duration() and holdBreak then
+            if buff.emberTotem.remain() < 0.3 * buff.emberTotem.duration() and not isMoving("player") and holdBreak then
                 if cast.totemMastery() then br.addonDebug("Casting Totem Mastery") return true end
             end
             -- Earthquake
@@ -1117,14 +1130,30 @@ local function runRotation()
                     --Simc
                     if getOptionValue("APL Mode") == 1 then
                         --Trinkets
-                        if isChecked("Trinkets") and useCDs() and (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
-                            if canUseItem(13) then
-                                useItem(13)
-                                br.addonDebug("Using Trinket 1")
-                            end
-                            if canUseItem(14) then
-                                useItem(14)
-                                br.addonDebug("Using Trinket 2")
+                        if isChecked("Trinkets") and useCDs() then
+                            if equiped.shiverVenomRelic() and isChecked("Shiver Venom") then
+                                if debuff.shiverVenom.stack("target") == 5 then
+                                    if UnitCastingInfo("player") then
+                                        SpellStopCasting()
+                                    end
+                                    use.shiverVenomRelic()
+                                    br.addonDebug("Using Shiver Venom Relic")
+                                end
+                            elseif (buff.ascendance.exists("player") or #enemies.yards10t >= 3 or cast.last.fireElemental() or cast.last.stormElemental()) and holdBreak then
+                                if canUseItem(13) and not equiped.shiverVenomRelic(13) then
+                                    if UnitCastingInfo("player") then
+                                        SpellStopCasting()
+                                    end
+                                    useItem(13)
+                                    br.addonDebug("Using Trinket 1")
+                                end
+                                if canUseItem(14) and not equiped.shiverVenomRelic(14) then
+                                    if UnitCastingInfo("player") then
+                                        SpellStopCasting()
+                                    end
+                                    useItem(14)
+                                    br.addonDebug("Using Trinket 2")
+                                end
                             end
                         end
                         --actions+=/totem_mastery,if=talent.totem_mastery.enabled&buff.resonance_totem.remains<2
@@ -1135,38 +1164,43 @@ local function runRotation()
                         if isChecked("Storm Elemental/Fire Elemental") and useCDs() and holdBreak and not earthEle then
                             if not talent.stormElemental then
                                 if cast.fireElemental() then br.addonDebug("Casting Fire Elemental") return true end
-                            else
+                                --actions+=/storm_elemental,if=talent.storm_elemental.enabled&(!talent.icefury.enabled|!buff.icefury.up&!cooldown.icefury.up)&(!talent.ascendance.enabled|!cooldown.ascendance.up)
+                            elseif talent.stormElemental and (not talent.iceFury or (not buff.iceFury.exists("player") and cd.iceFury.remain() > gcd)) 
+                            and (not talent.ascendance or (cd.ascendance.remain() > gcd or not useCDs())) then
                                 if cast.stormElemental() then br.addonDebug("Casting Storm Elemental") return true end
                             end
                         end
                         --actions+=/earth_elemental,if=cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled
-                        if useCDs() and isChecked("Earth Elemental") and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)) and holdBreak then
+                        --actions+=/earth_elemental,if=!talent.primal_elementalist.enabled|talent.primal_elementalist.enabled&(cooldown.fire_elemental.remains<120&!talent.storm_elemental.enabled|cooldown.storm_elemental.remains<120&talent.storm_elemental.enabled)
+                        if useCDs() and isChecked("Earth Elemental") and (not talent.primalElementalist or (talent.primalElementalist and ((not fireEle and not talent.stormElemental) or (not stormEle and talent.stormElemental)))) and holdBreak then
                             if cast.earthElemental() then br.addonDebug("Casting Earth Elemental") return true end
                         end
                         -- Essence
-                        if isChecked("Use Essence") then
+                        if isChecked("Use Essence") and ttd("target") > 30 then
                             if essence.concentratedFlame.active and cd.concentratedFlame.remains() <= gcd then
-                                if cast.concentratedFlame("target") then return true end
+                                if cast.concentratedFlame("target") then br.addonDebug("Casting Concentrated Flame") return true end
                             elseif essence.memoryOfLucidDreams.active and cd.memoryOfLucidDreams.remains() <= gcd and #enemies.yards10 >= 1 then
-                                if cast.memoryOfLucidDreams("player") then return true end
+                                if cast.memoryOfLucidDreams("player") then br.addonDebug("Casting Memory of Lucid Dreams") return true end
                             elseif essence.bloodOfTheEnemy.active and cd.bloodOfTheEnemy.remains() <= gcd and #enemies.yards10 >= 1 then
-                                if cast.bloodOfTheEnemy() then return true end
-                            elseif essence.guardianOfAzeroth.action and cd.guardianOfAzeroth.remains() <= gcd and #enemies.yards30 >= 1 then
-                                if cast.guardianOfAzeroth() then return true end
-                            elseif essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and getDistance("target") <= 30 and getFacing("player","target") and not isMoving("player") then
-                                if cast.focusedAzeriteBeam() then return true end
+                                if cast.bloodOfTheEnemy() then br.addonDebug("Casting Blood of the Enemy") return true end
+                            elseif essence.guardianOfAzeroth.active and cd.guardianOfAzeroth.remains() <= gcd and #enemies.yards30 >= 1 then
+                                if cast.guardianOfAzeroth() then br.addonDebug("Casting Guardian of Azeroth") return true end
+                            elseif essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not isMoving("player")) 
+                                or essence.focusedAzeriteBeam.rank >= 3) and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Azerite Beam Units") or (useCDs() and (getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
+                            then
+                                if cast.focusedAzeriteBeam() then br.addonDebug("Casting Focused Azerite Beam") return true end
                             elseif essence.purifyingBlast.active and cd.purifyingBlast.remains() <= gcd and getDistance("target") <= 30 then
-                                if cast.purifyingBlast("best", nil, 1, 8) then return true end
+                                if cast.purifyingBlast("best", nil, 1, 8) then br.addonDebug("Casting Purifying Blast") return true end
                             elseif essence.theUnboundForce.active and cd.theUnboundForce.remains() <= gcd and getDistance("target") <= 30 then
-                                if cast.theUnboundForce() then return true end
+                                if cast.theUnboundForce() then br.addonDebug("Casting The Unbound Force") return true end
                             elseif essence.rippleInSpace.active and cd.rippleInSpace.remains() <= gcd and getDistance("target") <= 25 then
-                                if cast.rippleInSpace("target") then return true end
+                                if cast.rippleInSpace("target") then br.addonDebug("Casting Ripple in Space") return true end
                             elseif essence.worldveinResonance.active and cd.worldveinResonance.remains() <= gcd then
-                                if cast.worldveinResonance() then return true end
+                                if cast.worldveinResonance() then br.addonDebug("Casting Worldvein Resonance") return true end
                             end
                         end
                         -- Racial Buffs
-                        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs() and holdBreak
+                        if (race == "Troll" or race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei") and isChecked("Racial") and useCDs() and (not talent.ascendance or buff.ascendance.exists("player") or cd.ascendance.remain() > 50) and holdBreak
                         then
                             if race == "LightforgedDraenei" then
                                 if cast.racial("target","ground") then br.addonDebug("Casting Racial") return true end
