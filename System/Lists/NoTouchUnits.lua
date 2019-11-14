@@ -50,4 +50,6 @@ br.lists.noTouchUnits = {
     {unitID = 155434, buff = 302415}, -- Emissary of Tides Teleporting Home
     {unitID = 155432, buff = 302415}, -- Enchanted Emissary Teleporting Home
     {unitID = 155433, buff = 302415}, -- Void Touched Emissary Teleporting Home
+    -- Mythic Za'qul
+    {unitID = 150859, buff = 301117}, -- Dark Shield
 }
