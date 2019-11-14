@@ -186,6 +186,7 @@ local function runRotation()
         local debuff            = br.player.debuff
         local deadtar, attacktar, hastar, playertar         = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
         local enemies           = br.player.enemies
+        local equiped           = br.player.equiped
         local flaskBuff         = getBuffRemain("player",br.player.flask.wod.buff.agilityBig) or 0
         local gcd               = br.player.gcd
         local hasPet            = IsPetActive()
@@ -445,7 +446,13 @@ local function runRotation()
             if isChecked("Trinket 2") then
                     useItem(14)
             end
-
+            if hasEquiped(169311, 13) then
+                if not debuff.razorCoral.exists("target") or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (getHP("target") < 31)) or ttd("target") < 20) then
+                    br.addonDebug("Using Ashvane's Razor Coral")
+                    useItem(13)
+                    return
+                end
+            end
         end
 	-- Action List - Interrupts
         local function actionList_Interrupts()
@@ -514,28 +521,28 @@ local function runRotation()
 	-- Single Target Rotation
     local function actionList_Single()
        -- Print("Single")
-		-- Keg Smash
-            if cast.kegSmash() then return end
         -- Black Out Strike
-			if cast.blackoutStrike() then return end
+            if cast.blackoutStrike() then return end
+       -- Keg Smash
+            if cast.kegSmash() then return end
 		-- Breath of Fire
 			if debuff.kegSmash.exists() then
 				if cast.breathOfFire() then return end
 			end
 		-- High Energy TP
-			if (power > 55) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if (power > 55) and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.blackoutStrike.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.tigerPalm() then return end
 			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
 				if cast.rushingJadeWind() then return end
 			end
 		-- Chi Wave
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.chiWave() then return end
 			end
 		-- Chi Burst
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.chiBurst() then return end
 			end
 	end -- End Single Target
@@ -550,21 +557,21 @@ local function runRotation()
 				if cast.breathOfFire() then return end
 			end
 		-- Rushing Jade Wind
-			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire())) then
+			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.blackoutStrike.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
 				if cast.rushingJadeWind() then return end
 			end
 		-- Chi Burst
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.chiBurst() then return end
 			end
 		-- Black Out Strike
 			if cast.blackoutStrike() then return end
 		-- Chi Wave
-			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.chiWave() then return end
 			end
 		-- Tiger Palm
-			if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+			if power > 55 and (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 				if cast.tigerPalm() then return end
 			end
 	end
@@ -573,18 +580,18 @@ local function runRotation()
     local function actionList_AutoBlackout()
         if buff.blackoutCombo.exists() then
             if cast.kegSmash() then return end
-            if not cast.able.kegSmash() then
+            if not cd.kegSmash.remain() < gcd then
                 if cast.tigerPalm() then return end
             end
         else
             if cast.blackoutStrike() then return end
-            if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cast.able.blackoutStrike() or cast.able.kegSmash() or cast.able.breathOfFire()) and power > 45 then
+            if (not talent.rushingJadeWind or buff.rushingJadeWind.exists()) and not (cd.blackoutStrike.remain() < gcd or cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) and power > 45 then
                 if cast.tigerPalm() then return end
             end
-            if not cast.able.kegSmash() and debuff.kegSmash.exists() then
+            if not cd.kegSmash.remain() < gcd and debuff.kegSmash.exists() then
                 if cast.breathOfFire() then return end
             end
-            if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+            if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
 				if cast.rushingJadeWind() then return end
             end
         end
@@ -598,23 +605,23 @@ local function runRotation()
 		-- Black out Strike
 --			if cast.blackoutStrike() then return end
 		-- Tiger Palm
---			if not cast.able.kegSmash() and (power > 55) then
+--			if not cd.kegSmash.remain() < gcd and (power > 55) then
 --				if cast.tigerPalm() then return end
 --			end
 		-- Breath of Fire
---			if not cast.able.kegSmash() and debuff.kegSmash.exists() then
+--			if not cd.kegSmash.remain() < gcd and debuff.kegSmash.exists() then
 --				if cast.breathOfFire() then return end
 --			end
 		-- Rushing Jade Wind
---			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cast.able.kegSmash() or cast.able.breathOfFire())) then
+--			if not buff.rushingJadeWind.exists() or (buff.rushingJadeWind.remain() < 2 and not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd)) then
 --				if cast.rushingJadeWind() then return end
 --			end
 		-- Chi Wave
---			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 --				if cast.chiWave() then return end
 --			end
 		-- Chi Burst
---			if not (cast.able.kegSmash() or cast.able.breathOfFire()) then
+--			if not (cd.kegSmash.remain() < gcd or cd.breathOfFire.remain() < gcd) then
 --				if cast.chiBurst() then return end
 --			end
 	end

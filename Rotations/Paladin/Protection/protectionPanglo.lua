@@ -389,7 +389,7 @@ local function runRotation()
 			end
 		end
 		-- Taunt
-		if isChecked("Taunt") and cast.able.handOfReckoning() and inInstance then
+		if isChecked("Taunt") and cast.able.handOfReckoning() and not inRaid then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -1198,7 +1198,7 @@ local function runRotation()
 		--------------------------
 		--- In Combat Rotation ---
 		--------------------------
-		if inCombat and (not IsMounted()) and profileStop == false then
+		if inCombat and (not IsMounted()) and profileStop == false and #enemies.yards30 >= 1 then
 			--Start Attack
 			if getDistance(units.dyn5) < 5 then
 				StartAttack()
