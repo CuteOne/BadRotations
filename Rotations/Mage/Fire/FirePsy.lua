@@ -60,7 +60,7 @@ local function createOptions()
     -- AoE Options
         section = br.ui:createSection(br.ui.window.profile, "Area of Effect")
         -- AoE Meteor
-            br.ui:createSpinnerWithout(section,"Meteor Targets",  3,  1,  10,  1, "Min AoE Units")
+            br.ui:createSpinner(section,"Meteor Targets",  3,  1,  10,  1, "Min AoE Units")
         -- Flamestrike
             br.ui:createSpinnerWithout(section,"FS Targets",  3,  1,  10,  1, "Min AoE Units")
         -- Rune of Power
@@ -456,7 +456,7 @@ local function runRotation()
         -- Flamestrike
             if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets") then
                 if not cast.last.flamestrike() then
-                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
+                    if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") SpellStopTargeting() return end
                 end
             end
         -- Fire Blast
@@ -492,6 +492,10 @@ local function runRotation()
     -- Profile Stop | Pause
         if not inCombat and not hastar and profileStop==true then
             profileStop = false
+        -- elseif inCombat and IsAoEPending() then
+        --     SpellStopTargeting()
+        --     br.addonDebug("AoE not Cast. Canceling Spell")
+        --     return false
         elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
             return true
         else
@@ -568,44 +572,46 @@ local function runRotation()
                     end
                 end
             -- Meteor
-                if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
-                    if talent.runeOfPower and talent.firestarter then
-                        if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("Meteor Targets") then
-                            if not isBoss("target") then
-                                if cast.meteor("best",false,1,8) then
-                                    br.addonDebug("Casting Meteor")
-                                    return
+                if isChecked("Meteor Targets") then
+                    if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
+                        if talent.runeOfPower and talent.firestarter then
+                            if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("Meteor Targets") then
+                                if not isBoss("target") then
+                                    if cast.meteor("best",false,1,8) then
+                                        br.addonDebug("Casting Meteor")
+                                        return
+                                    end
+                                else
+                                    if meteor("target") then return end
                                 end
-                            else
-                                if meteor("target") then return end
                             end
-                        end
-                    elseif talent.runeOfPower and not talent.firestarter then
-                        if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or #enemies.yards8t >= getValue("Meteor Targets") then
-                            if not isBoss("target") then
-                                if cast.meteor("best",false,1,8) then
-                                    br.addonDebug("Casting Meteor")
-                                    return
+                        elseif talent.runeOfPower and not talent.firestarter then
+                            if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or #enemies.yards8t >= getValue("Meteor Targets") then
+                                if not isBoss("target") then
+                                    if cast.meteor("best",false,1,8) then
+                                        br.addonDebug("Casting Meteor")
+                                        return
+                                    end
+                                else
+                                    if meteor("target") then return end
                                 end
-                            else
-                                if meteor("target") then return end
                             end
-                        end
-                    elseif not talent.runeOfPower then
-                        if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= getValue("Meteor Targets") then
-                            if not isBoss("target") then
-                                if cast.meteor("best",false,1,8) then
-                                    br.addonDebug("Casting Meteor")
-                                    return
+                        elseif not talent.runeOfPower then
+                            if cd.combustion.remains() <= gcd or cd.combustion.remains() > 40 or #enemies.yards8t >= getValue("Meteor Targets") then
+                                if not isBoss("target") then
+                                    if cast.meteor("best",false,1,8) then
+                                        br.addonDebug("Casting Meteor")
+                                        return
+                                    end
+                                else
+                                    if meteor("target") then return end
                                 end
-                            else
-                                if meteor("target") then return end
                             end
                         end
                     end
                 end
             -- Combustion
-                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) and (cast.last.meteor() or cd.meteor.remains() > gcd) then
+                if useCDs() and (talent.runeOfPower and buff.runeOfPower.exists("player") or not talent.runeOfPower) and (cast.last.meteor() or cd.meteor.remains() > gcd or not isChecked("Meteor Targets")) then
                     if not talent.firestarter then
                         if cast.combustion() then br.addonDebug("Casting Combustion") return end
                     elseif talent.firestarter and (getHP("target") <= 90 or #enemies.yards8t >= getValue("Combustion Targets")) then
@@ -649,9 +655,7 @@ local function runRotation()
                 end
         -- Pyroblast
                 if buff.hotStreak.exists("player") then 
-                    if not cast.last.pyroblast() then
                         if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
-                    end
                 elseif talent.pyroclasm and (buff.pyroclasm.exists("player") and (buff.combustion.remains() > getCastTime(spell.pyroblast) or not buff.combustion.exists("player"))) then
                     if br.timer:useTimer("PB Delay",5) then
                         if cast.pyroblast() then br.addonDebug("Casting Pyroblast") return end
