@@ -52,4 +52,6 @@ br.lists.noTouchUnits = {
     {unitID = 155433, buff = 302415}, -- Void Touched Emissary Teleporting Home
     -- Mythic Za'qul
     {unitID = 150859, buff = 301117}, -- Dark Shield
+    -- Eternal Palace
+    {unitID = 155126, buff = 300620}, -- Crystalline Shiwld
 }
