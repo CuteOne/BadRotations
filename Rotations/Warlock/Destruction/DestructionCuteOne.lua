@@ -531,7 +531,7 @@ actionList.Aoe = function()
     -- chaos_bolt,if=talent.grimoire_of_supremacy.enabled&pet.infernal.active&(havoc_active|talent.cataclysm.enabled|talent.inferno.enabled&active_enemies<4)
     if not moving and cast.able.chaosBolt() and cast.timeSinceLast.chaosBolt() > gcdMax
         and (talent.grimoireOfSupremacy and pet.infernal.active()
-        and (debuff.havoc.count() > 0  or talent.cataclysm or talent.inferno and #enemies.yards < 4))
+        and (debuff.havoc.count() > 0  or talent.cataclysm or talent.inferno and #enemies.yards40 < 4))
     then
         if cast.chaosBolt() then debug("Cast Chaos Bolt [AOE]") return true end
     end
@@ -692,7 +692,7 @@ actionList.Havoc = function()
     end
     -- Shadowburn
     -- shadowburn,if=active_enemies<3|!talent.fire_and_brimstone.enabled
-    if cast.able.shadowburn() and (#enemies.yards < 3 or not talent.fireAndBrimstone) then
+    if cast.able.shadowburn() and (#enemies.yards40 < 3 or not talent.fireAndBrimstone) then
         if cast.shadowburn() then debug("Cast Shadowburn [Havoc]") return true end
     end
     -- Incinerate
