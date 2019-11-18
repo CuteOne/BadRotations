@@ -149,6 +149,7 @@ br.api.spells = function(spells,k,v,subtable)
 
         if cast.timeRemain == nil then cast.timeRemain = {} end
         cast.timeRemain[k] = function(Unit)
+            if Unit == nil then Unit = "player" end
             return getCastTimeRemain(Unit)
         end
     end
