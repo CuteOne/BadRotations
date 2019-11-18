@@ -146,5 +146,10 @@ br.api.spells = function(spells,k,v,subtable)
         cast.time[k] = function()
             return getCastTime(v)
         end
+
+        if cast.timeRemain == nil then cast.timeRemain = {} end
+        cast.timeRemain[k] = function(Unit)
+            return getCastTimeRemain(Unit)
+        end
     end
 end
