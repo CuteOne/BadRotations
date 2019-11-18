@@ -21,6 +21,9 @@ br.api.spells = function(spells,k,v,subtable)
             local _, CD = GetSpellCooldown(v)
             return CD
         end
+        cd.ready = function()
+            return getSpellCD(v) == 0
+        end
     end
     if subtable == "charges" then
         if spells[k] == nil then spells[k] = {} end
