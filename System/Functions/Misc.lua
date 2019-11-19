@@ -578,7 +578,7 @@ function pause(skipCastingCheck)
 		if (UnitCastingInfo("player") and not skipCastingCheck) then
 			local _, _, _, _, endTime = UnitCastingInfo("player")
 			local finish = endTime/1000 - GetTime()
-			if finish > getValue("Spell Queue") then 
+			if finish > 0.1 then 
 				return true
 			end
 		elseif (UnitChannelInfo("player") and not skipCastingCheck) then
@@ -796,11 +796,11 @@ function br.addonDebug(msg,system)
 	end
 	if isChecked("Addon Debug Messages") then 
 		if system == true and (getValue("Addon Debug Messages") == 1 or getValue("Addon Debug Messages") == 3) then
-			if br.timer:useTimer("System Delay", 0.6) then
+			if br.timer:useTimer("System Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] System Debug: |cffFFFFFF" .. tostring(msg))
 			end
 		elseif system ~= true and (getValue("Addon Debug Messages") == 2 or getValue("Addon Debug Messages") == 3) then
-			if br.timer:useTimer("Profile Delay", 0.6) then
+			if br.timer:useTimer("Profile Delay", 0.1) then
 				print(br.classColor .. "[BadRotations] Profile Debug: |cffFFFFFF" .. tostring(msg))
 			end
 		end
