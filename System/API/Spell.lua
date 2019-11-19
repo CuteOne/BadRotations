@@ -97,6 +97,11 @@ br.api.spells = function(spells,k,v,subtable)
             return br.InFlight.Check(v, unit)
         end
 
+        if cast.inFlightRemain == nil then cast.inFlightRemain = {} end
+        cast.inFlightRemain[k] = function(unit)
+            return br.InFlight.Remain(v, unit)
+        end
+
         if cast.last == nil then cast.last = {} end
         cast.last[k] = function(index)
             local tracker = br.lastCast.tracker
