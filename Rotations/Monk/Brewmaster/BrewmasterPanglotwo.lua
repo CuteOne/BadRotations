@@ -425,19 +425,19 @@ local function runRotation()
                 end
             end
 
-       -- Concentrated Flame Heal
-        if getSpellCD(295373) <= gcd then
-            if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
-                if cast.concentratedFlame(lowest.unit) then
-                    return
+        -- Concentrated Flame Heal
+            if getSpellCD(295373) <= gcd then
+                if isChecked("ConcentratedFlame - Heal") and lowest.hp <= getValue("ConcentratedFlame - Heal") and getLineOfSight(lowest.unit) and getDistance(lowest.unit) <= 40 then
+                    if cast.concentratedFlame(lowest.unit) then
+                        return
+                    end
+                end
+                if isChecked("ConcentratedFlame - DPS") and getTTD("target") > 3 and getLineOfSight("target") and getDistance("target") <= 40 then
+                    if cast.concentratedFlame("target") then
+                        return
+                    end
                 end
             end
-            if isChecked("ConcentratedFlame - DPS") and getTTD("target") > 3 and getLineOfSight("target") and getDistance("target") <= 40 then
-                if cast.concentratedFlame("target") then
-                    return
-                end
-            end
-        end
 
             -- Trinkets
 			if isChecked("Trinket 1") then
@@ -446,13 +446,15 @@ local function runRotation()
             if isChecked("Trinket 2") then
                     useItem(14)
             end
-            if hasEquiped(169311, 13) then
-                if not debuff.razorCoral.exists("target") or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (getHP("target") < 31)) or ttd("target") < 20) then
-                    br.addonDebug("Using Ashvane's Razor Coral")
-                    useItem(13)
-                    return
+--[[             for i = 1, #enemies.yards30 do
+				local thisUnit = enemies.yards30[i]
+                if hasEquiped(169311, 13) then
+                    if not debuff.razorCoral.exists(thisUnit) or (equiped.dribblingInkpod() and (debuff.conductiveInk.exists("target") and (getHP("target") < 31)) or ttd("target") < 20) then
+                        useItem(13)
+                        return
+                    end
                 end
-            end
+            end ]]
         end
 	-- Action List - Interrupts
         local function actionList_Interrupts()
