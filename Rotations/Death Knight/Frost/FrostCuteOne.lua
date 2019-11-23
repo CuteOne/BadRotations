@@ -348,7 +348,7 @@ local function runRotation()
             profileDebug = "Cold Heart"
         -- Chains of Ice
             -- chains_of_ice,if=buff.cold_heart.stack>5&target.time_to_die<gcd
-            if cast.able.chainsOfIce() and (buff.coldHeart.stack() > 5 and ttd(units.dyn5) < gcdMax) then
+            if cast.able.chainsOfIce() and (buff.coldHeart.stack() > 5 and (ttd(units.dyn5) < gcdMax or isDummy())) then
                 if cast.chainsOfIce() then return true end
             end
             -- chains_of_ice,if=(buff.pillar_of_frost.remains<=gcd*(1+cooldown.frostwyrms_fury.ready)|buff.pillar_of_frost.remains<rune.time_to_3)&buff.pillar_of_frost.up&azerite.icy_citadel.rank<=2
@@ -454,7 +454,7 @@ local function runRotation()
         -- Call Action List - Cold Heart
                 -- call_action_list,name=cold_heart,if=talent.cold_heart.enabled&((buff.cold_heart.stack>=10&debuff.razorice.stack=5)|target.time_to_die<=gcd)
                 if (getOptionValue("Cold Heart") == 1 or (getOptionValue("Cold Heart") == 2 and useCDs() and buff.pillarOfFrost.exists()))
-                    and talent.coldHeart and ((buff.coldHeart.stack() >= 10 and debuff.razorice.stack(units.dyn5) == 5) or ttd(units.dyn5) <= gcdMax)
+                    and talent.coldHeart and ((buff.coldHeart.stack() >= 10 and debuff.razorice.stack(units.dyn5) == 5) or ttd(units.dyn5) <= gcdMax or isDummy())
                 then
                     if actionList_ColdHeart() then return true end
                 end
