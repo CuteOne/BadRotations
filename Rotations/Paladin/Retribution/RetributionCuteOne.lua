@@ -531,14 +531,14 @@ actionList.Cooldowns = function()
                 if cast.racial() then debug("Casting Racial: Dark Iron Dwarf") return true end
             end
         end
-    -- Shield of Vengenace
+        -- Shield of Vengenace
         -- shield_of_vengeance,if=buff.seething_rage.down&buff.memory_of_lucid_dreams.down
         if isChecked("Shield of Vengenace - CD") and cast.able.shieldOfVengeance()
             and not buff.seethingRage.exists() and not buff.memoryOfLucidDreams.exists()
         then
             if cast.shieldOfVengeance() then debug("Casting Shield of Vengeance [CD]") return true end
         end
-    -- Trinkets
+        -- Trinkets
         if isChecked("Trinkets") then
             for i = 13, 14 do
                 if use.able.slot(i) and not (equiped.ashvanesRazorCoral(i) or equiped.pocketSizedComputationDevice(i)) then
@@ -560,21 +560,21 @@ actionList.Cooldowns = function()
                 end
             end
         end
-    -- Heart Essence
+        -- Heart Essence
         if isChecked("Use Essence") then
-        -- Essence: The Unbound Force
+            -- Essence: The Unbound Force
             -- the_unbound_force,if=time<=2|buff.reckless_force.up
             if cast.able.theUnboundForce() and (combatTime <= 2 or buff.recklessForce.exists()) then
                 if cast.theUnboundForce() then debug("Casting Heart Essence: The Unbound Force") return true end
             end
-        -- Essence: Blood of the Enemy
+            -- Essence: Blood of the Enemy
             -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
             if cast.able.bloodOfTheEnemy()
                 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10))
             then
                 if cast.bloodOfTheEnemy() then debug("Casting Heart Essence: Blood of the Enemy") return true end
             end
-        -- Essence: Guardian of Azeroth
+            -- Essence: Guardian of Azeroth
             -- guardian_of_azeroth,if=!talent.crusade.enabled&(cooldown.avenging_wrath.remains<5&holy_power>=3&(buff.inquisition.up|!talent.inquisition.enabled)|cooldown.avenging_wrath.remains>=45)|(talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|holy_power>=3&time<10&talent.wake_of_ashes.enabled|cooldown.crusade.remains>=45)
             if cast.able.guardianOfAzeroth()
                 and ((not talent.crusade and ((cd.avengingWrath.remain() < 5 and holyPower >= 3 and (buff.inquisition.exists() or not talent.inquisition))
@@ -583,7 +583,7 @@ actionList.Cooldowns = function()
             then
                 if cast.guardianOfAzeroth() then debug("Casting Heart Essence: Guardian of Azeroth") return true end
             end
-        -- Essence: Worldvein Resonance
+            -- Essence: Worldvein Resonance
             -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
             if cast.able.worldveinResonance()
                 and ((cd.avengingWrath.remain() < gcd and holyPower >= 3)
@@ -592,7 +592,7 @@ actionList.Cooldowns = function()
             then
                 if cast.worldveinResonance() then debug("Casting Heart Essence: Worldvein Resonance") return true end
             end
-        -- Essence: Focused Azerite Beam
+            -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
             if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
                 and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
@@ -601,20 +601,20 @@ actionList.Cooldowns = function()
                 local minCount = useCDs() and 1 or 3
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then debug("Casting Heart Essence: Focused Azerite Beam") return true end
             end
-        -- Essence: Memory of Lucid Dreams
+            -- Essence: Memory of Lucid Dreams
             -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
             if cast.able.memoryOfLucidDreams()
                 and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)) and holyPower <= 3
             then
                 if cast.memoryOfLucidDreams() then debug("Casting Heart Essence: Memory of Lucid Dreams") return true end
             end
-        -- Essence: Purifying Blast
+            -- Essence: Purifying Blast
             -- purifying_blast,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)
             if cast.able.purifyingBlast() then
                 if cast.purifyingBlast("best", nil, 1, 8) then debug("Casting Heart Essence: Purifying Blast") return true end
             end
         end
-    -- Pocket Sized Computation Device: Cyclotronic Blast
+        -- Pocket Sized Computation Device: Cyclotronic Blast
         -- use_item,effect_name=cyclotronic_blast,if=(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
         if isChecked("Trinkets") and equiped.pocketSizedComputationDevice() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
             and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
@@ -626,14 +626,14 @@ actionList.Cooldowns = function()
                 end
             end
         end
-    -- Avenging Wrath
+        -- Avenging Wrath
         -- avenging_wrath,if=(!talent.inquisition.enabled|buff.inquisition.up)&holy_power>=3
         if isChecked("Avenging Wrath") and not talent.crusade and cast.able.avengingWrath()
             and (not talent.inquisition or buff.inquisition.exists()) and holyPower >= 3
         then
             if cast.avengingWrath() then debug("Casting Avenging Wrath") return true end
         end
-    -- Crusade
+        -- Crusade
         -- crusade,if=holy_power>=4
         -- crusade,if=holy_power>=4|holy_power>=3&time<10&talent.wake_of_ashes.enabled
         if isChecked("Crusade") and talent.crusade and cast.able.crusade()
@@ -647,9 +647,9 @@ end -- End Action List - Cooldowns
 actionList.Finisher = function()
     -- Inquisition
     -- inquisition,if=buff.avenging_wrath.down&(buff.inquisition.down|buff.inquisition.remains<8&holy_power>=3|talent.execution_sentence.enabled&cooldown.execution_sentence.remains<10&buff.inquisition.remains<15|cooldown.avenging_wrath.remains<15&buff.inquisition.remains<20&holy_power>=3)
-    if cast.able.inquisition() and not buff.avengingWrath.exists() and (not buff.inquisition.exists() or (buff.inquisition.remain() < 5 and holyPower >= 3)
+    if cast.able.inquisition() and not buff.avengingWrath.exists() and (not buff.inquisition.exists() or (buff.inquisition.remain() < 8 and holyPower >= 3)
         or (talent.executionSentence and cd.executionSentence.remain() < 10 and buff.inquisition.remain() < 15)
-        or (cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3))
+        or (not talent.crusade and cd.avengingWrath.remain() < 15 and buff.inquisition.remain() < 20 and holyPower >= 3))
     then
         if cast.inquisition() then debug("Casting Inquisition") return true end
     end
@@ -773,9 +773,9 @@ actionList.Opener = function()
             -- Begin
             if not opener.OPN1 then
                 Print("Starting Opener")
-                opener.count = opener.count + 1
                 opener.OPN1 = true
                 StartAttack()
+                opener.count = opener.count + 1
                 return
             -- Avenging Wrath - Divine Purpose
             elseif opener.OPN1 and not opener.AW1 then
@@ -1185,7 +1185,7 @@ local runRotation = function()
     -- Profile Stop | Pause
     if not inCombat and not hastar and profileStop==true then
         profileStop = false
-    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 or cast.current.focusedAzeriteBeam() then
+    elseif (inCombat and profileStop==true) or pause() or mode.rotation==4 then
         return true
     else
         -----------------------
@@ -1200,7 +1200,6 @@ local runRotation = function()
         --- Out of Combat Rotation ---
         ------------------------------
         if actionList.PreCombat() then return end
-        -- if actionList.Opener() then return end
         --------------------------
         --- In Combat Rotation ---
         --------------------------
