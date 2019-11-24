@@ -1266,7 +1266,7 @@ actionList.PreCombat = function()
             -- Regrowth
             -- regrowth,if=talent.bloodtalons.enabled
             if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
-                and (htTimer == nil or htTimer < GetTime() - 1)
+                and (htTimer == nil or htTimer < GetTime() - 1) and not buff.prowl.exists()
             then
                 if GetShapeshiftForm() ~= 0 then
                     -- CancelShapeshiftForm()
