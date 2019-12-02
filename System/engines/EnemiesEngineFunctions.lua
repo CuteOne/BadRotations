@@ -262,7 +262,7 @@ end
 						if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff)
 							-- Bursting M+ Affix
 							or (getTTD(unit) <= getDebuffRemain("player",240443) + (getGlobalCD(max) * 2) 
-								and getDebuffStack("player", 240443) >= getOptionValue("Bursting Stack Limit")
+								and getDebuffStack("player", 240443) >= getOptionValue("Bursting Stack Limit"))
 						then
 							return false
 						end
