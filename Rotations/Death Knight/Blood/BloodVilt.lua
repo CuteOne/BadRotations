@@ -109,6 +109,16 @@ local function createOptions()
         -- high prio blood boil for more dps
             br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
         br.ui:checkSectionState(section)
+    -- Essence Options
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        -- Lucid Dreams
+            br.ui:createSpinner(section, "Lucid Dreams", 1.5, 0, 6, 0.1,"Runes left to use Lucid Dreams")
+        --Concentrated flame
+            br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+            br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+        -- Anima of death
+            br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+		br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
@@ -455,6 +465,9 @@ local function runRotation()
                     end
                     if talent.bonestorm and mode.BoneStorm == 1 and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                         if cast.bonestorm("player") then return end
+                    end
+                    if isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or isBoss()) and php <= getOptionValue("Anima of Death") then
+                        if cast.animaOfDeath("player") then return end
                     end    
                     --dump rp with deathstrike
                     if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or mode.BoneStorm == 2)) and runicPowerDeficit <= 20 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
@@ -462,7 +475,15 @@ local function runRotation()
                     end
                     if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end            
+                    end
+                    if isChecked("Lucid Dreams") and runes <= getOptionValue("Lucid Dreams") then
+                        if cast.memoryOfLucidDreams("player") then return end
+                    end
+                    if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                        if cast.concentratedFlame("player") then
+                            return
+                        end
+                    end
                     if not talent.soulgorge and #enemies.yards8 > 0 and UnitsWithoutBloodPlague >= 1 then                        
                         if cast.bloodBoil("player") then return end                        
                     end
@@ -489,11 +510,14 @@ local function runRotation()
                     if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
-
+                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                        if cast.concentratedFlame("target") then
+                            return
+                        end
+                    end	
                     if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
                         if cast.deathAndDecay("player") then return end
                     end
-
                     if runeTimeTill(3) <= gcd and buff.boneShield.stack() >= 5 then
                         if cast.heartStrike() then return end
                     end

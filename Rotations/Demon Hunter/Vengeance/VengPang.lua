@@ -293,7 +293,7 @@ local function runRotation()
             return
         end
 
-        if buff.soulFragments.stack() < 1 and power >= 35 then
+        if (buff.soulFragments.stack() < 1 and power >= 35) then
             if cast.soulCleave() then
                 return
             end
@@ -329,11 +329,11 @@ local function runRotation()
             end
         end
 
-        if talent.fracture and charges.fracture.frac() < 0.7 then
+        --[[ if talent.fracture and charges.fracture.frac() < 0.7 and buff.soulFragments.stack() < 4 then
             if cast.throwGlaive() then
                 return
             end
-        end
+        end ]]
     end
 
     local function dontDie()
