@@ -205,6 +205,17 @@ function getSpellCD(SpellID)
 		return MyCD
 	end
 end
+function getGlobalCD(max)
+	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+	if max == true then
+		if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
+			return 1
+		else
+			return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
+		end
+	end
+	return getSpellCD(61304)
+end
 function getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
 	local helpful = IsHelpfulSpell(spellName) or false

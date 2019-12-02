@@ -259,7 +259,11 @@ end
 					if noTouch.buff == nil then return false end --If a unit exist in the list without a buff it's just blacklisted
 					if noTouch.buff > 0 then
 						-- Not Safe with Buff/Debuff
-						if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff) then
+						if UnitBuffID(unit,noTouch.buff) or UnitDebuffID(unit,noTouch.buff)
+							-- Bursting M+ Affix
+							or (getTTD(unit) <= getDebuffRemain("player",240443) + (getGlobalCD(max) * 2) 
+								and getDebuffStack("player", 240443) >= getOptionValue("Bursting Stack Limit")
+						then
 							return false
 						end
 					else

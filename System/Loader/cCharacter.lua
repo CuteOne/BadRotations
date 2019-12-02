@@ -173,15 +173,7 @@ function cCharacter:new(class)
 
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown(max)
-		local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
-		if max == true then
-			if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
-				return 1
-			else
-				return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
-			end
-		end
-		return getSpellCD(61304)
+		return getGlobalCD(max)
     end
 
 -- Starts auto attack when in melee range and facing enemy
