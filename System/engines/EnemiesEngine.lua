@@ -108,8 +108,12 @@ if not metaTable2 then
 		function o:RawDistance()
 			local x1, y1, z1 = pX, pY, pZ
 			local x2, y2, z2 = o.posX, o.posY, o.posZ
-			return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+			if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+				return 99
+			else
+				return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
 				((pCR or 0) + (UnitCombatReach(o.unit) or 0)), z2 - z1
+			end
 		end
 		--Add unit to table
 		function o:AddUnit(table)
