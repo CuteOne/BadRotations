@@ -477,7 +477,6 @@ actionList.Defensive = function()
             if cast.able.removeCorruption() and (GetUnitIsFriend(thisUnit) or UnitIsPlayer(thisUnit))
                 and canDispel(thisUnit,spell.removeCorruption)
             then
-                Print("Removing Corruption")
                 if cast.removeCorruption(thisUnit) then debug("Casting Remove Corruption on "..UnitName(thisUnit)) return true end
             end
         end
@@ -574,7 +573,7 @@ actionList.Defensive = function()
         -- Regrowth
         if isChecked("Regrowth") and cast.able.regrowth() and not (IsMounted() or IsFlying())
             and (getOptionValue("Auto Heal") ~= 1 or (getOptionValue("Auto Heal") == 1
-            and getDistance(br.friend[1].unit) < 40))
+            and getDistance(br.friend[1].unit) < 40)) and not cast.current.regrowth()
         then
             local thisHP = php
             local thisUnit = "player"
@@ -604,7 +603,7 @@ actionList.Defensive = function()
                 -- Always Use Predatory Swiftness when available
                 if getOptionValue("Regrowth - InC") == 1 or not talent.bloodtalons then
                     -- Lowest Party/Raid or Player
-                    if thisHP <= getOptionValue("Regrowth") then
+                    if (thisHP <= getOptionValue("Regrowth") and level >= 80) or (level < 80 and thisHP <= getOptionValue("Regrowth") / 2) then
                         if cast.regrowth(thisUnit) then debug("Casting Regrowth [IC Instant] on "..UnitName(thisUnit)) return true end
                     end
                 end
