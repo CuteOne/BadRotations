@@ -67,9 +67,8 @@ local function createToggles()
     };
     CreateButton("Rollforone",5,1)
     EssenceModes = {
-        [1] = { mode = "off", value = 1 , overlay = "Essence disabled", tip = "Won't use essence", highlight = 0, icon = br.player.spell.bloodOfTheEnemy},
-        [2] = { mode = "Multi", value = 2 , overlay = "Essence enabled MT", tip = "Will use essence multitarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy},
-        [3] = { mode = "Single", value = 3 , overlay = "Essence enabled ST", tip = "Will use essence singletarget", highlight = 1, icon = br.player.spell.bloodOfTheEnemy}
+        [1] = { mode = "Off", value = 1 , overlay = "Essence disabled", tip = "Won't use essence", highlight = 0, icon = br.player.spell.bloodOfTheEnemy},
+        [2] = { mode = "On", value = 2 , overlay = "Essence enabled", tip = "Will use essence", highlight = 1, icon = br.player.spell.bloodOfTheEnemy},
     };
     CreateButton("Essence",6,0)  
 end
@@ -100,7 +99,6 @@ local function createOptions()
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Offensive")
             br.ui:createCheckbox(section, "Trinkets")
-            br.ui:createCheckbox(section, "Essences", "|cffFFFFFF Will use Essences")
             br.ui:createCheckbox(section, "AdrenalineRush", "|cffFFFFFF Will use Adrenaline Rush")
             br.ui:createCheckbox(section, "Vanish")
             br.ui:createCheckbox(section, "Racial")
@@ -121,7 +119,16 @@ local function createOptions()
             br.ui:createCheckbox(section, "Ambush Opener", "Will use ambush as soon as target is in range")
             br.ui:createCheckbox(section, "PickPocket", "Will PickPocket before ambush ^^ for tmog")
         br.ui:checkSectionState(section)
-         -------------------------
+
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+            br.ui:createCheckbox(section, "BotE", "Blood of the Enemy")
+            br.ui:createCheckbox(section, "CLF", "Condensed Life-Force")
+            br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+            br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+            br.ui:createCheckbox(section, "CoS", "Strife Stack ooc with detection")
+        br.ui:checkSectionState(section)
+
+        -------------------------
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
@@ -794,36 +801,50 @@ local function runRotation()
 
             -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 then
-                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10) then
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
                     useItem(14)
                 end
             end
 
             -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
             if isChecked("Trinkets") then
-                if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and getHP("target") < 31 then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+                elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and getHP("target") < 31 then
                     useItem(14)
                 end
             end
 
             --Essences 8.2
-            --Blood Of The Enemy Multi Target
-            if mode.essence == 2 and cd.betweenTheEyes.remain() < 1 and buff.bladeFlurry.exists("player") then
-                if cast.bloodOfTheEnemy("player") then return true end
+            if mode.essence == 2 then
+                -- # Blood of the Enemy
+                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 1 then 
+                    if buff.bladeFlurry.exists("player") and bftargets >= 3 then
+                        if cast.bloodOfTheEnemy() then return true end
+                    elseif isBoss("target") and buff.adrenalineRush.exists() then
+                        if cast.bloodOfTheEnemy() then return true end
+                    end
+                end
+                -- # Guardian of Azeroth
+                if essence.guardianOfAzeroth.active and isChecked("CLF") and buff.adrenalineRush.remain() > 10 then
+                    if cast.guardianOfAzeroth() then return true end
+                end
+                -- Crucible of flame
+                if cast.able.concentratedFlame() then 
+                    if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                        if cast.concentratedFlame("player") then
+                            return
+                        end
+                    end
+                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                        if cast.concentratedFlame("target") then
+                            return
+                        end
+                    end	
+                end
             end
-            --Blood Of The Enemy Single Target
-            if mode.essence == 3 and cd.betweenTheEyes.remain() < 1 then
-                if cast.bloodOfTheEnemy("player") then return true end
-            end
-
-            --Guardian of Azeroth
-            --if mode.essence == 2 or mode.essence == 3 then
-            --    if cast.guardianOfAzeroth("player") then return true end
-            --end
 
     -- Non-NE Racial
             --blood_fury

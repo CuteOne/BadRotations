@@ -172,8 +172,9 @@ local function createOptions()
         br.ui:checkSectionState(section)
 		-- Essences
         section = br.ui:createSection(br.ui.window.profile, "Essences")
-		-- Guardian of Azeroth
-		br.ui:createCheckbox(section, "GuardianOfAzeroth")
+        -- Guardian of Azeroth
+        br.ui:createCheckbox(section, "GuardianofAzeroth", "Use Guardian of Azeroth")
+        br.ui:createDropdownWithout(section, "GuardianOfAzeroth - Usage", {"Always", "Only Boss"}, 1)
 		-- Focussing Iris
 		br.ui:createDropdown(section, "Meme-Beam", {"Always", "AoE Only"}, 1)
 		-- Crucible of Flame
@@ -494,10 +495,17 @@ local function runRotation()
 		
 		-- GuardianOfAzeroth
 		-- actions+=/guardian_of_azeroth,if=!buff.recklessness.up
-		if isChecked("GuardianOfAzeroth") and getSpellCD(295840) <=gcd and not buff.recklessness.exists("player") then
-			if cast.guardianOfAzeroth() then
-				return
-			end
+        if getSpellCD(295840) <=gcd and not buff.recklessness.exists("player") and isChecked("GuardianofAzeroth")then
+            if getOptionValue("GuardianOfAzeroth - Usage")==1 then
+                if cast.guardianOfAzeroth() then
+                    return
+                end
+            end
+            if getOptionValue("GuardianOfAzeroth - Usage")==2 and isBoss("target") then
+                if cast.guardianOfAzeroth() then
+                    return
+                end
+            end
 		end
 			
         -- Rampage
