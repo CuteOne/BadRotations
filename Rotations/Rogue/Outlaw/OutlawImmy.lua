@@ -801,9 +801,9 @@ local function runRotation()
 
             -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 then
-                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
                     useItem(14)
                 end
             end
@@ -832,7 +832,7 @@ local function runRotation()
                     if cast.guardianOfAzeroth() then return true end
                 end
                 -- Crucible of flame
-                if essence.theCrucibleOfFlame.active then 
+                if cast.able.concentratedFlame() then 
                     if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
                         if cast.concentratedFlame("player") then
                             return
