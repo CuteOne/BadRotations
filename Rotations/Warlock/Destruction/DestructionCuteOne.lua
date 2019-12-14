@@ -508,7 +508,7 @@ actionList.Aoe = function()
         for i = 1, #enemies.yards40f do
             local thisUnit = enemies.yards40f[i]
             if okToDoT and not GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.remain(thisUnit) < 5
-                and (not talent.cataclysm or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit)))
+                and (not option.checked("Cataclysm") or not talent.cataclysm or cd.cataclysm.remain() > debuff.immolate.remain(thisUnit)))
             then
                 if cast.immolate(thisUnit) then debug("Cast Immolate [AOE]") lastImmo = thisUnit return true end
             end
@@ -966,7 +966,8 @@ local function runRotation()
                 for i = 1, #enemies.yards40f do
                     local thisUnit = enemies.yards40f[i]
                     if okToDoT and not GetUnitIsUnit(thisUnit,lastImmo) and (debuff.immolate.refresh(thisUnit)
-                        and (not talent.cataclysm or cd.cataclysm.remain() > debuff.immolate.remain(units.dyn40)))
+                        and (not option.checked("Cataclysm") or not talent.cataclysm
+                            or cd.cataclysm.remain() > debuff.immolate.remain(units.dyn40)))
                     then
                         if cast.immolate(thisUnit) then debug("Cast Immolate [Main - Multi]") lastImmo = thisUnit return true end
                     end
