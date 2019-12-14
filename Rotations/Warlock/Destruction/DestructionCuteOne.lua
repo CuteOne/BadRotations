@@ -911,7 +911,7 @@ local function runRotation()
             end
             -- Cataclysm
             -- cataclysm,if=!(pet.infernal.active&dot.immolate.remains+1>pet.infernal.remains)|spell_targets.cataclysm>1|!talent.grimoire_of_supremacy.enabled
-            if not moving and cast.able.cataclysm() and (not (pet.infernal.active()
+            if option.checked("Cataclysm") and not moving and cast.able.cataclysm() and (not (pet.infernal.active()
                 and debuff.immolate.remain(units.dyn40) + 1 > infernalRemain)
                     or #enemies.yards40f > 1 or not talent.grimoireOfSupremacy)
             then
