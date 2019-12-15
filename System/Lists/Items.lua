@@ -42,7 +42,7 @@ br.lists.items = {
     weightOfTheEarth                = 137077,
     -- All Shared
     -- Augment Runes
-    battleScarredAugmentRune        = 160053,
+    battleScarredAugmentRune        = 160053, -- BfA augment rune item
     defiledAugmentRune              = 140587,
     lightforgedAugmentRune          = 153023, -- 7.3 augment rune item
     -- Flasks

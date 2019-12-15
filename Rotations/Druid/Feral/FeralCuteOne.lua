@@ -93,7 +93,7 @@ local function createOptions()
             -- Augment Rune
             br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
-            br.ui:createDropdownWithout(section,"Potion", {"Superior Agility","Unbridled Fury","Agility","Prolonged Power","None"}, 1, "|cffFFFFFFSet Potion to use.")
+            br.ui:createDropdownWithout(section,"Potion", {"Focused Resolve","None"}, 1, "|cffFFFFFFSet Potion to use.")
             -- Elixir
             br.ui:createDropdownWithout(section,"Elixir", {"Greater Flask of the Currents","Repurposed Fel Focuser","Oralius' Whispering Crystal","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
@@ -758,22 +758,13 @@ actionList.Cooldowns = function()
         end
         -- Potion
         -- potion,if=target.time_to_die<65|(time_to_die<180&(buff.berserk.up|buff.incarnation.up))
-        if getOptionValue("Potion") ~= 5 and isBoss("target") then
+        if getOptionValue("Potion") ~= 2 and isBoss("target") then
             if ((inRaid or (inInstance and ttd(units.dyn5) > 45)) and (buff.berserk.exists() and buff.berserk.remain() > 18
                 or buff.incarnationKingOfTheJungle.exists() and buff.incarnationKingOfTheJungle.remain() > 28))
             then
-                if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
-                    use.superiorBattlePotionOfAgility()
-                    debug("Using Superior Battle Potion of Agility");
-                elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
-                    use.potionOfUnbridledFury()
-                    debug("Using Potion of Unbridled Fury");
-                elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
-                    use.battlePotionOfAgility()
-                    debug("Using Battle Potion of Agility");
-                elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
-                    use.potionOfProlongedPower()
-                    debug("Using Potion of Prolonged Power");
+                if getOptionValue("Potion") == 1 and use.able.potionOfFocusedResolve() then
+                    use.potionOfFocusedResolve()
+                    debug("Using Potion of Focused Resolve");
                 end
             end
         end
@@ -1196,7 +1187,11 @@ actionList.Generator = function()
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
         if cast.able.swipeCat() then
-            if cast.swipeCat("player","aoe",1,8) then debug("Casting Swipe [AOE]") return true end
+            if debuff.repeatPerformance.exists("player") and cast.last.swipeCar() then
+                if cast.shred("player") then debug("Casting Shred [Repeat Performance]") return true end
+            else
+                if cast.swipeCat("player","aoe",1,8) then debug("Casting Swipe [AOE]") return true end
+            end
         end
     end
     -- Shred
@@ -1208,7 +1203,11 @@ actionList.Generator = function()
             or ttd(units.dyn5) <= 4 or not canDoT(units.dyn5) or buff.clearcasting.exists()
             or level < 12 or isExplosive("target"))
     then
-        if cast.shred() then debug("Casting Shred") return true end
+        if debuff.repeatPerformance.exists("player") and cast.last.shred() then
+            if cast.swipeCat("player") then debug("Casting Swipe [Repeat Performance]") return true end
+        else
+            if cast.shred() then debug("Casting Shred") return true end
+        end
     end
 end -- End Action List - Generator
 
@@ -1238,17 +1237,12 @@ actionList.PreCombat = function()
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.oraliusWhisperingCrystal() then debug("Using Oralius's Whispering Crystal") return true end
             end
-            -- Lightforged/Defiled Augment Rune
+            -- Battle Scarred Augment Rune
             -- augmentation,type=defiled
-            if isChecked("Augment Rune") and not buff.defiledAugmentation.exists()
-                and (use.able.lightforgedAugmentRune() or use.able.defiledAugmentRune())
+            if isChecked("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
+                and use.able.battleScarredAugmentRune() and lastRune + gcdMax < GetTime()
             then
-                if use.able.lightforgedAugmentRune() then
-                    if use.lightforgedAugmentRune() then debug("Using Lightforged Augment Rune") return true end
-                end
-                if use.able.defiledAugmentRune() then
-                    if use.defiledAugmentRune() then debug("Using Defiled Augment Rune") return true end
-                end
+                if use.battleScarredAugmentRune() then debug("Using Battle Scared Augment Rune") lastRune = GetTime() return true end
             end
             -- Prowl - Non-PrePull
             if cast.able.prowl("player") and cat and autoProwl() and mode.prowl == 1
@@ -1266,6 +1260,7 @@ actionList.PreCombat = function()
             -- regrowth,if=talent.bloodtalons.enabled
             if cast.able.regrowth("player") and talent.bloodtalons and not buff.bloodtalons.exists()
                 and (htTimer == nil or htTimer < GetTime() - 1) and not buff.prowl.exists()
+                and not cast.current.regrowth()
             then
                 if GetShapeshiftForm() ~= 0 then
                     -- CancelShapeshiftForm()
@@ -1283,18 +1278,9 @@ actionList.PreCombat = function()
                 -- Pre-pot
                 -- potion,name=old_war
                 if getOptionValue("Potion") ~= 5 and pullTimer <= 1 and (inRaid or inInstance) then
-                    if getOptionValue("Potion") == 1 and use.able.superiorBattlePotionOfAgility() then
-                        use.superiorBattlePotionOfAgility()
-                        debug("Using Superior Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 2 and use.able.potionOfUnbridledFury() then
-                        use.potionOfUnbridledFury()
-                        debug("Using Potion of Unbridled Fury [Pre-pull]");
-                    elseif getOptionValue("Potion") == 3 and use.able.battlePotionOfAgility() then
-                        use.battlePotionOfAgility()
-                        debug("Using Battle Potion of Agility [Pre-pull]");
-                    elseif getOptionValue("Potion") == 4 and use.able.potionOfProlongedPower() then
-                        use.potionOfProlongedPower()
-                        debug("Using Potion of Prolonged Power [Pre-pull]");
+                    if getOptionValue("Potion") == 1 and use.able.potionOfFocusedResolve() then
+                        use.potionOfFocusedResolve()
+                        debug("Using Potion of Focused Resolve [Pre-Pull]");
                     end
                 end
             end -- End Prowl
@@ -1408,6 +1394,7 @@ local function runRotation()
     if leftCombat == nil then leftCombat = GetTime() end
     if lastForm == nil then lastForm = 0 end
     if profileStop == nil then profileStop = false end
+    if lastRune == nil then lastRune = GetTime() end
     if not inCombat and not UnitExists("target") and profileStop == true then
         profileStop = false
     end

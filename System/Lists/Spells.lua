@@ -3397,6 +3397,7 @@ br.lists.spells = {
                 blessingOfSacrifice 	        = 6940,
                 greaterBlessingOfKings 	        = 203538,
                 greaterBlessingOfWisdom	        = 203539,
+                battleScarredAugmentation       = 270058, -- BfA Augment Rune Buff
                 blessingOfFreedom     	        = 1044,
                 blessingOfProtection            = 1022,
                 bloodLust                       = {
