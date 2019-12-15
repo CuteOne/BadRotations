@@ -1187,7 +1187,7 @@ actionList.Generator = function()
     then
         if cast.pool.swipeCat() then ChatOverlay("Pooling For Swipe") return true end
         if cast.able.swipeCat() then
-            if debuff.repeatPerformance.exists("player") and cast.last.swipeCar() then
+            if debuff.repeatPerformance.exists("player") and cast.last.swipeCat() then
                 if cast.shred("player") then debug("Casting Shred [Repeat Performance]") return true end
             else
                 if cast.swipeCat("player","aoe",1,8) then debug("Casting Swipe [AOE]") return true end
