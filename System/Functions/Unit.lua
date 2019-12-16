@@ -4,11 +4,7 @@ function GetObjectExists(Unit)
 end
 function GetUnit(Unit)
 	if Unit ~= nil and GetObjectExists(Unit) then
-		if (EWT or Toolkit_GetVersion ~= nil) then
-			return Unit
-		elseif FireHack and not (EWT or Toolkit_GetVersion ~= nil) then
-			return ObjectIdentifier(Unit)
-		end
+		return Unit
 	end
 	return nil
 end
@@ -35,15 +31,19 @@ function GetUnitIsVisible(Unit)
 	if Unit == nil then return false end
 	return UnitIsVisible(Unit)
 end
+function GetUnitIsDeadOrGhost(Unit)
+	if Unit == nil then return false end
+	return UnitIsDeadOrGhost(Unit)
+end
 function GetObjectFacing(Unit)
-    if FireHack and GetObjectExists(Unit) then
+    if EWT and GetObjectExists(Unit) then
         return ObjectFacing(Unit)
     else
         return false
     end
 end
 function GetObjectPosition(Unit)
-    if FireHack then
+    if EWT then
 		if Unit == nil then return ObjectPosition("player") end
 		if GetObjectExists(Unit) then return ObjectPosition(Unit) end
     else
@@ -51,28 +51,28 @@ function GetObjectPosition(Unit)
     end
 end
 function GetObjectType(Unit)
-    if FireHack and GetObjectExists(Unit) then
+    if EWT and GetObjectExists(Unit) then
         return ObjectTypes(Unit)
     else
         return 65561
     end
 end
 function GetObjectIndex(Index)
-    if FireHack and GetObjectExists(GetObjectWithIndex(Index)) then
+    if EWT and GetObjectExists(GetObjectWithIndex(Index)) then
         return GetObjectWithIndex(Index)
     else
         return 0
     end
 end
 -- function GetObjectCountBR()
--- 	if FireHack then
+-- 	if EWT then
 --     	return GetObjectCount()
 --     else
 --     	return 0
 --     end
 -- end
 function GetObjectID(Unit)
-	if FireHack and GetObjectExists(Unit) then
+	if EWT and GetObjectExists(Unit) then
 		return ObjectID(Unit)
 	else
 		return 0
@@ -136,6 +136,7 @@ end
 function getSpellUnit(spellCast,aoe)
 	local spellName,_,_,_,_,maxRange = GetSpellInfo(spellCast)
 	local spellType = getSpellType(spellName)
+	local thisUnit
 	if maxRange == nil or maxRange == 0 then maxRange = 5 end
 	if aoe == nil then aoe = false end
 	local facing = not aoe
@@ -176,29 +177,29 @@ function getFacing(Unit1,Unit2,Degrees)
 		Unit2 = "player"
 	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) and GetObjectExists(Unit2) and GetUnitIsVisible(Unit2) then
-		local Angle1,Angle2,Angle3
-		local Angle1 = GetObjectFacing(Unit1)
-		local Angle2 = GetObjectFacing(Unit2)
+		local angle3
+		local angle1 = GetObjectFacing(Unit1)
+		local angle2 = GetObjectFacing(Unit2)
 		local Y1,X1,Z1 = GetObjectPosition(Unit1)
 		local Y2,X2,Z2 = GetObjectPosition(Unit2)
-		if Y1 and X1 and Z1 and Angle1 and Y2 and X2 and Z2 and Angle2 then
+		if Y1 and X1 and Z1 and angle1 and Y2 and X2 and Z2 and angle2 then
 			local deltaY = Y2 - Y1
 			local deltaX = X2 - X1
-			Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+			angle1 = math.deg(math.abs(angle1-math.pi*2))
 			if deltaX > 0 then
-				Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+				angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
 			elseif deltaX <0 then
-				Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+				angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
 			end
-			if Angle2-Angle1 > 180 then
-				Angle3 = math.abs(Angle2-Angle1-360)
-			elseif Angle1-Angle2 > 180 then
-				Angle3 = math.abs(Angle1-Angle2-360)
+			if angle2-angle1 > 180 then
+				angle3 = math.abs(angle2-angle1-360)
+			elseif angle1-angle2 > 180 then
+				angle3 = math.abs(angle1-angle2-360)
 			else
-				Angle3 = math.abs(Angle2-Angle1)
+				angle3 = math.abs(angle2-angle1)
 			end
-			-- return Angle3
-			if Angle3 < Degrees then
+			-- return angle3
+			if angle3 < Degrees then
 				return true
 			else
 				return false
@@ -207,7 +208,7 @@ function getFacing(Unit1,Unit2,Degrees)
 	end
 end
 function getGUID(unit)
-	local nShortHand = ""
+	local nShortHand, targetGUID = "", ""
 	if GetObjectExists(unit) then
 		if UnitIsPlayer(unit) then
 			targetGUID = UnitGUID(unit)
@@ -243,8 +244,6 @@ function getHP(Unit)
 end
 -- if getHPLossPercent("player",5) then
 function getHPLossPercent(unit,sec)
-	local unit = unit
-	local sec = sec
 	local currentHP = getHP(unit)
 	if unit == nil then unit = "player" end
 	if sec == nil then sec = 1 end
@@ -258,7 +257,23 @@ function getHPLossPercent(unit,sec)
 		return snapHP - currentHP
 	end
 end
-
+function getLowestUnit(range)
+	local lowestUnit = "player"
+	local lowestHP = getHP("player")
+	if range == nil then range = 40 end
+	if br ~= nil and br.friend ~= nil then
+		for i = 1, #br.friend do
+			local thisUnit = br.friend[i].unit
+            local thisDist = getDistance(thisUnit)
+            local thisHp = getHP(thisUnit)
+			if thisDist < range and thisHp < lowestHP then
+                lowestUnit = thisUnit
+                lowestHP = thisHp
+			end
+		end
+	end
+	return lowestUnit
+end
 -- if getBossID("boss1") == 71734 then
 function getBossID(BossUnitID)
 	return GetObjectID(BossUnitID)
@@ -279,7 +294,7 @@ function isAlive(Unit)
 end
 function isInstanceBoss(unit)
 	if IsInInstance() then
-		local lockTimeleft, isPreviousInstance, encountersTotal, encountersComplete = GetInstanceLockTimeRemaining();
+		local _, _, encountersTotal = GetInstanceLockTimeRemaining();
 		for i=1,encountersTotal do
 			if unit == "player" then
 				local bossList = select(1,GetInstanceLockTimeRemainingEncounter(i))
@@ -343,6 +358,29 @@ function isCritter(Unit) -- From LibBabble
 	end
 	return false
 end
+function isExplosive(Unit)
+	return GetObjectID(Unit) == 120651
+end
+function isUndead(Unit)
+	if Unit == nil then Unit = "target" end
+	local unitType = UnitCreatureType(Unit)
+	local types = {
+		"Undead",
+		"Untoter",
+		"Mort-vivant",
+		"언데드",
+		"No-muerto",
+		"Morto-vivo",
+		"Non Morto",
+		"Нежить",
+		"亡灵",
+		"不死族",
+	}
+	for i = 1, #types do
+		if unitType == types[i] then return true end
+	end
+	return false
+end
 -- Dummy Check
 function isDummy(Unit)
 	if Unit == nil then
@@ -358,7 +396,7 @@ function isDummy(Unit)
 end
 -- if isEnnemy([Unit])
 function isEnnemy(Unit)
-	local Unit = Unit or "target"
+	Unit = Unit or "target"
 	if UnitCanAttack(Unit,"player") then
 		return true
 	else

@@ -17,7 +17,7 @@
 `canInterrupt(spellID,percentint) - Bool` Returns true if we can Interrupt that target
 `canPrepare() - Bool` Returns true if ready to buff(ooc)
 `canRun() - Bool` Returns true if we can Run profile(incombat)
-`canUse(itemID) - Bool` Returns true if the item can be used
+`canUseItem(itemID) - Bool` Returns true if the item can be used
 **CAST - Function Methods**
 ***
 `castGround(Unit,SpellID,maxDistance)` Used to cast Spells on ground. Returns true if everything passes.

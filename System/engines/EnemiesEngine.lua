@@ -2,9 +2,8 @@
 --Modified to enemies engine by fisker
 if not metaTable2 then
 	-- localizing the commonly used functions while inside loops
-	local getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit = getDistance,tinsert,tremove,UnitGUID,UnitClass,GetUnitIsUnit
-	local UnitDebuff,UnitExists = UnitDebuff,UnitExists
-	local GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks = GetSpellInfo,GetTime,UnitDebuffID,getBuffStacks
+	local tinsert,tremove,GetTime = tinsert,tremove,GetTime
+	local pX, pY, pZ, pCR, autoLoot
 	br.om = {} -- This is our main Table that the world will see
 	br.ttd = {} -- Time to die table
 	br.unitSetup = {} -- This is one of our MetaTables that will be the default user/contructor
@@ -12,6 +11,7 @@ if not metaTable2 then
 	br.unitBlacklist = { -- blacklist for units
 		[129359]=true, -- Sawtooth Shark
         [129448]=true, -- Hammer Shark
+		[144942]=true, -- Spark Bot
 	}
 	metaTable2 = {} -- This will be the MetaTable attached to our Main Table that the world will see
 	metaTable2.__index =  {-- Setting the Metamethod of Index for our Main Table
@@ -25,12 +25,16 @@ if not metaTable2 then
 		unit = "noob",
 		guid = 0,
 		guidsh = 0,
+		range = 100,
+		debuffs = {},
 	}
 
 	function br.unitSetup:new(unit)
 		-- Seeing if we have already cached this unit before
 		if br.unitSetup.cache[unit] then return false end
+		if UnitDebuffID("player",295249) and UnitIsPlayer(unit) then return false end
 		if br.unitBlacklist[GetObjectID(unit)] then return false end
+		if UnitIsUnit("player", unit) then return false end
 		local o = {}
 		setmetatable(o, br.unitSetup)
 		if unit and type(unit) == "string" then
@@ -100,58 +104,171 @@ if not metaTable2 then
 			end
 			return 999 -- not enough values
 		end
+		--Distance
+		function o:RawDistance()
+			local x1, y1, z1 = pX, pY, pZ
+			local x2, y2, z2 = o.posX, o.posY, o.posZ
+			if x1 == nil  or x2 == nil or y1 == nil or y2 == nil or z1 == nil or z2 == nil then
+				return 99
+			else
+				return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+				((pCR or 0) + (UnitCombatReach(o.unit) or 0)), z2 - z1
+			end
+		end
+		--Add unit to table
+		function o:AddUnit(table)
+			local thisUnit
+			if UnitIsOtherPlayersPet(o.unit) then
+				thisUnit = {
+					unit = o.unit,
+				}
+			else
+				thisUnit = {
+					unit = o.unit,
+					name = o.name,
+					guid = o.guid,
+					id = o.objectID,
+					range = o.range,
+					debuffs = o.debuffs,
+				}
+			end
+			rawset(table, o.unit, thisUnit)
+		end
+		function o:UpdateDebuffs(debuffList,unit)
+			if not isChecked("Cache Debuffs") then
+				debuffList = {}
+				return debuffList
+			end
+			local tracker
+			local buffCaster
+			local buffName
+			local buffUnit
+			-- Add Debuffs
+			local function cacheDebuff(buffUnit,buffName,buffCaster)
+				-- Print("Caching Debuff!")
+				-- Cache it to the OM
+				if buffCaster ~= nil and buffCaster == "player" then --(buffCaster == "player" or UnitIsFriend("player",buffCaster)) then
+					if debuffList[buffCaster] == nil then debuffList[buffCaster] = {} end
+					if debuffList[buffCaster][buffName] == nil then
+						-- Print("Adding player debuff")
+						debuffList[buffCaster][buffName] = function(buffName, unit)
+							return AuraUtil.FindAuraByName(GetSpellInfo(buffName), buffUnit, "HARMFUL|PLAYER")
+						end
+						if debuffList[buffCaster][buffName] ~= nil then br.read.debuffTracker[unit][buffName] = nil end
+					end
+				end
+			end
+			-- Get the Info from Combat Log
+			for k,v in pairs(br.read.debuffTracker) do
+				tracker = br.read.debuffTracker[k]
+				for j, u in pairs(tracker) do
+					buffCaster = tracker[j][1]
+					buffName = tracker[j][2]
+					buffUnit = tracker[j][3]
+					if buffUnit == unit and (debuffList[buffCaster] == nil or debuffList[buffCaster][buffName] == nil) then
+						cacheDebuff(buffUnit,buffName,buffCaster)
+					end
+				end
+			end
+			-- Remove Debuffs
+			for buffCaster, buffs in pairs(debuffList) do
+				for buffName, buff in pairs(buffs) do
+					if debuffList[buffCaster][buffName] ~= nil then
+						if debuffList[buffCaster][buffName](buffName,unit) == nil then
+							-- Print("Removing player expired - "..buffName)
+							debuffList[buffCaster][buffName] = nil
+							if br.read.debuffTracker[unit] ~= nil and br.read.debuffTracker[unit][buffName] ~= nil and br.read.debuffTracker[unit][buffName][1] == buffCaster then
+								br.read.debuffTracker[unit][buffName] = nil
+							end
+						end
+					end
+				end
+			end
+			return debuffList
+		end
 		-- Updating the values of the Unit
 		function o:UpdateUnit()
-      -- assign Name of unit
-      o.name = UnitName(o.unit)
-      -- assign real GUID of unit and Short GUID of unit for the SetupTable
-      o.guid = UnitGUID(o.unit)
-      -- distance to player
-      --o.distance = getDistance("player",o.unit)
-      -- Unit's threat situation(1-4)
-      --o.threat = UnitThreatSituation("player", o.unit)
-			if getOptionCheck("Enhanced Time to Die") then
-	      -- Unit HP absolute
-				o.hpabs = UnitHealth(o.unit)
-				-- Unit max HP
-				o.hpmax = UnitHealthMax(o.unit)
-				-- Unit HP and Absorb
-				o.hp = o.hpabs / o.hpmax * 100
-			end
-			------DEBUG VALUES-----
-			-- o.unitAffectingCombat = UnitAffectingCombat(o.unit)
-			-- o.isBoss = isBoss(o.unit)
-			-- o.reaction = GetUnitReaction(o.unit,"player")
-			-- o.canAttack = UnitCanAttack("player",o.unit)
-			-- o.hasThreat = hasThreat(o.unit)
-			-- o.unitTarget = UnitTarget(GetUnit(o.unit))
-			--o.objectType = ObjectRawType(o.unit)
-			--o.objectGUID = ObjectGUID(o.unit)
+			o.posX, o.posY, o.posZ = ObjectPosition(o.unit)
+			o.name = UnitName(o.unit)
+			o.guid = UnitGUID(o.unit)
+			o.distance = o:RawDistance()
+			o.hpabs = UnitHealth(o.unit)
+			o.hpmax = UnitHealthMax(o.unit)
+			o.hp = o.hpabs / o.hpmax * 100
 			o.objectID = ObjectID(o.unit)
-			-- EnemyListCheck
-			if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
-				o.enemyListCheck = enemyListCheck(o.unit)
-				o.enemyRefresh = GetTime()
+			o.range = o.range
+			o.debuffs = o.debuffs
+			if o.distance <= 50 and not UnitIsDeadOrGhost(o.unit) then
+				-- EnemyListCheck
+				if o.enemyRefresh == nil or o.enemyRefresh < GetTime() - 1 then
+					o.enemyListCheck = enemyListCheck(o.unit)
+					o.enemyRefresh = GetTime()
+					if o.enemyListCheck == true then
+						o.range = getDistanceCalc(o.unit)
+						if br.units[o.unit] == nil then
+							o:AddUnit(br.units)
+						end
+						br.units[o.unit].range = o.range
+					else
+						if br.units[o.unit] ~= nil then
+							br.units[o.unit] = nil
+						end
+					end
+				end
+			else
+				o.enemyListCheck = false
+				if br.units[o.unit] ~= nil then
+					br.units[o.unit] = nil
+				end
 			end
 			-- Is valid unit - only check if enemyList checks out
 			if o.enemyListCheck == true then
-				if (o.validUnitRefresh == nil or o.validUnitRefresh < GetTime() - 0.5) then
-					o.isValidUnit = isValidUnit(o.unit)
-					o.validUnitRefresh = GetTime()
+				o.isValidUnit = isValidUnit(o.unit)
+				if o.isValidUnit == true then
+					o.debuffs = o:UpdateDebuffs(o.debuffs,o.unit)
+					-- o.range = getDistanceCalc(o.unit)
+					if br.enemy[o.unit] == nil then
+						o:AddUnit(br.enemy)
+					end
+					-- br.enemy[o.unit].range = o.range
+					br.enemy[o.unit].debuffs = o.debuffs
+				else
+					if br.enemy[o.unit] ~= nil then
+						br.enemy[o.unit] = nil
+					end
 				end
 			else
 				o.isValidUnit = false
+				if br.enemy[o.unit] ~= nil then
+					br.enemy[o.unit] = nil
+				end
 			end
-			-- ObjectPosition
-			o.posX, o.posY, o.posZ = GetObjectPosition(o.unit)
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then
 				if o.objectID == 140853 then -- If mother, TTD is 10 pct
 					o.ttd = o:unitTtd(10)
+				elseif o.objectID == 149684 then -- Jaina tps out at 5%
+					o.ttd = o:unitTtd(5)
 				else
 					o.ttd = o:unitTtd()
 				end
 			end
+			-- Check for loots
+			if autoLoot and br.lootable[o.unit] == nil and UnitIsDeadOrGhost(o.unit) then
+				local hasLoot, canLoot = CanLootUnit(o.guid)
+				if hasLoot and canLoot then
+					o:AddUnit(br.lootable)
+				end
+			end
+			-- Add pets
+			if br.player ~= nil and br.player.pet.list[o.unit] == nil and (o.objectID == 11492 or GetUnitIsUnit(UnitCreator(o.unit), "player")) then
+				o:AddUnit(br.player.pet.list)
+			end
+			-- Add other player pets
+			if br.pet ~= nil and br.pet[o.unit] == nil and (UnitIsOtherPlayersPet(o.unit)) then
+				o:AddUnit(br.pet)
+			end
+
 			-- add unit to setup cache
 			br.unitSetup.cache[o.unit] = o -- Add unit to SetupTable
 		end
@@ -165,28 +282,67 @@ if not metaTable2 then
 		setmetatable(br.om, metaTable2) -- Set the metaTable of Main to Meta
 		function br.om:Update()
 			br.omTableTimer = GetTime()
-			local autoLoot = isChecked("Auto Loot")
+			--Set variables we don't need to update for each unit
+			pX, pY, pZ = ObjectPosition("player")
+			pCR = UnitCombatReach("player")
+			autoLoot = isChecked("Auto Loot")
+			if br.pet == nil then
+				br.pet = {}
+			end
+			--Make sure we have pet tables
+			if br.player ~= nil then
+				if br.player.pet == nil then
+					br.player.pet = {}
+				end
+				if br.player.pet.list == nil then
+					br.player.pet.list = {}
+				end
+			end
+			--Cycle and clean tables
 			local i=1
 			while i <= #br.om do
-				if not GetUnitIsVisible(br.om[i].unit) or getDistance(br.om[i].unit) > 50 or (UnitIsDeadOrGhost(br.om[i].unit) and (not autoLoot or (autoLoot and not CanLootUnit(UnitGUID(br.om[i].unit))))) then
-					for j,v in pairs(br.unitSetup.cache) do
-						if br.om[i].unit == j then
-							br.unitSetup.cache[j] = nil
-							-- reset time to die
-							if br.ttd[j] ~= nil then
-								br.ttd[j] = nil
-							end
+				if br.om[i].pulseTime == nil or GetTime() >= (br.om[i].pulseTime + (math.random(1,12)/100)) then
+					br.om[i].pulseTime = GetTime()
+					local thisUnit = br.om[i].unit
+					if not GetUnitIsVisible(thisUnit) then
+						--Delete units no longer in OM
+						br.unitSetup.cache[thisUnit] = nil
+						if br.ttd[thisUnit] ~= nil then
+							br.ttd[thisUnit] = nil
 						end
+						if br.units[thisUnit] ~= nil then
+							br.units[thisUnit] = nil
+						end
+						if br.enemy[thisUnit] ~= nil then
+							br.enemy[thisUnit] = nil
+						end
+						if br.player ~= nil and br.player.pet.list[thisUnit] ~= nil then
+							br.player.pet.list[thisUnit] = nil
+						end
+						if br.lootable[thisUnit] ~= nil then
+							br.lootable[thisUnit] = nil
+						end
+						if br.pet[thisUnit] ~= nil then
+							br.pet[thisUnit] = nil
+						end
+						tremove(br.om, i)
+					else
+						--Update unit and move to next
+						br.om[i]:UpdateUnit()
+						i = i + 1
 					end
-					tremove(br.om, i)
 				else
-					br.om[i]:UpdateUnit()
 					i = i + 1
 				end
 			end
-			-- table.sort(br.om, function(x,y)
-			-- 	return x.distance < y.distance
-			-- end)
+			-- clean our loots
+			if autoLoot then
+				for k, v in pairs(br.lootable) do
+					if not CanLootUnit(br.lootable[k].guid) or not GetObjectExists(br.lootable[k].unit) then
+						br.lootable[k] = nil
+					end
+				end
+			end
 		end
 	end
 	-- We are setting up the Tables for the first time

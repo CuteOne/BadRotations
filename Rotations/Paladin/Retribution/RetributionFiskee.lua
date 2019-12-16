@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.0.1"
+local rotationName = "Fiskee - 8.1.0"
 ---------------
 --- Toggles ---
 ---------------
@@ -30,6 +30,12 @@ local function createToggles()
 	[2] = { mode = "Off", value = 2 , overlay = "Interrupts Disabled", tip = "No Interrupts will be used.", highlight = 0, icon = br.player.spell.hammerOfJustice }
 	};
 	CreateButton("Interrupt",4,0)
+-- Hold Wake
+    WakeModes = {
+        [1] = { mode = "On", value = 1 , overlay = "Use wake", tip = "Use wake", highlight = 1, icon = br.player.spell.wakeOfAshes},
+        [2] = { mode = "Off", value = 2 , overlay = "Don't use wake", tip = "Don't use wake", highlight = 0, icon = br.player.spell.wakeOfAshes}
+    };
+    CreateButton("Wake",5,0)
 end
 ---------------
 --- OPTIONS ---
@@ -50,18 +56,18 @@ local function createOptions()
 		br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
 		-- Opener
 		br.ui:createCheckbox(section, "Opener")
-		-- Challenge Skin Helper
-		br.ui:createCheckbox(section, "Challenge Skin Helper")
 		-- Greater Blessing of Kings
 		br.ui:createCheckbox(section, "Greater Blessing of Kings")
 		-- Greater Blessing of Wisdom
 		br.ui:createCheckbox(section, "Greater Blessing of Wisdom")
-		-- Hand of Freedom
-		br.ui:createCheckbox(section, "Hand of Freedom")
+		-- Blessing of Freedom
+		br.ui:createCheckbox(section, "Blessing of Freedom")
 		-- Hand of Hindeance
 		br.ui:createCheckbox(section, "Hand of Hinderance")
 		-- Wake of Ashes
-		br.ui:createDropdownWithout(section,"Wake of Ashes", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Wake of Ashes talent.")
+		br.ui:createDropdownWithout(section,"Wake of Ashes", {"|cff00FF00Everything","|cffFFFF00Cooldowns"}, 1, "|cffFFFFFFWhen to use Wake of Ashes talent.")
+		-- Wake of Ashes Target
+		br.ui:createDropdownWithout(section,"Wake of Ashes Target", {"|cff00FF00Target","|cff00FF00Best"}, 1, "|cffFFFFFFUse on target or best cone angle.")
 		br.ui:checkSectionState(section)
 		------------------------
 		--- COOLDOWN OPTIONS ---
@@ -176,6 +182,8 @@ local function runRotation()
 	UpdateToggle("Cooldown",0.25)
 	UpdateToggle("Defensive",0.25)
 	UpdateToggle("Interrupt",0.25)
+	UpdateToggle("Wake",0.25)
+    br.player.mode.wake = br.data.settings[br.selectedSpec].toggles["Wake"]
 
 	--------------
 	--- Locals ---
@@ -193,7 +201,7 @@ local function runRotation()
 	local holyPower     = br.player.power.holyPower.amount()
 	local holyPowerMax  = br.player.power.holyPower.max()
 	local inCombat      = br.player.inCombat
-	local item          = br.player.spell.items
+	local item          = br.player.items
 	local level         = br.player.level
 	local mode          = br.player.mode
 	local php           = br.player.health
@@ -235,10 +243,10 @@ local function runRotation()
 		OPN9 = false
 	end
 
-	--actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=3|!talent.righteous_verdict.enabled&talent.divine_judgment.enabled&spell_targets.divine_storm>=2|azerite.divine_right.enabled&target.health.pct<=20&buff.divine_right.down
-	local dsCastable = (mode.rotation == 1 and (#enemies.yards8 >= 3 or (not talent.righteousVerdict and talent.divineJudgment and #enemies.yards8 >= 2))) or mode.rotation == 2 or (trait.divineRight.active() and thp <= 20 and not buff.divineRight.exists())
+	--actions.finishers=variable,name=ds_castable,value=spell_targets.divine_storm>=2&!talent.righteous_verdict.enabled|spell_targets.divine_storm>=3&talent.righteous_verdict.enabled
+    local dsCastable = (mode.rotation == 1 and ((not talent.righteousVerdict and #enemies.yards8 >= 2) or (talent.righteousVerdict and #enemies.yards8 >= 3))) or mode.rotation == 2
 	--actions.generators=variable,name=HoW,value=(!talent.hammer_of_wrath.enabled|target.health.pct>=20&(buff.avenging_wrath.down|buff.crusade.down))
-	local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (talent.crusade and not buff.crusade.exists())))
+	local HoW = (not talent.hammer_of_wrath or thp >= 20 and ((not talent.crusade and not buff.avengingWrath.exists()) or (not isChecked("Crusade") or (talent.crusade and not buff.crusade.exists()))))
 
 	local lowestUnit
 	local lowestTank
@@ -281,26 +289,54 @@ local function runRotation()
 	if kingsUnit == nil then kingsUnit = "player" end
 	if wisdomUnit == nil then wisdomUnit = "player" end
 
-	-- Challenge Skin Heler
-	if isChecked("Challenge Skin Helper") then
-		for i=1, #enemies.yards10 do
-			thisUnit = enemies.yards10[i]
-			distance = getDistance(thisUnit)
-			if isCastingSpell(237946,thisUnit) then
-				-- Repentance
-				if distance < 30 then
-					if cast.repentance(thisUnit) then return end
-				end
-				-- Hammer of Justice
-				if isChecked("Hammer of Justice") and distance < 10 then
-					if cast.hammerOfJustice(thisUnit) then return end
-				end
-				-- Blinding Light
-				if isChecked("Blinding Light") and distance < 10 then
-					if cast.blindingLight() then return end
-				end
+	local function castBestConeAngle(spell,range,angle,minUnits,checkNoCombat,pool)
+		if not isKnown(spell) or getSpellCD(spell) ~= 0 then
+			return false
+		end
+		range = range or 10
+		angle = angle or 45
+		minUnits = minUnits or 1
+		checkNoCombat = checkNoCombat or false
+		pool = pool or false
+		local curFacing = ObjectFacing("player")
+		local enemiesTable = getEnemies("player",range,checkNoCombat)
+		local playerX, playerY, playerZ = ObjectPosition("player")
+		local coneTable = {}
+		for i = 1, #enemiesTable do
+			local unitX, unitY, unitZ = ObjectPosition(enemiesTable[i])
+			if playerX and unitX then
+				local angleToUnit = getAngles(playerX,playerY,playerZ,unitX,unitY,unitZ)
+				tinsert(coneTable, angleToUnit)
 			end
 		end
+		local facing, bestAngle, mostHit = 0, 0, 0
+		while facing <= 6.2 do
+			local units = 0
+			for i = 1, #coneTable do
+				local angleToUnit = coneTable[i]
+				local angleDifference = facing > angleToUnit and facing - angleToUnit or angleToUnit - facing
+				local shortestAngle = angleDifference < math.pi and angleDifference or math.pi*2 - angleDifference
+				local finalAngle = shortestAngle/math.pi*180
+				if finalAngle < angle/2 then
+					units = units + 1
+				end
+			end
+			if units > mostHit then
+				mostHit = units
+				bestAngle = facing
+			end
+			facing = facing + 0.05
+		end
+		if mostHit >= minUnits then
+			if pool and energy < getSpellCost(spell) then
+				return true
+			end
+			FaceDirection(bestAngle, true)
+			CastSpellByName(GetSpellInfo(spell))
+			FaceDirection(curFacing, true)
+			return true
+		end
+		return false
 	end
 	--------------------
 	--- Action Lists ---
@@ -308,8 +344,8 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Hand of Freedom
-		if isChecked("Hand of Freedom") and hasNoControl(spell.handOfFreedom) then
-			if cast.handOfFreedom() then return end
+		if isChecked("Blessing of Freedom") and hasNoControl(spell.blessingOfFreedom) then
+			if cast.blessingOfFreedom() then return end
 		end
 		-- Hand of Hinderance
 		if isChecked("Hand of Hinderance") and isMoving("target") and not getFacing("target","player") and getDistance("target") > 8 and getHP("target") < 25 then
@@ -533,9 +569,9 @@ local function runRotation()
 			if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 				and inCombat and (hasHealthPot() or hasItem(5512))
 				then
-				if canUse(5512) then
+				if canUseItem(5512) then
 					useItem(5512)
-				elseif canUse(healPot) then
+				elseif canUseItem(healPot) then
 					useItem(healPot)
 				end
 			end
@@ -643,23 +679,23 @@ local function runRotation()
 		if (useCDs() or burst) and getDistance(units.dyn5) < 5 then
 			-- Trinkets
 			if isChecked("Trinkets") then
-				if canUse(13) and not hasEquiped(151190, 13) then
+				if canUseItem(13) and not hasEquiped(151190, 13) then
 					useItem(13)
 				end
-				if canUse(14) and not hasEquiped(151190, 14) then
+				if canUseItem(14) and not hasEquiped(151190, 14) then
 					useItem(14)
 				end
 			end
 			-- Specter of Betrayal
 			-- use_item,name=specter_of_betrayal,if=(buff.crusade.up&buff.crusade.stack>=15|cooldown.crusade.remains>gcd*2)|(buff.avenging_wrath.up|cooldown.avenging_wrath.remains>gcd*2)
-			if isChecked("Trinkets") and hasEquiped(151190) and canUse(151190) then
+			if isChecked("Trinkets") and hasEquiped(151190) and canUseItem(151190) then
 				if ((buff.crusade.exists() and buff.crusade.stack() >= 15) or cd.crusade.remain() > gcd * 2) or (buff.avengingWrath.exists() or cd.avengingWrath.remain() > gcd * 2) then
 					useItem(151190)
 				end
 			end
 			-- Potion
 			-- potion,name=old_war,if=(buff.bloodlust.react|buff.avenging_wrath.up|buff.crusade.up&buff.crusade.remains<25|target.time_to_die<=40)
-			if isChecked("Potion") and canUse(127844) and inRaid then
+			if isChecked("Potion") and canUseItem(127844) and inRaid then
 				if (hasBloodlust() or buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.remain() < 25) or ttd(units.dyn5) <= 40) then
 					useItem(127844)
 				end
@@ -669,16 +705,16 @@ local function runRotation()
 			-- berserking
 			-- arcane_torrent,if=(buff.crusade.up|buff.avenging_wrath.up)&holy_power=2&(cooldown.blade_of_justice.remains>gcd|cooldown.divine_hammer.remains>gcd)
 			if isChecked("Racial") and (race == "Orc" or race == "Troll"
-				or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd or cd.divineHammer.remain() > gcd))
+				or (race == "BloodElf" and (buff.crusade.exists() or buff.avengingWrath.exists()) and holyPower == 2 and (cd.bladeOfJustice.remain() > gcd --[[or cd.divineHammer.remain() > gcd]]))
 				or (race == "LightforgedDraenei"))
 				then
 				if cast.racial() then return end
 			end
-			-- Holy Wrath
-			-- holy_wrath
-			if isChecked("Holy Wrath") then
-				if cast.holyWrath() then return end
-			end
+			-- -- Holy Wrath
+			-- -- holy_wrath
+			-- if isChecked("Holy Wrath") then
+			-- 	if cast.holyWrath() then return end
+			-- end
 			-- Shield of Vengenace
 			-- shield_of_vengeance
 			if isChecked("Shield of Vengeance - CD") then
@@ -691,32 +727,36 @@ local function runRotation()
 			end
 			-- Crusade
 			-- crusade,if=holy_power>=3|((equipped.137048|race.blood_elf)&holy_power>=2)
-			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) then
+			if isChecked("Crusade") and talent.crusade and (holyPower >= 3 or ((hasEquiped(137048) or race == "BloodElf") and holyPower >= 2)) and cd.crusade.remain() <= gcd then
 				if cast.avengingWrath() then return end
 			end
 		end -- End Cooldown Usage Check
+		-- Concentrated Flame
+		if ttd > 3 then
+			if cast.concentratedFlame("target") then return true end
+		end
 	end -- End Action List - Cooldowns
 	-- Action List - PreCombat
 	local function actionList_PreCombat()
 		if not inCombat and not (IsFlying() or IsMounted()) then
 			-- Flask
 			-- flask,type=flask_of_the_countless_armies
-			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskoftheUndertow.exists() and canUse(item.flaskoftheUndertow) then
+			if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheUndertow.exists() and canUseItem(item.flaskOfTheUndertow) then
 				if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
 				if buff.felFocus.exists() then buff.felFocus.cancel() end
-				if use.flaskoftheUndertow() then return end
+				if use.flaskOfTheUndertow() then return end
 			end
 			if isValidUnit("target") and (not isBoss("target") or (not isChecked("Opener") or talent.divinePurpose)) then
-				-- Divine Hammer
-				if talent.divineHammer and #enemies.yards8 >= 3 then
-					if cast.divineHammer() then return end
-				end
+				-- -- Divine Hammer
+				-- if talent.divineHammer and #enemies.yards8 >= 3 then
+				-- 	if cast.divineHammer() then return end
+				-- end
 				-- Judgment
 				if cast.judgment("target") then return end
 
-				if not talent.divineHammer then
+				-- if not talent.divineHammer then
 					if cast.bladeOfJustice("target") then return end
-				end
+				-- end
 
 				if cast.crusaderStrike("target") then return end
 
@@ -748,6 +788,8 @@ local function runRotation()
 						if castOpener("inquisition","OPN5",4) then return end
 					elseif talent.divinePurpose then
 						if castOpener("avengingWrath","OPN5",4) then return end
+					else
+						OPN5 = true
 					end
 				elseif OPN5 and not OPN6 then
 					if talent.inquisition then
@@ -789,24 +831,24 @@ local function runRotation()
 			if cast.inquisition() then return end
 		end
 		-- actions.finishers+=/execution_sentence,if=spell_targets.divine_storm<=3&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-		if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2))) then
+		if ((mode.rotation == 1 and #enemies.yards8 <= 3 or mode.rotation == 3) and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2))) then
 			if cast.executionSentence() then return end
 		end
 		-- actions.finishers+=/divine_storm,if=variable.ds_castable&buff.divine_purpose.react
 		if dsCastable and buff.divinePurpose.exists() then
-			if cast.divineStorm("player", "aoe", 1, 8) then return end
+			if cast.divineStorm("player") then return end
 		end
-		-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)
-		if dsCastable and (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) then
-			if cast.divineStorm("player", "aoe", 1, 8) then return end
+		-- actions.finishers+=/divine_storm,if=variable.ds_castable&(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)|buff.empyrean_power.up&debuff.judgment.down&buff.divine_purpose.down
+		if (dsCastable and (not talent.crusade or cd.crusade.remain() > gcd*2 or not useCDs() or not isChecked("Crusade"))) or (buff.empyreanPower.exists() and not debuff.judgment.exists("target") and not buff.divinePurpose.exists()) then
+            if cast.divineStorm("player") then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=buff.divine_purpose.react&(!talent.execution_sentence.enabled|cooldown.execution_sentence.remains>gcd)
-		if buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
+		if not dsCastable and buff.divinePurpose.exists() and (not talent.executionSentence or cd.executionSentence.remain() > gcd) then
 			if cast.templarsVerdict() then return end
 		end
 		-- actions.finishers+=/templars_verdict,if=(!talent.crusade.enabled|cooldown.crusade.remains>gcd*2)&(!talent.execution_sentence.enabled|buff.crusade.up&buff.crusade.stack<10|cooldown.execution_sentence.remains>gcd*2)
-		if (not talent.crusade or (not useCDs() or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
-			if cast.templarsVerdict() then return end
+		if not dsCastable and (not talent.crusade or (not useCDs() or not isChecked("Crusade") or cd.crusade.remain() > gcd*2)) and (not talent.executionSentence or (buff.crusade.exists() and buff.crusade.stack() < 10) or (talent.executionSentence and cd.executionSentence.remain() > gcd*2)) then
+            if cast.templarsVerdict() then return end
 		end
 
 	end
@@ -818,8 +860,12 @@ local function runRotation()
 			if actionList_Finisher() then return end
 		end
 		-- actions.generators+=/wake_of_ashes,if=(!raid_event.adds.exists|raid_event.adds.in>20)&(holy_power<=0|holy_power=1&cooldown.blade_of_justice.remains>gcd)
-		if talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and getDistance("target") < 8 and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) and getFacing("player","target") then
-			if cast.wakeOfAshes("player", "aoe", 1, 15) then return end
+		if mode.wake == 1 and talent.wakeOfAshes and (getOptionValue("Wake of Ashes") == 1 or (getOptionValue("Wake of Ashes") == 2 and useCDs())) and (holyPower <= 0 or (holyPower == 1 and cd.bladeOfJustice.remain() > gcd)) then
+			if getOptionValue("Wake of Ashes Target") == 1 and getFacing("player","target") and getDistance("target") < 8 then
+				if cast.wakeOfAshes("player") then return end
+			elseif getOptionValue("Wake of Ashes Target") == 2 then
+				if castBestConeAngle(spell.wakeOfAshes, 12, 60, 1, false) then return true end
+			end
 		end
 		-- actions.generators+=/blade_of_justice,if=holy_power<=2|(holy_power=3&(cooldown.hammer_of_wrath.remains>gcd*2|variable.HoW))
 		if holyPower <= 2 or (holyPower == 3 and (cd.hammerOfWrath.remain() > gcd*2 or HoW)) then
@@ -837,8 +883,8 @@ local function runRotation()
 		if talent.consecration and holyPower <= 2 or (holyPower <= 3 and cd.bladeOfJustice.remain() > gcd*2) or (holyPower <= 4 and cd.bladeOfJustice.remain() > gcd*2 and cd.judgment.remain() > gcd*2) and getDistance("target") < 5 and isValidUnit("target") and not isMoving("player") then
 			if cast.consecration() then return end
 		end
-		-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)&(buff.divine_purpose.up|buff.crusade.stack<10)
-		if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) and (buff.divinePurpose.exists() or (buff.crusade.exists() and buff.crusade.stack() < 10)) then
+		-- actions.generators+=/call_action_list,name=finishers,if=talent.hammer_of_wrath.enabled&(target.health.pct<=20|buff.avenging_wrath.up|buff.crusade.up)
+		if talent.hammerOfWrath and (thp <= 20 or buff.crusade.exists() or buff.avengingWrath.exists()) then
 			if actionList_Finisher() then return end
 		end
 		-- actions.generators+=/crusader_strike,if=cooldown.crusader_strike.charges_fractional>=1.75&(holy_power<=2|holy_power<=3&cooldown.blade_of_justice.remains>gcd*2|holy_power=4&cooldown.blade_of_justice.remains>gcd*2&cooldown.judgment.remains>gcd*2&cooldown.consecration.remains>gcd*2)
@@ -852,8 +898,8 @@ local function runRotation()
 		if holyPower <= 4 then
 			if cast.crusaderStrike() then return end
 		end
-		-- actions.generators+=/arcane_torrent,if=(debuff.execution_sentence.up|(talent.hammer_of_wrath.enabled&(target.health.pct>=20|buff.avenging_wrath.down|buff.crusade.down))|!talent.execution_sentence.enabled|!talent.hammer_of_wrath.enabled)&holy_power<=4
-		if isChecked("Racial") and race == "BloodElf" and holyPower <= 4 and (debuff.executionSentence.exists("target") or (talent.hammerOfWrath and (thp >= 20 or (talent.crusade and not buff.crusade.exists()) or (not talent.crusade and not buff.avengingWrath.exists()))) or not talent.executionSentence or not talent.hammerOfWrath) then
+		-- actions.generators+=/arcane_torrent,if=holy_power<=4
+		if isChecked("Racial") and useCDs() and race == "BloodElf" and holyPower <= 4 then
 			if cast.racial() then return end
 		end
 	end

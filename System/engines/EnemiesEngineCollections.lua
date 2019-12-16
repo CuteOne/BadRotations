@@ -117,9 +117,20 @@ dispellOffensiveBuffs = {
 	[129016] = "Enrage",[129874] = "Enrage",[130196] = "Enrage",[130202] = "Enrage",[131150] = "Enrage",
 	[135524] = "Enrage",[135548] = "Enrage",[142760] = "Enrage",[148295] = "Enrage",[151553] = "Enrage",
 	[154017] = "Enrage",[155620] = "Enrage",[164324] = "Enrage",[164835] = "Enrage",[175743] = "Enrage",
-	[144351] = "Magic"
+	[144351] = "Magic",
 }
 interruptWhitelist = {
+	-- Atal'Dazar start
+	[255824] = true, -- fanatic rage
+	[253583] = true, -- Fiery Enchant
+	[253544] = true, -- bwonsamdismantle
+	[253517] = true, -- mending word
+	[256849] = true, -- dinomight
+    [259572] = true, -- noxious-stench
+    [250096] = true, -- wracking-pain
+    [255041] = true, -- terrifying-screech
+    [279118] = true, -- unstable-hex
+	-- Atal'Dazar end
 	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids
 	[274438] = true, -- tempest
@@ -129,6 +140,8 @@ interruptWhitelist = {
 	[276767] = true, -- consuming-void
 	[268375] = true, -- detect-thoughts
 	[267809] = true, -- consume-essence
+	[268322] = true, -- drowned kick
+	[267977] = true, -- tidal surge
 	-- Shrine of Storm end
 	-- Motherload! start
 	[268129] = true, -- kajacola-refresher
@@ -138,6 +151,11 @@ interruptWhitelist = {
 	[263066] = true, -- transfiguration-serum
 	[262540] = true, -- overcharge
 	[269090] = true, -- artillery-barrage
+	[263103] = true, -- Blowtorch
+	[263066] = true, -- TransSyrum
+	[268797] = true, -- EnemyToGoo
+	[262092] = true, -- InhaleVapors
+	[280604] = true, -- ice-spritzer
 	-- Motherload! end
 	-- Underrot start
 	[265089] = true, -- dark-reconstitution
@@ -148,14 +166,17 @@ interruptWhitelist = {
 	[272183] = true, -- raise-dead
 	[265433] = true, -- withering-curse
 	[272180] = true, -- death-bolt
+	[266106] = true, -- sonic screech
+	[265523] = true, -- spiritdraintotem
+	[265091] = true, -- gift of ghuun
 	-- Underrot end
 	-- Freehold start
 	[257397] = true, -- healing-balm
 	[258777] = true, -- sea-spout
 	[257732] = true, -- shattering-bellow
 	[257736] = true, -- thundering-squall
-	[257899] = true, -- painful-motivation
 	[256060] = true, -- revitalizing-brew
+	[257784] = true, -- Frostblast
 	-- Freehold end
 	-- Waycrest Manor start
 	[265368] = true, -- spirited-defense
@@ -190,6 +211,7 @@ interruptWhitelist = {
 	[267273] = true, -- poison-nova
 	[269972] = true, -- shadow-bolt-volley
 	[270923] = true, -- shadow-bolt
+	[269973] = true, -- deathlychill
 	-- Kings Rest end
 	-- Tol Dagor start
 	[258128] = true, -- debilitating-shout
@@ -204,6 +226,41 @@ interruptWhitelist = {
 	[272571] = true, -- choking-waters
 	[256957] = true, -- watertight-shell
 	-- Siege of Boralus end
+	-- Battle of Dazarlor start
+	[283628] = true, -- Heal of the forces of the crusade, champion of the light encounter
+	[282243] = true, -- Apetagonize, Grong encounter
+	[289596] = true, -- For the King, 7th Legion Cavalier
+	[286379] = true, -- Pyroblast, Jade Masters encounter
+	[286563] = true, -- Tidal Empowerment, Brother Joseph , Stormwall Blockade encounter
+	[287887] = true, -- Storm's Empowerment, Sister Katherine , Stormwall Blockade encounter
+	[289861] = true, -- Howling Winds, Lady Jaina Proudmoore
+	[287419] = true, -- Angelic Renewal, Disciples Boss-Heal on Mythic Champions of Light.
+	-- Battle of Dazarlor end
+	-- Mechagon Start
+	[300650] = true, -- Suffocating Smog, Toxic Lurkers
+	[300414] = true, -- Enrage, Scrapbone Grinders
+	[300171] = true, -- Repair Protocol, Heavy Scrapbot
+	[299588] = true, -- Overclock, Pistonhead Mechanic
+	[300087] = true, -- Repair, Pistonhead Mechanic
+	[298669] = true, -- Taze, Trixie Tazer
+	[300514] = true, -- Stoneskin, Scrapbone Shamans
+	[300436] = true, -- Grasping Hex, Scrapbone Shamans
+	[301629] = true, -- Enlarge, Mechagon Renormalizer
+	[284219] = true, -- Shrink, Mechagon Renormalizer
+	[301689] = true, -- Charged Coil, Anodized Coilbearer
+	[301088] = true, -- Detonate, Bomb Tonk
+	[293930] = true, -- Overclock, Mechagon Mechanic
+	[293729] = true, -- Tune Up, Mechagon Mechanic
+	-- Mechagon End
+	-- Eternal Palace Start
+	[296673] = true, -- Chain Lightning, Stormling
+	[295822] = true, -- Conductive Pulse, Azsh'ari Witch
+	[297972] = true, -- Chain Lightning, Aethanel, Tidemistress
+	[300491] = true, -- Drain Ancient Ward, Tidemistress
+	[300490] = true, -- Energize Ward of Power, Tidemistress
+	-- Eternal Palace End
+
+
 	-- Old Content start 
 	[191823] = true, -- Furious Blast
 	[191848] = true, -- Rampage
@@ -310,10 +367,88 @@ interruptWhitelist = {
 	[211875] = true, -- Bladestorm
 	-- Old Content end
 }
-validUnitBypassList = {
-	[133492] = "Corruption Corpuscle",
-	[135016] = "Plague Amalgam",
-	[131009] = "Spirit of Gold", --Atal
-	[125828] = "Soulspawn", --Atal
-	[134691] = "Static Charged Dervish" --Temple
+
+activeMitigationList = {
+		--spell_id	, spell_name
+		{267899, "Hindering Cleave"}, -- Shrine of the Storm
+		{272457, "Shockwave"}, -- Underrot
+		{260508, "Crush"}, -- Waycrest Manor
+		{249919, "Skewer"}, -- Atal'Dazar
+		{265910, "Tail Thrash"}, -- King's Rest
+		{268586, "Blade Combo"}, -- King's Rest
+		{262277, "Terrible Thrash"}, -- Fetid Devourer
+		{265248, "Shatter"}, -- Zek'voz
+		{273316, "Bloody Cleave"}, -- Zul, Reborn
+		{273282, "Essence Shear"}, -- Mythrax the Unraveler
+		{300877, "System Shock"}, -- Queen Azshara
+		{296566, "Tide Fist"}, -- Radiance of Azshara
+		{297585, "Obey or Suffer"}, -- The Queens Court
+
+}
+-- Moved to threatBypassList (System/List/ThreatBypass.lua)
+-- validUnitBypassList = {
+-- 	[133492] = "Corruption Corpuscle",
+-- 	[135016] = "Plague Amalgam",
+-- 	[131009] = "Spirit of Gold", --Atal
+-- 	[125828] = "Soulspawn", --Atal
+--     [134691] = "Static Charged Dervish", --Temple
+--     [147218] = "Spirit of Gold", --Opulence
+--     [148436] = "Barrier", --Jadefire Masters
+-- 	[148415] = "Barrier", --Jadefire Masters
+-- 	[147377] = "Barrier", --Jadefire Masters
+-- 	[147376] = "Barrier", --Jadefire Masters
+--     [147374] = "Barrier", --Jadefire Masters
+--     [147375] = "Barrier", --Jadefire Masters
+-- 	[146756] = "Energized Storm", --Jadefire Masters
+-- 	[146107] = "Living Bomb", -- Jadefire Masters
+-- 	[148522] = "Ice Block", --Jaina
+-- 	[148907] = "Prismatic Image", --Jaina
+--     [148716] = "Risen Soul", --M+ Reaping
+--     [148893] = "Tormented Soul", --M+ Reaping
+-- 	[148894] = "Lost Soul", --M+ Reaping
+-- 	[120651] = "Explosive", -- Explosive
+-- 	[136330] = "Soul Thorns", -- Soul Thorns Waycrest Manor
+-- 	[134388] = "A Knot of Snakes", -- A Knot of Snakes ToS
+-- 	[154240] = "Azshara's Devoted", -- Azshara's Devoted
+--     [155354] = "Azshara's Indomitable", -- Azshara's Indomitable
+--     [155643] = "Overzealous Hulk", -- Overzealous Hulk
+-- }
+
+rangeOrMelee = {
+	[250] = "melee",
+	[251] = "melee",
+	[252] = "melee",
+	[577] = "melee",
+	[581] = "melee",
+	[102] = "ranged",
+	[103] = "melee",
+	[104] = "melee",
+	[105] = "ranged",
+	[253] = "ranged",
+	[254] = "ranged",
+	[255] = "melee",
+	[62] = "ranged",
+	[63] = "ranged",
+	[64] = "ranged",
+	[268] = "melee",
+	[269] = "melee",
+	[270] = "ranged",
+	[65] = "ranged",
+	[66] = "melee",
+	[70] = "melee",
+	[256] = "ranged",
+	[257] = "ranged",
+	[258] = "ranged",
+	[259] = "melee",
+	[260] = "melee",
+	[261] = "melee",
+	[262] = "ranged",
+	[263] = "melee",
+	[264] = "ranged",
+	[265] = "ranged",
+	[266] = "ranged",
+	[267] = "ranged",
+	[71] = "melee",
+	[72] = "melee",
+	[73] = "melee",
 }

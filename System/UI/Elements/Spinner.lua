@@ -19,6 +19,10 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     -------------------------------
     checkBox = br.ui:createCheckbox(parent, text, tooltip)
     if hideCheckbox then
+        local check = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Check"]
+        if check == 0 then check = false end
+        if check == 1 then check = true end
+        if check == true then checkBox:SetChecked(false) end
         checkBox:Disable()
         checkBox:ReleaseTextures()
     end
@@ -52,6 +56,11 @@ function br.ui:createSpinner(parent, text, number, min, max, step, tooltip, tool
     --------------
     -- Read number from config or set default
     if br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"] == nil then br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"] = number end
+
+    -- Add to UI Settings **Do not comment out or remove, will result in loss of settings**
+    if br.data.ui == nil then br.data.ui = {} end
+    br.data.ui[text.."Status"] = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"]
+
     local state = br.data.settings[br.selectedSpec][br.selectedProfile][text.."Status"]
     spinner:SetNumber(state)
 

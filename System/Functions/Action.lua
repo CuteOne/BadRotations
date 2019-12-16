@@ -1,6 +1,6 @@
 function canFly()
-	local hasDraenorFly = select(4,GetAchievementInfo(10018)) 
-	local hasLegionFly = select(4,GetAchievementInfo(11446)) 
+	local hasDraenorFly = select(4,GetAchievementInfo(10018))
+	local hasLegionFly = select(4,GetAchievementInfo(11446))
 	return IsOutdoors() and IsFlyableArea() and ((not isInDraenor() and not isInLegion()) or (hasDraenorFly and isInDraenor()) or (hasLegionFly and isInLegion()))
 end
 
@@ -17,7 +17,7 @@ end
 -- if canRun() then
 function canRun()
 	if getOptionCheck("Pause") ~= 1 then
-		if getOptionCheck("Start/Stop BadRotations") and isAlive("player") then
+		if isAlive("player") then
 			if SpellIsTargeting()
 				--or UnitInVehicle("Player")
 				or (IsMounted() and not UnitBuffID("player",164222) and not UnitBuffID("player",165803) and not UnitBuffID("player",157059) and not UnitBuffID("player",157060))

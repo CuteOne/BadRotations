@@ -1,23 +1,45 @@
+local sqrt, abs, atan, deg, tan = math.sqrt, math.abs, math.atan, math.deg, math.tan
 local testSpell = {
-    ["WAR"] = 6552,
-    ["PAL" ] = 35395,
+    ["WARRIOR"] = 6552,
+    ["PALADIN"] = 35395,
     ["ROGUE"] = 1766,
-    ["DK"] = 49998,
+    ["DEATHKNIGHT"] = 49998,
     ["MONK"] = 100780,
     ["SHAMAN"] = 17364,
-    ["DRUIDBC"] = 106832,
+    ["DRUIDC"] = 5221,
+    ["DRUIDB"] = 33917,
     ["DHH"] = 162794,
     ["DHV"] = 214743,
     ["SHUNTER"] = 185855
 }
 
 function getDistance(Unit1,Unit2,option)
-    currentDist = 100
+    if Unit2 == nil then
+        Unit2 = Unit1
+        Unit1 = "player"
+    end
+    if br.units ~= nil then
+        if (Unit1 == "player" and br.units[ObjectPointer(Unit2)] ~= nil) then
+            return br.units[ObjectPointer(Unit2)].range
+        end
+        if (br.units[ObjectPointer(Unit1)] ~= nil and Unit2 == "player") then
+            return br.units[ObjectPointer(Unit1)].range
+        end
+        -- local thisUnit = Unit1 == "player" and br.units[ObjectPointer(Unit2)] or br.units[ObjectPointer(Unit1)]
+        -- if thisUnit ~= nil then return thisUnit.range end
+    end
+    return getDistanceCalc(Unit1,Unit2,option)
+end
+function getDistanceCalc(Unit1,Unit2,option)
+    local currentDist = 100
     local meleeSpell = nil
-    if testSpell[select(2,UnitClass("player"))] ~= nil then
-        meleeSpell = testSpell[select(2,UnitClass("player"))]
-    elseif select(2,UnitClass("player")) == "DRUID" and (GetShapeshiftForm()==1 or GetShapeshiftForm()==3)  then
-        meleeSpell = testSpell["DRUIDBC"]
+    local playerClass = select(2,UnitClass("player"))
+    if testSpell[playerClass] ~= nil then
+        meleeSpell = testSpell[playerClass]
+    elseif playerClass == "DRUID" and UnitBuffID("player",768) then
+        meleeSpell = testSpell["DRUIDC"]
+    elseif playerClass == "DRUID" and UnitBuffID("player",5487) then
+        meleeSpell = testSpell["DRUIDB"]
     elseif select(1,GetSpecializationInfo(GetSpecialization())) == 255 then
         meleeSpell = testSpell["SHUNTER"]
     elseif select(1,GetSpecializationInfo(GetSpecialization())) == 263 then
@@ -81,13 +103,10 @@ function getDistance(Unit1,Unit2,option)
         local TargetCombatReach = UnitCombatReach(Unit2) or 0
         local PlayerCombatReach = UnitCombatReach(Unit1) or 0
         local MeleeCombatReachConstant = 4/3
-        if isMoving(Unit1) and isMoving(Unit2) then
-            IfSourceAndTargetAreRunning = 8/3
-        else
-            IfSourceAndTargetAreRunning = 0
-        end
+        local IfSourceAndTargetAreRunning = 0
+        if isMoving(Unit1) and isMoving(Unit2) then IfSourceAndTargetAreRunning = 8/3 end
 
-        local dist = math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
+        local dist = sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2)) - (PlayerCombatReach + TargetCombatReach) - rangeMod
         local dist2 = dist + 0.03 * ((13 - dist) / 0.13)
         local dist3 = dist + 0.05 * ((8 - dist) / 0.15) + 1
         local dist4 = dist + (PlayerCombatReach + TargetCombatReach)
@@ -135,7 +154,7 @@ function getDistanceToObject(Unit1,X2,Y2,Z2)
 	end
 	if GetObjectExists(Unit1) and GetUnitIsVisible(Unit1) then
 		local X1,Y1,Z1 = GetObjectPosition(Unit1)
-		return math.sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
+		return sqrt(((X2-X1)^2) + ((Y2-Y1)^2) + ((Z2-Z1)^2))
 	else
 		return 100
 	end
@@ -155,20 +174,21 @@ function getFacingDistance()
         local targetDistance = getDistance("target")
         local Y1,X1,Z1 = GetObjectPosition("player");
         local Y2,X2,Z2 = GetObjectPosition("target");
-        local Angle1 = GetObjectFacing("player")
+        local angle1 = GetObjectFacing("player")
+        local angle2
         local deltaY = Y2 - Y1
         local deltaX = X2 - X1
-        Angle1 = math.deg(math.abs(Angle1-math.pi*2))
+        angle1 = deg(abs(angle1-math.pi*2))
         if deltaX > 0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2)+math.pi)
+            angle2 = deg(atan(deltaY/deltaX)+(math.pi/2)+math.pi)
         elseif deltaX <0 then
-            Angle2 = math.deg(math.atan(deltaY/deltaX)+(math.pi/2))
+            angle2 = deg(atan(deltaY/deltaX)+(math.pi/2))
         end
-        local Dist = round2(math.tan(math.abs(Angle2 - Angle1)*math.pi/180)*targetDistance*10000)/10000
+        local Dist = round2(math.tan(abs(angle2 - angle1)*math.pi/180)*targetDistance*10000)/10000
         if ObjectIsFacing("player","target") then
             return Dist
         else
-            return -(math.abs(Dist))
+            return -(abs(Dist))
         end
     else
         return 1000
@@ -182,15 +202,16 @@ function getTotemDistance(Unit1)
 
   if GetUnitIsVisible(Unit1) then
     -- local objectCount = GetObjectCount() or 0
+    local X2, Y2, Z2
     for i = 1,GetObjectCount() do
       if GetUnitIsUnit(UnitCreator(GetObjectWithIndex(i)), "Player") and (UnitName(GetObjectWithIndex(i)) == "Searing Totem" or UnitName(GetObjectWithIndex(i)) == "Magma Totem") then
         X2,Y2,Z2 = GetObjectPosition(GetObjectIndex(i))
       end
     end
     local X1,Y1,Z1 = GetObjectPosition(Unit1)
-    TotemDistance = math.sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
+    local totemDistance = sqrt(((X2-X1)^2)+((Y2-Y1)^2)+((Z2-Z1)^2))
     --Print(TotemDistance)
-    return TotemDistance
+    return totemDistance
   else
     return 0
   end
@@ -208,7 +229,8 @@ function isInMelee(Unit)
 end
 
 function isSafeToAoE(spellID,Unit,effectRng,minUnits,aoeType)
-    if not isChecked("Safe Damage Check") then return true end 
+    if not isChecked("Safe Damage Check") then return true end
+    local enemiesValid, enemiesAll
     local maxRange = select(6,GetSpellInfo(spellID))
     if effectRng == nil then effectRng = 5 end
     if maxRange == nil or maxRange == 0 then maxRange = tonumber(effectRng) else maxRange = tonumber(maxRange) end
@@ -235,4 +257,14 @@ function inRange(spellID,unit)
     else
         return false
     end
+end
+
+function getBaseDistance(unit1, unit2)
+    if unit2 == nil then
+        unit2 = "player"
+    end
+    local x1, y1, z1 = ObjectPosition(unit1)
+    local x2, y2, z2 = ObjectPosition(unit2)
+    return math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2)) -
+        ((UnitCombatReach(unit1) or 0) + (UnitCombatReach(unit2) or 0)), z2 - z1
 end

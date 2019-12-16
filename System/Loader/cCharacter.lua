@@ -20,6 +20,7 @@ function cCharacter:new(class)
   self.dynLastUpdate  = 0         -- Timer variable to reduce Dynamic Target updating
   self.dynTargetTimer = 0.5       -- Timer to reduce Dynamic Target updating (1/X = calls per second)
 	self.enemies  	    = {}        -- Number of Enemies around player (must be overwritten by cCLASS or cSPEC)
+	self.essence 				= {} 				-- Azerite Essence
 	self.equiped 	    	= {} 	-- Item Equips
 	self.gcd            = 1.5       -- Global Cooldown
 	self.gcdMax 	    	= 1.5 	-- GLobal Max Cooldown
@@ -62,7 +63,8 @@ function cCharacter:new(class)
 	self.level	    		= 0 	-- Player Level
 	self.mode           = {}        -- Toggles
 	self.moving         = false        -- Moving event
-	self.options 	    	= {}        -- Contains options
+	self.opener 				= {} 	-- Opener flag tracking, reduce global vars
+	self.pandemic 			= {}  -- Tracking Base Duration per Unit/Debuff
 	self.perk 	    		= {}	-- Perk Table
 	self.petId 	    		= 0 	-- Current Pet Id
 	self.pet 	    			= {} 	-- Pet Information Table
@@ -72,7 +74,7 @@ function cCharacter:new(class)
 	self.profile        = "None"    -- Spec
 	self.queue 	    		= {} 	-- Table for Queued Spells
 	self.race     	    = select(2,UnitRace("player"))  -- Race as non-localised name (undead = Scourge) !
-	self.racial   	    = getRacialID()     -- Contains racial spell id
+	self.racial   	    = getRacial()     -- Contains racial spell id
 	self.recharge       = {}        -- Time for current recharge (for spells with charges)
 	self.rechargeFull   = {}
 	self.selectedRotation = 1       -- Default: First avaiable rotation
@@ -89,8 +91,6 @@ function cCharacter:new(class)
 		local startTime = debugprofilestop()
 		-- Pause
 		-- TODO
-		-- Get base options
-		self.baseGetOptions()
 		-- Get Character Info
 		self.getCharacterInfo()
 		-- Get Consumables
@@ -109,16 +109,14 @@ function cCharacter:new(class)
 			self.potion.strength 	= {}	-- Strength Potions
 			self.potion.versatility = {} 	-- Versatility Potions
 			self.potion.waterwalk = {}
+			self.flask.agility 		= {}
+			self.flask.intellect  = {}
+			self.flask.stamina		= {}
+			self.flask.strength   = {}
 			self.getConsumables()		-- Find All The Tasty Things!
 			bagsUpdated = false
 		end
-		-- Crystal
-		self.useCrystal()
-		-- Fel Focuser
-		self.useFelFocuser()
-		-- Empowered Augment Rune
-		self.useEmpoweredRune()
-    -- Get selected rotation
+		-- Get selected rotation
     self.getRotation()
 		-- Get toggle modes
 		self.getToggleModes()
@@ -160,6 +158,7 @@ function cCharacter:new(class)
 			self.queue = {} -- Reset Queue Casting Table out of combat
 			Print("Out of Combat - Queue List Cleared")
 		end
+		self.ignoreCombat = getOptionCheck("Ignore Combat")
 	end
 
 -- Updates toggle data
@@ -174,15 +173,7 @@ function cCharacter:new(class)
 
 -- Returns the Global Cooldown time
 	function self.getGlobalCooldown(max)
-		local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
-		if max == true then
-			if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
-				return 1
-			else
-				return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
-			end
-		end
-		return getSpellCD(61304)
+		return getGlobalCD(max)
     end
 
 -- Starts auto attack when in melee range and facing enemy
@@ -192,9 +183,23 @@ function cCharacter:new(class)
 		end
 	end
 
+	function self.tankAggro()
+		if self.instance=="raid" or self.instance=="party" then
+			if getTanksTable() ~= nil then
+				for i = 1, #getTanksTable() do
+					if UnitAffectingCombat(getTanksTable()[i].unit) and getTanksTable()[i].distance < 40 then
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end
+
+
 -- Returns if in combat
 	function self.getInCombat()
-		if UnitAffectingCombat("player") or self.ignoreCombat
+		if UnitAffectingCombat("player") or self.ignoreCombat or (isChecked("Tank Aggro = Player Aggro") and self.tankAggro())
 		or (GetNumGroupMembers()>1 and (UnitAffectingCombat("player") or UnitAffectingCombat("target"))) then
 			self.inCombat = true
 		else
@@ -217,7 +222,7 @@ function cCharacter:new(class)
     function self.startRotation()
     	local startTime = debugprofilestop()
         -- dont check if player is casting to allow off-cd usage and cast while other spell is casting
-        if pause(true) then return end
+        -- if pause(true) then return end
 
         if self.rotation ~= nil then
         	self.rotation.run()
@@ -268,98 +273,9 @@ function cCharacter:new(class)
 	end
 
 -- Sets the racial
-	function self.getRacial()
-		-- local versioncheck = select(1,GetBuildInfo())
-		-- local build = select(2,GetBuildInfo())
-		-- local vnumber = versioncheck:gsub("(%D+)","")
-		-- if tonumber(vnumber) > 735 or (tonumber(vnumber) == 735 and tonumber(build) >= 26972)
-		-- 	then version = "BFA"
-		-- else
-		-- 	version = "Legion"
-		-- end
-		-- if version == "Legion" then
-		-- 	if self.race == "BloodElf" then
-		--         BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
-		--     end
-		--     if self.race == "Draenei" then
-		--         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
-		--     end
-		--     if self.race == "Orc" then
-		--         OrcRacial = select(7, GetSpellInfo(GetSpellInfo(20572)))
-		--     end
-		-- 	local racialSpells = {
-		-- 		-- Alliance
-		-- 		Dwarf    			= 20594, -- Stoneform
-		-- 		Gnome    			= 20589, -- Escape Artist
-		-- 		Draenei  			= DraeneiRacial, -- Gift of the Naaru
-		-- 		Human    			= 59752, -- Every Man for Himself
-		-- 		NightElf 			= 58984, -- Shadowmeld
-		-- 		Worgen   			= 68992, -- Darkflight
-		-- 		-- Horde
-		-- 		BloodElf 			= BloodElfRacial, -- Arcane Torrent
-		-- 		Goblin   			= 69041, -- Rocket Barrage
-		-- 		Orc      			= OrcRacial, -- Blood Fury
-		-- 		Tauren  			= 20549, -- War Stomp
-		-- 		Troll    			= 26297, -- Berserking
-		-- 		Scourge  			= 7744,  -- Will of the Forsaken
-		-- 		-- Both
-		-- 		Pandaren 			= 107079, -- Quaking Palm
-		-- 		-- Allied Races
-		--         HighmountainTauren 	= 255654, -- Bull Rush
-		--         LightforgedDraenei 	= 255647, -- Light's Judgment
-		--         Nightborne 			= 260364, -- Arcane Pulse
-		--         VoidElf 			= 256948, -- Spatial Rift
-		-- 	}
-		-- 	if br.player ~= nil then
-		-- 		return br.player.spells.racial
-		-- 	else
-		-- 		return racialSpells[self.race]
-		-- 	end
-		-- elseif version == "BFA" then
-		-- 	if self.race == "BloodElf" then
-	        --     BloodElfRacial = select(7, GetSpellInfo(GetSpellInfo(69179)))
-	        -- 	end
-		--     if self.race == "Draenei" then
-		--         DraeneiRacial = select(7, GetSpellInfo(GetSpellInfo(28880)))
-		--     end
-		--     if self.race == "Orc" then
-		--         OrcRacial = select(7, GetSpellInfo(GetSpellInfo(33702)))
-		--     end
-		-- 	local racialSpells = {
-		-- 		-- Alliance
-		-- 		Dwarf    			= 20594, -- Stoneform
-		-- 		Gnome    			= 20589, -- Escape Artist
-		-- 		Draenei  			= DraeneiRacial, -- Gift of the Naaru
-		-- 		Human    			= 59752, -- Every Man for Himself
-		-- 		NightElf 			= 58984, -- Shadowmeld
-		-- 		Worgen   			= 68992, -- Darkflight
-		-- 		-- Horde
-		-- 		BloodElf 			= BloodElfRacial, -- Arcane Torrent
-		-- 		Goblin   			= 69041, -- Rocket Barrage
-		-- 		Orc      			= OrcRacial, -- Blood Fury
-		-- 		Tauren  			= 20549, -- War Stomp
-		-- 		Troll    			= 26297, -- Berserking
-		-- 		Scourge  			= 7744,  -- Will of the Forsaken
-		-- 		-- Both
-		-- 		Pandaren 			= 107079, -- Quaking Palm
-		-- 		-- Allied Races
-		--         HighmountainTauren 	= 255654, -- Bull Rush
-		--         LightforgedDraenei 	= 255647, -- Light's Judgment
-		--         Nightborne 			= 260364, -- Arcane Pulse
-		--         VoidElf 			= 256948, -- Spatial Rift
-		-- 		DarkIronDwarf 		= 265221, -- Fireblood
-		--         MagharOrc 		= 274738, -- Ancestral Call
-		-- 	}
-		-- 	if br.player ~= nil then
-				return self.racial
-		-- 	else
-		-- 		return racialSpells[self.race]
-		-- 	end
-		-- end
-
-	end
-    --self.racial = self.getRacial()
-    -- if self.spell.racial == nil and br.player ~= nil then self.spell.racial = self.getRacial(); end
+	 function self.getRacial()
+		return getRacial()
+	 end
 
     -- Casts the racial
 	function self.castRacial()
@@ -386,80 +302,8 @@ function cCharacter:new(class)
         br.ui:createCheckbox(section_base, "Ignore Combat")
         br.ui:createCheckbox(section_base, "Mute Queue")
         br.ui:createDropdown(section_base, "Pause Mode", br.dropOptions.Toggle, 2, "Define a key which pauses the rotation.")
-        br.ui:createCheckbox(section_base, "Use Crystal")
-		br.ui:createCheckbox(section_base, "Use Fel Focuser")
-        br.ui:createDropdown(section_base, "Use emp. Rune", {"|cff00FF00Normal","|cffFF0000Raid Only"}, 1, "Use rune anytime or only in raids")
         br.ui:checkSectionState(section_base)
     end
-
- -- Get option modes
-	function self.baseGetOptions()
-		self.ignoreCombat             = isChecked("Ignore Combat")==true or false
-		self.options.useCrystal       = isChecked("Use Crystal")==true or false
-		self.options.useFelFocuser    = isChecked("Use Fel Focuser")==true or false
-		self.options.useEmpoweredRune = isChecked("Use emp. Rune",true)==true or false
-	end
-
--- Use Oralius Crystal +100 to all Stat - ID: 118922, Buff: 176151 (Whispers of Insanity)
-	function self.useCrystal()
-		if self.options.useCrystal and getBuffRemain("player",176151) < 600 and not hasBuff(242551) and not canUse(147707) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-     	-- Check if other flask is present, if so abort here
-      for _,flaskID in pairs(self.flask.wod.buff) do
-      	if hasBuff(flaskID) then return end
-      end
-      useItem(118922)
-		end
-  end
-
--- Use Fel Focuser +500 to all Stat - ID: 147707, Buff: 242551 (Fel Focus)
-	function self.useFelFocuser()
-		if canUse(147707) and not IsMounted() then cancelBuff(176151) end
-
-		if self.options.useFelFocuser and getBuffRemain("player",242551) < 600 and not hasBuff(176151) and not IsMounted() and not UnitIsDeadOrGhost("player") then
-      -- Check if other flask is present, if so abort here
-      for _,flaskID in pairs(self.flask.wod.buff) do
-        if hasBuff(flaskID) then return end
-      end
-      useItem(147707)
-		end
-  end
-
--- Use Empowered Augment Rune +50 to prim. Stat - ID: 128482 Alliance / ID: 128475 Horde
-	function self.useEmpoweredRune()
-		if self.options.useEmpoweredRune and not UnitIsDeadOrGhost("player") and not IsMounted() then
-			if self.level < 110 then
-				if getOptionValue("Use emp. Rune") == 1 then
-					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-						if self.faction == "Alliance" and self.level < 110 then
-							useItem(128482)
-						else
-							useItem(128475)
-						end
-					end
-				end
-				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
-					if getBuffRemain("player",self.augmentRune[self.primaryStat]) < 600 and not IsFlying() then
-						if self.faction == "Alliance" and self.level < 110 then
-							useItem(128482)
-						else
-							useItem(128475)
-						end
-					end
-				end
-			elseif self.level >= 110 then
-				if getOptionValue("Use emp. Rune") == 1 then
-					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
-						useItem(140587)
-					end
-				end
-				if getOptionValue("Use emp. Rune") == 2 and br.player.instance=="raid" then
-					if getBuffRemain("player",224001) < 600 and not IsFlying() and not IsMounted() then
-						useItem(140587)
-					end
-				end
-			end
-		end
-	end
 
 -- Returns and sets highest stat, which will be the primary stat
 	function self.getPrimaryStat()
@@ -497,7 +341,7 @@ function cCharacter:new(class)
 							local itemInfo = { --Collect Item Data
 								itemID 		= itemID,
 								itemCD 		= GetItemCooldown(itemID),
-								itemName 	= select(1,GetItemInfo(itemID)),
+								itemName 	= GetItemInfo(itemID),
 								minLevel 	= select(5,GetItemInfo(itemID)),
 								itemType 	= select(7,GetItemInfo(itemID)),
 								itemEffect 	= itemEffect,
@@ -533,6 +377,22 @@ function cCharacter:new(class)
 								end
 							end
 							if itemInfo.itemType == "Flask" and self.level >= itemInfo.minLevel then -- Is the item a Flask and am I level to use it?
+								local flaskList = {
+									{id = 152638,   type = "agility"},
+									{id = 152639,   type = "intellect"},
+									{id = 152640,   type = "stamina"},
+									{id = 152641,   type = "strength"},
+								}
+								for y = 1, #flaskList do
+									local flasktype = flaskList[y].type
+									local flaskID = flaskList[y].id
+									if strmatch(itemInfo.itemID,flaskID)~=nil then
+										tinsert(self.flask[flasktype],itemInfo)
+										table.sort(self.flask[flasktype], function(x,y)
+											return x.minLevel and y.minLevel and x.minLevel > y.minLevel or false
+										end)
+									end
+								end
 								--TODO
 							end
 						end

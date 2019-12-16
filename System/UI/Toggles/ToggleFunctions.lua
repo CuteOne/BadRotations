@@ -17,26 +17,37 @@ function GarbageButtons()
 	end
 end
 
+local function FindToggle(toggleValue)
+	local toggles = br.data.settings[br.selectedSpec].toggles
+	for k, _ in pairs(toggles) do
+		if string.upper(toggleValue) == string.upper(k) then
+			return k
+		end
+	end
+	return nil
+end
+
 function ToggleToValue(toggleValue,index)
+	if _G[toggleValue.."Modes"] == nil then
+		toggleValue = FindToggle(toggleValue)
+	end
 	local index = tonumber(index)
 	local modesCount = #_G[toggleValue.."Modes"]
 	if index > modesCount then
 		Print("Invalid Toggle Index for |cffFFDD11"..toggleValue..": |cFFFF0000 Index ( |r"..index.."|cFFFF0000) exceeds Max ( |r".. modesCount .."|cFFFF0000)|r.")
 	else
-		for i = 1,modesCount do
-			if i == index then
-				specialToggleCodes(toggleValue,index)
-				br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = index
-				changeButton(toggleValue,index)
-				-- We reset the tip
-				ResetTip(toggleValue,index)
-				break
-			end
-		end
+		specialToggleCodes(toggleValue,index)
+		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = index
+		changeButton(toggleValue,index)
+		-- We reset the tip
+		ResetTip(toggleValue,index)
 	end
 end
 
 function ToggleValue(toggleValue)
+	if _G[toggleValue.."Modes"] == nil then
+		toggleValue = FindToggle(toggleValue)
+	end
 	-- prevent nil fails
 	local toggleOldValue = br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] or 1
 	local modesCount = #_G[toggleValue.."Modes"]
@@ -72,6 +83,9 @@ function ToggleValue(toggleValue)
 end
 
 function ToggleMinus(toggleValue)
+	if _G[toggleValue.."Modes"] == nil then
+		toggleValue = FindToggle(toggleValue)
+	end
 	-- prevent nil fails
 	if br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] == nil then
 		br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = 1
@@ -149,6 +163,9 @@ function specialToggleCodes(toggleValue,newValue)
 end
 
 function changeButtonValue(toggleValue,newValue)
+	if _G[toggleValue.."Modes"] == nil then
+		toggleValue = FindToggle(toggleValue)
+	end
 	br.data.settings[br.selectedSpec].toggles[tostring(toggleValue)] = newValue
 end
 
@@ -176,7 +193,7 @@ function changeButton(toggleValue,newValue)
 end
 
 function UpdateButton(Name)
-	local Name = tostring(Name)
+	local Name = tostring(Name) --string.upper(Name)
 	ToggleValue(Name)
 end
 
@@ -200,6 +217,7 @@ end
 -- /run CreateButton("AoE",2,2)
 function CreateButton(Name,x,y)
 	local Icon
+	-- local Name = string.upper(Name)
     -- todo: extend to use spec + profile specific variable; ATM it shares between profile AND spec, -> global for char
 	if br.data.settings[br.selectedSpec].toggles[Name] == nil or br.data.settings[br.selectedSpec].toggles[Name] > #_G[Name.."Modes"] then br.data.settings[br.selectedSpec].toggles[Name] = 1 end
 	tinsert(buttonsTable, { name = Name, bx = x, by = y })

@@ -33,12 +33,12 @@ local doc = {
 		padding = {0,0,0,0},
 		style = {},
 		{ type = 'single-line',	text = 'Editor',
-			font = nil.
+			font = nil,
 			fontSize = 14,
 			text = 'Editor',
 		},
 		{ type = 'columns',	text = 'Editor',
-			font = nil.
+			font = nil,
 			fontSize = 14,
 			text = 'Editor',
 		},

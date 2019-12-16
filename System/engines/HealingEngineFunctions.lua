@@ -47,17 +47,18 @@ function castWiseAoEHeal(unitTable,spell,radius,health,minCount,maxCount,facingC
 		-- find best candidate with list of units
 		for i = 1, #unitTable do
 			-- added a visible check as its not in healing engine.
-			if GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or getFacing("player",unitTable[i].unit)) then
-				local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount,facingCheck)
+			if (GetUnitIsVisible(unitTable[i].unit) and (facingCheck ~= true or getFacing("player",unitTable[i].unit)) or GetUnitIsUnit(unitTable[i].unit,"player")) then
+				local candidate = getUnitsToHealAround(unitTable[i].unit,radius,health,maxCount)
 				if bestCandidate == nil or bestCandidate[0].coef > candidate[0].coef then
 					bestCandidate = candidate
 				end
 			end
 		end
 		-- if we meet count minimum then we cast
-		if bestCandidate ~= nil and #bestCandidate >= minCount then
+		if bestCandidate ~= nil and #bestCandidate >= minCount and getLineOfSight("player",bestCandidate[0].unit) and getDistance("player",bestCandidate[0].unit) <= 40 then
 			-- here we would like instead to cast on unit
 			if castSpell(bestCandidate[0].unit,spell,facingCheck,movementCheck) then
+				if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell", true) end
 				return true
 			end
 		end
@@ -97,7 +98,7 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	end
 	local unit = {x = X1,y = Y1,z = Z1,guid = UnitGUID(UnitID),name = UnitName(UnitID)}
 	-- once we get our unit location we call our getdistance
-	lowHealthCandidates = {}
+	local lowHealthCandidates = {}
 	for i = 1, #br.friend do
 		local thisUnit = br.friend[i]
 		-- if in given radius
@@ -134,6 +135,55 @@ function getUnitsToHealAround(UnitID,radius,health,count)
 	lowHealthCandidates[0] = { unit = UnitID, coef = getLowHealthCoeficient(lowHealthCandidates) }
 	return lowHealthCandidates
 end
+
+totalUnits = {}
+local startUnit
+local currentJump 
+local jumpFound = true
+local function chainJumps(unit,hp,range)
+	for i = 1, #br.friend do
+		local newUnit = br.friend[i]
+		local unitFound = false
+		if newUnit.hp <= hp and newUnit.guid ~= unit.guid and getNovaDistance(unit,newUnit) <= range then
+			for j = 1, #totalUnits do
+				if totalUnits[j].guid == newUnit.guid then
+					unitFound = true
+				end
+			end
+			if unitFound == false then
+				currentJump = newUnit
+				tinsert(totalUnits, #totalUnits+1, {guid = newUnit.guid})
+				return 
+			end
+		end
+	end
+	jumpFound = false
+end
+
+
+function chainHealUnits(spell,range,hp,count)
+	jumpFound = true
+	for i = 1, #br.friend do
+		local thisUnit = br.friend[i]
+		if thisUnit.hp <= hp then
+			startUnit = thisUnit.unit
+			currentJump = thisUnit
+			tinsert(totalUnits, #totalUnits+1, {guid = thisUnit.guid})
+			while #totalUnits < count and jumpFound do
+				chainJumps(currentJump,hp,range)
+			end
+			if #totalUnits < count then
+				totalUnits = {}
+			elseif #totalUnits >= count then
+				totalUnits= {}
+				if castSpell(startUnit,spell,false,true) then
+					return true 
+				end
+			end
+		end
+	end
+end
+
 -- returns coefficient of low health units around another unit
 function getLowHealthCoeficient(lowHealthCandidates)
 	local tableCoef = 0
@@ -214,10 +264,10 @@ end
 
 
 function isInside(x,y,ax,ay,bx,by,dx,dy)
-	bax = bx - ax
-	bay = by - ay
-	dax = dx - ax
-	day = dy - ay
+	local bax = bx - ax
+	local bay = by - ay
+	local dax = dx - ax
+	local day = dy - ay
 
 	if ((x - ax) * bax + (y - ay) * bay <= 0.0) then return false end
 	if ((x - bx) * bax + (y - by) * bay >= 0.0) then return false end
@@ -452,27 +502,42 @@ function GetCentroidOfPoints(points)
 	if #points < 1 then return nil end
 	if #points == 1 then return points[i] end
 	
-	local minX = points[1].x
-	local minY = points[1].y
-	local minZ = points[1].z
-	local maxX = points[1].x
-	local maxY = points[1].y
-	local maxZ = points[1].z
+	local maxX = 0
+	local maxY = 0
+	local maxZ = 0
 
-	for i=2,#points do
-		local p = points[i]
-		if p.x < minX then minX = p.x end
-		if p.y < minY then minY = p.y end
-		if p.z < minZ then minZ = p.z end
-		if p.x > minX then maxX = p.x end
-		if p.y > minY then maxY = p.y end
-		if p.z > minZ then maxZ = p.z end
+	for i =1, #points do
+		maxX = maxX + points[i].x
+		maxY = maxY + points[i].y
+		maxZ = maxZ + points[i].z
 	end
+
 	local centerPoint = {}
-	centerPoint.x = minX + ((maxX - minX) / 2)
-	centerPoint.y = minY + ((maxY - minY) / 2)
-	centerPoint.z = minZ + ((maxZ - minZ) / 2)
+	centerPoint.x = maxX/#points
+	centerPoint.y = maxY/#points
+	centerPoint.z = maxZ/#points
 	return centerPoint
+	-- local minX = points[1].x
+	-- local minY = points[1].y
+	-- local minZ = points[1].z
+	-- local maxX = points[1].x
+	-- local maxY = points[1].y
+	-- local maxZ = points[1].z
+
+	-- for i=2,#points do
+	-- 	local p = points[i]
+	-- 	if p.x < minX then minX = p.x end
+	-- 	if p.y < minY then minY = p.y end
+	-- 	if p.z < minZ then minZ = p.z end
+	-- 	if p.x > minX then maxX = p.x end
+	-- 	if p.y > minY then maxY = p.y end
+	-- 	if p.z > minZ then maxZ = p.z end
+	-- end
+	-- local centerPoint = {}
+	-- centerPoint.x = minX + ((maxX - minX) / 2)
+	-- centerPoint.y = minY + ((maxY - minY) / 2)
+	-- centerPoint.z = minZ + ((maxZ - minZ) / 2)
+	-- return centerPoint
 end
 
 -- <summary>
@@ -484,15 +549,15 @@ end
 function castGroundAtLocation(loc, SpellID)
     CastSpellByName(GetSpellInfo(SpellID))
     local mouselookup = IsMouseButtonDown(2)
-    if IsAoEPending() then
-	    MouselookStop()
-        ClickPosition(loc.x,loc.y,loc.z)
-	    if mouselookup then MouselookStart() end
-	else
-		return false
-    end
-    if IsAoEPending() then return false end
-    return true
+	MouselookStop()
+	local px,py,pz = ObjectPosition("player")
+	loc.z = select(3,TraceLine(loc.x, loc.y, loc.z+5, loc.x, loc.y, loc.z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+	if loc.z ~= nil and TraceLine(px, py, pz+2, loc.x, loc.y, loc.z+1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z+4, loc.x, loc.y, loc.z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+		ClickPosition(loc.x,loc.y,loc.z)
+		if mouselookup then MouselookStart() end
+    	if IsAoEPending() then SpellStopTargeting() br.addonDebug("Canceling Spell", true) return false end
+		return true
+	end
 end
 
 -- <summary>
@@ -535,9 +600,14 @@ function getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radius)
     end
     if #pointsInRange < minTargets then return nil end
     -- check the remaining units. If they are all (or all but 1) inside the circle centered on the whole group, then we have the best solution
-    local center = GetCentroidOfPoints(pointsInRange)
-    local numInside = GetNumPointsInCircle(center,radius,pointsInRange)
-    if (numInside >= #points - 1) and (numInside >= minTargets) then return center end
+	local center = GetCentroidOfPoints(pointsInRange)
+	if center == nil then return nil end
+	local numInside = GetNumPointsInCircle(center,radius,pointsInRange)
+	local X1,Y1,Z1 = GetObjectPosition("player")
+	local X2,Y2,Z2 = center.x,center.y,center.z
+	local LoS = TraceLine(X1, Y1, Z1 + 2, X2, Y2, Z2 + 2, 0x10) == nil
+	local distance = getDistanceToObject("player",X2,Y2,Z2) <= 40
+    if (numInside >= #points - 1) and (numInside >= minTargets) and LoS and distance then return center end
 
     -- start with taking #pointsInRange, #pointsInRange-1 at a time
     -- then take #pointsInRange, #pointsInRange-2 at a time
@@ -556,25 +626,31 @@ function getBestGroundCircleLocation(unitTable,minTargets,maxHealTargets,radius)
     	local allCombinations = GetCombinations(pointsInRange,groupSize)
     	for i=1, #allCombinations do
     		-- get the centroid of this list of points
-    		local c = GetCentroidOfPoints(allCombinations[i])
-    		-- how many of the points are inside the circle?
-    		local n = GetNumPointsInCircle(c,radius,allCombinations[i])
-            -- if we got a whole group inside the circle, we can stop here
-            if n >= groupSize then
-                -- Logging.WriteDebug("GetBestCircleLocation(): Found Whole Group Solution for " + n.ToString() + " points");
-                return c
-            end
+			local c = GetCentroidOfPoints(allCombinations[i])
+			if c == nil then return nil end
+			local tx,ty,tz = c.x,c.y,c.z
+			local LoS = TraceLine(X1, Y1, Z1 + 2, tx, ty, tz + 2, 0x10) == nil
+			local tdistance = getDistanceToObject("player",tx,ty,tz) <= 40
+			if LoS and tdistance then
+				-- how many of the points are inside the circle?
+				local n = GetNumPointsInCircle(c,radius,allCombinations[i])
+				-- if we got a whole group inside the circle, we can stop here
+				if n >= groupSize then
+					-- Logging.WriteDebug("GetBestCircleLocation(): Found Whole Group Solution for " + n.ToString() + " points");
+					return c
+				end
 
-            -- is this result better than our best so far?
-            if n > bestGroupSize then
-                -- update best group
-                bestGroup = allCombinations[i]
-                bestGroupSize = n
-            end
+				-- is this result better than our best so far?
+				if n > bestGroupSize then
+					-- update best group
+					bestGroup = allCombinations[i]
+					bestGroupSize = n
+				end
+			end
         end
         -- decrement group size for next loop
         groupSize = groupSize - 1
     end
-    -- return the geocenter of the best grouping
+	-- return the geocenter of the best grouping
     return GetCentroidOfPoints(bestGroup)
 end

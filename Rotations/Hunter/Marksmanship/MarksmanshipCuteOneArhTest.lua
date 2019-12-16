@@ -14,8 +14,8 @@ local function createToggles()
     CreateButton("Rotation",1,0)
 -- Cooldown Button
     CooldownModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueShot },
-        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueShot },
+        [1] = { mode = "Auto", value = 1 , overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 1, icon = br.player.spell.trueshot },
+        [2] = { mode = "On", value = 1 , overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.trueshot },
         [3] = { mode = "Off", value = 3 , overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.concussiveShot }
     };
    	CreateButton("Cooldown",2,0)
@@ -131,7 +131,7 @@ local function runRotation()
         local animality                                     = false
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local combo                                         = br.player.comboPoints
@@ -153,7 +153,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
-        local item                                          = br.player.spell.items
+        local item                                          = br.player.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].hp
@@ -223,7 +223,7 @@ local function runRotation()
 						if cast.arcaneShot() then return end
 					end
 					--Rapid fire actions.st+=/rapid_fire,if=(!talent.lethal_shots.enabled|buff.lethal_shots.up)&azerite.focused_fire.enabled|azerite.in_the_rhythm.rank>1
-					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active() or trait.inTheRhytm.rank() > 1) then
+					if (not talent.lethalShots or buff.lethalShots.exists()) or (trait.focusedFire.active or trait.inTheRhythm.rank > 1) then
 						if cast.rapidFire() then return end
 					end
 					--Aimed shot actions.st+=/aimed_shot,if=buff.precise_shots.down&(buff.double_tap.down&full_recharge_time<cast_time+gcd|buff.lethal_shots.up)
@@ -273,9 +273,9 @@ local function runRotation()
 					if buff.trickShots.exists() and not buff.preciseShots.exists() and not buff.doubleTap.exists() then
 						if cast.aimedShot() then return end
 					end
-                    --Multishot actions.trickshots+=/multishot,if=buff.trick_shots.down|(buff.precise_shots.up|buff.lethal_shots.up)&(!talent.barrage.enabled&buff.steady_focus.down&focus>45|focus>70)
+                    --multishot actions.trickshots+=/multishot,if=buff.trick_shots.down|(buff.precise_shots.up|buff.lethal_shots.up)&(!talent.barrage.enabled&buff.steady_focus.down&focus>45|focus>70)
 					if (not buff.trickShots.exists() or buff.preciseShots.exists()) or power > 70 then
-						if cast.multiShot() then return end
+						if cast.multishot() then return end
 					end
 					--Steady shot actions.trickshots+=/steady_shot,if=focus+cast_regen<focus.max|(talent.lethal_shots.enabled&buff.lethal_shots.down)
 					if ((power + (cast.regen.steadyShot() + 10)) < powerMax) then
@@ -290,10 +290,10 @@ local function runRotation()
             -- Trinkets
             -- use_items
             if getOptionValue("Trinkets") ~= 4 then
-                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                     useItem(13)
             end
-            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+            if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                     useItem(14)
                     end
             end                    
@@ -306,7 +306,7 @@ local function runRotation()
                 --Trueshot
                 if isChecked("Trueshot") and
                 charges.aimedShot.count() < 1 and charges.aimedShot.recharge() > gcdMax then
-                    if cast.trueShot() then return end
+                    if cast.trueshot() then return end
                 end
 
                 --DoubleTap
@@ -316,7 +316,7 @@ local function runRotation()
                 end
             end
         end
-                   
+
         -- Dummy Test
             if isChecked("DPS Testing") then
                 if GetObjectExists("target") then

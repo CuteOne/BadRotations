@@ -28,7 +28,7 @@ function br.ui:createPagesDropdown(window, menuPages)
         --Print(key.." - "..tostring(value))
         br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] = window.currentPage
     end)
-    if br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] == nil then
+    if br.data.settings[br.selectedSpec][br.selectedProfile] == nil or br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"] == nil then
         newDropdown:SetValue(1)
     else
         newDropdown:SetValue(br.data.settings[br.selectedSpec][br.selectedProfile]["currentPage"])

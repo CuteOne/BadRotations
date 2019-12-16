@@ -1,9 +1,9 @@
-## Interface: 80000
+## Interface: 80100
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.19.0
-## SavedVariablesPerCharacter: brdata, dungeondata, mdungeondata, raiddata, mraiddata
+## Version: 1.32.1
+## SavedVariablesPerCharacter: brdata, brprofile
 
 BadRotations.lua
 bindings.xml
@@ -18,6 +18,23 @@ System\LootManager.lua
 System\UsefulFeatures.lua
 System\SlashCommands.lua
 
+## Functions
+
+System\Functions\Action.lua
+System\Functions\Aura.lua
+System\Functions\Cast.lua
+System\Functions\Combat.lua
+System\Functions\Custom.lua
+System\Functions\InFlight.lua
+System\Functions\Item.lua
+System\Functions\LastCast.lua
+System\Functions\Misc.lua
+System\Functions\Power.lua
+System\Functions\Range.lua
+System\Functions\Spell.lua
+System\Functions\Unit.lua
+System\Functions\SmartQueue.lua
+
 ## Lists
 
 System\Lists\BurnUnits.lua
@@ -28,24 +45,13 @@ System\Lists\LineOfSight.lua
 System\Lists\LongCC.lua
 System\Lists\Maps.lua
 System\Lists\NoTouchUnits.lua
+System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
+System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
-
-## Functions
-
-System\Functions\Action.lua
-System\Functions\Aura.lua
-System\Functions\Cast.lua
-System\Functions\Combat.lua
-System\Functions\Custom.lua
-System\Functions\Item.lua
-System\Functions\Misc.lua
-System\Functions\Power.lua
-System\Functions\Range.lua
-System\Functions\Spell.lua
-System\Functions\Unit.lua
+System\Lists\AoEDamage.lua
 
 ## Readers
 
@@ -102,6 +108,7 @@ System\UI\Elements\Checkbox.lua
 System\UI\Elements\Dropdown.lua
 System\UI\Elements\PageDropdown.lua
 System\UI\Elements\RotationDropdown.lua
+System\UI\Elements\ScrollingEditBox.lua
 System\UI\Elements\Section.lua
 System\UI\Elements\Spinner.lua
 System\UI\Elements\Text.lua
@@ -111,6 +118,16 @@ System\UI\Windows\Debug.lua
 System\UI\Windows\Healing.lua
 System\UI\Windows\Help.lua
 System\UI\Windows\Profile.lua
+
+## API
+System\API\Buff.lua
+System\API\Debuff.lua
+System\API\Essence.lua
+System\API\Item.lua
+System\API\Pet.lua
+System\API\Power.lua
+System\API\Spell.lua
+System\API\UI.lua
 
 ## Loader
 

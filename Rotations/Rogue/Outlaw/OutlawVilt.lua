@@ -62,6 +62,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "RTB Prepull")
             -- Stealth
             br.ui:createDropdown(section, "Stealth", {"|cff00FF00Always", "|cffFF000020Yards"},  2, "Stealthing method.")
+            -- Auto Combat
+            br.ui:createCheckbox(section, "Auto Combat", "|cffFFFFFF Will auto start attacking out of stealth.")
         br.ui:checkSectionState(section)
         ------------------------
         --- OFFENSIVE OPTIONS ---
@@ -285,30 +287,37 @@ local function runRotation()
         local function castHook(unit)
           if getSpellCD(195457) == 0 and getDistance("player",unit) < 40 then
             local wasMouseLooking = false
-            if IsMouselooking() then
-                wasMouseLooking = true
-                MouselookStop()
-            end
             local combatRange = max(5, UnitCombatReach("player") + UnitCombatReach(unit) + 1.3)
-            local X,Y,Z = GetPositionBetweenObjects(unit, "player", combatRange)
-            CastSpellByName(GetSpellInfo(spell.grapplingHook))
-            ClickPosition(X,Y,Z)
-            if IsAoEPending() then
-              CancelPendingSpell()
-              return false
+            if isMoving(unit) then
+                combatRange = combatRange - 1.5
             end
-            if wasMouseLooking then
-                MouselookStart()
+            local px,py,pz = ObjectPosition("player")
+            local x,y,z = GetPositionBetweenObjects(unit, "player", combatRange)
+            z = select(3,TraceLine(x, y, z+5, x, y, z-5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+            if z ~= nil and TraceLine(px, py, pz+2, x, y, z+1, 0x100010) == nil and TraceLine(x, y, z+4, x, y, z, 0x1) == nil then -- Check z and LoS, ignore terrain and m2 colissions and check no m2 on hook location
+                if IsMouselooking() then
+                    wasMouseLooking = true
+                    MouselookStop()
+                end
+                CastSpellByName(GetSpellInfo(spell.grapplingHook))
+                ClickPosition(x,y,z)
+                if IsAoEPending() then
+                CancelPendingSpell()
+                return false
+                end
+                if wasMouseLooking then
+                    MouselookStart()
+                end
+                if not inCombat then
+                if not stealth then
+                    cast.stealth()
+                end
+                if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 then
+                    cast.rollTheBones()
+                end
+                end
+                return true
             end
-            if not inCombat then
-              if not stealth then
-                cast.stealth()
-              end
-              if isChecked("RTB Prepull") and not talent.sliceAndDice and buff.rollTheBones.count == 0 then
-                cast.rollTheBones()
-              end
-            end
-            return true
           end
           return false
         end
@@ -328,9 +337,9 @@ local function runRotation()
                 if isChecked("Healing Potion/Healthstone") and php <= getOptionValue("Healing Potion/Healthstone")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -339,7 +348,7 @@ local function runRotation()
                     if cast.crimsonVial() then return end
                 end
             -- Feint
-                if cast.able.feint() and isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint then
+                if cast.able.feint() and isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
                     if cast.feint() then return end
                 end
             -- Riposte
@@ -389,10 +398,10 @@ local function runRotation()
         -- Trinkets
             if isChecked("Trinkets") then
                 if hasBloodLust() or ttdtarget <= 20 or comboDeficit <= 2 then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -400,11 +409,11 @@ local function runRotation()
     -- Pots
             if isChecked("Agi-Pot") then
                 if ttdtarget <= 25 or buff.adrenalineRush.exists() or hasBloodLust() then
-                    if canUse(127844) and inRaid then
+                    if canUseItem(127844) and inRaid then
                         useItem(127844)
                     end
                     else
-                    if canUse(142117) and inRaid then
+                    if canUseItem(142117) and inRaid then
                         useItem(142117)
                     end
                 end
@@ -413,7 +422,7 @@ local function runRotation()
             --blood_fury
             --berserking
             --arcane_torrent,if=energy.deficit>40
-            if isChecked("Racial") and (race == "Orc" or race == "Troll" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
+            if isChecked("Racial") and (race == "Orc" or race == "Troll" or race=="MagharOrc" or (race == "BloodElf" and powerDeficit > 15 + powerRegen)) then
                 if castSpell("player",racial,false,false,false) then return end
             end
     -- Adrenaline Rush
@@ -508,6 +517,21 @@ local function runRotation()
             if cast.able.ambush() and stealthingAll and ambushCondition() then
                 if cast.ambush() then return end
             end
+			
+			 if inCombat and isValidUnit(units.dyn5) then
+            -- Auto Attack
+                --auto_attack
+                -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
+                --     StopAttack()
+                -- else
+                --     StartAttack(units.dyn5)
+                -- end
+                if not IsCurrentSpell(6603) then
+                    StartAttack(units.dyn5)
+				end
+			end
+				
+				
         -- Pistol Shot
             -- pistol_shot,if=combo_points.deficit>=1+buff.broadside.up+talent.quick_draw.enabled&buff.opportunity.up
             if cast.able.pistolShot() and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() then
@@ -612,7 +636,7 @@ local function runRotation()
 --------------------------
 --- In Combat Rotation ---
 --------------------------
-            if inCombat and isValidUnit(units.dyn5) then
+            if (inCombat and isValidUnit(units.dyn5)) or (isChecked("Auto Combat") and isValidUnit("target")) then
                 if not stealthingAll or level < 5 then
 ------------------------------
 --- In Combat - Interrupts ---

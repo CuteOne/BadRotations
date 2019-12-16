@@ -4,34 +4,34 @@ function br.read.commonReaders()
 	---------------
 	-----------------------
 	--[[ Bag Update ]]
-	local Frame = CreateFrame('Frame')
+	local Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("BAG_UPDATE")
-	local function BagUpdate(self,event,...)
+	local function BagUpdate(self, event, ...)
 		if event == "BAG_UPDATE" then
 			bagsUpdated = true
 		end
 	end
-	Frame:SetScript("OnEvent",BagUpdate)
+	Frame:SetScript("OnEvent", BagUpdate)
 	-----------------------
 	--[[ Loss of control ]]
-	local frame = CreateFrame('Frame')
+	local frame = CreateFrame("Frame")
 	frame:RegisterEvent("LOSS_OF_CONTROL_UPDATE")
-	local function lostControl(self,event,...)
+	local function lostControl(self, event, ...)
 		-- Print(...)
 	end
-	frame:SetScript("OnEvent",lostControl)
+	frame:SetScript("OnEvent", lostControl)
 	----------------
 	--[[ Auto Join]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("LFG_PROPOSAL_SHOW")
-	local function MerchantShow(self,event,...)
+	local function MerchantShow(self, event, ...)
 		if getOptionCheck("Accept Queues") == true then
 			if event == "LFG_PROPOSAL_SHOW" then
 				readyToAccept = GetTime()
 			end
 		end
 	end
-	Frame:SetScript("OnEvent",MerchantShow)
+	Frame:SetScript("OnEvent", MerchantShow)
 	--------------
 	-- --[[ Eclipse]] -- Errors in Patch 8.0 (BfA)
 	-- local Frame = CreateFrame('Frame')
@@ -49,48 +49,54 @@ function br.read.commonReaders()
 	--------------------------
 	--[[ isStanding Frame --]]
 	DontMoveStartTime = nil
-	CreateFrame("Frame"):SetScript("OnUpdate", function ()
-		if GetUnitSpeed("Player") == 0 then
-			if not DontMoveStartTime then
-				DontMoveStartTime = GetTime()
+	CreateFrame("Frame"):SetScript(
+		"OnUpdate",
+		function()
+			if GetUnitSpeed("Player") == 0 then
+				if not DontMoveStartTime then
+					DontMoveStartTime = GetTime()
+				end
+				isMovingStartTime = 0
+			else
+				if isMovingStartTime == 0 then
+					isMovingStartTime = GetTime()
+				end
+				DontMoveStartTime = nil
 			end
-			isMovingStartTime = 0
-		else
-			if isMovingStartTime == 0 then
-				isMovingStartTime = GetTime()
-			end
-			DontMoveStartTime = nil
 		end
-	end)
+	)
 	----------------------
 	--[[ timer Frame --]]
-	CreateFrame("Frame"):SetScript("OnUpdate", function ()
-		if uiDropdownTimer ~= nil then
-			uiTimerStarted = GetTime()
+	CreateFrame("Frame"):SetScript(
+		"OnUpdate",
+		function()
+			if uiDropdownTimer ~= nil then
+				uiTimerStarted = GetTime()
+			end
+			if uiTimerStarted and GetTime() - uiTimerStarted >= 0.5 then
+				clearChilds(uiDropdownTimer)
+				uiDropdownTimer = false
+				uiTimerStarted = nil
+			end
 		end
-		if uiTimerStarted and GetTime() - uiTimerStarted >= 0.5 then
-			clearChilds(uiDropdownTimer)
-			uiDropdownTimer = false
-			uiTimerStarted = nil
-		end
-	end)
+	)
 	-----------------------
 	--[[ Merchant Show --]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("MERCHANT_SHOW")
-	local function MerchantShow(self,event,...)
+	local function MerchantShow(self, event, ...)
 		if event == "MERCHANT_SHOW" then
 			if getOptionCheck("Auto-Sell/Repair") then
 				SellGreys()
 			end
 		end
 	end
-	Frame:SetScript("OnEvent",MerchantShow)
+	Frame:SetScript("OnEvent", MerchantShow)
 	-------------------------
 	--[[ Entering Combat --]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-	local function EnteringCombat(self,event,...)
+	local function EnteringCombat(self, event, ...)
 		if event == "PLAYER_REGEN_DISABLED" then
 			-- here we should manage stats snapshots
 			AgiSnap = getAgility()
@@ -99,12 +105,12 @@ function br.read.commonReaders()
 			ChatOverlay("|cffFF0000Entering Combat")
 		end
 	end
-	Frame:SetScript("OnEvent",EnteringCombat)
+	Frame:SetScript("OnEvent", EnteringCombat)
 	-----------------------
 	--[[ Leaving Combat --]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-	local function LeavingCombat(self,event,...)
+	local function LeavingCombat(self, event, ...)
 		if event == "PLAYER_REGEN_ENABLED" then
 			-- wipe interupts table
 			--br.im:debug("Wiping casters table as we left combat.")
@@ -131,21 +137,24 @@ function br.read.commonReaders()
 			Rake_sDamage = {}
 			Thrash_sDamage = {}
 			petAttacking = false
+			br.lastCast.line_cd = {}
+			wipe(br.read.debuffTracker)
 		end
 	end
-	Frame:SetScript("OnEvent",LeavingCombat)
+	Frame:SetScript("OnEvent", LeavingCombat)
 	---------------------------
 	--[[ UI Error Messages --]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("UI_ERROR_MESSAGE")
-	local function UiErrorMessages(self,event,...)
-		lastError = ...; lastErrorTime = GetTime()
+	local function UiErrorMessages(self, event, ...)
+		lastError = ...
+		lastErrorTime = GetTime()
 		local param = (...)
-		if param == ERR_PET_SPELL_DEAD  then
+		if param == ERR_PET_SPELL_DEAD then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
-		if param == PETTAME_NOTDEAD.. "." then
+		if param == PETTAME_NOTDEAD .. "." then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = false
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
@@ -153,14 +162,14 @@ function br.read.commonReaders()
 			br.data.settings[br.selectedSpec]["Pet Dead"] = true
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = false
 		end
-		if param == PETTAME_CANTCONTROLEXOTIC.. "." then
+		if param == PETTAME_CANTCONTROLEXOTIC .. "." then
 			if br.data.settings[br.selectedSpec]["Box PetManager"] < 5 then
 				br.data.settings[br.selectedSpec]["Box PetManager"] = br.data.settings[br.selectedSpec]["Box PetManager"] + 1
 			else
 				br.data.settings[br.selectedSpec]["Box PetManager"] = 1
 			end
 		end
-		if param == PETTAME_NOPETAVAILABLE.. "." then
+		if param == PETTAME_NOPETAVAILABLE .. "." then
 			br.data.settings[br.selectedSpec]["Pet Dead"] = false
 			br.data.settings[br.selectedSpec]["Pet Whistle"] = true
 		end
@@ -180,7 +189,7 @@ function br.read.commonReaders()
 	Frame:SetScript("OnEvent", UiErrorMessages)
 	------------------------
 	--[[ Spells Changed --]]
-	local Frame = CreateFrame('Frame')
+	Frame = CreateFrame("Frame")
 	Frame:RegisterEvent("LEARNED_SPELL_IN_TAB")
 	local function SpellsChanged(self, event, ...)
 		if not configReloadTimer or configReloadTimer <= GetTime() - 1 then
@@ -243,9 +252,42 @@ function br.read.commonReaders()
 		Print(...)
 	end
 	--Frame:SetScript("OnEvent", addonReader)
+	GameTooltip:HookScript("OnTooltipSetUnit", function(self)
+		if EWT and GetObjectCount() ~= nil then
+			local name,lunit = self:GetUnit()
+			if not UnitIsVisible(lunit) then
+				return
+			end
+			local unit = ObjectPointer(lunit)
+			local burnUnit = getOptionCheck("Forced Burn") and isBurnTarget(unit) > 0
+			local playerTarget = GetUnitIsUnit(unit, "target")
+			local targeting = isTargeting(unit)
+			local hasThreat = hasThreat(unit) or targeting or isInProvingGround() or burnUnit
+			local reaction = GetUnitReaction(unit, "player") or 10
+			if isChecked("Target Validation Debug") and not UnitIsPlayer(unit) then
+				if isValidUnit(unit) then
+					self:AddLine("Unit is Valid",0,1,0)
+				elseif not (br.units[unit] ~= nil or GetUnitIsUnit(unit,"target") or br.lists.threatBypass[GetObjectID(unit)] ~= nil or burnUnit) then
+					self:AddLine("Not in Units Table",1,0,0)
+				elseif not (not UnitIsTapDenied(unit) or dummy) then
+					self:AddLine("Unit is Tap Denied",1,0,0)
+				elseif not (isSafeToAttack(unit) or burnUnit) then
+					self:AddLine("Safe Attack Fail",1,0,0)
+				elseif not ((reaction < 5 and not isChecked("Hostiles Only")) or (isChecked("Hostiles Only") and (reaction < 4 or playerTarget or targeting)) or dummy or burnUnit) then
+					self:AddLine("Reaction Value Fail",1,0,0)
+				elseif not ((isChecked("Attack MC Targets") and (not GetUnitIsFriend(unit, "player") or (UnitIsCharmed(unit) and UnitCanAttack("player", unit)))) or not GetUnitIsFriend(unit, "player")) then
+					self:AddLine("MC Check Fail",1,0,0)
+				elseif getOptionCheck("Don't break CCs") and isLongTimeCCed(unit) then
+					self:AddLine("CC Check Fail",1,0,0)
+				elseif not hasThreat then
+					self:AddLine("Threat Fail",1,0,0)
+				end
+			end
+		end
+	end)
 	---------------------------
 	--[[ Combat Log Reader --]]
-	local superReaderFrame = CreateFrame('Frame')
+	local superReaderFrame = CreateFrame("Frame")
 	superReaderFrame:RegisterEvent("CHAT_MSG_ADDON")
 	superReaderFrame:RegisterEvent("PLAYER_STARTED_MOVING")
 	superReaderFrame:RegisterEvent("PLAYER_STOPPED_MOVING")
@@ -259,53 +301,104 @@ function br.read.commonReaders()
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE")
 	superReaderFrame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
+	superReaderFrame:RegisterEvent("UNIT_POWER_UPDATE")
 	superReaderFrame:RegisterEvent("ENCOUNTER_START")
 	superReaderFrame:RegisterEvent("ENCOUNTER_END")
+	superReaderFrame:RegisterUnitEvent("AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED")
+	superReaderFrame:RegisterUnitEvent("AZERITE_ESSENCE_ACTIVATED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_EQUIPMENT_CHANGED")
 	superReaderFrame:RegisterUnitEvent("PLAYER_LEVEL_UP")
 	superReaderFrame:RegisterUnitEvent("PLAYER_TALENT_UPDATE")
 	superReaderFrame:RegisterUnitEvent("UI_ERROR_MESSAGE")
-	local function SuperReader(self,event,...)
+	superReaderFrame:RegisterEvent("LOADING_SCREEN_ENABLED")
+	superReaderFrame:RegisterEvent("LOADING_SCREEN_DISABLED")
+	local function SuperReader(self, event, ...)
+		-- Azerite Essence
+		if event == "AZERITE_ESSENCE_ACTIVATED" then
+			br.updatePlayerInfo = true
+		end
+		-- Warlock Soul Shards
+		if event == "UNIT_POWER_UPDATE" and select(2, ...) == "SOUL_SHARDS" then
+			shards = WarlockPowerBar_UnitPower("player")
+		end
 		if event == "PLAYER_EQUIPMENT_CHANGED" then
 			br.equipHasChanged = true
 		end
 		-- Player moving
-		if event == "PLAYER_STARTED_MOVING" then if br.player ~= nil then br.player.moving = true end return end
-		if event == "PLAYER_STOPPED_MOVING" then if br.player ~= nil then br.player.moving = false end return end
-    -- Update Player Info
-    if event == "PLAYER_TALENT_UPDATE" or "PLAYER_LEVEL_UP" then
+		if event == "PLAYER_STARTED_MOVING" then
+			if br.player ~= nil then
+				br.player.moving = true
+			end
+			return
+		end
+		if event == "PLAYER_STOPPED_MOVING" then
+			if br.player ~= nil then
+				br.player.moving = false
+			end
+			return
+		end
+		-- Update Player Info
+		-- if event == "PLAYER_TALENT_UPDATE" and select(2, GetSpecializationInfo(GetSpecialization())) == br.selectedSpec then
+		-- 	br.rotationChanged = true
+		-- end
+		if event == "PLAYER_TALENT_UPDATE" or event == "PLAYER_LEVEL_UP" or event == "PLAYER_EQUIPMENT_CHANGED" or event == "AZERITE_EMPOWERED_ITEM_SELECTION_UPDATED" then
 			br.updatePlayerInfo = true
-    end
+		end
 		-------------------------------------------------
 		--[[ SpellCast Sents (used to define target) --]]
 		if event == "UNIT_SPELLCAST_SENT" then
-			local SourceUnit 	= select(1,...)
-			local SpellName 	= select(2,...)
-			spellCastTarget 	= select(4,...)
+			local SourceUnit = select(1, ...)
+			local SpellName = select(2, ...)
+			spellCastTarget = select(4, ...)
 			--Print("UNIT_SPELLCAST_SENT spellCastTarget = "..spellCastTarget)
-			local MyClass = UnitClass("player")
+			local MyClass = select(2, UnitClass("player"))
 			if SourceUnit == "player" then
 				-- Blizz CastSpellByName bug bypass
 				if spell == "Metamorphosis" then
-		    		CastSpellByID(191427,"player")
-		    	end
+					CastSpellByID(191427, "player")
+				end
 			end
 		end
 
 		if event == "UNIT_SPELLCAST_INTERRUPTED" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-				local MyClass = UnitClass("player")
-				if MyClass == "Mage" then -- Mage
+				local MyClass = select(2, UnitClass("player"))
+				if MyClass == "MAGE" then -- Mage
+				end
+				if MyClass == "MONK" then -- Monk
+					if br.player ~= nil and GetSpecialization() == 3 and br.player.spell.fistsOfFury ~= nil then
+						local comboSpells = {
+							[br.player.spell.blackoutKick]              = true,
+							[br.player.spell.chiBurst]                  = true,
+							[br.player.spell.chiWave]                   = true,
+							[br.player.spell.cracklingJadeLightning]    = true,
+							[br.player.spell.fistsOfFury]               = true,
+							[br.player.spell.fistOfTheWhiteTiger]       = true,
+							[br.player.spell.flyingSerpentKick]         = true,
+							[br.player.spell.risingSunKick]             = true,
+							[br.player.spell.rushingJadeWind]           = true,
+							[br.player.spell.spinningCraneKick]         = true,
+							[br.player.spell.tigerPalm]                 = true,
+							[br.player.spell.touchOfDeath]              = true,
+							[br.player.spell.whirlingDragonPunch]       = true,
+						}
+						if prevCombo == nil or not UnitAffectingCombat("player") then prevCombo = 6603 end
+						if lastCombo == nil or not UnitAffectingCombat("player") then lastCombo = 6603 end
+						if comboSpells[spell] and not (getSpellCD(spell) > br.player.gcdMax) and isInCombat("player") then
+							lastCombo = prevCombo
+							prevCombo = 6603
+						end
+					end
 				end
 			end
 		end
 		-----------------------------
 		--[[ SpellCast Succeeded --]]
 		if event == "UNIT_SPELLCAST_START" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				local MyClass = UnitClass("player")
 				-- Hunter
@@ -318,9 +411,11 @@ function br.read.commonReaders()
 					-- Steady Shot Logic
 					if SpellID == 56641 then
 						if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
-							SteadyCast = GetTime(); SteadyCount = 2
+							SteadyCast = GetTime()
+							SteadyCount = 2
 						else
-							SteadyCast = GetTime(); SteadyCount = 1
+							SteadyCast = GetTime()
+							SteadyCount = 1
 						end
 					end
 					-- Focus Generation
@@ -333,8 +428,8 @@ function br.read.commonReaders()
 			end
 		end
 		if event == "UNIT_SPELLCAST_STOP" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 				local MyClass = UnitClass("player")
 				if MyClass == "Mage" then -- Mage
@@ -345,14 +440,15 @@ function br.read.commonReaders()
 		-----------------------------
 		--[[ SpellCast Succeeded --]]
 		if event == "UNIT_SPELLCAST_SUCCEEDED" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
-			if botCast == true then botCast = false end
-	        if sourceName ~= nil then
-	            if GetUnitIsUnit(sourceName,"player") then
-
-	            end
-	        end
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
+			if botCast == true then
+				botCast = false
+			end
+			if sourceName ~= nil then
+				if GetUnitIsUnit(sourceName, "player") then
+				end
+			end
 			if SourceUnit == "player" then
 				lastSucceeded = spell -- Used for lastCast tracking
 				-- Queue Casting
@@ -360,10 +456,12 @@ function br.read.commonReaders()
 					if #br.player.queue ~= 0 then
 						for i = 1, #br.player.queue do
 							if GetSpellInfo(spell) == GetSpellInfo(br.player.queue[i].id) then
-								tremove(br.player.queue,i)
-								if IsAoEPending() then SpellStopTargeting() end
+								tremove(br.player.queue, i)
+								if IsAoEPending() then
+									SpellStopTargeting()
+								end
 								if not isChecked("Mute Queue") then
-									Print("Cast Success! - Removed |cFFFF0000"..GetSpellInfo(spell).."|r from the queue.")
+									Print("Cast Success! - Removed |cFFFF0000" .. GetSpellInfo(spell) .. "|r from the queue.")
 								end
 								break
 							end
@@ -382,9 +480,11 @@ function br.read.commonReaders()
 					-- Steady Shot Logic
 					if SpellID == 56641 then
 						if SteadyCast and SteadyCast >= GetTime() - 2 and SteadyCount == 1 then
-							SteadyCast = GetTime(); SteadyCount = 2
+							SteadyCast = GetTime()
+							SteadyCount = 2
 						else
-							SteadyCast = GetTime(); SteadyCount = 1
+							SteadyCast = GetTime()
+							SteadyCount = 1
 						end
 					end
 					-- Focus Generation
@@ -399,8 +499,8 @@ function br.read.commonReaders()
 		--------------------------
 		--[[ SpellCast Failed --]]
 		if event == "UNIT_SPELLCAST_FAILED" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			local MyClass = UnitClass("player")
 			if SourceUnit == "player" and isKnown(SpellID) then
 				-- Kill Command
@@ -420,8 +520,8 @@ function br.read.commonReaders()
 		-----------------------------
 		--[[ Spell Failed Immune --]]
 		if event == "SPELL_FAILED_IMMUNE" then
-			local SourceUnit	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			local isDisarmed = false
 			if SourceUnit == "player" and isKnown(SpellID) then
 				-- Disarm - Warrior
@@ -459,57 +559,57 @@ function br.read.commonReaders()
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_START" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-			--Print("Channel Start")
+				--Print("Channel Start")
 				lastStarted = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
-			--Print("Channel STOP")
+				--Print("Channel STOP")
 				lastFinished = SpellID
 			end
 		end
 		if event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-			local SourceUnit 	= select(1,...)
-			local SpellID 		= select(5,...)
+			local SourceUnit = select(1, ...)
+			local SpellID = select(5, ...)
 			if SourceUnit == "player" then
 			--Print("Channel Update")
 			end
 		end
 		if event == "UI_ERROR_MESSAGE" then
-			local errorMsg = select(1,...)
-			if errorMsg == 277 or errorMsg == 275 then
-				if deadPet == false then
-					deadPet = true
-				elseif deadPet == true then
-					deadPet = false
-				end
+			local errorMsg = select(1, ...)
+			local messageErr = select(2, ...)
+			-- Print("Error "..errorMsg..": "..messageErr)
+			-- 51 = "Your Pet is Dead"
+			-- 203 = "Cannot attack while dead"
+			if not UnitIsDeadOrGhost("player") and (UnitIsDeadOrGhost("pet") or not UnitExists("pet")) and (errorMsg == 51 or errorMsg == 203) then --or errorMsg == 277 or errorMsg == 275 then
+				deadPet = true
+				-- if deadPet == false then
+				-- elseif deadPet == true and UnitHealth("pet") > 0 then
+				-- 	deadPet = false
+				-- end
 			end
 		end
 		if event == "ENCOUNTER_START" then
-			local eID = select(1,...)
-			if eID and eID == 2141 then -- MOTHER Uldir fight
-				_brMotherFight = true
+			if br.player ~= nil then 
+				br.player.eID = select(1, ...)
 			end
 		end
 		if event == "ENCOUNTER_END" then
-			local eID = select(1,...)
-			if eID and eID == 2141 then -- MOTHER Uldir fight
-				_brMotherFight = false
+			if br.player ~= nil then 
+				br.player.eID = 0
 			end
 		end
-		if event == "CHAT_MSG_ADDON" then
-			local prefix, message = ...
-			if prefix == "D4" and string.find(message, "PT") then
-					_brPullTimer = GetTime() + tonumber(string.sub(message, 4, 5))
-			elseif prefix == "BigWigs" and string.find(message, "Pull") then
-					_brPullTimer = GetTime() + tonumber(string.sub(message, 8, 9))
-			end
+		if event == "LOADING_SCREEN_ENABLED" and disableControl == false then
+			disableControl = true
+		end
+		if event == "LOADING_SCREEN_DISABLED" and disableControl == true then
+			disableControl = false
 		end
 	end
 	superReaderFrame:SetScript("OnEvent", SuperReader)

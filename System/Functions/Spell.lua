@@ -53,14 +53,21 @@ function castInterrupt(SpellID,Percent,Unit)
 end
 -- canInterrupt("target",20)
 function canInterrupt(unit,percentint)
-	local unit = unit or "target"
-	local castDuration = 0
-	local castTimeRemain = 0
-	local castPercent = 0 -- Possible to set hard coded value
+	unit = unit or "target"
+	-- M+ Affix: Beguiling (Prevents Interrupt) - Queen's Decree: Unstoppable buff
+	if UnitBuffID(unit,302417) ~= nil then return false end
+	local interruptTarget = getOptionValue("Interrupt Target")
+	if interruptTarget == 2 and not GetUnitIsUnit(unit, "target") then
+		return false
+	elseif interruptTarget == 3 and not GetUnitIsUnit(unit, "focus") then
+		return false
+	elseif interruptTarget == 4 and getOptionValue("Interrupt Mark") ~= GetRaidTargetIndex(unit) then
+		return false
+	end
+	local castStartTime, castEndTime, interruptID, interruptable = 0, 0, 0, false
+	local castDuration, castTimeRemain, castPercent = 0, 0, 0
 	local channelDelay = 1 -- Delay to mimick human reaction time for channeled spells
-	local interruptable = false
 	local castType = "spellcast" -- Handle difference in logic if the spell is cast or being channeles
-	local interruptID = 0
 	local onWhitelist = false
 	if GetUnitExists(unit)
 		and UnitCanAttack("player",unit)
@@ -76,14 +83,9 @@ function canInterrupt(unit,percentint)
 		elseif select(5,UnitChannelInfo(unit)) and not select(7,UnitChannelInfo(unit)) then -- Get spell channel time
 			castStartTime = select(4,UnitChannelInfo(unit))
 			castEndTime = select(5,UnitChannelInfo(unit))
-			interruptID = select(7,GetSpellInfo(UnitChannelInfo(unit)))
+			interruptID = select(8,UnitChannelInfo(unit))
 			interruptable = true
 			castType = "spellchannel"
-		else
-			castStartTime = 0
-			castEndTime = 0
-			interruptable = false
-			interruptID = 0
 		end
 		-- Assign interrupt time
 		if castEndTime > 0 and castStartTime > 0 then
@@ -123,10 +125,6 @@ function canInterrupt(unit,percentint)
 					end
 				end
 			end
-		else
-			castDuration = 0
-			castTimeRemain = 0
-			castPercent = 0
 		end
 		-- Check if on whitelist (if selected)
 		if isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] then
@@ -176,7 +174,7 @@ function getRecharge(spellID,chargeMax)
 	if chargeMax then return chargeDuration end
 	if charges then
 		if charges < maxCharges then
-			chargeEnd = chargeStart + chargeDuration
+			local chargeEnd = chargeStart + chargeDuration
 			return chargeEnd - GetTime()
 		end
 		return 0
@@ -200,12 +198,23 @@ function getSpellCD(SpellID)
 	if GetSpellCooldown(SpellID) == 0 then
 		return 0
 	else
-		local Start ,CD = GetSpellCooldown(SpellID)
+		local Start, CD = GetSpellCooldown(SpellID)
 		local MyCD = Start + CD - GetTime()
 		MyCD = MyCD - getLatency()
 		if MyCD < 0 then MyCD = 0 end
 		return MyCD
 	end
+end
+function getGlobalCD(max)
+	local currentSpecName = select(2,GetSpecializationInfo(GetSpecialization()))
+	if max == true then
+		if currentSpecName=="Feral" or currentSpecName=="Brewmaster" or currentSpecName=="Windwalker" or UnitClass("player") == "Rogue" then
+			return 1
+		else
+			return math.max(math.max(1, 1.5 / (1 + UnitSpellHaste("player") / 100)), 0.75)
+		end
+	end
+	return getSpellCD(61304)
 end
 function getSpellType(spellName)
 	if spellName == nil then return "Invalid" end
@@ -219,12 +228,14 @@ end
 function getCastingRegen(spellID)
 	local regenRate = getRegen("player")
 	local power = 0
-
+	local desc = GetSpellDescription(spellID)
+	local generates = desc:gsub("%D+", "")
+	local tooltip = tonumber(generates:sub(-2))
 	-- Get the "execute time" of the spell (larger of GCD or the cast time).
 	local castTime = getCastTime(spellID) or 0
 	local gcd = br.player.gcdMax
 	local castSeconds = (castTime > gcd) and castTime or gcd
-	power = power + regenRate * castSeconds
+	power = power + regenRate * castSeconds + tooltip
 
 	-- Get the amount of time remaining on the Steady Focus buff.
 	if UnitBuffID("player", 193534) ~= nil then
@@ -235,7 +246,7 @@ function getCastingRegen(spellID)
 			seconds = castSeconds
 		end
 		-- Steady Focus increases the focus regeneration rate by 50% for its duration.
-		power = power + regenRate * 1.5 * seconds
+		power = power + regenRate * 1.5 * seconds + tooltip
 	end
 	return power
 end
@@ -268,4 +279,10 @@ function isKnown(spellID)
  --    end
 	-- return false
 	return spellID ~= nil and (GetSpellBookItemInfo(tostring(spellName)) ~= nil or IsPlayerSpell(tonumber(spellID)) or IsSpellKnown(spellID) or hasPerk(spellID) or isSpellInSpellbook(spellID,"spell"))
+end
+
+function isActiveEssence(spellID)
+	local _, _, heartIcon = GetSpellInfo(296208) 
+	local _, _, essenceIcon = GetSpellInfo(spellID)
+	return heartIcon == essenceIcon
 end

@@ -6,8 +6,8 @@ local rotationName = "CuteOne"
 local function createToggles()
 -- Rotation Button
     RotationModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipe },
-        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipe },
+        [1] = { mode = "Auto", value = 1 , overlay = "Automatic Rotation", tip = "Swaps between Single and Multiple based on number of targets in range.", highlight = 1, icon = br.player.spell.swipeBear },
+        [2] = { mode = "Mult", value = 2 , overlay = "Multiple Target Rotation", tip = "Multiple target rotation used.", highlight = 0, icon = br.player.spell.swipeBear },
         [3] = { mode = "Sing", value = 3 , overlay = "Single Target Rotation", tip = "Single target rotation used.", highlight = 0, icon = br.player.spell.mangle },
         [4] = { mode = "Off", value = 4 , overlay = "DPS Rotation Disabled", tip = "Disable DPS Rotation", highlight = 0, icon = br.player.spell.regrowth}
     };
@@ -33,8 +33,8 @@ local function createToggles()
     CreateButton("Interrupt",4,0)
 -- Cleave Button
 	CleaveModes = {
-        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrash },
-        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrash }
+        [1] = { mode = "On", value = 1 , overlay = "Cleaving Enabled", tip = "Rotation will cleave targets.", highlight = 1, icon = br.player.spell.thrashBear },
+        [2] = { mode = "Off", value = 2 , overlay = "Cleaving Disabled", tip = "Rotation will not cleave targets", highlight = 0, icon = br.player.spell.thrashBear }
     };
     CreateButton("Cleave",5,0)
 -- Prowl Button
@@ -181,7 +181,7 @@ local function runRotation()
         local addsIn                                        = 999
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
 	    local combo                                         = br.player.power.comboPoints.amount()
@@ -323,9 +323,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -465,17 +465,17 @@ local function runRotation()
                 -- TODO: if=(buff.tigers_fury.up&(target.time_to_die>trinket.stat.any.cooldown|target.time_to_die<45))|buff.incarnation.remain()s>20
 				if isChecked("Trinkets") then
                     -- if (buff.tigersFury and (ttd(units.dyn5) > 60 or ttd(units.dyn5) < 45)) or buff.remain().incarnationKingOfTheJungle > 20 then
-						if canUse(13) then
+						if canUseItem(13) then
 							useItem(13)
 						end
-						if canUse(14) then
+						if canUseItem(14) then
 							useItem(14)
 						end
                     -- end
 				end
         -- Agi-Pot
                 -- -- if=((buff.berserk.remain()s>10|buff.incarnation.remain()s>20)&(target.time_to_die<180|(trinket.proc.all.react&target.health.pct<25)))|target.time_to_die<=40
-                -- if useCDs() and isChecked("Agi-Pot") and canUse(0) and inRaid then
+                -- if useCDs() and isChecked("Agi-Pot") and canUseItem(0) and inRaid then
                 --     if ((buff.remain().berserk > 10 or buff.remain().incarnationKingOfTheJungle > 20) and (ttd(units.dyn5) < 180 or (trinketProc and getHP(units.dyn5)<25))) or ttd(units.dyn5)<=40 then
                 --         useItem(agiPot);
                 --         return true
@@ -484,7 +484,7 @@ local function runRotation()
         -- Legendary Ring
                 -- use_item,slot=finger1
                 if isChecked("Legendary Ring") then
-                    if hasEquiped(124636) and canUse(124636) then
+                    if hasEquiped(124636) and canUseItem(124636) then
                         useItem(124636)
                         return true
                     end
@@ -512,7 +512,7 @@ local function runRotation()
                             return true
                         end
                         if flaskBuff==0 then
-                            if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                            if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                                 useItem(118922)
                                 return true
                             end
@@ -552,7 +552,7 @@ local function runRotation()
             if inCombat and cat and talent.feralAffinity and isValidUnit("target") and profileStop==false then
 				-- Swipe
 				if (#enemies.yards8 > 1 and #enemies.yards8 < 4 and debuff.rake.exists(units.dyn8)) or #enemies.yards8 >= 4 then
-					if cast.swipe() then return end
+					if cast.swipeCat() then return end
 				end
 				-- Rip
 				if combo == 5 and #enemies.yards8 < 4 then
@@ -620,7 +620,7 @@ local function runRotation()
                     if talent.pulverize then
                         for i = 1, #enemies.yards5 do
                             local thisUnit = enemies.yards5[i]
-                            if debuff.thrash.stack(thisUnit) >= 3 then
+                            if debuff.thrashBear.stack(thisUnit) >= 3 then
                                 if cast.pulverize(thisUnit) then return end
                             end
                         end
@@ -645,7 +645,7 @@ local function runRotation()
         -- Thrash
                     -- thrash_bear
                     if getDistance("target") < 8 then
-                        if cast.thrash() then return end
+                        if cast.thrashBear() then return end
                     end
         -- Mangle
                     -- mangle
@@ -669,7 +669,7 @@ local function runRotation()
         -- Swipe
                     -- swipe_bear
                     if getDistance("target") < 8 then
-                        if cast.swipe() then return end
+                        if cast.swipeBear() then return end
                     end
                 end -- End SimC APL
     ------------------------
@@ -682,7 +682,7 @@ local function runRotation()
 		end --End Rotation Logic
     end -- End Timer
 end -- End runRotation
-local id = 104
+local id = 0 --104
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

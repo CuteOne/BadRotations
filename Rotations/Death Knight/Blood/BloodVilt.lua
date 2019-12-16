@@ -73,9 +73,6 @@ local function createOptions()
         --    br.ui:createDropdownWithout(section, "Artifact", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Artifact Ability.")
         -- Dark Command
             br.ui:createCheckbox(section,"Dark Command","|cffFFFFFFAuto Dark Command usage.")
-        -- Active Mitigation
-            br.ui:createCheckbox(section,"Active Mitigation","|cffFFFFFF to use Active Mitigation for select spells.")
-        -- Active Mitigation
             br.ui:createCheckbox(section,"Blooddrinker")
         br.ui:checkSectionState(section)
     -- Cooldown Options
@@ -97,6 +94,8 @@ local function createOptions()
             br.ui:createSpinnerWithout(section, "Death and Decay", 3, 0, 10, 1, "|cffFFBB00Amount of Targets for DnD.")
         -- Use Bonestorm
             --br.ui:createCheckbox(section,"Use Bonestorm")
+            --RP Hold Toggle
+            br.ui:createDropdown(section,"Hold RP", br.dropOptions.Toggle, 6, "Hold Key to prevent RP spending")
         -- Bonestorm Target Amount
             br.ui:createSpinnerWithout(section, "Bonestorm Targets", 2, 0, 10, 1, "|cffFFBB00Amount of Targets for Bonestorm")
         -- Bonestorm RP Amount
@@ -110,6 +109,16 @@ local function createOptions()
         -- high prio blood boil for more dps
             br.ui:createCheckbox(section,"Blood Boil High Prio", "|cffFFBB00Lower Survivability, Higher DPS")
         br.ui:checkSectionState(section)
+    -- Essence Options
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        -- Lucid Dreams
+            br.ui:createSpinner(section, "Lucid Dreams", 1.5, 0, 6, 0.1,"Runes left to use Lucid Dreams")
+        --Concentrated flame
+            br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+            br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
+        -- Anima of death
+            br.ui:createSpinner(section,"Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
+		br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
@@ -184,9 +193,8 @@ local function runRotation()
 --------------
         local addsExist                                     = false
         local addsIn                                        = 999
-        --local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.staminaBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.staminaBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
@@ -243,14 +251,6 @@ local function runRotation()
         if MRCastTime == nil then MRCastTime = GetTime() end
         if DSCastTime == nil then DSCastTime = GetTime() end
 
-        local function HasMitigationUp()
-            if MRCastTime + 2.5 <= GetTime() or DSCastTime + 2.5 <= GetTime() then
-                return true
-            else 
-                return false
-            end
-        end
-
         UnitsWithoutBloodPlague = 0;
         for _, CycleUnit in pairs(enemies.yards10) do
             if not debuff.bloodPlague.exists(CycleUnit) then
@@ -258,78 +258,9 @@ local function runRotation()
             end
         end
 
-        -- list stolen from AR
-        local ActiveMitigationSpells = {
-            Buff = {
-                -- PR Legion
-                191941, -- Darkstrikes (VotW - 1st)
-                204151, -- Darkstrikes (VotW - 1st)
-                -- T20 ToS
-                239932 -- Felclaws (KJ)
-            },
-            Debuff = {
-
-            },
-            Cast = {
-                -- PR Legion
-                197810, -- Wicked Slam (ARC - 3rd)
-                197418, -- Vengeful Shear (BRH - 2nd)
-                198079, -- Hateful Gaze (BRH - 3rd)
-                214003, -- Coup de Grace (BRH - Trash)
-                235751, -- Timber Smash (CotEN - 1st)
-                193092, -- Bloodletting Sweep (HoV - 1st)
-                193668, -- Savage Blade (HoV - 4th)
-                227493, -- Mortal Strike (LOWR - 4th)
-                228852, -- Shared Suffering (LOWR - 4th)
-                193211, -- Dark Slash (MoS - 1st)
-                200732, -- Molten Crash (NL - 4th)
-                -- T20 ToS
-                241635, -- Hammer of Creation (Maiden)
-                241636, -- Hammer of Obliteration (Maiden)
-                236494, -- Desolate (Avatar)
-                239932, -- Felclaws (KJ)
-                -- T21 Antorus
-                254919, -- Forging Strike (Kin'garoth)
-                244899, -- Fiery Strike (Coven)
-                245458, -- Foe Breaker (Aggramar)
-                248499, -- Sweeping Scythe (Argus)
-                258039 -- Deadly Scythe (Argus)
-            }
-        }
-        -- 193092, -- Bloodletting Sweep (HoV - 1st)
-
-        local function ShouldMitigate()
-            if HasMitigationUp() == true then
-                return false
-            else
-                if UnitThreatSituation("player", "target") == 3 then
-                    if isCasting("target", ActiveMitigationSpells.Cast) then
-                        return true
-                    end
-                    for _, Buff in pairs(ActiveMitigationSpells.Buff) do
-                        if isBuffed("target", Buff) then
-                            return true
-                        end
-                    end
-                end
-            end
-            return false
-        end
-
 --------------------
 --- Action Lists ---
 --------------------
-    -- Action List - Active Mitigation
-        local function actionList_ActiveMitigation()
-            if ShouldMitigate() then
-                if isCastingSpell(spell.blooddrinker) then StopCasting() end
-                if buff.boneShield.stack >= 7 then
-                    if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS"); return end
-                end
-                if cast.marrowrend() then MRCastTime = GetTime(); Print("AM: MR"); return end
-                if cast.deathStrike() then DSCastTime = GetTime(); Print("AM: DS2"); return end
-            end
-        end
     -- Action List - Extras
         local function actionList_Extras()
         -- Dummy Test
@@ -360,9 +291,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -436,10 +367,10 @@ local function runRotation()
             if useCDs() and getDistance(units.dyn5) < 5 then
         -- Trinkets
                 if isChecked("Trinkets") then
-                    if canUse(13) then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) then
+                    if canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -466,7 +397,7 @@ local function runRotation()
                             return true
                         end
                         if flaskBuff==0 then
-                            if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                            if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                                 useItem(118922)
                                 return true
                             end
@@ -510,12 +441,6 @@ local function runRotation()
                     StartAttack()
                 end
     ------------------------------
-    ------ Active Mitigation -----
-    ------------------------------
-                if isChecked("Active Mitigation") then
-                    if actionList_ActiveMitigation() then return end
-                end
-    ------------------------------
     --- In Combat - Interrupts ---
     ------------------------------
                 if actionList_Interrupts() then return end
@@ -533,13 +458,6 @@ local function runRotation()
                     if mode.DND == 1 and not isMoving("player") and not isMoving("target") and ((#enemies.yards8 >= 1 and buff.crimsonScourge.exists() and talent.rapidDecomposition) or (#enemies.yards8 > 1 and buff.crimsonScourge.exists())) then
                         if cast.deathAndDecay("player") then return end
                     end
-                    --dump rp with deathstrike
-                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or not isChecked("Use Bonestorm"))) and runicPowerDeficit <= 30 then
-                        if cast.deathStrike() then DSCastTime = GetTime(); return end
-                    end
-                    if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
-                        if cast.marrowrend() then MRCastTime = GetTime(); return end
-                    end
                     --#high prio heal
                     --I'll just use flat hp numbers defined by the user for simplicity and tends to work a little bit better anyway
                     if php < getOptionValue("Death Strike High Prio") then
@@ -547,8 +465,25 @@ local function runRotation()
                     end
                     if talent.bonestorm and mode.BoneStorm == 1 and #enemies.yards8 >= getOptionValue("Bonestorm Targets") and runicPower >= getOptionValue("Bonestorm RP") then
                         if cast.bonestorm("player") then return end
-                    end                
-
+                    end
+                    if isChecked("Anima of Death") and cd.animaOfDeath.remain() <= gcd and inCombat and (#enemies.yards8 >= 3 or isBoss()) and php <= getOptionValue("Anima of Death") then
+                        if cast.animaOfDeath("player") then return end
+                    end    
+                    --dump rp with deathstrike
+                    if ((talent.bonestorm and cd.bonestorm.remain() > 3) or (talent.bonestorm and #enemies.yards8 < getOptionValue("Bonestorm Targets")) or (not talent.bonestorm or mode.BoneStorm == 2)) and runicPowerDeficit <= 20 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
+                        if cast.deathStrike() then DSCastTime = GetTime(); return end
+                    end
+                    if (talent.ossuary and buff.boneShield.stack() <= 4) or (not talent.ossuary and buff.boneShield.stack() <= 2) or buff.boneShield.remain() < gcd*2 or not buff.boneShield.exists() then
+                        if cast.marrowrend() then MRCastTime = GetTime(); return end
+                    end
+                    if isChecked("Lucid Dreams") and runes <= getOptionValue("Lucid Dreams") then
+                        if cast.memoryOfLucidDreams("player") then return end
+                    end
+                    if getOptionValue("Use Concentrated Flame") ~= 1 and php <= getValue("Concentrated Flame Heal") then
+                        if cast.concentratedFlame("player") then
+                            return
+                        end
+                    end
                     if not talent.soulgorge and #enemies.yards8 > 0 and UnitsWithoutBloodPlague >= 1 then                        
                         if cast.bloodBoil("player") then return end                        
                     end
@@ -569,17 +504,20 @@ local function runRotation()
                         end
                     end
                     --#low prio heal
-                    if php < getOptionValue("Death Strike Low Prio") then
+                    if php < getOptionValue("Death Strike Low Prio") and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     if runeTimeTill(3) <= gcd and talent.ossuary and buff.boneShield.stack() <= 6 then
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
-
+                    if getOptionValue("Use Concentrated Flame") == 1 or (getOptionValue("Use Concentrated Flame") == 3 and php > getValue("Concentrated Flame Heal")) then
+                        if cast.concentratedFlame("target") then
+                            return
+                        end
+                    end	
                     if mode.DND == 1 and not isMoving("target") and not isMoving("player") and runicPowerDeficit >= 10 and ((#enemies.yards8 == 1 and runes >= 3 and talent.rapidDecomposition) or #enemies.yards8 >= 3) then
                         if cast.deathAndDecay("player") then return end
                     end
-
                     if runeTimeTill(3) <= gcd and buff.boneShield.stack() >= 5 then
                         if cast.heartStrike() then return end
                     end
@@ -605,7 +543,7 @@ local function runRotation()
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
                     -- Healing
-                    if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() then
+                    if php <= 50 + (runicPower > 90 and 20 or 0) and not buff.bloodShield.exists() and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
 
@@ -627,7 +565,7 @@ local function runRotation()
                         if cast.blooddrinker() then return end
                     end
                     -- Death Strike
-                    if ((talent.blooddrinker or cd.blooddrinker.remain() <= gcd) and isChecked("Blooddrinker")) and not buff.dancingRuneWeapon.exists() and (runeTimeTill(1) <= gcd or runes >= 1) then
+                    if ((talent.blooddrinker or cd.blooddrinker.remain() <= gcd) and isChecked("Blooddrinker")) and not buff.dancingRuneWeapon.exists() and (runeTimeTill(1) <= gcd or runes >= 1) and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     -- Marrowrend
@@ -635,7 +573,7 @@ local function runRotation()
                         if cast.marrowrend() then MRCastTime = GetTime(); return end
                     end
                     -- Death Strike
-                    if buff.boneShield.stack() <= 6 and runicPowerDeficit <= 20 and runes >= 2 then
+                    if buff.boneShield.stack() <= 6 and runicPowerDeficit <= 20 and runes >= 2 and (isChecked("Hold RP") and not SpecificToggle("Hold RP")) then
                         if cast.deathStrike() then DSCastTime = GetTime(); return end
                     end
                     -- DND ST Rapid Decomp / AoE

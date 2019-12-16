@@ -232,7 +232,7 @@ local function runRotation()
         local animality                                     = false
         local artifact                                      = br.player.artifact
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local combo                                         = br.player.comboPoints
@@ -254,7 +254,7 @@ local function runRotation()
         local inCombat                                      = br.player.inCombat
         local inInstance                                    = br.player.instance=="party"
         local inRaid                                        = br.player.instance=="raid"
-        local item                                          = br.player.spell.items
+        local item                                          = br.player.items
         local level                                         = br.player.level
         local lootDelay                                     = getOptionValue("LootDelay")
         local lowestHP                                      = br.friend[1].hp
@@ -489,7 +489,7 @@ local function runRotation()
                 if cast.spiritmend(thisUnit) then return end
             end
 
-             if isChecked("Purge") and getValue("Purge") == 1 then
+             if isChecked("Purge") and UnitExists("pet") and getValue("Purge") == 1 then
                     for i = 1, #enemies.yards5p do 
                         local thisUnit = enemies.yards5p[i]
                                     --your dispel logic
@@ -525,7 +525,7 @@ local function runRotation()
                                 end
                             end
                     end
-            elseif isChecked("Purge") and getValue("Purge") == 2 then
+            elseif isChecked("Purge") and UnitExists("pet") and getValue("Purge") == 2 then
                     if  canDispel("target",spell.spiritShock) then
                           if cast.able.spiritShock("target") then
                                     if castSpell("target",spell.spiritShock,true,false,false,false,false,true) then
@@ -604,9 +604,9 @@ local function runRotation()
                 if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
                 end
@@ -620,7 +620,7 @@ local function runRotation()
                 end
         -- Engineering: Shield-o-tronic
                 if isChecked("Shield-o-tronic") and php <= getOptionValue("Shield-o-tronic")
-                    and inCombat and canUse(118006)
+                    and inCombat and canUseItem(118006)
                 then
                     useItem(118006)
                 end
@@ -685,10 +685,10 @@ local function runRotation()
             -- Trinkets
                 -- use_items
                 if getOptionValue("Trinkets") ~= 4 then
-                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUse(13) then
+                    if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3) and canUseItem(13) then
                         useItem(13)
                     end
-                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUse(14) then
+                    if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3) and canUseItem(14) then
                         useItem(14)
                     end
                 end
@@ -710,11 +710,11 @@ local function runRotation()
                 -- potion,if=buff.bestial_wrath.up&buff.aspect_of_the_wild.up
                 if isChecked("Potion") and (inRaid or InInstance) and (buff.bestialWrath.exists() or level < 40) and (buff.aspectOfTheWild.exists() or level < 26) then
                     if  getValue("Potion") == 1 then
-                         if canUse(163223) then
+                         if canUseItem(163223) then
                             useItem(163223) 
                         end
                     elseif getValue("Potion") == 2 then
-                        if canUse(152559) then
+                        if canUseItem(152559) then
                             useItem(152559)    
                         end
                     end
@@ -731,7 +731,7 @@ local function runRotation()
             if isChecked("Opener") and isBoss("target") and opener == false and GetUnitReaction("target","player") < 4 then
                 if getDistance("target") <= getValue("Opener") then  -- isValidUnit("target") --[[and 
             -- Begin
-                if not trait.primalInstincts.active() then
+                if not trait.primalInstincts.active then
                     -- opener without Trait
                     if not OPN1 then
                         Print("Opener ready (I not detected the Trait). If you enabled Pre-Pull-Timer, it will now wait for it")
@@ -742,7 +742,7 @@ local function runRotation()
                             if (inRaid or inInstance) and isChecked("Potion") then
                                 if isChecked("Pre-Pull Timer")  and PullTimerRemain() <= getOptionValue("Pre-Pull Timer") then
                                            if getValue("Potion") == 2 then
-                                                    if canUse(152559) then
+                                                    if canUseItem(152559) then
                                                             useItem(152559)
                                                             if isChecked("Aspect of the Wild") and useCDs() then
                                                                     castOpener("aspectOfTheWild","AOW1", 1)
@@ -764,7 +764,7 @@ local function runRotation()
                                                     end
 
                                             elseif getValue("Potion") == 1 then
-                                                                if canUse(163223) then
+                                                                if canUseItem(163223) then
                                                                         useItem(163223)
                                                                         if isChecked("Aspect of the Wild") and useCDs() then
                                                                             castOpener("aspectOfTheWild","AOW1", 1)
@@ -900,7 +900,7 @@ local function runRotation()
                             if (inRaid or inInstance) and isChecked("Potion") then
                                 if isChecked("Pre-Pull Timer") and br.DBM:getPulltimer() <= getOptionValue("Pre-Pull Timer") then
                                             if getValue("Potion") == 2 then
-                                                    if canUse(152559) then
+                                                    if canUseItem(152559) then
                                                             useItem(152559)
                                                             if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
@@ -922,7 +922,7 @@ local function runRotation()
                                                     end
 
                                             elseif getValue("Potion") == 1 then
-                                                    if canUse(163223) then
+                                                    if canUseItem(163223) then
                                                             useItem(163223)
                                                              if br.player.mode.beastialWrath == 1 then
                                                             castOpener("bestialWrath","BEAST1", 1)
@@ -1052,11 +1052,11 @@ local function runRotation()
             rotationDebug = "Pre-Combat"
             if not inCombat and not buff.feignDeath.exists() then
             -- Flask / Crystal
-                -- flask,type=flaskoftheCurrents
-                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskoftheCurrents.exists() and canUse(item.flaskoftheCurrents) then
+                -- flask,type=flaskOfTheCurrents
+                if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheCurrents.exists() and canUseItem(item.flaskOfTheCurrents) then
                     if buff.whispersOfInsanity.exists() then buff.whispersOfInsanity.cancel() end
                     if buff.felFocus.exists() then buff.felFocus.cancel() end
-                    if use.flaskoftheCurrents() then return end
+                    if use.flaskOfTheCurrents() then return end
                 end
             -- Summon Pet
                 -- summon_pet
@@ -1178,7 +1178,7 @@ local function runRotation()
                       -- and (buff.beastCleave.remain("pet") < gcdMax or not buff.beastCleave.exists("pet"))
                          and (buff.beastCleave.remain("pet") < gcdMax)
                     then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
 
                        -- actions+=/bestial_wrath,if=!buff.bestial_wrath.up
@@ -1206,7 +1206,7 @@ local function runRotation()
                     if ((mode.rotation == 1 and #enemies.yards8p >= getOptionValue("Units To AoE") and #enemies.yards8p > 1) or mode.rotation == 2)
                         and (buff.beastCleave.remain("pet") <  gcdMax)
                     then
-                        if cast.multiShot() then return end
+                        if cast.multishot() then return end
                     end
                     -- actions+=/kill_command
                     if cast.killCommand("target") then return end

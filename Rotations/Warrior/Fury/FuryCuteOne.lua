@@ -197,6 +197,7 @@ local function runRotation()
         local spell                                         = br.player.spell
         local talent                                        = br.player.talent
         local thp                                           = getHP("target")
+        local traits                                        = br.player.traits
         local units                                         = br.player.units
 
         units.get(5)
@@ -253,16 +254,16 @@ local function runRotation()
                 if isChecked("Healthstone/Potion") and php <= getOptionValue("Healthstone/Potion")
                     and inCombat and (hasHealthPot() or hasItem(5512))
                 then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(getHealthPot()) then
+                    elseif canUseItem(getHealthPot()) then
                         useItem(getHealthPot())
                     end
                 end
             -- Heirloom Neck
                 if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                     if hasEquiped(heirloomNeck) then
-                        if canUse(heirloomNeck) then
+                        if canUseItem(heirloomNeck) then
                             useItem(heirloomNeck)
                         end
                     end
@@ -362,30 +363,32 @@ local function runRotation()
             if cast.able.siegebreaker() then
                 if cast.siegebreaker() then return end
             end
-	    -- Rampage
-	    if isChecked("Faster Rampage") then
-               if cast.able.rampage() and buff.recklessness.exists()
-		    or (talent.carnage and (buff.enrage.exists() or rage > 75))
-		    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
-		    or (talent.massacre and (buff.enrage.exists() or rage > 85)) 
-	        then
-		     if cast.rampage() then return end
-	        end
-            else
-	        if cast.able.rampage() and (buff.recklessness.exists()
-	           or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
-		   or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+        -- Rampage
+            -- rampage,if=buff.recklessness.up|(talent.frothing_berserker.enabled|talent.carnage.enabled&(buff.enrage.remains<gcd|rage>90)|talent.massacre.enabled&(buff.enrage.remains<gcd|rage>90))
+            if isChecked("Faster Rampage") then
+                if cast.able.rampage() and buff.recklessness.exists()
+                    or (talent.carnage and (buff.enrage.exists() or rage > 75))
+                    or (talent.frothingBerserker and (buff.enrage.exists() or rage > 95))
+                    or (talent.massacre and (buff.enrage.exists() or rage > 85))
                 then
                     if cast.rampage() then return end
                 end
-	    end	
+            else
+                if cast.able.rampage() and (buff.recklessness.exists()
+                    or (talent.frothingBerserker or talent.carnage and (buff.enrage.remain() < gcd or rage > 90)
+                    or talent.massacre and (buff.enrage.remain() < gcd or rage > 90)))
+                then
+                    if cast.rampage() then return end
+                end
+            end
+        -- Execute
             -- execute,if=buff.enrage.up
             if cast.able.execute() and (buff.enrage.exists()) then
                 if cast.execute() then return end
 	      end
         -- Bloodthirst
-            -- bloodthirst,if=buff.enrage.down
-            if cast.able.bloodthirst() and (not buff.enrage.exists()) then
+            -- bloodthirst,if=buff.enrage.down|azerite.cold_steel_hot_blood.rank>1
+            if cast.able.bloodthirst() and (not buff.enrage.exists() or traits.coldSteelHotBlood.rank > 1) then
                 if cast.bloodthirst() then return end
             end
         -- Raging Blow
@@ -423,28 +426,19 @@ local function runRotation()
             end
         -- Whirlwind
             -- whirlwind
-            if cast.able.whirlwind(nil,"aoe") and #enemies.yards8 > 0 then
+            if cast.able.whirlwind(nil,"aoe") and #enemies.yards8 > 0 and (level < 75 or charges.ragingBlow.count() == 0
+                or rage >= 90 or (talent.massacre and rage >= 80))
+            then
                 if cast.whirlwind(nil,"aoe") then return end
             end
         end -- End Action List - Single
     -- Action List - Pre-Combat
         function actionList_PreCombat()
-        -- Flask
-            -- flask,type=greater_draenic_strength_flask
-            if isChecked("Str-Pot") then
-                if inRaid and canFlask and flaskBuff==0 and not UnitBuffID("player",176151) then
-                    useItem(br.player.flask.leg.strengthBig)
-                    return true
-                end
-                if flaskBuff==0 then
-                    if br.player.useCrystal() then return end
-                end
-            end
             -- food,type=pickled_eel
             -- snapshot_stats
             -- potion,name=Potion Of Bursting blood
             if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-                if canUse(152560) then
+                if canUseItem(152560) then
                     useItem(152560)
                 end
             end
@@ -499,7 +493,7 @@ local function runRotation()
             -- Potions
                 -- potion
                 if useCDs() and getDistance("target") < 5 and inRaid and isChecked("Potion") then
-                    if canUse(152560) then
+                    if canUseItem(152560) then
                         useItem(152560)
                     end
                 end
@@ -543,10 +537,10 @@ local function runRotation()
                 end
             -- Trinkets
                 if isChecked("Trinkets") and buff.enrage.exists() then
-                    if canUse(13) and not (hasEquiped(140808,13) or hasEquiped(147012,13)) then
+                    if canUseItem(13) and not (hasEquiped(140808,13) or hasEquiped(147012,13)) then
                         useItem(13)
                     end
-                    if canUse(14) and not (hasEquiped(140808,14) or hasEquiped(147012,13)) then
+                    if canUseItem(14) and not (hasEquiped(140808,14) or hasEquiped(147012,13)) then
                         useItem(14)
                     end
                 end
@@ -557,7 +551,7 @@ local function runRotation()
         end -- Pause
     end -- End Timer
 end -- End runRotation
-local id = 72
+local id = 0 --72
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
     name = rotationName,

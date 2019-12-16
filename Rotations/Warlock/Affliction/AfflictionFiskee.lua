@@ -273,8 +273,14 @@ local function runRotation()
     if debuff.unstableAffliction == nil then debuff.unstableAffliction = {} end
 
     local function isTotem(unit)
+        local eliteTotems = { -- totems we can dot
+            [125977] = "Reanimate Totem",
+            [127315] = "Reanimate Totem",
+            [146731] = "Zombie Dust Totem"
+        }
         local creatureType = UnitCreatureType(unit)
-        if creatureType ~= nil and GetObjectID(unit) ~= 125977 and GetObjectID(unit) ~= 127315 then --reanimate totem
+        local objectID = GetObjectID(unit)
+        if creatureType ~= nil and eliteTotems[objectID] == nil then
             if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
         end
         return false
@@ -459,7 +465,7 @@ local function runRotation()
 
     --azerite.cascading_calamity.enabled&(talent.drain_soul.enabled|talent.deathbolt.enabled&cooldown.deathbolt.remains<=gcd)
     local cascadingValue = 0
-    if traits.cascadingCalamity.active() and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
+    if traits.cascadingCalamity.active and (talent.drainSoul or (talent.deathbolt and cd.deathbolt.remain() <= gcd)) then cascadingValue = cast.time.shadowBolt() end
 
     -- Opener Variables
     if not inCombat and not GetObjectExists("target") then
@@ -479,10 +485,12 @@ local function runRotation()
     end
 
     -- Pet Data
-    if summonPet == 1 then summonId = 416 end
-    if summonPet == 2 then summonId = 1860 end
-    if summonPet == 3 then summonId = 417 end
-    if summonPet == 4 then summonId = 1863 end
+    if summonPet == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
+    elseif summonPet == 1 then summonId = 416
+    elseif summonPet == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
+    elseif summonPet == 2 then summonId = 1860
+    elseif summonPet == 3 then summonId = 417
+    elseif summonPet == 4 then summonId = 1863 end
 
     local creepingDeathValue = 0
     if talent.creepingDeath then creepingDeathValue = 1 end
@@ -596,9 +604,9 @@ local function runRotation()
         -- Pot/Stoned
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512))
             then
-                if canUse(5512) then
+                if canUseItem(5512) then
                     useItem(5512)
-                elseif canUse(healPot) then
+                elseif canUseItem(healPot) then
                     useItem(healPot)
                 end
             end
@@ -687,10 +695,10 @@ local function runRotation()
             end
         end
         if isChecked("Trinkets") then
-            if canUse(13) then
+            if canUseItem(13) then
                 useItem(13)
             end
-            if canUse(14) then
+            if canUseItem(14) then
                 useItem(14)
             end
         end
@@ -757,8 +765,9 @@ local function runRotation()
             if cast.haunt() then return true end
         end
         -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-        if (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
-            if cast.summonDarkglare("player") then return true end
+        if getSpellCD(spell.summonDarkglare) == 0 and (useCDs() or (isChecked("CDs With Burst Key") and burstKey)) and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+            return true
         end
         --Agony
         if ttd("target") > 8 and debuff.agony.refresh() then
@@ -844,8 +853,9 @@ local function runRotation()
             if cast.haunt() then return true end
         end
         -- actions+=/summon_darkglare,if=dot.agony.ticking&dot.corruption.ticking&(buff.active_uas.stack=5|soul_shard=0)&(!talent.phantom_singularity.enabled|cooldown.phantom_singularity.remains)
-        if useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
-            if cast.summonDarkglare("player") then return true end
+        if getSpellCD(spell.summonDarkglare) == 0 and useCDs() and debuff.agony.exists() and debuff.corruption.exists() and (debuff.unstableAffliction.stack() == 5 or shards == 0) and (not talent.phantomSingularity or (talent.phantomSingularity and (cd.phantomSingularity.remain() > 0 or #enemies.yards15t < getOptionValue("PS Units") or mode.ps ~= 1))) then
+            CastSpellByName(GetSpellInfo(spell.summonDarkglare))
+            return true
         end
         -- actions+=/agony,cycle_targets=1,if=remains<=gcd
         for i = 1, #enemyTable40 do
@@ -978,7 +988,7 @@ local function runRotation()
             if cast.seedOfCorruption(seedTarget) then return true end
         end
         -- actions.spenders+=/unstable_affliction,if=!variable.use_seed&!prev_gcd.1.summon_darkglare&(talent.deathbolt.enabled&cooldown.deathbolt.remains<=execute_time&!azerite.cascading_calamity.enabled|soul_shard>=2&target.time_to_die>4+execute_time&active_enemies=1|target.time_to_die<=8+execute_time*soul_shard)
-        if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction() and not traits.cascadingCalamity.active()) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and enemyTable40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
+        if not moving and not cast.last.summonDarkglare() and not spammableSeed and ((talent.deathbolt and cd.deathbolt.remain() <= cast.time.unstableAffliction() and not traits.cascadingCalamity.active) or (shards >= 2 and ttd("target") > 4 + cast.time.unstableAffliction() and enemyTable40 == 1) or (ttd("target") <= 8 + cast.time.unstableAffliction() * shards)) then
             if cast.unstableAffliction() then return true end
         end
         -- actions+=/unstable_affliction,if=!variable.spammable_seed&contagion<=cast_time+variable.padding
@@ -986,7 +996,7 @@ local function runRotation()
             if cast.unstableAffliction() then return true end
         end
         --actions.spenders+=/unstable_affliction,cycle_targets=1,if=!variable.use_seed&(!talent.deathbolt.enabled|cooldown.deathbolt.remains>time_to_shard|soul_shard>1)&contagion<=cast_time+variable.padding&(!azerite.cascading_calamity.enabled|buff.cascading_calamity.remains>time_to_shard)
-        if not spammableSeed and not moving and (((not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (not traits.cascadingCalamity.active() or (buff.cascadingCalamity.remain() > timeToShard))) or not inBossFight)  then
+        if not spammableSeed and not moving and (((not talent.deathbolt or cd.deathbolt.remain() > timeToShard or shards > 1) and (not traits.cascadingCalamity.active or (buff.cascadingCalamity.remain() > timeToShard))) or not inBossFight)  then
             for i = 1, #enemyTable40 do
                 local thisUnit = enemyTable40[i].unit
                 if debuff.unstableAffliction.remain(thisUnit) <= (cast.time.unstableAffliction() + cascadingValue) and ttd(thisUnit) > 2 + cast.time.unstableAffliction() and not noDotCheck(thisUnit) then
@@ -1013,27 +1023,19 @@ local function runRotation()
         if talent.grimoireOfSacrifice then petPadding = 5 end
         if isChecked("Pet Management") and not (IsFlying() or IsMounted()) and (not talent.grimoireOfSacrifice or not buff.demonicPower.exists()) and level >= 5 and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + petPadding) and not moving then
             if (activePetId == 0 or activePetId ~= summonId) and (lastSpell ~= castSummonId or activePetId ~= summonId or activePetId == 0) then
-            if summonPet == 1 then
-                if isKnown(spell.summonFelImp) and (lastSpell ~= spell.summonFelImp or activePetId == 0) then
-                    if cast.summonFelImp("player") then castSummonId = spell.summonFelImp; return end
-                elseif lastSpell ~= spell.summonImp then
-                    if cast.summonImp("player") then castSummonId = spell.summonImp; return end
+                if summonPet == 1 and (lastSpell ~= spell.summonImp or activePetId == 0) then
+                    if cast.summonImp("player") then castSummonId = spell.summonImp return end
+                elseif summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
+                    if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return end
+                elseif summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
+                    if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return end
+                elseif summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
+                    if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return end
                 end
-            end
-            if summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or activePetId == 0) then
-                if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker; return end
-            end
-            if summonPet == 3 and (lastSpell ~= spell.summonFelhunter or activePetId == 0) then
-                if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter; return end
-            end
-            if summonPet == 4 and (lastSpell ~= spell.summonSuccubus or activePetId == 0) then
-                if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus; return end
-            end
-            if summonPet == 5 then return end
             end
         end
         -- grimoire_of_sacrifice,if=talent.grimoire_of_sacrifice.enabled
-        if talent.grimoireOfSacrifice and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
+        if talent.grimoireOfSacrifice and isChecked("Pet Management") and GetObjectExists("pet") and not UnitIsDeadOrGhost("pet") then
             if cast.grimoireOfSacrifice() then return end
         end
         if not inCombat and not (IsFlying() or IsMounted()) then
@@ -1044,7 +1046,7 @@ local function runRotation()
             if (not isChecked("Opener") or opener == true) then
                 if useCDs() and isChecked("Pre-Pull Timer") then --and pullTimer <= getOptionValue("Pre-Pull Timer") then
                     if pullTimer <= getOptionValue("Pre-Pull Timer") - 0.5 then
-                        if canUse(142117) and not buff.prolongedPower.exists() then
+                        if canUseItem(142117) and not buff.prolongedPower.exists() then
                             useItem(142117);
                             return true
                         end

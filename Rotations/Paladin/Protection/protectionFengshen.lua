@@ -119,6 +119,8 @@ local function createOptions()
 		br.ui:createSpinner(section, "Shield of the Righteous - HP", 60, 0 , 100, 5, "|cffFFBB00Health Percentage to use at")
 		-- Redemption
 		br.ui:createDropdown(section, "Redemption", {"|cffFFFF00Selected Target","|cffFF0000Mouseover Target"}, 1, "|ccfFFFFFFTarget to Cast On")
+		-- Unstable Temporal Time Shifter
+		br.ui:createDropdown(section, "Unstable Temporal Time Shifter", {"|cff00FF00Target","|cffFF0000Mouseover","|cffFFBB00Auto"}, 1, "","|cffFFFFFFTarget to cast on")
 		br.ui:checkSectionState(section)
 		-------------------------
 		--- INTERRUPT OPTIONS ---
@@ -327,7 +329,7 @@ local function runRotation()
 			if buff.blessingOfProtection.exists() then
 				if cast.handOfReckoning("target") then return end
 			end
-			if buff.blessingOfProtection.exists() and getDebuffRemain("target",62124) < 0.2 then
+			if buff.blessingOfProtection.exists() and (getDebuffRemain("target",62124) < 0.2 or getDebuffRemain(br.friend[i].unit,209858) ~= 0) then
 				RunMacroText("/cancelAura Blessing of Protection")
 			end
 		end
@@ -489,9 +491,9 @@ local function runRotation()
 				-- Pot/Stoned
 				if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 					and inCombat and (hasHealthPot() or hasItem(5512))then
-					if canUse(5512) then
+					if canUseItem(5512) then
 						useItem(5512)
-					elseif canUse(healPot) then
+					elseif canUseItem(healPot) then
 						useItem(healPot)
 					end
 				end
@@ -720,13 +722,31 @@ local function runRotation()
 						if cast.redemption("mouseover","dead") then return end
 					end
 				end
+				-- Unstable Temporal Time Shifter
+				if isChecked("Unstable Temporal Time Shifter") and canUseItem(158379) and not isMoving("player") and inCombat then
+					if getOptionValue("Unstable Temporal Time Shifter") == 1
+						and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target","player") then
+						UseItemByName(158379,"target")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 2
+						and UnitIsPlayer("mouseover") and UnitIsDeadOrGhost("mouseover") and GetUnitIsFriend("mouseover","player") then
+						UseItemByName(158379,"mouseover")
+					end
+					if getOptionValue("Unstable Temporal Time Shifter") == 3 then
+						for i =1, #br.friend do
+							if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit,"player") then
+								UseItemByName(158379,br.friend[i].unit)
+							end
+						end
+					end
+				end
 			end
 		end -- End Action List - Defensive
 		-- Action List - Cooldowns
 		local function actionList_Cooldowns()
 			if useCDs() or burst then
 				-- Trinkets
-				if isChecked("Trinkets 1") and canUse(13) then
+				if isChecked("Trinkets 1") and canUseItem(13) then
 					if getOptionValue("Trinkets 1 Mode") == 1 then
 						if php <= getOptionValue("Trinkets 1") then
 							useItem(13)
@@ -736,7 +756,7 @@ local function runRotation()
 						if useItemGround("target",13,40,0,nil) then return true end
 					end
 				end
-				if isChecked("Trinkets 2") and canUse(14) then
+				if isChecked("Trinkets 2") and canUseItem(14) then
 					if getOptionValue("Trinkets 2 Mode") == 1 then
 						if php <= getOptionValue("Trinkets 2") then
 							useItem(14)
@@ -976,7 +996,7 @@ local function runRotation()
 		end -- End Profile
 	-- end -- Timer
 end -- runRotation
-local id = 66
+local id = 0 --66
 if br.rotations[id] == nil then br.rotations[id] = {} end
 tinsert(br.rotations[id],{
 name = rotationName,

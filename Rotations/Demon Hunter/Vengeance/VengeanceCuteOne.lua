@@ -80,6 +80,8 @@ local function createOptions()
             br.ui:createCheckbox(section,"Racial")
         -- Trinkets
             br.ui:createCheckbox(section,"Trinkets")
+        -- Variable Intensity Gigavolt Oscillating Reactor
+            br.ui:createCheckbox(section,"Power Reactor", "|cffFFBB00Check to use the Gigavolt Oscillating Reactor Trinket.")
         br.ui:checkSectionState(section)
     -- Defensive Options
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
@@ -155,7 +157,7 @@ local function runRotation()
 --- Locals ---
 --------------
         local buff                                          = br.player.buff
-        local canFlask                                      = canUse(br.player.flask.wod.agilityBig)
+        local canFlask                                      = canUseItem(br.player.flask.wod.agilityBig)
         local cast                                          = br.player.cast
         local combatTime                                    = getCombatTime()
         local cd                                            = br.player.cd
@@ -244,11 +246,11 @@ local function runRotation()
 	            if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned")
 	            	and inCombat and (hasHealthPot() or hasItem(5512))
 	            then
-                    if canUse(5512) then
+                    if canUseItem(5512) then
                         useItem(5512)
-                    elseif canUse(129196) then --Legion Healthstone
+                    elseif canUseItem(129196) then --Legion Healthstone
                         useItem(129196)
-                    elseif canUse(healPot) then
+                    elseif canUseItem(healPot) then
                         useItem(healPot)
                     end
 	            end
@@ -301,12 +303,20 @@ local function runRotation()
 		local function actionList_Cooldowns()
 			if useCDs() and getDistance(units.dyn5) < 5 then
             -- Trinkets
-                if isChecked("Trinkets") and getDistance("target") < 5 then
-                    if canUse(13) then
+                if isChecked("Trinkets") and not isChecked("Power Reactor") and getDistance("target") < 5 then
+                    if canUseItem(13) then
                         useItem(13)
                     end
-                    if canUse(14) and getNumEnemies("player",12) >= 1 then
+                    if canUseItem(14) and getNumEnemies("player",12) >= 1 then
                         useItem(14)
+                    end
+                end
+            end
+            -- Variable Intensity Gigavolt Oscillating Reactor
+			if useCDs() and getDistance(units.dyn5) < 5 or #enemies.yards5 >= 4 then
+                if isChecked("Power Reactor") and hasEquiped(165572) then
+                    if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6 and br.timer:useTimer("vigor Engaged Delay", 6) then
+                        useItem(165572)
                     end
                 end
             end -- End useCDs check
@@ -322,11 +332,11 @@ local function runRotation()
                         return true
                     end
                     if flaskBuff==0 then
-                        if not UnitBuffID("player",188033) and canUse(118922) then --Draenor Insanity Crystal
+                        if not UnitBuffID("player",188033) and canUseItem(118922) then --Draenor Insanity Crystal
                             useItem(118922)
                             return true
                         end
-                        if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUse(129192) then -- Gaze of the Legion
+                        if not UnitBuffID("player",193456) and not UnitBuffID("player",188033) and canUseItem(129192) then -- Gaze of the Legion
                             useItem(129192)
                             return true
                         end
@@ -350,7 +360,7 @@ local function runRotation()
                 if cast.sigilOfFlame("best",false,1,8) then return end
 			end
 			-- actions.brand+=/infernal_strike,if=cooldown.fiery_brand.remains=0
-			if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
+			if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and not cd.fieryBrand.exists() and #enemies.yards5 > 0 then
                 if cast.infernalStrike("player","ground",1,6) then return end
             end
 			-- actions.brand+=/fiery_brand (ignore if checked for defensive use)
@@ -367,7 +377,7 @@ local function runRotation()
 					if cast.felDevastation() then return end
 				end
 				-- actions.brand+=/infernal_strike,if=dot.fiery_brand.ticking
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+				if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
 					if cast.infernalStrike("player","ground",1,6) then return end
 				end
 				-- actions.brand+=/sigil_of_flame,if=dot.fiery_brand.ticking
@@ -425,7 +435,7 @@ local function runRotation()
 	                if actionList_FieryBrand() then return end
                 end
 				-- actions.normal=infernal_strike
-				if cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
+				if mode.mover == 1 and cast.able.infernalStrike() and charges.infernalStrike.count() == 2 and #enemies.yards5 > 0 then
                     if cast.infernalStrike("player","ground",1,6) then return end
                 end
 				-- actions.normal+=/spirit_bomb,if=soul_fragments>=4
