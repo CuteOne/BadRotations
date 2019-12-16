@@ -84,14 +84,14 @@ local function createOptions()
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
-        -- br.ui:createSpinnerWithout(section, "Necrotic Rot", 30, 0, 100, 1, "|cffFFFFFFNecrotic Rot Stacks does not healing the unit")
         br.ui:createSpinner(section, "Bursting", 1, 0, 10, 4, "", "Burst Targets")
 
         br.ui:createCheckbox(section, "Freehold - pig", 0)
         br.ui:createCheckbox(section, "Freehold - root grenadier", 0)
-        br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
+        br.ui:createCheckbox(section, "KR - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - Minions of Zul")
-
+        br.ui:createCheckbox(section, "Dont DPS spotter")
+        --
         --
         br.ui:createCheckbox(section, "All - root Emissary of the Tides")
         br.ui:createCheckbox(section, "Punt Enchanted Emissary", 0)
@@ -101,7 +101,9 @@ local function createOptions()
         br.ui:createCheckbox(section, "Decaying Mind", 0)
 
         br.ui:checkSectionState(section)
-
+        br.ui:createCheckbox(section, "Auto use Pots")
+        br.ui:createDropdownWithout(section, "Pots - burst healing", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
+        br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "General")
         br.ui:createCheckbox(section, "OOC Healing", "Enables/Disables out of combat healing.", 1)
         br.ui:createSpinner(section, "Pre-Pull Timer", 5, 0, 20, 1, "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
@@ -175,7 +177,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP" }, 1, "", "")
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
-        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP" }, 1, "", "")
+        br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target" }, 1, "", "")
         -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section)
 
@@ -703,6 +705,7 @@ local function runRotation()
     local hastar = hastar or GetObjectExists("target")
     local enemies = br.player.enemies
     local friends = friends or {}
+    local friends = friends or {}
     local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
     local moving = isMoving("player") ~= false or br.player.moving
     local gcdMax = br.player.gcdMax
@@ -764,6 +767,16 @@ local function runRotation()
 
     local lowest = br.friend[1]
     local friends = friends or {}
+
+    local sunfire_target = 0
+    local sunfire_radius = 8
+    if traits.highNoon.active then
+        sunfire_target = #enemies.yards11t
+        sunfire_radius = 11
+    else
+        sunfire_target = #enemies.yards8t
+        sunfire_radius = 8
+    end
 
     if #tanks > 0 and inInstance then
         for i = 1, #tanks do
@@ -840,14 +853,27 @@ local function runRotation()
 ]]
     local function BossEncounterCase()
 
-
+        local burst = false
         local crit_count = 0
-        for i = 1, #br.friend do
-            if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical") then
-                crit_count = crit_count + 1
-            end
-            if crit_count >= getOptionValue("Bursting") then
+        --Bursting
+        --Print("Check" ..isChecked("Bursting").."#: "..getOptionValue("Bursting"))
+        if isChecked("Bursting") and inInstance and #tanks > 0 then
+            local ourtank = tanks[1].unit
+            local Burststack = getDebuffStacks(ourtank, 240443)
+            if Burststack >= getOptionValue("Bursting") then
                 burst = true
+            else
+                burst = false
+            end
+        end
+        if burst == false then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical") then
+                    crit_count = crit_count + 1
+                end
+                if crit_count >= getOptionValue("Bursting") then
+                    burst = true
+                end
             end
         end
 
@@ -884,10 +910,36 @@ local function runRotation()
                     end
                 end
             end
+        end
 
+        -- aggressive dots
+        if isChecked("Aggressive Dots") and mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
+            thisUnit = "target"
+            if isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
+                    ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
+                            or (inInstance and #tanks == 0)
+                            or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
+                            or solo
+                            or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
+                            --need to add, or if tank is dead
+                    ) or not isChecked("Safe Dots") then
+                if not debuff.sunfire.exists("target") then
+                    if cast.sunfire("target", "aoe", 1, sunfire_radius) then
+                        br.addonDebug("Aggressive  Sunfire - target")
+                        return true
+                    end
+                end
+                if not debuff.moonfire.exists("target") then
+                    if cast.moonfire("target") then
+                        br.addonDebug("Aggressive Moonfire - target")
+                        return true
+                    end
+                end
+            end
+        end
 
-
-            -- DOT damage to teammates cast Rejuvenation
+        -- DOT damage to teammates cast Rejuvenation
+        if mode.HEALS == 1 then
             if isChecked("Smart Hot") then
 
                 local spellTarget = nil
@@ -975,32 +1027,6 @@ local function runRotation()
                                 end
                             end
                         end
-                    end
-                end
-            end
-        end
-
-        -- aggressive dots
-        if isChecked("Aggressive Dots") and mode.DPS == 1 and lowest.hp > getValue("DPS Min % health") and not noDamageCheck("target") and burst == false then
-            thisUnit = "target"
-            if isChecked("Safe Dots") and not noDamageCheck(thisUnit) and
-                    ((inInstance and #tanks > 0 and getDistance(thisUnit, tanks[1].unit) <= 10)
-                            or (inInstance and #tanks == 0)
-                            or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
-                            or solo
-                            or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                            --need to add, or if tank is dead
-                    ) or not isChecked("Safe Dots") then
-                if not debuff.sunfire.exists("target") then
-                    if cast.sunfire("target") then
-                        br.addonDebug("Aggressive  Sunfire - target")
-                        return true
-                    end
-                end
-                if not debuff.moonfire.exists("target") then
-                    if cast.moonfire("target") then
-                        br.addonDebug("Aggressive Moonfire - target")
-                        return true
                     end
                 end
             end
@@ -1168,7 +1194,7 @@ local function runRotation()
 
                     if php <= getOptionValue("Barkskin")
                             or UnitDebuffID("player", 265773) -- spit-gold from KR
-                            or UnitDebuffID("player", 302420) and thisUnit == 155433 and getCastTimeRemain(thisUnit)  < 4   -- 302420
+                            or UnitDebuffID("player", 302420) and thisUnit == 155433 and getCastTimeRemain(thisUnit) < 4   -- 302420
                     then
                         if cast.barkskin() then
                             return
@@ -1296,6 +1322,7 @@ local function runRotation()
 
     local function Cooldowns()
 
+
         --Essence Support
         --overchargeMana
 
@@ -1357,18 +1384,7 @@ local function runRotation()
             return true
         end
 
-        local burst = nil
-        --Bursting
-        --Print("Check" ..isChecked("Bursting").."#: "..getOptionValue("Bursting"))
-        if isChecked("Bursting") and inInstance and #tanks > 0 then
-            local ourtank = tanks[1].unit
-            local Burststack = getDebuffStacks(ourtank, 240443)
-            if Burststack >= getOptionValue("Bursting") then
-                burst = true
-            else
-                burst = false
-            end
-        end
+
 
 
         -- Ironbark
@@ -1535,6 +1551,18 @@ local function runRotation()
                             end
                         end
                     end
+                elseif getOptionValue("Trinket 2 Mode") == 5 then
+                    -- Generic fallback
+                    if Trinket13 ~= 168905 and Trinket13 ~= 167555 then
+                        if canUseItem(13) then
+                            useItem(13)
+                        end
+                    end
+                    if Trinket14 ~= 168905 and Trinket14 ~= 167555 then
+                        if canUseItem(14) then
+                            useItem(14)
+                        end
+                    end
                 end
             end
 
@@ -1594,15 +1622,7 @@ local function runRotation()
 
         --dots
 
-        local sunfire_target = 0
-        local sunfire_radius = 8
-        if traits.highNoon.active then
-            sunfire_target = #enemies.yards11t
-            sunfire_radius = 11
-        else
-            sunfire_target = #enemies.yards8t
-            sunfire_radius = 8
-        end
+
 
         for i = 1, #enemies.yards40 do
             thisUnit = enemies.yards40[i]
@@ -1616,33 +1636,41 @@ local function runRotation()
                                 --need to add, or if tank is dead
                         ) or not isChecked("Safe Dots") then
                     if debuff.sunfire.count() == 0 then
-                        if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius)) then
+                        if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
                             br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
                             return true
                         end
-                    end
+                    end --   if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
 
                     if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
                         if not debuff.sunfire.exists(thisUnit) then
-                            if cast.sunfire(thisUnit) then
+                            if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
                                 br.addonDebug("Initial Sunfire - non-Cluster")
                                 return true
                             end
                         end
                     elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
-                        if cast.sunfire(thisUnit) then
+                        if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
                             br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
                             return true
                         end
                     end
 
-                    if cast.able.moonfire() and debuff.moonfire.count() < getOptionValue("Max Moonfire Targets") or not debuff.moonfire.exists("target") or isBoss(thisUnit) and ttd(thisUnit) > 5 then
-                        if not debuff.moonfire.exists(thisUnit) then
-                            if cast.moonfire(thisUnit) then
-                                br.addonDebug("Initial Moonfire")
-                                return true
-                            end
+                    br.addonDebug("Unit: " .. tostring(thisUnit))
+                    if cast.able.moonfire() and not debuff.moonfire.exists(thisUnit) then
+                        if cast.moonfire(thisUnit) then
+                            br.addonDebug("Initial Moonfire")
+                            return true
                         end
+
+
+                        --[[       if cast.able.moonfire() and (debuff.moonfire.count() < getOptionValue("Max Moonfire Targets")) or isBoss(thisUnit) and ttd(thisUnit) > 5 then
+                                   if not debuff.moonfire.exists(thisUnit) then
+                                       if cast.moonfire(thisUnit) then
+                                           br.addonDebug("Initial Moonfire")
+                                           return true
+                                       end
+                                   end]]
                     elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
                         if cast.moonfire(thisUnit) then
                             br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
@@ -1657,7 +1685,7 @@ local function runRotation()
                     end
 
                     -- Solar Wrath
-                    if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() then
+                    if not SpecificToggle("Cat Key") and not GetCurrentKeyBoardFocus() and debuff.moonfire.exists(thisUnit) and debuff.sunfire.exists(thisUnit) then
                         if cast.solarWrath(thisUnit) then
                             return true
                         end
@@ -1761,6 +1789,22 @@ local function runRotation()
         for i = 1, #enemies.yards8 do
             local thisUnit = enemies.yards8[i]
 
+            -- rip,target_if=refreshable&combo_points=5
+            if combo == 5 then
+                if (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 4) and (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24)
+                        or (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
+                then
+                    if cast.rip(thisUnit) then
+                        br.addonDebug("[CAT-DPS] Applying Rip")
+                        return true
+                    end
+                else
+                    if cast.ferociousBite(thisUnit) then
+                        return true
+                    end
+                end
+            end
+
 
             -- Rake
             if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10
@@ -1781,42 +1825,25 @@ local function runRotation()
                     return true
                 end
             end
-
-            --swipe_cat,if=spell_targets.swipe_cat>=6
-            if #enemies.yards8 >= 6 then
-                if cast.swipeCat() then
-                    br.addonDebug("[CAT-DPS] Swipe - aoe: " .. aoe_count)
-                    return true
-                end
-            end
-
-            -- rip,target_if=refreshable&combo_points=5
-            if combo == 5 then
-                if (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 4) and (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24)
-                        or (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
-                then
-                    if cast.rip(thisUnit) then
-                        br.addonDebug("[CAT-DPS] Applying Rip")
-                        return true
-                    end
-                else
-                    if cast.ferociousBite(thisUnit) then
+            if combo < 5 then
+                --swipe_cat,if=spell_targets.swipe_cat>=6
+                if #enemies.yards8 >= 6 then
+                    if cast.swipeCat() then
+                        br.addonDebug("[CAT-DPS] Swipe - aoe: " .. aoe_count)
                         return true
                     end
                 end
-            end
-
-
-            --swipe_cat,if=spell_targets.swipe_cat>=2
-            if aoe_count >= 2 then
-                if cast.swipeCat() then
-                    br.addonDebug("[CAT-DPS] Multiple targets - swiping")
+                --swipe_cat,if=spell_targets.swipe_cat>=2
+                if aoe_count >= 2 then
+                    if cast.swipeCat() then
+                        br.addonDebug("[CAT-DPS] Multiple targets - swiping")
+                        return true
+                    end
+                end
+                if cast.shred(thisUnit) then
+                    br.addonDebug("[CAT-DPS] Shred")
                     return true
                 end
-            end
-            if cast.shred(thisUnit) then
-                br.addonDebug("[CAT-DPS] Shred")
-                return true
             end
         end
 
@@ -1866,16 +1893,17 @@ local function runRotation()
         if isChecked("Freehold - root grenadier") and select(8, GetInstanceInfo()) == 1754 then
             root_UnitList[129758] = "Irontide Grenadier"
         end
-        if isChecked("Atal - root Spirit of Gold") and select(8, GetInstanceInfo()) == 1763 then
-            root_UnitList[131009] = "Spirit of Gold"
-            root_UnitList[135406] = "Spirit of Gold 2"
+        if select(8, GetInstanceInfo()) == 1762 then
+            if isChecked("KR - root Spirit of Gold") then
+                root_UnitList[131009] = "Spirit of Gold"
+                root_UnitList[135406] = "Animated Gold"
+            end
+            if isChecked("KR - Minions of Zul") then
+                root_UnitList[133943] = "minion-of-zul"
+            end
         end
         if isChecked("All - root Emissary of the Tides") then
             root_UnitList[155434] = "Emissary of the Tides"
-        end
-        if isChecked("KR - Minions of Zul") then
-            root_UnitList[133943] = "minion-of-zul"
-            -- root_UnitList[126562] = "minion-of-zul"  testing purpose -  Irritable Deimetradon
         end
 
         for i = 1, #enemies.yards40 do
@@ -1893,27 +1921,24 @@ local function runRotation()
                 end
             end
 
-            if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
-                --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
-                if cast.able.massEntanglement() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
-                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 3) then
-                        if cast.massEntanglement(thisUnit) then
-                            br.addonDebug("Mass Rooting: " .. thisUnit)
-                            return true
-                        end
-                    end
-                end
-                if cast.able.entanglingRoots() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
-                    if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) <= 5) then
-                        if cast.entanglingRoots(thisUnit) then
-                            br.addonDebug("Rooting: " .. thisUnit)
-                            return true
-                        end
+            if cast.able.massEntanglement() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 102359) < 2) then
+                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and not UnitBuffID("player", 226510)) then
+                    if cast.massEntanglement(thisUnit) then
+                        br.addonDebug("Mass Rooting: " .. thisUnit)
+                        return true
                     end
                 end
             end
-
+            if cast.able.entanglingRoots() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 339) < 2) then
+                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510)) then
+                    if cast.entanglingRoots(thisUnit) then
+                        br.addonDebug("Rooting: " .. thisUnit)
+                        return true
+                    end
+                end
+            end
         end
+
     end
 
     local function heal()
@@ -2389,7 +2414,14 @@ local function runRotation()
         --- Out Of Combat - Rotations ---
         ---------------------------------
         if not inCombat then
-
+            --[[
+               -- using crystal if we got no flask or crystal buff
+               if not hasBuff(298837) and not hasBuff(176151) and hasItem(118922) and canUseItem(118922) then
+                   if useItem(118922) then
+                       return true
+                   end
+               end
+   ]]
             local friendlydeadcount = 0
             local friendlydeadcountinrange = 0
             if isChecked("Auto mass Resurrection") then
@@ -2398,7 +2430,7 @@ local function runRotation()
                         friendlydeadcount = friendlydeadcount + 1
                     end
                     if UnitIsPlayer(br.friend[i].unit) and UnitIsDeadOrGhost(br.friend[i].unit) and GetUnitIsFriend(br.friend[i].unit, "player") and UnitInRange(br.friend[i].unit) then
-                        friendlydeadcount = friendlydeadcountinrange + 1
+                        friendlydeadcountinrange = friendlydeadcountinrange + 1
                     end
                 end
                 if friendlydeadcount == 1 and friendlydeadcount == 1 then
@@ -2421,12 +2453,16 @@ local function runRotation()
                 --240443 == bursting
                 --drink list
                 --[[
+                item=65499/conjured mana cookies - TW food
                 item=163784/seafoam-coconut-water
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast
                 ]]
                 local fishfeast = 0
                 if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) then
+                    if hasItem(65499) and canUseItem(65499) then
+                        useItem(65499)
+                    end
                     if hasItem(113509) and canUseItem(113509) then
                         useItem(113509)
                     end
