@@ -1635,46 +1635,48 @@ local function runRotation()
                                 or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
                                 --need to add, or if tank is dead
                         ) or not isChecked("Safe Dots") then
-                    if debuff.sunfire.count() == 0 then
-                        if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
-                            br.addonDebug("Initial Sunfire - Cluster(" .. sunfire_radius .. ")")
-                            return true
-                        end
-                    end --   if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
 
-                    if cast.able.sunfire() and (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
-                        if not debuff.sunfire.exists(thisUnit) then
-                            if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
-                                br.addonDebug("Initial Sunfire - non-Cluster")
+                    if cast.able.sunfire() then
+                        --br.addonDebug("Sunfire Count: " .. debuff.sunfire.count() .. "/" .. getOptionValue("Max Sunfire Targets"))
+                        if debuff.sunfire.count() == 0 then
+                            --Print("foo")
+                            if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
+                                br.addonDebug("Initial Sunfire - Cluster")
+                                --Print ("Initial Sunfire - Cluster")
                                 return true
                             end
-                        end
-                    elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
-                        if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
-                            br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
-                            return true
+                        end --   if cast.sunfire(getBiggestUnitCluster(40, sunfire_radius), "aoe", 1, sunfire_radius) then
+
+                        if (debuff.sunfire.count() < getOptionValue("Max Sunfire Targets") or not debuff.sunfire.exists("target") or isBoss(thisUnit)) and ttd(thisUnit) > 5 then
+                            if not debuff.sunfire.exists(thisUnit) then
+                                if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
+                                    br.addonDebug("Initial Sunfire - non-Cluster")
+                                    return true
+                                end
+                            elseif debuff.sunfire.exists(thisUnit) and debuff.sunfire.remain(thisUnit) < 5 and ttd(thisUnit) > 5 then
+                                if cast.sunfire(thisUnit, "aoe", 1, sunfire_radius) then
+                                    br.addonDebug("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
+                                    --Print("Refreshing sunfire - remain: " .. debuff.sunfire.remain(thisUnit))
+                                    return true
+                                end
+                            end
                         end
                     end
 
-                    br.addonDebug("Unit: " .. tostring(thisUnit))
-                    if cast.able.moonfire() and not debuff.moonfire.exists(thisUnit) then
-                        if cast.moonfire(thisUnit) then
-                            br.addonDebug("Initial Moonfire")
-                            return true
-                        end
 
 
-                        --[[       if cast.able.moonfire() and (debuff.moonfire.count() < getOptionValue("Max Moonfire Targets")) or isBoss(thisUnit) and ttd(thisUnit) > 5 then
-                                   if not debuff.moonfire.exists(thisUnit) then
-                                       if cast.moonfire(thisUnit) then
-                                           br.addonDebug("Initial Moonfire")
-                                           return true
-                                       end
-                                   end]]
-                    elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
-                        if cast.moonfire(thisUnit) then
-                            br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
-                            return true
+                    --br.addonDebug("Unit: " .. tostring(thisUnit))
+                    if cast.able.moonfire() then
+                        if not debuff.moonfire.exists(thisUnit) then
+                            if cast.moonfire(thisUnit) then
+                                br.addonDebug("Initial Moonfire")
+                                return true
+                            end
+                        elseif debuff.moonfire.exists(thisUnit) and debuff.moonfire.remain(thisUnit) < 6 and ttd(thisUnit) > 5 then
+                            if cast.moonfire(thisUnit) then
+                                br.addonDebug("Refreshing moonfire - remain: " .. debuff.moonfire.remain(thisUnit))
+                                return true
+                            end
                         end
                     end
 
