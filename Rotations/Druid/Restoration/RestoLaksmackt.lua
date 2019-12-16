@@ -2456,7 +2456,7 @@ local function runRotation()
                 item=65499/conjured mana cookies - TW food
                 item=163784/seafoam-coconut-water
                 item=113509/conjured-mana-bun
-                item=126936/sugar-crusted-fish-feast
+                item=126936/sugar-crusted-fish-feast ff
                 ]]
                 local fishfeast = 0
                 if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) then
