@@ -697,11 +697,12 @@ local function runRotation()
         -- Innverate
         --Print("Innervate Check: "..tostring(isChecked("Auto Innervate")) .." castable: " .. tostring(cast.able.innervate()).." TTD: " ..getTTD("target"))
 
-        if isChecked("Auto Innervate") and inCombat and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 12 or (traits.livelySpirit.active and (cast.able.incarnationChoseOfElune() or cd.incarnationChoseOfElune.remain() < 2 or cast.able.celestialAlignment() or cd.celestialAlignment.remain() < 12))) then
+        if isChecked("Auto Innervate") and inCombat and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 10 or (traits.livelySpirit.active and (cast.able.incarnationChoseOfElune() or cd.incarnationChoseOfElune.remain() < 2 or cast.able.celestialAlignment() or cd.celestialAlignment.remain() < 12))) then
             for i = 1, #br.friend do
                 if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and (inInstance or inRaid)
                         and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then --innervate
-                    --Print("Healer is: " .. br.friend[i].unit)
+                    -- Print("Healer is: " .. br.friend[i].unit)
+                    --Print(traits.livelySpirit.active)
                     if cast.innervate(br.friend[i].unit) then
                         return true
                     end
@@ -828,7 +829,6 @@ local function runRotation()
                                     or astral_def <= 8
                     ) then
                 if cast.starsurge(units.dyn45) then
-                    br.addonDebug("xxx: " .. buff.celestialAlignment.remains())
                     return
                 end
             end
@@ -1110,7 +1110,7 @@ local function runRotation()
                 elseif hasItem(166799) and canUseItem(166799) then
                     br.addonDebug("Using Emerald of Vigor")
                     useItem(166799)
-                elseif hasitem(169451) and casnUseItem(169451) then
+                elseif hasItem(169451) and canUseItem(169451) then
                     br.addonDebug("Using Health Pot")
                     useItem(169451)
                 end
