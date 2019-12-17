@@ -30,6 +30,7 @@ local function createToggles()
         [2] = { mode = "Off", value = 2, overlay = "Cleanse Disabled", tip = "Cleanse Disabled", highlight = 0, icon = br.player.spell.cleanse }
     };
     CreateButton("Cleanse", 4, 0)
+    -- Glimmer
     GlimmerModes = {
         [1] = { mode = "On", value = 1, overlay = "Glimmer mode", tip = "Glimmer on", highlight = 0, icon = 287280 },
         [2] = { mode = "Off", value = 2, overlay = "Normal", tip = "Glimmer off", highlight = 0, icon = br.player.spell.holyShock },
@@ -44,6 +45,14 @@ local function createToggles()
         [3] = { mode = "Max", value = 3, overlay = "DPS Burst", tip = "DPS MAX", highlight = 0, icon = br.player.spell.avengingWrath }
     };
     CreateButton("DPS", 6, 0)
+    -- Beacon
+    BeaconModes = {
+        [1] = { mode = "BossTarget1", value = 1, overlay = "Boss1", tip = "BossTarget1", highlight = 0, icon = br.player.spell.beaconOfLight },
+        [2] = { mode = "BossTarget2", value = 2, overlay = "Boss2", tip = "BossTarget2", highlight = 0, icon = br.player.spell.beaconOfLight },
+        [3] = { mode = "BossTarget3", value = 3, overlay = "Boss3", tip = "BossTarget3", highlight = 0, icon = br.player.spell.beaconOfLight },
+        [4] = { mode = "Off", value = 4, overlay = "Off", tip = "Off", highlight = 0, icon = br.player.spell.beaconOfLight },
+	};
+	CreateButton("Beacon", 7, 0)
 end
 
 ---------------
@@ -71,8 +80,6 @@ local function createOptions()
         -- Blessing of Freedom
         br.ui:createCheckbox(section, "Blessing of Freedom")
 
-        -- Auto Beacon
-        br.ui:createCheckbox(section, "Auto Beacon")
         if br.player.race == "BloodElf" then
             br.ui:createSpinner(section, "Arcane Torrent Dispel", 1, 0, 20, 1, "", "|cffFFFFFFMinimum Torrent Targets")
             br.ui:createSpinner(section, "Arcane Torrent Mana", 30, 0, 95, 1, "", "|cffFFFFFFMinimum When to use for mana")
@@ -353,6 +360,7 @@ local function runRotation()
     br.player.mode.cleanse = br.data.settings[br.selectedSpec].toggles["Cleanse"]
     br.player.mode.Glimmer = br.data.settings[br.selectedSpec].toggles["Glimmer"]
     br.player.mode.DPS = br.data.settings[br.selectedSpec].toggles["DPS"]
+    br.player.mode.Beacon = br.data.settings[br.selectedSpec].toggles["Beacon"]
     --------------
     --- Locals ---
     --------------
@@ -1016,22 +1024,60 @@ local function runRotation()
                 end
             end
         end
-        for i = 1, #br.friend do
-            if UnitInRange(br.friend[i].unit) then
-                if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target")
-                        and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                    beaconOfLightinRaid = br.friend[i].unit
-                end
-                if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                    beaconOfLightTANK = br.friend[i].unit
-                end
-                if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                    beaconOfFaithTANK = br.friend[i].unit
-                elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
-                    beaconOfFaithplayer = br.friend[i].unit
+        if mode.Beacon == 1 and (inInstance or inRaid) and #tanks > 0 then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) then
+                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss1target")
+                            and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfLightinRaid = br.friend[i].unit
+                    end
+                    if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfLightTANK = br.friend[i].unit
+                    end
+                    if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfFaithTANK = br.friend[i].unit
+                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfFaithplayer = br.friend[i].unit
+                    end
                 end
             end
         end
+        if mode.Beacon == 2 and (inInstance or inRaid) and #tanks > 0 then
+            for i = 1, #br.friend do
+                if UnitInRange(br.friend[i].unit) then
+                    if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss2target")
+                            and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfLightinRaid = br.friend[i].unit
+                    end
+                    if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfLightTANK = br.friend[i].unit
+                    end
+                    if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfFaithTANK = br.friend[i].unit
+                    elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                        beaconOfFaithplayer = br.friend[i].unit
+                    end
+                end
+            end
+        end   
+            if mode.Beacon == 3 and (inInstance or inRaid) and #tanks > 0 then
+                for i = 1, #br.friend do
+                    if UnitInRange(br.friend[i].unit) then
+                        if (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and GetUnitIsUnit(br.friend[i].unit, "boss3target")
+                                and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                            beaconOfLightinRaid = br.friend[i].unit
+                        end
+                        if LightCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                            beaconOfLightTANK = br.friend[i].unit
+                        end
+                        if FaithCount < 1 and (br.friend[i].role == "TANK" or UnitGroupRolesAssigned(br.friend[i].unit) == "TANK") and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                            beaconOfFaithTANK = br.friend[i].unit
+                        elseif FaithCount < 1 and not inRaid and not buff.beaconOfLight.exists(br.friend[i].unit) and not buff.beaconOfFaith.exists(br.friend[i].unit) then
+                            beaconOfFaithplayer = br.friend[i].unit
+                        end
+                    end
+                end
+            end
         if inRaid and beaconOfLightinRaid ~= nil then
             if cast.beaconOfLight(beaconOfLightinRaid) then
                 return true
@@ -2309,7 +2355,7 @@ local function runRotation()
                     return true
                 end
                 if isChecked("OOC Healing") then
-                    if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
+                    if mode.Beacon ~= 4 and not talent.beaconOfVirtue then
                         if Beacon() then
                             return
                         end
@@ -2343,7 +2389,7 @@ local function runRotation()
                 if Interrupt() then
                     return
                 end
-                if isChecked("Auto Beacon") and not talent.beaconOfVirtue then
+                if mode.Beacon ~= 4 and not talent.beaconOfVirtue then
                     if Beacon() then
                         return
                     end
