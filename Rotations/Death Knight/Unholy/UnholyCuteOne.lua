@@ -65,6 +65,8 @@ local function createOptions()
             -- Death Grip
             br.ui:createCheckbox(section, "Death Grip","|cffFFFFFFWill grip units out that are >8yrds away from you while in combat.")
             br.ui:createCheckbox(section, "Death Grip - Pre-Combat","|cffFFFFFFWill grip selected target to begin combat.")
+            -- Pre-Pull Timer
+            br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFFFFFSet to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
             -- Path of Frost
             br.ui:createCheckbox(section, "Path of Frost")
             -- Heart Essence
@@ -208,6 +210,7 @@ local function runRotation()
     local petCombat                                     = UnitAffectingCombat("pet")
     local php                                           = getHP("player")
     local ttd                                           = getTTD
+    local pullTimer                                     = PullTimerRemain()    
 
     -- Units Declaration
     units.get(5)
@@ -727,7 +730,12 @@ local function runRotation()
             if isChecked("Army of the Dead") and useCDs() and pullTimer <= 2 then
                 if cast.armyOfTheDead() then return end
             end
-        end -- Pre-Pull
+    -- Azshara's Font of Power
+            if (getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())) and equiped.azsharasFontOfPower() and use.able.azsharasFontOfPower() and not isMoving("player") and not inCombat and pullTimer <= getOptionValue("Pre-Pull Timer") then
+                if use.azsharasFontOfPower() then return true end
+            end               
+        end 
+    -- Pre-Pull
         if isValidUnit("target") and not inCombat then
     -- Death Grip
             if isChecked("Death Grip - Pre-Combat") and cast.able.deathGrip("target") and not isDummy()
@@ -809,21 +817,36 @@ local function runRotation()
                             if use.able.slot(i) then
                                 -- All Others
                                 -- use_items,if=time>20|!equipped.ramping_amplitude_gigavolt_engine|!equipped.vision_of_demise
-                                if combatTime > 20 or not (equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
+                                if combatTime > 20 or not (equiped.azsharasFontOfPower(i) or equiped.ashvanesRazorCoral(i) or equiped.visionOfDemise(i)
                                     or equiped.rampingAmplitudeGigavoltEngine(i) or equiped.bygoneBeeAlmanac(i)
                                     or equiped.jesHowler(i) or equiped.galecallersBeak(i) or equiped.grongsPrimalRage(i))
                                 then
                                     use.slot(i)
                                 end
+                                -- Azshara's Font of Power
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
+                                if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyFrenzy) 
+                                    or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active))
+                                then
+                                use.slot(i)
+                                end  
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
+                                if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyFrenzy then
+                                use.slot(i)
+                                end
+                                -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
+                                if equiped.azsharasFontOfPower(i) and  ttd(units.dyn5) < cd.apocalypse.remain() + 34 then
+                                use.slot(i)
+                                end
                                 -- Ashvanes Razor Coral
                                 -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
-                                if equiped.ashvanesRazorCoral(i) and debuff.razorCoral.stack(units.dyn5) < 1 then
+                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) < 1 then
                                     use.slot(i)
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)
-                                if equiped.ashvanesRazorCoral(i) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
+                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and ((pet.guardianOfAzeroth.exists() and pet.apocalypseGhoul.exists())
                                     or (cd.apocalypse.remain() < gcd and not essence.condensedLifeForce.active and not talent.unholyFrenzy)
-                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain < gcd and ttd(units.dyn5) < cd.condensedLifeForce.remain() + 20)
+                                    or (ttd(units.dyn5) < cd.apocalypse.remain() + 20) or (cd.apocalypse.remain() < gcd and ttd(units.dyn5) < cd.guardianOfAzeroth.remain() + 20)
                                     or (buff.unholyFrenzy.exists() and not essence.condensedLifeForce.active))
                                 then
                                     use.slot(i)
