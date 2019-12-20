@@ -81,6 +81,7 @@ local function createOptions()
         br.ui:createCheckbox(section, "Break form for dots", "")
         br.ui:createCheckbox(section, "auto stealth", "", 1)
         br.ui:createCheckbox(section, "auto dash", "", 1)
+        br.ui:createSpinnerWithout(section, "Max RIP Targets", 10, 1, 10, 1, "Max Rip Targets")
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
@@ -868,11 +869,20 @@ local function runRotation()
         end
         if burst == false then
             for i = 1, #br.friend do
-                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical") then
+                if UnitInRange(br.friend[i].unit) and br.friend[i].hp <= getValue("Critical HP") then
                     crit_count = crit_count + 1
                 end
                 if crit_count >= getOptionValue("Bursting") then
                     burst = true
+                end
+            end
+        end
+        --cw on ourself to survive bursting
+        if burst == true and cast.able.cenarionWard then
+            if cast.able.cenarionWard then
+                if cast.cenarionWard("player") then
+                    br.addonDebug("[BURST]: CW on self")
+                    return true
                 end
             end
         end
@@ -1071,25 +1081,44 @@ local function runRotation()
         end
 
         if inInstance and inCombat and (select(8, GetInstanceInfo()) == 1862 or select(8, GetInstanceInfo()) == 1762) then
-            for i = 1, #br.friend do
-                -- Jagged Nettles and Dessication logic
-                if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
-                    if getSpellCD(18562) == 0 then
-                        if cast.swiftmend(br.friend[i].unit) then
-                            return true
+            if lowest.hp > getOptionValue("Critical HP") then
+                for i = 1, #br.friend do
+                    -- Jagged Nettles and Dessication logic
+                    if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
+                        if cast.able.cenarionWard then
+                            if cast.cenarionWard(br.friend[i].unit) then
+                                br.addonDebug("[CRIT]CWard on: " .. br.friend[i].unit)
+                                return true
+                            end
                         end
-                    end
-                    if cast.ironbark(br.friend[i].unit) then
-                        return true
-                    end
-                    if getSpellCD(18562) > gcdMax then
-                        if cast.regrowth(br.friend[i].unit) then
-                            return true
+                        if cast.able.swiftmend() then
+                            if cast.swiftmend(br.friend[i].unit) then
+                                br.addonDebug("[CRIT]Swiftmend on: " .. br.friend[i].unit)
+                                return true
+                            end
+                        end
+                        if talent.germination and not buff.rejuvenationGermination.exists(br.friend[i].unit) then
+                            if cast.rejuvenation(br.friend[i].unit) then
+                                br.addonDebug("[CRIT]Germination on: " .. br.friend[i].unit)
+                                return true
+                            end
+                        elseif not talent.germination and not buff.rejuvenation.exists(br.friend[i].unit) then
+                            if cast.rejuvenation(br.friend[i].unit) then
+                                br.addonDebug("[CRIT]Rejuvenation on: " .. br.friend[i].unit)
+                                return true
+                            end
+                        end
+                        if cast.able.regrowth() then
+                            if cast.regrowth(br.friend[i].unit) then
+                                br.addonDebug("[CRIT]Regrowth on: " .. br.friend[i].unit)
+                                return true
+                            end
                         end
                     end
                 end
             end
         end
+
         -- Sacrifical Pits
         -- Devour
         if inInstance and inCombat and select(8, GetInstanceInfo()) == 1763 then
@@ -1730,6 +1759,7 @@ local function runRotation()
     end
 
     local function cat_combat()
+        --cat_dps
 
 
         --aoe_count
@@ -1792,7 +1822,8 @@ local function runRotation()
             local thisUnit = enemies.yards8[i]
 
             -- rip,target_if=refreshable&combo_points=5
-            if combo == 5 then
+            --   if combo == 5 then
+            if debuff.rip.count() < getOptionValue("Max RIP Targets") then
                 if (not debuff.rip.exists(thisUnit) or (debuff.rip.remain(thisUnit) < 4) and (ttd(thisUnit) > (debuff.rip.remain(thisUnit) + 24)
                         or (debuff.rip.remain(thisUnit) + combo * 4 < ttd(thisUnit) and debuff.rip.remain(thisUnit) + 4 + combo * 4 > ttd(thisUnit))))
                 then
@@ -1800,13 +1831,8 @@ local function runRotation()
                         br.addonDebug("[CAT-DPS] Applying Rip")
                         return true
                     end
-                else
-                    if cast.ferociousBite(thisUnit) then
-                        return true
-                    end
                 end
             end
-
 
             -- Rake
             if (not debuff.rake.exists(thisUnit) or debuff.rake.remain(thisUnit) < 4.5) and ttd(thisUnit) >= 10
@@ -2408,7 +2434,7 @@ local function runRotation()
     -- Print(tostring(mode.forms))
 
     -- Pause
-    if pause() or IsMounted() or flying or drinking or isCastingSpell(spell.tranquility) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) then
+    if pause() or IsMounted() or flying or drinking or isCastingSpell(spell.tranquility) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
         --or stealthed (travel and not inCombat) or
         return true
     else
@@ -2456,7 +2482,8 @@ local function runRotation()
                 --drink list
                 --[[
                 item=65499/conjured mana cookies - TW food
-                item=163784/seafoam-coconut-water
+                item=159867/rockskip-mineral-wate (alliance bfa)
+                item=163784/seafoam-coconut-water  (horde bfa)
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast ff
                 ]]
@@ -2467,6 +2494,9 @@ local function runRotation()
                     end
                     if hasItem(113509) and canUseItem(113509) then
                         useItem(113509)
+                    end
+                    if hasItem(159867) and canUseItem(159867) then
+                        useItem(159867)
                     end
                     if hasItem(163784) and canUseItem(163784) then
                         useItem(163784)
