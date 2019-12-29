@@ -211,6 +211,7 @@ local use
 local haltProfile
 local hastar
 local healPot
+local minCount
 local profileStop
 local ttd
 -- Profile Specific Locals
@@ -350,7 +351,9 @@ actionList.Defensive = function()
             end
         end
         -- Aspect of the Turtle
-        if isChecked("Aspect Of The Turtle") and cast.able.aspectOfTheTurtle() and php <= getOptionValue("Aspect Of The Turtle") then
+        if isChecked("Aspect Of The Turtle") and cast.able.aspectOfTheTurtle()
+            and php <= getOptionValue("Aspect Of The Turtle") and inCombat
+        then
             if cast.aspectOfTheTurtle("player") then return true end
         end
         -- Exhilaration
@@ -358,7 +361,9 @@ actionList.Defensive = function()
             if cast.exhilaration("player") then return true end
         end
         -- Feign Death
-        if isChecked("Feign Death") and cast.able.feignDeath() and php <= getOptionValue("Feign Death") then
+        if isChecked("Feign Death") and cast.able.feignDeath()
+            and php <= getOptionValue("Feign Death") and inCombat
+        then
             if cast.able.playDead() then
                 if cast.playDead() then return end
             end
@@ -477,8 +482,10 @@ actionList.Cooldown = function()
     -- Heart Essence
     if isChecked("Use Essence") then
         -- focused_azerite_beam
-        if useCDs() and cast.able.focusedAzeriteBeam() then
-            if cast.focusedAzeriteBeam() then return end
+        if cast.able.focusedAzeriteBeam() and enemies.yards30r >= minCount then
+            if cast.focusedAzeriteBeam(nil,"rect",minCount,8) then
+                return true
+            end
         end
         -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
         if useCDs() and cast.able.memoryOfLucidDreams() and focus < focusMax - 30 and buff.coordinatedAssault.exists() then
@@ -489,8 +496,7 @@ actionList.Cooldown = function()
             if cast.bloodOfTheEnemy() then return end
         end
         -- purifying_blast
-        if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
-            local minCount = useCDs() and 1 or 3
+        if cast.able.purifyingBlast() and #enemies.yards8t >= minCount then
             if cast.purifyingBlast("best", nil, minCount, 8) then return true end
         end
         -- guardian_of_azeroth
@@ -1194,6 +1200,7 @@ local function runRotation()
     -- General Locals
     hastar                                        = GetObjectExists("target")
     healPot                                       = getHealthPot()
+    minCount                                      = useCDs() and 1 or 3
     profileStop                                   = profileStop or false
     ttd                                           = getTTD
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
@@ -1208,6 +1215,7 @@ local function runRotation()
     enemies.get(20,"pet")
     enemies.get(30)
     enemies.get(30,"pet")
+    enemies.yards30r = getEnemiesInRect(10,30,false) or 0
     enemies.get(40)
     enemies.get(40,"player",true)
     enemies.get(40,"player",false,true)
