@@ -9,9 +9,8 @@ function getHeirloomNeck()
         eternalWovenIvyNecklace     = 122666,
         manariTrainingAmulet        = 153130,
     }
-    for i = 1, #necks do
-        local thisNeck = necks[i]
-        if hasEquiped(thisNeck,2) then return thisNeck end
+    for _,v in pairs(necks) do
+        if hasEquiped(v,2) then return v end
     end
     return 0
 end
