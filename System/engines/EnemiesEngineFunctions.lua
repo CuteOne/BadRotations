@@ -515,9 +515,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 		table.wipe(enemiesInRect)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
---			if thisUnit ~= "target" then
-				local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit)) --GetObjectPosition(thisUnit)
---			end
+			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))
 			if tX and tY then
 				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
 					if showLines then
@@ -529,11 +527,7 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 			end
 		end
 	end
-	if #enemiesInRect ~= 0 then
-		return enemyCounter, enemiesInRect
-	else
-		return enemyCounter
-	end
+	return enemyCounter, enemiesInRect
 end
 
 -- local function intersects(circle, rect)

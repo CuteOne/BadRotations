@@ -227,6 +227,17 @@ local function cancelRetreatAnimation()
     end
     return
 end
+local function eyebeamTTD()
+    local length = talent.blindFury and 3 or 2
+    if enemies.yards8r > 0 then
+        for i = 1, enemies.yards8r do
+            if ttd(enemies.yards8rTable[i]) >= length then
+                return true
+            end
+        end
+    end
+    return false
+end
 
 --------------------
 --- Action Lists ---
@@ -515,7 +526,7 @@ actionList.Demonic = function()
     if mode.eyeBeam == 1 and cast.able.eyeBeam() and not moving and enemies.yards8r > 0
         and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
             or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-            or (mode.rotation == 2 and enemies.yards8r > 0)) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+            or (mode.rotation == 2 and enemies.yards8r > 0)) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         -- if cast.eyeBeam(units.dyn5) then return end
         if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -635,7 +646,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
     if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum
-        and (not talent.momentum or buff.momentum.exists()) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+        and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         -- if cast.eyeBeam(units.dyn5) then return end
         if cast.eyeBeam(nil,"rect",1,8) then return end
@@ -653,7 +664,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
     if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury
-        and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists()) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+        and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         if cast.eyeBeam(nil,"rect",1,8) then return end
     end
@@ -674,7 +685,7 @@ actionList.Normal = function()
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
     if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury
-        and (not talent.momentum or buff.momentum.exists()) and (ttd(units.dyn8) > 2 or isDummy(units.dyn8))
+        and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         if cast.eyeBeam(nil,"rect",1,8) then return end
     end
@@ -836,7 +847,7 @@ local function runRotation()
     enemies.get(10)
     enemies.get(20)
     enemies.get(50)
-    enemies.yards8r = getEnemiesInRect(10,20,false) or 0
+    enemies.yards8r, enemies.yards8rTable = getEnemiesInRect(10,20,false)
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
