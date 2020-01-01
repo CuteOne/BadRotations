@@ -2246,6 +2246,7 @@ br.lists.spells = {
             },
             buffs                           = {
                 classHallSpeed              = 224098,
+                levitate                    = 111759,
                 powerWordFortitude          = 21562,
 
             },
