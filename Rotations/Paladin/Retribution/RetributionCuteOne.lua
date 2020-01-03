@@ -570,7 +570,8 @@ actionList.Cooldowns = function()
             -- Essence: Blood of the Enemy
             -- blood_of_the_enemy,if=buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10
             if cast.able.bloodOfTheEnemy()
-                and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10))
+                and ((not talent.crusade and buff.avengingWrath.exists())
+                or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
             then
                 if cast.bloodOfTheEnemy() then debug("Casting Heart Essence: Blood of the Enemy") return true end
             end
@@ -584,17 +585,18 @@ actionList.Cooldowns = function()
                 if cast.guardianOfAzeroth() then debug("Casting Heart Essence: Guardian of Azeroth") return true end
             end
             -- Essence: Worldvein Resonance
-            -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
+            -- worldvein_resonance,if=cooldown.avenging_wrath.remains<gcd&holy_power>=3|talent.crusade.enabled&cooldown.crusade.remains<gcd&holy_power>=4|cooldown.avenging_wrath.remains>=45|cooldown.crusade.remains>=45
             if cast.able.worldveinResonance()
-                and ((cd.avengingWrath.remain() < gcd and holyPower >= 3)
-                    or (cd.crusade.remain() < gcd and holyPower >= 4)
-                    or cd.avengingWrath.remain() >= 45 or cd.crusade.remain() >= 45)
+                and ((not talent.crusade and cd.avengingWrath.remain() < gcd and holyPower >= 3)
+                    or (talent.crusade and cd.crusade.remain() < gcd and holyPower >= 4)
+                    or (not talent.crusade and cd.avengingWrath.remain() >= 45) 
+                    or (talent.crusade and cd.crusade.remain() >= 45))
             then
                 if cast.worldveinResonance() then debug("Casting Heart Essence: Worldvein Resonance") return true end
             end
             -- Essence: Focused Azerite Beam
             -- focused_azerite_beam,if=(!raid_event.adds.exists|raid_event.adds.in>30|spell_targets.divine_storm>=2)&(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-            if cast.able.focusedAzeriteBeam() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
+            if cast.able.focusedAzeriteBeam() and ((not talent.crusade and not buff.avengingWrath.exists()) and (talent.crusade and not buff.crusade.exists()))
                 and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
                 and (#enemies.yards8f >= 3 or useCDs()) and not moving
             then
@@ -604,7 +606,9 @@ actionList.Cooldowns = function()
             -- Essence: Memory of Lucid Dreams
             -- memory_of_lucid_dreams,if=(buff.avenging_wrath.up|buff.crusade.up&buff.crusade.stack=10)&holy_power<=3
             if cast.able.memoryOfLucidDreams()
-                and (buff.avengingWrath.exists() or (buff.crusade.exists() and buff.crusade.stack() == 10)) and holyPower <= 3
+                and ((not talent.crusade and buff.avengingWrath.exists())
+                     or (talent.crusade and buff.crusade.exists() and buff.crusade.stack() == 10))
+                and holyPower <= 3
             then
                 if cast.memoryOfLucidDreams() then debug("Casting Heart Essence: Memory of Lucid Dreams") return true end
             end
@@ -616,7 +620,9 @@ actionList.Cooldowns = function()
         end
         -- Pocket Sized Computation Device: Cyclotronic Blast
         -- use_item,effect_name=cyclotronic_blast,if=(buff.avenging_wrath.down|talent.crusade.enabled&buff.crusade.down)&(cooldown.blade_of_justice.remains>gcd*3&cooldown.judgment.remains>gcd*3)
-        if isChecked("Trinkets") and equiped.pocketSizedComputationDevice() and (not buff.avengingWrath.exists() and (talent.crusade and not buff.crusade.exists()))
+        if isChecked("Trinkets") and equiped.pocketSizedComputationDevice()
+            and ((not talent.crusade and not buff.avengingWrath.exists())
+            and (talent.crusade and not buff.crusade.exists()))
             and (cd.bladeOfJustice.remain() > gcd * 3 and cd.judgment.remain() > gcd * 3)
         then
             for i = 13, 14 do
@@ -1235,9 +1241,9 @@ local runRotation = function()
                     if cast.divineStorm("player","aoe",1,8) then debug("Casting Divine Storm [Empyrean Power]") return true end
                 end
                 -- Call Action List - Finisher
-                -- call_action_list,name=finishers,if=holy_power>=5|buff.memory_of_lucid_dreams.up|buff.seething_rage.up|buff.inquisition.down&holy_power>=3
-                if holyPower >= 5 or buff.memoryOfLucidDreams.exists() or buff.seethingRage.exists()
-                    or (not buff.inquisition.exists() and holyPower >= 3)
+                -- call_action_list,name=finishers,if=holy_power>=5|buff.memory_of_lucid_dreams.up|buff.seething_rage.up|talent.inquisition.enabled&buff.inquisition.down&holy_power>=3
+                if holyPower >= 5 or ((buff.memoryOfLucidDreams.exists() or buff.seethingRage.exists()
+                    or (talent.inquisition and not buff.inquisition.exists())) and holyPower >= 3)
                 then
                     if actionList.Finisher() then return end
                 else
