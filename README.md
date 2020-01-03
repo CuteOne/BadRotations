@@ -47,7 +47,12 @@ If you want to know what changes were made read the commit messages. Most of the
 
 ## Regarding Lua Errors
 
-Please submit any errors as issues here on GitHub or join the BadRotations slack channel:
+Please submit any errors as issues here on GitHub or join the BadRotations community:
+
+Discord channel:
+https://discord.gg/VE7V7Mz
+
+Slack channel:
 https://join.slack.com/t/badrotations/shared_invite/enQtODQ2NjkzNDEzOTA0LWQzY2ZjZTBlYzkwNDc4ZGExMzkzZGVkMmNiZWViMGUzNGQxNmVhMTRhNjIzMDQzYjUzNzAyYTdlZTFlZjA2YTg
 
 ## Regarding Crashing
