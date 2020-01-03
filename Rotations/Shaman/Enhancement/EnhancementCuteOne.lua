@@ -706,8 +706,8 @@ actionList.Filler = function()
         if cast.rockbiter() then return true end
     end
     -- Crash lightning
-    -- crash_lightning,if=talent.crashing_storm.enabled&variable.OCPool_CL
-    if cast.able.crashLightning() and talent.crashingStorm and ocPoolCL then
+    -- crash_lightning,if=(talent.crashing_storm.enabled|talent.forceful_winds.enabled)&variable.OCPool_CL
+    if cast.able.crashLightning() and (talent.crashingStorm or talent.forcefulWinds) and ocPoolCL then
         if cast.crashLightning(nil,"cone",1,8) then return true end
     end
     -- Lava Lash
