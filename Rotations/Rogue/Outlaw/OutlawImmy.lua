@@ -801,9 +801,9 @@ local function runRotation()
 
             -- # Razor Coral
             if isChecked("Trinkets") and targetDistance < 5 then
-                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                if hasEquiped(169311, 13) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
                     useItem(13)
-                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists()))) then
+                elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists(units.dyn5) or (buff.adrenalineRush.remain() > 10 and (debuff.razorCoral.stack() >= 20 or (debuff.razorCoral.stack() >= 10 and buff.seethingRage.exists())))) then
                     useItem(14)
                 end
             end
@@ -820,7 +820,7 @@ local function runRotation()
             --Essences 8.2
             if mode.essence == 2 then
                 -- # Blood of the Enemy
-                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 1 then 
+                if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 5 then 
                     if buff.bladeFlurry.exists("player") and bftargets >= 3 then
                         if cast.bloodOfTheEnemy() then return true end
                     elseif isBoss("target") and buff.adrenalineRush.exists() then
@@ -1345,7 +1345,7 @@ local function runRotation()
         -- end
 
 
-        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 and (ttd(units.dyn8) > 15 or isDummy()) then
+        if mode.bladeflurry == 1 and buff.rollTheBones.remain >= 5 and bftargets >= 2 and not buff.bladeFlurry.exists() and charges.bladeFlurry.frac() >= 1.5 then
             if cast.bladeFlurry("player") then return true end
         end
 
