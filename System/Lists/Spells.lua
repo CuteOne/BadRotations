@@ -1597,6 +1597,7 @@ br.lists.spells = {
                 wayOfTheCrane               = 216113,
             },
             debuffs                         = {
+                            mysticTouch                 = 8647,
             },
             glyphs                          = {
             },
@@ -1713,7 +1714,7 @@ br.lists.spells = {
                 diffuseMagic                = 122783,
             },
             debuffs                         = {
-
+                mysticTouch                 = 8647,
             },
             glyphs                          = {
 
