@@ -95,6 +95,8 @@ local function createOptions()
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Cooldowns Time To Die Limit
+            br.ui:createSpinnerWithout(section,  "Cooldowns Time To Die Limit",  30,  0,  40,  1,  "|cffFFFFFFTarget Time to die limit for using cooldowns (in sec).")        
             -- Augment Rune
             br.ui:createCheckbox(section, "Augment Rune")
             -- Potion
@@ -105,6 +107,8 @@ local function createOptions()
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+            -- Ashvane's Razor Coral Stacks
+            br.ui:createSpinnerWithout(section, "Ashvane's Razor Coral Stacks", 1, 1, 30, 1, "|cffFFBB00 Number of debuff stacks to cast trinket (Default=1 'SimC').")
             -- Azerite Beam Units
             br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             -- Apocalypse
@@ -121,7 +125,7 @@ local function createOptions()
             br.ui:createDropdownWithout(section, "Unholy Blight", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Blight.")
             -- Unholy Frenzy
             br.ui:createDropdownWithout(section, "Unholy Frenzy", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Unholy Frenzy.")
-        br.ui:checkSectionState(section)
+            br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
         -------------------------
@@ -147,8 +151,12 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
             -- Mind Freeze
             br.ui:createCheckbox(section, "Mind Freeze")
+            -- Death Grip
+            br.ui:createCheckbox(section, "Death Grip (Interrupt)")
             -- Asphyxiate
             br.ui:createCheckbox(section, "Asphyxiate")
+            -- Asphyxiate Logic
+            br.ui:createCheckbox(section, "Asphyxiate Logic")
             -- Interrupt Percentage
             br.ui:createSpinnerWithout(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At (0 is random)")
         br.ui:checkSectionState(section)
@@ -203,7 +211,7 @@ local function runRotation()
     local talent                                        = br.player.talent
     local trait                                         = br.player.traits
     local units                                         = br.player.units
-    local use                                           = br.player.use
+    local use                                           = br.player.use  
     -- Other Locals
     local combatTime                                    = getCombatTime()
     local level                                         = UnitLevel("player")
@@ -211,6 +219,7 @@ local function runRotation()
     local php                                           = getHP("player")
     local ttd                                           = getTTD
     local pullTimer                                     = PullTimerRemain()    
+    local thisUnit                                      = nil      
 
     -- Units Declaration
     units.get(5)
@@ -226,6 +235,7 @@ local function runRotation()
     enemies.get(20)
     enemies.get(30)
     enemies.get(40)
+    enemies.get(45)
     enemies.get(40,"player",true)
     enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
@@ -242,6 +252,12 @@ local function runRotation()
     deathAndDecayRemain = 0
     if (cd.deathAndDecay.remain() - 10) > 0 then deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
 
+    --Asphyxiate Logic
+    local Asphyxiate_unitList = {
+        [131009] = "Spirit of Gold",
+        [134388] = "A Knot of Snakes",
+        [129758] = "Irontide Grenadier"
+    }
 --------------------
 --- Action Lists ---
 --------------------
@@ -424,51 +440,117 @@ local function runRotation()
                     end
                 end
             end
-        end -- End useInterrupts check
-    end -- End Action List - Interrupts
+        --Death Grip
+            if isChecked("Death Grip (Interrupt)") and cast.able.deathGrip() and getDistance(thisUnit) > 8 and ((talent.deathsReach and getDistance(thisUnit) < 40) or getDistance(thisUnit) < 30) then
+                if canInterrupt(thisUnit,getOptionValue("Interrupt At")) then
+                    if cast.deathGrip() then return true end
+                end
+            end
+        --Asphyxiate Logic
+            if isChecked("Asphyxiate Logic") then
+                if cast.able.asphyxiate() then
+                    local Asphyxiate_list = {
+                        274400,
+                        274383,
+                        257756,
+                        276292,
+                        268273,
+                        256897,
+                        272542,
+                        272888,
+                        269266,
+                        258317,
+                        258864,
+                        259711,
+                        258917,
+                        264038,
+                        253239,
+                        269931,
+                        270084,
+                        270482,
+                        270506,
+                        270507,
+                        267433,
+                        267354,
+                        268702,
+                        268846,
+                        268865,
+                        258908,
+                        264574,
+                        272659,
+                        272655,
+                        267237,
+                        265568,
+                        277567,
+                        265540,
+                        268202,
+                        258058,
+                        257739
+                    }
+                    for i = 1, #enemies.yards20 do
+                        local thisUnit = enemies.yards20[i]
+                        local distance = getDistance(thisUnit)
+                        for k, v in pairs(Asphyxiate_list) do
+                            if (Asphyxiate_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                if cast.asphyxiate() then
+                                    return
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end-- End Action List - Interrupts
     local function actionList_Cooldowns()
+        local groupTTD = 0
+        for i = 1, #enemies.yards45 do
+            thisUnit = enemies.yards45[i]
+            groupTTD = groupTTD + ttd(thisUnit)
+        end
     -- Army of the Dead
         -- army_of_the_dead
-        if (getOptionValue("Army of the Dead") == 1 or (getOptionValue("Army of the Dead") == 2 and useCDs()))
-            and cast.able.armyOfTheDead() 
+        if (getOptionValue("Army of the Dead") == 1 or (getOptionValue("Army of the Dead") == 2 and useCDs())) and groupTTD >= getOptionValue("CDs TTD Limit") 
+        and cast.able.armyOfTheDead() 
         then
             if cast.armyOfTheDead() then return end
         end
     -- Apocalypse
         -- apocalypse,if=debuff.festering_wound.stack>=4
         if (getOptionValue("Apocalypse") == 1 or (getOptionValue("Apocalypse") == 2 and useCDs()))
-            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4
+            and cast.able.apocalypse() and debuff.festeringWound.stack(units.dyn5) >= 4 and groupTTD >= getOptionValue("CDs TTD Limit") 
         then
             if cast.apocalypse(units.dyn5) then return end
         end
     -- Dark Transformation
         -- dark_transformation
         if pet.active.exists() and cast.able.darkTransformation()
-            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs()))
+            and (getOptionValue("Dark Transformation") == 1 or (getOptionValue("Dark Transformation") == 2 and useCDs())) and groupTTD >= getOptionValue("CDs TTD Limit")
         then
             if cast.darkTransformation() then return end
         end
     -- Summon Gargoyle
         -- summon_gargoyle,if=runic_power.deficit<14
-        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 then
+        if isChecked("Summon Gargoyle") and cast.able.summonGargoyle() and runicPowerDeficit < 14 and groupTTD >= getOptionValue("CDs TTD Limit") then
             if cast.summonGargoyle() then return end
         end
     -- Unholy Frenzy
-        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyFrenzy() then
+        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyFrenzy() and groupTTD >= getOptionValue("CDs TTD Limit")
+        then
             -- unholy_frenzy,if=debuff.festering_wound.stack<4
-            if debuff.festeringWound.stack(units.dyn5) < 4 then
+            if debuff.festeringWound.stack(units.dyn5) < 4 and groupTTD >= getOptionValue("CDs TTD Limit") then
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=essence.vision_of_perfection.enabled|(essence.condensed_lifeforce.enabled&pet.apoc_ghoul.active)|debuff.festering_wound.stack<4&!(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)|cooldown.apocalypse.remains<2&(equipped.ramping_amplitude_gigavolt_engine|azerite.magus_of_the_dead.enabled)
             if essence.visionOfPerfection.active or (essence.condensedLifeForce.active and pet.apocalypseGhoul.exists()) or debuff.festeringWound.stack(units.dyn5) < 4
                 and not (equiped.rampingAmplitudeGigavoltEngine() or trait.magusOfTheDead.active) or cd.apocalypse.remain() < 2
-                and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active)
+                and (equiped.rampingAmplitudeGigavoltEngine or trait.magusOfTheDead.active) and groupTTD >= getOptionValue("CDs TTD Limit")
             then
                 if cast.unholyFrenzy() then return end
             end
             -- unholy_frenzy,if=active_enemies>=2&((cooldown.death_and_decay.remains<=gcd&!talent.defile.enabled)|(cooldown.defile.remains<=gcd&talent.defile.enabled))
             if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0))
-                and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile))
+                and ((cd.deathAndDecay.remain() <= gcd and not talent.defile) or (cd.defile.remain() <= gcd and talent.defile)) and groupTTD >= getOptionValue("CDs TTD Limit")
             then
                 if cast.unholyFrenzy() then return end
             end
@@ -480,13 +562,14 @@ local function runRotation()
                 if cast.soulReaper() then return end
             end
             -- soul_reaper,if=(!raid_event.adds.exists|raid_event.adds.in>20)&rune<=(1-buff.unholy_frenzy.up)
-            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) then
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) or isDummy()) and runes <= (1- frenzied) and groupTTD >= getOptionValue("CDs TTD Limit") 
+            then
                 if cast.soulReaper() then return end
             end
         end
     -- Unholy Blight
         -- unholu_blight
-        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyBlight("player","aoe",1,10) then
+        if (getOptionValue("Unholy Frenzy") == 1 or (getOptionValue("Unholy Frenzy") == 2 and useCDs())) and cast.able.unholyBlight("player","aoe",1,10) and groupTTD >= getOptionValue("CDs TTD Limit") then
             if cast.unholyBlight("player","aoe",1,10) then return end
         end
     end -- End Action List - Cooldowns
@@ -512,7 +595,7 @@ local function runRotation()
                 if cast.theUnboundForce() then return end
             end
             -- focused_azerite_beam,if=!death_and_decay.ticking
-            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) and deathAndDecayRemain == 0 then
+            if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) and deathAndDecayRemain == 0  then
                 local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
                     return true
@@ -826,21 +909,21 @@ local function runRotation()
                                 -- Azshara's Font of Power
                                 -- actions+=/use_item,name=azsharas_font_of_power,if=(essence.vision_of_perfection.enabled&!talent.unholy_frenzy.enabled)|(!essence.condensed_lifeforce.major&!essence.vision_of_perfection.enabled)
                                 if equiped.azsharasFontOfPower(i) and ((essence.visionOfPerfection.active and not talent.unholyFrenzy) 
-                                    or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active))
+                                    or (not essence.condensedLifeForce.major and not essence.visionOfPerfection.active)) and not isMoving
                                 then
                                 use.slot(i)
                                 end  
                                 -- actions+=/use_item,name=azsharas_font_of_power,if=cooldown.apocalypse.remains<14&(essence.condensed_lifeforce.major|essence.vision_of_perfection.enabled&talent.unholy_frenzy.enabled)
-                                if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyFrenzy then
+                                if equiped.azsharasFontOfPower(i) and cd.apocalypse.remain() < 14 and (essence.condensedLifeForce.major or essence.visionOfPerfection.active) and talent.unholyFrenzy and not isMoving then
                                 use.slot(i)
                                 end
                                 -- actions+=/use_item,name=azsharas_font_of_power,if=target.1.time_to_die<cooldown.apocalypse.remains+34
-                                if equiped.azsharasFontOfPower(i) and  ttd(units.dyn5) < cd.apocalypse.remain() + 34 then
+                                if equiped.azsharasFontOfPower(i) and  ttd(units.dyn5) < cd.apocalypse.remain() + 34 and not isMoving then
                                 use.slot(i)
                                 end
                                 -- Ashvanes Razor Coral
                                 -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.stack<1
-                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) < 1 then
+                                if equiped.ashvanesRazorCoral(i) and (cd.azsharasFontOfPower.remain() > 0 or not equiped.azsharasFontOfPower()) and debuff.razorCoral.stack(units.dyn5) == getOptionValue("Ashvane's Razor Coral Stacks") then
                                     use.slot(i)
                                 end
                                 -- use_item,name=ashvanes_razor_coral,if=(pet.guardian_of_azeroth.active&pet.apoc_ghoul.active)|(cooldown.apocalypse.remains<gcd&!essence.condensed_lifeforce.enabled&!talent.unholy_frenzy.enabled)|(target.1.time_to_die<cooldown.apocalypse.remains+20)|(cooldown.apocalypse.remains<gcd&target.1.time_to_die<cooldown.condensed_lifeforce.remains+20)|(buff.unholy_frenzy.up&!essence.condensed_lifeforce.enabled)

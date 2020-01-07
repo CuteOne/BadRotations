@@ -91,7 +91,7 @@ local function createOptions()
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Elixir
-            br.ui:createDropdownWithout(section,"Elixir", {"Greater Currents","Repurposed Fel Focuser","None"}, 1, "|cffFFFFFFSet Elixir to use.")
+            br.ui:createDropdownWithout(section,"Elixir", {"Greater Currents","Repurposed Fel Focuser","Inquisitor's Menacing Eye","None"}, 1, "|cffFFFFFFSet Elixir to use.")
             -- Racial
             br.ui:createCheckbox(section,"Racial")
             -- Trinkets
@@ -229,9 +229,9 @@ local function cancelRetreatAnimation()
 end
 local function eyebeamTTD()
     local length = talent.blindFury and 3 or 2
-    if enemies.yards8r > 0 then
-        for i = 1, enemies.yards8r do
-            if ttd(enemies.yards8rTable[i]) >= length then
+    if enemies.yards20r > 0 then
+        for i = 1, enemies.yards20r do
+            if ttd(enemies.yards20rTable[i]) >= length then
                 return true
             end
         end
@@ -458,16 +458,19 @@ actionList.Cooldowns = function()
         end
         -- Essence: Focused Azerite Beam
         -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.focusedAzeriteBeam() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) then
-            local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
-            if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
+        if cast.able.focusedAzeriteBeam() and not isExplosive("target")
+            and (enemies.yards25r >= getOptionValue("Azerite Beam Units")
+                or (useCDs() and enemies.yards25r > 0))
+        then
+            local minBeamCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
+            if cast.focusedAzeriteBeam(nil,"rect",minBeamCount,30) then
                 debug("Casting Focused Azerite Beam")
                 return true
             end
         end
         -- Essence: Purifying Blast
         -- purifying_blast,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.purifyingBlast() and (#enemies.yards8t >= 3 or useCDs()) then
+        if cast.able.purifyingBlast() and not isExplosive("target") and (#enemies.yards8t >= 3 or useCDs()) then
             local minCount = useCDs() and 1 or 3
             if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
         end
@@ -518,22 +521,21 @@ end -- End Action List - Dark Slash
 actionList.Demonic = function()
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
+    if cast.able.deathSweep() and not isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
         if cast.deathSweep("player","aoe",1,8) then return end
     end
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and not moving and enemies.yards8r > 0
-        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards8r > 0)
-            or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards8r >= getOptionValue("Units To AoE"))
-            or (mode.rotation == 2 and enemies.yards8r > 0)) and (eyebeamTTD() or isDummy(units.dyn8))
+    if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam() and not moving and enemies.yards20r > 0
+        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards20r > 0)
+            or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards20r >= getOptionValue("Units To AoE"))
+            or (mode.rotation == 2 and enemies.yards20r > 0)) and (eyebeamTTD() or isDummy(units.dyn8))
     then
-        -- if cast.eyeBeam(units.dyn5) then return end
-        if cast.eyeBeam(nil,"rect",1,8) then return end
+        if cast.eyeBeam(nil,"rect",1,20) then return end
     end
     -- Fel Barrage
     -- fel_barrage,if=((!cooldown.eye_beam.up|buff.metamorphosis.up)&raid_event.adds.in>30)|active_enemies>desired_targets
-    if mode.felBarrage == 1 and cast.able.felBarrage() and (cd.eyeBeam.remain() > 20 or buff.metamorphosis.exists())
+    if mode.felBarrage == 1 and not isExplosive("target") and cast.able.felBarrage() and (cd.eyeBeam.remain() > 20 or buff.metamorphosis.exists())
         and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE"))
             or (mode.rotation == 2 and #enemies.yards8 > 0))
     then
@@ -541,15 +543,15 @@ actionList.Demonic = function()
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance&!cooldown.metamorphosis.ready&(cooldown.eye_beam.remains>(5-azerite.revolving_blades.rank*3)|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
-    if cast.able.bladeDance() and #enemies.yards8 > 0 and bladeDanceVar and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis"))
-        -- and ((cd.eyeBeam.remain() > ((1 - traits.revolvingBlades.rank) * 3)) or mode.eyeBeam == 2)
+    if cast.able.bladeDance() and not isExplosive("target") and #enemies.yards8 > 0 and bladeDanceVar
+        and (cd.metamorphosis.remain() > gcd or not useCDs() or not isChecked("Metamorphosis"))
         and ((cd.eyeBeam.remain() > gcd) or mode.eyeBeam == 2)
     then
         if cast.bladeDance("player","aoe",1,8) then return end
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura() and #enemies.yards8 > 0 then
+    if cast.able.immolationAura() and not isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then return end
     end
     -- Annihilation
@@ -569,7 +571,8 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=talent.demon_blades.enabled&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+    if cast.able.felRush() and not isExplosive("target") and getFacing("player","target",10)
+        and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         and talent.demonBlades and cd.eyeBeam.remain() > gcd and charges.felRush.count() == 2
     then
         if mode.mover == 1 and getDistance("target") < 8 then
@@ -590,7 +593,8 @@ actionList.Demonic = function()
     end
     -- Fel Rush
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-    if not isChecked("Fel Rush Only In Melee") and cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+    if not isChecked("Fel Rush Only In Melee") and not isExplosive("target") and cast.able.felRush()
+        and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum))
     then
         if cast.felRush() then return end
@@ -617,7 +621,8 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=(variable.waiting_for_momentum|talent.fel_mastery.enabled)&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if cast.able.felRush() and getFacing("player","target",10) and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+    if cast.able.felRush() and not isExplosive("target") and getFacing("player","target",10)
+        and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         and (waitForMomentum or talent.felMastery)
     then
         if mode.mover == 1 and getDistance("target") < 8 then
@@ -628,32 +633,33 @@ actionList.Normal = function()
     end
     -- Fel Barrage
     -- fel_barrage,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>30)
-    if mode.felBarrage == 1 and cast.able.felBarrage() and waitForMomentum and (not traits.furiousGave or (cd.eyeBeam.remain() > 20 and cd.baldeDance > gcd))
+    if mode.felBarrage == 1 and not isExplosive("target") and cast.able.felBarrage()
+        and waitForMomentum and (not traits.furiousGave or (cd.eyeBeam.remain() > 20 and cd.baldeDance > gcd))
         and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
     then
         if cast.felBarrage("player","aoe",1,8) then return end
     end
     -- Death Sweep
     -- death_sweep,if=variable.blade_dance
-    if cast.able.deathSweep() and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
+    if cast.able.deathSweep() and not isExplosive("target") and #enemies.yards8 > 0 and buff.metamorphosis.exists() and bladeDanceVar then
         if cast.deathSweep("player","aoe",1,8) then return end
     end
     -- Immolation Aura
     -- immolation_aura
-    if cast.able.immolationAura() and #enemies.yards8 > 0 then
+    if cast.able.immolationAura() and not isExplosive("target") and #enemies.yards8 > 0 then
         if cast.immolationAura("player","aoe",1,8) then return end
     end
     -- Eye Beam
     -- eye_beam,if=active_enemies>1&(!raid_event.adds.exists|raid_event.adds.up)&!variable.waiting_for_momentum
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not waitForMomentum
+    if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam() and enemies.yards20r > 0 and not moving and not waitForMomentum
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         -- if cast.eyeBeam(units.dyn5) then return end
-        if cast.eyeBeam(nil,"rect",1,8) then return end
+        if cast.eyeBeam(nil,"rect",1,20) then return end
     end
     -- Blade Dance
     -- blade_dance,if=variable.blade_dance
-    if cast.able.bladeDance() and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
+    if cast.able.bladeDance() and not isExplosive("target") and #enemies.yards8 > 0 and not buff.metamorphosis.exists() and bladeDanceVar then
         if cast.bladeDance("player","aoe",1,8) then return end
     end
     -- Felblade
@@ -663,10 +669,11 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=!talent.blind_fury.enabled&!variable.waiting_for_dark_slash&raid_event.adds.in>cooldown
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and not talent.blindFury
-        and not waitForDarkSlash and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
+    if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam()
+        and enemies.yards20r > 0 and not moving and not talent.blindFury and not waitForDarkSlash
+        and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,8) then return end
+        if cast.eyeBeam(nil,"rect",1,20) then return end
     end
     -- Annihilation
     -- annihilation,if=(talent.demon_blades.enabled|!variable.waiting_for_momentum|fury.deficit<30|buff.metamorphosis.remains<5)&!variable.pooling_for_blade_dance&!variable.waiting_for_dark_slash
@@ -684,10 +691,11 @@ actionList.Normal = function()
     end
     -- Eye Beam
     -- eye_beam,if=talent.blind_fury.enabled&raid_event.adds.in>cooldown
-    if mode.eyeBeam == 1 and cast.able.eyeBeam() and enemies.yards8r > 0 and not moving and talent.blindFury
+    if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam()
+        and enemies.yards20r > 0 and not moving and talent.blindFury
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
-        if cast.eyeBeam(nil,"rect",1,8) then return end
+        if cast.eyeBeam(nil,"rect",1,20) then return end
     end
     -- Demon's Bite
     -- demons_bite
@@ -696,7 +704,9 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=!talent.momentum.enabled&raid_event.movement.in>charges*10&talent.demon_blades.enabled
-    if cast.able.felRush() and getFacing("player","target",10) and not talent.momentum and talent.demonBlades and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge") then
+    if cast.able.felRush() and not isExplosive("target") and getFacing("player","target",10) and not talent.momentum
+        and talent.demonBlades and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+    then
         if mode.mover == 1 and getDistance("target") < 8 then
             cancelRushAnimation()
         elseif not isChecked("Fel Rush Only In Melee") and (mode.mover == 2 or (getDistance("target") >= 8 and mode.mover ~= 3)) then
@@ -710,7 +720,8 @@ actionList.Normal = function()
     end
     -- Fel Rush
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum.enabled)
-    if not isChecked("Fel Rush Only In Melee") and cast.able.felRush() and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
+    if not isChecked("Fel Rush Only In Melee") and not isExplosive("target") and cast.able.felRush()
+        and mode.mover ~= 3 and charges.felRush.count() > getOptionValue("Hold Fel Rush Charge")
         and (getDistance("target") > 15 or (getDistance("target") > 8 and not talent.momentum))
     then
         if cast.felRush() then return end
@@ -732,8 +743,14 @@ actionList.PreCombat = function()
             if use.greaterFlaskOfTheCurrents() then return end
         end
         if getOptionValue("Elixir") == 2 and not buff.felFocus.exists() and use.able.repurposedFelFocuser() then
-            if buff.greaterFlaskOfTheCurrents.exists() then buff.greaterFlaskOfTheCurrents.cancel() end
-            if use.repurposedFelFocuser() then return end
+            if not buff.greaterFlaskOfTheCurrents.exists() then
+                if use.repurposedFelFocuser() then return end
+            end
+        end
+        if getOptionValue("Elixir") == 3 and not buff.gazeOfTheLegion.exists() and use.able.inquisitorsMenacingEye() then
+            if not buff.greaterFlaskOfTheCurrents.exists() then
+                if use.inquisitorsMenacingEye() then return end
+            end
         end
         -- Battle Scarred Augment Rune
         if getOptionValue("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
@@ -790,21 +807,6 @@ end -- End Action List - PreCombat
 --- ROTATION ---
 ----------------
 local function runRotation()
-
-    ---------------
-    --- Toggles ---
-    ---------------
-    UpdateToggle("Rotation",0.25)
-    UpdateToggle("Cooldown",0.25)
-    UpdateToggle("Defensive",0.25)
-    UpdateToggle("Interrupt",0.25)
-    UpdateToggle("Mover",0.25)
-    br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-    UpdateToggle("EyeBeam",0.25)
-    br.player.mode.eyeBeam = br.data.settings[br.selectedSpec].toggles["EyeBeam"]
-    UpdateToggle("FelBarrage",0.25)
-    br.player.mode.felBarrage = br.data.settings[br.selectedSpec].toggles["FelBarrage"]
-
     ------------
     --- Vars ---
     ------------
@@ -847,7 +849,8 @@ local function runRotation()
     enemies.get(10)
     enemies.get(20)
     enemies.get(50)
-    enemies.yards8r, enemies.yards8rTable = getEnemiesInRect(10,20,false)
+    enemies.yards20r, enemies.yards20rTable = getEnemiesInRect(10,20,false)
+    enemies.yards25r = getEnemiesInRect(8,25,false) or 0
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end
@@ -862,7 +865,7 @@ local function runRotation()
 
     -- Blade Dance Variable
     -- variable,name=blade_dance,value=talent.first_blood.enabled|spell_targets.blade_dance1>=(3-talent.trail_of_ruin.enabled)
-    bladeDanceVar = talent.firstBlood or ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0))
+    bladeDanceVar = (talent.firstBlood or (mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or mode.rotation == 2) and #enemies.yards8 > 0 and not isExplosive("target")
     -- Wait for Nemesis
     -- variable,name=waiting_for_nemesis,value=!(!talent.nemesis.enabled|cooldown.nemesis.ready|cooldown.nemesis.remains>target.time_to_die|cooldown.nemesis.remains>60)
     waitForNemesis = not (not talent.nemesis or cd.nemesis.remain() == 0 or cd.nemesis.remain() > ttd(units.dyn5) or cd.nemesis.remain() > 60)
@@ -872,10 +875,10 @@ local function runRotation()
         and powerDeficit > 30 and (not waitForNemesis or cd.nemesis.remain() < 10)
     -- Pool for Blade Dance Variable
     -- variable,name=pooling_for_blade_dance,value=variable.blade_dance&(fury<75-talent.first_blood.enabled*20)
-    poolForBladeDance = bladeDanceVar and power < 75 - flood * 20
+    poolForBladeDance = bladeDanceVar and power < 75 - flood * 20 and not isExplosive("target")
     -- Pool for Eye Beam
     -- variable,name=pooling_for_eye_beam,value=talent.demonic.enabled&!talent.blind_fury.enabled&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
-    poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and powerDeficit > 20
+    poolForEyeBeam = talent.demonic and not talent.blindFury and cd.eyeBeam.remain() < (gcd * 2) and powerDeficit > 20 and not isExplosive("target")
     -- Wait for Dark Slash
     -- variable,name=waiting_for_dark_slash,value=talent.dark_slash.enabled&!variable.pooling_for_blade_dance&!variable.pooling_for_meta&cooldown.dark_slash.up
     waitForDarkSlash = talent.darkSlash and not poolForBladeDance and not poolForMeta and cd.darkSlash.remain() == 0
@@ -946,9 +949,9 @@ local function runRotation()
                 end
                 -- Pickup Fragments
                 -- pick_up_fragment,if=fury.deficit>=35&(!azerite.eyes_of_rage.enabled|cooldown.eye_beam.remains>1.4)
-                if powerDeficit >= 35 and (not traits.eyesOfRage.active or cd.eyeBeam.remain() > 1.4) then
-                    ChatOverlay("Low Fury - Pickup Fragments!")
-                end
+                -- if powerDeficit >= 35 and (not traits.eyesOfRage.active or cd.eyeBeam.remain() > 1.4) then
+                --     ChatOverlay("Low Fury - Pickup Fragments!")
+                -- end
                 -- Call Action List - Dark Slash
                 -- call_action_list,name=dark_slash,if=talent.dark_slash.enabled&(variable.waiting_for_dark_slash|debuff.dark_slash.up)
                 if talent.darkSlash and (waitForDarkSlash or debuff.darkSlash.exists(units.dyn5)) then
