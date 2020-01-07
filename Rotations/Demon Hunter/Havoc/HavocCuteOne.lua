@@ -634,7 +634,7 @@ actionList.Normal = function()
     -- Fel Barrage
     -- fel_barrage,if=!variable.waiting_for_momentum&(active_enemies>desired_targets|raid_event.adds.in>30)
     if mode.felBarrage == 1 and not isExplosive("target") and cast.able.felBarrage()
-        and waitForMomentum and (not traits.furiousGave or (cd.eyeBeam.remain() > 20 and cd.baldeDance > gcd))
+        and waitForMomentum and (not traits.furiousGaze or (cd.eyeBeam.remain() > 20 and cd.bladeDance > gcd))
         and ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Units To AoE")) or (mode.rotation == 2 and #enemies.yards8 > 0)) 
     then
         if cast.felBarrage("player","aoe",1,8) then return end
