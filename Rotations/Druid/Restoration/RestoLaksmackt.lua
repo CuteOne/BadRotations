@@ -1324,6 +1324,7 @@ local function runRotation()
                                 and getBuffRemain(thisUnit, 226510) == 0 and StunsBlackList[GetObjectID(thisUnit)] == nil
                                 and (thisUnit == 130488 and isChecked("Motherload - Stun jockeys") or thisUnit ~= 130488) then
                             if cast.mightyBash(thisUnit) then
+                                --Print("Stun")
                                 return true
                             end
                         end
@@ -1356,7 +1357,6 @@ local function runRotation()
         --overchargeMana
 
         if isChecked("Ever Rising Tide") and essence.overchargeMana.active and getSpellCD(296072) <= gcd then
-
             if getOptionValue("Ever Rising Tide") == 1 then
                 if cast.overchargeMana() then
                     return
@@ -1619,6 +1619,14 @@ local function runRotation()
                 end
             end
 
+            if isChecked("Auto use Pots") and burst == true then
+                -- print("foo") 169300
+                if hasItem(169300) and canUseItem(169300) then
+                    useItem(169300)
+                end
+            end
+
+
             -- Innervate
             if isChecked("Auto Innervate") and cast.able.innervate() and getTTD("target") >= 12 and (br.player.traits.livelySpirit.active or mana < getValue("Auto Innervate")) then
                 if cast.innervate("Player") then
@@ -1709,7 +1717,7 @@ local function runRotation()
                         end
                     end
 
-                    if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) then
+                    if isChecked("ConcentratedFlame - DPS") and ttd(thisUnit) > 8 and not debuff.concentratedFlame.exists(thisUnit) and not br.player.buff.prowl.exists() then
                         if cast.concentratedFlame(thisUnit) then
                             return true
                         end
@@ -2116,7 +2124,30 @@ local function runRotation()
                     if cast.wildGrowth(BleedFriend.unit) then
                         return true
                     end
-                end
+
+                    --Efflorescence if more than 1 grievance
+                    if isChecked("Efflorescence") then
+                        if inCombat and #tanks > 0 and botSpell ~= spell.efflorescence and not buff.springblossom.exists(tanks[1].unit) and GetTotemTimeLeft(1) < 20 then
+                            local tankTarget = UnitTarget(tanks[1].unit)
+                            if tankTarget ~= nil and getDistance(tankTarget, "player") < 40 then
+                                local meleeFriends = getAllies(tankTarget, 8)
+                                local loc = getBestGroundCircleLocation(meleeFriends, 1, 6, 10)
+                                if loc ~= nil then
+                                    local px, py, pz = ObjectPosition("player")
+                                    loc.z = select(3, TraceLine(loc.x, loc.y, loc.z + 5, loc.x, loc.y, loc.z - 5, 0x110)) -- Raytrace correct z, Terrain and WMO hit
+                                    if loc.z ~= nil and TraceLine(px, py, pz + 2, loc.x, loc.y, loc.z + 1, 0x100010) == nil and TraceLine(loc.x, loc.y, loc.z + 4, loc.x, loc.y, loc.z, 0x1) == nil then
+                                        -- Check z and LoS, ignore terrain and m2 collisions
+                                        if cast.efflorescence() then
+                                            ClickPosition(loc.x, loc.y, loc.z)
+                                            return true
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end --multi grievance
+
                 if talent.germination and not buff.rejuvenationGermination.exists(BleedFriend.unit) then
                     if cast.rejuvenation(BleedFriend.unit) then
                         return true
