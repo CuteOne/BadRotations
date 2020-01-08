@@ -1349,6 +1349,11 @@ local function runRotation()
             if cast.bladeFlurry("player") then return true end
         end
 
+        --tricks
+        if tricksUnit ~= nil and validTarget and targetDistance < 5 and UnitThreatSituation("player") and UnitThreatSituation("player") >= 2 then
+            cast.tricksOfTheTrade(tricksUnit)
+        end
+
 
             if not IsCurrentSpell(6603) and inCombat and not stealth and isValidUnit("target") and getDistance("target") <= 5 and getFacing("player", "target") then
                 StartAttack("target")
