@@ -801,9 +801,9 @@ local function runRotation()
         end
         -- # Razor Coral
         if useCDs() and isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
+            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") >= 10) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
+            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") >= 10) then
                 useItem(14)
             end
         end
@@ -847,11 +847,11 @@ local function runRotation()
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
             if isChecked("Vendetta") and not stealthedRogue and not debuff.vendetta.exists("target") then
-                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) 
-                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and debuff.garrote.exists() and (combatTime > 3 or combo > 3) and (not talent.toxicBlade or cd.toxicBlade.remain() < 10) then
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
+                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() < 10) then
                     if cast.vendetta("target") then return true end
                 end
-                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
                     if cast.vendetta("target") then return true end
                 end
             end
@@ -885,7 +885,7 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
-            if useCDs() and isChecked("Essences") and debuff.rupture.exists("target") then
+            if isChecked("Essences") and debuff.rupture.exists("target") then
                 --Worldvein Resonance
                 if cast.worldveinResonance("player") then return true end
                 --Memory of lucid Dreams
@@ -893,7 +893,7 @@ local function runRotation()
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian
-                if debuff.vendetta.exists("target") then
+                if not buff.masterAssassin.exists() then
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
