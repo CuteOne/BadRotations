@@ -801,9 +801,9 @@ local function runRotation()
         end
         -- # Razor Coral
         if useCDs() and isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
+            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") >= 10) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") > 10) then
+            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.remain("target") >= 10) then
                 useItem(14)
             end
         end
@@ -847,15 +847,15 @@ local function runRotation()
             -- # Vendetta outside stealth with Rupture up. With Subterfuge talent and Shrouded Suffocation power always use with buffed Garrote. With Nightstalker and Exsanguinate use up to 5s (3s with DS) before Vanish combo.
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
             if isChecked("Vendetta") and not stealthedRogue and not debuff.vendetta.exists("target") then
-                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) 
-                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and (combatTime > 3 or combo > 3) and (not talent.toxicBlade or cd.toxicBlade.remain() < 10) then
+                if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or not isChecked("Vanish") or cd.vanish.remain() > 110) and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
+                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() < 10) then
                     if cast.vendetta("target") then return true end
                 end
-                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") then
+                if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
                     if cast.vendetta("target") then return true end
                 end
             end
-            if isChecked("Vanish") and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
+            if isChecked("Vanish") and not stealthedRogue and gcd < 0.2 and getSpellCD(spell.vanish) == 0 then
                 -- # Extra Subterfuge Vanish condition: Use when Garrote dropped on Single Target
                 -- actions.cds+=/vanish,if=talent.subterfuge.enabled&!dot.garrote.ticking&variable.single_target
                 if talent.subterfuge and enemies10 == 1 and getSpellCD(spell.garrote) == 0 and not debuff.garrote.exists("target") then
@@ -879,13 +879,13 @@ local function runRotation()
                     if cast.pool.garrote(nil, nil, 2) then return true end
                     if cast.vanish("player") then return true end
                 end
-                -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture not in refresh range
+                -- # Vanish with Master Assasin: No stealth and no active MA buff, Rupture and Garrote not in refresh range, Guardian of Azeroth used
                 -- actions.cds+=/vanish,if=talent.master_assassin.enabled&!stealthed.all&master_assassin_remains<=0&!dot.rupture.refreshable
-                if talent.masterAssassin and not stealthedAll and gcd < 0.1 and not buff.masterAssassin.exists() and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
+                if talent.masterAssassin and not stealthedAll and gcd < 0.1 and not buff.masterAssassin.exists() and not debuff.garrote.refresh("target") and not debuff.rupture.refresh("target") and debuff.vendetta.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) and (not talent.toxicBlade or debuff.toxicBlade.exists("target")) then
                     if cast.vanish("player") then return true end
                 end
             end
-            if useCDs() and isChecked("Essences") and debuff.rupture.exists("target") then
+            if isChecked("Essences") and debuff.rupture.exists("target") then
                 --Worldvein Resonance
                 if cast.worldveinResonance("player") then return true end
                 --Memory of lucid Dreams
@@ -893,7 +893,7 @@ local function runRotation()
                     if cast.memoryOfLucidDreams("player") then return true end
                 end
                 --Guardian
-                if debuff.vendetta.exists("target") then
+                if not buff.masterAssassin.exists() then
                     if cast.guardianOfAzeroth("player") then return true end
                 end
                 --Blood Of The Enemy
@@ -930,7 +930,7 @@ local function runRotation()
         if talent.masterAssassin and buff.masterAssassin.exists() and not debuff.rupture.exists("target") and combo > 1 then
             if cast.rupture("target") then return true end
         end
-        -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB; otherwise wait for some energy. Also wait if Exsg combo is coming up.
+        -- # Envenom at 4+ (5+ with DS) CP. Immediately on 2+ targets, with Vendetta, or with TB, or with MA; otherwise wait for some energy. Also wait if Exsg combo is coming up.
         -- actions.direct=envenom,if=combo_points>=4+talent.deeper_stratagem.enabled&(debuff.vendetta.up|debuff.toxic_blade.up|energy.deficit<=25+variable.energy_regen_combined|!variable.single_target)&(!talent.exsanguinate.enabled|cooldown.exsanguinate.remains>2)
         if combo >= (4 + dSEnabled) and ((debuff.vendetta.exists("target") or not useCDs() or ttd("target") < getOptionValue("CDs TTD Limit")) or debuff.toxicBlade.exists("target") or buff.masterAssassin.exists() or energyDeficit <= (25 + energyRegenCombined) or enemies10 > 1) and (not talent.exsanguinate or cd.exsanguinate.remain() > 2 or mode.exsang == 2 or ttd("target") < 8) then
             if cast.envenom("target") then return true end
@@ -996,7 +996,7 @@ local function runRotation()
             if isChecked("Vendetta") and cd.vendetta.remain() <= 4 then vendettaCheck = true end
         end
         if (not talent.subterfuge or not (vanishCheck and vendettaCheck)) and comboDeficit >= 1 and garroteCheck and getSpellCD(spell.garrote) == 0 then
-            if garroteCount <= getOptionValue("Multidot Limit") and (not talent.masterAssassin or not buff.masterAssassin.exists()) then
+            if garroteCount <= getOptionValue("Multidot Limit") and (not talent.masterAssassin or buff.masterAssassin.remain() <= 0.8) then
                 for i = 1, #enemyTable5 do
                     local thisUnit = enemyTable5[i].unit
                     local garroteRemain = debuff.garrote.remain(thisUnit)
