@@ -74,7 +74,7 @@ local function createOptions()
         -----------------------
         section = br.ui:createSection(br.ui.window.profile,  "General")
             br.ui:createDropdownWithout(section, "Poison", {"Deadly","Wound",}, 1, "Poison to apply.")
-            br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000020 Yards"},  1, "Auto stealth mode.")
+            br.ui:createDropdown(section, "Auto Stealth", {"|cff00FF00Always", "|cffFF000025 Yards"},  1, "Auto stealth mode.")
             br.ui:createDropdown(section, "Auto Tricks", {"|cff00FF00Focus", "|cffFF0000Tank"},  1, "Tricks of the Trade target." )
             br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
             br.ui:createCheckbox(section, "Auto Target Burn Units", "|cffFFFFFF Will auto change target to high prio units if they are in range")
@@ -235,6 +235,7 @@ local function runRotation()
     end
     enemies.get(15, nil, nil, nil, spell.blind)
     enemies.get(15,"player",true, nil, spell.blind)
+    enemies.get(25,"player", true) -- makes enemies.yards25nc
     enemies.get(30, nil, nil, nil, spell.poisonedKnife)
 
     local tricksUnit
@@ -544,7 +545,7 @@ local function runRotation()
                 if getOptionValue("Auto Stealth") == 1 then
                     if cast.stealth() then return end
                 end
-                if #enemies.yards15nc > 0 and getOptionValue("Auto Stealth") == 2 then
+                if #enemies.yards25nc > 0 and getOptionValue("Auto Stealth") == 2 then
                     if cast.stealth() then return end
                 end
             end
