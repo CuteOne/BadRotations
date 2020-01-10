@@ -535,10 +535,10 @@ local function runRotation()
             if not moving and getOptionValue("Poison") == 2 and buff.woundPoison.remain() < 300 and not cast.last.woundPoison(1) then
                 if cast.woundPoison("player") then return true end
             end
-            -- if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
-            --     if cast.cripplingPoison("player") then return true end
-            -- end
-            -- actions.precombat+=/stealth
+            if not moving and buff.cripplingPoison.remain() < 300 and not cast.last.cripplingPoison(1) then
+                if cast.cripplingPoison("player") then return true end
+            end
+            actions.precombat+=/stealth
             if isChecked("Auto Stealth") and IsUsableSpell(GetSpellInfo(spell.stealth)) and not cast.last.vanish() and not IsResting() and
             (botSpell ~= spell.stealth or (botSpellTime == nil or GetTime() - botSpellTime > 0.1)) then
                 if getOptionValue("Auto Stealth") == 1 then
