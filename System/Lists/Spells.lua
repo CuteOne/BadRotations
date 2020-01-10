@@ -1456,6 +1456,7 @@ br.lists.spells = {
                 arcaneIntellect             = 1459,
                 iceBlock                    = 45438,
                 incantersFlow               = 1463,
+		slowFall	            = 130,
                 runeOfPower                 = 116014,
             },
             debuffs                         = {
