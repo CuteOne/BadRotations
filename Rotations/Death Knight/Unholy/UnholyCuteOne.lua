@@ -841,7 +841,7 @@ local function runRotation()
     if not inCombat and not GetObjectExists("target") and profileStop then
         profileStop = false
     elseif (inCombat and profileStop) or pause() or mode.rotation == 4 then
-        if isChecked("Auto Attack/Passive") and pause() and IsPetAttackActive() then
+        if isChecked("Auto Attack/Passive") and pause(true) and IsPetAttackActive() then
             PetStopAttack()
             PetFollow()
         end
