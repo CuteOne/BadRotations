@@ -3432,6 +3432,7 @@ br.lists.spells = {
                 greaterFlaskOfEndlessFathoms    = 298837,
                 guidingHand                     = 242622, -- from The Deceiver's Grand Design
                 heroism                         = 32182,
+                latentArcana                    = 296962,
                 netherwinds                     = 160452,
                 norgannonsForesight             = 236373,
                 overchargeMana                  = 299624,

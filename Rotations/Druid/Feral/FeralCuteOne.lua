@@ -730,7 +730,7 @@ actionList.Cooldowns = function()
                     and debuff.rake.remain(units.dyn5) > 5 and debuff.rip.remain(units.dyn5) > 5))
                 and not (buff.tigersFury.exists() or buff.berserk.exists() or buff.incarnationKingOfTheJungle.exists())
             then
-                if cast.focusedAzeriteBeam(nil,"rect",minCount,8) then
+                if cast.focusedAzeriteBeam(nil,"rect",minCount,30) then
                     ui.debug("Casting Focused Azerite Beam")
                     return true
                 end
@@ -821,7 +821,7 @@ actionList.Cooldowns = function()
                         end
                         --Azshara's Font of Power
                         -- use_item,effect_name=azsharas_font_of_power,if=energy.deficit>=50
-                        if equiped.azsharasFontOfPower(i) and energyDeficit >= 50 then
+                        if useCDs() and equiped.azsharasFontOfPower(i) and energyDeficit >= 50 and not moving then
                             use.slot(i)
                             ui.debug("Using Azshara's Font of Power [Slot "..i.."]")
                         end
@@ -1249,9 +1249,27 @@ actionList.PreCombat = function()
                 end
                 if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); htTimer = GetTime(); return true end
             end
+            -- Azshara's Font of Power
+            if (use.able.slot(13) or use.able.slot(14)) then
+                local opValue = ui.option.value("Trinkets")
+                if (opValue == 1 or (opValue == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
+                    for i = 13, 14 do
+                        if use.able.slot(i) then
+                            if equiped.azsharasFontOfPower(i) then
+                                use.slot(i)
+                                ui.debug("Using Azshara's Font of Power [Pre-pull - Slot "..i.."]")
+                            end
+                        end
+                    end
+                end
+            end
             -- Prowl
             if cast.able.prowl("player") and buff.bloodtalons.exists()
                 and ui.mode.prowl == 1 and not buff.prowl.exists()
+                and (buff.latentArcana.remain() > 25
+                    or not (equiped.azsharasFontOfPower(13) and equiped.azsharasFontOfPower(14))
+                    or (equiped.azsharasFontOfPower(13) and not use.able.azsharasFontOfPower(13))
+                    or (equiped.azsharasFontOfPower(14) and not use.able.azsharasFontOfPower(14)))
             then
                 if cast.prowl("player") then ui.debug("Casting Prowl [Pre-pull]"); return true end
             end
@@ -1296,49 +1314,51 @@ local function runRotation()
     --- Locals ---
     --------------
     -- BR API
-    buff                               = br.player.buff
-    cast                               = br.player.cast
+    if comboPoints == nil then
+        buff                               = br.player.buff
+        cast                               = br.player.cast
+        cd                                 = br.player.cd
+        charges                            = br.player.charges
+        debuff                             = br.player.debuff
+        enemies                            = br.player.enemies
+        equiped                            = br.player.equiped
+        essence                            = br.player.essence
+        has                                = br.player.has
+        item                               = br.player.items
+        opener                             = br.player.opener
+        spell                              = br.player.spell
+        talent                             = br.player.talent
+        traits                             = br.player.traits
+        ui.mode                            = br.player.mode
+        ui.option                          = br.player.option
+        units                              = br.player.units
+        use                                = br.player.use
+    end
     comboPoints                        = br.player.power.comboPoints.amount()
-    cd                                 = br.player.cd
-    charges                            = br.player.charges
-    debuff                             = br.player.debuff
-    enemies                            = br.player.enemies
     energy, energyRegen, energyDeficit = br.player.power.energy.amount(), br.player.power.energy.regen(), br.player.power.energy.deficit()
-    equiped                            = br.player.equiped
-    essence                            = br.player.essence
     flying, swimming, moving           = IsFlying(), IsSwimming(), GetUnitSpeed("player")>0
     gcd                                = br.player.gcd
     gcdMax                             = br.player.gcdMax
-    has                                = br.player.has
     healPot                            = getHealthPot()
     inCombat                           = br.player.inCombat
     inInstance                         = br.player.instance=="party"
     inRaid                             = br.player.instance=="raid"
-    item                               = br.player.items
     level                              = br.player.level
     lootDelay                          = br.player.option.value("LootDelay")
     lowestHP                           = br.friend[1].unit
     minCount                           = useCDs() and 1 or 3
     multidot                           = br.player.mode.cleave == 1 and br.player.mode.rotation < 3
-    opener                             = br.player.opener
-    php                                = br.player.health
     pullTimer                          = PullTimerRemain()
+    php                                = br.player.health
     race                               = br.player.race
     solo                               = #br.friend < 2
-    spell                              = br.player.spell
     stealth                            = br.player.buff.prowl.exists() or br.player.buff.shadowmeld.exists()
-    talent                             = br.player.talent
     thp                                = getHP
-    traits                             = br.player.traits
     travel, flight, cat                = br.player.buff.travelForm.exists(), br.player.buff.flightForm.exists(), br.player.buff.catForm.exists()
     ttd                                = getTTD
     ttm                                = br.player.power.energy.ttm()
     ui.debug                           = br.addonDebug
-    ui.mode                            = br.player.mode
-    ui.option                          = br.player.option
-    units                              = br.player.units
-    use                                = br.player.use
-
+    
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
