@@ -1524,6 +1524,7 @@ br.lists.spells = {
             talents                         = {
                 blackoutCombo               = 196736,
                 blackoxBrew                 = 115399,
+                blackOxStatue               = 115315,
                 guard                       = 115295,
                 rushingJadeWind             = 116847,
             },

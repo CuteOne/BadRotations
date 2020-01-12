@@ -73,6 +73,8 @@ local function createOptions()
 			br.ui:createCheckbox(section, "High Stagger Debuff")
         -- Stagger dmg % to purify
             br.ui:createSpinner(section, "Stagger dmg % to purify",  100,  0,  300,  5,  "Stagger dmg % to purify")
+        -- Refresh the brews
+            br.ui:createSpinnerWithout(section, "Refresh ISB (Seconds)", 7, 1, 14, 0.5)
         -- Trinkets
             br.ui:createCheckbox(section, "Trinket 1")
             br.ui:createCheckbox(section, "Trinket 2")
@@ -330,7 +332,7 @@ local function runRotation()
 	-- Action List - Extras
 	local function actionList_Extras()
 		-- Taunt
-        if br.player.mode.taunt == 1 and inInstance and not isChecked("Summon Dave - The Statue") then
+        if (br.player.mode.taunt == 1 or (br.player.mode.taunt == 3 and not talent.blackOxStatue)) and inInstance then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -338,7 +340,7 @@ local function runRotation()
 				end
 			end
         end -- End Taunt
-        if br.player.mode.taunt == 2 and not isChecked("Summon Dave - The Statue") then
+        if (br.player.mode.taunt == 2 or (br.player.mode.taunt == 3 and not talent.blackOxStatue)) then
 			for i = 1, #enemies.yards30 do
 				local thisUnit = enemies.yards30[i]
 				if UnitThreatSituation("player", thisUnit) ~= nil and UnitThreatSituation("player", thisUnit) <= 2 and UnitAffectingCombat(thisUnit) then
@@ -650,7 +652,7 @@ local function runRotation()
                 end
             end
 		-- Iron Skin Brew
-            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or buff.ironskinBrew.remain() <= 2) then
+            if not buff.blackoutCombo.exists() and (not buff.ironskinBrew.exists() or buff.ironskinBrew.remain() <= getValue("Refresh ISB (Seconds)")) then
                 if cast.ironskinBrew() then return end
             end
         --Brew Capper
