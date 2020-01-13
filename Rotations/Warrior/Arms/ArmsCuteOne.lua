@@ -37,12 +37,6 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Mover Disabled", tip = "Will NOT use Charge/Heroic Leap.", highlight = 0, icon = br.player.spell.charge }
     };
     CreateButton("Mover",5,0)
--- Bladestorm
-    BladestormModes = {
-        [1] = { mode = "Auto", value = 1 , overlay = "Bladestorm auto usage", tip = "Will use bladestorm", highlight = 1, icon = br.player.spell.bladestorm },
-        [2] = { mode = "Manual", value = 2 , overlay = "Bladestorm use for yourself", tip = "Will NOT use Bladestorm", highlight = 0, icon = br.player.spell.bladestorm }
-    };
-    CreateButton("Bladestorm",6,0)
 end
 
 ---------------
@@ -60,8 +54,6 @@ local function createOptions()
             br.ui:createSpinner(section, "DPS Testing",  5,  5,  60,  5,  "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
             -- Pre-Pull Timer
             br.ui:createSpinner(section, "Pre-Pull Timer",  5,  1,  10,  1,  "|cffFFBB00Set to desired time to start Pre-Pull (DBM Required). Min: 1 / Max: 10 / Interval: 1")
-            -- AoE Slider
-            br.ui:createSpinnerWithout(section, "AoE Threshold",  2,  1,  10,  1,  "|cffFFBB00Set to desired targets to start AoE Rotation. Min: 1 / Max: 10 / Interval: 1")
             -- Battle Cry
             br.ui:createCheckbox(section, "Battle Shout")
             -- Berserker Rage
@@ -70,39 +62,44 @@ local function createOptions()
             br.ui:createCheckbox(section,"Charge", "Check to use Charge")
 			-- Heroic Throw
             br.ui:createCheckbox(section,"Heroic Throw", "Check to use Heroic Throw out of range")
-            -- Hamstring
-            br.ui:createCheckbox(section,"Hamstring", "Check to use Hamstring")
             -- Heroic Leap
             br.ui:createDropdown(section,"Heroic Leap", br.dropOptions.Toggle, 6, "Set auto usage (No Hotkey) or desired hotkey to use Heroic Leap.")
             br.ui:createDropdown(section,"Heroic Leap - Target",{"Best","Target"},1,"Desired Target of Heroic Leap")
             br.ui:createSpinner(section, "Heroic Charge",  15,  8,  25,  1,  "|cffFFBB00Set to desired yards to Heroic Leap out to. Min: 8 / Max: 25 / Interval: 1")
-            -- Sweeping Strikes
-            br.ui:createCheckbox(section,"Sweeping Strikes")
-            -- Warbreaker
-            br.ui:createSpinnerWithout(section,"Warbreaker",  2,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Warbreaker. Min: 1 / Max: 10 / Interval: 1")
             -- Heart Essence
             br.ui:createCheckbox(section, "Use Essence")
         br.ui:checkSectionState(section)
         ------------------------
+        ---   DPS SETTINGS   ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile,  "DPS Settings")
+            -- Sweeping Strikes
+            br.ui:createCheckbox(section,"Sweeping Strikes", "|cffFFBB00Will use Sweeping Strikes when more than 1 target is available.")
+            -- Warbreaker
+            br.ui:createSpinner(section,"Warbreaker",  2,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Warbreaker. Min: 1 / Max: 10 / Interval: 1")
+            -- Hamstring
+            br.ui:createCheckbox(section,"Hamstring", "|cffFFBB00Will use Hamstring.")
+            -- Bladestorm
+            br.ui:createSpinner(section, "Bladestorm",  5,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
+            -- Azerite Beam Units
+            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
+            br.ui:checkSectionState(section)
+        ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
         section = br.ui:createSection(br.ui.window.profile,  "Cooldowns")
+            -- Avatar
+            br.ui:createCheckbox(section, "Avatar")
+            -- Ravager
+            br.ui:createDropdownWithout(section,"Ravager",{"Best","Target","Never"},1,"Desired Target of Ravager")
             -- Potion
-            br.ui:createCheckbox(section, "Potion", "|cffFFBB00Will use Battle Potion of Strength.")
+            br.ui:createDropdown(section, "Potion", {"None", "Battle Potion of Strength", "Superior Battle Potion of Strength"},1,"|cffFFBB00Will use Potions.")
             -- Flask / Crystal
             br.ui:createCheckbox(section, "Flask / Crystal", "|cffFFBB00Will use Flask of the Undertow")
             -- Racial
             br.ui:createCheckbox(section, "Racial")
             -- Trinkets
             br.ui:createDropdownWithout(section, "Trinkets", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use trinkets.")
-             -- Avatar
-            br.ui:createCheckbox(section, "Avatar")
-            -- Bladestorm
-            br.ui:createSpinner(section, "Bladestorm",  5,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
-            -- Ravager
-            br.ui:createDropdownWithout(section,"Ravager",{"Best","Target","Never"},1,"Desired Target of Ravager")
-            -- Azerite Beam Units
-            br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
         br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS ---
@@ -138,7 +135,7 @@ local function createOptions()
             -- Storm Bolt Logic
             br.ui:createCheckbox(section, "Storm Bolt Logic", "Stun specific Spells and Mobs")
             -- Interrupt Percentage
-            br.ui:createSpinner(section,  "InterruptAt",  0,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
+            br.ui:createSpinner(section,  "InterruptAt",  70,  0,  95,  5,  "|cffFFBB00Cast Percentage to use at.")
         br.ui:checkSectionState(section)
         ----------------------
         --- TOGGLE OPTIONS ---
@@ -154,8 +151,6 @@ local function createOptions()
             br.ui:createDropdownWithout(section,  "Interrupt Mode", br.dropOptions.Toggle,  6)
             -- Mover Toggle
             br.ui:createDropdownWithout(section,  "Mover Mode", br.dropOptions.Toggle,  6)
-			-- Bladestorm Toggle
-            br.ui:createDropdownWithout(section,  "Bladestorm Mode", br.dropOptions.Toggle,  6)
             -- Pause Toggle
             br.ui:createDropdown(section,  "Pause Mode", br.dropOptions.Toggle,  6)
         br.ui:checkSectionState(section)
@@ -183,8 +178,6 @@ local function runRotation()
         UpdateToggle("Interrupt",0.25)
         UpdateToggle("Mover",0.25)
         br.player.mode.mover = br.data.settings[br.selectedSpec].toggles["Mover"]
-		UpdateToggle("Bladestorm",0.25)
-		br.player.mode.bladestorm = br.data.settings[br.selectedSpec].toggles["Bladestorm"]
 --------------
 --- Locals ---
 --------------
@@ -221,8 +214,10 @@ local function runRotation()
         units.get(8)
         units.get(8,true)
         enemies.get(8)
+        enemies.get(8,"target")
+        enemies.get(8,"player",false,true) -- makes enemies.yards8f
         enemies.get(20)
-	    enemies.yards8f   = getEnemiesInCone(180,8)
+        enemies.yards8r = getEnemiesInRect(10,20,false) or 0
 
 
         if profileStop == nil then profileStop = false end
@@ -416,11 +411,15 @@ local function runRotation()
             if getDistance(units.dyn5) < 5 and useCDs() then
             -- Potion
                 -- potion
-                if isChecked("Potion") and inRaid and useCDs() and use.able.battlePotionOfStrength()
-                and (cd.armyOfTheDead.remain() == 0 or pet.gargoyle.exists() or buff.unholyFrenzy.exists())
+                if isChecked("Potion") and getOptionValue("Potion") == 1 and inRaid and useCDs() and use.able.battlePotionOfStrength()
                 then
                     use.battlePotionOfStrength()
-                end
+                    else
+                        if isChecked("Potion") and getOptionValue("Potion") == 2 and inRaid and useCDs() and use.able.superiorBattlePotionOfStrength()
+                        then
+                            use.superiorBattlePotionOfStrength()
+                        end
+                    end
             -- Racials
                 -- actions+=/blood_fury,if=debuff.colossus_smash.up
                 -- actions+=/berserking,if=debuff.colossus_smash.up
@@ -459,7 +458,7 @@ local function runRotation()
                             use.slot(i)
                         end
                         --actions+=/use_item,name=ashvanes_razor_coral,if=!debuff.razor_coral_debuff.up|(target.health.pct<30.1&debuff.conductive_ink_debuff.up)|(!debuff.conductive_ink_debuff.up&(buff.memory_of_lucid_dreams.up|(debuff.colossus_smash.up&!essence.memory_of_lucid_dreams.major)))
-                        if equiped.ashvanesRazorCoral(i) and not debuff.razorCoral.exists() or (getHP(units.dyn5) < 30 and debuff.conductiveInk.exists()) or (not debuff.conductiveInk.exists() and buff.memoryOfLucidDreams.exists()) or debuff.colossusSmash.exists() and not essence.memoryOfLucidDreams.major
+                        if equiped.ashvanesRazorCoral(i) and not debuff.razorCoral.exists() or (getHP(units.dyn5) < 30 and debuff.conductiveInk.exists()) or (not debuff.conductiveInk.exists() and buff.memoryOfLucidDreams.exists()) or debuff.colossusSmash.exists(units.dyn5) and not essence.memoryOfLucidDreams.major
                         then
                             use.slot(i)
                         end
@@ -476,11 +475,11 @@ local function runRotation()
                      if cast.memoryOfLucidDreams() then return end
                  end
                  -- actions+=/blood_of_the_enemy,if=buff.test_of_might.up|(debuff.colossus_smash.up&!azerite.test_of_might.enabled)
-                 if useCDs() and cast.able.bloodOfTheEnemy() and buff.testOfMight.exists() and not traits.testOfMight.active and debuff.colossusSmash.exists() then
+                 if useCDs() and cast.able.bloodOfTheEnemy() and buff.testOfMight.exists() and not traits.testOfMight.active and debuff.colossusSmash.exists(units.dyn5) then
                      if cast.bloodOfTheEnemy() then return end
                  end
                  -- actions+=/guardian_of_azeroth,if=cooldown.colossus_smash.remains<10
-                 if useCDs() and cast.able.guardianOfAzeroth() and debuff.colossusSmash.remain() < 10 then
+                 if useCDs() and cast.able.guardianOfAzeroth() and debuff.colossusSmash.remain(units.dyn5) < 10 then
                     if cast.guardianOfAzeroth() then return end
                  end
                 -- actions+=/the_unbound_force,if=buff.reckless_force.up
@@ -488,27 +487,25 @@ local function runRotation()
                     if cast.theUnboundForce() then return end
                 end
                 -- actions+=/focused_azerite_beam,if=!debuff.colossus_smash.up&!buff.test_of_might.up
-                if cast.able.focusedAzeriteBeam() and not buff.testOfMight.exists() and (enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and enemies.yards8f > 0)) then
+                if cast.able.focusedAzeriteBeam() and not buff.testOfMight.exists() and (#enemies.yards8f >= getOptionValue("Azerite Beam Units") or (useCDs() and #enemies.yards8f > 0)) then
                     local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
-                    if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) and not debuff.colossusSmash.exists() then
-                        return true
-                    end    
+                    if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then return true end    
                 end
                 --actions+=/concentrated_flame,if=!debuff.colossus_smash.up&!buff.test_of_might.up&dot.concentrated_flame_burn.remains=0
                 if cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
-                or charges.concentratedFlame.timeTillFull() < gcd) and not buff.testOfMight.exists() and not debuff.colossusSmash.exists() then
+                or charges.concentratedFlame.timeTillFull() < gcd) and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
                     if cast.concentratedFlame() then return end
                 end
                 --actions+=/purifying_blast,if=!debuff.colossus_smash.up&!buff.test_of_might.up
-                if useCDs() and cast.able.purifyingBlast() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists() then
+                if useCDs() and cast.able.purifyingBlast() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
                     if cast.purifyingBlast("best", nil, 1, 8) then return true end
                 end
                 --actions+=/worldvein_resonance,if=!debuff.colossus_smash.up&!buff.test_of_might.up
-                if cast.able.worldveinResonance() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists() then
+                if cast.able.worldveinResonance() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
                     if cast.worldveinResonance() then return end
                 end
                 --actions+=/worldvein_resonance,if=!debuff.colossus_smash.up&!buff.test_of_might.up
-                if useCDs() and cast.able.rippleInSpace() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists() then
+                if useCDs() and cast.able.rippleInSpace() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
                     if cast.rippleInSpace() then return end
                 end
              end
@@ -522,14 +519,6 @@ local function runRotation()
                 if buff.felFocus.exists() then buff.felFocus.cancel() end
                 if use.flaskOfTheUndertow() then return true end
             end
-            -- food,type=sleeper_sushi
-            -- snapshot_stats
-            -- potion,name=draenic_strength
-            -- if useCDs() and inRaid and isChecked("Str-Pot") and isChecked("Pre-Pull Timer") and pullTimer <= getOptionValue("Pre-Pull Timer") then
-            --     if canUseItem(109219) then
-            --         useItem(109219)
-            --     end
-            -- end
         end  -- End Action List - Pre-Combat
     -- Action List - Movement
         function actionList_Movement()
@@ -575,95 +564,71 @@ local function runRotation()
                 end
             end
         end
-    -- Action List - Execute
-        function actionList_Execute()
+    -- Action List - Single
+        function actionList_Single()
         -- Skullsplitter
             -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
             if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
                 if cast.skullsplitter() then return end
             end
-        -- Ravager
-            -- ravager,if=!buff.deadly_calm.up&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.ravager() and useCDs() and getOptionValue("Ravager") ~= 3 and talent.ravager
-                and (not buff.deadlyCalm.exists() or (talent.warbreaker and cd.warbreaker.remain()<2))
-            then
-                -- Best Location
-                if getOptionValue("Ravager") == 1 then
-                    if cast.ravager("best",nil,1,8) then return end
-                end
-                -- Target
-                if getOptionValue("Ravager") == 2 then
-                    if cast.ravager("target","ground") then return end
-                end
-            end
-        -- Colossus Smash
-            -- -- colossus_smash,if=debuff.colossus_smash.down
-            -- if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-            --     and (ttd(units.dyn5) > 5 or useCDs())
-            -- then
-            --     if cast.colossusSmash() then return end
-            -- end
         -- Warbreaker
-            -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (enemies.yards8f >= getOptionValue("Warbreaker") or (useCDs() and enemies.yards8f > 0)) and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists() 
+            -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0))	
+            and cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists(units.dyn5) 
             then
                 if cast.warbreaker() then return end
             end
-        -- Deadly Calm
-            -- deadly_calm
-            if cast.able.deadlyCalm() then
-                if cast.deadlyCalm() then return end
-            end
         -- Bladestorm
-            -- bladestorm,if=rage<30&!buff.deadly_calm.up&bladestorm.mode==1
-            if mode.bladestorm == 1	
-			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager
-                and getDistance(units.dyn8) < 8 and (rage < 30 and not buff.deadlyCalm.exists() and not buff.sweepingStrikes.exists())
+            if ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0))	
+			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
+                and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
+                and not traits.testOfMight.active or buff.testOfMight.exists() and debuff.colossusSmash.exists(units.dyn5)
             then
                 if cast.bladestorm(nil,"aoe") then return end
             end
-        -- Cleave
-            -- cleave,if=spell_targets.whirlwind>2
-            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 0)) then
-                if cast.cleave(nil,"aoe") then return end
-            end
-        -- Slam
-            -- slam,if=buff.crushing_assault.up
-            if cast.able.slam() and buff.crushingAssasult.exists() then
-                if cast.slam() then return end
-            end
-        -- Mortal Strike
-            -- mortal_strike,if=buff.overpower.stack=2&talent.dreadnaught.enabled|buff.executioners_precision.stack=2
-            if cast.able.mortalStrike() and (buff.overpower.stack() == 2 and talent.dreadnaught or buff.overpower.stack() == 2 and getDebuffStacks("target",272870,"player") == 2) then
-                if cast.mortalStrike() then return end
-            end
-        -- Execute
-            -- execute,if=buff.deadly_calm.up
-            if cast.able.execute() and (buff.deadlyCalm.exists()) then
-                if cast.execute() then return end
+        -- Overpower
+            -- overpower,if=azerite.seismic_wave.rank=3
+            if cast.able.overpower() and traits.seismicWave.rank == 3 then
+                if cast.overpower() then return end
             end
         -- Overpower
             -- overpower
-            if cast.able.overpower() and not (buff.overpower.stack() == 2) then
+            if cast.able.overpower() then
                 if cast.overpower() then return end
             end
         -- Execute
-            -- execute
-            if cast.able.execute() then
+            -- execute,if=buff.sudden_death.react
+            if cast.able.execute() and buff.suddenDeath.exists() then
                 if cast.execute() then return end
             end
-        end -- End Action List - Execute
-    -- Action List - Single
-        function actionList_Single()
+        -- Execute if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
+            if cast.able.execute() and talent.massacre and getHP("target") < 35 or getHP("target") < 20 then
+                if cast.execute() then return end
+            end        
+        -- Mortal Strike
+            -- mortal_strike
+            if cast.able.mortalStrike() then
+                if cast.mortalStrike() then return end
+            end
+        -- Whirlwind
+            -- whirlwind,if=talent.fervor_of_battle.enabled&(buff.deadly_calm.up|rage>=60)
+            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle and (buff.deadlyCalm.exists() or rage >= 60)) then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
+        -- Whirlwind
+            -- whirlwind,if=debuff.colossus_smash.up|(buff.crushing_assault.up&talent.fervor_of_battle.enabled)
+            if cast.able.whirlwind(nil,"aoe") or (buff.crushingAssasult.exists() and talent.fervorOfBattle or ttd(units.dyn8AOE) <= 5) and debuff.colossusSmash.exists(units.dyn5)
+            then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
+            -- whirlwind,if=buff.deadly_calm.up|rage>60
+            if cast.able.whirlwind(nil,"aoe") and (buff.deadlyCalm.exists() or rage > 60) then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
         -- Rend
             -- rend,if=remains<=duration*0.3&debuff.colossus_smash.down
-            if cast.able.rend() and (debuff.rend.refresh(units.dyn5)) and not debuff.colossusSmash.exists() then
+            if cast.able.rend() and (debuff.rend.refresh(units.dyn5)) and not debuff.colossusSmash.exists(units.dyn5) then
                 if cast.rend() then return end
-            end
-        -- Skullsplitter
-            -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
-            if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
-                if cast.skullsplitter() then return end
             end
         -- Ravager
             -- ravager,if=!buff.deadly_calm.up&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
@@ -679,80 +644,83 @@ local function runRotation()
                     if cast.ravager("target","ground") then return end
                 end
             end
-        -- Colossus Smash
-            -- colossus_smash,if=debuff.colossus_smash.down
-            -- if not talent.warbreaker and cast.able.colossusSmash() 
-            --     and (ttd(units.dyn5) > 5 or useCDs())
-            -- then
-            --     if cast.colossusSmash() then return end
-            -- end
-        -- Warbreaker
-            -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (enemies.yards8f >= getOptionValue("Warbreaker") or (useCDs() and enemies.yards8f > 0)) and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists()
-            then
-                if cast.warbreaker() then return end
-            end
         -- Deadly Calm
             -- deadly_calm
             if cast.able.deadlyCalm() then
                 if cast.deadlyCalm() then return end
             end
-        -- Execute
-            -- execute,if=buff.sudden_death.react
-            if cast.able.execute() and buff.suddenDeath.exists() then
-                if cast.execute() then return end
-            end
-        -- Bladestorm
-            -- bladestorm,if=cooldown.mortal_strike.remains&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-            if mode.bladestorm == 1	
-			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
-                and (not buff.sweepingStrikes.exists() and not talent.deadlyCalm or not buff.deadlyCalm.exists())
-                and not traits.testOfMight.active or buff.testOfMight.exists() and debuff.colossusSmash.exists()
-            then
-                if cast.bladestorm(nil,"aoe") then return end
-            end
         -- Cleave
             -- cleave,if=spell_targets.whirlwind>2
-            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 2)) then
+            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and #enemies.yards8f > 2) or (mode.rotation == 2 and #enemies.yards8f > 2)) then
                 if cast.cleave(nil,"aoe") then return end
-            end
-        -- Overpower
-            -- overpower,if=azerite.seismic_wave.rank=3
-            if cast.able.overpower() and traits.seismicWave.rank == 3 then
-                if cast.overpower() then return end
-            end
-        -- Mortal Strike
-            -- mortal_strike
-            if cast.able.mortalStrike() then
-                if cast.mortalStrike() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=talent.fervor_of_battle.enabled&(buff.deadly_calm.up|rage>=60)
-            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle and (buff.deadlyCalm.exists() or rage >= 60)) then
-                if cast.whirlwind(nil,"aoe") then return end
-            end
-        -- Overpower
-            -- overpower
-            if cast.able.overpower() then
-                if cast.overpower() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up)
-            if cast.able.whirlwind(nil,"aoe") and (talent.fervorOfBattle 
-                and (not traits.testOfMight.active or ttd(units.dyn8AOE) <= 5)) and debuff.colossusSmash.exists()
-            then
-                if cast.whirlwind(nil,"aoe") then return end
             end
         -- Slam
             -- slam,if=!talent.fervor_of_battle.enabled&(!azerite.test_of_might.enabled|debuff.colossus_smash.up|buff.deadly_calm.up|rage>=60)
             if cast.able.slam() and (not talent.fervorOfBattle and (not traits.testOfMight.active 
-                or buff.deadlyCalm.exists() or rage >= 60 or ttd(units.dyn5) <= 5)) and debuff.colossusSmash.exists()
+                or buff.deadlyCalm.exists() or rage >= 60 or ttd(units.dyn5) <= 5)) and debuff.colossusSmash.exists(units.dyn5)
             then
                 if cast.slam() then return end
             end
         end -- End Action List - Single
     -- Action List - MultiTarget
         function actionList_FiveTarget()
+        -- Cleave
+            -- cleave
+            if talent.cleave and cast.able.cleave(nil,"aoe") and #enemies.yards8f > 2 then
+                if cast.cleave(nil,"aoe") then return end
+            end
+        -- Sweeping Strikes
+            -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
+            if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 > 1 and mode.rotation ~= 3
+                and (cd.bladestorm.remain() > 10 or traits.testOfMight.active or cd.warbreaker.remain() > 8
+                or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
+            then
+                if cast.sweepingStrikes() then return end
+            end
+        -- Overpower
+            -- overpower
+            if cast.able.overpower() then
+                if cast.overpower() then return end
+            end
+        -- Warbreaker
+            -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Warbreaker")) or (mode.rotation == 2 and #enemies.yards8 >= getOptionValue("Bladestorm"))) 
+            and cast.able.warbreaker() and isChecked("Warbreaker") and talent.warbreaker and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists(units.dyn5) 
+            then
+                if cast.warbreaker() then return end
+            end
+        -- Bladestorm
+            --bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
+            if ((mode.rotation == 1 and #enemies.yards8 >= getOptionValue("Bladestorm")) or (mode.rotation == 2 and #enemies.yards8 >= getOptionValue("Bladestorm"))) 
+            and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm") and not talent.ravager and cd.mortalStrike.remain() > 0
+            and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
+            and not traits.testOfMight.active or buff.testOfMight.exists() and debuff.colossusSmash.exists(units.dyn5)
+        then
+            if cast.bladestorm(nil,"aoe") then return end
+        end
+        -- Mortal Strike
+            -- mortal_strike,if=(!talent.cleave.enabled&dot.deep_wounds.remains<2)|buff.sweeping_strikes.up&buff.overpower.stack=2&(talent.dreadnaught.enabled|buff.executioners_precision.stack=2)
+            if cast.able.mortalStrike() and ((not talent.cleave and debuff.deepWounds.remain(units.dyn5) < 2) or buff.sweepingStrikes.exists()
+                and buff.overpower.stack() == 2 and (talent.dreadnaught or buff.executionersPrecision.stack() == 2))
+            then
+                if cast.mortalStrike() then return end
+            end
+        -- Whirlwind
+            -- whirlwind,if=debuff.colossus_smash.up|(buff.crushing_assault.up&talent.fervor_of_battle.enabled)
+            if cast.able.whirlwind(nil,"aoe") or (buff.crushingAssasult.exists() and talent.fervorOfBattle or ttd(units.dyn8AOE) <= 5) and debuff.colossusSmash.exists(units.dyn5)
+            then
+                if cast.whirlwind(nil,"aoe") then return end
+            end
+        --     -- whirlwind,if=buff.deadly_calm.up|rage>60
+        --     if cast.able.whirlwind(nil,"aoe") and (buff.deadlyCalm.exists() or rage > 60) then
+        --         if cast.whirlwind(nil,"aoe") then return end
+        --     end
+
+        -- -- Whirlwind
+        --     -- whirlwind
+        --     if cast.able.whirlwind(nil,"aoe") then
+        --         if cast.whirlwind(nil,"aoe") then return end
+        --     end
         -- Skullsplitter
             -- skullsplitter,if=rage<60&(!talent.deadly_calm.enabled|buff.deadly_calm.down)
             if cast.able.skullsplitter() and (rage < 60 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())) then
@@ -772,37 +740,10 @@ local function runRotation()
                     if cast.ravager("target","ground") then return end
                 end
             end
-        -- Colossus Smash
-            -- colossus_smash,if=debuff.colossus_smash.down
-            -- if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) 
-            --     and (ttd(units.dyn5) > 5 or useCDs())
-            -- then
-            --     if cast.colossusSmash() then return end
-            -- end
-        -- Warbreaker
-            -- warbreaker,if=debuff.colossus_smash.down
-            if cast.able.warbreaker() and talent.warbreaker and (enemies.yards8f >= getOptionValue("Warbreaker") or (useCDs() and enemies.yards8f > 0)) and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists()
-            then
-                if cast.warbreaker() then return end
-            end
-        -- Bladestorm
-            -- bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-            if mode.bladestorm == 1
-                and cast.able.bladestorm(nil,"aoe") and (isChecked("Bladestorm") and (#enemies.yards8 >= getOptionValue("Bladestorm") or useCDs())) 
-                and not talent.ravager and (not buff.sweepingStrikes.exists() and (not talent.deadlyCalm or not buff.deadlyCalm.exists()) 
-                and not traits.testOfMight.active) or buff.testOfMight.exists() and debuff.colossusSmash.remain() > 4
-            then
-                if cast.bladestorm(nil,"aoe") then return end
-            end
         -- Deadly Calm
             -- deadly_calm
             if cast.able.deadlyCalm() then
                 if cast.deadlyCalm() then return end
-            end
-        -- Cleave
-            -- cleave
-            if talent.cleave and cast.able.cleave(nil,"aoe") and enemies.yards8f > 2 then
-                if cast.cleave(nil,"aoe") then return end
             end
         -- Execute
             -- execute,if=(!talent.cleave.enabled&dot.deep_wounds.remains<2)|(buff.sudden_death.react|buff.stone_heart.react)&(buff.sweeping_strikes.up|cooldown.sweeping_strikes.remains>8)
@@ -811,134 +752,8 @@ local function runRotation()
             then
                 if cast.execute() then return end
             end
-        -- Mortal Strike
-            -- mortal_strike,if=(!talent.cleave.enabled&dot.deep_wounds.remains<2)|buff.sweeping_strikes.up&buff.overpower.stack=2&(talent.dreadnaught.enabled|buff.executioners_precision.stack=2)
-            if cast.able.mortalStrike() and ((not talent.cleave and debuff.deepWounds.remain(units.dyn5) < 2) or buff.sweepingStrikes.exists()
-                and buff.overpower.stack() == 2 and (talent.dreadnaught or buff.executionersPrecision.stack() == 2))
-            then
-                if cast.mortalStrike() then return end
-            end
-        -- Whirlwind
-            -- whirlwind,if=debuff.colossus_smash.up|(buff.crushing_assault.up&talent.fervor_of_battle.enabled)
-            if cast.able.whirlwind(nil,"aoe") or (buff.crushingAssasult.exists() and talent.fervorOfBattle or ttd(units.dyn8AOE) <= 5) and debuff.colossusSmash.exists()
-            then
-                if cast.whirlwind(nil,"aoe") then return end
-            end
-            -- whirlwind,if=buff.deadly_calm.up|rage>60
-            if cast.able.whirlwind(nil,"aoe") and (buff.deadlyCalm.exists() or rage > 60) then
-                if cast.whirlwind(nil,"aoe") then return end
-            end
-        -- Overpower
-            -- overpower
-            if cast.able.overpower() then
-                if cast.overpower() then return end
-            end
-        -- Whirlwind
-            -- whirlwind
-            if cast.able.whirlwind(nil,"aoe") then
-                if cast.whirlwind(nil,"aoe") then return end
-            end
+
         end -- End Action List - Five Target
-    -- Action List - HAC
-        function actionList_HAC()
-        -- Rend 
-            -- rend,if=remains<=duration*0.3&(!raid_event.adds.up|buff.sweeping_strikes.up)
-            if cast.able.rend() and debuff.rend.refresh(units.dyn5) and (#enemies.yards8 == 1 or buff.sweepingStrikes.exists()) then 
-                if cast.rend() then return end 
-            end
-        -- Skullsplitter 
-            -- skullsplitter,if=rage<60&(cooldown.deadly_calm.remains>3|!talent.deadly_calm.enabled)
-            if cast.able.skullsplitter() and rage < 60 and (cd.deadlyCalm.remain() > 3 or not talent.deadlyCalm) then 
-                if cast.skullsplitter() then return end 
-            end 
-        -- Deadly Calm
-            -- deadly_calm,if=(cooldown.bladestorm.remains>6|talent.ravager.enabled&cooldown.ravager.remains>6)&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.deadlyCalm() and ((cd.bladestorm.remain() > 6 or not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")
-                or talent.ravager and (cd.ravager.remain() > 6 or getOptionValue("Ravager") == 3 or (getOptionValue("Ravager") == 2 and not useCDs())))
-                or (talent.warbreaker and cd.warbreaker.remain() < 2))
-            then
-                if cast.deadlyCalm() then return end
-            end
-        -- Ravager 
-            -- ravager,if=(raid_event.adds.up|raid_event.adds.in>target.time_to_die)&(cooldown.colossus_smash.remains<2|(talent.warbreaker.enabled&cooldown.warbreaker.remains<2))
-            if cast.able.ravager() and (getOptionValue("Ravager") == 1 or (getOptionValue("Ravager") == 2 and useCDs())) and talent.ravager
-                or (talent.warbreaker and cd.warbreaker.remain() < 2)
-            then
-                -- Best Location
-                if getOptionValue("Ravager") == 1 then
-                    if cast.ravager("best",nil,1,8) then return end
-                end
-                -- Target
-                if getOptionValue("Ravager") == 2 then
-                    if cast.ravager("target","ground") then return end
-                end
-            end
-        -- Colossus Smash 
-            -- colossus_smash,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
-            -- if not talent.warbreaker and cast.able.colossusSmash() and (ttd(units.dyn5) > 5 or useCDs())
-            -- then
-            --     if cast.colossusSmash() then return end
-            -- end
-        -- Warbreaker
-            -- warbreaker,if=raid_event.adds.up|raid_event.adds.in>40|(raid_event.adds.in>20&talent.anger_management.enabled)
-            if cast.able.warbreaker() and talent.warbreaker and (enemies.yards8f >= getOptionValue("Warbreaker") or (useCDs() and enemies.yards8f > 0)) and ttd(units.dyn8AOE) > 5 and not debuff.colossusSmash.exists()
-            then
-                if cast.warbreaker() then return end
-            end
-        -- Bladestorm 
-            -- bladestorm,if=(debuff.colossus_smash.up&raid_event.adds.in>target.time_to_die)|raid_event.adds.up&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
-            if mode.bladestorm == 1
-			    and cast.able.bladestorm(nil,"aoe") and isChecked("Bladestorm")  
-                and not talent.ravager and not traits.testOfMight.active 
-                and not buff.sweepingStrikes.exists() or buff.testOfMight.exists() and debuff.colossusSmash.exists()
-            then
-                if cast.bladestorm(nil,"aoe") then return end
-            end
-        -- Overpower 
-            -- overpower,if=!raid_event.adds.up|(raid_event.adds.up&azerite.seismic_wave.enabled)
-            if cast.able.overpower() and (#enemies.yards8 == 1 or (#enemies.yards8 > 1 and traits.seismicWave.active)) then 
-                if cast.overpower() then return end 
-            end 
-        -- Cleave 
-            -- cleave,if=spell_targets.whirlwind>2
-            if talent.cleave and cast.able.cleave(nil,"aoe") and ((mode.rotation == 1 and enemies.yards8f > 2) or (mode.rotation == 2 and enemies.yards8f > 0)) then
-                if cast.cleave(nil,"aoe") then return end
-            end
-        -- Execute 
-            -- execute,if=!raid_event.adds.up|(!talent.cleave.enabled&dot.deep_wounds.remains<2)|buff.sudden_death.react
-            if cast.able.execute() and ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) 
-                or (not talent.cleave and debuff.deepWounds.remain(units.dyn5) < 2) or buff.suddenDeath.exists()) 
-            then 
-                if cast.execute() then return end 
-            end 
-        -- Mortal Strike 
-            -- mortal_strike,if=!raid_event.adds.up|(!talent.cleave.enabled&dot.deep_wounds.remains<2)
-            if cast.able.mortalStrike() and ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0) 
-                or (not talent.cleave and debuff.deepWounds.remain(units.dyn5) < 2)) 
-            then 
-                if cast.mortalStrike() then return end 
-            end 
-        -- Whirlwind
-            -- whirlwind,if=raid_event.adds.up
-            if cast.able.whirlwind(nil,"aoe") and (mode.rotation == 1 and #enemies.yards8 > 4) or (mode.rotation == 2 and #enemies.yards8 > 0) then
-                if cast.whirlwind(nil,"aoe") then return end
-            end
-        -- Overpower
-            -- overpower 
-            if cast.able.overpower() then 
-                if cast.overpower() then return end 
-            end
-        -- Whirlwind
-            -- whirlwind,if=talent.fervor_of_battle.enabled
-            if cast.able.whirlwind(nil,"aoe") and talent.fervorOfBattle then 
-                if cast.whirlwind(nil,"aoe") then return end 
-            end 
-        -- Slam
-            -- slam,if=!talent.fervor_of_battle.enabled&!raid_event.adds.up
-            if cast.able.slam() and not talent.fervorOfBattle and ((mode.rotation == 1 and #enemies.yards8 == 1) or (mode.rotation == 3 and #enemies.yards8 > 0)) then 
-                if cast.slam() then return end 
-            end 
-        end -- End Action List - HAC
 -----------------
 --- Rotations ---
 -----------------
@@ -975,53 +790,39 @@ local function runRotation()
 -----------------------------
             if inCombat and isValidUnit(units.dyn5) then
             -- Auto Attack
-                --auto_attack
-                -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
-                --     StopAttack()
-                -- else
-                --     StartAttack(units.dyn5)
-                -- end
-                if not IsCurrentSpell(6603) then
-                    StartAttack(units.dyn5)
-                end
+            --auto_attack
+            -- if IsCurrentSpell(6603) and not GetUnitIsUnit(units.dyn5,"target") then
+            --     StopAttack()
+            -- else
+            --     StartAttack(units.dyn5)
+            -- end
+            if not IsCurrentSpell(6603) then
+                StartAttack(units.dyn5)
+            end
             -- Action List - Movement
-                -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
-                -- if getDistance(units.dyn8) > 8 then
-                    if actionList_Movement() then return end
-                -- end
+            -- run_action_list,name=movement,if=movement.getDistance(units.dyn5)>5
+            -- if getDistance(units.dyn8) > 8 then
+            if actionList_Movement() then return end
+            -- end
             -- Action List - Interrupts
-                if actionList_Interrupts() then return end
+            if actionList_Interrupts() then return end
             -- Action List - Essences
-                if actionList_Essences() then return end
+            if actionList_Essences() then return end
             -- Action List - Cooldowns
-                if actionList_Cooldowns() then return end
-            -- Sweeping Strikes
-                -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>10|cooldown.colossus_smash.remains>8|azerite.test_of_might.enabled)
-                if isChecked("Sweeping Strikes") and cast.able.sweepingStrikes() and #enemies.yards8 >= 1 and mode.rotation ~= 3
-                    and (cd.bladestorm.remain() > 10 or traits.testOfMight.active or cd.warbreaker.remain() > 8
-					or (not isChecked("Bladestorm") or #enemies.yards8 < getOptionValue("Bladestorm")))
-                then
-                    if cast.sweepingStrikes() then return end
-                end
-				-- if not talent.warbreaker and cast.able.colossusSmash() and (not debuff.colossusSmash.exists(units.dyn5)) then
-            -- Action List - HAC 
-                -- run_action_list,name=hac,if=raid_event.adds.exists
-                if ((mode.rotation == 1 and #enemies.yards8 > 1) or (mode.rotation == 2 and #enemies.yards8 > 0)) and #enemies.yards8 < 5 then
-                    if actionList_HAC() then return end 
-                end 
+            if actionList_Cooldowns() then return end
             -- Action List - Five Target
-                -- run_action_list,name=five_target,if=spell_targets.whirlwind>4
-                if ((mode.rotation == 1 and #enemies.yards8 > 4) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
+               -- run_action_list,name=five_target,if=spell_targets.whirlwind>4
+                if ((mode.rotation == 1 and #enemies.yards8 >= 2) or (mode.rotation == 2 and #enemies.yards8 > 0)) then
                     if actionList_FiveTarget() then return end
                 end
-            -- Action List - Execute
-                -- run_action_list,name=execute,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
-                if ((talent.massacre and getHP(units.dyn5) < 35) or getHP(units.dyn5) < 20) and level >= 8 then
-                    if actionList_Execute() then return end
-                end
+            -- -- Action List - Execute
+            --     -- run_action_list,name=execute,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
+            --     if ((talent.massacre and getHP(units.dyn5) < 35) or getHP(units.dyn5) < 20) and level >= 8 then
+            --         if actionList_Execute() then return end
+            --     end
             -- Action List - Single
                 -- run_action_list,name=single_target
-                if getHP(units.dyn5) >= 35 or (not talent.massacre and getHP(units.dyn5) >= 20) or level < 8 then
+                if ((mode.rotation == 1 and #enemies.yards8 < 2) or (mode.rotation == 3 and #enemies.yards8 > 0)) then
                     if actionList_Single() then return end
                 end
             end -- End Combat Rotation
