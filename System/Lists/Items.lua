@@ -87,7 +87,7 @@ br.lists.items = {
     superiorSteelskinPotion         = 168501, -- Armor Potion
     superiorBattlePotionOfAgility   = 168489,
     superiorBattlePotionOfIntellect = 168498,
-    superiorNattlePotionOfStrength  = 168500,
+    superiorBattlePotionOfStrength  = 168500,
     superiorBattlePotionOfStamina   = 168499,
     -- Rings
     ringOfCollapsingFutures         = 142173,
