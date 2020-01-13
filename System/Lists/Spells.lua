@@ -886,6 +886,7 @@ br.lists.spells = {
                 thrashCat                   = 106830,
                 travelForm                  = 783,
                 wildGrowth                  = 48438,
+                thorns                      = 305497,
             },
             artifacts                       = {
 
