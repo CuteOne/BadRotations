@@ -46,4 +46,10 @@ br.lists.los = {
 	[150773] = true, -- Blackwater Behemoth Mob
 	[152364] = true, -- Radiance of Azshara
 	[152671] = true, -- Wekemara
+	[146678] = true, -- Ancient Protector
+	[136250] = true,
+	[137204] = true,
+	[136391] = true,
+	[139284] = true,
+	[135130] = true,
 }

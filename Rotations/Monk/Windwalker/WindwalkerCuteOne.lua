@@ -112,8 +112,8 @@ local function createOptions()
             -- Touch of the Void
             br.ui:createCheckbox(section,"Touch of the Void")
             -- Trinkets
-            br.ui:createDropdownWithout(section,"Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 1.")
-            br.ui:createDropdownWithout(section,"Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use Trinket 2.")
+            br.ui:createDropdown(section, "Trinkets", {"Always", "Cooldown", }, 1, "Use Trinkets always or with CDs")
+            br.ui:createCheckbox(section, "Ashvane's Razor Coral")
             -- Heart Essence
             br.ui:createCheckbox(section,"Use Essence")
             -- Energizing Elixir
@@ -413,18 +413,30 @@ end -- End Action List - Interrupts
 
 -- Action List - Cooldowns
 actionList.Cooldowns = function()
-    -- Trinkets
-    if getDistance(units.dyn5) < 5  then
-        local thisTrinket
-        for i = 13, 14 do
-            if i == 13 then thisTrinket = "Trinket 1" else thisTrinket = "Trinket 2" end
-            local opValue = option.value(thisTrinket)
-            if (opValue == 1 or (opValue == 2 and useCDs())) and canUseItem(i) then
-                useItem(i)
-                debug("Using Trinket [Slot "..i.."]")
-            end
+        -- Trinkets
+        if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())
+            and use.able.slot(13) and not equiped.vigorTrinket(13)
+            and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
+        then
+            use.slot(13)
         end
+        if getOptionValue("Trinkets") == 1 or (getOptionValue("Trinkets") == 2 and useCDs())
+            and use.able.slot(14) and not equiped.vigorTrinket(14)
+            and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
+        then
+            use.slot(14)
+        end
+    -- Ashevane
+    if isChecked("Ashvane's Razor Coral") and equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and (ttd < 21 or (buff.stormEarthAndFire.exists() and cast.timeSinceLast.stormEarthAndFire() > gcd)) 
+        or  (getHP("target") <= 30.2 and debuff.conductiveInk.exists("target")) and br.timer:useTimer("Razor Coral Delay", 3)
+        or  (not debuff.razorCoral.exists("target") and br.timer:useTimer("Razor Coral Delay", 3))
+    then
+        use.ashvanesRazorCoral()
     end
+
+
+
+
     if useCDs() and getDistance(units.dyn5) < 5 then
         -- Invoke Xuen
         -- invoke_xuen_the_white_tiger
@@ -490,10 +502,10 @@ actionList.SingleTarget = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets"))
-        and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
+    if cast.able.fistsOfFury() and (cast.timeSinceLast.stormEarthAndFire() > gcd and ttd > 3 and ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets")
+        and mode.fof == 1 and not isExplosive("target"))
     then
-        if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [ST]") return true end
+        if cast.fistsOfFury() then debug("Casting Fists of Fury [ST]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains
@@ -587,7 +599,7 @@ actionList.AoE = function()
     if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3
         and #enemies.yards8f >= option.value("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target")
     then
-        if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [AOE]") return true end
+        if cast.fistsOfFury() then debug("Casting Fists of Fury [AOE]") return true end
     end
     -- Rushing Jade Wind
     -- rushing_jade_wind,if=buff.rushing_jade_wind.down
@@ -652,10 +664,10 @@ actionList.RSKLess = function()
     end
     -- Fists of Fury
     -- fists_of_fury
-    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and #enemies.yards8f >= option.value("Fists of Fury Targets")
-        and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
+    if cast.able.fistsOfFury() and not cast.last.stormEarthAndFire() and #enemies.yards15 >= option.value("Fists of Fury Targets")
+        and mode.fof == 1 and (ttd > 3 or #enemies.yards15 > 1) and not isExplosive("target")
     then
-        if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [RSKLess]") return true end
+        if cast.fistsOfFury() then debug("Casting Fists of Fury [RSKLess]") return true end
     end
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=buff.storm_earth_and_fire.up|cooldown.whirling_dragon_punch.remains<4
@@ -739,8 +751,9 @@ end -- End Action List - RSKLess
 -- Action List - Essence
 actionList.Essence = function()
     -- concentrated_flame
-    if cast.able.concentratedFlame() then
-        if cast.concentratedFlame() then debug("Casting Concentrated Flame") return end
+    if isChecked("Use Essence") and cast.able.concentratedFlame() and (not debuff.concentratedFlame.exists(units.dyn40) or (ttdd(units.dyn40) < 5 and useCDs()))
+    then
+        if cast.concentratedFlame() then return end
     end
     -- blood_of_the_enemy
     if useCDs() and cast.able.bloodOfTheEnemy() then
@@ -1139,17 +1152,22 @@ local function runRotation()
     thp               = getHP("target")
     traits            = br.player.traits
     ttd               = getTTD("target")
+    ttdd              = getTTD
     ttm               = br.player.power.energy.ttm()
     units             = br.player.units
     use               = br.player.use
+    local debuff      = br.player.debuff
 
     units.get(5)
+    units.get(40)
     enemies.get(5)
     enemies.get(5,"player",false,true)
     enemies.get(8)
     enemies.get(8,"target")
     enemies.get(8,"player",false,true)
+    enemies.get(15)
     enemies.yards40r = getEnemiesInRect(10,40,false) or 0
+    enemies.get(40)
 
     if leftCombat == nil then leftCombat = GetTime() end
     if profileStop == nil then profileStop = false end

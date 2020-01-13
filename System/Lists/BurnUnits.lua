@@ -23,7 +23,7 @@ br.lists.burnUnits = {
 	[71076] = {coef = 25, id = 71076}, -- Proving ground healer
 	-- Legion
 	[117264] = {coef = 200, name = "Maiden of Valor", buff = 241008, id = 117264}, -- burn Maiden of Valor if buff is present
-	[120651] = {coef = 150, name = "Explosives", id = 120651}, -- M+ Affix
+	[120651] = {coef = 500, name = "Explosives", id = 120651}, -- M+ Affix
 	-- [115642] = { coef = 100}, -- Umbral Imps - Challenge mode
 	-- [115638] = { coef = 175, buff = 243113},
 	-- [115641] = { coef = 150}, -- Smoldering Imps
@@ -36,4 +36,9 @@ br.lists.burnUnits = {
     [131825] = {coef = 150, name = "Sister Briar", buff = -260805, id = 131825}, -- Sister Briar (No Focusing Iris)
 	-- Uldir
 	[135016] = {coef = 200, name = "Plague Amalgam", id = 135016},
+	[137591] = {coef = 200, name = "Healing Tide Totem", id = 137591},
+	[135764] = {coef = 200, name = "Explosiv Totem", id = 135764},
+	[137614] = {coef = 200, name = "Demolishing Terror", id = 137614},
+	[136330] = {coef = 200, name = "Soul Thorns", id = 136330},
+	[134388] = {coef = 200, name = "A Knot of Snakes", id = 134388}
 }
