@@ -1597,6 +1597,9 @@ br.lists.spells = {
                 essenceFont                 = 191837,
                 manaTea                     = 197908,
                 wayOfTheCrane               = 216113,
+                lifeCocoon                  = 116849,
+                essenceFont                 = 191840,
+                risingMist                  = 22170,
             },
             debuffs                         = {
                             mysticTouch                 = 8647,
