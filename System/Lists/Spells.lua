@@ -1625,6 +1625,7 @@ br.lists.spells = {
                 diffuseMagic                = 122783,
                 upwelling                   = 274963,
                 lifecycles                  = 197915,
+                risingMist                  = 274909,
             },
         },
         -- Windwalker
