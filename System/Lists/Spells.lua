@@ -3173,7 +3173,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                crushingAssasult            = 278826,
+                crushingAssault            = 278826,
                 deadlyCalm                  = 262228,
                 defensiveStance             = 197690,
                 inForTheKill                = 215550,
