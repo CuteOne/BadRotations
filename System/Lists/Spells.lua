@@ -3485,6 +3485,7 @@ br.lists.spells = {
                 memoryOfLucidDreams             = 298357,
                 overchargeMana                  = 296072,
                 purifyingBlast                  = 299345,
+                reapingFlames                   = 310690, -- Added in 8.3
                 refreshment                     = 296197,
                 rippleInSpace                   = 302731,
                 standstill                      = 299882,
