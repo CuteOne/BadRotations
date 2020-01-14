@@ -485,14 +485,19 @@ actionList.Cooldowns = function()
             if cast.rippleInSpace() then debug("Casting Ripple In Space") return true end
         end
         -- Essence: Worldvein Resonance
-        -- worldvein_resonance,if=buff.lifeblood.stack<3
-        if cast.able.worldveinResonance() and buff.lifeblood.stack() < 3 then
+        -- worldvein_resonance,if=buff.metamorphosis.up
+        if cast.able.worldveinResonance() and buff.metamorphosis.exists() then
             if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
         end
         -- Essence: Memory of Lucid Dreams
         -- memory_of_lucid_dreams,if=fury<40&buff.metamorphosis.up
         if cast.able.memoryOfLucidDreams() and buff.metamorphosis.exists() and power < 40 then
             if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
+        end
+        -- Essence: Reaping Flames
+        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+        if cast.able.reapingFlames() and ((getHP(units.dyn5) > 80 and useCDs()) or getHP(units.dyn5) <= 20) then
+            if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
         end
     end
 end -- End Action List - Cooldowns
