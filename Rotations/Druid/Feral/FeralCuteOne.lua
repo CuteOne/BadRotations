@@ -756,6 +756,11 @@ actionList.Cooldowns = function()
                     if cast.worldveinResonance() then ui.debug("Casting Worldvein Resonance") return end
                 end
             end
+            -- Essence: Reaping Flames
+            -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+            if cast.able.reapingFlames() and ((getHP(units.dyn5) > 80 and useCDs()) or getHP(units.dyn5) <= 20) then
+                if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
+            end
         end
         -- Incarnation - King of the Jungle
         -- incarnation,if=energy>=30&(cooldown.tigers_fury.remains>15|buff.tigers_fury.up)
