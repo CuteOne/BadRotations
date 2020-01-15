@@ -200,6 +200,7 @@ local function runRotation()
     local racial = br.player.getRacial()
     local spell = br.player.spell
     local talent = br.player.talent
+    local ttd = getTTD
     local ttm = br.player.power.mana.ttm()
     local units = br.player.units
     local lowest = {}    --Lowest Unit
