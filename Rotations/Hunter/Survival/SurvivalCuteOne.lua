@@ -519,6 +519,10 @@ actionList.Cooldown = function()
         if cast.able.worldveinResonance() then
             if cast.worldveinResonance() then return end
         end
+        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+        if cast.able.reapingFlames() and (getHP("target") > 80 or getHP("target") <= 20) then
+            if cast.reapingFlames() then return end
+        end
     end
 end -- End Action List - Cooldowns
 
@@ -551,9 +555,9 @@ actionList.St = function()
         if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
     end
     -- Kill Command
-    -- kill_command,if=focus+cast_regen<focus.max-focus.regen
-    if cast.able.killCommand() and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
-        if cast.killCommand() then return end
+    -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
+    if cast.able.killCommand(lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
+        if cast.killCommand(lowestBloodseeker) then return end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
@@ -561,10 +565,10 @@ actionList.St = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)|time_to_die<18&!dot.wildfire_bomb.ticking
     if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
-        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1)
+        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40))
     then
         if cast.wildfireBomb(nil,"aoe") then return end
     end
@@ -744,9 +748,11 @@ actionList.ApSt = function()
         if cast.flankingStrike() then return end
     end
     -- Kill Command
-    -- kill_command,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max-10
-    if cast.able.killCommand() and charges.killCommand.timeTillFull() < 1.5 * gcdMax and (focus + castRegen(spell.killCommand) < focusMax - 10 or outOfMelee()) then
-        if cast.killCommand() then return end
+    -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<1.5*gcd&focus+cast_regen<focus.max
+    if cast.able.killCommand(lowestBloodseeker) and charges.killCommand.timeTillFull() < 1.5 * gcdMax
+        and (focus + castRegen(spell.killCommand) < focusMax or outOfMelee())
+    then
+        if cast.killCommand(lowestBloodseeker) then return end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
@@ -754,10 +760,10 @@ actionList.ApSt = function()
         if cast.steelTrap("best",nil,1,5) then return end
     end
     -- Wildfire Bomb
-    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)
+    -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)|time_to_die<18&!dot.wildfire_bomb.ticking
     if cast.able.wildfireBomb() and focus + focusRegen < focusMax and not debuff.wildfireBomb.exists(units.dyn40) and not buff.memoryOfLucidDreams.exists()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
-        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1)
+        or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40)) 
     then
         if cast.wildfireBomb(nil,"aoe") then return end
     end
@@ -768,10 +774,10 @@ actionList.ApSt = function()
     end
     -- Kill Command
     -- kill_command,if=focus+cast_regen<focus.max&(buff.mongoose_fury.stack<5|focus<action.mongoose_bite.cost)
-    if cast.able.killCommand() and ((focus + castRegen(spell.killCommand) < focusMax
+    if cast.able.killCommand(lowestBloodseeker) and ((focus + castRegen(spell.killCommand) < focusMax
         and (buff.mongooseFury.stack() < 5 or focus < cast.cost.mongooseBite())) or outOfMelee())
     then
-        if cast.killCommand() then return end
+        if cast.killCommand(lowestBloodseeker) then return end
     end
     -- Serpent Sting
     -- serpent_sting,if=refreshable&!buff.coordinated_assault.up&buff.mongoose_fury.stack<5
@@ -1297,6 +1303,13 @@ local function runRotation()
                 -- call_action_list,name=CDs
                 if actionList.Cooldown() then return true end
                 if (mode.rotation == 1 and eagleScout() < 3) or (mode.rotation == 3 and eagleScout() > 0) or level < 28 then
+                    -- Mongoose Bite
+                    -- mongoose_bite,if=talent.alpha_predator.enabled&target.time_to_die<10|target.time_to_die<5
+                    if cast.able.mongooseBite() and talent.mongooseBite
+                        and ((talent.alphaPredator and ttd(eagleUnit) < 10) or ttd(eagleUnit) < 5)
+                    then
+                        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+                    end
                     -- Call Action List - Alpha Predator / Wildfire Infusion
                     -- call_action_list,name=apwfi,if=active_enemies<3&talent.chakrams.enabled&talent.alpha_predator.enabled
                     if talent.chakrams and talent.alphaPredator then
@@ -1328,9 +1341,12 @@ local function runRotation()
                         if actionList.Wfi() then return end
                     end
                 end
-                if ((mode.rotation == 1 and (eagleScout() > 1 or #enemies.yards8t > 1)) or (mode.rotation == 2 and eagleScout() > 0)) and level >= 28 then
+                if ((mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey) 
+                        or (eagleScout() > 2 or #enemies.yards8t > 2)))
+                    or (mode.rotation == 2 and eagleScout() > 0)) and level >= 28
+                then
                     -- Call Action List - Cleave
-                    -- call_action_list,name=cleave,if=active_enemies>1
+                    -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
                     if actionList.Cleave() then return end
                 end
                 -- Heart Essence - Concentrated Flame
