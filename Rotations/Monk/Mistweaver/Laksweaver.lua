@@ -189,7 +189,7 @@ local function runRotation()
     local BleedFriend = nil
     local BleedFriendCount = 0
     local BleedStack = 0
-    local lowestHP = br.friend[1].unit
+    local ttd = getTTD
     local mana = br.player.power.mana.percent()
     local mode = br.player.mode
     local perk = br.player.perk
@@ -364,9 +364,11 @@ local function runRotation()
                 dps_mode = "multi"
             end
             --print("dps_mode: " .. dps_mode)
-
-            StartAttack(units.dyn5)
-
+            --[[
+                        if inCombat and (isInMelee() and getFacing("player", "target") == true) then
+                            StartAttack()
+                        end
+            ]]
             --lets check for mysticTouch debuff
             local mysticTouchCounter = 0
             if #enemies.yards8 > 0 then
@@ -449,13 +451,11 @@ local function runRotation()
     end
 
     local function heal()
-        local thisUnit = nil
+        local healUnit = nil
         local specialHeal = false
         local burst = false
         local crit_count = 0
         local why = "dunno"
-        local BleedFriend = nil
-        local BleedStack = 0
         local CurrentBleedstack = 0
 
 
@@ -475,13 +475,13 @@ local function runRotation()
 
 
 
-        -- Determining heal target / thisUnit
+        -- Determining heal target / healUnit
 
         if isChecked("Grievous Wounds") then
             for i = 1, #br.friend do
-                local GrievUnit = br.friend[i]
-                CurrentBleedstack = getDebuffStacks(GrievUnit.unit, 240559)
-                if getDebuffStacks(GrievUnit.unit, 240559) > 0 then
+                local GrievUnit = br.friend[i].unit
+                CurrentBleedstack = getDebuffStacks(GrievUnit, 240559)
+                if getDebuffStacks(GrievUnit, 240559) > 0 then
                     -- Print(GrievUnit.unit)
                     BleedFriendCount = BleedFriendCount + 1
                 end
@@ -491,7 +491,7 @@ local function runRotation()
                 end
             end
             if BleedFriend ~= nil then
-                thisUnit = BleedFriend
+                healUnit = BleedFriend
                 specialHeal = true
                 why = "[GRIEVOUS]"
                 --     Print("GrievTarget: " .. thisUnit.name)
@@ -510,11 +510,11 @@ local function runRotation()
                     local sethObject = GetObjectWithIndex(i)
                     if GetObjectID(sethObject) == 133392 then
                         if getHP(sethObject) < 100 and getBuffRemain(sethObject, 274148) == 0 then
-                            thisUnit = sethObject
+                            healUnit = sethObject
                         end
                     end
                 end
-                if thisUnit ~= nil and getHP(thisUnit) < 100 then
+                if healUnit ~= nil and getHP(thisUnit) < 100 then
                     specialHeal = true
                     why = "Seth-Logic"
                 end
@@ -522,9 +522,9 @@ local function runRotation()
             elseif (select(8, GetInstanceInfo()) == 1862 or select(8, GetInstanceInfo()) == 1762) then
                 for i = 1, #br.friend do
                     if getDebuffRemain(br.friend[i].unit, 260741) ~= 0 or getDebuffRemain(br.friend[i].unit, 267626) ~= 0 then
-                        thisUnit = br.friend[i]
+                        healUnit = br.friend[i].unit
                     end
-                    if thisUnit ~= nil and thisUnit.hp < 90 then
+                    if healUnit ~= nil and getHP(healUnit) < 90 then
                         specialHeal = true
                         why = "Jagged/Dessication"
                     end
@@ -534,9 +534,9 @@ local function runRotation()
             elseif select(8, GetInstanceInfo()) == 1763 then
                 for i = 1, #br.friend do
                     if (getDebuffRemain(br.friend[i].unit, 255421) or getDebuffRemain(br.friend[i].unit, 255434)) ~= 0 then
-                        thisUnit = br.friend[i]
+                        healUnit = br.friend[i].unit
                     end
-                    if thisUnit ~= nil and thisUnit.hp < 90 then
+                    if healUnit ~= nil and getHP(healUnit) < 90 then
                         specialHeal = true
                         why = "Devour"
                     end
@@ -555,8 +555,8 @@ local function runRotation()
                     crit_count = crit_count + 1
                     if br.friend[i].hp < crit_health_base then
                         crit_health_base = br.friend[i].hp
-                        thisUnit = br.friend[i]
-                        why = "[CRITICAL]]"
+                        healUnit = br.friend[i].unit
+                        why = "[CRITICAL]"
                     end
                 end
                 if crit_count >= getOptionValue("Bursting") then
@@ -571,22 +571,22 @@ local function runRotation()
 
         --single heal on mouseover target override - old "HAM" mode
         if SpecificToggle("Heal Key") and GetUnitExists("mouseover") then
-            thisUnit = GetUnit("mouseover")
+            healUnit = GetUnit("mouseover")
             specialHeal = true
             why = "Heal Key"
         end
 
-        --default thisUnit rollback to whoever needs it
+        --default healUnit rollback to whoever needs it
         for i = 1, #br.friend do
 
-            if thisUnit == nil then
-                thisUnit = br.friend[i]
+            if healUnit == nil then
+                healUnit = br.friend[i].unit
                 why = "[STD]"
             end
-            --      br.addonDebug("Heal Target: " .. thisUnit.unit .. " a " .. thisUnit.role)
+            --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. getHP(healUnit))
 
 
-            --always kick with rising renewingMist -- fist weaving
+            --always kick with rising  -- fist weaving
             if talent.risingMist then
                 if lowest.hp > getValue("Critical HP") then
                     if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
@@ -610,11 +610,11 @@ local function runRotation()
                         return true
                     end
                 end
-                if isChecked("Grievous Wounds") and getDebuffStacks(thisUnit.unit, 240559) > 2 or not isSelected("Grievous Wounds") or BleedStack == 99 then
+                if isChecked("Grievous Wounds") and getDebuffStacks(healUnit, 240559) > 2 or not isSelected("Grievous Wounds") or BleedStack == 99 then
                     --override cause people leave settings on in non griev weeks
-                    if (thisUnit.hp <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(thisUnit.unit) then
-                        if cast.lifeCocoon(thisUnit.unit) then
-                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. thisUnit.name .. " / " .. why)
+                    if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
+                        if cast.lifeCocoon(healUnit) then
+                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why)
                             return true
                         end
                     end
@@ -640,7 +640,7 @@ local function runRotation()
                 end
                 if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") or burst then
                     if cast.revival() then
-                        br.addonDebug(tostring(burst) .. "[Revival]:" .. thisUnit.name .. " / " .. why)
+                        br.addonDebug(tostring(burst) .. "[Revival]:" .. UnitName(healUnit) .. " / " .. why)
                         return
                     end
                 end
@@ -648,46 +648,24 @@ local function runRotation()
 
             -- Renewing Mists
             if isChecked("Renewing Mist") and cast.able.renewingMist() then
-                if (inCombat and (thisUnit.hp <= getValue("Renewing Mist") or getValue("Renewing Mist") == 0) or (not inCombat and thisUnit.hp < 90)) and
-                        not buff.renewingMist.exists(thisUnit.unit) and not cast.last.renewingMist(1) then
-                    if cast.renewingMist(thisUnit.unit) then
-                        br.addonDebug(tostring(burst) .. "[RenewMist]:" .. thisUnit.name .. " - " .. why)
+                if (inCombat and (getHP(healUnit) <= getValue("Renewing Mist") or getValue("Renewing Mist") == 0) or (not inCombat and getHP(healUnit) < 90)) and
+                        not buff.renewingMist.exists(healUnit) and not cast.last.renewingMist(1) then
+                    if cast.renewingMist(healUnit) then
+                        br.addonDebug(tostring(burst) .. "[RenewMist]:" .. UnitName(healUnit) .. " - " .. why)
                         return true
                     end
                 end
             end
-
-
-            --Refreshing Jade Wind
-            if talent.refreshingJadeWind then
-                local refreshJadeFriends = getAllies("player", 10)
-                if #refreshJadeFriends > 0 then
-                    for i = 1, #refreshJadeFriends do
-                        local jadeUnits = refreshJadeFriends[i]
-                        local jadeUnitsCount = 0
-                        if jadeUnits.hp < getValue("Refreshing Jade Wind") then
-                            jadeUnitsCount = jadeUnitsCount + 1
-                            if isChecked("Refreshing Jade Wind") and cd.refreshingJadeWind.remain() == 0 and jadeUnitsCount >= getValue("RJW Targets") or burst then
-                                if cast.refreshingJadeWind("player") then
-                                    br.addonDebug(tostring(burst) .. "[RefJade]:" .. thisUnit.name .. " / " .. why)
-                                    return true
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
             --vivify on targets with essence font hot
-            if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(thisUnit.unit) and thisUnit.hp < 80 then
-                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(thisUnit.unit) then
-                    if cast.soothingMist(thisUnit.unit) then
-                        br.addonDebug(tostring(burst) .. "[SooMist]:" .. thisUnit.name .. " / " .. "FONT-BUFF")
+            if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
+                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                    if cast.soothingMist(healUnit) then
+                        br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                         return true
                     end
-                elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(thisUnit.unit) then
-                    if cast.vivify(thisUnit.unit) then
-                        br.addonDebug(tostring(burst) .. "[Vivify]:" .. thisUnit.name .. " / " .. "FONT-BUFF")
+                elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit) then
+                    if cast.vivify(healUnit) then
+                        br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
                         return true
                     end
                 end
@@ -698,7 +676,7 @@ local function runRotation()
                 if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
                     if getLowAllies(getValue("Essence Font")) >= getValue("Essence Font targets") or burst then
                         if cast.essenceFont() then
-                            br.addonDebug(tostring(burst) .. "[E-Font]:" .. thisUnit.name .. " / " .. why)
+                            br.addonDebug(tostring(burst) .. "[E-Font]:" .. UnitName(healUnit) .. " / " .. why)
                             return true
                         end
                     end
@@ -707,9 +685,9 @@ local function runRotation()
 
             --Surging Mist
             if isChecked("Surging Mist") then
-                if thisUnit.hp <= getValue("Surging Mist") or specialHeal then
-                    if cast.surgingMist(thisUnit.unit) then
-                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. thisUnit.name .. " / " .. why .. math.floor(tostring(thisUnit.hp)) .. "/ " .. getValue("Surging Mist"))
+                if getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
+                    if cast.surgingMist(healUnit) then
+                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
                         return true
                     end
                 end
@@ -718,20 +696,20 @@ local function runRotation()
 
             --all the channeling crap
 
-            if thisUnit.hp <= getValue("Enveloping Mist") or specialHeal then
+            if getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
                 if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                     if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
-                        if not buff.soothingMist.exists(thisUnit.unit) then
-                            if cast.soothingMist(thisUnit.unit) then
+                        if not buff.soothingMist.exists(healUnit) then
+                            if cast.soothingMist(healUnit) then
                                 return true
                             end
-                        elseif buff.soothingMist.exists(thisUnit.unit) and buff.envelopingMist.remains(thisUnit.unit) < 2 then
-                            if cast.envelopingMist(thisUnit.unit) then
+                        elseif buff.soothingMist.exists(healUnit) and buff.envelopingMist.remains(healUnit) < 2 then
+                            if cast.envelopingMist(healUnit) then
                                 return
                             end
                         end
-                    elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(thisUnit.unit) < 2 then
-                        if cast.envelopingMist(thisUnit.unit) then
+                    elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
+                        if cast.envelopingMist(healUnit) then
                             return
                         end
                     end
@@ -739,15 +717,15 @@ local function runRotation()
             end
 
             -- Vivify
-            if not isMoving("player") and (thisUnit.hp <= getValue("Vivify") or specialHeal) then
+            if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
                 if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(thisUnit.unit) then
-                        if cast.soothingMist(thisUnit.unit) then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                        if cast.soothingMist(healUnit) then
                             return true
                         end
                     end
                     if not isChecked("Soothing Mist Instant Cast") then
-                        if cast.vivify(thisUnit.unit) then
+                        if cast.vivify(healUnit) then
                             return
                         end
                     end
@@ -755,15 +733,14 @@ local function runRotation()
             end --end vivify
 
             if isChecked("Soothing Mist") and not isMoving("player") then
-                if thisUnit.hp <= getValue("Soothing Mist") or specialHeal and not buff.soothingMist.exists(thisUnit.unit) then
-                    if cast.soothingMist(thisUnit.unit) then
+                if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal and not buff.soothingMist.exists(healUnit) then
+                    if cast.soothingMist(healUnit) then
                         return true
                     end
                 end
             end
         end
     end --end of heal()
-
 
     local function cooldowns()
 
@@ -778,8 +755,27 @@ local function runRotation()
         if talent.invokeChiJiTheRedCrane and isChecked("Chi Ji") then
             if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") or burst == true then
                 if cast.invokeChiJi() then
-                    br.addonDebug(tostring(burst) .. "[ChiJi]:" .. thisUnit.name)
+                    br.addonDebug(tostring(burst) .. "[ChiJi]:" .. UnitName(healUnit))
                     return true
+                end
+            end
+        end
+        --Refreshing Jade Wind
+        if talent.refreshingJadeWind and isChecked("Refreshing Jade Wind") and cast.able.refreshingJadeWind() then
+            local refreshJadeFriends = getAllies("player", 10)
+            if #refreshJadeFriends > 0 then
+                for i = 1, #refreshJadeFriends do
+                    local jadeUnits = refreshJadeFriends[i]
+                    local jadeUnitsCount = 0
+                    if getHP(jadeUnits) < getValue("Refreshing Jade Wind") then
+                        jadeUnitsCount = jadeUnitsCount + 1
+                        if jadeUnitsCount >= getValue("RJW Targets") or burst then
+                            if cast.refreshingJadeWind() then
+                                br.addonDebug("[RefJade]")
+                                return true
+                            end
+                        end
+                    end
                 end
             end
         end
