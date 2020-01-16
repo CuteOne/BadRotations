@@ -190,6 +190,7 @@ local function runRotation()
     local BleedFriendCount = 0
     local BleedStack = 0
     local ttd = getTTD
+    local essence = br.player.essence
     local mana = br.player.power.mana.percent()
     local mode = br.player.mode
     local perk = br.player.perk
