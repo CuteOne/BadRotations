@@ -153,6 +153,7 @@ local function createOptions()
         br.ui:createDropdown(section, "Unstable Temporal Time Shifter", { "|cff00FF00Target", "|cffFF0000Mouseover", "|cffFFBB00Auto" }, 1, "", "|cffFFFFFFTarget to cast on")
         -- Repentance
         br.ui:createDropdown(section, "Repentance Key", br.dropOptions.Toggle, 6, "", "|cffFFFFFFRepentance Key")
+        br.ui:createDropdown(section, "Hard DPS Key", br.dropOptions.Toggle, 6, "", "Ignore all Healing while key is held.")
         br.ui:checkSectionState(section)
 
         -------------------------
@@ -395,7 +396,7 @@ local function runRotation()
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
-    local inRaid = br.player.instance == "raid"
+    local inRaid = br.player.instance == "raid" 
     local solo = #br.friend == 1
     local race = br.player.race
     local racial = br.player.getRacial()
@@ -442,6 +443,7 @@ local function runRotation()
     if not isCastingSpell(spell.flashOfLight) and not isCastingSpell(spell.holyLight) then
         healing_obj = nil
     end
+    
     units.get(5)
     units.get(8)
     units.get(15)
@@ -1511,8 +1513,8 @@ local function runRotation()
 
         --and isChecked("DPS")
         if (mode.DPS == 1 or mode.DPS == 3) and
-                isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
-                isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") then
+                (isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana")) and
+                (isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health")) then
 
 
             --Consecration
@@ -1532,7 +1534,7 @@ local function runRotation()
                     consecrationCastTime = 0;
                     consecrationRemain = 0
                 end
-                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 and not moving and not buff.avengingCrusader.exists() then
+                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 then
                     if cast.able.consecration() and consecrationRemain < gcd then
                         if cast.consecration() then
                             return
@@ -1759,7 +1761,31 @@ local function runRotation()
 
 
         --Wings, burst mode MAX dps
-        if mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295) then
+        if mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player") or (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key"))) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295) then
+            if isChecked("Consecration") and cast.able.consecration() then
+                if consecrationCastTime == nil then
+                    consecrationCastTime = 0
+                end
+                if consecrationRemain == nil then
+                    consecrationRemain = 0
+                end
+                if cast.last.consecration() then
+                    consecrationCastTime = GetTime() + 12
+                end
+                if consecrationCastTime > GetTime() then
+                    consecrationRemain = consecrationCastTime - GetTime()
+                else
+                    consecrationCastTime = 0;
+                    consecrationRemain = 0
+                end
+                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 then
+                    if cast.able.consecration() and consecrationRemain < gcd then
+                        if cast.consecration() then
+                            return
+                        end
+                    end
+                end
+            end            
             if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
                     isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
                 if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or inRaid)) then
@@ -1876,7 +1902,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if glimmerTable ~= nil and #glimmerTable == 0 then
+                if glimmerTable ~= nil and #glimmerTable == 0 and (not isChecked("Holy Shock Damage") or (isChecked("Holy Shock Damage") and lowest.hp < getValue("Holy Shock"))) then
                     if cast.holyShock(lowest.unit) then return end
                 end
                 -- Check here to see if shock is not ready, but dawn is - then use dawn

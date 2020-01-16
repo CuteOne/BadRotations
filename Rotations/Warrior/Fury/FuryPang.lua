@@ -540,7 +540,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+            if getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
@@ -704,7 +704,7 @@ local function runRotation()
         -- Execute
         for i = 1, #enemies.yards5 do
             local thisUnit = enemies.yards5[i]
-            if buff.whirlwind.exists("player") and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
+            if buff.whirlwind.exists("player") and getFacing("player",thisUnit) and cast.able.execute() and (getHP(thisUnit) <= 20 or (talent.massacre and getHP(thisUnit) <= 35) or buff.suddenDeath.exists("player")) and (buff.enrage.exists("player") or rage <= 70) then
                 if cast.execute(thisUnit) then
                     return
                 end
