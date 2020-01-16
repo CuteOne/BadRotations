@@ -50,7 +50,7 @@ end
 function updateOMEWT()
 	local om = br.om
 	local startTime = debugprofilestop()
-	local _, updated, added, removed = GetObjectCount(true)
+	local _, updated, added, removed = GetObjectCount(true,"BR")
 	if updated and #added > 0 then
 		for _, v in pairs(added) do
 			if ObjectIsUnit(v) then
