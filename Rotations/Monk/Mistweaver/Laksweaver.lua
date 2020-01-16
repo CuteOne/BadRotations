@@ -45,7 +45,8 @@ end
 
 -- semi-globals
 local last_statue_location = { x = 0, y = 0, z = 0 }
-
+local jadeUnitsCount = 0
+local jadeUnits = nil
 ---------------
 --- OPTIONS ---
 ---------------options
@@ -766,8 +767,7 @@ local function runRotation()
             local refreshJadeFriends = getAllies("player", 10)
             if #refreshJadeFriends > 0 then
                 for i = 1, #refreshJadeFriends do
-                    local jadeUnits = refreshJadeFriends[i]
-                    local jadeUnitsCount = 0
+                    jadeUnits = refreshJadeFriends[i].unit
                     if getHP(jadeUnits) < getValue("Refreshing Jade Wind") then
                         jadeUnitsCount = jadeUnitsCount + 1
                         if jadeUnitsCount >= getValue("RJW Targets") or burst then
