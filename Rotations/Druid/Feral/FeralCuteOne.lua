@@ -758,7 +758,7 @@ actionList.Cooldowns = function()
             end
             -- Essence: Reaping Flames
             -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-            if cast.able.reapingFlames() and ((getHP(units.dyn5) > 80 and useCDs()) or getHP(units.dyn5) <= 20) then
+            if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
                 if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
             end
         end
@@ -804,7 +804,7 @@ actionList.Cooldowns = function()
                     if use.able.slot(i) then
                         -- Ashvanes Razor Coral
                         -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.down|debuff.conductive_ink_debuff.up&target.time_to_pct_30<1.5|!debuff.conductive_ink_debuff.up&(debuff.razor_coral_debuff.stack>=25-10*debuff.blood_of_the_enemy.up|target.time_to_die<40)&buff.tigers_fury.remains>10
-                        if equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getHP(units.dyn5) <= 30)
+                        if equiped.ashvanesRazorCoral(i) and (not debuff.razorCoral.exists(units.dyn5) or (debuff.conductiveInk.exists(units.dyn5) and getTTD(units.dyn5,30) < 1.5)
                             or not debuff.conductiveInk.exists(units.dyn30) and (debuff.razorCoral.stack(razorTarget()) >= 25 - (10 * enemyBlood) or (ttd(units.dyn5) < 40 and useCDs()))
                             and buff.tigersFury.remain() > 10)
                         then

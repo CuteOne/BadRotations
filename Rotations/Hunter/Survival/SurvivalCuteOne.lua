@@ -520,7 +520,7 @@ actionList.Cooldown = function()
             if cast.worldveinResonance() then return end
         end
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-        if cast.able.reapingFlames() and (getHP("target") > 80 or getHP("target") <= 20) then
+        if cast.able.reapingFlames() and (getHP("target") > 80 or getHP("target") <= 20 or ttd("target",20) > 30) then
             if cast.reapingFlames() then return end
         end
     end
