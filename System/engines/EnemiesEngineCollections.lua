@@ -120,6 +120,10 @@ dispellOffensiveBuffs = {
 	[144351] = "Magic",
 }
 interruptWhitelist = {
+	-- Horrific visions start
+	[298033] = true, -- Touch of the Abyss
+    [288915] = true, -- Horrifying
+	-- Horrific visions end
 	-- Atal'Dazar start
 	[255824] = true, -- fanatic rage
 	[253583] = true, -- Fiery Enchant
@@ -134,7 +138,7 @@ interruptWhitelist = {
 	-- Shrine of Storm start
 	[268030] = true, -- mending-rapids
 	[274438] = true, -- tempest
-	[267818] = true, -- slicing-blast
+	--[267818] = true, -- slicing-blast
 	[268309] = true, -- unending-darkness
 	[268317] = true, -- rip-mind
 	[276767] = true, -- consuming-void
