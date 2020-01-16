@@ -255,7 +255,7 @@ local function runRotation()
         if cast.able.summonJadeSerpentStatue() and (GetTotemTimeLeft(1) < 100 or GetTotemTimeLeft(1) == 0 or getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 40) then
 
             if #tanks > 0 then
-                px, py, pz = GetObjectPosition(tank[1].unit)
+                px, py, pz = GetObjectPosition(tanks[1].unit)
             else
                 px, py, pz = GetObjectPosition("player")
             end
