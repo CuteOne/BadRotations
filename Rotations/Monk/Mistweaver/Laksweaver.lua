@@ -431,9 +431,9 @@ local function runRotation()
     end
     local function dps()
 
-        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and getSpellCD(216113) == 0 then
+        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and getSpellCD(216113) == 0 and IsUsableSpell(216113) == true then
             CastSpellByID(216113, "player")
-            return true
+       --    return true
         end
 
         if (br.player.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
