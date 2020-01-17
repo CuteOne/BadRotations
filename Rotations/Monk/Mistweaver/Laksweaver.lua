@@ -56,7 +56,6 @@ local function createOptions()
     local function rotationOptions()
         local section
         section = br.ui:createSection(br.ui.window.profile, "Key Options")
-
         br.ui:createDropdownWithout(section, "DPS Key", br.dropOptions.Toggle, 6, "DPS key will override any heal/dispel logic")
         br.ui:createDropdownWithout(section, "Heal Key", br.dropOptions.Toggle, 6, "Will ignore automated logic and heal mouseover target")
         br.ui:checkSectionState(section)
@@ -81,14 +80,16 @@ local function createOptions()
         br.ui:createSpinner(section, "Soothing Mist", 40, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createCheckbox(section, "OOC Healing", "Enables/Disables out of combat healing.", 1)
         br.ui:createCheckbox(section, "Summon Jade Serpent", "Place statue yes/no")
+        br.ui:checkSectionState(section)
 
+        section = br.ui:createSection(br.ui.window.profile, "Fistweaving options")
+        br.ui:createSpinner(section, "Fistweave Hots", 3, 1, 20, 5, "Num of hots before kicking")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Defensive Options")
         br.ui:createSpinner(section, "Healing Elixir /Dampen Harm / Diffuse Magic", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Fortifying Brew", 45, 0, 100, 1, "Fortifying Brew", "Health Percent to Cast At")
         br.ui:createSpinner(section, "Healthstone", 30, 0, 100, 5, "Health Percent to Cast At")
-
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Utility Options")
@@ -99,6 +100,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Auto Drink", 30, 0, 100, 5, "Mana to drink at")
         br.ui:createDropdown(section, "Ring of Peace", br.dropOptions.Toggle, 6, "Hold this key to cast Ring of Peace at Mouseover")
         br.ui:createSpinner(section, "Mana Potion", 50, 0, 100, 1, "Mana Percent to Cast At")
+        br.ui:createSpinner(section, "Thunder Focus Tea", 50, 0, 100, 1, "Mana Percent to Cast At - 0 for on CD")
+        br.ui:createDropdownWithout(section, "Thunder Focus Mode", { "Auto", "Enveloping M", "Renewing M", "Vivify", "Rising Sun Kick" }, 1, "", "")
 
         br.ui:checkSectionState(section)
 
@@ -246,8 +249,86 @@ local function runRotation()
     enemies.yards30 = enemies.get(30)
     enemies.yards40 = enemies.get(40)
 
+    focustea = nil
 
     --functions
+    local function risingSunKickFunc()
+
+        local risingMistHotCount = 3
+        --hots are font, enveloping mist and soothing mist
+
+        --Print("risingSunKickFunc:  " .. focustea)
+        if cast.able.risingSunKick() and #enemies.yards5 > 0 then
+            if talent.risingMist and risingMistHotCount >= getValue("Fistweave Hots")
+                    or focustea == "kick"
+                    or buff.wayOfTheCrane.exists() then
+                if cast.risingSunKick(units.dyn5) then
+                    br.addonDebug("Rising Sun Kick on : " .. units.dyn5 .. "| BAMF!")
+                    return true
+                end
+            end
+        end
+    end
+
+    local function thunderFocusTea()
+
+
+        --thunder tea logic
+--[[
+        br.ui:createSpinner(section, "Thunder Focus Tea", 50, 0, 100, 1, "Mana Percent to Cast At - 0 for on CD")
+        br.ui:createDropdownWithout(section, "Thunder Focus Mode", { "Auto", "Enveloping M", "Renewing M", "Vivify", "Rising Sun Kick" }, 1, "", "")
+]]
+
+
+        -- auto mode
+        if isChecked("Thunder Focus Tea") and (cast.able.thunderFocusTea() or buff.thunderFocusTea.exists()) then
+            if getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
+                focustea = "singleHeal"
+            elseif getOptionValue("Thunder Focus Mode") == 1 and burst == true or getLowAllies(70) > 3 or getOptionValue("Thunder Focus Mode") == 3 then
+                focustea = "AOEHeal"
+            elseif getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or getOptionValue("Thunder Focus Mode") == 4 then
+                focustea = "manaEffiency"
+            elseif getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist or getOptionValue("Thunder Focus Mode") == 5 then
+                -- Print("gonna kick it")
+                focustea = "kick"
+            end
+
+        end
+
+        if focustea ~= nil and not buff.thunderFocusTea.exists() and cast.able.thunderFocusTea() then
+            if cast.thunderFocusTea() then
+               -- Print("two for tea ...or teaaa..for twooo")
+                return true
+            end
+        end
+
+        --  Print("Focustea1: " .. focustea)
+        if focustea ~= nil and buff.thunderFocusTea.exists() then
+            if focustea == "singleHeal" then
+                if cast.envelopingMist(lowest.unit) then
+                    return true
+                end
+            end
+            if focustea == "AOEHeal" then
+                if cast.renewingMist(lowest.unit) then
+                    --     Print("AOEHeal")
+                    return true
+                end
+            end
+            if focustea == "manaEffiency" then
+                if cast.vivify(lowest.unit) and not cast.last.vivify(1) and buff.thunderFocusTea.exists() then
+                    --      Print("[Vivify]: ......")
+                    return true
+                end
+            end
+            if focustea == "kick" then
+                if risingSunKickFunc() then
+                    return true
+                end
+            end
+        end
+    end
+
     local function jadestatue()
         --Jade Statue
         local px, py, pz
@@ -355,7 +436,8 @@ local function runRotation()
             return true
         end
 
-        if br.player.mode.dps < 4 or buff.wayOfTheCrane.exists() then
+        if (br.player.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
+
 
             local dps_mode
             if br.player.mode.dps == 1 then
@@ -365,6 +447,12 @@ local function runRotation()
             elseif br.player.mode.dps == 3 then
                 dps_mode = "multi"
             end
+
+            if getDistance(units.dyn5) < 5 and #enemies.yards5 > 0 then
+                StartAttack(units.dyn5)
+            end
+
+
             --print("dps_mode: " .. dps_mode)
             --[[
                         if inCombat and (isInMelee() and getFacing("player", "target") == true) then
@@ -449,10 +537,10 @@ local function runRotation()
                 end
             end
         end
-
     end
 
     local function heal()
+
         local healUnit = nil
         local specialHeal = false
         local burst = false
@@ -587,21 +675,21 @@ local function runRotation()
             end
             --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. getHP(healUnit))
 
-
-            --always kick with rising  -- fist weaving
-            if talent.risingMist then
-                if lowest.hp > getValue("Critical HP") then
-                    if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
-                        if cast.blackoutKick(units.dyn5) then
-                            return true
+            --[[
+                        --always kick with rising  -- fist weaving
+                        if talent.risingMist then
+                            if lowest.hp > getValue("Critical HP") then
+                                if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
+                                    if cast.blackoutKick(units.dyn5) then
+                                        return true
+                                    end
+                                end
+                            end
+                            if cast.risingSunKick(units.dyn5) then
+                                return true
+                            end
                         end
-                    end
-                end
-                if cast.risingSunKick(units.dyn5) then
-                    return true
-                end
-            end
-
+            ]]
             --Life Cocoon
             if isChecked("Life Cocoon") and cast.able.lifeCocoon() then
                 if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
@@ -649,7 +737,7 @@ local function runRotation()
             end
 
             -- Renewing Mists
-            if isChecked("Renewing Mist") and cast.able.renewingMist() then
+            if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) then
                 if (inCombat and (getHP(healUnit) <= getValue("Renewing Mist") or getValue("Renewing Mist") == 0) or (not inCombat and getHP(healUnit) < 90)) and
                         not buff.renewingMist.exists(healUnit) and not cast.last.renewingMist(1) then
                     if cast.renewingMist(healUnit) then
@@ -728,6 +816,8 @@ local function runRotation()
                     end
                     if not isChecked("Soothing Mist Instant Cast") then
                         if cast.vivify(healUnit) then
+                            br.addonDebug("[Vivify]: " .. UnitName(healUnit))
+
                             return
                         end
                     end
@@ -746,6 +836,7 @@ local function runRotation()
 
     local function cooldowns()
 
+
         if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
             if cast.able.ringOfPeace() then
                 if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
@@ -753,6 +844,11 @@ local function runRotation()
                 end
             end
         end
+
+
+
+
+
         --Chi Ji
         if talent.invokeChiJiTheRedCrane and isChecked("Chi Ji") then
             if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") or burst == true then
@@ -925,7 +1021,6 @@ local function runRotation()
             end
 
             if isChecked("Auto use Pots") and burst == true then
-                -- print("foo") 169300
                 if hasItem(169300) and canUseItem(169300) then
                     useItem(169300)
                 end
@@ -1111,7 +1206,6 @@ local function runRotation()
                 if heal() then
                     return true
                 end
-                --Print("Peace")
             end
             if isChecked("Tiger's Lust") then
                 if tigers_lust() then
@@ -1158,6 +1252,13 @@ local function runRotation()
                 if high_prio() then
                     return true
                 end
+                if (talent.focusedThunder and buff.thunderFocusTea.stack == 2) or buff.thunderFocusTea.exists()
+                        or cd.thunderFocusTea.ready() or cast.last.thunderFocusTea(1) and not (buff.thunderFocusTea.stack() == 1 and talent.focusedThunder) then
+                    if thunderFocusTea() then
+                        return true
+                    end
+                end
+
                 if cooldowns() then
                     return true
                 end
@@ -1167,19 +1268,20 @@ local function runRotation()
                 if isChecked("Freehold - pig") then
                     bossHelper()
                 end
-                if not buff.wayOfTheCrane.exists() or #enemies.yards8 == 0 then
+                if not (buff.wayOfTheCrane.exists() or #enemies.yards8 == 0) and not buff.thunderFocusTea.exists() then
                     if heal() then
                         return true
                     end
                 end
             end
-            if specialHeal ~= true or buff.wayOfTheCrane.exists() or (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) then
+            if not buff.thunderFocusTea.exists() or specialHeal ~= true or buff.wayOfTheCrane.exists() or (SpecificToggle("DPS Key") and not last.cGetCurrentKeyBoardFocus()) then
                 if dps() then
                     return true
                 end
             end
-            return true
+
         end
+
     end -- end pause
 end --end Runrotation
 
