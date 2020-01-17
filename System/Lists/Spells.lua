@@ -1626,6 +1626,7 @@ br.lists.spells = {
                 upwelling                   = 274963,
                 lifecycles                  = 197915,
                 risingMist                  = 274909,
+                focusedThunder              = 197895,
             },
         },
         -- Windwalker
