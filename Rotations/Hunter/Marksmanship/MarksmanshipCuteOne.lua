@@ -664,7 +664,7 @@ local function runRotation()
                     if cast.purifyingBlast("best", nil, 1, 8) then return true end
                 end
                 -- concentrated_flame,if=focus+focus.regen*gcd<focus.max&buff.trueshot.down&(!dot.concentrated_flame_burn.remains&!action.concentrated_flame.in_flight)|full_recharge_time<gcd|target.time_to_die<5
-                if cast.able.concentratedFlame() and power + pwoerRegen * gcdMax < powerMax and not buff.trueshot.exists()
+                if cast.able.concentratedFlame() and power + powerRegen * gcdMax < powerMax and not buff.trueshot.exists()
                     and (not debuff.concentratedFlame.exists(units.dyn40) and not cast.inFlight.concentratedFlame())
                     or charges.concentratedFlame.timeTillFull() < gcdMax or (ttd(units.dyn40) < 5 and useCDs)
                 then
