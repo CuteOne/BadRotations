@@ -41,7 +41,7 @@ System\Lists\AoEDamage.lua
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
 System\Lists\Defensives.lua
-System\Lists\Dispells.lua
+System\Lists\Dispels.lua
 System\Lists\Dummy.lua
 System\Lists\InterruptWhitelist.lua
 System\Lists\Items.lua
