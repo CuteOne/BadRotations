@@ -279,7 +279,8 @@ local function runRotation()
 
     local function ShouldMitigate()
         if UnitThreatSituation("player", "target") == 3 and UnitCastingInfo("target") then
-            if activeMitigationList[select(9, UnitCastingInfo("target"))] ~= nil then
+            -- if activeMitigationList[select(9, UnitCastingInfo("target"))] ~= nil then
+            if br.lists.defensives[select(9, UnitCastingInfo("target"))] ~= nil then
                 return true
             end
         -- for i = 1, #activeMitigationList do

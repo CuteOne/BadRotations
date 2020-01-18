@@ -13,10 +13,10 @@ function br.read.enrageReader(...)
         -- here we will take all spell aura and check if we hold this aura in our enrage table
         -- if we find a match, we set the unit to whitelist with time remaining on the buff
         if param == "SPELL_AURA_APPLIED" and destName ~= nil then
-            if dispellOffensiveBuffs[spell] ~= nil then
+            if br.lists.dispell[spell] ~= nil then
                 -- find unit in engine, if its not there, dont add it.
                 if destination ~= nil then
-                    tinsert(br.read.enraged, 1, {guid = destination, spellType = dispellOffensiveBuffs[spell], buffID = spell})
+                    tinsert(br.read.enraged, 1, {guid = destination, spellType = br.lists.dispell[spell], buffID = spell})
                 end
             end
         end

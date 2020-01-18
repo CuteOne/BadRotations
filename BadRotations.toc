@@ -37,9 +37,13 @@ System\Functions\SmartQueue.lua
 
 ## Lists
 
+System\Lists\AoEDamage.lua
 System\Lists\BurnUnits.lua
 System\Lists\CCUnits.lua
+System\Lists\Defensives.lua
+System\Lists\Dispells.lua
 System\Lists\Dummy.lua
+System\Lists\InterruptWhitelist.lua
 System\Lists\Items.lua
 System\Lists\LineOfSight.lua
 System\Lists\LongCC.lua
@@ -51,7 +55,6 @@ System\Lists\Specs.lua
 System\Lists\Spells.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
-System\Lists\AoEDamage.lua
 
 ## Readers
 
@@ -84,8 +87,6 @@ System\drawer\drawer.lua
 
 System\Engines\ArtifactTable.lua
 System\Engines\EnemiesEngine.lua
-System\Engines\EnemiesEngineCollections.lua
-System\Engines\EnemiesEngineFrame.lua
 System\Engines\EnemiesEngineFunctions.lua
 System\Engines\HealingEngine.lua
 System\Engines\HealingEngineCollections.lua

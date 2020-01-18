@@ -127,7 +127,7 @@ function canInterrupt(unit,percentint)
 			end
 		end
 		-- Check if on whitelist (if selected)
-		if isChecked("Interrupt Only Whitelist") and interruptWhitelist[interruptID] then
+		if isChecked("Interrupt Only Whitelist") and br.lists.interruptWhitelist[interruptID] then
 			 onWhitelist = true
 		end
 		-- Return when interrupt time is met
@@ -146,6 +146,9 @@ function canInterrupt(unit,percentint)
 		end
 		return false
 	end
+end
+function canStun(unit)
+	return isCrowdControlCandidates(unit)
 end
 -- if getCharges(115399) > 0 then
 function getCharges(spellID)
