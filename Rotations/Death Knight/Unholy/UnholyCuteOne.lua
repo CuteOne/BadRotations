@@ -609,13 +609,28 @@ local function runRotation()
             if useCDs() and cast.able.purifyingBlast() and deathAndDecayRemain == 0 then
                 if cast.purifyingBlast("best", nil, 1, 8) then return true end
             end
-            -- worldvein_resonance,if=!death_and_decay.ticking
-            if cast.able.worldveinResonance() and deathAndDecayRemain == 0 then
+            -- worldvein_resonance,if=talent.army_of_the_damned.enabled&essence.vision_of_perfection.minor&buff.unholy_strength.up|essence.vision_of_perfection.minor&pet.apoc_ghoul.active|talent.army_of_the_damned.enabled&pet.apoc_ghoul.active&cooldown.army_of_the_dead.remains>60|talent.army_of_the_damned.enabled&pet.army_ghoul.active
+            if cast.able.worldveinResonance() and talent.armyOfTheDamned and essence.visionOfPerfection.minor
+                and buff.unholyStrength.exists() or essence.visionOfPerfection.minor and pet.apocalypseGhoul.active()
+                or talent.armyOfTheDamned and pet.apocalypseGhoul.active() and cd.armyOfTheDead.remain() > 60
+                or talent.armyOfTheDamned and pet.armyOfTheDead.active()
+            then
+                if cast.worldveinResonance() then return end
+            end
+            -- worldvein_resonance,if=!death_and_decay.ticking&buff.unholy_strength.up&!essence.vision_of_perfection.minor&!talent.army_of_the_damned.enabled|target.time_to_die<cooldown.apocalypse.remains
+            if cast.able.worldveinResonance() and deathAndDecayRemain == 0 and buff.unholyStrength.exists()
+                and not essence.visionOfPerfection.minor and not talent.armyOfTheDamned
+                or ttd(units.dyn5) < cd.apocalypse.remain()
+            then
                 if cast.worldveinResonance() then return end
             end
             -- ripple_in_space,if=!death_and_decay.ticking
             if useCDs() and cast.able.rippleInSpace() and deathAndDecayRemain == 0 then
                 if cast.rippleInSpace() then return end
+            end
+            -- reaping_flames
+            if cast.able.reapingFlames() then
+                if cast.reapingFlames() then return end
             end
         end
     end
