@@ -190,7 +190,7 @@ local leftCombat
 local profileStop
 local flood
 local metaExtended
-local metaEyeBeam
+local metaEyeBeam = false
 
 local bladeDanceVar
 local poolForMeta
@@ -364,7 +364,7 @@ actionList.Cooldowns = function()
                 if cast.metamorphosis("player") then return end
             end
             -- metamorphosis,if=talent.demonic.enabled&(!azerite.chaotic_transformation.enabled|(cooldown.eye_beam.remains>20&(!variable.blade_dance|cooldown.blade_dance.remains>gcd.max)))
-            if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active 
+            if cast.able.metamorphosis() and talent.demonic and (not traits.chaoticTransformation.active
                 or (cd.eyeBeam.remain() > 20 and (not bladeDanceVar or cd.bladeDance.remain() > gcd))) and #enemies.yards8 > 0 
             then
                 if cast.metamorphosis("player") then return end
@@ -438,76 +438,81 @@ actionList.Cooldowns = function()
         end
     end -- End useCDs check
     -- Heart Essences
+    -- call_action_list,name=essences
     if isChecked("Use Essence") then
-        -- Essence: Concentrated Flame
-        -- concentrated_flame,if=(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
-        if cast.able.concentratedFlame() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame()
-            or charges.concentratedFlame.timeTillFull() < gcd)
-        then
-            if cast.concentratedFlame() then debug("Casting Concentrated Flame") return true end
-        end
-        -- Essence: Blood of the Enemy
-        -- blood_of_the_enemy,if=buff.metamorphosis.up|target.time_to_die<=10
-        if cast.able.bloodOfTheEnemy() and (buff.metamorphosis.exists() or (ttd(units.dyn5) <= 10 and useCDs())) then
-            if cast.bloodOfTheEnemy() then debug("Casting Blood of the Enemy") return true end
-        end
-        -- Essence: Guardian of Azeroth
-        -- guardian_of_azeroth,if=(buff.metamorphosis.up&cooldown.metamorphosis.ready)|buff.metamorphosis.remains>25|target.time_to_die<=30
-        if useCDs() and cast.able.guardianOfAzeroth() and ((buff.metamorphosis.exists() and cd.metamorphosis.ready()) or buff.metamorphosis.remain() > 25 or ttd(units.dyn5) <= 30) then
-            if cast.guardianOfAzeroth() then debug("Casting Guardian of Azeroth") return end
-        end
-        -- Essence: Focused Azerite Beam
-        -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.focusedAzeriteBeam() and not isExplosive("target")
-            and (enemies.yards25r >= getOptionValue("Azerite Beam Units")
-                or (useCDs() and enemies.yards25r > 0))
-        then
-            local minBeamCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
-            if cast.focusedAzeriteBeam(nil,"rect",minBeamCount,30) then
-                debug("Casting Focused Azerite Beam")
-                return true
-            end
-        end
-        -- Essence: Purifying Blast
-        -- purifying_blast,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
-        if cast.able.purifyingBlast() and not isExplosive("target") and (#enemies.yards8t >= 3 or useCDs()) then
-            local minCount = useCDs() and 1 or 3
-            if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
-        end
-        -- Essence: The Unbound Force
-        -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
-        if cast.able.theUnboundForce() and (buff.recklessForce.exist() or buff.recklessForceCounter.stack() < 10) then
-            if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
-        end
-        -- Essence: Ripple In Space
-        -- ripple_in_space
-        if cast.able.rippleInSpace() then
-            if cast.rippleInSpace() then debug("Casting Ripple In Space") return true end
-        end
-        -- Essence: Worldvein Resonance
-        -- worldvein_resonance,if=buff.metamorphosis.up
-        if cast.able.worldveinResonance() and buff.metamorphosis.exists() then
-            if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
-        end
-        -- Essence: Memory of Lucid Dreams
-        -- memory_of_lucid_dreams,if=fury<40&buff.metamorphosis.up
-        if cast.able.memoryOfLucidDreams() and buff.metamorphosis.exists() and power < 40 then
-            if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
-        end
-        -- Essence: Reaping Flames
-        -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-        if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
-            if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
-        end
+        if actionList.Essence() then return end
     end
 end -- End Action List - Cooldowns
+
+-- Action List - Heart Essence
+actionList.Essence = function()
+    -- Essence: Concentrated Flame
+    -- concentrated_flame,if=(!dot.concentrated_flame_burn.ticking&!action.concentrated_flame.in_flight|full_recharge_time<gcd.max)
+    if cast.able.concentratedFlame() and (not debuff.concentratedFlame.exists(units.dyn5) and not cast.last.concentratedFlame()
+        or charges.concentratedFlame.timeTillFull() < gcd)
+    then
+        if cast.concentratedFlame() then debug("Casting Concentrated Flame") return true end
+    end
+    -- Essence: Blood of the Enemy
+    -- blood_of_the_enemy,if=buff.metamorphosis.up|target.time_to_die<=10
+    if cast.able.bloodOfTheEnemy() and (buff.metamorphosis.exists() or (ttd(units.dyn5) <= 10 and useCDs())) then
+        if cast.bloodOfTheEnemy() then debug("Casting Blood of the Enemy") return true end
+    end
+    -- Essence: Guardian of Azeroth
+    -- guardian_of_azeroth,if=(buff.metamorphosis.up&cooldown.metamorphosis.ready)|buff.metamorphosis.remains>25|target.time_to_die<=30
+    if useCDs() and cast.able.guardianOfAzeroth() and ((buff.metamorphosis.exists() and cd.metamorphosis.ready()) or buff.metamorphosis.remain() > 25 or ttd(units.dyn5) <= 30) then
+        if cast.guardianOfAzeroth() then debug("Casting Guardian of Azeroth") return end
+    end
+    -- Essence: Focused Azerite Beam
+    -- focused_azerite_beam,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
+    if cast.able.focusedAzeriteBeam() and not isExplosive("target")
+        and (enemies.yards25r >= getOptionValue("Azerite Beam Units")
+            or (useCDs() and enemies.yards25r > 0))
+    then
+        local minBeamCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
+        if cast.focusedAzeriteBeam(nil,"rect",minBeamCount,30) then
+            debug("Casting Focused Azerite Beam")
+            return true
+        end
+    end
+    -- Essence: Purifying Blast
+    -- purifying_blast,if=spell_targets.blade_dance1>=2|raid_event.adds.in>60
+    if cast.able.purifyingBlast() and not isExplosive("target") and (#enemies.yards8t >= 3 or useCDs()) then
+        local minCount = useCDs() and 1 or 3
+        if cast.purifyingBlast("best", nil, minCount, 8) then debug("Casting Purifying Blast") return true end
+    end
+    -- Essence: The Unbound Force
+    -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
+    if cast.able.theUnboundForce() and (buff.recklessForce.exist() or buff.recklessForceCounter.stack() < 10) then
+        if cast.theUnboundForce() then debug("Casting The Unbound Force") return true end
+    end
+    -- Essence: Ripple In Space
+    -- ripple_in_space
+    if cast.able.rippleInSpace() then
+        if cast.rippleInSpace() then debug("Casting Ripple In Space") return true end
+    end
+    -- Essence: Worldvein Resonance
+    -- worldvein_resonance,if=buff.metamorphosis.up
+    if cast.able.worldveinResonance() and buff.metamorphosis.exists() then
+        if cast.worldveinResonance() then debug("Casting Worldvein Resonance") return end
+    end
+    -- Essence: Memory of Lucid Dreams
+    -- memory_of_lucid_dreams,if=fury<40&buff.metamorphosis.up
+    if useCDs() and cast.able.memoryOfLucidDreams() and buff.metamorphosis.exists() and power < 40 then
+        if cast.memoryOfLucidDreams() then debug("Casting Memory of Lucid Dreams") return true end
+    end
+    -- Essence: Reaping Flames
+    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+    if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
+        if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
+    end
+end
 
 -- Action List - Dark Slash
 actionList.DarkSlash = function()
     -- Dark Slash
     -- dark_slash,if=fury>=80&(!variable.blade_dance|!cooldown.blade_dance.ready)
     if cast.able.darkSlash(units.dyn5) and power >= 80 and (not bladeDanceVar or cd.bladeDance.remain() > gcd) then
-        Print("Action List - Dark Slash")
         if cast.darkSlash(units.dyn5) then return end
     end
     -- Annihilation
@@ -659,7 +664,6 @@ actionList.Normal = function()
     if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam() and enemies.yards20r > 0 and not moving and not waitForMomentum
         and (not talent.momentum or buff.momentum.exists()) and (eyebeamTTD() or isDummy(units.dyn8))
     then
-        -- if cast.eyeBeam(units.dyn5) then return end
         if cast.eyeBeam(nil,"rect",1,20) then return end
     end
     -- Blade Dance
@@ -771,8 +775,9 @@ actionList.PreCombat = function()
                 end
             end
             -- Metamorphosis
+            -- metamorphosis,if=!azerite.chaotic_transformation.enabled
             if useCDs() and isChecked("Metamorphosis") and cast.able.metamorphosis()
-                and not azerite.chaoticTransformation.active
+                and pullTimer <= 1 and not traits.chaoticTransformation.active
             then
                 if cast.metamorphosis("player") then return end
             end
@@ -781,7 +786,7 @@ actionList.PreCombat = function()
                 local opValue = getOptionValue("Trinkets")
                 local iValue = i - 12
                 if (opValue == iValue or opValue == 3) and use.able.slot(iValue) then
-                    if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) then
+                    if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and pullTimer <= 5 then
                         use.slot(i)
                         return
                     end
@@ -887,13 +892,13 @@ local function runRotation()
     -- Wait for Dark Slash
     -- variable,name=waiting_for_dark_slash,value=talent.dark_slash.enabled&!variable.pooling_for_blade_dance&!variable.pooling_for_meta&cooldown.dark_slash.up
     waitForDarkSlash = talent.darkSlash and not poolForBladeDance and not poolForMeta and cd.darkSlash.remain() == 0
-    -- Wiat for Momentum
+    -- Wait for Momentum
     -- variable,name=waiting_for_momentum,value=talent.momentum.enabled&!buff.momentum.up
     waitForMomentum = talent.momentum and not buff.momentum.exists()
 
     -- Check for Eye Beam During Metamorphosis
-    if talent.demonic and buff.metamorphosis.duration() > 10 and cast.last.eyeBeam() then metaEyeBeam = true end
-    if metaEyeBeam == nil or (metaEyeBeam == true and not buff.metamorphosis.exists()) then metaEyeBeam = false end
+    if talent.demonic and buff.metamorphosis.exists() and cast.last.eyeBeam() then metaEyeBeam = true end
+    if metaEyeBeam == true and not buff.metamorphosis.exists() then metaEyeBeam = false end
 
     -- if mode.mover == 1 and cast.last.vengefulRetreat() then StopFalling(); end
     -- if IsHackEnabled("NoKnockback") then
