@@ -84,6 +84,8 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, "Fistweaving options")
         br.ui:createSpinner(section, "Fistweave Hots", 3, 1, 20, 5, "Num of hots before kicking")
+        br.ui:createSpinner(section, "DPS Threshold", 40, 1, 100, 5, "Health limit where we focus on getting kicks in")
+
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Defensive Options")
@@ -252,18 +254,47 @@ local function runRotation()
     focustea = nil
 
     --functions
+
+    local function hotcountFunc()
+
+        local hotcounter = 0
+
+        for i = 1, #br.friend do
+            local hotUnit = br.friend[i].unit
+
+            if buff.envelopingMist.exists(hotUnit) then
+                hotcounter = hotcounter + 1
+            end
+            if buff.essenceFont.exists(hotUnit) then
+                hotcounter = hotcounter + 1
+            end
+            if buff.renewingMist.exists(hotUnit) then
+                hotcounter = hotcounter + 1
+            end
+            return hotcounter
+        end
+    end
+
     local function risingSunKickFunc()
-
-        local risingMistHotCount = 3
-        --hots are font, enveloping mist and soothing mist
-
-        --Print("risingSunKickFunc:  " .. focustea)
         if cast.able.risingSunKick() and #enemies.yards5 > 0 then
-            if talent.risingMist and risingMistHotCount >= getValue("Fistweave Hots")
+            if talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
                     or focustea == "kick"
                     or buff.wayOfTheCrane.exists() then
                 if cast.risingSunKick(units.dyn5) then
-                    br.addonDebug("Rising Sun Kick on : " .. units.dyn5 .. "| BAMF!")
+                    br.addonDebug("Rising Sun Kick on : " .. units.dyn5 .. " BAMF!")
+                    return true
+                end
+            end
+        end
+        if not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemies.yards5 > 0 then
+            if cast.able.blackoutKick and
+                    (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
+                if cast.blackoutKick(units.dyn5) then
+                    return true
+                end
+            end
+            if cast.able.tigerPalm and #enemies.yards5 > 0 and buff.teachingsOfTheMonastery.stack() < 3 or buff.teachingsOfTheMonastery.remain() < 2 then
+                if cast.tigerPalm(units.dyn5) then
                     return true
                 end
             end
@@ -274,10 +305,10 @@ local function runRotation()
 
 
         --thunder tea logic
---[[
-        br.ui:createSpinner(section, "Thunder Focus Tea", 50, 0, 100, 1, "Mana Percent to Cast At - 0 for on CD")
-        br.ui:createDropdownWithout(section, "Thunder Focus Mode", { "Auto", "Enveloping M", "Renewing M", "Vivify", "Rising Sun Kick" }, 1, "", "")
-]]
+        --[[
+                br.ui:createSpinner(section, "Thunder Focus Tea", 50, 0, 100, 1, "Mana Percent to Cast At - 0 for on CD")
+                br.ui:createDropdownWithout(section, "Thunder Focus Mode", { "Auto", "Enveloping M", "Renewing M", "Vivify", "Rising Sun Kick" }, 1, "", "")
+        ]]
 
 
         -- auto mode
@@ -296,9 +327,15 @@ local function runRotation()
         end
 
         if focustea ~= nil and not buff.thunderFocusTea.exists() and cast.able.thunderFocusTea() then
-            if cast.thunderFocusTea() then
-               -- Print("two for tea ...or teaaa..for twooo")
-                return true
+            if (focustea == "singleHeal" and cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist"))
+                    or (focustea == "AOEHeal" and cast.able.renewingMist() and getHP(br.friend[1]) <= getValue("Renewing Mist"))
+                    or (focustea == "manaEffiency" and cast.able.vivify() and getHP(br.friend[1]) < getValue("Vivify"))
+                    or (focustea == "kick" and cast.able.risingSunKick() and getDistance(units.dyn5) < 5 and hotcountFunc() >= getValue("Fistweave Hots"))
+            then
+                if cast.thunderFocusTea() then
+                    br.addonDebug("Thundertea: " .. focustea)
+                    return true
+                end
             end
         end
 
@@ -431,9 +468,9 @@ local function runRotation()
     end
     local function dps()
 
-        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and getSpellCD(216113) == 0 and IsUsableSpell(216113) == true then
+        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and getSpellCD(216113) == 0 and essence.strife.active then
             CastSpellByID(216113, "player")
-       --    return true
+            return true
         end
 
         if (br.player.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
@@ -1200,6 +1237,9 @@ local function runRotation()
         ---------------------------------
         if not inCombat then
 
+            --testing block
+            --Print(hotcountFunc())
+
 
             if isChecked("OOC Healing")
                     and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
@@ -1258,11 +1298,13 @@ local function runRotation()
                         return true
                     end
                 end
-
                 if cooldowns() then
                     return true
                 end
                 if interrupts() then
+                    return true
+                end
+                if risingSunKickFunc() then
                     return true
                 end
                 if isChecked("Freehold - pig") then
