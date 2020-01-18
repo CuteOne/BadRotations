@@ -530,7 +530,7 @@ end -- End Action List - Cooldowns
 actionList.St = function()
     -- Harpoon
     -- harpoon,if=talent.terms_of_engagement.enabled
-    if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement then
+    if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement and getDistance(units.dyn30) > 5 then
         if cast.harpoon() then return end
     end
     -- Flanking Strike
@@ -702,7 +702,7 @@ actionList.Cleave = function()
     end
     -- Harpoon
     -- harpoon,if=talent.terms_of_engagement.enabled
-    if cast.able.harpoon() and mode.harpoon == 1 and (talent.termsOfEngagement) then
+    if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement and getDistance(units.dyn30) > 5 then
         if cast.harpoon() then return end
     end
     -- Serpent Sting
@@ -927,7 +927,9 @@ end
 actionList.Wfi = function()
     -- Harpoon
     -- harpoon,if=focus+cast_regen<focus.max&talent.terms_of_engagement.enabled
-    if cast.able.harpoon() and mode.harpoon == 1 and focus + focusRegen < focusMax and talent.termsOfEngagement then
+    if cast.able.harpoon() and mode.harpoon == 1 and focus + focusRegen < focusMax
+        and talent.termsOfEngagement and getDistance(units.dyn30) > 5
+    then
         if cast.harpoon() then return end
     end
     -- Mongoose Bite
@@ -1060,7 +1062,7 @@ actionList.Opener = function()
                 return
             -- Coordinated Assault
             elseif opener.OPN1 and not opener.CA1 then
-                if cd.coordinatedAssault.remain() > gcd then
+                if level < 40 or cd.coordinatedAssault.remain() > gcd then
                     castOpenerFail("coordinatedAssault","CA1",opener.count)
                 elseif cast.able.coordinatedAssault() then
                     castOpener("coordinatedAssault","CA1",opener.count)
@@ -1341,12 +1343,12 @@ local function runRotation()
                         if actionList.Wfi() then return end
                     end
                 end
-                if ((mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey) 
+                -- Call Action List - Cleave
+                -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
+                if ((mode.rotation == 1 and (((eagleScout() > 1 or #enemies.yards8t > 1) and not talent.birdsOfPrey)
                         or (eagleScout() > 2 or #enemies.yards8t > 2)))
                     or (mode.rotation == 2 and eagleScout() > 0)) and level >= 28
                 then
-                    -- Call Action List - Cleave
-                    -- call_action_list,name=cleave,if=active_enemies>1&!talent.birds_of_prey.enabled|active_enemies>2
                     if actionList.Cleave() then return end
                 end
                 -- Heart Essence - Concentrated Flame
