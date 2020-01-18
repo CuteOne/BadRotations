@@ -83,8 +83,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Fistweaving options")
-        br.ui:createSpinner(section, "Fistweave Hots", 3, 1, 20, 5, "Num of hots before kicking")
-        br.ui:createSpinner(section, "DPS Threshold", 40, 1, 100, 5, "Health limit where we focus on getting kicks in")
+        br.ui:createSpinnerWithout(section, "Fistweave Hots", 3, 1, 20, 5, "Num of hots before kicking")
+        br.ui:createSpinnerWithout(section, "DPS Threshold", 40, 1, 100, 5, "Health limit where we focus on getting kicks in")
 
         br.ui:checkSectionState(section)
 
@@ -110,7 +110,6 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "DPS")
         br.ui:createCheckbox(section, "Crackling Jade Lightning", "Enables" .. "/" .. "Disables " .. "the use of Crackling Jade Lightning.")
         br.ui:createCheckbox(section, "Rising Sun Kick", "Enables" .. "/" .. "Disables " .. " use of Rising Sun Kick on DPS rotation")
-        br.ui:createCheckbox(section, "Spinning Crane Kick", "Enables" .. "/" .. "Disables " .. " use of Spinning Crane Kick on DPS rotation")
         br.ui:createCheckbox(section, "Spinning Crane Kick", "Enables" .. "/" .. "Disables " .. " use of Spinning Crane Kick on DPS rotation")
         br.ui:createCheckbox(section, "ChiBurst/ChiWave", "Enables" .. "/" .. "Disables " .. "use of ChiBurst/ChiWave as part of DPS rotation")
         br.ui:checkSectionState(section)
