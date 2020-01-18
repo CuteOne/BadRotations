@@ -774,6 +774,10 @@ actionList.St = function()
     if cast.able.barbedShot() and charges.barbedShot.frac() > 1.4 then
         if cast.barbedShot() then return end
     end
+    -- Cobra Shot - Low Level
+    if cast.able.cobraShot() and level < 10 then
+        if cast.cobraShot() then return end
+    end
 end -- End Action List - Single Target
 
 -- Action List - Cleave
@@ -1088,7 +1092,7 @@ local function runRotation()
                 -- call_action_list,name=cds
                 if actionList.Cooldowns() then return end
                 -- call_action_list,name=st,if=active_enemies<2
-                if (mode.rotation == 1 and #enemies.yards8t < getOptionValue("Units To AoE")) or mode.rotation == 3 then
+                if (mode.rotation == 1 and #enemies.yards8t < getOptionValue("Units To AoE")) or mode.rotation == 3 or level < 16 then
                     if actionList.St() then return end
                 end
                 -- call_action_list,name=cleave,if=active_enemies>1
