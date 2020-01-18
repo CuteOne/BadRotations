@@ -10,7 +10,7 @@ local function createToggles()
         [1] = { mode = "Auto", value = 1, overlay = "Cooldowns Automated", tip = "Automatic Cooldowns - Boss Detection.", highlight = 0, icon = br.player.spell.holyAvenger },
         [2] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns used regardless of target.", highlight = 0, icon = br.player.spell.auraMastery },
         [3] = { mode = "Off", value = 3, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.absolution }
-    };
+    };o90
     CreateButton("Cooldown", 1, 0)
     -- Defensive Button
     DefensiveModes = {
@@ -1761,7 +1761,7 @@ local function runRotation()
 
 
         --Wings, burst mode MAX dps
-        if mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player") or (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key"))) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295) then
+        if (mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) or (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key")) then
             if isChecked("Consecration") and cast.able.consecration() then
                 if consecrationCastTime == nil then
                     consecrationCastTime = 0
