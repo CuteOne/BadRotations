@@ -469,14 +469,16 @@ local function runRotation()
     end
     local function dps()
 
-        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and getSpellCD(216113) == 0 and essence.conflict.active then
-            if cast.able.manaTea() then
-                if cast.manaTea then
+        if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and essence.conflict.active then
+            if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
+                if cast.manaTea() then
                     return true
                 end
             end
-            CastSpellByID(216113, "player")
-            return true
+            if getSpellCD(216113) == 0 then
+                CastSpellByID(216113, "player")
+                return true
+            end
         end
 
         if (br.player.mode.dps < 4 or buff.wayOfTheCrane.exists()) and not buff.thunderFocusTea.exists() then
