@@ -1572,6 +1572,7 @@ br.lists.spells = {
                 chiWave                     = 115098,
                 fortifyingBrew              = 243435,
                 surgingMist                 = 227344,
+                zenPilgrimage               = 126892,
             },
             artifacts                       = {
             },
@@ -1607,10 +1608,12 @@ br.lists.spells = {
             glyphs                          = {
             },
             talents                         = {
+                celerity                    = 19304,
                 chiBurst                    = 123986,
                 chiWave                     = 115098,
                 chiTorpedo                  = 115008,
                 tigersLust                  = 116841,
+                tigerTailSweep              = 19993,
                 mistWrap                    = 197900,
                 spiritOfTheCrane            = 210802,
                 ringOfPeace                 = 116844,
@@ -3500,6 +3503,7 @@ br.lists.spells = {
                 theUnboundForce                 = 299376,
                 visionOfPerfection              = 299370,
                 vitalityConduit                 = 299958,
+                conflict                        = 303823,
                 worldveinResonance              = 295186
             },
         },
