@@ -220,15 +220,15 @@ local function createOptions()
         -- Displacer Beast / Wild Charge
         br.ui:createCheckbox(section, "Wild Charge", "Enables/Disables Auto Charge usage.")
         br.ui:createCheckbox(section, "Auto Maul")
-        br.ui:createDropdownWithout(section, "Use Concentrated Flame", {"DPS", "Heal", "Hybrid", "Never"}, 1)
+        br.ui:createDropdownWithout(section, "Use Concentrated Flame", { "DPS", "Heal", "Hybrid", "Never" }, 1)
         br.ui:createSpinnerWithout(section, "Concentrated Flame Heal", 70, 10, 90, 5)
-        br.ui:createDropdown(section, "Lucid Dreams", {"Always", "CDS"}, 1)
+        br.ui:createDropdown(section, "Lucid Dreams", { "Always", "CDS" }, 1)
         br.ui:checkSectionState(section)
         -----------------------
         --- Cooldown Options---
         -----------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
-        br.ui:createDropdownWithout(section, "Trinkets", {"Always", "When CDs are enabled", "Never"}, 1, "Decide when Trinkets will be used.")
+        br.ui:createDropdownWithout(section, "Trinkets", { "Always", "When CDs are enabled", "Never" }, 1, "Decide when Trinkets will be used.")
         br.ui:createCheckbox(section, "Racial")
         br.ui:createCheckbox(section, "Incarnation")
         br.ui:checkSectionState(section)
@@ -247,12 +247,14 @@ local function createOptions()
         br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
         br.ui:createCheckbox(section, "Rebirth")
-        br.ui:createDropdownWithout(section, "Rebirth - Target", {"Target", "Mouseover"}, 1, "Target to cast on")
+        br.ui:createDropdownWithout(section, "Rebirth - Target", { "Target", "Mouseover" }, 1, "Target to cast on")
         -- Remove Corruption
         br.ui:createCheckbox(section, "Remove Corruption")
-        br.ui:createDropdownWithout(section, "Remove Corruption - Target", {"Player", "Target", "Mouseover"}, 1, "Target to cast on")
+        br.ui:createDropdownWithout(section, "Remove Corruption - Target", { "Player", "Target", "Mouseover" }, 1, "Target to cast on")
         -- Survival Instincts
         br.ui:createSpinner(section, "Survival Instincts", 40, 0, 100, 5, "Health Percent to Cast At")
+        -- Anima of Death
+        br.ui:createSpinner(section, "Anima of Death", 75, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         br.ui:checkSectionState(section)
         ------------------------
         --- Interrupt Options---
@@ -306,6 +308,7 @@ local function runRotation()
     local hasMouse = GetObjectExists("mouseover")
     local healPot = getHealthPot()
     local inCombat = br.player.inCombat
+    local essence = br.player.essence
     local inInstance = br.player.instance == "party"
     local inRaid = br.player.instance == "raid"
     local level = br.player.level
@@ -654,6 +657,14 @@ local function runRotation()
             end
         end
 
+        -- Anima of Death
+        if isChecked("Anima of Death") and essence.animaOfDeath.active and cd.animaOfDeath.remain() <= gcd and inCombat and #enemies.yards8 >= 3 and php <= getOptionValue("Anima of Death") then
+            if cast.animaOfDeath("player") then
+                br.addonDebug("Casting Anima of Death")
+                return
+            end
+        end
+
         if getOptionValue("Trinkets") == 1 and inCombat then
             if canUseItem(13) then
                 useItem(13)
@@ -771,11 +782,11 @@ if br.rotations[id] == nil then
     br.rotations[id] = {}
 end
 tinsert(
-    br.rotations[id],
-    {
-        name = rotationName,
-        toggles = createToggles,
-        options = createOptions,
-        run = runRotation
-    }
+        br.rotations[id],
+        {
+            name = rotationName,
+            toggles = createToggles,
+            options = createOptions,
+            run = runRotation
+        }
 )
