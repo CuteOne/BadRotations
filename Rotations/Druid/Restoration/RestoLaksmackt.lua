@@ -85,7 +85,7 @@ local function createOptions()
         br.ui:createSpinner(section, "Bear Frenzies Regen HP", 50, 0, 100, 1, "HP Threshold start regen")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "M+")
-        br.ui:createSpinner(section, "Bursting", 1, 0, 10, 4, "", "Burst Targets")
+        br.ui:createSpinner(section, "Bursting", 3, 0, 10, 4, "", "Burst Targets - also counts as number under critical")
 
         br.ui:createCheckbox(section, "Freehold - pig", 0)
         br.ui:createCheckbox(section, "Freehold - root grenadier", 0)
@@ -179,7 +179,6 @@ local function createOptions()
         br.ui:createSpinner(section, "Trinket 2", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target" }, 1, "", "")
-        -- br.ui:createCheckbox(section, "Advanced Trinket Support")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
@@ -254,9 +253,10 @@ local function noDamageCheck(unit)
         --emmisaries to punt, dealt with seperately
         return true
     end
-
     return false --catchall
 end
+
+local fishfeast = 0
 
 local StunsBlackList = {
     -- Atal'Dazar
@@ -700,7 +700,7 @@ local function runRotation()
     local cast = br.player.cast
     local combo = br.player.power.comboPoints.amount()
     local debuff = br.player.debuff
-    local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0
+    local drinking = getBuffRemain("player", 192002) ~= 0 or getBuffRemain("player", 167152) ~= 0 or getBuffRemain("player", 192001) ~= 0 or getBuffRemain("player", 185710) ~= 0
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
     local deadtar = UnitIsDeadOrGhost("target") or isDummy()
     local hastar = hastar or GetObjectExists("target")
@@ -878,7 +878,7 @@ local function runRotation()
             end
         end
         --cw on ourself to survive bursting
-        if burst == true and cast.able.cenarionWard then
+        if burst == true and cast.able.cenarionWard and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559)) > 2 then
             if cast.able.cenarionWard then
                 if cast.cenarionWard("player") then
                     br.addonDebug("[BURST]: CW on self")
@@ -1958,7 +1958,7 @@ local function runRotation()
             end
 
             if cast.able.massEntanglement() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 102359) < 2) then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and not UnitBuffID("player", 226510)) then
+                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and not UnitBuffID("player", 226510) == 0) then
                     if cast.massEntanglement(thisUnit) then
                         br.addonDebug("Mass Rooting: " .. thisUnit)
                         return true
@@ -1966,7 +1966,7 @@ local function runRotation()
                 end
             end
             if cast.able.entanglingRoots() and getHP(thisUnit) > 90 and (not isCC(thisUnit) or getBuffRemain(thisUnit, 339) < 2) then
-                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510)) then
+                if (root_UnitList[GetObjectID(thisUnit)] ~= nil and getBuffRemain(thisUnit, 226510) == 0) then
                     if cast.entanglingRoots(thisUnit) then
                         br.addonDebug("Rooting: " .. thisUnit)
                         return true
@@ -2508,8 +2508,9 @@ local function runRotation()
 
 
             -- auto drinking
-            if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 then
+            if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 and getDebuffStacks("player", 240443) == 0 then
                 --240443 == bursting
+                -- 226510 == sanguine
                 --drink list
                 --[[
                 item=65499/conjured mana cookies - TW food
@@ -2518,8 +2519,8 @@ local function runRotation()
                 item=113509/conjured-mana-bun
                 item=126936/sugar-crusted-fish-feast ff
                 ]]
-                local fishfeast = 0
-                if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) then
+
+                if not isChecked("Sugar Crusted Fish Feast") or (isChecked("Sugar Crusted Fish Feast") and not hasItem(126936)) and not hasBuff(185710) then
                     if hasItem(65499) and canUseItem(65499) then
                         useItem(65499)
                     end
@@ -2532,7 +2533,7 @@ local function runRotation()
                     if hasItem(163784) and canUseItem(163784) then
                         useItem(163784)
                     end
-                elseif isChecked("Sugar Crusted Fish Feast") then
+                elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
                     if EWT ~= nil then
                         for i = 1, GetObjectCount() do
                             local ID = ObjectID(GetObjectWithIndex(i))
@@ -2543,7 +2544,7 @@ local function runRotation()
                             if ID == 242405 and distance < 15 then
                                 --print(tostring(distance))
                                 InteractUnit(object)
-                                fishfeast = 0
+                                fishfeast = 1
                             else
                                 if hasItem(126936) and canUseItem(126936) and fishfeast == 0 and not hasBuff(185710) then
                                     useItem(126936)
