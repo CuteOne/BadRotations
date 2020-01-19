@@ -42,7 +42,8 @@ novaEngineTables.DispelID = {
 	[272571] = { stacks = 0 }, --https://www.wowhead.com/spell=272571/choking-waters
 	[275835] = { stacks = 0 }, --https://www.wowhead.com/spell=275835/stinging-venom-coating
 	-- Waycrest Manor
-	[261440] = { stacks = 0, range = 10 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	[261440] = { stacks = 0, range = 8 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
+	[261439] = { stacks = 0, range = 8 }, --https://www.wowhead.com/spell=261439/virulent-pathogen
 	[264378] = { stacks = 0 }, --https://www.wowhead.com/spell=264378/fragment-soul
 	[263891] = { stacks = 0 }, --https://www.wowhead.com/spell=263891/grasping-thorns
 	[265352] = { stacks = 0 }, --https://www.wowhead.com/spell=265352/toad-blight
@@ -68,7 +69,7 @@ novaEngineTables.DispelID = {
 	[259853] = { stacks = 0 }, --https://www.wowhead.com/spell=259853/chemical-burn
 	[269298] = { stacks = 0 }, --https://www.wowhead.com/spell=269298/widowmaker-toxin
 	-- Atal'Dazar
-	[252781] = { stacks = 0, range = 12 }, -- https://www.wowhead.com/spell=252781/unstable-hex
+	[252781] = { stacks = 0, range = 9 }, -- https://www.wowhead.com/spell=252781/unstable-hex
 	[250096] = { stacks = 0 }, -- https://www.wowhead.com/spell=250096/wracking-pain
 	[253562] = { stacks = 0 }, -- https://www.wowhead.com/spell=253562/wildfire
 	[255582] = { stacks = 0 }, -- https://www.wowhead.com/spell=255582/molten-gold
