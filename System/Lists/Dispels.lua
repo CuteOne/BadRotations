@@ -2,7 +2,7 @@ if br.lists == nil then
 	br.lists = {}
 end
 -- Crowd Control Units = list of units to stun, either always or udner certain condition such as having a buff or wirldwinding etc
-br.lists.dispel = {
+br.lists.dispell = {
 	--[164257] = "Enrage", -- ogres gorgrond
 	-- Auchindon
 	[160312] = "Magic",-- Void Shell
