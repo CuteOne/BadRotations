@@ -84,7 +84,7 @@ local function createOptions()
             -- Hamstring
             br.ui:createCheckbox(section,"Hamstring", "|cffFFBB00Will use Hamstring.")
             -- Bladestorm
-            br.ui:createSpinner(section, "Bladestorm",  3,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")
+            br.ui:createSpinner(section, "Bladestorm",  3,  1,  10,  1,  "|cffFFBB00Set to desired targets to use Bladestorm when set to AOE. Min: 1 / Max: 10 / Interval: 1")            
             -- Azerite Beam Units
             br.ui:createSpinnerWithout(section, "Azerite Beam Units", 3, 1, 10, 1, "|cffFFBB00Number of Targets to use Azerite Beam on.")
             br.ui:checkSectionState(section)
@@ -523,6 +523,10 @@ local function runRotation()
                 if useCDs() and cast.able.rippleInSpace() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
                     if cast.rippleInSpace() then debug("Casting Ripple In Space") return end
                 end
+                --actions+=/reaping_flames,if=!debuff.colossus_smash.up&!buff.test_of_might.up
+                if useCDs() and cast.able.reapingFlames() and not buff.testOfMight.exists() and not debuff.colossusSmash.exists(units.dyn5) then
+                    if cast.reapingFlames() then debug("Casting Reaping Flames") return end
+                end
              end
          end
     -- Action List - Pre-Combat
@@ -652,8 +656,10 @@ local function runRotation()
                 if cast.colossusSmash() then debug("Casting ColossusSmash") return end
             end  
         -- Bladestorm
+        --actions.single_target+=/bladestorm,if=cooldown.mortal_strike.remains&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.up&!azerite.test_of_might.enabled)|buff.test_of_might.up)&buff.memory_of_lucid_dreams.down&rage<40
             if (mode.rotation ~= 2 and #enemies.yards8 > 0)	
-                and cast.able.bladestorm() and isChecked("Bladestorm") and debuff.colossusSmash.exists(units.dyn5)
+                and cast.able.bladestorm() and isChecked("Bladestorm") 
+                and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) or buff.testOfMight.exists())
                 and not talent.ravager and cd.mortalStrike.remain() > 0
                 and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
                 and cast.able.execute()
@@ -662,6 +668,11 @@ local function runRotation()
                 if cast.bladestorm() then debug("Bladestorm @Rage: ".. power) return end
             end
         -- Overpower
+        --actions.single_target+=/overpower,if=(rage<30&buff.memory_of_lucid_dreams.up&debuff.colossus_smash.up)|(rage<70&buff.memory_of_lucid_dreams.down)
+            if cast.able.overpower() and (rage < 30 and buff.memoryOfLucidDreams.exists() and buff.colossusSmash.exists()) 
+            or (rage < 70 and not buff.memoryOfLucidDreams.exists()) then
+                if cast.overpower() then debug("Casting Overpower") return end
+            end
             -- overpower,if=azerite.seismic_wave.rank=3
             if cast.able.overpower() and traits.seismicWave.rank == 3 then
                 if cast.overpower() then debug("Casting Overpower") return end
@@ -780,7 +791,8 @@ local function runRotation()
         -- Bladestorm
             --bladestorm,if=buff.sweeping_strikes.down&(!talent.deadly_calm.enabled|buff.deadly_calm.down)&((debuff.colossus_smash.remains>4.5&!azerite.test_of_might.enabled)|buff.test_of_might.up)
             if (mode.rotation ~= 3 and #enemies.yards8 >= getOptionValue("Bladestorm")) 
-            and cast.able.bladestorm() and isChecked("Bladestorm") and debuff.colossusSmash.exists(units.dyn5)
+            and cast.able.bladestorm() and isChecked("Bladestorm")
+            and ((debuff.colossusSmash.remain(units.dyn5) > 4.5 and not traits.testOfMight.active) or buff.testOfMight.exists())
             and not talent.ravager and cd.mortalStrike.remain() > 0
             and (not talent.deadlyCalm or not buff.deadlyCalm.exists())
             and cast.able.execute()
