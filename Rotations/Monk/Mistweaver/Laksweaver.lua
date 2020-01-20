@@ -745,11 +745,12 @@ local function runRotation()
                         return true
                     end
                 end
-                if isChecked("Grievous Wounds") and getDebuffStacks(healUnit, 240559) > 2 or not isSelected("Grievous Wounds") or BleedStack == 99 then
+                if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 2 or BleedStack == 99) or not isSelected("Grievous Wounds") then
                     --override cause people leave settings on in non griev weeks
                     if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
                         if cast.lifeCocoon(healUnit) then
-                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why)
+                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(getHP(healUnit)))
+                            --  Print("Bleedstack: " .. tostring(BleedStack))
                             return true
                         end
                     end
@@ -1293,42 +1294,46 @@ local function runRotation()
         --- In Combat - Rotations ---
         ---------------------------------
         if inCombat then
-            if not SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() then
-                if Defensive() then
+
+
+            if (talent.focusedThunder and buff.thunderFocusTea.stack == 2) or buff.thunderFocusTea.exists()
+                    or cd.thunderFocusTea.ready() or cast.last.thunderFocusTea(1) and not (buff.thunderFocusTea.stack() == 1 and talent.focusedThunder) then
+                if thunderFocusTea() then
                     return true
-                end
-                if high_prio() then
-                    return true
-                end
-                if (talent.focusedThunder and buff.thunderFocusTea.stack == 2) or buff.thunderFocusTea.exists()
-                        or cd.thunderFocusTea.ready() or cast.last.thunderFocusTea(1) and not (buff.thunderFocusTea.stack() == 1 and talent.focusedThunder) then
-                    if thunderFocusTea() then
-                        return true
-                    end
-                end
-                if cooldowns() then
-                    return true
-                end
-                if interrupts() then
-                    return true
-                end
-                if risingSunKickFunc() then
-                    return true
-                end
-                if isChecked("Freehold - pig") then
-                    bossHelper()
-                end
-                if not (buff.wayOfTheCrane.exists() or #enemies.yards8 == 0) and not buff.thunderFocusTea.exists() then
-                    if heal() then
-                        return true
-                    end
                 end
             end
-            if not buff.thunderFocusTea.exists() or specialHeal ~= true or buff.wayOfTheCrane.exists() or (SpecificToggle("DPS Key") and not last.cGetCurrentKeyBoardFocus()) then
+            -- dps key
+            if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and getHP(healUnit) >= getValue("Critical HP")) then
                 if dps() then
                     return true
                 end
             end
+
+            if Defensive() then
+                return true
+            end
+            if high_prio() then
+                return true
+            end
+            if cooldowns() then
+                return true
+            end
+            if interrupts() then
+                return true
+            end
+            if risingSunKickFunc() then
+                return true
+            end
+            if isChecked("Freehold - pig") then
+                bossHelper()
+            end
+            if heal() then
+                return true
+            end
+            if dps() then
+                return true
+            end
+
 
         end
 
