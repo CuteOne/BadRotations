@@ -25,6 +25,7 @@ br.lists.threatBypass = {
     [148893] = "Tormented Soul", --M+ Reaping
     [148894] = "Lost Soul", --M+ Reaping
     [120651] = "Explosive", -- Explosive
+    [137051] = "Ancient Mindbender", -- Shrine of Storms - Lord Stormsong
     [136330] = "Soul Thorns", -- Soul Thorns Waycrest Manor
     [133361] = "Wasting Servant", -- Waycrest Manor
     [134388] = "A Knot of Snakes", -- A Knot of Snakes ToS
