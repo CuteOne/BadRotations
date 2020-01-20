@@ -239,6 +239,7 @@ local lowestMark
 local profileStop
 local SEFTimer
 local SerenityTest
+local useFists
 
 local function wasLastCombo(spellID)
     return lastCombo == spellID
@@ -472,7 +473,7 @@ actionList.Cooldowns = function()
         end
     end
     -- Trinket - Non-Specific
-    -- use_items,if=equipped.cyclotronic_blast&cooldown.cyclotronic_blast.remains<=20|!equipped.cyclotronic_blast
+    -- use_items,if=equipped.cyclotronic_blast&cooldown.cyclotronic_blast.remains>=20|!equipped.cyclotronic_blast
     if getDistance(units.dyn5) < 5  then
         local thisTrinket
         for i = 13, 14 do
@@ -502,7 +503,7 @@ actionList.Cooldowns = function()
     if option.checked("Use Essence") then
         if not debuff.concentratedFlame.exists("target") and (cd.concentratedFlame.remain() <= cd.touchOfDeath.remain()
             and (talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() > 0) and cd.risingSunKick.remain() > 0
-            and cd.fistsOfFury.remains() > 0 and not buff.stormEarthAndFire.exists() or debuff.touchOfDeath.exists("target")) or ttd < 8
+            and (cd.fistsOfFury.remains() > 0 or not useFists) and not buff.stormEarthAndFire.exists() or debuff.touchOfDeath.exists("target")) or ttd < 8
         then
             if cast.concentratedFlame() then debug("Casting Concentrated Flame") return true end
         end
@@ -581,7 +582,7 @@ actionList.TouchOfDeath = function()
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Cyclotronic Blast]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&equipped.dribbling_inkpod&target.time_to_die>9&(target.time_to_pct_30.remains>=130|target.time_to_pct_30.remains<8)
-    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd > 9 and (ttd(units.dyn5,30) > 130 or ttd(units.dyn5,30) < 8) then
+    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd(units.dyn5) > 9 and (ttd(units.dyn5,30) > 130 or ttd(units.dyn5,30) < 8) then
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Dribbling Inkpod]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&!equipped.dribbling_inkpod&target.time_to_die>9
@@ -601,9 +602,7 @@ actionList.SingleTarget = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets"))
-        and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
-    then
+    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and useFists then
         if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [ST]") return true end
     end
     -- Rising Sun Kick
@@ -642,8 +641,9 @@ actionList.SingleTarget = function()
     -- Blackout kick
     -- blackout_kick,target_if=min:debuff.mark_of_the_crane.remains,if=!prev_gcd.1.blackout_kick&(cooldown.rising_sun_kick.remains>3|chi>=3)&(cooldown.fists_of_fury.remains>4|chi>=4|(chi=2&prev_gcd.1.tiger_palm))
     if cast.able.blackoutKick() and (not wasLastCombo(spell.blackoutKick) and (cd.risingSunKick.remain() > 3 or chi >= 3)
-        and (cd.fistsOfFury.remain() > 4 or chi >= 4 or ((chi == 2 or ttm <= 3) and wasLastCombo(spell.tigerPalm)) or ttd <= 3
-        or #enemies.yards8f < option.value("Fists of Fury Targets") or mode.fof == 2 or buff.blackoutKick.exists() or isExplosive("target")))
+        and ((cd.fistsOfFury.remain() > 4 or (not useFists and cd.fistsOfFury.remain() == 0)) or chi >= 4 or ((chi == 2 or ttm <= 3)
+        and wasLastCombo(spell.tigerPalm)) or ttd <= 3 or #enemies.yards8f < option.value("Fists of Fury Targets")
+            or mode.fof == 2 or buff.blackoutKick.exists() or isExplosive("target")))
     then
         if cast.blackoutKick() then debug("Casting Blackout Kick [ST]") return end
     end
@@ -678,8 +678,8 @@ end -- End Action List - Single Target
 actionList.AoE = function()
     -- Rising Sun Kick
     -- rising_sun_kick,target_if=min:debuff.mark_of_the_crane.remains,if=(talent.whirling_dragon_punch.enabled&cooldown.whirling_dragon_punch.remains<5)&cooldown.fists_of_fury.remains>3
-    if cast.able.risingSunKick(lowestMark) and (((talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5) and cd.fistsOfFury.remain() > 3)
-        or isExplosive("target"))
+    if cast.able.risingSunKick(lowestMark) and (((talent.whirlingDragonPunch and cd.whirlingDragonPunch.remain() < 5)
+        and (cd.fistsOfFury.remain() > 3 or not useFists)) or isExplosive("target"))
     then
         if cast.risingSunKick(lowestMark) then debug("Casting Rising Sun Kick [AOE]") return true end
     end
@@ -699,9 +699,7 @@ actionList.AoE = function()
     end
     -- Fists of Fury
     -- fists_of_fury,if=energy.time_to_max>3
-    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and (ttd > 3 or #enemies.yards8f > 1) and ttm > 3
-        and #enemies.yards8f >= option.value("Fists of Fury Targets") and mode.fof == 1 and not isExplosive("target")
-    then
+    if cast.able.fistsOfFury() and cast.timeSinceLast.stormEarthAndFire() > gcd and useFists then
         if cast.fistsOfFury(nil,"cone",1,8) then debug("Casting Fists of Fury [AOE]") return true end
     end
     -- Rushing Jade Wind
@@ -712,8 +710,8 @@ actionList.AoE = function()
     -- Spinning Crane Kick
     -- spinning_crane_kick,if=!prev_gcd.1.spinning_crane_kick&(((chi>3|cooldown.fists_of_fury.remains>6)&(chi>=5|cooldown.fists_of_fury.remains>2))|energy.time_to_max<=3)
     if cast.able.spinningCraneKick() and not wasLastCombo(spell.spinningCraneKick) and not isExplosive("target")
-        and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or ttm <= 3 or ttd <= 3
-            or #enemies.yards8f < option.value("Fists of Fury Targets") or mode.fof == 2)
+        and (((chi > 3 or cd.fistsOfFury.remain() > 6) and (chi >= 5 or cd.fistsOfFury.remain() > 2)) or not useFists)
+            --or ttm <= 3 or ttd <= 3 or #enemies.yards8f < option.value("Fists of Fury Targets") or mode.fof == 2)
     then
         if cast.spinningCraneKick(nil,"aoe") then debug("Casting Spinning Crane Kick [AOE]") return true end
     end
@@ -1142,6 +1140,7 @@ local function runRotation()
         SpellStopCasting()
     end
 
+    useFists = (ttm > 3 and #enemies.yards8f >= option.value("Fists of Fury Targets")) and mode.fof == 1 and (ttd > 3 or #enemies.yards8f > 1) and not isExplosive("target")
     lowestMark = debuff.markOfTheCrane.lowest(5,"remain") or units.dyn5
     if not inCombat or lastCombo == nil then lastCombo = 1822 end --6603 end
     if lastCast == nil then lastCast = 1822 end
