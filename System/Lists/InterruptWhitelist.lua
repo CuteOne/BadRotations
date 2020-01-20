@@ -4,6 +4,7 @@ end
 -- Interrupt Whitelist - A list of spells we know for sure we want to interrupt (Typically in Dungeons and Raids)
 br.lists.interruptWhitelist = {
 	-- Horrific visions start
+	[304251] = true, -- Void Quills
 	[298033] = true, -- Touch of the Abyss
 	[288915] = true, -- Horrifying
 	-- Horrific visions end
