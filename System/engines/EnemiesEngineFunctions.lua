@@ -41,7 +41,11 @@ end
 function isTotem(unit)
 	local creatureType = UnitCreatureType(unit)
 	if creatureType ~= nil then
-	  if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém" or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰" then return true end
+		if creatureType == "Totem" or creatureType == "Tótem" or creatureType == "Totém"
+			or creatureType == "Тотем" or creatureType == "토템" or creatureType == "图腾" or creatureType == "圖騰"
+		then
+			return true
+		end
 	end
 	return false
 end
@@ -124,16 +128,16 @@ end
 function getEnemies(thisUnit,radius,checkNoCombat,facing)
     local startTime = debugprofilestop()
 	local radius = tonumber(radius)
-	local targetDist = getDistance("target","player")
+	local targetDist = getDistance(thisUnit,"player") or 99
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
 	if checkNoCombat == nil then checkNoCombat = false end
 	if facing == nil then facing = false end
     if refreshStored == true then
-    	for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
-    	refreshStored = false
-    end
+		for k,v in pairs(br.storedTables) do br.storedTables[k] = nil end
+		refreshStored = false
+	end
 	if br.storedTables[checkNoCombat] ~= nil then
 		if checkNoCombat == false then
 			if br.storedTables[checkNoCombat][thisUnit] ~= nil then
@@ -179,7 +183,7 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
 	end
     ---
 	if isChecked("Debug Timers") then
-    	br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
+		br.debug.cpu.enemiesEngine.getEnemies = debugprofilestop()-startTime or 0
 	end
     ---
 	if #enemiesTable > 0 and thisUnit ~= nil then
@@ -389,10 +393,11 @@ local function findBestUnit(range,facing)
 				local unitID = GetObjectExists(thisUnit) and GetObjectID(thisUnit) or 0
 				if ((unitID == 135360 or unitID == 135358 or unitID == 135359) and UnitBuffID(thisUnit,260805)) or (unitID ~= 135360 and unitID ~= 135358 and unitID ~= 135359) then
 					local isCC = getOptionCheck("Don't break CCs") and isLongTimeCCed(thisUnit) or false
+					local isSafe = getOptionCheck("Safe Damage Check") and isSafeToAttack(thisUnit) or false
 					-- local thisUnit = v.unit
 					-- local distance = getDistance(thisUnit)
 					-- if distance < range then
-					if not isCC then
+					if not isCC and isSafe then
 						local coeficient = getUnitCoeficient(thisUnit) or 0
 						if getOptionCheck("Wise Target") == true and getOptionValue("Wise Target") == 4 then -- abs Lowest
 							if currHP == nil or UnitHealth(thisUnit) < currHP then
@@ -438,6 +443,7 @@ function dynamicTarget(range,facing)
 		or ((isChecked("Target Dynamic Target") and UnitExists("target")) and not GetUnitIsUnit(bestUnit,"target")))
 		or (getOptionCheck("Forced Burn") and isBurnTarget(bestUnit) > 0 and getDistance(bestUnit) < range
 			and ((not facing and not isExplosive(bestUnit)) or (facing and getFacing("player",bestUnit))))
+		or (getOptionCheck("Safe Damage Check") and not GetUnitIsUnit(bestUnit,"target") and not isSafeToAttack("target"))
 	then
 		TargetUnit(bestUnit)
 	end
