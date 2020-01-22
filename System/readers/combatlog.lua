@@ -266,7 +266,7 @@ function br.read.combatLog()
                             end
                             if param == "SPELL_AURA_APPLIED" then
                                 for k,v in pairs(br.player["spell"].debuffs) do
-                                    if spell == v then
+                                    if thisUnit ~= nil and spell == v then
                                         if pandemic[thisUnit] == nil then pandemic[thisUnit] = {} end
                                         if (pandemic[thisUnit][k] == nil or pandemic[thisUnit][k] == 0
                                             or debuff[k].duration(thisUnit) ~= pandemic[thisUnit][k] + (pandemic[thisUnit][k] * 0.3))
