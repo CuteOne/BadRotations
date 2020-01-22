@@ -128,7 +128,6 @@ end
 function getEnemies(thisUnit,radius,checkNoCombat,facing)
     local startTime = debugprofilestop()
 	local radius = tonumber(radius)
-	local targetDist = getDistance(thisUnit,"player") or 99
 	local enemyTable = checkNoCombat and br.units or br.enemy
 	local enemiesTable = {}
 	local thisEnemy, distance
@@ -178,7 +177,7 @@ function getEnemies(thisUnit,radius,checkNoCombat,facing)
     --         rawset(enemiesTable, enemy.unit, enemy.unit)
     --     end
     -- end
-	if #enemiesTable == 0 and targetDist < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
+	if #enemiesTable == 0 and getDistance("target","player") < radius and isValidUnit("target") and (not facing or getFacing("player","target")) then
 		tinsert(enemiesTable,"target")
 	end
     ---
