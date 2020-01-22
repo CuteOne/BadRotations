@@ -401,7 +401,7 @@ actionList.Cooldowns = function()
         for i = 13, 14 do
             local opValue = getOptionValue("Trinkets")
             local iValue = i - 12
-            if (opValue == iValue or opValue == 3) and use.able.slot(iValue) then
+            if (opValue == iValue or opValue == 3) and use.able.slot(i) then
                 -- use_item,name=galecallers_boon,if=!talent.fel_barrage.enabled|cooldown.fel_barrage.ready
                 if use.able.galecallersBoon(i) and equiped.galecallersBoon(i) and (not talent.felBarrage or cd.felBarrage.ready()) then
                     use.slot(i)
@@ -785,7 +785,7 @@ actionList.PreCombat = function()
             for i = 13, 14 do
                 local opValue = getOptionValue("Trinkets")
                 local iValue = i - 12
-                if (opValue == iValue or opValue == 3) and use.able.slot(iValue) then
+                if (opValue == iValue or opValue == 3) and use.able.slot(i) then
                     if use.able.azsharasFontOfPower(i) and equiped.azsharasFontOfPower(i) and pullTimer <= 5 then
                         use.slot(i)
                         return
