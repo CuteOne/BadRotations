@@ -2,12 +2,7 @@ local rotationName = "Laksweaver"
 
 local function createToggles()
     -- Define custom toggles
-    -- Rotation Button
-    RotationModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "Automatic Rotation", tip = "/reload to avoid upwelling timer issues", highlight = 0, icon = br.player.spell.spinningCraneKick },
-        [2] = { mode = "Off", value = 2, overlay = "Automatic Rotation Off", tip = "Rotation will not run", highlight = 0, icon = br.player.spell.effuse }
-    };
-    CreateButton("Rotation", 1, 0)
+
     -- Cooldown Button
     CooldownModes = {
         [1] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival },
@@ -277,30 +272,29 @@ local function runRotation()
     end
 
     local function risingSunKickFunc()
-        if #enemy_count_facing_5 > 0 and getHP(br.friend[1]) > getValue("DPS Threshold") then
-            if cast.able.risingSunKick() then
+        if cast.able.risingSunKick() then
+            if #enemy_count_facing_5 > 0 then
                 if talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
                         or focustea == "kick" and buff.thunderFocusTea.exists()
                         or buff.wayOfTheCrane.exists()
                         or #br.friend == 1 then
+                    --solo play
                     if cast.risingSunKick(units.dyn5) then
                         br.addonDebug("Rising Sun Kick on : " .. units.dyn5 .. " BAMF!")
                         return true
                     end
                 end
             end
-            if not cast.able.risingSunKick() then
-                if cast.able.blackoutKick() and
-                        (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
-                    if cast.blackoutKick(units.dyn5) then
-                        return true
-                    end
+        elseif not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
+            if cast.able.blackoutKick()
+                    and (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
+                if cast.blackoutKick(units.dyn5) then
+                    return true
                 end
-                if cast.able.tigerPalm() and targets_in_range > 0 and not buff.teachingsOfTheMonastery.exists() then
-                    -- buff.teachingsOfTheMonastery.stack() < 3 or buff.teachingsOfTheMonastery.remain() < 2 then
-                    if cast.tigerPalm(units.dyn5) then
-                        return true
-                    end
+            end
+            if cast.able.tigerPalm() and buff.teachingsOfTheMonastery.stack() < 3 or buff.teachingsOfTheMonastery.remain() < 2 then
+                if cast.tigerPalm(units.dyn5) then
+                    return true
                 end
             end
         end
@@ -308,8 +302,8 @@ local function runRotation()
 
     local function thunderFocusTea()
 
-        -- auto mode
-        if isChecked("Thunder Focus Tea") and (cast.able.thunderFocusTea() or buff.thunderFocusTea.exists()) then
+        -- auto modep
+        if isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
             if cast.able.envelopingMist() and getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
                 focustea = "singleHeal"
             elseif cast.able.renewingMist() and getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3) or getOptionValue("Thunder Focus Mode") == 3 then
@@ -342,7 +336,7 @@ local function runRotation()
 
         --  Print("Focustea1: " .. focustea)
         if focustea ~= nil and buff.thunderFocusTea.exists() then
-            if focustea == "singleHeal" then
+            if focustea == "singleHeal" or (focustea == "kick" and #enemy_count_facing_5 == 0) then
                 if cast.envelopingMist(lowest.unit) then
                     return true
                 end
@@ -359,7 +353,7 @@ local function runRotation()
                     return true
                 end
             end
-            if focustea == "kick" then
+            if focustea == "kick" and #enemy_count_facing_5 > 0 then
                 if risingSunKickFunc() then
                     return true
                 end
@@ -899,7 +893,7 @@ local function runRotation()
         if talent.invokeChiJiTheRedCrane and isChecked("Chi Ji") then
             if getLowAllies(getValue("Chi Ji")) >= getValue("Chi Ji Targets") or burst == true then
                 if cast.invokeChiJi() then
-                    br.addonDebug(tostring(burst) .. "[ChiJi]:" .. UnitName(healUnit))
+                    br.addonDebug(tostring(burst) .. "[ChiJi]")
                     return true
                 end
             end
