@@ -46,4 +46,5 @@ br.lists.los = {
 	[150773] = true, -- Blackwater Behemoth Mob
 	[152364] = true, -- Radiance of Azshara
 	[152671] = true, -- Wekemara
+	[157602] = true, -- Drest'agath - Ny'alotha
 }
