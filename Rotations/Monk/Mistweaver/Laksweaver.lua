@@ -905,7 +905,7 @@ local function runRotation()
             if cast.able.renewingMist() then
                 if not buff.renewingMist.exists("player") then
                     if cast.renewingMist("player") then
-                        br.addonDebug("[RenewMist]:" .. UnitName(l "player") .. " - RM on Player")
+                        br.addonDebug("[RenewMist]:" .. UnitName("player") .. " - RM on Player")
                         return true
                     end
                 end
