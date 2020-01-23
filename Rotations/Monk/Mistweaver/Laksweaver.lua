@@ -306,7 +306,10 @@ local function runRotation()
         if isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
             if cast.able.envelopingMist() and getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
                 focustea = "singleHeal"
-            elseif cast.able.renewingMist() and getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3) or getOptionValue("Thunder Focus Mode") == 3 then
+            elseif cast.able.renewingMist()
+                    and getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3 and not talent.risingMist)
+                    or getOptionValue("Thunder Focus Mode") == 3
+                    or (getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")) then
                 focustea = "AOEHeal"
             elseif getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
                 focustea = "manaEffiency"
@@ -314,7 +317,7 @@ local function runRotation()
                 --   Print("I want to kick it - Enemies[" .. tostring(#enemy_count_facing_5) .. "] Hots:[" .. tostring(getValue("Fistweave Hots")) .. "Health:[" .. tostring(getHP(br.friend[1].unit)) .. "/" .. tostring(getValue("DPS Threshold")))
                 if #enemy_count_facing_5 > 0 and getHP(br.friend[1].unit) >= getValue("DPS Threshold") and hotcountFunc() >= getValue("Fistweave Hots")
                         and ((getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
-                        or getOptionValue("Thunder Focus Mode") == 5) then
+                        or getOptionValue("Thunder Focus Mode") == 5) or #br.friend == 1 then
                     --Print("Kick it - Enemies[" .. tostring(#enemy_count_facing_5) .. "] Hots:[" .. tostring(getValue("Fistweave Hots")))
                     focustea = "kick"
                 end
@@ -776,16 +779,7 @@ local function runRotation()
                 end
             end
 
-            -- Renewing Mists
-            if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) then
-                if (inCombat and (getHP(healUnit) <= getValue("Renewing Mist") or getValue("Renewing Mist") == 0) or (not inCombat and getHP(healUnit) < 90)) and
-                        not buff.renewingMist.exists(healUnit) and not cast.last.renewingMist(1) then
-                    if cast.renewingMist(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[RenewMist]:" .. UnitName(healUnit) .. " - " .. why)
-                        return true
-                    end
-                end
-            end
+
             --vivify on targets with essence font hot
             if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
                 if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
@@ -885,7 +879,38 @@ local function runRotation()
             end
         end
 
-
+        -- Renewing Mists
+        if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) and not cast.last.renewingMist(1) and not buff.thunderFocusTea.exists() then
+            --tanks first
+            if getValue("Renewing Mist") == 0 then
+                if #tanks > 0 then
+                    for i = 1, #tanks do
+                        if not buff.renewingMist.exists(tanks[i].unit) then
+                            if cast.renewingMist(tanks[i].unit) then
+                                br.addonDebug("[RenewMist]:" .. UnitName(tanks[i].unit) .. " - RM on Tank")
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+            if cast.able.renewingMist() then
+                if not buff.renewingMist.exists(lowest.unit) then
+                    if cast.renewingMist(lowest.unit) then
+                        br.addonDebug("[RenewMist]:" .. UnitName(lowest.unit) .. " - RM on Lowest")
+                        return true
+                    end
+                end
+            end
+            if cast.able.renewingMist() then
+                if not buff.renewingMist.exists("player") then
+                    if cast.renewingMist("player") then
+                        br.addonDebug("[RenewMist]:" .. UnitName(l "player") .. " - RM on Player")
+                        return true
+                    end
+                end
+            end
+        end
 
 
 
@@ -1241,8 +1266,7 @@ local function runRotation()
         if not inCombat then
 
             --testing block
-            --Print(hotcountFunc())
-
+            --   Print(hotcountFunc())
 
             if isChecked("OOC Healing")
                     and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
@@ -1282,6 +1306,16 @@ local function runRotation()
                     useItem(163784)
                 end
             end -- end auto-drink
+
+            --ring out of combat
+            if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
+                if cast.able.ringOfPeace() then
+                    if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
+                        return true
+                    end
+                end
+            end
+
 
         end -- end ooc
         ---------------------------------
