@@ -427,7 +427,7 @@ local function runRotation()
         local lowestHP
         for i = 1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
-            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2 or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) then
+            if (not noDotCheck(thisUnit) or GetUnitIsUnit(thisUnit, "target")) and not UnitIsDeadOrGhost(thisUnit) and (mode.rotation ~= 2  or (mode.rotation == 2 and GetUnitIsUnit(thisUnit, "target"))) and (not debuff.vendetta.exists("target") and not debuff.toxicBlade.exists("target")) then
                 local enemyUnit = {}
                 enemyUnit.unit = thisUnit
                 enemyUnit.ttd = ttd(thisUnit)
@@ -893,7 +893,9 @@ local function runRotation()
             end
             if isChecked("Essences") and debuff.rupture.exists("target") then
                 --Worldvein Resonance
-                if cast.worldveinResonance("player") then return true end
+                if not buff.masterAssassin.exists() then
+                    if cast.worldveinResonance("player") then return true end
+                end
                 --Memory of lucid Dreams
                 if energy < 50 and energyDeficit > (25 + energyRegenCombined) and (not isChecked("Vendetta") or (cd.vendetta.exists() and cd.vendetta.remain() < 115)) and not hasBloodLust() then
                     if cast.memoryOfLucidDreams("player") then return true end
@@ -932,6 +934,14 @@ local function runRotation()
     end
 
     local function actionList_Direct()
+        -- # Refresh rupture when we have Vendetta or Toxic Blade on a target
+        if talent.masterAssassin and combo >= 4 and debuff.rupture.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
+            if cast.rupture("target") then return true end
+        end
+        -- # Refresh garrote when we have Vendetta or Toxic Blade on a target
+        if talent.masterAssassin and debuff.garrote.refresh("target") and (debuff.vendetta.exists("target") or debuff.toxicBlade.exists("target")) then
+            if cast.garrote("target") then return true end
+        end
         -- # Rupture condition with a combat time check for openers
         if talent.masterAssassin and buff.masterAssassin.exists() and not debuff.rupture.exists("target") and combo > 1 then
             if cast.rupture("target") then return true end
