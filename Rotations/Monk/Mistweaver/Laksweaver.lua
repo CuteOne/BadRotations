@@ -42,6 +42,7 @@ end
 local last_statue_location = { x = 0, y = 0, z = 0 }
 local jadeUnitsCount = 0
 local jadeUnits = nil
+local RM_counter = 0
 ---------------
 --- OPTIONS ---
 ---------------options
@@ -65,6 +66,8 @@ local function createOptions()
         br.ui:createSpinner(section, "Essence Font delay(Upwelling)", 18, 1, 18, 5, "Delay in seconds fox max Upwelling bonus")
         br.ui:createSpinner(section, "Surging Mist", 70, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Vivify", 60, 1, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinnerWithout(section, "Vivify Spam", 3, 1, 10, 1, "Amount of Renewing Mists rolling before switching to vivify")
+        br.ui:createSpinner(section, "Enveloping Mist Tank", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Enveloping Mist", 50, 1, 100, 5, "Health Percent to Cast At")
         br.ui:createCheckbox(section, "Soothing Mist Instant Cast", "Use Soothing Mist first for instant casts")
         br.ui:createSpinner(section, "Life Cocoon", 50, 1, 100, 5, "Health Percent to Cast At")
@@ -250,6 +253,29 @@ local function runRotation()
     focustea = nil
 
     --functions
+    local function renewingMistFunc()
+        --tanks first
+        if getValue("Renewing Mist") == 0 then
+            if #tanks > 0 then
+                for i = 1, #tanks do
+                    if not buff.renewingMist.exists(tanks[i].unit) then
+                        if cast.renewingMist(tanks[i].unit) then
+                            br.addonDebug("[RenewMist]:" .. UnitName(tanks[i].unit) .. " - RM on Tank")
+                            return true
+                        end
+                    end
+                end
+            end
+            for i = 1, #br.friend do
+                if not buff.renewingMist.exists(br.friend[i].unit) then
+                    if cast.renewingMist(br.friend[i].unit) then
+                        br.addonDebug("[RenewMist]:" .. UnitName(br.friend[i].unit) .. " - Auto")
+                        return true
+                    end
+                end
+            end
+        end
+    end
 
     local function hotcountFunc()
 
@@ -302,7 +328,7 @@ local function runRotation()
 
     local function thunderFocusTea()
 
-        -- auto modep
+        -- auto mode
         if isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
             if cast.able.envelopingMist() and getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
                 focustea = "singleHeal"
@@ -360,6 +386,13 @@ local function runRotation()
                 if risingSunKickFunc() then
                     return true
                 end
+            end
+            --fallback ..do SOMETHING
+            if renewingMistFunc() then
+                return true
+            end
+            if cast.envelopingMist(lowest.unit) then
+                return true
             end
         end
     end
@@ -795,6 +828,26 @@ local function runRotation()
                 end
             end
 
+
+            --vivify if hotcount >= 5
+            if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < 80 or specialHeal then
+                RM_counter = 0
+                for i = 1, #br.friend do
+                    if buff.renewingMist.exists(br.friend[i].unit) then
+                        RM_counter = RM_counter + 1
+                       -- Print(UnitName(br.friend[i].unit))
+                       -- Print(tostring(RM_counter))
+                        if RM_counter >= getValue("Vivify Spam") then
+                            if cast.vivify(healUnit) then
+                                br.addonDebug("[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
+                                return true
+                            end
+                        end
+                    end
+                end
+            end
+
+
             --Essence Font
             if isChecked("Essence Font") then
                 if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
@@ -819,7 +872,6 @@ local function runRotation()
 
 
             --all the channeling crap
-
             if getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
                 if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                     if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
@@ -851,7 +903,6 @@ local function runRotation()
                     if not isChecked("Soothing Mist Instant Cast") then
                         if cast.vivify(healUnit) then
                             br.addonDebug("[Vivify]: " .. UnitName(healUnit))
-
                             return
                         end
                     end
@@ -880,38 +931,24 @@ local function runRotation()
         end
 
         -- Renewing Mists
-        if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) and not cast.last.renewingMist(1) and not buff.thunderFocusTea.exists() then
-            --tanks first
-            if getValue("Renewing Mist") == 0 then
-                if #tanks > 0 then
-                    for i = 1, #tanks do
-                        if not buff.renewingMist.exists(tanks[i].unit) then
-                            if cast.renewingMist(tanks[i].unit) then
-                                br.addonDebug("[RenewMist]:" .. UnitName(tanks[i].unit) .. " - RM on Tank")
-                                return true
-                            end
-                        end
-                    end
-                end
-            end
-            if cast.able.renewingMist() then
-                if not buff.renewingMist.exists(lowest.unit) then
-                    if cast.renewingMist(lowest.unit) then
-                        br.addonDebug("[RenewMist]:" .. UnitName(lowest.unit) .. " - RM on Lowest")
-                        return true
-                    end
-                end
-            end
-            if cast.able.renewingMist() then
-                if not buff.renewingMist.exists("player") then
-                    if cast.renewingMist("player") then
-                        br.addonDebug("[RenewMist]:" .. UnitName("player") .. " - RM on Player")
+        if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) and not buff.thunderFocusTea.exists() and cd.risingSunKick.remain() < 1.5 then
+            renewingMistFunc()
+            return true
+        end
+
+
+
+        -- Enveloping Mist on Tank
+        if cast.able.envelopingMist() then
+            for i = 1, #tanks do
+                if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
+                    if cast.envelopingMist(tanks[i].unit) then
+                        br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
                         return true
                     end
                 end
             end
         end
-
 
 
         --Chi Ji
