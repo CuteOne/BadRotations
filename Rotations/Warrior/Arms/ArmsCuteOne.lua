@@ -669,7 +669,7 @@ local function runRotation()
             end
         -- Overpower
         --actions.single_target+=/overpower,if=(rage<30&buff.memory_of_lucid_dreams.up&debuff.colossus_smash.up)|(rage<70&buff.memory_of_lucid_dreams.down)
-            if cast.able.overpower() and (rage < 30 and buff.memoryOfLucidDreams.exists() and buff.colossusSmash.exists()) 
+            if cast.able.overpower() and (rage < 30 and buff.memoryOfLucidDreams.exists() and debuff.colossusSmash.exists()) 
             or (rage < 70 and not buff.memoryOfLucidDreams.exists()) then
                 if cast.overpower() then debug("Casting Overpower") return end
             end

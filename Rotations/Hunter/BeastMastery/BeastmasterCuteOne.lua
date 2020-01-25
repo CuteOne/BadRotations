@@ -208,13 +208,11 @@ local inInstance
 local inRaid
 local item
 local level
-local lowestHP
 local mode
 local opener
 local php
 local potion
 local race
-local solo
 local spell
 local talent
 local traits
@@ -229,8 +227,7 @@ local flying
 local haltProfile
 local healPot
 local leftCombat
-local lootDelay
-local petCombat
+local minCount
 local profileStop
 local pullTimer
 local thp
@@ -378,6 +375,18 @@ end -- End Action List - Interrupts
 actionList.Cooldowns = function()
     if useCDs() then
         -- Trinkets
+        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
+            and use.able.slot(13) and not equiped.vigorTrinket(13)
+            and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
+        then
+            use.slot(13)
+        end
+        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
+            and use.able.slot(14) and not equiped.vigorTrinket(14)
+            and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
+        then
+            use.slot(14)
+        end
         if useCDs() and #enemies.yards40f >= 1 then
             if isChecked("Power Reactor") and equiped.vigorTrinket() and use.able.vigorTrinket() then
                 if buff.vigorEngaged.exists() and buff.vigorEngaged.stack() == 6
@@ -387,6 +396,10 @@ actionList.Cooldowns = function()
                 end
             end
         end
+        -- Azshara's Font of Power
+        -- use_item,name=azsharas_font_of_power,if=target.time_to_die>10
+        -- Ashvane's Razor Coral
+        -- use_item,name=ashvanes_razor_coral,if=debuff.razor_coral_debuff.up&(prev_gcd.1.aspect_of_the_wild|!equipped.cyclotronic_blast&buff.aspect_of_the_wild.remains>5)&(target.health.pct<35|!essence.condensed_lifeforce.major|!talent.killer_instinct.enabled)|(debuff.razor_coral_debuff.down|target.time_to_die<26)&target.time_to_die>(24*(cooldown.cyclotronic_blast.remains+4<target.time_to_die))
         -- Pocket Sized Computation Device
         -- use_item,effect_name=cyclotronic_blast,if=!buff.bestial_wrath.up
         if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() 
@@ -401,19 +414,6 @@ actionList.Cooldowns = function()
             and (thp("target") < 35 or not essence.guardianOfAzeroth.active) or (not debuff.razorCoral.exists("target") or ttd("target") < 26)
         then
             use.ashvanesRazorCoral()
-        end
-        -- Trinkets
-        if (getOptionValue("Trinkets") == 1 or getOptionValue("Trinkets") == 3)
-            and use.able.slot(13) and not equiped.vigorTrinket(13)
-            and not equiped.pocketSizedComputationDevice(13) and not equiped.ashvanesRazorCoral(13)
-        then
-            use.slot(13)
-        end
-        if (getOptionValue("Trinkets") == 2 or getOptionValue("Trinkets") == 3)
-            and use.able.slot(14) and not equiped.vigorTrinket(14)
-            and not equiped.pocketSizedComputationDevice(14) and not equiped.ashvanesRazorCoral(14)
-        then
-            use.slot(14)
         end
         -- Racial: Orc Blood Fury | Troll Berserking | Blood Elf Arcane Torrent
         if isChecked("Racial") and cast.able.racial() then --and cd.racial.remain() == 0 then
@@ -460,6 +460,10 @@ actionList.Cooldowns = function()
             -- memory_of_lucid_dreams
             if cast.able.memoryOfLucidDreams() then
                 if cast.memoryOfLucidDreams() then return end
+            end
+            -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+            if cast.able.reapingFlames() and (getHP(units.dyn40) > 80 or getHP(units.dyn40) <= 20 or getTTD(units.dyn40,20) > 30) then
+                if cast.reapingFlames() then return end
             end
         end
         -- Aspect of the Wild
@@ -656,7 +660,7 @@ end -- End Action List - Opener
 -- Action List - Single Target
 actionList.St = function()
     -- Barbed Shot
-    -- barbed_shot,if=pet.cat.buff.frenzy.up&pet.cat.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
+    -- barbed_shot,if=pet.turtle.buff.frenzy.up&pet.turtle.buff.frenzy.remains<gcd|cooldown.bestial_wrath.remains&(full_recharge_time<gcd|azerite.primal_instincts.enabled&cooldown.aspect_of_the_wild.remains<gcd)
     if cast.able.barbedShot() and ((buff.frenzy.exists("pet") and buff.frenzy.remain("pet") <= gcdMax + 0.1)
         or (cd.bestialWrath.remain() > gcdMax and (charges.barbedShot.timeTillFull() < gcdMax
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < gcdMax))))
@@ -671,9 +675,9 @@ actionList.St = function()
         if cast.concentratedFlame() then return end
     end
     -- Aspect of the Wild
-    -- aspect_of_the_wild,if=cooldown.barbed_shot.charges<2|pet.cat.buff.frenzy.stack>2|!azerite.primal_instincts.enabled
+    -- aspect_of_the_wild,if=cooldown.barbed_shot.charges<1|!azerite.primal_instincts.enabled
     if isChecked("Aspect of the Wild") and useCDs() and cast.able.aspectOfTheWild() and (ttd(units.dyn40) > 15 or useCDs())
-        and (charges.barbedShot.count() < 2 or buff.frenzy.stack("pet") > 2 or not traits.primalInstincts.active)
+        and (charges.barbedShot.count() < 2 or not traits.primalInstincts.active)
     then
         if cast.aspectOfTheWild() then return end
     end
@@ -685,23 +689,17 @@ actionList.St = function()
         if cast.stampede() then return end
     end
     -- A Murder of Crows
-    -- a_murder_of_crows,if=cooldown.bestial_wrath.remains
-    if isChecked("A Murder Of Crows / Barrage") and mode.murderOfCrows == 1 and cast.able.aMurderOfCrows()
-        and (cd.bestialWrath.remain() > 0 or (getOptionValue("Bestial Wrath") == 1 and not useCDs()) or getOptionValue("Bestial Wrath") == 3)
-    then
+    -- a_murder_of_crows
+    if isChecked("A Murder Of Crows / Barrage") and mode.murderOfCrows == 1 and cast.able.aMurderOfCrows() then
         if cast.aMurderOfCrows() then return end
     end
     -- Focused Azerite Beam
     -- focused_azerite_beam,if=buff.bestial_wrath.down|target.time_to_die<5
     if isChecked("Use Essence") and cast.able.focusedAzeriteBeam()
-        and not (buff.bestialWrath.exists() or (ttd(units.dyn40) < 5 and useCDs()))
+        and (not buff.bestialWrath.exists() or ((ttd(units.dyn40) < 5 or isDummy()) and useCDs()))
         and (enemies.yards30r >= 3 or useCDs())
     then
-        local minCount = useCDs() and 1 or 3
-        if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then
-            focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
-            return
-        end
+        if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then return end
     end
     -- The Unbound Force
     -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10|target.time_to_die<5
@@ -711,12 +709,25 @@ actionList.St = function()
         if cast.theUnboundForce() then return end
     end
     -- Bestial Wrath
-    -- bestial_wrath
+    -- bestial_wrath,if=!buff.bestial_wrath.up&cooldown.aspect_of_the_wild.remains>15|target.time_to_die<15+gcd
     if mode.bestialWrath == 1 and cast.able.bestialWrath()
-    and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
-    and (ttd(units.dyn40) > 15 or useCDs())
+        and (getOptionValue("Bestial Wrath") == 2 or (getOptionValue("Bestial Wrath") == 1 and useCDs()))
+        and (not buff.bestialWrath.exists() and (cd.aspectOfTheWild.remain() > 15 or not isChecked("Aspect of the Wild"))
+        or (ttd(units.dyn40) > 15 + gcdMax or useCDs()))
     then
         if cast.bestialWrath() then return end
+    end
+    -- Barbed Shot
+    -- barbed_shot,if=azerite.dance_of_death.rank>1&buff.dance_of_death.remains<gcd&crit_pct_current>40
+    if cast.able.barbedShot() and traits.danceOfDeath.rank > 1 and buff.danceOfDeath.remain() < gcdMax then
+        if cast.barbedShot() then return end
+    end
+    -- Blood of the Enemy
+    -- blood_of_the_enemy,if=buff.aspect_of_the_wild.remains>10+gcd|target.time_to_die<10+gcd
+    if isChecked("Use Essence") and cast.able.bloodOfTheEnemy() and (buff.aspectOfTheWild.remain() > 10 + gcdMax
+        or not isChecked("Aspect of the Wild") or (ttd(units.dyn40) < 10 + gcdMax and useCDs()))
+    then
+        if cast.bloodOfTheEnemy() then return end
     end
     -- Kill Command
     -- kill_command
@@ -734,11 +745,9 @@ actionList.St = function()
         if cast.direBeast() then return end
     end
     -- Barbed Shot
-    -- barbed_shot,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|azerite.dance_of_death.rank>1&buff.dance_of_death.down&crit_pct_current>40|target.time_to_die<9
-    if cast.able.barbedShot() and ((not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists()))
-    or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < (buff.frenzy.remain("pet") - gcdMax))
-    or (traits.danceOfDeath.rank > 1 and not buff.danceOfDeath.exists() and critChance > 40)
-    or (useCDs() and ttd(units.dyn40) < 9))
+    -- barbed_shot,if=talent.one_with_the_pack.enabled&charges_fractional>1.5|charges_fractional>1.8|cooldown.aspect_of_the_wild.remains<pet.turtle.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|target.time_to_die<9
+    if cast.able.barbedShot() and ((talent.oneWithThePack and charges.barbedShot.frac() > 1.5) or charges.barbedShot.frac() > 1.8
+        or (cd.aspectOfTheWild.remain() < buff.frenzy.remain("pet") - gcdMax and traits.primalInstincts.active) or (ttd(units.dyn40) < 9 and useCDs()))
     then
         if cast.barbedShot() then return end
     end
@@ -747,20 +756,16 @@ actionList.St = function()
     if isChecked("Use Essence") and cast.able.purifyingBlast() and (not buff.bestialWrath.exists() or (ttd(units.dyn40) < 8 and useCDs())) then
         if cast.purifyingBlast("best", nil, 1, 8) then return true end
     end
-    -- Blood of the Enemy
-    -- blood_of_the_enemy
-    if isChecked("Use Essence") and cast.able.bloodOfTheEnemy() then
-        if cast.bloodOfTheEnemy() then return end
-    end
     -- Barrage
     -- barrage
     if isChecked("A Murder Of Crows / Barrage") and cast.able.barrage() then
         if cast.barrage() then return end
     end
     -- Cobra Shot
-    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1
-    if cast.able.cobraShot() and ((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand()
-        or cd.killCommand.remain() > 1 + gcdMax or buff.memoryOfLucidDreams.exists()) and cd.killCommand.remain() > 1)
+    -- cobra_shot,if=(focus-cost+focus.regen*(cooldown.kill_command.remains-1)>action.kill_command.cost|cooldown.kill_command.remains>1+gcd&cooldown.bestial_wrath.remains_guess>focus.time_to_max|buff.memory_of_lucid_dreams.up)&cooldown.kill_command.remains>1|target.time_to_die<3
+    if cast.able.cobraShot() and (((focus - cast.cost.cobraShot() + focusRegen * (cd.killCommand.remain() - 1) > cast.cost.killCommand()
+        or (cd.killCommand.remain() > 1 + gcdMax and cd.bestialWrath.remains() > ttm) or buff.memoryOfLucidDreams.exists()) and cd.killCommand.remain() > 1)
+        or ttd(units.dyn40) < 3 and useCDs())
     then
         if cast.cobraShot() then return end
     end
@@ -770,8 +775,8 @@ actionList.St = function()
         if cast.spittingCobra() then return end
     end
     -- Barbed Shot
-    -- barbed_shot,if=charges_fractional>1.4
-    if cast.able.barbedShot() and charges.barbedShot.frac() > 1.4 then
+    -- barbed_shot,if=pet.turtle.buff.frenzy.duration-gcd>full_recharge_time
+    if cast.able.barbedShot() and buff.frenzy.duration("pet") - gcdMax > charges.barbedShot.timeTillFull() then
         if cast.barbedShot() then return end
     end
     -- Cobra Shot - Low Level
@@ -846,7 +851,7 @@ actionList.Cleave = function()
         if cast.direBeast() then return end
     end
     -- Barbed Shot
-    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.cat.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.cat.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|charges_fractional>1.4|target.time_to_die<9
+    -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.turtle.buff.frenzy.down&(charges_fractional>1.8|buff.bestial_wrath.up)|cooldown.aspect_of_the_wild.remains<pet.turtle.buff.frenzy.duration-gcd&azerite.primal_instincts.enabled|charges_fractional>1.4|target.time_to_die<9
     if cast.able.barbedShot(lowestBarbedShot) and (not buff.frenzy.exists("pet") and (charges.barbedShot.frac() > 1.8 or buff.bestialWrath.exists())
         or (traits.primalInstincts.active and isChecked("Aspect of the Wild") and useCDs() and cd.aspectOfTheWild.remain() < (buff.frenzy.remain("pet") - gcdMax))
         or (useCDs() and ttd(units.dyn40) < 9))
@@ -859,11 +864,7 @@ actionList.Cleave = function()
         if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists()
             and (enemies.yards30r >= 3 or useCDs())
         then
-            local minCount = useCDs() and 1 or 3
-            if cast.focusedAzeriteBeam(nil,"rect",minCount, 8) then
-                focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
-                return
-            end
+            if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then return end
         end
         -- purifying_blast
         if cast.able.purifyingBlast() then
@@ -877,8 +878,8 @@ actionList.Cleave = function()
         if cast.able.bloodOfTheEnemy() then
             if cast.bloodOfTheEnemy() then return end
         end
-        -- the_unbound_force
-        if cast.able.theUnboundForce() then
+        -- the_unbound_force,if=buff.reckless_force.up|buff.reckless_force_counter.stack<10
+        if cast.able.theUnboundForce() and (buff.recklessForce.exists() or buff.recklessForceCounter.stack() < 10) then
             if cast.theUnboundForce() then return end
         end
     end
@@ -901,7 +902,7 @@ end -- End Action List - Cleave
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    if not inCombat and not (IsFlying() or IsMounted()) then
+    if not inCombat and not (flying or IsMounted()) then
         -- Flask / Crystal
         -- flask,type=flask_of_the_seventh_demon
         if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
@@ -969,13 +970,11 @@ local function runRotation()
     inRaid                             = br.player.instance=="raid"
     item                               = br.player.items
     level                              = br.player.level
-    lowestHP                           = br.friend[1].hp
     mode                               = br.player.mode
     opener                             = br.player.opener
     php                                = br.player.health
     potion                             = br.player.potion
     race                               = br.player.race
-    solo                               = #br.friend < 2
     spell                              = br.player.spell
     talent                             = br.player.talent
     traits                             = br.player.traits
@@ -987,13 +986,11 @@ local function runRotation()
     critChance                         = GetCritChance()
     flying                             = IsFlying()
     healPot                            = getHealthPot()
-    lootDelay                          = getOptionValue("LootDelay")
-    petCombat                          = UnitAffectingCombat("pet")
     pullTimer                          = PullTimerRemain()
     thp                                = getHP
     ttd                                = getTTD
-    haltProfile                        = ((inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists()
-                                            or mode.rotation==4 or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime) or isCastingSpell(293491))
+    haltProfile                        = ((inCombat and profileStop) or IsMounted() or flying
+                                            or pause() or buff.feignDeath.exists() or mode.rotation==4)
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1018,6 +1015,7 @@ local function runRotation()
     if profileStop == nil or (not inCombat and not UnitExists("target") and profileStop == true) then
         profileStop = false
     end
+    minCount = useCDs() and 1 or 3
 
     -- Profile Specific Vars
     lowestBarbedShot = debuff.barbedShot.lowest(40,"remain")

@@ -835,8 +835,8 @@ local function runRotation()
                 for i = 1, #br.friend do
                     if buff.renewingMist.exists(br.friend[i].unit) then
                         RM_counter = RM_counter + 1
-                       -- Print(UnitName(br.friend[i].unit))
-                       -- Print(tostring(RM_counter))
+                        -- Print(UnitName(br.friend[i].unit))
+                        -- Print(tostring(RM_counter))
                         if RM_counter >= getValue("Vivify Spam") then
                             if cast.vivify(healUnit) then
                                 br.addonDebug("[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
@@ -939,9 +939,15 @@ local function runRotation()
 
 
         -- Enveloping Mist on Tank
-        if cast.able.envelopingMist() then
+        if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) and not isCastingSpell(spell.soothingMist)  then
+                        if cast.soothingMist(tanks[i].unit) then
+                            br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE")
+                            return true
+                        end
+                    end
                     if cast.envelopingMist(tanks[i].unit) then
                         br.addonDebug("[envelopingMist]:" .. UnitName(tanks[i].unit) .. " - EM on Tank")
                         return true
