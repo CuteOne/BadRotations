@@ -203,6 +203,7 @@ local function runRotation()
     local hastar = GetObjectExists("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
+    local equiped = br.player.equiped
     local essence = br.player.essence
     local flying, moving = IsFlying(), GetUnitSpeed("player") > 0
     local flaskBuff = getBuffRemain("player", br.player.flask.wod.buff.agilityBig)
