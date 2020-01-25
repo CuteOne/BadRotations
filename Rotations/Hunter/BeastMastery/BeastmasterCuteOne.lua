@@ -208,13 +208,11 @@ local inInstance
 local inRaid
 local item
 local level
-local lowestHP
 local mode
 local opener
 local php
 local potion
 local race
-local solo
 local spell
 local talent
 local traits
@@ -229,8 +227,7 @@ local flying
 local haltProfile
 local healPot
 local leftCombat
-local lootDelay
-local petCombat
+local minCount
 local profileStop
 local pullTimer
 local thp
@@ -694,12 +691,11 @@ actionList.St = function()
     -- Focused Azerite Beam
     -- focused_azerite_beam,if=buff.bestial_wrath.down|target.time_to_die<5
     if isChecked("Use Essence") and cast.able.focusedAzeriteBeam()
-        and not (buff.bestialWrath.exists() or (ttd(units.dyn40) < 5 and useCDs()))
+        and (not buff.bestialWrath.exists() or ((ttd(units.dyn40) < 5 or isDummy()) and useCDs()))
         and (enemies.yards30r >= 3 or useCDs())
     then
-        local minCount = useCDs() and 1 or 3
         if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then
-            focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+            -- focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
             return
         end
     end
@@ -859,9 +855,8 @@ actionList.Cleave = function()
         if isChecked("Use Essence") and cast.able.focusedAzeriteBeam() and not buff.bestialWrath.exists()
             and (enemies.yards30r >= 3 or useCDs())
         then
-            local minCount = useCDs() and 1 or 3
-            if cast.focusedAzeriteBeam(nil,"rect",minCount, 8) then
-                focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
+            if cast.focusedAzeriteBeam(nil,"rect",minCount, 30) then
+                -- focusedTime = GetTime() + cast.time.focusedAzeriteBeam() + gcdMax
                 return
             end
         end
@@ -901,7 +896,7 @@ end -- End Action List - Cleave
 
 -- Action List - PreCombat
 actionList.PreCombat = function()
-    if not inCombat and not (IsFlying() or IsMounted()) then
+    if not inCombat and not (flying or IsMounted()) then
         -- Flask / Crystal
         -- flask,type=flask_of_the_seventh_demon
         if getOptionValue("Elixir") == 1 and inRaid and not buff.flaskOfTheSeventhDemon.exists() and canUseItem(item.flaskOfTheSeventhDemon) then
@@ -969,13 +964,11 @@ local function runRotation()
     inRaid                             = br.player.instance=="raid"
     item                               = br.player.items
     level                              = br.player.level
-    lowestHP                           = br.friend[1].hp
     mode                               = br.player.mode
     opener                             = br.player.opener
     php                                = br.player.health
     potion                             = br.player.potion
     race                               = br.player.race
-    solo                               = #br.friend < 2
     spell                              = br.player.spell
     talent                             = br.player.talent
     traits                             = br.player.traits
@@ -987,13 +980,11 @@ local function runRotation()
     critChance                         = GetCritChance()
     flying                             = IsFlying()
     healPot                            = getHealthPot()
-    lootDelay                          = getOptionValue("LootDelay")
-    petCombat                          = UnitAffectingCombat("pet")
     pullTimer                          = PullTimerRemain()
     thp                                = getHP
     ttd                                = getTTD
-    haltProfile                        = ((inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists()
-                                            or mode.rotation==4 or (cast.current.focusedAzeriteBeam() and GetTime() < focusedTime) or isCastingSpell(293491))
+    haltProfile                        = ((inCombat and profileStop) or IsMounted() or flying
+                                            or pause() or buff.feignDeath.exists() or mode.rotation==4)
 
     -- Get Best Unit for Range
     -- units.get(range, aoe)
@@ -1018,6 +1009,7 @@ local function runRotation()
     if profileStop == nil or (not inCombat and not UnitExists("target") and profileStop == true) then
         profileStop = false
     end
+    minCount = useCDs() and 1 or 3
 
     -- Profile Specific Vars
     lowestBarbedShot = debuff.barbedShot.lowest(40,"remain")
