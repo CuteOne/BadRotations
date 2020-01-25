@@ -763,7 +763,7 @@ actionList.PreCombat = function()
         end
         -- Battle Scarred Augment Rune
         if getOptionValue("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
-            and use.able.battleScarredAugmentRune() and lastRune + gcdMax < GetTime()
+            and use.able.battleScarredAugmentRune() and lastRune + gcd < GetTime()
         then
             if use.battleScarredAugmentRune() then lastRune = GetTime() return true end
         end
