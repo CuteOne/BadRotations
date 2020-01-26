@@ -221,7 +221,7 @@ local spell
 local talent
 local traits
 local ttd
-local ttdp
+local ttp
 local ttm
 local units
 local use
@@ -582,7 +582,7 @@ actionList.TouchOfDeath = function()
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Cyclotronic Blast]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&equipped.dribbling_inkpod&target.time_to_die>9&(target.time_to_pct_30.remains>=130|target.time_to_pct_30.remains<8)
-    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd > 9 and (ttdp(units.dyn5,30) > 130 or ttdp(units.dyn5,30) < 8) then
+    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd > 9 and (ttp(units.dyn5,30) > 130 or ttp(units.dyn5,30) < 8) then
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Dribbling Inkpod]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&!equipped.dribbling_inkpod&target.time_to_die>9
@@ -1110,7 +1110,7 @@ local function runRotation()
     talent            = br.player.talent
     traits            = br.player.traits
     ttd               = getTTD("target")
-    ttdp              = getTTD
+    ttp               = getTTD
     ttm               = br.player.power.energy.ttm()
     units             = br.player.units
     use               = br.player.use
