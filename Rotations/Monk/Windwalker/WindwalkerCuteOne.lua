@@ -197,7 +197,6 @@ local cast
 local cd
 local charges
 local chi
-local chiDeficit
 local chiMax
 local debuff
 local debug
@@ -215,16 +214,14 @@ local moving
 local opener
 local option
 local php
-local power
-local powerMax
 local pullTimer
 local race
 local solo
 local spell
 local talent
-local thp
 local traits
 local ttd
+local ttdp
 local ttm
 local units
 local use
@@ -307,7 +304,10 @@ actionList.Extras = function()
         end
     end
     -- Crackling Jade Lightning
-    if option.checked("CJL OOR") and (lastCombo ~= spell.cracklingJadeLightning or buff.hitCombo.stack() <= 1) and #enemies.yards8f == 0 and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy()) and not moving and power >= option.value("CJL OOR") then
+    if option.checked("CJL OOR") and (lastCombo ~= spell.cracklingJadeLightning or buff.hitCombo.stack() <= 1)
+        and #enemies.yards8f == 0 and not isCastingSpell(spell.cracklingJadeLightning) and (hasThreat("target") or isDummy())
+        and not moving and energy >= option.value("CJL OOR")
+    then
         if cast.cracklingJadeLightning() then debug("Casting Crackling Jade Lightning [Extras]") return true end
     end
     -- Touch of the Void
@@ -582,7 +582,7 @@ actionList.TouchOfDeath = function()
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Cyclotronic Blast]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&equipped.dribbling_inkpod&target.time_to_die>9&(target.time_to_pct_30.remains>=130|target.time_to_pct_30.remains<8)
-    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd(units.dyn5) > 9 and (ttd(units.dyn5,30) > 130 or ttd(units.dyn5,30) < 8) then
+    if not equiped.pocketSizedComputationDevice() and equiped.dribblingInkpod() and ttd > 9 and (ttdp(units.dyn5,30) > 130 or ttdp(units.dyn5,30) < 8) then
         if cast.touchOfDeath() then debug("Casting Touch Of Death [Dribbling Inkpod]") return true end
     end
     -- touch_of_death,if=!equipped.cyclotronic_blast&!equipped.dribbling_inkpod&target.time_to_die>9
@@ -835,11 +835,11 @@ actionList.PreCombat = function()
                 StartAttack()
             end
             -- Crackling Jade Lightning
-            if option.checked("CJL OOR") and getDistance("target") < 40 and not moving and power >= option.value("CJL OOR") then
+            if option.checked("CJL OOR") and getDistance("target") < 40 and not moving and energy >= option.value("CJL OOR") then
                 if cast.cracklingJadeLightning("target") then StartAttack(); debug("Casting Crackling Jade Lightning [Pre-Pull]") return true end
             end
             -- Provoke
-            if option.checked("Provoke") and not isBoss("target") and getDistance("target") < 30 and (moving or power < option.value("CJL OOR")) then
+            if option.checked("Provoke") and not isBoss("target") and getDistance("target") < 30 and (moving or energy < option.value("CJL OOR")) then
                 if cast.provoke("target") then StartAttack(); debug("Casting Provoke [Pre-Pull]") return true end
             end
         end
@@ -1085,7 +1085,6 @@ local function runRotation()
     cd                = br.player.cd
     charges           = br.player.charges
     chi               = br.player.power.chi.amount()
-    chiDeficit        = br.player.power.chi.deficit()
     chiMax            = br.player.power.chi.max()
     combatTime        = getCombatTime()
     debuff            = br.player.debuff
@@ -1104,16 +1103,14 @@ local function runRotation()
     opener            = br.player.opener
     option            = br.player.option
     php               = br.player.health
-    power             = br.player.power.energy.amount()
-    powerMax          = br.player.power.energy.max()
     pullTimer         = br.DBM:getPulltimer()
     race              = br.player.race
     solo              = select(2,IsInInstance())=="none"
     spell             = br.player.spell
     talent            = br.player.talent
-    thp               = getHP("target")
     traits            = br.player.traits
     ttd               = getTTD("target")
+    ttdp              = getTTD
     ttm               = br.player.power.energy.ttm()
     units             = br.player.units
     use               = br.player.use
@@ -1135,7 +1132,7 @@ local function runRotation()
     if fixateTarget == nil then fixateTarget = "player" end
 
     if cast.current.cracklingJadeLightning()
-        and (getDistance(units.dyn5) <= 5 or (#enemies.yards8 == 0 and power <= option.value("CJL OOR Cancel") and option.checked("CJL OOR")))
+        and (getDistance(units.dyn5) <= 5 or (#enemies.yards8 == 0 and energy <= option.value("CJL OOR Cancel") and option.checked("CJL OOR")))
     then
         SpellStopCasting()
     end
