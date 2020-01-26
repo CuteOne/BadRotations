@@ -1,4 +1,4 @@
-local rotationName = "Fiskee - 8.0.1"
+local rotationName = "Fiskee - 8.3"
 local targetMoveCheck, opener, fbInc = false, false, false
 local lastTargetX, lastTargetY, lastTargetZ
 local ropNotice = false
@@ -68,83 +68,135 @@ local function createOptions()
     local optionTable
     local function rotationOptions()
         local section
-        -- General Options
+        ------------------------
+        --- GENERAL  OPTIONS ---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "General")
         -- APL
-        br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFFFFFSimC", "|cffFFFFFFLeveling", "|cffFFFFFFIce Lance Spam"}, 1, "|cffFFFFFFSet APL Mode to use.")
+        br.ui:createDropdownWithout(section, "APL Mode", {"|cffFFBB00SimC", "|cffFFBB00Leveling", "|cffFFBB00Ice Lance Spam"}, 1, "|cffFFBB00Set APL Mode to use.")
         -- Dummy DPS Test
-        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFFFFFSet to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
+        br.ui:createSpinner(section, "DPS Testing", 5, 5, 60, 5, "|cffFFBB00Set to desired time for test in minuts. Min: 5 / Max: 60 / Interval: 5")
         -- Pre-Pull Timer
-        br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffFFFFFFWill precast Frostbolt on pull if pulltimer is active")
+        br.ui:createCheckbox(section, "Pre-Pull Logic", "|cffFFBB00Will precast Frostbolt on pull if pulltimer is active")
         -- Opener
         --br.ui:createCheckbox(section,"Opener")
         -- Pet Management
-        br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
-        -- Blizzard Units
-        br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFFFFFMin. number of units Blizzard will be cast on.")
-        -- Frozen Orb Units
-        br.ui:createSpinnerWithout(section, "Frozen Orb Units", 3, 1, 10, 1, "|cffFFFFFFMin. number of units Frozen Orb will be cast on.")
-        -- Frozen Orb Units
-        br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFFFFFMin. number of units Comet Storm will be cast on.")
-        -- Focused Azerite Beam
-        br.ui:createSpinner(section, "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFFFFF Min. units hit to use Focused Azerite Beam")
-        -- Predict movement
-        --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFFFFF Disable prediction of unit movement for casts")
-        -- Auto target
-        br.ui:createCheckbox(section, "Auto Target", "|cffFFFFFF Will auto change to a new target, if current target is dead")
-        -- Spellsteal
-        br.ui:createCheckbox(section, "Spellsteal", "|cffFFFFFF Will use Spellsteal, delay can be changed using dispel delay in healing engine")
-        -- Remove Curse
-        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFFFFFPlayer/Target","|cffFF0000Mouseover","|cffFFFFFFAny"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
-        -- Arcane Intellect
-        br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFFFFF Will use Arcane Intellect")
-        -- Casting Interrupt Delay
-        br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFFFFFActivate to delay interrupting own casts to use procs.")
-        -- Casting Interrupt Delay
-        br.ui:createCheckbox(section, "No Ice Lance", "|cffFFFFFFUse No Ice Lance Rotation.")
+        br.ui:createCheckbox(section, "Pet Management", "|cffFFBB00 Select to enable/disable auto pet management")
         br.ui:checkSectionState(section)
-        -- Cooldown Options
+
+        ------------------------
+        ---   DPS SETTINGS   ---
+        ------------------------
+       section = br.ui:createSection(br.ui.window.profile, "DPS Settings")
+        -- Blizzard Units
+        br.ui:createSpinnerWithout(section, "Blizzard Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Blizzard will be cast on.")
+        -- Frozen Orb Units
+        br.ui:createSpinnerWithout(section, "Frozen Orb Units", 3, 1, 10, 1, "|cffFFBB00Min. number of units Frozen Orb will be cast on.")
+        -- Frozen Orb Units
+        br.ui:createSpinnerWithout(section, "Comet Storm Units", 2, 1, 10, 1, "|cffFFBB00Min. number of units Comet Storm will be cast on.")
+        -- Casting Interrupt Delay
+        br.ui:createSpinner(section, "Casting Interrupt Delay", 0.3, 0, 1, 0.1, "|cffFFBB00Activate to delay interrupting own casts to use procs.")
+        -- Casting Interrupt Delay
+        br.ui:createCheckbox(section, "No Ice Lance", "|cffFFBB00Use No Ice Lance Rotation.")        
+        -- Predict movement
+        --br.ui:createCheckbox(section, "Disable Movement Prediction", "|cffFFBB00 Disable prediction of unit movement for casts")
+        -- Auto target
+        -- br.ui:createCheckbox(section, "Auto Target", "|cffFFBB00 Will auto change to a new target, if current target is dead")
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        ---     ESSENCES     ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Essences")
+        -- Essences Usage
+        br.ui:createDropdownWithout(section, "Use Essences", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFBB00When to use Essences.")
+        -- Focused Azerite Beam
+        br.ui:createSpinner(section, "Focused Azerite Beam",  3,  1,  10,  1,  "|cffFFBB00 Min. units hit to use Focused Azerite Beam")
+        -- Guardian of Azeroth
+        br.ui:createCheckbox(section, "Guardian of Azeroth", "|cffFFBB00 Use Guardian of Azeroth (During CDs)")
+        -- Memory of Lucid Dreams
+        br.ui:createCheckbox(section, "Memory of Lucid Dreams", "|cffFFBB00 Use Memory of Lucid Dreams as per SimC Logic")
+        -- Purifying Blast
+        br.ui:createCheckbox(section, "Purifying Blast", "|cffFFBB00 Use Purifying Blast as per SimC Logic")
+        -- Ripple in Space
+        br.ui:createCheckbox(section, "Ripple in Space", "|cffFFBB00 Use Ripple in Space as per SimC Logic")
+        -- Concentrated Flame
+        br.ui:createCheckbox(section, "Concentrated Flame DPS", "|cffFFBB00 Use Concentrated Flame for DPS")
+        br.ui:createSpinner(section, "Concentrated Flame HP", 30, 0, 100, 5, "|cffFFBB00 Use Concentrated Flame for healing")
+        -- The Unbound Force
+        br.ui:createCheckbox(section, "The Unbound Force", "|cffFFBB00 Use The Unbound Force as per SimC Logic")        
+        -- Worldvein Resonance    
+        br.ui:createCheckbox(section, "Worldvein Resonance", "|cffFFBB00 Use Worldvein Resonance as per SimC Logic")        
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        ---     UTILITY      ---
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Utility")
+        -- Spellsteal
+        br.ui:createCheckbox(section, "Spellsteal", "|cffFFBB00 Will use Spellsteal, delay can be changed using dispel delay in healing engine")
+        -- Remove Curse
+        br.ui:createDropdown(section, "Remove Curse", {"|cff00FF00Player","|cffFFFF00Target","|cffFFBB00Player/Target","|cffFF0000Mouseover","|cffFFBB00Any"}, 1, "","|ccfFFFFFFTarget to cast on, set delay in healing engine settings")
+        -- Arcane Intellect
+        br.ui:createCheckbox(section, "Arcane Intellect", "|cffFFBB00 Will use Arcane Intellect")
+        -- Slow Fall
+        br.ui:createSpinner(section, "Slow Fall Distance", 30, 0, 100, 1, "|cffFFBB00 Will cast slow fall based on the fall distance")                
+        br.ui:checkSectionState(section)
+
+        ------------------------
+        --- COOLDOWN OPTIONS ---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+        -- Cooldowns Time to Die limit
+        br.ui:createSpinnerWithout(section, "Cooldowns Time to Die Limit", 5, 1, 30, 1, "|cffFFBB00Min. calculated time to die to use CDs.")
         -- Racial
         br.ui:createCheckbox(section, "Racial")
-        -- Trinkets
-        br.ui:createCheckbox(section, "Trinkets")
+        -- Trinkets        
+        br.ui:createDropdownWithout(section, "Trinket 1", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
+        br.ui:createDropdownWithout(section, "Trinket 2", {"|cff00FF00Everything","|cffFFFF00Cooldowns","|cffFF0000Never"}, 1, "|cffFFFFFFWhen to use trinkets.")
         -- Potion
         br.ui:createCheckbox(section, "Potion")
         -- Pre Pot
-        br.ui:createCheckbox(section, "Pre Pot", "|cffFFFFFF Requires Pre-Pull logic to be active")
+        br.ui:createCheckbox(section, "Pre Pot", "|cffFFBB00 Requires Pre-Pull logic to be active")
         -- AoE when using CD
-        br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFFFFF Use user AoE settings when using CDs")
-        -- CD ttd limit
-        br.ui:createSpinnerWithout(section, "CDs TTD Limit", 5, 1, 30, 1, "|cffFFFFFFMin. calculated time to die to use CDs.")
+        br.ui:createCheckbox(section, "Obey AoE units when using CDs", "|cffFFBB00 Use user AoE settings when using CDs")
         br.ui:checkSectionState(section)
-        -- Defensive Options
+
+        ------------------------
+        --- Defensive OPTIONS ---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Defensive")
         -- Healthstone
-        br.ui:createSpinner(section, "Pot/Stoned", 60, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Pot/Stoned", 60, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
         -- Heirloom Neck
         br.ui:createSpinner(section, "Heirloom Neck", 60, 0, 100, 5, "|cffFFBB00Health Percentage to use at.")
         -- Gift of The Naaru
         if br.player.race == "Draenei" then
-            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+            br.ui:createSpinner(section, "Gift of the Naaru", 50, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
         end
         -- Ice Barrier
-        br.ui:createSpinner(section, "Ice Barrier", 80, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Ice Barrier", 80, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
         -- Ice Barrier OOC
-        br.ui:createCheckbox(section, "Ice Barrier OOC", "|cffFFFFFFKeep Ice Barrier up out of combat")
+        br.ui:createCheckbox(section, "Ice Barrier OOC", "|cffFFBB00Keep Ice Barrier up out of combat")
         -- Ice Block
-        br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFFFFFHealth Percent to Cast At")
+        br.ui:createSpinner(section, "Ice Block", 20, 0, 100, 5, "|cffFFBB00Health Percent to Cast At")
         --Dispel
-        --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFFFFF Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
+        --br.ui:createCheckbox(section, "Auto Dispel/Purge", "|cffFFBB00 Auto dispel/purge in m+, based on whitelist, set delay in healing engine settings")
         br.ui:checkSectionState(section)
-        -- Interrupt Options
+
+        ------------------------
+        ---Interrupt  OPTIONS---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
         -- Interrupt Percentage
-        br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFFFFFCast Percent to Cast At")
+        br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "|cffFFBB00Cast Percent to Cast At")
         -- Don't interrupt
-        br.ui:createCheckbox(section, "Do Not Cancel Cast", "|cffFFFFFFWill not interrupt own spellcasting to cast Counterspell")
+        br.ui:createCheckbox(section, "Do Not Cancel Cast", "|cffFFBB00Will not interrupt own spellcasting to cast Counterspell")
         br.ui:checkSectionState(section)
-        -- Toggle Key Options
+
+        ------------------------
+        ---TOGGLE KEY OPTIONS---
+        ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Toggle Keys")
         -- Single/Multi Toggle
         br.ui:createDropdown(section, "Rotation Mode", br.dropOptions.Toggle, 4)
@@ -197,6 +249,7 @@ local function runRotation()
     local deadtar, attacktar, hastar, playertar = deadtar or UnitIsDeadOrGhost("target"), attacktar or UnitCanAttack("target", "player"), hastar or GetObjectExists("target"), UnitIsPlayer("target")
     local debuff = br.player.debuff
     local enemies = br.player.enemies
+    local essence = br.player.essence
     local equiped = br.player.equiped
     local falling, swimming, flying = getFallTime(), IsSwimming(), IsFlying()
     local friendly = GetUnitIsFriend("target", "player")
@@ -684,50 +737,50 @@ local function runRotation()
         fbInc = false
     end
 
-    local function castBeam(minUnits, safe, minttd)
-        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
-            return false
-        end
-        if not isChecked("Obey AoE units when using CDs") and useCDs() then
-            minUnits = 1
-        end
-        local x, y, z = ObjectPosition("player")
-        local length = 30
-        local width = 6
-        ttd = ttd or 0
-        safe = safe or true
-        local function getRectUnit(facing)
-            local halfWidth = width/2
-            local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
-            local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
-            local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
-            return nlX, nlY, nrX, nrY, frX, frY
-        end
-        local enemiesTable = getEnemies("player", length, true)
-        local facing = ObjectFacing("player")        
-        local unitsInRect = 0
-        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
-        local thisUnit
-        for i = 1, #enemiesTable do
-            thisUnit = enemiesTable[i]
-            local uX, uY, uZ = ObjectPosition(thisUnit)
-            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
-                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
-                    unitsInRect = 0
-                    break
-                end            
-                if ttd(thisUnit) >= minttd then                
-                    unitsInRect = unitsInRect + 1
-                end
-            end
-        end
-        if unitsInRect >= minUnits then
-            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
-            return true
-        else
-            return false
-        end
-    end
+--    local function castBeam(minUnits, safe, minttd)
+--        if not isKnown(spell.focusedAzeriteBeam) or getSpellCD(spell.focusedAzeriteBeam) ~= 0 then
+--            return false
+--        end
+--        if not isChecked("Obey AoE units when using CDs") and useCDs() then
+--            minUnits = 1
+--        end
+--        local x, y, z = ObjectPosition("player")
+--        local length = 30
+--        local width = 6
+ --       ttd = ttd or 0
+--        safe = safe or true
+--        local function getRectUnit(facing)
+--        local halfWidth = width/2
+--        local nlX, nlY, nlZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(90), 0)
+--        local nrX, nrY, nrZ = GetPositionFromPosition(x, y, z, halfWidth, facing + math.rad(270), 0)
+--        local frX, frY, frZ = GetPositionFromPosition(nrX, nrY, nrZ, length, facing, 0)
+--        return nlX, nlY, nrX, nrY, frX, frY
+--        end
+--        local enemiesTable = getEnemies("player", length, true)
+--        local facing = ObjectFacing("player")        
+--        local unitsInRect = 0
+--        local nlX, nlY, nrX, nrY, frX, frY = getRectUnit(facing)
+--        local thisUnit
+--        for i = 1, #enemiesTable do
+--            thisUnit = enemiesTable[i]
+--            local uX, uY, uZ = ObjectPosition(thisUnit)
+--            if isInside(uX, uY, nlX, nlY, nrX, nrY, frX, frY) and not TraceLine(x, y, z+2, uX, uY, uZ+2, 0x100010) then
+--                if safe and not UnitAffectingCombat(thisUnit) and not isDummy(thisUnit) then
+--                    unitsInRect = 0
+--                    break
+--                end            
+--                if ttd(thisUnit) >= minttd then                
+--                    unitsInRect = unitsInRect + 1
+--                end
+--            end
+--        end
+--        if unitsInRect >= minUnits then
+--            CastSpellByName(GetSpellInfo(spell.focusedAzeriteBeam))
+--            return true
+--        else
+--            return false
+--        end
+--    end
 
     local function actionList_Extras()
         if isChecked("DPS Testing") and GetObjectExists("target") and getCombatTime() >= (tonumber(getOptionValue("DPS Testing")) * 60) and isDummy() then
@@ -740,7 +793,7 @@ local function runRotation()
             print(tonumber(getOptionValue("DPS Testing")) .. " Minute Dummy Test Concluded - Profile Stopped")
             profileStop = true
         end
-        --ice barrier
+        --Ice Barrier
         if not IsResting() and not inCombat and not playerCasting and isChecked("Ice Barrier OOC") then
             if cast.iceBarrier("player") then
                 return true
@@ -750,30 +803,46 @@ local function runRotation()
         if isChecked("Pet Management") and UnitIsVisible("pet") and not petFollowActive() and (not inCombat or getDistance("target", "pet") > 40) then
             PetFollow()
         end
-        --Burn Units
-        local burnUnits = {
-            [120651] = true, -- Explosive
-            [141851] = true -- Infested
-        }
-        if GetObjectExists("target") and burnUnits[GetObjectID("target")] ~= nil then
-
-        end
-        if isChecked("Spellsteal") then
+        -- Spell Steal
+        if isChecked("Spellsteal") and inCombat then
             for i = 1, #enemyTable40 do
                 if spellstealCheck(enemyTable40[i].unit) then
                     if cast.spellsteal(enemyTable40[i].unit) then return true end
                 end
             end
         end
-        if isChecked("Arcane Intellect") then
-            if buff.arcaneIntellect.remain("player", "any") < 600 then
-                if cast.arcaneIntellect("player") then return true end
+        -- Arcane Intellect
+        if isChecked("Arcane Intellect") and br.timer:useTimer("AI Delay", math.random(15, 30)) then
+            for i = 1, #br.friend do
+                if not buff.arcaneIntellect.exists(br.friend[i].unit,"any") and getDistance("player", br.friend[i].unit) < 40 and not UnitIsDeadOrGhost(br.friend[i].unit) and UnitIsPlayer(br.friend[i].unit) then
+                    if cast.arcaneIntellect() then return true end
+                end
             end
         end
+        -- Trinkets
+            -- Trinket 1
+            if (getOptionValue("Trinket 1") == 1 or (getOptionValue("Trinket 1") == 2 and useCDs())) and inCombat then
+                if use.able.slot(13) then
+                    use.slot(13)
+                end
+            end
+        -- Trinket 2
+            if (getOptionValue("Trinket 2") == 1 or (getOptionValue("Trinket 2") == 2 and useCDs())) and inCombat then
+                if use.able.slot(14) then
+                    use.slot(14)
+                end
+            end      
+        -- Slow Fall
+        if isChecked("Slow Fall Distance") and cast.able.slowFall() and not buff.slowFall.exists() then
+            if IsFalling() and getFallDistance() >= getOptionValue("Slow Fall Distance") then
+                if cast.slowFall() then return end
+            end
+        end         
     end
 
     local function actionList_Defensive()
         if useDefensive() then
+            --Ice Block
             if isChecked("Ice Block") and php <= getOptionValue("Ice Block") and cd.iceBlock.remain() <= gcd then
                 if UnitCastingInfo("player") then
                     SpellStopCasting()
@@ -782,6 +851,7 @@ local function runRotation()
                     return true
                 end
             end
+            --Pot/Stone
             if isChecked("Pot/Stoned") and php <= getOptionValue("Pot/Stoned") and inCombat and (hasHealthPot() or hasItem(5512)) then
                 if canUseItem(5512) then
                     useItem(5512)
@@ -789,6 +859,7 @@ local function runRotation()
                     useItem(healPot)
                 end
             end
+            --Heirloom Neck
             if isChecked("Heirloom Neck") and php <= getOptionValue("Heirloom Neck") then
                 if hasEquiped(heirloomNeck) then
                     if GetItemCooldown(heirloomNeck) == 0 then
@@ -796,11 +867,13 @@ local function runRotation()
                     end
                 end
             end
+            --Ice Barrier
             if isChecked("Ice Barrier") and not playerCasting and php <= getOptionValue("Ice Barrier") then
                 if cast.iceBarrier("player") then
                     return true
                 end
             end
+            --Gift of the Naaru (Racial)
             if br.player.race == "Draenei"  and isChecked("Gift of the Naaru") and php <= getOptionValue("Gift of the Naaru") and php > 0 then
                 if castSpell("player", racial, false, false, false) then
                     return
@@ -859,39 +932,56 @@ local function runRotation()
         -- actions.talent_rop+=/rune_of_power,if=!talent.glacial_spike.enabled&(talent.ebonbolt.enabled&cooldown.ebonbolt.remains<cast_time|talent.comet_storm.enabled&cooldown.comet_storm.remains<cast_time|talent.ray_of_frost.enabled&cooldown.ray_of_frost.remains<cast_time|charges_fractional>1.9)
     end
 
+    -- Essences
     local function actionList_Essences()
+        -- actions.cooldowns=guardian_of_azeroth
+        if isChecked("Guardian of Azeroth") and cast.able.guardianOfAzeroth() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
+            if cast.guardianOfAzeroth() then return true end
+        end
         -- actions.essences=focused_azerite_beam,if=buff.rune_of_power.down|active_enemies>3
-        if standingTime > 1 and isChecked("Focused Azerite Beam") and (blizzardUnits > 3 or not buff.runeOfPower.exists()) then
-            if castBeam(getOptionValue("Focused Azerite Beam"), true, 3) then return true end
+        if standingTime > 1 and isChecked("Focused Azerite Beam") and cast.able.focusedAzeriteBeam() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and essence.focusedAzeriteBeam.active and cd.focusedAzeriteBeam.remains() <= gcd and ((essence.focusedAzeriteBeam.rank < 3 and not moving) 
+        or essence.focusedAzeriteBeam.rank >= 3) and not buff.runeOfPower.exists("player") and getFacing("player","target") and (getEnemiesInRect(10,25,false,false) >= getOptionValue("Focused Azerite Beam") or ((getEnemiesInRect(10,40,false,false) >= 1 or (getDistance("target") < 6 and isBoss("target")))))
+        then
+            if cast.focusedAzeriteBeam() then return true end
         end
         -- actions.essences+=/memory_of_lucid_dreams,if=active_enemies<5&(buff.icicles.stack<=1|!talent.glacial_spike.enabled)&cooldown.frozen_orb.remains>10
-        if blizzardUnits < 5 and (iciclesStack <= 1 or not talent.glacialSpike) and cd.frozenOrb.remain() > 10 and useCDs() then
+        if isChecked("Memory of Lucid Dreams") and cast.able.memoryOfLucidDreams() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits < 5 and (iciclesStack <= 1 or not talent.glacialSpike) and cd.frozenOrb.remain() > 10 and useCDs() then
             if cast.memoryOfLucidDreams("player") then return true end
         end
         -- actions.essences+=/blood_of_the_enemy,if=(talent.glacial_spike.enabled&buff.icicles.stack=5&(buff.brain_freeze.react|prev_gcd.1.ebonbolt))|((active_enemies>3|!talent.glacial_spike.enabled)&(prev_gcd.1.frozen_orb|ground_aoe.frozen_orb.remains>5))
         
-        if blizzardUnits > 3 or not buff.runeOfPower.exists() then
+        if isChecked("Purifying Blast") and cast.able.purifyingBlast() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
             -- actions.essences+=/purifying_blast,if=buff.rune_of_power.down|active_enemies>3
-            if useCDs() then
                 if cast.purifyingBlast("target") then return true end
+        end
                 -- actions.essences+=/ripple_in_space,if=buff.rune_of_power.down|active_enemies>3
-                --if cast.rippleInSpace("target") then return true end 
+        if isChecked("Ripple in Space") and cast.able.rippleInSpace() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
+                if cast.rippleInSpace("target") then return true end 
+        end
                 -- actions.essences+=/worldvein_resonance,if=buff.rune_of_power.down|active_enemies>3
+        if isChecked("Worldvein Resonance") and cast.able.worldveinResonance() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) and blizzardUnits > 3 or not buff.runeOfPower.exists() then
                 if cast.worldveinResonance("target") then return true end
-            end
+        end
             -- actions.essences+=/concentrated_flame,line_cd=6,if=buff.rune_of_power.down
+        if isChecked("Concentrated Flame DPS") and cast.able.concentratedFlame() and essence.concentratedFlame.active and cd.concentratedFlame.remain() <= gcd and (not debuff.concentratedFlame.exists("target") and not cast.last.concentratedFlame()
+        or charges.concentratedFlame.timeTillFull() < gcd) and not buff.runeOfPower.exists("player") then
             if cast.concentratedFlame("target") then return true end
         end
+        if isChecked("Concentrated Flame HP") and cast.able.concentratedFlame() and cd.concentratedFlame.remain() <= gcd and php <= getValue("Concentrated Flame HP") then
+            if cast.concentratedFlame("player") then return true end
+        end
         -- actions.essences+=/the_unbound_force,if=buff.reckless_force.up
-        if buff.recklessForce.exists() then
+        if isChecked("The Unbound Force") and cast.able.theUnboundForce() and buff.recklessForce.exists() and (getOptionValue("Use Essences") == 1 or (getOptionValue("Use Essences") == 2 and useCDs())) then
             if cast.theUnboundForce("target") then return true end
+        end
+        --actions.essences+=/reaping_flames,if=buff.rune_of_power.down
+        if isChecked("Reaping Flames") and cast.able.reapingFlames() and not buff.runeOfPower.exists("player") then
+            if cast.reapingFlames() then return true end
         end
     end
 
     local function actionList_Cooldowns()
-        if useCDs() and not moving and targetUnit.ttd >= getOptionValue("CDs TTD Limit") then
-            --actions.cooldowns=guardian_of_azeroth
-            if cast.guardianOfAzeroth() then return end
+        if useCDs() and not moving and targetUnit.ttd >= getOptionValue("Cooldowns Time to Die Limit") then
             -- actions.cooldowns=icy_veins
             if cast.icyVeins("player") then return true end
             -- actions.cooldowns+=/potion,if=prev_gcd.1.icy_veins|target.time_to_die<30
@@ -905,27 +995,7 @@ local function runRotation()
             -- actions.cooldowns+=/rune_of_power,if=prev_gcd.1.frozen_orb|target.time_to_die>10+cast_time&target.time_to_die<20
             -- # On single target fights, the cooldown of Rune of Power is lower than the cooldown of Frozen Orb, this gives extra Rune of Power charges that should be used with active talents, if possible.
             -- actions.cooldowns+=/call_action_list,name=talent_rop,if=talent.rune_of_power.enabled&active_enemies=1&cooldown.rune_of_power.full_recharge_time<cooldown.frozen_orb.remains
-            -- actions.cooldowns+=/use_items
-            if isChecked("Trinkets") then
-                if canUseItem(13) then
-                    if hasEquiped(165576, 13) then -- tidestorm codex
-                        if not buff.icyVeins.exists() and not buff.runeOfPower.exists() then
-                            useItem(13)
-                        end
-                    else
-                        useItem(13)
-                    end
-                end
-                if canUseItem(14) then
-                    if hasEquiped(165576, 14) then -- tidestorm codex
-                        if not buff.icyVeins.exists() and not buff.runeOfPower.exists() then
-                            useItem(14)
-                        end
-                    else
-                        useItem(14)
-                    end
-                end
-            end
+            -- actions.cooldowns+=/use_items  
             --racials
             if isChecked("Racial") then
                 if race == "Orc" or race == "MagharOrc" or race == "DarkIronDwarf" or race == "LightforgedDraenei" or race == "Troll" then
@@ -1022,8 +1092,6 @@ local function runRotation()
         if cast.last.frostbolt() and bfExists and (not talent.glacialSpike or iciclesStack < 4 or targetUnit.ttd < 3) then
             if cast.flurry("target") then return true end
         end
-        -- Essences
-        if actionList_Essences() then return true end
         -- actions.single+=/frozen_orb
         if not moving and targetMoveCheck then
             if not isChecked("Obey AoE units when using CDs") and useCDs() then
@@ -1157,8 +1225,6 @@ local function runRotation()
                 end
             end
         end
-        -- Essences
-        if actionList_Essences() then return true end
         -- actions.aoe+=/comet_storm
         if mode.cometStorm == 1 and not moving and not isMoving("target") and targetUnit.ttd > 3 and ((isChecked("Ignore AoE units when using CDs") and useCDs()) or #getEnemies("target", 5) >= getOptionValue("Comet Storm Units")) then
             if cast.cometStorm("target") then
@@ -1234,6 +1300,8 @@ local function runRotation()
             end
             -- actions+=/call_action_list,name=cooldowns
             if actionList_Cooldowns() then return true end
+            -- essences
+            if actionList_Essences() then return true end
             -- # The target threshold isn't exact. Between 3-5 targets, the differences between the ST and AoE action lists are rather small. However, Freezing Rain prefers using AoE action list sooner as it benefits greatly from the high priority Blizzard action.
             -- actions+=/call_action_list,name=aoe,if=active_enemies>3&talent.freezing_rain.enabled|active_enemies>4
             if ((blizzardUnits > 3 and talent.freezingRain) or blizzardUnits > 4) and (not inInstance or targetMoveCheck) then
@@ -1308,21 +1376,40 @@ local function runRotation()
         end
         return true
     else
+    -----------------------
+    --- Extras Rotation ---
+    -----------------------
         if actionList_Extras() then
             return true
         end
+    -----------------------
+    ---     Opener      ---
+    -----------------------
         if opener == false and isChecked("Opener") and isBoss("target") then
             if actionList_Opener() then
                 return true
             end
         end
+
+    ------------------------------
+    --- Out of Combat Rotation ---
+    ------------------------------
         if actionList_PreCombat() then
             return true
         end
+    --------------------------
+    --- In Combat Rotation ---
+    --------------------------        
         if (inCombat or cast.inFlight.frostbolt() or targetUnit) and profileStop == false and targetUnit and (opener == true or not isChecked("Opener") or not isBoss("target")) then
+        --------------------------
+        --- Defensive Rotation ---
+        --------------------------
             if actionList_Defensive() then
                 return true
             end
+        ------------------------------
+        --- In Combat - Interrupts ---
+        ------------------------------
             if actionList_Interrupts() then
                 return true
             end
@@ -1334,6 +1421,9 @@ local function runRotation()
                 if isChecked("Pet Management") and not talent.lonelyWinter and UnitIsVisible("pet") and not GetUnitIsUnit("pettarget", "target") and targetUnit then
                     PetAttack()
                 end
+            --------------------------
+            ---      Rotation      ---
+            --------------------------
                 if getOptionValue("APL Mode") == 1 then
                     if actionList_Rotation() then
                         return true
@@ -1348,6 +1438,13 @@ local function runRotation()
                     end
                     if cast.iceLance("target") then
                         return true
+                    end
+                    -----------------------
+                    ---     Essences    ---
+                    -----------------------
+                    if cd.global.remain() <= gcd then
+                        if actionList_Essences() then 
+                        return end
                     end
                 end
             end
