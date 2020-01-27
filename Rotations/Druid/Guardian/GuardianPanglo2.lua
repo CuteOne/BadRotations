@@ -243,6 +243,10 @@ local function createOptions()
         br.ui:createCheckbox(section, "Frenzied Regeneration", "Enable FR")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (2 Charge)", 65, 0, 100, 5, "Health Interval to use at with 2 charges.")
         br.ui:createSpinnerWithout(section, "FR - HP Interval (1 Charge)", 40, 0, 100, 5, "Health Interval to use at with 1 charge.")
+        -- Swiftmend
+        br.ui:createSpinner(section, "Swiftmend", 70, 10, 90, 5, "Will use Swiftmend.")
+        -- Rejuvenation
+        br.ui:createSpinner(section, "Rejuvenation", 70, 10, 90, 5, "Minimum HP to cast.")
         -- Soothe
         br.ui:createCheckbox(section, "Soothe")
         -- Rebirth
@@ -513,7 +517,14 @@ local function runRotation()
                     useItem(166799)
                 end
             end
-
+            -- Swiftmend
+            if isChecked("Swiftmend") and php <= getOptionValue("Swiftmend") and not inCombat and cast.able.swiftmend() then
+                if cast.swiftmend("player") then return end
+            end
+            -- Rejuvenation
+            if isChecked("Rejuvenation") and php <= getOptionValue("Rejuvenation") and not buff.rejuvenation.exists("player") and not inCombat and cast.able.rejuvenation() then
+                if cast.rejuvenation("player") then return end
+            end
             if isChecked("Rebirth") and rage >= 30 then
                 if getOptionValue("Rebirth - Target") == 1 and UnitIsPlayer("target") and UnitIsDeadOrGhost("target") then
                     --Print("Target bois")
@@ -684,7 +695,7 @@ local function runRotation()
             return
         end
 
-        if #enemies.yards8 >= 1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and #enemies.yards8 > 6) then
+        if #enemies.yards8 >= 1 and not buff.incarnationGuardianOfUrsoc.exists() or (buff.incarnationGuardianOfUrsoc.exists() and not debuff.thrashBear.exists(thisUnit) or debuff.thrashBear.refresh(thisUnit) and #enemies.yards8 > 6) then
             if cast.thrashBear() then
                 return
             end
@@ -716,6 +727,11 @@ local function runRotation()
         end
 
         if #enemies.yards8 < 5 and inCombat then
+            if buff.galacticGuardian.exists() then
+                if cast.moonfire(thisUnit) then
+                    return
+                end
+            end
             if debuff.moonfire.count() < 3 or buff.galacticGuardian.exists() then
                 for i = 1, #enemies.yards8 do
                     local thisUnit = enemies.yards8[i]
@@ -725,11 +741,7 @@ local function runRotation()
                                 return
                             end
                         end
-                        if buff.galacticGuardian.exists() then
-                            if cast.moonfire(thisUnit) then
-                                return
-                            end
-                        end
+
                     end
                 end
             end
