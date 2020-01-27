@@ -597,18 +597,8 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 		local queensCourtEncounter = UnitDebuffID("player",304409) -- EJ_GetEncounterInfo(2311)
 		return queensCourtEncounter == nil or (queensCourtEncounter ~= nil and br.lastCast.tracker[1] ~= spellID)
 	end
-	-- if index == "purifyingBlast" then Print(spellID.." - "..
-	-- 	"\nUsable:     "..tostring(not select(2,IsUsableSpell(spellID)))..
-	-- 	"\nOffCD:      "..tostring(getSpellCD(spellID) == 0)..
-	-- 	"\nIsKnown:    "..tostring(isKnown(spellID))..
-	-- 	"\nTalentChk:  "..tostring(hasTalent(spellID))..
-	-- 	"\nEssenceChk: "..tostring(hasEssence())..
-	-- 	"\nTarget      "..tostring(thisUnit)
-	-- 	)
-	-- 	print("\n")
-	-- end
     -- Base Spell Availablility Check
-	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and getSpellCD(spellID) == 0
+	if --[[isChecked("Use: "..spellName) and ]]not select(2,IsUsableSpell(spellID)) and (getSpellCD(61304) == 0 or getSpellCD(spellID) == 0)
 		and (isKnown(spellID) or debug == "known") and hasTalent(spellID) and hasEssence() and queensCourtCastCheck(spellID)--and not isIncapacitated(spellID)
 	then
         -- Attempt to determine best unit for spell's range
@@ -645,7 +635,7 @@ function createCastFunction(thisUnit,debug,minUnits,effectRng,spellID,index,pred
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [rect]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)
                     end
-                elseif debug == "cone" then
+				elseif debug == "cone" then
 					if isSafeToAoE(spellID,thisUnit,effectRng,minUnits,"cone") and hasEnemies then
 						-- br.addonDebug( "|cFFFFFF00Attempting to cast "..GetSpellInfo(spellCast).." on "..UnitName(thisUnit).." [cone]")
 						return castSpell(thisUnit,spellCast,false,false,false,true,false,true,true,false)

@@ -134,6 +134,7 @@ if not metaTable2 then
 			end
 			rawset(table, o.unit, thisUnit)
 		end
+		--Debuffs
 		function o:UpdateDebuffs(debuffList,unit)
 			if not isChecked("Cache Debuffs") then
 				debuffList = {}

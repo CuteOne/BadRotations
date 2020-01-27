@@ -81,6 +81,24 @@ function br.read.combatLog()
         br.read.enrageReader(...)
         local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
         br.guid = UnitGUID("player")
+        --[[Combat Validation]]
+        local inInstance, instanceType = IsInInstance()
+        if br.damaged == nil then br.damaged = {} end
+        if (not inInstance or (instanceType ~= "pvp" and instanceType ~= "arena"))
+            and destination ~= nil and (param == "SPELL_DAMAGE" or param == "SWING_DAMAGE")
+        then
+            local thisUnit = GetObjectWithGUID(destination)
+            if br.damaged[thisUnit] == nil and br.units[thisUnit] ~= nil and br.enemy[thisUnit] == nil then
+                for i = 1, #br.friend do
+                    if ObjectPointer(br.friend[i].unit) == GetObjectWithGUID(source) then
+                        if br.damaged[thisUnit] == nil then br.damaged[thisUnit] = thisUnit break end
+                    end
+                end
+            end
+        end
+        for k,v in pairs(br.damaged) do
+            if br.units[v] == nil or not UnitAffectingCombat("player") or UnitIsDeadOrGhost(v) then br.damaged[v] = nil end
+        end
         --In flight
         if source == br.guid and param == "SPELL_CAST_SUCCESS" and EasyWoWToolbox ~= nil then
             br.InFlight.Add(spell, destination)
