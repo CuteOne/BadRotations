@@ -43,6 +43,7 @@ local last_statue_location = { x = 0, y = 0, z = 0 }
 local jadeUnitsCount = 0
 local jadeUnits = nil
 local RM_counter = 0
+
 ---------------
 --- OPTIONS ---
 ---------------options
@@ -89,7 +90,7 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Defensive Options")
         br.ui:createSpinner(section, "Healing Elixir /Dampen Harm / Diffuse Magic", 60, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinner(section, "Fortifying Brew", 45, 0, 100, 1, "Fortifying Brew", "Health Percent to Cast At")
-        br.ui:createSpinner(section, "Healthstone", 30, 0, 100, 5, "Health Percent to Cast At")
+        br.ui:createSpinner(section, "Health stone/pot", 30, 0, 100, 5, "Health Percent to Cast At")
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "Utility Options")
@@ -160,12 +161,13 @@ local function runRotation()
     ---------------
     --- Toggles ---
     ---------------
-    UpdateToggle("Rotation", 0.25)
-    UpdateToggle("Cooldown", 0.25)
-    UpdateToggle("Defensive", 0.25)
-    UpdateToggle("Interrupt", 0.25)
-    UpdateToggle("Detox", 0.25)
-    UpdateToggle("DPS", 0.25)
+    --[[   --OBSOLETE
+     UpdateToggle("Rotation", 0.25)
+     UpdateToggle("Cooldown", 0.25)
+     UpdateToggle("Defensive", 0.25)
+     UpdateToggle("Interrupt", 0.25)
+     UpdateToggle("Detox", 0.25)
+     UpdateToggle("DPS", 0.25) ]]
     br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
     br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
 
@@ -173,7 +175,6 @@ local function runRotation()
     --- Locals ---
     --------------
     ---
-    local artifact = br.player.artifact
     local buff = br.player.buff
     local cast = br.player.cast
     local combatTime = getCombatTime()
@@ -213,10 +214,6 @@ local function runRotation()
     lowest.unit = br.friend[1].unit
     lowest.range = br.friend[1].range
     lowest.guid = br.friend[1].guid
-    local tank = {}    --Tank
-    local averageHealth = 100
-    local JSF = 0
-    local detox = 0
     local enemies = br.player.enemies
     local lastSpell = lastSpellCast
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player")
@@ -280,7 +277,6 @@ local function runRotation()
     local function hotcountFunc()
 
         local hotcounter = 0
-
         for i = 1, #br.friend do
             local hotUnit = br.friend[i].unit
 
@@ -293,25 +289,26 @@ local function runRotation()
             if buff.renewingMist.exists(hotUnit) then
                 hotcounter = hotcounter + 1
             end
-            return hotcounter
         end
+        return hotcounter
     end
 
     local function risingSunKickFunc()
         if cast.able.risingSunKick() then
             if #enemy_count_facing_5 > 0 then
-                if talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
+                if (talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")
                         or focustea == "kick" and buff.thunderFocusTea.exists()
                         or buff.wayOfTheCrane.exists()
-                        or #br.friend == 1 then
+                        or #br.friend == 1) then
                     --solo play
                     if cast.risingSunKick(units.dyn5) then
-                        br.addonDebug("Rising Sun Kick on : " .. units.dyn5 .. " BAMF!")
+                        br.addonDebug("Rising Sun Kick on : " .. UnitName(units.dyn5) .. " BAMF!")
                         return true
                     end
                 end
             end
-        elseif not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
+        end
+        if not cast.able.risingSunKick() and getHP(br.friend[1]) > getValue("DPS Threshold") and #enemy_count_facing_5 > 0 then
             if cast.able.blackoutKick()
                     and (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
                 if cast.blackoutKick(units.dyn5) then
@@ -328,25 +325,32 @@ local function runRotation()
 
     local function thunderFocusTea()
 
+        if not cast.able.thunderFocusTea() then
+            --not cd.thunderFocusTea.ready() or
+            Print("I should not be here!")
+        end
+
+
+        -- Print(hotcountFunc())
         -- auto mode
         if isChecked("Thunder Focus Tea") and cast.able.thunderFocusTea() and not buff.thunderFocusTea.exists() then
             if cast.able.envelopingMist() and getOptionValue("Thunder Focus Mode") == 1 and burst == false and getLowAllies(70) < 3 and lowest.hp < 50 or getOptionValue("Thunder Focus Mode") == 2 then
                 focustea = "singleHeal"
-            elseif cast.able.renewingMist()
-                    and getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3 and not talent.risingMist)
-                    or getOptionValue("Thunder Focus Mode") == 3
-                    or (getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist and hotcountFunc() >= getValue("Fistweave Hots")) then
+            end
+            if cast.able.renewingMist()
+                    and (getOptionValue("Thunder Focus Mode") == 1 and (burst == true or getLowAllies(70) > 3 and not talent.risingMist)
+                    or getOptionValue("Thunder Focus Mode") == 3) then
                 focustea = "AOEHeal"
-            elseif getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
+            end
+            if getOptionValue("Thunder Focus Mode") == 1 and mana <= getValue("Thunder Focus Tea") or getOptionValue("Thunder Focus Mode") == 4 and cast.able.vivify() then
                 focustea = "manaEffiency"
-            elseif cast.able.risingSunKick() then
-                --   Print("I want to kick it - Enemies[" .. tostring(#enemy_count_facing_5) .. "] Hots:[" .. tostring(getValue("Fistweave Hots")) .. "Health:[" .. tostring(getHP(br.friend[1].unit)) .. "/" .. tostring(getValue("DPS Threshold")))
-                if #enemy_count_facing_5 > 0 and getHP(br.friend[1].unit) >= getValue("DPS Threshold") and hotcountFunc() >= getValue("Fistweave Hots")
-                        and ((getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
-                        or getOptionValue("Thunder Focus Mode") == 5) or #br.friend == 1 then
-                    --Print("Kick it - Enemies[" .. tostring(#enemy_count_facing_5) .. "] Hots:[" .. tostring(getValue("Fistweave Hots")))
-                    focustea = "kick"
-                end
+            end
+            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 and
+                    (hotcountFunc() >= getValue("Fistweave Hots")
+                            and ((getOptionValue("Thunder Focus Mode") == 1 and talent.risingMist)
+                            or getOptionValue("Thunder Focus Mode") == 5))
+                    or #br.friend == 1 then
+                focustea = "kick"
             end
         end
 
@@ -354,25 +358,26 @@ local function runRotation()
             if (focustea == "singleHeal" and cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist"))
                     or (focustea == "AOEHeal" and cast.able.renewingMist() and getHP(br.friend[1]) <= getValue("Renewing Mist"))
                     or (focustea == "manaEffiency" and cast.able.vivify() and getHP(br.friend[1]) < getValue("Vivify"))
-                    or (focustea == "kick" and cast.able.risingSunKick())
+                    or (focustea == "kick" and cast.able.risingSunKick() and #enemy_count_facing_5 > 0)
             then
                 if cast.thunderFocusTea() then
-                    br.addonDebug("Thundertea: " .. focustea)
-                    return true
+                    br.addonDebug("[Thundertea]: " .. focustea)
                 end
             end
+        elseif focustea == nil then
+            --     Print("ERROR ERROR")
         end
+
 
         --  Print("Focustea1: " .. focustea)
         if focustea ~= nil and buff.thunderFocusTea.exists() then
-            if focustea == "singleHeal" or (focustea == "kick" and #enemy_count_facing_5 == 0) then
+            if focustea == "singleHeal" then
                 if cast.envelopingMist(lowest.unit) then
                     return true
                 end
             end
-            if focustea == "AOEHeal" then
-                if cast.renewingMist(lowest.unit) then
-                    --     Print("AOEHeal")
+            if focustea == "AOEHeal" or (focustea == "kick" and #enemy_count_facing_5 == 0) then
+                if renewingMistFunc() then
                     return true
                 end
             end
@@ -388,6 +393,7 @@ local function runRotation()
                 end
             end
             --fallback ..do SOMETHING
+            Print("!!FALLBACK!! - Report this  -" .. focustea)
             if renewingMistFunc() then
                 return true
             end
@@ -395,14 +401,17 @@ local function runRotation()
                 return true
             end
         end
+        --Print("really?")
+        --return false
     end
 
     local function jadestatue()
         --Jade Statue
+
         local px, py, pz
         --  Print("{x=" .. last_statue_location.x .. ",y=" .. last_statue_location.y .. ",z=" .. last_statue_location.z .. "}")
 
-        if cast.able.summonJadeSerpentStatue() and (GetTotemTimeLeft(1) < 100 or GetTotemTimeLeft(1) == 0 or getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 40) then
+        if cast.able.summonJadeSerpentStatue() and (GetTotemTimeLeft(1) < 100 or GetTotemTimeLeft(1) == 0 or getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 30) then
 
             if #tanks > 0 then
                 px, py, pz = GetObjectPosition(tanks[1].unit)
@@ -497,7 +506,10 @@ local function runRotation()
         end
         return false --catchall
     end
+
     local function dps()
+
+        -- Print("Number of enemies: "  .. tostring(#br.enemies))
 
         if SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus() and essence.conflict.active then
             if talent.manaTea and cast.able.manaTea() and getSpellCD(216113) == 0 then
@@ -528,7 +540,7 @@ local function runRotation()
             end
 
 
-            --print("dps_mode: " .. dps_mode)
+            --Print("dps_mode: " .. dps_mode)
             --[[
                         if inCombat and (isInMelee() and getFacing("player", "target") == true) then
                             StartAttack()
@@ -546,18 +558,18 @@ local function runRotation()
                 end
 
                 if br.player.mode.dps ~= 2 and isChecked("Spinning Crane Kick") and not isCastingSpell(spell.spinningCraneKick) and
-                        ((mysticTouchCounter > 0 and #enemies.yards8 > 1) or #enemies.yards8 >= 4 or #enemies.yards5f == 0) then
+                        ((mysticTouchCounter > 0 and #enemies.yards8 > 1) or #enemies.yards8 >= 4 or #enemy_count_facing_5 == 0) then
                     if cast.spinningCraneKick() then
                         return true
                     end
                 end
             end
 
-            if #enemies.yards5f > 0 and not noDamageCheck(units.dyn5) then
+            if #enemy_count_facing_5 > 0 and not noDamageCheck(units.dyn5) then
                 --- single target DPS
-                if isChecked("Rising Sun Kick") then
-                    if cast.risingSunKick(units.dyn5) then
-                        return
+                if isChecked("Rising Sun Kick") and cast.able.risingSunKick() then
+                    if risingSunKickFunc() then
+                        return true
                     end
                 end
 
@@ -578,7 +590,6 @@ local function runRotation()
                         end
                     end
                 end
-
                 if buff.teachingsOfTheMonastery.stack() < 3 or buff.teachingsOfTheMonastery.remain() < 2 then
                     if cast.tigerPalm(units.dyn5) then
                         return true
@@ -596,22 +607,7 @@ local function runRotation()
     end
 
     local function high_prio()
-
-
-        for i = 1, #enemies.yards40 do
-            thisUnit = enemies.yards40[i]
-            --Enchanted emmisary == 155432
-            if isChecked("Punt Enchanted Emissary") and inInstance and lowest.hp > 40 then
-                if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
-                        br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
-                        if cast.cracklingJadeLightning(thisUnit) then
-                            return true
-                        end
-                    end
-                end
-            end
-        end
+        --emissary stuff removed
     end
 
     local function heal()
@@ -787,6 +783,23 @@ local function runRotation()
                 end
             end
 
+
+            -- maintain one soothing mist always, if using statue
+            if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 30 then
+                local soothing_counter = 0
+                for i = 1, #br.friend do
+                    if buff.soothingMist.exists(br.friend[i].unit) then
+                        soothing_counter = soothing_counter + 1
+                    end
+                end
+                if soothing_counter == 0 then
+                    if cast.soothingMist(healUnit) then
+                        br.addonDebug("[Soothing buffs rolling: ]" .. tostring(soothing_counter))
+                        return true
+                    end
+                end
+            end
+
             --Revival
             if isChecked("Revival") and cast.able.revival() then
                 if isChecked("Use Revival as detox") and br.player.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
@@ -930,19 +943,29 @@ local function runRotation()
             end
         end
 
-        -- Renewing Mists
-        if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) and not buff.thunderFocusTea.exists() and cd.risingSunKick.remain() < 1.5 then
-            renewingMistFunc()
-            return true
+        --jade statue
+        if isChecked("Summon Jade Serpent") and talent.summonJadeSerpentStatue and not isMoving("player") then
+            if jadestatue() then
+                return true
+            end
         end
 
+
+
+        -- Renewing Mists
+        if isChecked("Renewing Mist") and cast.able.renewingMist() and not cast.last.thunderFocusTea(1) and not buff.thunderFocusTea.exists()
+                and (talent.risingMist and (cd.risingSunKick.remain() < 1.5 or cd.risingSunKick.remain() > 5) or not talent.risingMist) then
+            if renewingMistFunc() then
+                return true
+            end
+        end
 
 
         -- Enveloping Mist on Tank
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) and not isCastingSpell(spell.soothingMist)  then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) and not isCastingSpell(spell.soothingMist) then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE")
                             return true
@@ -985,12 +1008,7 @@ local function runRotation()
             end
         end
 
-        --jade statue
-        if isChecked("Summon Jade Serpent") and lowest.hp >= 55 and talent.summonJadeSerpentStatue then
-            if jadestatue() then
-                return true
-            end
-        end
+
 
         -- Trinkets
         if isChecked("Trinket 1") and canUseItem(13) then
@@ -1211,19 +1229,7 @@ local function runRotation()
 
     local function Defensive()
         if useDefensive() then
-            if br.player.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
-                for i = 1, #br.friend do
-                    if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
-                        if cast.detox(br.friend[i].unit) then
-                            return true
-                        end
-                    end
-                end
-            end
 
-            if tigers_lust() then
-                return true
-            end
 
             if isChecked("Healing Elixir /Dampen Harm / Diffuse Magic") and php <= getValue("Healing Elixir /Dampen Harm / Diffuse Magic") then
                 --Healing Elixir
@@ -1250,7 +1256,7 @@ local function runRotation()
                 end
             end
             --Healthstone
-            if isChecked("Healthstone") and php <= getOptionValue("Healthstone") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
+            if isChecked("Health stone/pot") and php <= getOptionValue("Health stone/pot") and inCombat and (hasHealthPot() or hasItem(5512) or hasItem(166799)) then
                 if canUseItem(5512) then
                     useItem(5512)
                 elseif canUseItem(healPot) then
@@ -1260,6 +1266,23 @@ local function runRotation()
                 end
             end
         end --End defensive check
+
+
+        if br.player.mode.detox == 1 and cast.able.detox() and not cast.last.detox() then
+            for i = 1, #br.friend do
+                if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+                    if cast.detox(br.friend[i].unit) then
+                        return true
+                    end
+                end
+            end
+        end
+
+        if tigers_lust() then
+            return true
+        end
+
+
     end -- end defensives
 
 
@@ -1309,7 +1332,7 @@ local function runRotation()
         if not inCombat then
 
             --testing block
-            --   Print(hotcountFunc())
+            --    Print(hotcountFunc())
 
             if isChecked("OOC Healing")
                     and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
@@ -1367,12 +1390,15 @@ local function runRotation()
         if inCombat then
 
 
-            if (talent.focusedThunder and buff.thunderFocusTea.stack == 2) or buff.thunderFocusTea.exists()
-                    or cd.thunderFocusTea.ready() or cast.last.thunderFocusTea(1) and not (buff.thunderFocusTea.stack() == 1 and talent.focusedThunder) then
+            if ((talent.focusedThunder and buff.thunderFocusTea.stack == 2)
+                    or buff.thunderFocusTea.exists()
+                    or cd.thunderFocusTea.ready()
+                    or cast.last.thunderFocusTea(1) and not (buff.thunderFocusTea.stack() == 1 and talent.focusedThunder)) then
                 if thunderFocusTea() then
                     return true
                 end
             end
+
             -- dps key
             if (SpecificToggle("DPS Key") and not GetCurrentKeyBoardFocus()) or (buff.wayOfTheCrane.exists() and #enemies.yards8 > 0 and getHP(healUnit) >= getValue("Critical HP")) then
                 if dps() then
@@ -1392,7 +1418,8 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if risingSunKickFunc() then
+            if cast.able.risingSunKick() then
+                risingSunKickFunc()
                 return true
             end
             if isChecked("Freehold - pig") then
