@@ -385,7 +385,7 @@ function isValidUnit(Unit)
 		and mcCheck and not isCC and (dummy or burnUnit or (not UnitIsTapDenied(Unit) and isSafeToAttack(Unit)
 		and	((not hostileOnly and (reaction < 5 or playerTarget or targeting)) or (hostileOnly and (reaction < 4 or playerTarget or targeting)))))
 	 then
-		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1)) or targeting or burnUnit or isInProvingGround() or hasThreat(Unit))
+		return (playerTarget and (not inInstance or (inInstance and #br.friend == 1))) or targeting or burnUnit or isInProvingGround() or hasThreat(Unit)
 	end
 	return false
 end
