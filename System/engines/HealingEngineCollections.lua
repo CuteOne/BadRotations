@@ -100,7 +100,7 @@ novaEngineTables.DispelID = {
 	[272609] = { stacks = 0 }, -- https://www.wowhead.com/spell=272609/maddening-gaze
 	[269301] = { stacks = 3 }, -- https://www.wowhead.com/spell=269301/putrid-blood
 	-- Eternal Palace
-	[296737] = { stacks = 0, range = 15}, -- https://www.wowhead.com/spell=296737/arcane-bomb
+	[296737] = { stacks = 0, range = 10}, -- https://www.wowhead.com/spell=296737/arcane-bomb
 	[295327] = { stacks = 0}, --https://www.wowhead.com/spell=295327/shattered-psyche
 	-- Mechagon
 	[300659] = {stacks = 0}, --https://www.wowhead.com/spell=300659/consuming-slime
@@ -269,7 +269,8 @@ novaEngineTables.SpecificHPDebuffs = {
 	-- King's Rest
 	[266231] = {value = 30}, --https://www.wowhead.com/spell=266231/severing-axe
 	[265773] = {value = 30}, --https://www.wowhead.com/spell=265773/spit-gold
-
+	-- Ra-Den (Ny'alotha)
+	[306184] = {value = 30}, --https://www.wowhead.com/spell=306184/unleashed-void
 
 }
 -- this table will assign role to any unit wearing the unit name
