@@ -975,7 +975,7 @@ local function runRotation()
         local function actionList_Build()
             local startTime = debugprofilestop()      
 
-            if comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or power < 45 or buff.deadShot.exists()) then
+            if not stealthingAll and comboDeficit >= (1 + (buff.broadside.exists() and 1 or 0) + (talent.quickDraw and 1 or 0)) and buff.opportunity.exists() and (buff.wits.stack() < 25 or power < 45 or buff.deadShot.exists()) then
                 cast20yards("pistolShot",true)
             end
 
