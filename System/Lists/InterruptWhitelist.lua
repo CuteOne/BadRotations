@@ -151,6 +151,16 @@ br.lists.interruptWhitelist = {
 	[300491] = true, -- Drain Ancient Ward, Tidemistress
 	[300490] = true, -- Energize Ward of Power, Tidemistress
 	-- Eternal Palace End
+	-- Ny'alotha, the Waking City Start
+	[316211] = true, -- Terror Wave, Awakened Terror
+	[307177] = true, -- Void Bolt, Spellbound Ritualist
+	[313652] = true, -- Mind-Numbing Nova, Hivemind
+	[310552] = true, -- Mind Flay, Appendages Adds
+	[310788] = true, -- Pumping Blood, Organ of Corruption
+	[313364] = true, -- Mental Decay, Servant of N'Zoth
+	[313400] = true, -- Corrupted Mind, Corruptor Tentacle
+	[316711] = true, -- Mindwrack, Psychus
+	-- Ny'alotha, the Waking City End
 	-- Old Content start
 	[191823] = true, -- Furious Blast
 	[191848] = true, -- Rampage
