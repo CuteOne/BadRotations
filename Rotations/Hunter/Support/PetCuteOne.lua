@@ -27,8 +27,9 @@ br.rotations.support["PetCuteOne"] = function()
     local units                                         = br.player.units
     -- General Locals
     local profileStop                                   = profileStop or false
-    local haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying())
-                                                            or (pause() and not isUnitCasting("player")) or buff.feignDeath.exists() or mode.rotation==4
+    local haltProfile                                   = (inCombat and profileStop) or IsMounted() or IsFlying()
+                                                            or pause(true) or buff.feignDeath.exists() or mode.rotation==4
+
     -- Units
     units.get(5)
     units.get(40)

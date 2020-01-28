@@ -203,6 +203,8 @@ function hasNoControl(spellID,unit)
 end
 -- if hasThreat("target") then
 function hasThreat(unit,playerUnit)
+	-- Damaged Validation
+	if br.damaged[ObjectPointer(unit)] ~= nil then return true end
 	local unitID = getUnitID(unit)
 	local instance = select(2,IsInInstance())
 	if playerUnit == nil then playerUnit = "player" end
@@ -228,12 +230,12 @@ function hasThreat(unit,playerUnit)
 		return false
 	end
 	-- Print(tostring(unit).." | "..tostring(GetUnit(unit)).." | "..tostring(targetUnit).." | "..tostring(targetFriend))
-	if unit == nil or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil) then return false end
+	if unit == nil --[[or (not GetObjectExists(targetUnit) and br.lists.threatBypass[unitID] == nil)]] then return false end
 	if targetFriend then
 		if isChecked("Cast Debug") and not GetObjectExists("target") then Print(UnitName(GetUnit(unit)).." is targetting "..UnitName(targetUnit)) end
 		return targetFriend
-	elseif UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil and #getEnemies(unit,20,true) == 0 then
-		return true
+	-- elseif br.damaged[ObjectPointer(unit)] ~= nil then --UnitAffectingCombat("player") and br.lists.threatBypass[unitID] ~= nil and #getEnemies(unit,20,true) == 0 then
+	-- 	return true
 	elseif threatSituation(playerUnit, unit) then
 		return true
 	elseif #br.friend > 1 then

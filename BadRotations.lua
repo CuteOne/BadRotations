@@ -152,6 +152,7 @@ function frame:OnEvent(event, arg1, arg2, arg3, arg4, arg5)
 		br.activeSpecGroup = GetActiveSpecGroup()
 		br.equipHasChanged = true
 		if not br.loadedIn then
+			if br.damaged == nil then br.damaged = {} end
 			bagsUpdated = true
 			br:Run()
 		end

@@ -88,6 +88,8 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Cooldown Options
         section = br.ui:createSection(br.ui.window.profile, "Cooldowns")
+            -- Augment Rune
+            br.ui:createCheckbox(section,"Augment Rune")
             -- Potion
             br.ui:createCheckbox(section,"Potion")
             -- Elixir
@@ -762,8 +764,8 @@ actionList.PreCombat = function()
             end
         end
         -- Battle Scarred Augment Rune
-        if getOptionValue("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
-            and use.able.battleScarredAugmentRune() and lastRune + gcdMax < GetTime()
+        if isChecked("Augment Rune") and inRaid and not buff.battleScarredAugmentation.exists()
+            and use.able.battleScarredAugmentRune() and lastRune + gcd < GetTime()
         then
             if use.battleScarredAugmentRune() then lastRune = GetTime() return true end
         end
