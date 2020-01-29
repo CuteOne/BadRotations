@@ -932,7 +932,7 @@ local function runRotation()
                             or solo
                             or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
                             --need to add, or if tank is dead
-                    ) or not isChecked("Safe Dots") then
+                    ) or (not isChecked("Safe Dots") or #tanks == 0) then
                 if not debuff.sunfire.exists("target") then
                     if cast.sunfire("target", "aoe", 1, sunfire_radius) then
                         br.addonDebug("Aggressive  Sunfire - target")
@@ -2027,7 +2027,7 @@ local function runRotation()
                     end
                 end
             else
-                if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat then
+                if not talent.photosynthesis and not cast.last.lifebloom(1) and inInstance and inCombat and #tanks == 1 then
                     if not (buff.lifebloom.exists(tank)) or (buff.lifebloom.exists(tank) and buff.lifebloom.remain(tank) < 4.5 and tanks[1].hp < 80) then
                         if cast.lifebloom(tank) then
                             br.addonDebug("Lifebloom on tank")
@@ -2050,6 +2050,11 @@ local function runRotation()
                             br.addonDebug("Lifebloom on tank(photo)- [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
                             return true
                         end
+                    end
+                elseif talent.photosynthesis and not cast.last.lifebloom(1) and (inRaid or #tanks > 1) and buff.lifebloom.remains() < 2 then
+                    if cast.lifebloom("player") then
+                        br.addonDebug("Lifebloom on healer(photo) - [" .. lifebloom_count .. "/" .. getValue("Photosynthesis Count") .. "]")
+                        return true
                     end
                 end
             end
@@ -2171,9 +2176,6 @@ local function runRotation()
 
 
             --lifeBindersInvocation
-
-
-
 
             -- Wild Growth
             if isChecked("Wild Growth") and not moving then
@@ -2417,7 +2419,7 @@ local function runRotation()
                     end
                 end
 
-                if not buff.lifebloom.exists(tanks[1].unit) then
+                if not buff.lifebloom.exists(tanks[1].unit) and not buff.lifebloom.exists("player") then
                     if cast.lifebloom(tanks[1].unit) then
                         br.addonDebug("[PRE-HOT]:Lifebloom on: " .. tanks[1].name)
                         return true
