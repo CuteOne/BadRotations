@@ -264,7 +264,7 @@ local function runRotation()
         if getValue("Renewing Mist") == 0 then
             if #tanks > 0 then
                 for i = 1, #tanks do
-                    if not buff.renewingMist.exists(tanks[i].unit) then
+                    if not buff.renewingMist.exists(tanks[i].unit) and UnitInRange(tanks[i].unit) then
                         if cast.renewingMist(tanks[i].unit) then
                             br.addonDebug("[RenewMist]:" .. UnitName(tanks[i].unit) .. " - RM on Tank")
                             return true
@@ -273,7 +273,7 @@ local function runRotation()
                 end
             end
             for i = 1, #br.friend do
-                if not buff.renewingMist.exists(br.friend[i].unit) then
+                if not buff.renewingMist.exists(br.friend[i].unit) and UnitInRange(br.friend[i].unit) then
                     if cast.renewingMist(br.friend[i].unit) then
                         br.addonDebug("[RenewMist]:" .. UnitName(br.friend[i].unit) .. " - Auto")
                         return true
@@ -738,7 +738,7 @@ local function runRotation()
 
 
         --single heal on mouseover target override - old "HAM" mode
-        if SpecificToggle("Heal Key") and GetUnitExists("mouseover") then
+        if SpecificToggle("Heal Key") and GetUnitExists("mouseover")  then
             healUnit = GetUnit("mouseover")
             specialHeal = true
             why = "Heal Key"
