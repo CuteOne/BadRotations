@@ -93,6 +93,7 @@ br.lists.items = {
     ringOfCollapsingFutures         = 142173,
     -- Wrists
     hyperthreadWristWraps           = 168989,
+    wrapsOfElectrostaticPotential   = 169069,
     --Trinkets
     ashvanesRazorCoral              = 169311,
     aquipotentNautilus              = 169305,
