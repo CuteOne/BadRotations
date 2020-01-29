@@ -109,8 +109,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Freehold - root grenadier")
         br.ui:createCheckbox(section, "Atal - root Spirit of Gold")
         br.ui:createCheckbox(section, "KR - Minions of Zul")
-        br.ui:createCheckbox(section, "All - root Emissary of the Tides")
-        br.ui:createCheckbox(section, "Punt Enchanted Emissary")
         br.ui:createCheckbox(section, "Dont DPS spotter", "wont DPS spotter", 0)
         br.ui:checkSectionState(section)
 
@@ -531,6 +529,15 @@ local function runRotation()
                 end
             end
         end
+        -- item support
+        --Wraps of wrapsOfElectrostaticPotential
+        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
+            if br.player.use.wrapsOfElectrostaticPotential() then
+                br.addonDebug("Using HBracers")
+            end
+        end
+
+
 
         --Essence Support
 
@@ -700,7 +707,8 @@ local function runRotation()
         if isChecked("Auto Innervate") and inCombat and cast.able.innervate() and (getTTD(UnitTarget(tank)) >= 10 or (traits.livelySpirit.active and (cast.able.incarnationChoseOfElune() or cd.incarnationChoseOfElune.remain() < 2 or cast.able.celestialAlignment() or cd.celestialAlignment.remain() < 12))) then
             for i = 1, #br.friend do
                 if UnitGroupRolesAssigned(br.friend[i].unit) == "HEALER" and getDistance(br.friend[i].unit) < 45 and (inInstance or inRaid)
-                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then --innervate
+                        and not UnitIsDeadOrGhost(br.friend[i].unit) and getLineOfSight(br.friend[i].unit) and not buff.innervate.exists(br.friend[i].unit) then
+                    --innervate
                     -- Print("Healer is: " .. br.friend[i].unit)
                     --Print(traits.livelySpirit.active)
                     if cast.innervate(br.friend[i].unit) then
@@ -1297,9 +1305,6 @@ local function runRotation()
         if isChecked("Atal - root Spirit of Gold") then
             root_UnitList[131009] = "Spirit of Gold"
         end
-        if isChecked("All - root Emissary of the Tides") then
-            root_UnitList[155434] = "Emissary of the Tides"
-        end
 
         for i = 1, #enemies.yards45 do
             thisUnit = enemies.yards45[i]
@@ -1313,20 +1318,20 @@ local function runRotation()
             end
 
 
-
-            --Enchanted emmisary == 155432
-            if isChecked("Punt Enchanted Emissary") then
-                --and inInstance then
-                if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
-                    if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
-                        br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
-                        if cast.moonfire(thisUnit) then
-                            return true
+            --[[
+                        --Enchanted emmisary == 155432
+                        if isChecked("Punt Enchanted Emissary") then
+                            --and inInstance then
+                            if GetObjectID(thisUnit) == 155432 and not isCasting(155432, thisUnit) then
+                                if #tanks > 0 and getDistance(tank, thisUnit) <= 26 then
+                                    br.addonDebug("Punting Emissary - Range from tank: " .. getDistance(tank, thisUnit))
+                                    if cast.moonfire(thisUnit) then
+                                        return true
+                                    end
+                                end
+                            end
                         end
-                    end
-                end
-            end
-
+            ]]
             if isChecked("Freehold - root grenadier") or isChecked("Atal - root Spirit of Gold") or isChecked("All - root Emissary of the Tides") or isChecked("KR - Minions of Zul") then
                 --br.addonDebug("Mob: " .. thisUnit .. " Health: " .. getHP(thisUnit))
                 if cast.able.massEntanglement() and not isCC(thisUnit) and getHP(thisUnit) > 90 then
