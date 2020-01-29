@@ -4,6 +4,17 @@ local function createToggles()
     -- Define custom toggles
 
     -- Cooldown Button
+
+
+    DPSModes = {
+        [1] = { mode = "Auto", value = 1, overlay = "DPS Auto", tip = "Auto DPS Enabled", highlight = 0, icon = br.player.spell.tigerPalm },
+        [2] = { mode = "Single", value = 2, overlay = "DPS Single", tip = "Single DPS Disabled", highlight = 0, icon = br.player.spell.blackoutKick },
+        [3] = { mode = "Multi", value = 3, overlay = "DPS Multi", tip = "Multi DPS Enabled", highlight = 0, icon = br.player.spell.spinningCraneKick },
+        [4] = { mode = "Off", value = 4, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.soothingMist }
+
+    };
+    CreateButton("DPS", 1, 0)
+
     CooldownModes = {
         [1] = { mode = "On", value = 1, overlay = "Cooldowns Enabled", tip = "Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival },
         [2] = { mode = "Off", value = 2, overlay = "Cooldowns Disabled", tip = "No Cooldowns will be used.", highlight = 0, icon = br.player.spell.revival }
@@ -28,14 +39,13 @@ local function createToggles()
     };
     CreateButton("Detox", 5, 0)
     -- DPS Button
-    DPSModes = {
-        [1] = { mode = "Auto", value = 1, overlay = "DPS Auto", tip = "Auto DPS Enabled", highlight = 0, icon = br.player.spell.tigerPalm },
-        [2] = { mode = "Single", value = 2, overlay = "DPS Single", tip = "Single DPS Disabled", highlight = 0, icon = br.player.spell.blackoutKick },
-        [3] = { mode = "Multi", value = 3, overlay = "DPS Multi", tip = "Multi DPS Enabled", highlight = 0, icon = br.player.spell.spinningCraneKick },
-        [4] = { mode = "Off", value = 4, overlay = "DPS Disabled", tip = "DPS Disabled", highlight = 0, icon = br.player.spell.soothingMist }
 
+    PrehotModes = {
+        [1] = { mode = "On", value = 1, overlay = "Pre-Hot", tip = "Pre-hot Enabled", highlight = 0, icon = br.player.spell.renewingMist },
+        [2] = { mode = "Off", value = 3, overlay = "Pre-Hot", tip = "Pre-hots on Tank", highlight = 0, icon = br.player.spell.renewingMist }
     };
-    CreateButton("DPS", 6, 0)
+    CreateButton("Prehot", 5, -1)
+
 end
 
 -- semi-globals
@@ -114,7 +124,6 @@ local function createOptions()
         br.ui:checkSectionState(section)
 
         section = br.ui:createSection(br.ui.window.profile, "M+")
-        br.ui:createCheckbox(section, "Punt Enchanted Emissary", 0)
         br.ui:createSpinner(section, "Bursting", 1, 0, 10, 4, "", "Burst Targets")
         br.ui:createCheckbox(section, "Temple of Seth heal logic", 1)
         br.ui:createCheckbox(section, "Freehold - pig", 1)
@@ -170,7 +179,7 @@ local function runRotation()
      UpdateToggle("DPS", 0.25) ]]
     br.player.mode.detox = br.data.settings[br.selectedSpec].toggles["Detox"]
     br.player.mode.dps = br.data.settings[br.selectedSpec].toggles["DPS"]
-
+    --br.player.mode.prehot = br.data.settings[br.selectedSpec].toggles["prehot"]
     -------------
     --- Locals ---
     --------------
@@ -422,6 +431,7 @@ local function runRotation()
             px = px + math.random(-2, 2)
             py = py + math.random(-2, 2)
             if castGroundAtLocation({ x = px, y = py, z = pz }, spell.summonJadeSerpentStatue) then
+                SpellStopTargeting()
                 last_statue_location = { x = px, y = py, z = pz }
                 return true
             end
@@ -499,11 +509,6 @@ local function runRotation()
             -- shields on witches in wm
             return true
         end
-
-        if GetObjectID(thisUnit) == 155432 then
-            --emmisaries to punt, dealt with seperately
-            return true
-        end
         return false --catchall
     end
 
@@ -558,7 +563,9 @@ local function runRotation()
                 end
 
                 if br.player.mode.dps ~= 2 and isChecked("Spinning Crane Kick") and not isCastingSpell(spell.spinningCraneKick) and
-                        ((mysticTouchCounter > 0 and #enemies.yards8 > 1) or #enemies.yards8 >= 4 or #enemy_count_facing_5 == 0) then
+                        ((mysticTouchCounter > 0 and #enemies.yards8 > 1)
+                                or #enemies.yards8 >= 4
+                                or #enemy_count_facing_5 == 0) then
                     if cast.spinningCraneKick() then
                         return true
                     end
@@ -762,7 +769,7 @@ local function runRotation()
                         end
             ]]
             --Life Cocoon
-            if isChecked("Life Cocoon") and cast.able.lifeCocoon() then
+            if isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
                 if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
                         or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 2)
                 then
@@ -785,8 +792,8 @@ local function runRotation()
 
 
             -- maintain one soothing mist always, if using statue
-            if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) > 30 then
-                local soothing_counter = 0
+            local soothing_counter = 0
+            if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
                 for i = 1, #br.friend do
                     if buff.soothingMist.exists(br.friend[i].unit) then
                         soothing_counter = soothing_counter + 1
@@ -794,7 +801,7 @@ local function runRotation()
                 end
                 if soothing_counter == 0 then
                     if cast.soothingMist(healUnit) then
-                        br.addonDebug("[Soothing buffs rolling: ]" .. tostring(soothing_counter))
+                        br.addonDebug("[Soothing buffs rolling: " .. tostring(soothing_counter) .. "] HealUnit: " .. healUnit)
                         return true
                     end
                 end
@@ -1333,9 +1340,16 @@ local function runRotation()
 
             --testing block
             --    Print(hotcountFunc())
-
+            --Print(tostring(mode.prehot))
             if isChecked("OOC Healing")
                     and not (IsMounted() or flying or drinking or isCastingSpell(spell.essenceFont) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or isLooting()) then
+
+                if mode.prehot == 1 then
+                    if renewingMistFunc() then
+                        return true
+                    end
+                end
+
                 if heal() then
                     return true
                 end
