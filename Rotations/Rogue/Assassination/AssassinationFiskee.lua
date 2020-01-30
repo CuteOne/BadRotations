@@ -176,6 +176,12 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
+    UpdateToggle("Open",0.25)
+    UpdateToggle("Exsang",0.25)
+    UpdateToggle("TB",0.25)
+    UpdateToggle("Garrote",0.25)
+    UpdateToggle("Focus",0.25)
+    UpdateToggle("Vanish",0.25)
     br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
     br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
     br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
@@ -891,7 +897,7 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
-            if isChecked("Essences") and debuff.rupture.exists("target") then
+            if isChecked("Essences") and debuff.rupture.exists("target") and not stealthedRogue then
                 --Worldvein Resonance
                 if not buff.masterAssassin.exists() then
                     if cast.worldveinResonance("player") then return true end
@@ -921,9 +927,9 @@ local function runRotation()
         if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") and (not talent.masterAssassin or not buff.masterAssassin.exists()) then
             if cast.toxicBlade("target") then return true end
         end
-        if debuff.rupture.exists("target") then
+        if debuff.rupture.exists("target") and not stealthedRogue then
             -- Concentrated Flame
-            if ttd("target") > 3 then
+            if isChecked("Essences") and ttd("target") > 3 then
                 if cast.concentratedFlame("target") then return true end
             end
             --Beamers
@@ -985,7 +991,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthingAll and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
