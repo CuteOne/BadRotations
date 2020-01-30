@@ -167,6 +167,7 @@ local pet
 local php
 local pullTimer
 local race
+local racial
 local shards
 local spell
 local talent
@@ -815,6 +816,7 @@ local function runRotation()
     php                                = br.player.health
     pullTimer                          = PullTimerRemain()
     race                               = br.player.race
+    racial                             = br.player.getRacial()
     shards                             = br.player.power.soulShards.frac()
     spell                              = br.player.spell
     talent                             = br.player.talent
