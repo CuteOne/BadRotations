@@ -877,9 +877,10 @@ local function runRotation()
                 end
             end
         end
+
         --cw on ourself to survive bursting
-        if burst == true and cast.able.cenarionWard and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559)) > 2 then
-            if cast.able.cenarionWard then
+        if burst == true and cast.able.cenarionWard() and (getDebuffStacks("player", 240443) > 1 or php <= getValue("Critical HP") or getDebuffStacks("player", 240559) > 2) then
+            if cast.able.cenarionWard() then
                 if cast.cenarionWard("player") then
                     br.addonDebug("[BURST]: CW on self")
                     return true
@@ -890,7 +891,7 @@ local function runRotation()
         if mode.HEALS == 1 then
             --critical
             if isChecked("Critical HP") and lowest.hp <= getOptionValue("Critical HP") then
-                if cast.able.cenarionWard then
+                if cast.able.cenarionWard() then
                     if cast.cenarionWard(lowest.hp) then
                         br.addonDebug("[CRIT]CWard on: " .. lowest.unit)
                         return true
