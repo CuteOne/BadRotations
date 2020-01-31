@@ -234,15 +234,17 @@ if not metaTable2 then
 					-- br.enemy[o.unit].range = o.range
 					br.enemy[o.unit].debuffs = o.debuffs
 				else
-					if br.enemy[o.unit] ~= nil and br.damaged[o.unit] == nil then
+					if br.enemy[o.unit] ~= nil then
 						br.enemy[o.unit] = nil
 					end
+					if br.damaged ~= nil and br.damaged[o.unit] ~= nil then br.damaged[o.unit] = nil end
 				end
 			else
 				o.isValidUnit = false
-				if br.enemy[o.unit] ~= nil and br.damaged[o.unit] == nil then
+				if br.enemy[o.unit] ~= nil then
 					br.enemy[o.unit] = nil
 				end
+				if br.damaged ~= nil and br.damaged[o.unit] ~= nil then br.damaged[o.unit] = nil end
 			end
 			-- TTD
 			if getOptionCheck("Enhanced Time to Die") then
