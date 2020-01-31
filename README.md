@@ -151,13 +151,13 @@ Panglo  |  Full   |  8.0  |   100% | :white_check_mark:
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
 Aura             |  None   | 8.1   |   80%  | :interrobang:
-Laksmackt        |  Full   | 8.2   |   100%  | :white_check_mark:
+Laksmackt        |  Full   | 8.3   |   100%  | :white_check_mark:
 - Restoration
 
 author           | support | patch | status |     raidable?
 :--------------- | :-----: | :---: | -----: | :----------------:
 Aura             |  Full   | 8.2   |   99%  | :white_check_mark:
-Laksmackt        |  M+     | 8.2   |   90%  | :x:
+Laksmackt        |  M+     | 8.3   |   100%  | :x:
 
 ### Hunter
 - Beastmaster
@@ -211,7 +211,7 @@ Panglo |   Full  |  8.0  |    100%| :white_check_mark:
 author   | support  | patch | status |     raidable?
 :------- | :------: | :---: | -----: | :----------------:
 Panglo   | Full     | 8.1   |    75% | :interrobang:
-
+Laksmackt   | Full     | 8.3   |    75% | :heavy_check_mark:
 - Windwalker
 
 author  | support | patch | status |     raidable?
@@ -224,7 +224,7 @@ CuteOne |  Full   | 8.2   |   99%  | :white_check_mark:
 
 author   | support | patch | status | raidable?
 :-----   | :-----: | :---: | -----: | :-------:
-Laksmackt |  Full   | 8.2 |   99% | :white_check_mark:
+Laksmackt |  none   | 8.2 |   99% | :white_check_mark:
 
 - Protection
 
