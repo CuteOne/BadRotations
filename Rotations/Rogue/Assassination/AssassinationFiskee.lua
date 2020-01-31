@@ -176,6 +176,12 @@ local function runRotation()
     UpdateToggle("Cooldown",0.25)
     UpdateToggle("Defensive",0.25)
     UpdateToggle("Interrupt",0.25)
+    UpdateToggle("Open",0.25)
+    UpdateToggle("Exsang",0.25)
+    UpdateToggle("TB",0.25)
+    UpdateToggle("Garrote",0.25)
+    UpdateToggle("Focus",0.25)
+    UpdateToggle("Vanish",0.25)
     br.player.mode.open = br.data.settings[br.selectedSpec].toggles["Open"]
     br.player.mode.exsang = br.data.settings[br.selectedSpec].toggles["Exsang"]
     br.player.mode.tb = br.data.settings[br.selectedSpec].toggles["TB"]
@@ -806,18 +812,16 @@ local function runRotation()
             end
         end
         -- # Razor Coral
-        if useCDs() and isChecked("Trinkets") and targetDistance < 5 and ttd("target") > getOptionValue("CDs TTD Limit") then
-            if hasEquiped(169311, 13) and (not debuff.razorCoral.exists("target") or debuff.vendetta.exists("target")) then
+        if isChecked("Trinkets") and not stealthedRogue then
+            if hasEquiped(169311, 13) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and (not debuff.razorCoral.exists("target") or debuff.vendetta.exists("target")) then
+            elseif hasEquiped(169311, 14) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(14)
             end
-        end
-        -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 32-30% of HP)
-        if useCDs() and isChecked("Trinkets") then
-            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+        -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 31% of HP)
+            if hasEquiped(169311, 13) and canUseItem(13) and hasEquiped(169319, 14) and debuff.conductiveInk.exists("target") and getHP("target") < 31 then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and (((UnitHealth("target")/UnitHealthMax("target"))*100) > 30 and ((UnitHealth("target")/UnitHealthMax("target"))*100) < 32) then
+            elseif hasEquiped(169311, 14) and canUseItem(14) and hasEquiped(169319, 13) and debuff.conductiveInk.exists("target") and getHP("target") < 31 then
                 useItem(14)
             end
         end
@@ -854,7 +858,7 @@ local function runRotation()
             -- actions.cds+=/vendetta,if=!stealthed.rogue&dot.rupture.ticking&(!talent.subterfuge.enabled|!azerite.shrouded_suffocation.enabled|dot.garrote.pmultiplier>1&(spell_targets.fan_of_knives<6|!cooldown.vanish.up))&(!talent.nightstalker.enabled|!talent.exsanguinate.enabled|cooldown.exsanguinate.remains<5-2*talent.deeper_stratagem.enabled)
             if isChecked("Vendetta") and not stealthedRogue and not debuff.vendetta.exists("target") then
                 if isChecked("Hold Vendetta") and (not talent.subterfuge or not trait.shroudedSuffocation.active or (debuff.garrote.applied("target") > 1 and (enemies10 < 6 or cd.vanish.remain() > 0)) or mode.vanish == 2 or cd.vanish.remain() > 110) and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1)
-                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 11) then
+                and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and not buff.masterAssassin.exists() and (not talent.toxicBlade or cd.toxicBlade.remain() <= 10) then
                     if cast.vendetta("target") then return true end
                 end
                 if not isChecked("Hold Vendetta") and (not talent.nightstalker or not talent.exsanguinate or (talent.exsanguinate and cd.exsanguinate.remain() < (5-2*dSEnabled))) and debuff.rupture.exists("target") and (not essence.guardianOfAzeroth.active or buff.guardianOfAzeroth.exists() or cd.guardianOfAzeroth.remain() > 1) then
@@ -891,7 +895,7 @@ local function runRotation()
                     if cast.vanish("player") then return true end
                 end
             end
-            if isChecked("Essences") and debuff.rupture.exists("target") then
+            if isChecked("Essences") and debuff.rupture.exists("target") and not stealthedRogue then
                 --Worldvein Resonance
                 if not buff.masterAssassin.exists() then
                     if cast.worldveinResonance("player") then return true end
@@ -910,6 +914,17 @@ local function runRotation()
                 end
                 --The Unbound Force
                 if cast.theUnboundForce("target") then return true end
+                -- Essence: Reaping Flames
+                -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+                if cast.able.reapingFlames() then
+                    for i = 1, #enemies.yards30 do
+                        local thisUnit = enemies.yards30[i]
+                        local thisHP = getHP(thisUnit)
+                        if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                            if cast.reapingFlames(thisUnit) then return true end
+                        end
+                    end
+                end
             end
         end
         -- # Exsanguinate when both Rupture and Garrote are up for long enough
@@ -921,9 +936,9 @@ local function runRotation()
         if talent.toxicBlade and mode.tb == 1 and ttd("target") > 3 and getSpellCD(spell.toxicBlade) == 0 and debuff.rupture.exists("target") and (not talent.masterAssassin or not buff.masterAssassin.exists()) then
             if cast.toxicBlade("target") then return true end
         end
-        if debuff.rupture.exists("target") then
+        if debuff.rupture.exists("target") and not stealthedRogue then
             -- Concentrated Flame
-            if ttd("target") > 3 then
+            if isChecked("Essences") and ttd("target") > 3 then
                 if cast.concentratedFlame("target") then return true end
             end
             --Beamers
@@ -985,7 +1000,7 @@ local function runRotation()
             end
         end
         -- Throw  Poisoned Knife if we can't reach the target
-        if isChecked("Poisoned Knife out of range") and not stealthingAll and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
+        if isChecked("Poisoned Knife out of range") and not stealthedRogue and #enemyTable5 == 0 and energy >= getOptionValue("Poisoned Knife out of range") then
             for i = 1, #enemyTable30 do
                 local thisUnit = enemyTable30[i].unit
                 --check if any targets are not poisoned firstget
