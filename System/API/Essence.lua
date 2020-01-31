@@ -1,6 +1,6 @@
 local br = _G["br"]
 if br.api == nil then br.api = {} end
-br.api.essences = function(essence,k,v)    
+br.api.essences = function(essence,k,v)
     -- Find Major/Minor/Active/Rank
     essence.active = false
     essence.major = false
@@ -21,8 +21,8 @@ br.api.essences = function(essence,k,v)
                     local rank = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).rank
                     local icon = C_AzeriteEssence.GetEssenceInfo(milestoneEssence).icon
                     if essenceIcon == icon then
-                        if thisMilestone.slot == 0 then 
-                            essence.major = true 
+                        if thisMilestone.slot == 0 then
+                            essence.major = true
                             essence.active = true
                         end
                         if thisMilestone.slot == 1 or thisMilestone.slot == 2 then essence.minor = true end
