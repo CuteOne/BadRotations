@@ -1456,7 +1456,7 @@ br.lists.spells = {
                 arcaneIntellect             = 1459,
                 iceBlock                    = 45438,
                 incantersFlow               = 1463,
-		slowFall	            = 130,
+         		slowFall	                = 130,
                 runeOfPower                 = 116014,
             },
             debuffs                         = {
@@ -1603,7 +1603,7 @@ br.lists.spells = {
                 risingMist                  = 22170,
             },
             debuffs                         = {
-                            mysticTouch                 = 8647,
+                mysticTouch                 = 8647,
             },
             glyphs                          = {
             },
@@ -2179,7 +2179,7 @@ br.lists.spells = {
                 chorusOfInsanity            = 279572,
                 dispersion                  = 47585,
                 harvestedThoughts           = 288343,
-                lingeringInsanity            = 199849,
+                lingeringInsanity           = 199849,
                 powerWordShield             = 17,
                 powerInfusion               = 10060,
                 shadowyInsight              = 124430,
@@ -3178,7 +3178,7 @@ br.lists.spells = {
 
             },
             buffs                           = {
-                crushingAssault            = 278826,
+                crushingAssault             = 278826,
                 deadlyCalm                  = 262228,
                 defensiveStance             = 197690,
                 inForTheKill                = 215550,
@@ -3389,6 +3389,7 @@ br.lists.spells = {
             abilities                           = {
                 giftOfTheNaaru                  = 28880,
                 global                          = 61304,
+                latentArcana                    = 296971,
                 lightsJudgment                  = 247427,
                 quakingPalm                     = 107079,
                 racial                          = getRacial(),
