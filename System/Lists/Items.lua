@@ -120,4 +120,6 @@ br.lists.items = {
     vialOfStorms                    = 158224,
     vigorTrinket                    = 165572,
     visionOfDemise                  = 169307,
+    --weapons that are clickable
+    neuralSynapseEnhancer           = 168973,
 }
