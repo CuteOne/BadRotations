@@ -470,6 +470,7 @@ local function runRotation()
         [131009] = "Spirit of Gold",
         [134388] = "A Knot of Snakes",
         [129758] = "Irontide Grenadier",
+        [313301] = "Thing From Beyond",
     }
 
     local HOJ_list = {
