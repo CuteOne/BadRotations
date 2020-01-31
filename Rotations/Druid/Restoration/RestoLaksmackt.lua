@@ -1354,6 +1354,21 @@ local function runRotation()
     local function Cooldowns()
 
 
+        -- item support
+        --Wraps of wrapsOfElectrostaticPotential
+        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
+            if br.player.use.wrapsOfElectrostaticPotential() then
+                br.addonDebug("Using HBracers")
+            end
+        end
+        --staff of neural
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15 then
+            if br.player.use.neuralSynapseEnhancer() then
+                br.addonDebug("Using neuralSynapseEnhancer ")
+            end
+        end
+
+
         --Essence Support
         --overchargeMana
 
