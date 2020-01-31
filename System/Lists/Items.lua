@@ -122,4 +122,6 @@ br.lists.items = {
     visionOfDemise                  = 169307,
     --weapons that are clickable
     neuralSynapseEnhancer           = 168973,
+    -- Legendary 8.3 cloak
+    shroudOfResolve                 = 169223,
 }

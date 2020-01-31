@@ -139,6 +139,11 @@ local function createOptions()
         br.ui:createSpinnerWithout(section, "Min Trinket 2 Targets", 3, 1, 40, 1, "", "Minimum Trinket 2 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 2 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFPocket-Sized CP", "DPS target" }, 1, "", "")
         br.ui:checkSectionState(section)
+
+        section = br.ui:createSection(br.ui.window.profile, "Corruption")
+        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:checkSectionState(section)
+
         -- Essences
         --"Memory of Lucid Dreams"
         section = br.ui:createSection(br.ui.window.profile, "Essences")
@@ -471,6 +476,9 @@ local function runRotation()
         [134388] = "A Knot of Snakes",
         [129758] = "Irontide Grenadier",
         [313301] = "Thing From Beyond",
+        [161895] = "More things from Beyond",
+
+
     }
 
     local HOJ_list = {
@@ -950,6 +958,20 @@ local function runRotation()
             end
         end
 
+
+        -- Corruption stuff
+        -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
+
+
+        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.player.use.shroudOfResolve() then
+                    br.addonDebug("Using shroudOfResolve")
+                end
+            end
+        end
         --items
         --Wraps of wrapsOfElectrostaticPotential
         if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
@@ -971,7 +993,6 @@ local function runRotation()
                 return true
             end
         end
-
 
 
         -- Renewing Mists
@@ -1029,7 +1050,6 @@ local function runRotation()
                 end
             end
         end
-
 
 
         -- Trinkets
@@ -1457,7 +1477,8 @@ local function runRotation()
             if heal() then
                 return true
             end
-            if dps() then
+            if dps()
+            then
                 return true
             end
 
