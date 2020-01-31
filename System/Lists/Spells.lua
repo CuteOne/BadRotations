@@ -3480,7 +3480,7 @@ br.lists.spells = {
                 temptation                      = 234143,
                 eyeOfCorruption                 = 315161,
                 grandDelusions                  = 319695,
-                graspinTendrils                 = 315176,
+                graspingTendrils                 = 315176,
 
             },
             essences                            = {
