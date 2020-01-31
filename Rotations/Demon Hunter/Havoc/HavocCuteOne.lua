@@ -167,6 +167,7 @@ local debug
 local hastar
 local debuff
 local enemies
+local essence
 local equiped
 local falling, flying, moving
 local gcd
@@ -180,7 +181,6 @@ local php
 local power, powerDeficit
 local pullTimer
 local solo
-local spell
 local talent
 local ttd
 local traits
@@ -311,7 +311,9 @@ actionList.Defensive = function()
 		if isChecked("Consume Magic") then
             for i=1, #enemies.yards10 do
                 thisUnit = enemies.yards10[i]
-                if cast.able.consumeMagic(thisUnit) and canDispel(thisUnit,spell.consumeMagic) and not isBoss() and GetObjectExists(thisUnit) then
+                if cast.able.consumeMagic(thisUnit) and cast.dispel.consumeMagic(thisUnit) --canDispel(thisUnit,spell.consumeMagic)
+                    and not isBoss() and GetObjectExists(thisUnit)
+                then
                     if cast.consumeMagic(thisUnit) then return end
                 end
             end
@@ -505,8 +507,14 @@ actionList.Essence = function()
     end
     -- Essence: Reaping Flames
     -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
-    if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
-        if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
+    if cast.able.reapingFlames() then
+        for i = 1, #enemies.yards40 do
+            local thisUnit = enemies.yards40[i]
+            local thisHP = getHP(thisUnit)
+            if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                if cast.reapingFlames(thisUnit) then debug("Casting Reaping Flames") return true end
+            end
+        end
     end
 end
 
@@ -832,6 +840,7 @@ local function runRotation()
     debug                                         = br.addonDebug
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
+    essence                                       = br.player.essence
     falling, flying, moving                       = getFallTime(), IsFlying(), GetUnitSpeed("player")>0
     gcd                                           = br.player.gcdMax
     has                                           = br.player.has
@@ -844,7 +853,6 @@ local function runRotation()
     power, powerDeficit                           = br.player.power.fury.amount(), br.player.power.fury.deficit()
     pullTimer                                     = br.DBM:getPulltimer()
     solo                                          = #br.friend == 1
-    spell                                         = br.player.spell
     talent                                        = br.player.talent
     ttd                                           = getTTD
     traits                                        = br.player.traits
@@ -860,6 +868,7 @@ local function runRotation()
     enemies.get(8,"target") -- makes enemies.yards8t
     enemies.get(10)
     enemies.get(20)
+    enemies.get(40)
     enemies.get(50)
     enemies.yards20r, enemies.yards20rTable = getEnemiesInRect(10,20,false)
     enemies.yards25r = getEnemiesInRect(8,25,false) or 0
@@ -869,9 +878,9 @@ local function runRotation()
     if lastRune == nil then lastRune = GetTime() end
 
     if (equiped.soulOfTheSlayer() or talent.firstBlood) then flood = 1 else flood = 0 end
-    if isCastingSpell(spell.eyeBeam,"player") and buff.metamorphosis.exists() then 
+    if cast.active.eyeBeam("player") and buff.metamorphosis.exists() then
         metaExtended = true 
-    elseif not buff.metamorphosis.exists() then 
+    elseif not buff.metamorphosis.exists() then
         metaExtended = false 
     end
 

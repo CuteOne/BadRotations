@@ -86,11 +86,11 @@ br.api.spells = function(spells,k,v,subtable)
             return isCastingSpell(spellID,unit)
         end
 
-        -- if cast.dispellabe == nil then cast.dispellable = {} end
-        -- cast.dispellable[k] = function(thisUnit)
-        --     if thisUnit == nil then thisUnit = "target" end
-        --     return canDispel(thisUnit,v)
-        -- end
+        if cast.dispel == nil then cast.dispel = {} end
+        cast.dispel[k] = function(unit)
+            if unit == nil then unit = "target" end
+            return canDispel(unit,v) or false
+        end
 
         if cast.inFlight == nil then cast.inFlight = {} end
         cast.inFlight[k] = function(unit)

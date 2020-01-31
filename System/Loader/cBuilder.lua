@@ -336,20 +336,6 @@ function br.loader:new(spec,specName)
         -- Cycle through Abilities List
         for k,v in pairs(self.spell.abilities) do
             if self.cast                == nil then self.cast               = {} end    -- Cast Spell Functions
-            if self.cast.debug          == nil then self.cast.debug         = {} end    -- Cast Spell Debugging
-            if self.cast.able           == nil then self.cast.able          = {} end    -- Cast Spell Available
-            if self.cast.active         == nil then self.cast.active        = {} end    -- Cast Spell Active
-            if self.cast.cost           == nil then self.cast.cost          = {} end    -- Cast Spell Cost
-            if self.cast.pool           == nil then self.cast.pool          = {} end    -- Cast Spell Pooling
-            if self.cast.current        == nil then self.cast.current       = {} end    -- Cast Spell Current
-            if self.cast.inFlight       == nil then self.cast.inFlight      = {} end    -- Cast Spell In Flight
-            if self.cast.last           == nil then self.cast.last          = {} end    -- Cast Spell Last
-            if self.cast.last.time      == nil then self.cast.last.time     = {} end    -- Cast Spell Last Time
-            if self.cast.range          == nil then self.cast.range         = {} end    -- Cast Spell Range
-            if self.cast.regen          == nil then self.cast.regen         = {} end    -- Cast Spell Regen
-            if self.cast.safe           == nil then self.cast.safe          = {} end    -- Case Spell Safe
-            if self.cast.time           == nil then self.cast.time          = {} end    -- Cast Spell Time
-            if self.cast.timeSinceLast  == nil then self.cast.timeSinceLast = {} end    -- Cast Spell Time Since Last 
             if self.charges             == nil then self.charges            = {} end    -- Spell Charge Functions
             if self.cd                  == nil then self.cd                 = {} end    -- Spell Cooldown Functions
 

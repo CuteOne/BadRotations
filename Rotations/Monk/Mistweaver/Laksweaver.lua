@@ -738,210 +738,209 @@ local function runRotation()
 
 
         --single heal on mouseover target override - old "HAM" mode
-        if SpecificToggle("Heal Key") and GetUnitExists("mouseover")  then
+        if SpecificToggle("Heal Key") and GetUnitExists("mouseover") then
             healUnit = GetUnit("mouseover")
             specialHeal = true
             why = "Heal Key"
         end
 
         --default healUnit rollback to whoever needs it
-        for i = 1, #br.friend do
+        -- for i = 1, #br.friend do
 
-            if healUnit == nil then
-                healUnit = br.friend[i].unit
-                why = "[STD]"
-            end
-            --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. getHP(healUnit))
+        if healUnit == nil then
+            healUnit = br.friend[1].unit
+            why = "[STD]"
+        end
+        --br.addonDebug("Heal Target: " .. healUnit .. " at: " .. getHP(healUnit))
 
-            --[[
-                        --always kick with rising  -- fist weaving
-                        if talent.risingMist then
-                            if lowest.hp > getValue("Critical HP") then
-                                if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
-                                    if cast.blackoutKick(units.dyn5) then
-                                        return true
-                                    end
+        --[[
+                    --always kick with rising  -- fist weaving
+                    if talent.risingMist then
+                        if lowest.hp > getValue("Critical HP") then
+                            if (buff.teachingsOfTheMonastery.stack() == 1 and cd.risingSunKick.remain() < 12) or buff.teachingsOfTheMonastery.stack() == 3 then
+                                if cast.blackoutKick(units.dyn5) then
+                                    return true
                                 end
                             end
-                            if cast.risingSunKick(units.dyn5) then
-                                return true
-                            end
                         end
-            ]]
-            --Life Cocoon
-            if isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
-                if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
-                        or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 2)
-                then
-                    if cast.lifeCocoon("player") then
-                        br.addonDebug(tostring(burst) .. "[LifCoc]:" .. "SELF" .. " / " .. why)
-                        return true
-                    end
-                end
-                if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 2 or BleedStack == 99) or not isSelected("Grievous Wounds") then
-                    --override cause people leave settings on in non griev weeks
-                    if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
-                        if cast.lifeCocoon(healUnit) then
-                            br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(getHP(healUnit)))
-                            --  Print("Bleedstack: " .. tostring(BleedStack))
+                        if cast.risingSunKick(units.dyn5) then
                             return true
                         end
                     end
+        ]]
+        --Life Cocoon
+        if isChecked("Life Cocoon") and cast.able.lifeCocoon() and inCombat then
+            if (isChecked("Bursting") and burst and getDebuffStacks("player", 240443) >= getOptionValue("Bursting"))
+                    or (isChecked("Grievous Wounds") and getDebuffStacks("player", 240559) > 2)
+            then
+                if cast.lifeCocoon("player") then
+                    br.addonDebug(tostring(burst) .. "[LifCoc]:" .. "SELF" .. " / " .. why)
+                    return true
                 end
             end
-
-
-            -- maintain one soothing mist always, if using statue
-            local soothing_counter = 0
-            if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
-                for i = 1, #br.friend do
-                    if buff.soothingMist.exists(br.friend[i].unit) then
-                        soothing_counter = soothing_counter + 1
-                    end
-                end
-                if soothing_counter == 0 then
-                    if cast.soothingMist(healUnit) then
-                        br.addonDebug("[Soothing buffs rolling: " .. tostring(soothing_counter) .. "] HealUnit: " .. healUnit)
-                        return true
-                    end
-                end
-            end
-
-            --Revival
-            if isChecked("Revival") and cast.able.revival() then
-                if isChecked("Use Revival as detox") and br.player.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
-                    local detoxCounter = 0
-                    for i = 1, #br.friend do
-                        if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
-                            detoxCounter = detoxCounter + 1
-                        end
-                    end
-                    if detoxCounter >= getValue("Use Revival as detox") then
-                        why = "MASS DISPEL"
-                        if cast.revival() then
-                            br.addonDebug("[Revival]:" .. why)
-                            return true
-                        end
-                    end
-                end
-                if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") or burst then
-                    if cast.revival() then
-                        br.addonDebug(tostring(burst) .. "[Revival]:" .. UnitName(healUnit) .. " / " .. why)
-                        return
-                    end
-                end
-            end
-
-
-            --vivify on targets with essence font hot
-            if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
-                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
-                    if cast.soothingMist(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
-                        return true
-                    end
-                elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit) then
-                    if cast.vivify(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
-                        return true
-                    end
-                end
-            end
-
-
-            --vivify if hotcount >= 5
-            if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < 80 or specialHeal then
-                RM_counter = 0
-                for i = 1, #br.friend do
-                    if buff.renewingMist.exists(br.friend[i].unit) then
-                        RM_counter = RM_counter + 1
-                        -- Print(UnitName(br.friend[i].unit))
-                        -- Print(tostring(RM_counter))
-                        if RM_counter >= getValue("Vivify Spam") then
-                            if cast.vivify(healUnit) then
-                                br.addonDebug("[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
-                                return true
-                            end
-                        end
-                    end
-                end
-            end
-
-
-            --Essence Font
-            if isChecked("Essence Font") then
-                if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
-                    if getLowAllies(getValue("Essence Font")) >= getValue("Essence Font targets") or burst then
-                        if cast.essenceFont() then
-                            br.addonDebug(tostring(burst) .. "[E-Font]:" .. UnitName(healUnit) .. " / " .. why)
-                            return true
-                        end
-                    end
-                end
-            end
-
-            --Surging Mist
-            if isChecked("Surging Mist") then
-                if getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
-                    if cast.surgingMist(healUnit) then
-                        br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
-                        return true
-                    end
-                end
-            end
-
-
-            --all the channeling crap
-            if getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
-                if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                    if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
-                        if not buff.soothingMist.exists(healUnit) then
-                            if cast.soothingMist(healUnit) then
-                                return true
-                            end
-                        elseif buff.soothingMist.exists(healUnit) and buff.envelopingMist.remains(healUnit) < 2 then
-                            if cast.envelopingMist(healUnit) then
-                                return
-                            end
-                        end
-                    elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
-                        if cast.envelopingMist(healUnit) then
-                            return
-                        end
-                    end
-                end
-            end
-
-            -- Vivify
-            if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
-                if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
-                        if cast.soothingMist(healUnit) then
-                            return true
-                        end
-                    end
-                    if not isChecked("Soothing Mist Instant Cast") then
-                        if cast.vivify(healUnit) then
-                            br.addonDebug("[Vivify]: " .. UnitName(healUnit))
-                            return
-                        end
-                    end
-                end
-            end --end vivify
-
-            if isChecked("Soothing Mist") and not isMoving("player") then
-                if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal and not buff.soothingMist.exists(healUnit) then
-                    if cast.soothingMist(healUnit) then
+            if isChecked("Grievous Wounds") and (getDebuffStacks(healUnit, 240559) > 2 or BleedStack == 99) or not isSelected("Grievous Wounds") then
+                --override cause people leave settings on in non griev weeks
+                if (getHP(healUnit) <= getValue("Life Cocoon") or specialHeal) and not buff.lifeCocoon.exists(healUnit) then
+                    if cast.lifeCocoon(healUnit) then
+                        br.addonDebug(tostring(burst) .. "[LifCoc]:" .. UnitName(healUnit) .. " / " .. why .. " HP: " .. tostring(getHP(healUnit)))
+                        --  Print("Bleedstack: " .. tostring(BleedStack))
                         return true
                     end
                 end
             end
         end
+
+
+        -- maintain one soothing mist always, if using statue
+        local soothing_counter = 0
+        if inCombat and talent.summonJadeSerpentStatue and getDistanceToObject("player", last_statue_location.x, last_statue_location.y, last_statue_location.z) < 30 then
+            for i = 1, #br.friend do
+                if buff.soothingMist.exists(br.friend[i].unit) then
+                    soothing_counter = soothing_counter + 1
+                end
+            end
+            if soothing_counter == 0 then
+                if cast.soothingMist(healUnit) then
+                    br.addonDebug("[Soothing buffs rolling: " .. tostring(soothing_counter) .. "] HealUnit: " .. healUnit)
+                    return true
+                end
+            end
+        end
+
+        --Revival
+        if isChecked("Revival") and cast.able.revival() then
+            if isChecked("Use Revival as detox") and br.player.mode.detox == 1 and not cast.last.detox() and cd.detox.exists() then
+                local detoxCounter = 0
+                for i = 1, #br.friend do
+                    if canDispel(br.friend[i].unit, spell.detox) and getLineOfSight(br.friend[i].unit) and getDistance(br.friend[i].unit) <= 40 then
+                        detoxCounter = detoxCounter + 1
+                    end
+                end
+                if detoxCounter >= getValue("Use Revival as detox") then
+                    why = "MASS DISPEL"
+                    if cast.revival() then
+                        br.addonDebug("[Revival]:" .. why)
+                        return true
+                    end
+                end
+            end
+            if getLowAllies(getValue("Revival")) >= getValue("Revival Targets") or burst then
+                if cast.revival() then
+                    br.addonDebug(tostring(burst) .. "[Revival]:" .. UnitName(healUnit) .. " / " .. why)
+                    return
+                end
+            end
+        end
+
+
+        --vivify on targets with essence font hot
+        if isChecked("Vivify") and cast.able.vivify() and buff.essenceFont.exists(healUnit) and getHP(healUnit) < 80 then
+            if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                if cast.soothingMist(healUnit) then
+                    br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
+                    return true
+                end
+            elseif isChecked("Soothing Mist Instant Cast") and buff.soothingMist.exists(healUnit) then
+                if cast.vivify(healUnit) then
+                    br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "FONT-BUFF")
+                    return true
+                end
+            end
+        end
+
+
+        --vivify if hotcount >= 5
+        if isChecked("Vivify") and cast.able.vivify() and getHP(healUnit) < 80 or specialHeal then
+            RM_counter = 0
+            for i = 1, #br.friend do
+                if buff.renewingMist.exists(br.friend[i].unit) then
+                    RM_counter = RM_counter + 1
+                    -- Print(UnitName(br.friend[i].unit))
+                    -- Print(tostring(RM_counter))
+                    if RM_counter >= getValue("Vivify Spam") then
+                        if cast.vivify(healUnit) then
+                            br.addonDebug("[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+
+
+        --Essence Font
+        if isChecked("Essence Font") then
+            if talent.upwelling and br.timer:useTimer("EssenceFont Seconds", getValue("Essence Font delay(Upwelling)")) or not talent.upwelling then
+                if getLowAllies(getValue("Essence Font")) >= getValue("Essence Font targets") or burst then
+                    if cast.essenceFont() then
+                        br.addonDebug(tostring(burst) .. "[E-Font]:" .. UnitName(healUnit) .. " / " .. why)
+                        return true
+                    end
+                end
+            end
+        end
+
+        --Surging Mist
+        if isChecked("Surging Mist") then
+            if getHP(healUnit) <= getValue("Surging Mist") or specialHeal then
+                if cast.surgingMist(healUnit) then
+                    br.addonDebug(tostring(burst) .. "[SurgMist]:" .. UnitName(healUnit) .. " / " .. why .. math.floor(tostring(getHP(healUnit))) .. "/ " .. getValue("Surging Mist"))
+                    return true
+                end
+            end
+        end
+
+
+        --all the channeling crap
+        if getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+            if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
+                if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
+                    if not buff.soothingMist.exists(healUnit) then
+                        if cast.soothingMist(healUnit) then
+                            return true
+                        end
+                    elseif buff.soothingMist.exists(healUnit) and buff.envelopingMist.remains(healUnit) < 2 then
+                        if cast.envelopingMist(healUnit) then
+                            return
+                        end
+                    end
+                elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
+                    if cast.envelopingMist(healUnit) then
+                        return
+                    end
+                end
+            end
+        end
+
+        -- Vivify
+        if not isMoving("player") and (getHP(healUnit) <= getValue("Vivify") or specialHeal) then
+            if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesVivify.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
+                if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                    if cast.soothingMist(healUnit) then
+                        return true
+                    end
+                end
+                if not isChecked("Soothing Mist Instant Cast") then
+                    if cast.vivify(healUnit) then
+                        br.addonDebug("[Vivify]: " .. UnitName(healUnit))
+                        return
+                    end
+                end
+            end
+        end --end vivify
+
+        if isChecked("Soothing Mist") and not isMoving("player") then
+            if getHP(healUnit) <= getValue("Soothing Mist") or specialHeal then
+                --  and not buff.soothingMist.exists(healUnit)
+                if cast.soothingMist(healUnit) then
+                    return true
+                end
+            end
+        end
+        --  end
     end --end of heal()
 
     local function cooldowns()
-
-
         if (SpecificToggle("Ring of Peace") and not GetCurrentKeyBoardFocus()) and isChecked("Ring of Peace") then
             if cast.able.ringOfPeace() then
                 if CastSpellByName(GetSpellInfo(spell.ringOfPeace), "cursor") then
@@ -949,6 +948,21 @@ local function runRotation()
                 end
             end
         end
+
+        --items
+        --Wraps of wrapsOfElectrostaticPotential
+        if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
+            if br.player.use.wrapsOfElectrostaticPotential() then
+                br.addonDebug("Using HBracers")
+            end
+        end
+        --staff of neural
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15 and getHP("player") > 50 then
+            if br.player.use.neuralSynapseEnhancer() then
+                br.addonDebug("Using neuralSynapseEnhancer ")
+            end
+        end
+
 
         --jade statue
         if isChecked("Summon Jade Serpent") and talent.summonJadeSerpentStatue and not isMoving("player") then
@@ -1432,7 +1446,7 @@ local function runRotation()
             if interrupts() then
                 return true
             end
-            if cast.able.risingSunKick() then
+            if cast.able.risingSunKick() and #enemy_count_facing_5 > 0 then
                 risingSunKickFunc()
                 return true
             end
