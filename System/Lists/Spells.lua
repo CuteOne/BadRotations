@@ -3478,6 +3478,10 @@ br.lists.spells = {
                 repeatPerformance               = 304409,
                 shiverVenom                     = 301624,
                 temptation                      = 234143,
+                eyeOfCorruption                 = 315161,
+                grandDelusions                  = 319695,
+                graspinTendrils                 = 315176,
+
             },
             essences                            = {
                 aegisOfTheDeep                  = 298168,
