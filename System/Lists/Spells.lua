@@ -3470,6 +3470,7 @@ br.lists.spells = {
                 seethingRage                    = 297126,
             },
             debuffs                             = {
+                bloodOfTheEnemy                 = 297108,
                 concentratedFlame               = 295368,
                 conductiveInk                   = 302565,
                 dampening                       = 110310,

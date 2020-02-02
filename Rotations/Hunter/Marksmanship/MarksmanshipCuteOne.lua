@@ -407,7 +407,7 @@ local function runRotation()
             -- use_item,name=ashvanes_razor_coral,if=buff.trueshot.up&(buff.guardian_of_azeroth.up|!essence.condensed_lifeforce.major.rank3&ca_execute)|debuff.razor_coral_debuff.down|target.time_to_die<20
             -- use_item,name=pocketsized_computation_device,if=!buff.trueshot.up&!essence.blood_of_the_enemy.major.rank3|debuff.blood_of_the_enemy.up|target.time_to_die<5
             if isChecked("Pocket Sized Computation Device") and equiped.pocketSizedComputationDevice() and use.able.pocketSizedComputationDevice()
-                and (not buff.trueshot.exists() or debuff.bloodOfTheEnemy.exists(units.dyn40) or (ttd(unit.dyn40) < 5 and useCDs()))
+                and (not buff.trueshot.exists() or debuff.bloodOfTheEnemy.exists(units.dyn40) or (ttd(units.dyn40) < 5 and useCDs()))
             then
                 use.pocketSizedComputationDevice()
             end
