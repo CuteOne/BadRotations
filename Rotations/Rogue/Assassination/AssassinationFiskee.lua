@@ -107,6 +107,12 @@ local function createOptions()
             br.ui:createCheckbox(section, "Hold Vendetta", "|cffFFFFFF Will hold Vendetta for Vanish")
             br.ui:createSpinnerWithout(section,  "CDs TTD Limit",  5,  0,  20,  1,  "|cffFFFFFF Time to die limit for using cooldowns.")
         br.ui:checkSectionState(section)
+        ------------------------
+        --- CORRUPTION 8.3 --- -- Define Cloak Useage
+        ------------------------
+        section = br.ui:createSection(br.ui.window.profile, "Corruption")
+            br.ui:createDropdownWithout(section, "Use Cloak", { "Snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:checkSectionState(section)
         -------------------------
         --- DEFENSIVE OPTIONS --- -- Define Defensive Options
         -------------------------
@@ -675,6 +681,15 @@ local function runRotation()
             if isChecked("Feint") and php <= getOptionValue("Feint") and inCombat and not buff.feint.exists() then
                 if cast.feint() then return true end
             end
+            -- Corruption stuff
+            -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
+            if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+                if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                    if br.player.use.shroudOfResolve() then end
+                end
+            end
         end
     end
 
@@ -815,7 +830,7 @@ local function runRotation()
         if isChecked("Trinkets") and not stealthedRogue then
             if hasEquiped(169311, 13) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(13)
-            elseif hasEquiped(169311, 14) and canUseItem(13) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
+            elseif hasEquiped(169311, 14) and canUseItem(14) and (not debuff.razorCoral.exists(units.dyn5) or debuff.vendetta.remain("target") > 5 or (isBoss() and ttd("target") < 20)) then
                 useItem(14)
             end
         -- # Pop Razor Coral right before Dribbling Inkpod proc to increase it's chance to crit (at 31% of HP)
