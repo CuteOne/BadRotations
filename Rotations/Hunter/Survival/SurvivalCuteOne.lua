@@ -489,7 +489,9 @@ actionList.Cooldown = function()
             end
         end
         -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
-        if useCDs() and cast.able.memoryOfLucidDreams() and focus < focusMax - 30 and buff.coordinatedAssault.exists() then
+        if useCDs() and cast.able.memoryOfLucidDreams() and getDistance(units.dyn5) < 5
+            and focus < focusMax - 30 and buff.coordinatedAssault.exists()
+        then
             if cast.memoryOfLucidDreams() then return end
         end
         -- blood_of_the_enemy,if=buff.coordinated_assault.up
@@ -517,7 +519,7 @@ actionList.Cooldown = function()
             if cast.theUnboundForce() then return end
         end
         -- worldvein_resonance
-        if cast.able.worldveinResonance() then
+        if cast.able.worldveinResonance() and getDistance(units.dyn5) < 5 then
             if cast.worldveinResonance() then return end
         end
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
