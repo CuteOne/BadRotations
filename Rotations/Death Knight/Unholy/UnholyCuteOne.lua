@@ -211,15 +211,16 @@ local function runRotation()
     local talent                                        = br.player.talent
     local trait                                         = br.player.traits
     local units                                         = br.player.units
-    local use                                           = br.player.use  
+    local use                                           = br.player.use
     -- Other Locals
+    local apocBypass
     local combatTime                                    = getCombatTime()
     local level                                         = UnitLevel("player")
     local petCombat                                     = UnitAffectingCombat("pet")
     local php                                           = getHP("player")
     local ttd                                           = getTTD
-    local pullTimer                                     = PullTimerRemain()    
-    local thisUnit                                      = nil      
+    local pullTimer                                     = PullTimerRemain()
+    local thisUnit                                      = nil
 
     -- Units Declaration
     units.get(5)
@@ -251,6 +252,7 @@ local function runRotation()
     poolForGargoyle = cd.summonGargoyle.remain() < 5 and talent.summonGargoyle
     deathAndDecayRemain = 0
     if (cd.deathAndDecay.remain() - 10) > 0 then deathAndDecayRemain = (cd.deathAndDecay.remain() - 10) end
+    apocBypass = getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75
 
     --Asphyxiate Logic
     local Asphyxiate_unitList = {
@@ -582,7 +584,7 @@ local function runRotation()
             end
             -- blood_of_the_enemy,if=(cooldown.death_and_decay.remains&spell_targets.death_and_decay>1)|(cooldown.defile.remains&spell_targets.defile>1)|(cooldown.apocalypse.remains&cooldown.death_and_decay.ready)
             if useCDs() and cast.able.bloodOfTheEnemy() and ((cd.deathAndDecay.remain() > 0 and #enemies.yards8t > 1)
-                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or (cd.apocalypse.remain() > 0 and cd.deathAndDecay.remain() == 0))
+                or (cd.defile.remain() > 0 and #enemies.yards8t > 1) or ((cd.apocalypse.remain() > 0 or apocBypass) and cd.deathAndDecay.remain() == 0))
             then
                 if cast.bloodOfTheEnemy() then return end
             end
@@ -599,7 +601,7 @@ local function runRotation()
                 local minCount = useCDs() and 1 or getOptionValue("Azerite Beam Units")
                 if cast.focusedAzeriteBeam(nil,"cone",minCount, 8) then
                     return true
-                end    
+                end
             end
             -- concentrated_flame,if=dot.concentrated_flame_burn.remains=0
             if cast.able.concentratedFlame() and not debuff.concentratedFlame.exists(units.dyn5) then
@@ -620,7 +622,7 @@ local function runRotation()
             -- worldvein_resonance,if=!death_and_decay.ticking&buff.unholy_strength.up&!essence.vision_of_perfection.minor&!talent.army_of_the_damned.enabled|target.time_to_die<cooldown.apocalypse.remains
             if cast.able.worldveinResonance() and deathAndDecayRemain == 0 and buff.unholyStrength.exists()
                 and not essence.visionOfPerfection.minor and not talent.armyOfTheDamned
-                or ttd(units.dyn5) < cd.apocalypse.remain()
+                or ttd(units.dyn5) < cd.apocalypse.remain() or apocBypass
             then
                 if cast.worldveinResonance() then return end
             end
@@ -638,7 +640,7 @@ local function runRotation()
     -- Death and Decay
         -- death_and_decay,if=cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
@@ -660,7 +662,7 @@ local function runRotation()
     -- Scourge Strike
         -- scourge_strike,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.scourgeStrike() and not talent.clawingShadows and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
             and debuff.festeringWound.stack(units.dyn5) > 0
         then
             if cast.scourgeStrike() then return end
@@ -668,7 +670,7 @@ local function runRotation()
     -- Clawing Shadows
         -- clawing_shadows,if=death_and_decay.ticking&cooldown.apocalypse.remains
         if cast.able.clawingShadows() and deathAndDecayRemain > 0
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.clawingShadows() then return end
         end
@@ -704,14 +706,14 @@ local function runRotation()
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
         if cast.able.deathCoil() and runicPowerDeficit < 14 and not poolForGargoyle
-            and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4)
+            and (cd.apocalypse.remain() > 5 or apocBypass or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.deathCoil() then return end
         end
     -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
             and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.scourgeStrike() then return end
@@ -719,7 +721,7 @@ local function runRotation()
     -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.clawingShadows() and talent.clawingShadows
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
             and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
         then
             if cast.clawingShadows() then return end
@@ -751,32 +753,32 @@ local function runRotation()
             if cast.deathCoil() then return end
         end
         -- death_coil,if=runic_power.deficit<14&(cooldown.apocalypse.remains>5|debuff.festering_wound.stack>4)&!variable.pooling_for_gargoyle
-        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then
+        if cast.able.deathCoil() and runicPowerDeficit < 14 and (cd.apocalypse.remain() > 5 or apocBypass or debuff.festeringWound.stack(units.dyn5) > 4) and not poolForGargoyle then
             if cast.deathCoil() then return end
         end
     -- Death and Decay
         -- death_and_decay,if=talent.pestilence.enabled&cooldown.apocalypse.remains
         if mode.dnd == 1 and cast.able.deathAndDecay() and not talent.defile and talent.pestilence
-            and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75)
+            and (cd.apocalypse.remain() > 0 or apocBypass)
         then
             if cast.deathAndDecay("best",nil,1,8) then return end
         end
     -- Defile
         -- defile,if=cooldown.apocalypse.remains
-        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or getOptionValue("Apocalypse") == 3 or (getOptionValue("Apocalypse") == 2 and not useCDs()) or level < 75) then
+        if mode.dnd == 1 and cast.able.defile() and (cd.apocalypse.remain() > 0 or apocBypass) then
             if cast.defile("best",nil,1,8) then return end
         end
     -- Scourge Strike
         -- scourge_strike,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.scourgeStrike() and not talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.scourgeStrike() then return end
         end
     -- Clawing Shadows
         -- clawing_shadows,if=((debuff.festering_wound.up&cooldown.apocalypse.remains>5)|debuff.festering_wound.stack>4)&(cooldown.army_of_the_dead.remains>5|death_knight.disable_aotd)
         if cast.able.clawingShadows() and talent.clawingShadows and (cd.armyOfTheDead.remain() > 5 or not isChecked("Army of the Dead") or not useCDs() or level < 82)
-            and ((debuff.festeringWound.exists(units.dyn5) and cd.apocalypse.remain() > 5) or debuff.festeringWound.stack(units.dyn5) > 4)
+            and ((debuff.festeringWound.exists(units.dyn5) and (cd.apocalypse.remain() > 5 or apocBypass)) or debuff.festeringWound.stack(units.dyn5) > 4)
         then
             if cast.clawingShadows() then return end
         end
