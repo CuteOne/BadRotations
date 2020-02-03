@@ -413,7 +413,7 @@ end -- End Action List - Interrupt
 
 -- Action List - Cooldowns
 actionList.Cooldown = function()
-    if useCDs() and getDistance(units.dyn5) < 5 then
+    if useCDs() and getDistance(eagleUnit) < thisRange then
         -- Trinkets
         if isChecked("Trinkets") then
             for i = 13, 14 do
@@ -489,7 +489,7 @@ actionList.Cooldown = function()
             end
         end
         -- memory_of_lucid_dreams,if=focus<focus.max-30&buff.coordinated_assault.up
-        if useCDs() and cast.able.memoryOfLucidDreams() and getDistance(units.dyn5) < 5
+        if useCDs() and cast.able.memoryOfLucidDreams() and getDistance(eagleUnit) < thisRange
             and focus < focusMax - 30 and buff.coordinatedAssault.exists()
         then
             if cast.memoryOfLucidDreams() then return end
@@ -519,7 +519,7 @@ actionList.Cooldown = function()
             if cast.theUnboundForce() then return end
         end
         -- worldvein_resonance
-        if cast.able.worldveinResonance() and getDistance(units.dyn5) < 5 then
+        if cast.able.worldveinResonance() and getDistance(eagleUnit) < thisRange then
             if cast.worldveinResonance() then return end
         end
         -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
