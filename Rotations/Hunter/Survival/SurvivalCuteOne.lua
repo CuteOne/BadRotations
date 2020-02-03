@@ -185,6 +185,7 @@ local cast
 local cd
 local charges
 local debuff
+local debug
 local enemies
 local equiped
 local essence
@@ -441,8 +442,8 @@ actionList.Cooldown = function()
         -- Potion
         -- potion,if=buff.coordinated_assault.up&(buff.berserking.up|buff.blood_fury.up|!race.troll&!race.orc)|time_to_die<26
         if isChecked("Potion") and inRaid and use.able.potionOfFocusedResolve() and useCDs() and buff.coordinatedAssault.exists()
-            and ((race == "Orc" or race == "Troll") and buff.racial.exists()
-                or not (race == "Orc" or race == "Troll") or ttd(units.dyn5) < 26)
+        and ((race == "Orc" or race == "Troll") and buff.racial.exists()
+        or not (race == "Orc" or race == "Troll") or ttd(units.dyn5) < 26)
         then
             use.potionOfFocusedResolve()
         end
@@ -450,16 +451,16 @@ actionList.Cooldown = function()
     -- Aspect of the Eagle
     -- aspect_of_the_eagle,if=target.distance>=6
     if mode.aotE == 1 and cast.able.aspectOfTheEagle() and (getDistance("target") >= 6)
-        and (getOptionValue("Aspect of the Eagle") == 1 or (getOptionValue("Aspect of the Eagle") == 2 and useCDs()))
+    and (getOptionValue("Aspect of the Eagle") == 1 or (getOptionValue("Aspect of the Eagle") == 2 and useCDs()))
     then
         if cast.aspectOfTheEagle() then return end
     end
     -- Ashvane's Razor Coral
     -- use_item,name=ashvanes_razor_coral,if=equipped.dribbling_inkpod&(debuff.razor_coral_debuff.down|time_to_pct_30<1|(health.pct<30&buff.guardian_of_azeroth.up|buff.memory_of_lucid_dreams.up))|(!equipped.dribbling_inkpod&(buff.memory_of_lucid_dreams.up|buff.guardian_of_azeroth.up)|debuff.razor_coral_debuff.down)|target.time_to_die<20
-    if equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and equiped.dribblingInkpod() and (not debuff.razorCoral.exists(eagleUnit)
+    if equiped.ashvanesRazorCoral() and use.able.ashvanesRazorCoral() and equiped.dribblingInkpod() and ((not debuff.razorCoral.exists(eagleUnit)
         or getHP(eagleUnit) <= 30 or (getHP(eagleUnit) < 30 and buff.guardianOfAzeroth.exists() or buff.memoryOfLucidDreams.exists()))
         or (not equiped.dribblingInkpod() and (buff.memoryOfLucidDreams.exists() or buff.guardianOfAzeroth.exists()) or not debuff.razorCoral.exists(eqgleUnit))
-        or (ttd(eagleUnit) < 20 and useCDs())
+        or (ttd(eagleUnit) < 20 and useCDs()))
     then
         use.ashvanesRazorCoral()
         return
@@ -531,12 +532,12 @@ actionList.St = function()
     -- Harpoon
     -- harpoon,if=talent.terms_of_engagement.enabled
     if cast.able.harpoon() and mode.harpoon == 1 and talent.termsOfEngagement and getDistance(units.dyn30) > 5 then
-        if cast.harpoon() then return end
+        if cast.harpoon() then debug("[ST] Harpoon - "..UnitName(units.dyn30)) return end
     end
     -- Flanking Strike
     -- flanking_strike,if=focus+cast_regen<focus.max
     if cast.able.flankingStrike() and (focus + castRegen(spell.flankingStrike) < focusMax) then
-        if cast.flankingStrike() then return end
+        if cast.flankingStrike() then debug("[ST] Flanking Strike - "..UnitName(units.dyn15)) return end
     end
     -- Raptor Strike
     -- raptor_strike,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
@@ -544,7 +545,7 @@ actionList.St = function()
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then debug("[ST] Raptor Strike (Coordinated Assault) - "..UnitName(eagleUnit)) return end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.coordinated_assault.up&(buff.coordinated_assault.remains<1.5*gcd|buff.blur_of_talons.up&buff.blur_of_talons.remains<1.5*gcd)
@@ -552,17 +553,17 @@ actionList.St = function()
         and buff.coordinatedAssault.exists() and (buff.coordinatedAssault.remain() < 1.5 * gcdMax
             or (buff.blurOfTalons.exists() and buff.blurOfTalons.remain() < 1.5 * gcdMax))
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then debug("[ST] Mongoose Bite (Coordinated Assault) - "..UnitName(eagleUnit)) return end
     end
     -- Kill Command
     -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max
     if cast.able.killCommand(lowestBloodseeker) and (focus + castRegen(spell.killCommand) < focusMax - focusRegen or outOfMelee()) then
-        if cast.killCommand(lowestBloodseeker) then return end
+        if cast.killCommand(lowestBloodseeker) then debug("[ST] Kill Command - "..UnitName(lowestBloodseeker)) return end
     end
     -- Steel Trap
     -- steel_trap,if=focus+cast_regen<focus.max
     if cast.able.steelTrap() and focus + focusRegen < focusMax then
-        if cast.steelTrap("best",nil,1,5) then return end
+        if cast.steelTrap("best",nil,1,5) then debug("[ST] Steel Trap") return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=focus+cast_regen<focus.max&!ticking&!buff.memory_of_lucid_dreams.up&(full_recharge_time<1.5*gcd|!dot.wildfire_bomb.ticking&!buff.coordinated_assault.up|!dot.wildfire_bomb.ticking&buff.mongoose_fury.stack<1)|time_to_die<18&!dot.wildfire_bomb.ticking
@@ -570,57 +571,57 @@ actionList.St = function()
         and (charges.wildfireBomb.timeTillFull() < 1.5 * gcdMax or not debuff.wildfireBomb.exists(units.dyn40) and not buff.coordinatedAssault.exists()
         or not debuff.wildfireBomb.exists(units.dyn40) and buff.mongooseFury.stack() < 1) or (ttd(units.dyn40) < 18 and not debuff.wildfireBomb.exists(units.dyn40))
     then
-        if cast.wildfireBomb(nil,"aoe") then return end
+        if cast.wildfireBomb(nil,"aoe") then debug("[ST] Wildfire Bomb - "..UnitName(units.dyn40)) return end
     end
-    -- Mongoose Bite
-    -- mongoose_bite,if=buff.mongoose_fury.stack>5&!cooldown.coordinated_assault.remains
-    if cast.able.mongooseBite() and talent.mongooseBite
-        and buff.mongooseFury.stack() > 5 and cd.coordinatedAssault.remain() == 0
-    then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
-    end
+    -- -- Mongoose Bite
+    -- -- mongoose_bite,if=buff.mongoose_fury.stack>5&!cooldown.coordinated_assault.remains
+    -- if cast.able.mongooseBite() and talent.mongooseBite
+    --     and buff.mongooseFury.stack() > 5 and cd.coordinatedAssault.remain() == 0
+    -- then
+    --     if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+    -- end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up&dot.serpent_sting.remains<4*gcd|dot.serpent_sting.refreshable&!buff.coordinated_assault.up
     if cast.able.serpentSting() and (buff.vipersVenom.exists() and debuff.serpentSting.remain(units.dyn40) < 4 * gcdMax
         or debuff.serpentSting.refresh(units.dyn40) and not buff.coordinatedAssault.exists())
     then
-        if cast.serpentSting() then return end
+        if cast.serpentSting() then debug("[ST] Serpent Sting - "..UnitName(units.dyn40)) return end
     end
     -- A Murder of Crows
     -- a_murder_of_crows,if=!buff.coordinated_assault.up
     if cast.able.aMurderOfCrows() and (getOptionValue("A Murder of Crows") == 1 or (getOptionValue("A Murder of Crows") == 2 and useCDs()))
         and not buff.coordinatedAssault.exists()
     then
-        if cast.aMurderOfCrows() then return end
+        if cast.aMurderOfCrows() then debug("[ST] A Murder of Crows - "..UnitName(units.dyn40)) return end
     end
     -- Coordinated Assault
     -- coordinated_assault
     if cast.able.coordinatedAssault() and eagleScout() > 0
         and (getOptionValue("Coordinated Assault") == 1 or (getOptionValue("Coordinated Assault") == 2 and useCDs()))
     then
-        if cast.coordinatedAssault() then return end
+        if cast.coordinatedAssault() then debug("[ST] Coordinated Assault") return end
     end
     -- Mongoose Bite
     -- mongoose_bite,if=buff.mongoose_fury.up|focus+cast_regen>focus.max-20&talent.vipers_venom.enabled|focus+cast_regen>focus.max-1&talent.terms_of_engagement.enabled|buff.coordinated_assault.up
     if cast.able.mongooseBite() and talent.mongooseBite and ((buff.mongooseFury.exists() or (focus + focusRegen > focusMax - 20 and talent.vipersVenom))
         or (focus + focusRegen > focusMax - 1 and talent.termsOfEngagement) or buff.coordinatedAssault.exists())
     then
-        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then return end
+        if cast.mongooseBite(eagleUnit,nil,1,thisRange) then debug("[ST] Mongoose Bite - "..UnitName(eagleUnit)) return end
     end
     -- Raptor Strike
     -- raptor_strike
     if cast.able.raptorStrike() and not talent.mongooseBite then
-        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then return end
+        if cast.raptorStrike(eagleUnit,nil,1,thisRange) then debug("[ST] Raptor Strike - "..UnitName(eagleUnit)) return end
     end
     -- Wildfire Bomb
     -- wildfire_bomb,if=dot.wildfire_bomb.refreshable
     if cast.able.wildfireBomb() and debuff.wildfireBomb.refresh(units.dyn40) then
-        if cast.wildfireBomb(nil,"aoe") then return end
+        if cast.wildfireBomb(nil,"aoe") then debug("[ST] Wildfire Bomb (Refresh) - "..UnitName(units.dyn40)) return end
     end
     -- Serpent Sting
     -- serpent_sting,if=buff.vipers_venom.up
     if cast.able.serpentSting() and buff.vipersVenom.exists() then
-        if cast.serpentSting() then return end
+        if cast.serpentSting() then debug("[ST] Serpent Sting (Refresh) - "..UnitName(units.dyn40)) return end
     end
 end -- End Action List - Single Target
 
@@ -1183,6 +1184,7 @@ local function runRotation()
     cd                                            = br.player.cd
     charges                                       = br.player.charges
     debuff                                        = br.player.debuff
+    debug                                         = br.addonDebug
     enemies                                       = br.player.enemies
     equiped                                       = br.player.equiped
     essence                                       = br.player.essence
@@ -1214,6 +1216,8 @@ local function runRotation()
     haltProfile                                   = (inCombat and profileStop) or (IsMounted() or IsFlying()) or pause() or buff.feignDeath.exists() or mode.rotation==4
     -- Units
     units.get(5)
+    units.get(15)
+    units.get(30)
     units.get(40)
     -- Enemies
     enemies.get(5)
