@@ -131,7 +131,8 @@ function br.read.combatLog()
         end
          --
         ---------------------
-        --[[ Swing Timer ]] if swingTimer == nil then
+        --[[ Swing Timer ]] 
+        if swingTimer == nil then
             swingTimer = 0
         end
         if nextMH == nil then
@@ -416,77 +417,77 @@ function br.read.combatLog()
             end
         end
     end
-    function cl:Deathknight(...)
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        -- Breath of Sindragosa Active Tracker
-        if spell == 152279 and sourceName == UnitName("player") then
-            if param == "SPELL_AURA_APPLIED" then
-                breathOfSindragosaActive = true
-            end
-            if param == "SPELL_AURA_REMOVED" then
-                breathOfSindragosaActive = false
-            end
+end
+function cl:Deathknight(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    -- Breath of Sindragosa Active Tracker
+    if spell == 152279 and sourceName == UnitName("player") then
+        if param == "SPELL_AURA_APPLIED" then
+            breathOfSindragosaActive = true
+        end
+        if param == "SPELL_AURA_REMOVED" then
+            breathOfSindragosaActive = false
         end
     end
-    function cl:DemonHunter(...)
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        if sourceName ~= UnitName("player") then
-            return
-        end
-        if event == "SPELL_DAMAGE" then
-            if spell == 198813 then -- Vengeful Retreat
-                -- HackEnabled("NoKnockback", false)
-                return
-            end
-            return
-        end
+end
+function cl:DemonHunter(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    if sourceName ~= UnitName("player") then
+        return
     end
-    function cl:Druid(...)
-        local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
-        -----------
-        -- Kitty ---------------
-        --[[ Bleed Recorder --]]
-        if GetSpecialization() == 2 then
-            if source == UnitGUID("player") then
-                if destination ~= nil and destination ~= "" then
-                    local thisUnit = thisUnit
-                    if EWT then
-                        local destination = GetObjectWithGUID(destination)
-                        if GetObjectExists(destination) then
-                            thisUnit = destination
-                        elseif GetObjectExists("target") then
-                            thisUnit = GetObjectWithGUID(UnitGUID("target"))
-                        else
-                            thisUnit = GetObjectWithGUID(UnitGUID("player"))
-                        end
-                        if br.player ~= nil and getDistance(thisUnit) < 40 then
-                            local debuff = br.player.debuff
-                            local debuffID = br.player["spell"].debuffs
-                            if debuffID ~= nil then
-                                if spell == debuffID.rake or spell == debuffID.rip then
-                                    if spell == debuffID.rake then
-                                        k = "rake"
+    if event == "SPELL_DAMAGE" then
+        if spell == 198813 then -- Vengeful Retreat
+            -- HackEnabled("NoKnockback", false)
+            return
+        end
+        return
+    end
+end
+function cl:Druid(...)
+    local timeStamp, param, hideCaster, source, sourceName, sourceFlags, sourceRaidFlags, destination, destName, destFlags, destRaidFlags, spell, spellName, _, spellType = CombatLogGetCurrentEventInfo()
+    -----------
+    -- Kitty ---------------
+    --[[ Bleed Recorder --]]
+    if GetSpecialization() == 2 then
+        if source == UnitGUID("player") then
+            if destination ~= nil and destination ~= "" then
+                local thisUnit = thisUnit
+                if EWT then
+                    local destination = GetObjectWithGUID(destination)
+                    if GetObjectExists(destination) then
+                        thisUnit = destination
+                    elseif GetObjectExists("target") then
+                        thisUnit = GetObjectWithGUID(UnitGUID("target"))
+                    else
+                        thisUnit = GetObjectWithGUID(UnitGUID("player"))
+                    end
+                    if br.player ~= nil and getDistance(thisUnit) < 40 then
+                        local debuff = br.player.debuff
+                        local debuffID = br.player["spell"].debuffs
+                        if debuffID ~= nil then
+                            if spell == debuffID.rake or spell == debuffID.rip then
+                                if spell == debuffID.rake then
+                                    k = "rake"
+                                end
+                                if spell == debuffID.rip then
+                                    k = "rip"
+                                end
+                                if debuff[k].bleed == nil then
+                                    debuff[k].bleed = {}
+                                end
+                                if debuff[k].bleed[thisUnit] == nil then
+                                    debuff[k].bleed[thisUnit] = 0
+                                end
+                                if param == "SPELL_AURA_REMOVED" then
+                                    debuff[k].bleed[thisUnit] = 0
+                                    if GetUnitIsUnit(thisUnit, "target") then
+                                        debuff[k].bleed["target"] = 0
                                     end
-                                    if spell == debuffID.rip then
-                                        k = "rip"
-                                    end
-                                    if debuff[k].bleed == nil then
-                                        debuff[k].bleed = {}
-                                    end
-                                    if debuff[k].bleed[thisUnit] == nil then
-                                        debuff[k].bleed[thisUnit] = 0
-                                    end
-                                    if param == "SPELL_AURA_REMOVED" then
-                                        debuff[k].bleed[thisUnit] = 0
-                                        if GetUnitIsUnit(thisUnit, "target") then
-                                            debuff[k].bleed["target"] = 0
-                                        end
-                                    end
-                                    if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
-                                        debuff[k].bleed[thisUnit] = debuff[k].calc()
-                                        if GetUnitIsUnit(thisUnit, "target") then
-                                            debuff[k].bleed["target"] = debuff[k].calc()
-                                        end
+                                end
+                                if param == "SPELL_AURA_APPLIED" or param == "SPELL_AURA_REFRESH" then
+                                    debuff[k].bleed[thisUnit] = debuff[k].calc()
+                                    if GetUnitIsUnit(thisUnit, "target") then
+                                        debuff[k].bleed["target"] = debuff[k].calc()
                                     end
                                 end
                             end
@@ -495,30 +496,30 @@ function br.read.combatLog()
                 end
             end
         end
-        -----------------------
-        --[[ Moonkin ]]
-        if shroomsTable == nil then
-            shroomsTable = {}
-            shroomsTable[1] = {}
-        end
-        if source == br.guid and param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
-            shroomsTable[1].guid = destination
-            shroomsTable[1].x = nil
-            shroomsTable[1].y = nil
-            shroomsTable[1].z = nil
-        end
-        if
-            (param == "UNIT_DIED" or param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and
-                shroomsTable[1].guid == destination
-         then
-            shroomsTable[1] = {}
-        end
-        if source == br.guid and class == 11 and GetSpecialization() == 1 then
-            -- Starsurge Casted
-            if spell == 78674 and param == "SPELL_CAST_SUCCESS" then
-                if core then
-                    core.lastStarsurge = GetTime()
-                end
+    end
+    -----------------------
+    --[[ Moonkin ]]
+    if shroomsTable == nil then
+        shroomsTable = {}
+        shroomsTable[1] = {}
+    end
+    if source == br.guid and param == "SPELL_SUMMON" and (spell == 147349 or spell == 145205) then
+        shroomsTable[1].guid = destination
+        shroomsTable[1].x = nil
+        shroomsTable[1].y = nil
+        shroomsTable[1].z = nil
+    end
+    if
+        (param == "UNIT_DIED" or param == "UNIT_DESTROYED" or GetTotemInfo(1) ~= true) and shroomsTable ~= nil and
+            shroomsTable[1].guid == destination
+     then
+        shroomsTable[1] = {}
+    end
+    if source == br.guid and class == 11 and GetSpecialization() == 1 then
+        -- Starsurge Casted
+        if spell == 78674 and param == "SPELL_CAST_SUCCESS" then
+            if core then
+                core.lastStarsurge = GetTime()
             end
         end
     end
