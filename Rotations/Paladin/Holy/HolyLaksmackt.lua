@@ -67,6 +67,7 @@ local function createOptions()
         ----------------------
         -- Trinkets
         section = br.ui:createSection(br.ui.window.profile, "Trinkets")
+        --br.ui:createCheckbox(section,"glimmer debug")
         br.ui:createSpinner(section, "Trinket 1", 70, 0, 100, 5, "Health Percent to Cast At")
         br.ui:createSpinnerWithout(section, "Min Trinket 1 Targets", 3, 1, 40, 1, "", "Minimum Trinket 1 Targets(This includes you)", true)
         br.ui:createDropdownWithout(section, "Trinket 1 Mode", { "|cffFFFFFFNormal", "|cffFFFFFFTarget", "|cffFFFFFFGround", "|cffFFFFFFDPS-Target" }, 1, "", "")
@@ -396,7 +397,7 @@ local function runRotation()
     local resable = UnitIsPlayer("target") and UnitIsDeadOrGhost("target") and GetUnitIsFriend("target", "player") and UnitInRange("target")
     local inCombat = isInCombat("player")
     local inInstance = br.player.instance == "party" or br.player.instance == "scenario"
-    local inRaid = br.player.instance == "raid" 
+    local inRaid = br.player.instance == "raid"
     local solo = #br.friend == 1
     local race = br.player.race
     local racial = br.player.getRacial()
@@ -414,6 +415,7 @@ local function runRotation()
     local tanks = getTanksTable()
     local lowest = br.friend[1]
     local friends = friends or {}
+    local glimmerCount = 0
     -------------
     -- Enemies
     -------------
@@ -443,6 +445,16 @@ local function runRotation()
     if not isCastingSpell(spell.flashOfLight) and not isCastingSpell(spell.holyLight) then
         healing_obj = nil
     end
+
+    for i = 1, #br.friend do
+		if buff.glimmerOfLight.remain(br.friend[i].unit) > gcd then
+			glimmerCount = glimmerCount + 1
+		end
+    end
+    
+    --if isChecked("glimmer debug") then 
+        --Print(glimmerCount) 
+    --end
     
     units.get(5)
     units.get(8)
@@ -1518,30 +1530,14 @@ local function runRotation()
 
 
             --Consecration
-            if isChecked("Consecration") and cast.able.consecration() then
-                if consecrationCastTime == nil then
-                    consecrationCastTime = 0
-                end
-                if consecrationRemain == nil then
-                    consecrationRemain = 0
-                end
-                if cast.last.consecration() then
-                    consecrationCastTime = GetTime() + 12
-                end
-                if consecrationCastTime > GetTime() then
-                    consecrationRemain = consecrationCastTime - GetTime()
-                else
-                    consecrationCastTime = 0;
-                    consecrationRemain = 0
-                end
-                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 then
-                    if cast.able.consecration() and consecrationRemain < gcd then
+            if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 
+                and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ)> 7) or GetTotemTimeLeft(1) < 2) then
                         if cast.consecration() then
+                            cX,cY,cZ = GetObjectPosition("player")
                             return
                         end
-                    end
-                end
             end
+
 
             for i = 1, #enemies.yards30 do
                 local thisUnit = enemies.yards30[i]
@@ -1761,53 +1757,38 @@ local function runRotation()
 
 
         --Wings, burst mode MAX dps
-        if (mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) or (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key")) then
-            if isChecked("Consecration") and cast.able.consecration() then
-                if consecrationCastTime == nil then
-                    consecrationCastTime = 0
-                end
-                if consecrationRemain == nil then
-                    consecrationRemain = 0
-                end
-                if cast.last.consecration() then
-                    consecrationCastTime = GetTime() + 12
-                end
-                if consecrationCastTime > GetTime() then
-                    consecrationRemain = consecrationCastTime - GetTime()
-                else
-                    consecrationCastTime = 0;
-                    consecrationRemain = 0
-                end
-                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 then
-                    if cast.able.consecration() and consecrationRemain < gcd then
+        if (mode.DPS == 3 and (buff.avengingWrath.exists() or buff.avengingCrusader.exists("player")) or (GetMinimapZoneText() == "Shrine of Shadows" and getUnitID("target") == 136295)) or 
+            (isChecked("Hard DPS Key") and SpecificToggle("Hard DPS Key")) then
+                if isChecked("Consecration") and cast.able.consecration() and #enemies.yards5 >= getValue("Consecration") and getDebuffRemain("target", 204242) == 0 
+                    and (not GetTotemInfo(1) or (getDistanceToObject("player", cX, cY, cZ)> 7) or GetTotemTimeLeft(1) < 3) then
                         if cast.consecration() then
+                            cX,cY,cZ = GetObjectPosition("player")
                             return
                         end
-                    end
-                end
-            end            
-            if isChecked("DPS Mana") and mana > getValue("DPS Mana") or not isChecked("DPS Mana") and
-                    isChecked("DPS Health") and lowest.hp > getValue("DPS Health") or not isChecked("DPS Health") and lowest.hp > getValue("Critical HP") then
-                if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or inRaid)) then
-                    for i = 1, #enemies.yards40 do
-                        local thisUnit = enemies.yards40[i]
-                        if not debuff.glimmerOfLight.exists(thisUnit) then
-                            if cast.holyShock(thisUnit) then
-                                return true
+                end           
+                if ((isChecked("DPS Mana") and mana > getValue("DPS Mana")) or not isChecked("DPS Mana")) and
+                        ((isChecked("DPS Health") and lowest.hp > getValue("DPS Health")) or not isChecked("DPS Health")) and 
+                        lowest.hp > getValue("Critical HP") then
+                    if cast.able.holyShock() and ((inInstance and #tanks > 0 and getDistance(units.dyn40, tanks[1].unit) <= 10 or solo or inRaid)) then
+                        for i = 1, #enemies.yards40 do
+                            local thisUnit = enemies.yards40[i]
+                            if not debuff.glimmerOfLight.exists(thisUnit) then
+                                if cast.holyShock(thisUnit) then
+                                    return true
+                                end
                             end
                         end
-                    end
-                    if cast.holyShock(units.dyn40) then
-                        return true
+                        if cast.holyShock(units.dyn40) then
+                            return true
+                        end
                     end
                 end
-            end
-            if cast.judgment(units.dyn30) then
-                return true
-            end
-            if cast.crusaderStrike(units.dyn5) then
-                return true
-            end
+                if cast.judgment(units.dyn30) then
+                    return true
+                end
+                if cast.crusaderStrike(units.dyn5) then
+                    return true
+                end
         end
 
 
@@ -1888,6 +1869,11 @@ local function runRotation()
                         return x.hp < y.hp
                     end)
                 end
+                if glimmerCount ~= nil and glimmerCount >= 8 then
+                    if cast.holyShock(lowest.unit) then 
+                        --Print("Glimmer cap glimmer")
+                        return end
+                end
                 if #glimmerTable >= 1 and glimmerTable[1].unit ~= nil and mode.Glimmer == 1 then
                     if isChecked("Rule of Law") and cast.able.ruleOfLaw() and talent.ruleOfLaw and not buff.ruleOfLaw.exists("player") and inCombat then
                         if #glimmerTable >= 1 and glimmerTable[1].distance ~= nil and glimmerTable[1].distance > 10 then
@@ -1902,7 +1888,7 @@ local function runRotation()
                         return true
                     end
                 end
-                if glimmerTable ~= nil and #glimmerTable == 0 and (not isChecked("Holy Shock Damage") or (isChecked("Holy Shock Damage") and lowest.hp < getValue("Holy Shock"))) then
+                if (glimmerTable ~= nil and #glimmerTable == 0 and (not isChecked("Holy Shock Damage") or (isChecked("Holy Shock Damage") and lowest.hp < getValue("Holy Shock")))) then
                     if cast.holyShock(lowest.unit) then return end
                 end
                 -- Check here to see if shock is not ready, but dawn is - then use dawn
