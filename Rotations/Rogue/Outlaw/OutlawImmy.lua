@@ -315,6 +315,7 @@ local function runRotation()
         
 --______________________________________
     
+    enemies.get(40)
     enemies.get(20,nil,nil,nil,spell.pistolShot)
     enemies.get(20,nil,true,nil,spell.pistolShot)
     enemies.get(5)
@@ -838,6 +839,18 @@ local function runRotation()
 
             --Essences 8.2
             if mode.essence == 2 then
+
+                    -- Essence: Reaping Flames
+    -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
+                if cast.able.reapingFlames() then
+                    for i = 1, #enemies.yards40 do
+                        local thisUnit = enemies.yards40[i]
+                        local thisHP = getHP(thisUnit)
+                    if ((essence.reapingFlames.rank >= 2 and thisHP > 80) or thisHP <= 20 or getTTD(thisUnit,20) > 30) then
+                        if cast.reapingFlames(thisUnit) then return true end
+                        end
+                    end
+                end
                 -- # Blood of the Enemy
                 if essence.bloodOfTheEnemy.active and isChecked("BotE") and not rtbReroll() and cd.betweenTheEyes.remain() < 5 then 
                     if buff.bladeFlurry.exists("player") and bftargets >= 3 then
@@ -1392,7 +1405,7 @@ local function runRotation()
 
             if actionList_Interrupts() then end
 
-            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and useCDs() and (not solo or isDummy("target")) then
+            if isChecked("Vanish") and ambushCondition() and cd.vanish.remain() <= 0.2 and getDistance("target") <= 5 and useCDs() and not solo then
                 if gcd > 0.2 then return true end
                 if cast.pool.ambush() then return true end
                 if CastSpellByID(1856) then return true end
