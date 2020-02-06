@@ -227,13 +227,15 @@ local enemyBlood
 local fbMaxEnergy
 local friendsInRange = false
 local htTimer
-local lastForm
-local leftCombat
+local lastForm = 0
+local lastRune = GetTime()
+local leftCombat = GetTime()
 local minCount
 local noDoT
-local profileStop
+local profileStop = false
 local range
-local ripDuration = 24
+local ripDuration
+local unit5ID
 local useThrash
 
 -----------------
@@ -759,7 +761,7 @@ actionList.Cooldowns = function()
             -- Essence: Reaping Flames
             -- reaping_flames,if=target.health.pct>80|target.health.pct<=20|target.time_to_pct_20>30
             if cast.able.reapingFlames() and (getHP(units.dyn5) > 80 or getHP(units.dyn5) <= 20 or getTTD(units.dyn5,20) > 30) then
-                if cast.reapingFlames() then debug("Casting Reaping Flames") return true end
+                if cast.reapingFlames() then ui.debug("Casting Reaping Flames") return true end
             end
         end
         -- Incarnation - King of the Jungle
@@ -1149,16 +1151,10 @@ actionList.Generator = function()
     if (cast.pool.thrashCat() or cast.able.thrashCat()) and (not noDoT or #enemies.yards8 > 1) and not isExplosive("target") and ttd(units.dyn8AOE) > 4
         and debuff.thrashCat.refresh(units.dyn8AOE) and ui.mode.rotation < 3 and range.dyn8AOE
     then
-        if (useThrash == 2 or (useThrash == 1 and buff.clearcasting.exists())
+        if (useThrash == 2 or (useThrash == 0 and buff.clearcasting.exists())
             and ((not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active)
             or (ui.mode.rotation == 1 and #enemies.yards8 > 1) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)))
         then
-        -- if (useThrash == 2 and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
-        --     or ((ui.mode.rotation == 1 and #enemies.yards8 > 1) or (ui.mode.rotation == 2 and #enemies.yards8 > 0)
-        --     or (#enemies.yards8 > 0 and traits.wildFleshrending.active))
-        --     or (useThrash == 1 and buff.clearcasting.exists()
-        --         and (not buff.incarnationKingOfTheJungle.exists() or traits.wildFleshrending.active))
-        -- then
             if cast.pool.thrashCat() and not buff.clearcasting.exists() then ChatOverlay("Pooling For Thrash") return true end
             if cast.able.thrashCat() or buff.clearcasting.exists() then
                 if cast.thrashCat("player","aoe",1,8) then ui.debug("Casting Thrash [Use Thrash Variable "..useThrash.."]") return true end
@@ -1255,6 +1251,7 @@ actionList.PreCombat = function()
                 if cast.regrowth("player") then ui.debug("Casting Regrowth [Pre-pull]"); htTimer = GetTime(); return true end
             end
             -- Azshara's Font of Power
+            -- use_item,name=azsharas_font_of_power
             if (use.able.slot(13) or use.able.slot(14)) then
                 local opValue = ui.option.value("Trinkets")
                 if (opValue == 1 or (opValue == 2 and useCDs())) and getDistance(units.dyn5) < 5 then
@@ -1289,7 +1286,7 @@ actionList.PreCombat = function()
                 end
             end -- End Prowl
             -- Berserk/Tiger's Fury Pre-Pull
-            if ui.option.checked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or inInstance) then
+            if ui.option.checked("Berserk/Tiger's Fury Pre-Pull") and pullTimer <= 1 and (inRaid or inInstance) and getDistance("target") < 8 then
                 if cast.able.berserk() and cast.able.tigersFury() then
                     cast.berserk()
                     cast.tigersFury()
@@ -1363,7 +1360,7 @@ local function runRotation()
     ttd                                = getTTD
     ttm                                = br.player.power.energy.ttm()
     ui.debug                           = br.addonDebug
-    
+
     -- Get Best Unit for Range
     -- units.get(range, aoe)
     units.get(40)
@@ -1386,28 +1383,17 @@ local function runRotation()
     enemies.get(5,"player",false,true) -- makes enemies.yards5f
 
     -- General Vars
-    if leftCombat == nil then leftCombat = GetTime() end
-    if lastForm == nil then lastForm = 0 end
-    if profileStop == nil then profileStop = false end
-    if lastRune == nil then lastRune = GetTime() end
     if not inCombat and not UnitExists("target") and profileStop == true then
         profileStop = false
     end
-    noDoT = GetObjectID(units.dyn5) == 153758
+    unit5ID = GetObjectID(units.dyn5) or 0
+    noDoT = unit5ID == 153758 or unit5ID == 156857 or unit5ID == 156849 or unit5ID == 156865 or unit5ID == 156869
 
     -- Blood of the Enemy
-    if essence.bloodOfTheEnemy.active then
-        enemyBlood = 1
-    else
-        enemyBlood = 0
-    end
+    enemyBlood = essence.bloodOfTheEnemy.active and 1 or 0
 
     -- Jagged Wounds Rip Duration Adj
-    if talent.jaggedWounds then
-        ripDuration = 1.6 * (24 / 2)
-    else
-        ripDuration = 24
-    end
+    ripDuration = talent.jaggedWounds and 1.6 * (24 / 2) or 24
 
     -- Friends In Range
     friendsInRange = false
@@ -1419,7 +1405,7 @@ local function runRotation()
         end
     end
 
-    fbMaxEnergy = energy > 50
+    fbMaxEnergy = energy >= 50
 
     -- Opener Reset
     if (not inCombat and not GetObjectExists("target")) or opener.complete == nil then
@@ -1435,14 +1421,8 @@ local function runRotation()
     -- Variables
     -- variable,name=use_thrash,value=0
     -- variable,name=use_thrash,value=2,if=azerite.wild_fleshrending.enabled
-    if traits.wildFleshrending.active then
-        useThrash = 2
-    else
-        useThrash = 1
-    end
+    useThrash = traits.wildFleshrending.active and 2 or 0
 
-    -- ChatOverlay("Rake: "..round2(debuff.rake.remain("target"),0)..", Rip: "..round2(debuff.rip.remain("target"),0))
-    -- ChatOverlay("Safe To Swipe: "..tostring(cast.safe.swipeCat("player",8,1)))
     ---------------------
     --- Begin Profile ---
     ---------------------
@@ -1493,7 +1473,7 @@ local function runRotation()
                     if cast.shred(units.dyn5) then --[[ui.debug("Casting Shred on "..UnitName(units.dyn5).." [Stealth Break]");]] return true end
                 end
             elseif not (buff.prowl.exists() or buff.shadowmeld.exists()) then
-                -- auto_attack
+                -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
                 if not IsAutoRepeatSpell(GetSpellInfo(6603)) and range.dyn5 then
                     StartAttack(units.dyn5)
                 end
