@@ -116,7 +116,7 @@ local function createOptions()
         --- COOLDOWN OPTIONS --- -- Define Cooldown Options
         ------------------------
         section = br.ui:createSection(br.ui.window.profile, "Pots")
-        br.ui:createCheckbox(section, "Auto use Pots")
+        br.ui:createDropdown(section, "Auto use Pots", { "Always", "Groups", "Raids", "solo", "never" }, 5, "", "when to use pots")
         br.ui:createDropdownWithout(section, "Pots - 1 target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 2-3 targets", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
@@ -683,35 +683,44 @@ local function runRotation()
                 7, Focused Resolve, 168506
                 8, Superior Battle, 168498
                 ]]
-
-
         if isChecked("Auto use Pots") then
-            local auto_pot = nil
-            if #enemies.yards12t == 1 and isBoss("target") then
-                auto_pot = getOptionValue("Pots - 1 target")
-            elseif #enemies.yards12t >= 2 and #enemies.yards12t <= 3 then
-                auto_pot = getOptionValue("Pots - 2-3 targets")
-            elseif #enemies.yards12t >= 4 then
-                auto_pot = getOptionValue("Pots - 4+ target")
+            local pot_use = nil
+            if getValue("Auto use Pots") == 1
+                    or getValue("Auto use Pots") == 2 and inInstance
+                    or getValue("Auto use Pots") == 3 and inRaid
+                    or getValue("Auto use Pots") == 4 and solo
+            then
+                pot_use = true
             end
 
-            if not auto_pot == 1 and not solo and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
-                if auto_pot == 2 and canUseItem(163222) then
-                    useItem(163222)
-                elseif auto_pot == 3 and canUseItem(152559) then
-                    useItem(152559)
-                elseif auto_pot == 4 and canUseItem(109218) then
-                    useItem(109218)
-                elseif auto_pot == 5 and canUseItem(142117) then
-                    useItem(142117)
-                elseif auto_pot == 6 and #enemies.yards12 > 3 and canUseItem(168529) then
-                    useItem(168529)
-                elseif auto_pot == 7 and canUseItem(168506) then
-                    useItem(168506)
-                elseif auto_pot == 8 and canUseItem(168498) then
-                    useItem(168498)
-                elseif auto_pot == 9 and canUseItem(169299) then
-                    useItem(169299)
+            if pot_use then
+                local auto_pot = nil
+                if #enemies.yards12t == 1 and isBoss("target") then
+                    auto_pot = getOptionValue("Pots - 1 target")
+                elseif #enemies.yards12t >= 2 and #enemies.yards12t <= 3 then
+                    auto_pot = getOptionValue("Pots - 2-3 targets")
+                elseif #enemies.yards12t >= 4 then
+                    auto_pot = getOptionValue("Pots - 4+ target")
+                end
+
+                if not auto_pot == 1 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
+                    if auto_pot == 2 and canUseItem(163222) then
+                        useItem(163222)
+                    elseif auto_pot == 3 and canUseItem(152559) then
+                        useItem(152559)
+                    elseif auto_pot == 4 and canUseItem(109218) then
+                        useItem(109218)
+                    elseif auto_pot == 5 and canUseItem(142117) then
+                        useItem(142117)
+                    elseif auto_pot == 6 and #enemies.yards12 > 3 and canUseItem(168529) then
+                        useItem(168529)
+                    elseif auto_pot == 7 and canUseItem(168506) then
+                        useItem(168506)
+                    elseif auto_pot == 8 and canUseItem(168498) then
+                        useItem(168498)
+                    elseif auto_pot == 9 and canUseItem(169299) then
+                        useItem(169299)
+                    end
                 end
             end
         end
