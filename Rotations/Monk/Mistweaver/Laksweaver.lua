@@ -142,6 +142,7 @@ local function createOptions()
 
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
         br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
         br.ui:checkSectionState(section)
 
         -- Essences
@@ -962,21 +963,7 @@ local function runRotation()
             end
         end
 
-
-        -- Corruption stuff
-        -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
-
-
-        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
-            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
-                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
-                if br.player.use.shroudOfResolve() then
-                    br.addonDebug("Using shroudOfResolve")
-                end
-            end
-        end
-        --items
+        -- item support
         --Wraps of wrapsOfElectrostaticPotential
         if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
             if br.player.use.wrapsOfElectrostaticPotential() then
@@ -984,9 +971,20 @@ local function runRotation()
             end
         end
         --staff of neural
-        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15 and getHP("player") > 50 then
+        if br.player.equiped.neuralSynapseEnhancer and canUseItem(br.player.items.neuralSynapseEnhancer) and ttd("target") >= 15 then
             if br.player.use.neuralSynapseEnhancer() then
                 br.addonDebug("Using neuralSynapseEnhancer ")
+            end
+        end
+        -- Corruption stuff
+        -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
+        if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
+                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.player.use.shroudOfResolve() then
+                    br.addonDebug("Using shroudOfResolve")
+                end
             end
         end
 
