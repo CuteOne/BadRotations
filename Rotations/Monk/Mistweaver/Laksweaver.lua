@@ -867,8 +867,13 @@ local function runRotation()
                     -- Print(UnitName(br.friend[i].unit))
                     -- Print(tostring(RM_counter))
                     if RM_counter >= getValue("Vivify Spam") then
-                        if cast.vivify(healUnit) then
-                            br.addonDebug("[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
+                        if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(healUnit) then
+                            if cast.soothingMist(healUnit) then
+                                br.addonDebug(tostring(burst) .. "[SooMist]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM - presoothe")
+                                return true
+                            end
+                        elseif cast.vivify(healUnit) then
+                            br.addonDebug(tostring(burst) .. "[Vivify]:" .. UnitName(healUnit) .. " / " .. "VIVIFY-SPAM")
                             return true
                         end
                     end
@@ -901,7 +906,7 @@ local function runRotation()
 
 
         --all the channeling crap
-        if getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
+        if cast.able.envelopingMist() and getHP(healUnit) <= getValue("Enveloping Mist") or specialHeal then
             if talent.lifecycle and isChecked("Enforce Lifecycles buff") and buff.lifeCyclesEnvelopingMist.exists() or not talent.lifecycle or not isChecked("Enforce Lifecycles buff") then
                 if isChecked("Soothing Mist Instant Cast") and not isMoving("player") then
                     if not buff.soothingMist.exists(healUnit) then
@@ -910,7 +915,6 @@ local function runRotation()
                         end
                     elseif buff.soothingMist.exists(healUnit) and buff.envelopingMist.remains(healUnit) < 2 then
                         if cast.envelopingMist(healUnit) then
-                            return
                         end
                     end
                 elseif not isChecked("Soothing Mist Instant Cast") and not isMoving("player") and buff.envelopingMist.remains(healUnit) < 2 then
@@ -1008,7 +1012,7 @@ local function runRotation()
         if cast.able.envelopingMist() and not cast.last.envelopingMist(1) then
             for i = 1, #tanks do
                 if getHP(tanks[i].unit) <= getValue("Enveloping Mist Tank") and not buff.envelopingMist.exists(tanks[i].unit) then
-                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) and not isCastingSpell(spell.soothingMist) then
+                    if isChecked("Soothing Mist Instant Cast") and not buff.soothingMist.exists(tanks[i].unit) then
                         if cast.soothingMist(tanks[i].unit) then
                             br.addonDebug("[SooMist]:" .. UnitName(tanks[i].unit) .. " / " .. "PRE-SOOTHE")
                             return true
