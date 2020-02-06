@@ -67,8 +67,10 @@ local function createOptions()
         section = br.ui:createSection(br.ui.window.profile, "Area of Effect")
         -- AoE Meteor
             br.ui:createSpinner(section,"Meteor Targets",  3,  1,  10,  1, "Min AoE Units")
+            br.ui:createCheckbox(section, "Use Meteor outside ROP", "If Unchecked, will only use Meteor if ROP buff is up")
         -- Flamestrike
-            br.ui:createSpinnerWithout(section,"FS Targets",  3,  1,  10,  1, "Min AoE Units")
+            br.ui:createSpinnerWithout(section,"FS Targets (Hot Streak)",  3,  1,  10,  1, "Min AoE Units")
+            br.ui:createSpinnerWithout(section,"FS Targets (Flame Patch)",  3,  1,  10,  1, "Min AoE Units")
         -- Rune of Power
             br.ui:createSpinnerWithout(section,"RoP Targets",  3,  1,  10,  1, "Min AoE Units")
         -- Combustion (Firestarter)
@@ -376,6 +378,11 @@ local function runRotation()
                     if castSpell("player",racial,false,false,false) then return end
                 end
                 -- Trinkets
+                local mainHand = GetInventorySlotInfo("MAINHANDSLOT")
+                if canUseItem(mainHand) and equiped.neuralSynapseEnhancer(mainHand) and ((talent.runeOfPower and buff.runeOfPower.exists("player")) or not talent.runeOfPower) then
+                    use.slot(mainHand)
+                    br.addonDebug("Using Neural SynapseEnhancer")
+                end
                 for i = 13, 14 do
                     local opValue = getOptionValue("Trinkets")
                     local iValue = i - 12
@@ -394,6 +401,7 @@ local function runRotation()
                                     SpellStopCasting()
                                 end
                                 use.slot(i)
+                                br.addonDebug("Using Shiver Venom Relic")
                             end
                         end
                     end
@@ -460,7 +468,7 @@ local function runRotation()
 
         local function actionList_Multi()
         -- Flamestrike
-            if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets") then
+            if buff.hotStreak.exists("player") and #enemies.yards8t >= getValue("FS Targets (Hot Streak)") then
                 if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Fire Blast
@@ -468,6 +476,10 @@ local function runRotation()
                 if br.timer:useTimer("FB Delay", 0.5) then
                     if cast.fireBlast() then br.addonDebug("Casting Fire Blast") return end
                 end
+            end
+        -- Flamestrike (Flame Patch)
+            if talent.flamePatch and not buff.combustion.exists("player") and not moving and #enemies.yards8t >= getValue("FS Targets (Flame Patch)") then 
+                if createCastFunction("best", false, 1, 8, spell.flamestrike, nil, true) then br.addonDebug("Casting Flamestrike") return end
             end
         -- Living Bomb
             if talent.livingBomb and ttd("target") >= 8 then
@@ -580,7 +592,7 @@ local function runRotation()
                 if isChecked("Meteor Targets") then
                     if cd.meteor.remain() <= gcd and (useCDs() or #enemies.yards8t >= getValue("Meteor Targets")) and talent.meteor and not isMoving("target") and getDistance("target") < 35 then
                         if talent.runeOfPower and talent.firestarter then
-                            if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or #enemies.yards8t >= getValue("Meteor Targets") then
+                            if (buff.runeOfPower.exists("player") and cd.combustion.remains() > 40) or (cd.combustion.remains() <= gcd and getHP("target") <= 90) or (#enemies.yards8t >= getValue("Meteor Targets") and isChecked("Use Meteor outside ROP")) then
                                 if not isBoss("target") then
                                     if cast.meteor("best",false,1,8) then
                                         br.addonDebug("Casting Meteor")
@@ -591,7 +603,7 @@ local function runRotation()
                                 end
                             end
                         elseif talent.runeOfPower and not talent.firestarter then
-                            if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or #enemies.yards8t >= getValue("Meteor Targets") then
+                            if (buff.runeOfPower.exists("player") and (cd.combustion.remains() > 40 or cd.combustion.remains() <= gcd)) or (#enemies.yards8t >= getValue("Meteor Targets") and isChecked("Use Meteor outside ROP")) then
                                 if not isBoss("target") then
                                     if cast.meteor("best",false,1,8) then
                                         br.addonDebug("Casting Meteor")
