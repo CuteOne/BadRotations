@@ -535,16 +535,16 @@ local function runRotation()
         end
 
         --potion support
-                --[[
-                1, none, frX
-                2, battle, 163222
-                3, RisingDeath, 152559
-                4, Draenic, 109218
-                5, Prolonged, 142117
-                6, Empowered Proximity, 168529
-                7, Focused Resolve, 168506
-                8, Superior Battle, 168498
-                ]]
+        --[[
+        1, none, frX
+        2, battle, 163222
+        3, RisingDeath, 152559
+        4, Draenic, 109218
+        5, Prolonged, 142117
+        6, Empowered Proximity, 168529
+        7, Focused Resolve, 168506
+        8, Superior Battle, 168498
+        ]]
         if isChecked("Auto use Pots") then
             local pot_use = nil
             if getValue("Auto use Pots") == 1
@@ -619,7 +619,6 @@ local function runRotation()
 
         --Essence Support
 
-        --memory_of_lucid_dreams,if=!buff.ca_inc.up&(astral_power<25|cooldown.ca_inc.remains>30),target_if=dot.sunfire.remains>10&dot.moonfire.remains>10&(!talent.stellar_flare.enabled|dot.stellar_flare.remains>10)
         if useCDs() and isChecked("Lucid Dreams") and cast.able.memoryOfLucidDreams() then
             if not pewbuff and (power < 25 or (cd.celestialAlignment.remain() > 30 or cd.incarnationChoseOfElune.remain() > 30)) then
                 if debuff.sunfire.remain("target") > 10 and debuff.sunfire.remain("target") > 10 and (debuff.stellarFlare.remain("target") > 10 or not talent.stellarFlare) then
@@ -852,7 +851,7 @@ local function runRotation()
                         and #enemies.yards12t < aoeTarget
                         or ttd(thisUnit) <= (br.player.gcd * power / 40)
                         or astral_def <= 8 then
-                    if cast.starsurge(thisUnit) then
+                    if cast.starsurge(units.dyn45) then
                         br.addonDebug("[STARSURGE]")
                         return true
                     end
@@ -881,7 +880,7 @@ local function runRotation()
                                 or (inRaid and #tanks > 1 and (getDistance(thisUnit, tanks[1].unit) <= 10 or (getDistance(thisUnit, tanks[2].unit) <= 10)))
                                 or solo
                                 or (inInstance and #tanks > 0 and getDistance(tanks[1].unit) >= 90)
-                        ) or not isChecked("Safe Dots") then
+                        ) or not isChecked("Safe Dots") or #tanks == 0 then
 
 
                     --quickdots
@@ -984,9 +983,7 @@ local function runRotation()
                         end
                     end
 
-
-                    -- stellar_flare,target_if=refreshable,if=ap_check&floor(target.time_to_die%(2*spell_haste))>=5&(!variable.az_ss|!buff.ca_inc.up|!prev.stellar_flare)
-
+                    --stellarFlare
                     if cast.able.stellarFlare() and not cast.last.stellarFlare() then
                         if (not debuff.stellarFlare.exists(thisUnit) and (debuff.stellarFlare.count() < getOptionValue("Max Stellar Flare Targets"))
                                 or debuff.stellarFlare.remain(thisUnit) < 6 and ttd(thisUnit) > debuff.stellarFlare.remain(thisUnit) + 5)
@@ -1002,20 +999,20 @@ local function runRotation()
                 end
             end
             --new/half/full moon ...will we ever use them ;)
-            if cast.able.newMoon(thisUnit) and (power <= 90) then
-                if cast.newMoon(thisUnit) then
+            if cast.able.newMoon(units.dyn45) and (power <= 90) then
+                if cast.newMoon(units.dyn45) then
                     return
                 end
             end
             -- half_moon,if=ap_check
-            if cast.able.halfMoon(thisUnit) and (power <= 80) then
-                if cast.halfMoon(thisUnit) then
+            if cast.able.halfMoon(units.dyn45) and (power <= 80) then
+                if cast.halfMoon(units.dyn45) then
                     return
                 end
             end
             -- full_moon,if=ap_check
-            if cast.able.fullMoon(thisUnit) and (power <= 60) then
-                if cast.fullMoon(thisUnit) then
+            if cast.able.fullMoon(units.dyn45) and (power <= 60) then
+                if cast.fullMoon(units.dyn45) then
                     return
                 end
             end
@@ -1030,7 +1027,7 @@ local function runRotation()
                     return true
                 end
             elseif mode.DPS == 3 then
-                if cast.lunarStrike(thisUnit) then
+                if cast.lunarStrike(units.dyn45) then
                     br.addonDebug("Lunarstrike Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                     return true
                 end
@@ -1042,7 +1039,7 @@ local function runRotation()
 
         -- solar_wrath,if=variable.az_ss<3|!buff.ca_inc.up|!prev.solar_wrath
         if cast.able.solarWrath() and br.player.traits.streakingStars.rank < 3 or not pewbuff or not cast.last.solarWrath() then
-            if cast.solarWrath(thisUnit) then
+            if cast.solarWrath(units.dyn45) then
                 br.addonDebug("Wrath - Solar: " .. buff.solarEmpowerment.stack() .. " Lunar: " .. buff.lunarEmpowerment.stack())
                 return
             end
@@ -1052,7 +1049,7 @@ local function runRotation()
 
         if not cast.last.sunfire(1) then
 
-            if cast.sunfire(thisUnit) then
+            if cast.sunfire(units.dyn45) then
                 if not isMoving("player") then
                     br.addonDebug("FAIL! (Sunfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
                 else
@@ -1061,7 +1058,7 @@ local function runRotation()
                 end
             end
         else
-            if cast.moonfire(thisUnit) then
+            if cast.moonfire(units.dyn45) then
                 if isMoving("player") then
                     br.addonDebug("FAIL! (moonfire) Lunarstacks: " .. buff.lunarEmpowerment.stack() .. " Solarstacks: " .. buff.solarEmpowerment.stack() .. " Astral: " .. power .. " TTD: " .. ttd("target"))
                 else
