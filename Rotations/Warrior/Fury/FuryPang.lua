@@ -169,8 +169,10 @@ local function createOptions()
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
         br.ui:checkSectionState(section)
-		-- Essences
-        section = br.ui:createSection(br.ui.window.profile, "Essences")
+		--------------------
+		-- Essences --------
+		--------------------
+		        section = br.ui:createSection(br.ui.window.profile, "Essences")
         -- Guardian of Azeroth
         br.ui:createCheckbox(section, "GuardianofAzeroth", "Use Guardian of Azeroth")
         br.ui:createDropdownWithout(section, "GuardianOfAzeroth - Usage", {"Always", "Only Boss"}, 1)
@@ -185,8 +187,8 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Blood of the Enemy", {"Always", "With Reck", "CDS", "Never"}, 1)
 		-- Purifying Blast
         br.ui:createDropdown(section, "Purifying Blast", {"Always", "AoE only"}, 1)
-        -- br.ui:createSpinner(section, "Min HP deathwish", 20, 1, 100, 5)
-        -- br.ui:createSpinnerWithout(section, "Deathwish Stacks", 7, 1, 10, 1)
+		-- Reaping Flames
+		br.ui:createDropdown(section, "Reaping Flames", {"Always", "Snipe only"}, 1)
         br.ui:checkSectionState(section)
 		------------------------
 		--- Mythicplus----------
@@ -885,6 +887,13 @@ local function runRotation()
         if getOptionValue("Blood of the Enemy") == 1 or (getOptionValue("Blood of the Enemy") == 2 and buff.recklessness.remain() > 4) or (getOptionValue("Blood of the Enemy") == 3 and useCDs()) then
             if cast.bloodOfTheEnemy("player") then return end
         end
+		-- Reaping Flames 
+		-- actions+=/reaping_flames,if=!buff.recklessness.up&!buff.siegebreaker.up
+		if isChecked("Reaping Flames") and cast.able.reapingFlames() and (getOptionValue("Reaping Flames") == 1 and not buff.recklessness.exists("player") and not debuff.siegebreaker.exists("target")) then
+			if cast.reapingFlames("target") then
+				return
+			end
+		end
     end
 	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
