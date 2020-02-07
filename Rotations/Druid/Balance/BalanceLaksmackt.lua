@@ -533,6 +533,63 @@ local function runRotation()
                 end
             end
         end
+
+        --potion support
+                --[[
+                1, none, frX
+                2, battle, 163222
+                3, RisingDeath, 152559
+                4, Draenic, 109218
+                5, Prolonged, 142117
+                6, Empowered Proximity, 168529
+                7, Focused Resolve, 168506
+                8, Superior Battle, 168498
+                ]]
+        if isChecked("Auto use Pots") then
+            local pot_use = nil
+            if getValue("Auto use Pots") == 1
+                    or getValue("Auto use Pots") == 2 and inInstance
+                    or getValue("Auto use Pots") == 3 and inRaid
+                    or getValue("Auto use Pots") == 4 and solo
+            then
+                pot_use = true
+            end
+
+            if pot_use then
+                local auto_pot = nil
+                if #enemies.yards12t == 1 and isBoss("target") then
+                    auto_pot = getOptionValue("Pots - 1 target")
+                elseif #enemies.yards12t >= 2 and #enemies.yards12t <= 3 then
+                    auto_pot = getOptionValue("Pots - 2-3 targets")
+                elseif #enemies.yards12t >= 4 then
+                    auto_pot = getOptionValue("Pots - 4+ target")
+                end
+
+                if not auto_pot == 1 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
+                    if auto_pot == 2 and canUseItem(163222) then
+                        useItem(163222)
+                    elseif auto_pot == 3 and canUseItem(152559) then
+                        useItem(152559)
+                    elseif auto_pot == 4 and canUseItem(109218) then
+                        useItem(109218)
+                    elseif auto_pot == 5 and canUseItem(142117) then
+                        useItem(142117)
+                    elseif auto_pot == 6 and #enemies.yards12 > 3 and canUseItem(168529) then
+                        useItem(168529)
+                    elseif auto_pot == 7 and canUseItem(168506) then
+                        useItem(168506)
+                    elseif auto_pot == 8 and canUseItem(168498) then
+                        useItem(168498)
+                    elseif auto_pot == 9 and canUseItem(169299) then
+                        useItem(169299)
+                    end
+                end
+            end
+        end
+
+        if race == "Troll" and isChecked("Racial") and useCDs() and ttd("target") >= 12 and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13)) then
+            cast.racial("player")
+        end
         -- item support
         --Wraps of wrapsOfElectrostaticPotential
         if br.player.equiped.wrapsOfElectrostaticPotential and canUseItem(br.player.items.wrapsOfElectrostaticPotential) and ttd("target") >= 10 then
@@ -626,9 +683,7 @@ local function runRotation()
             aoeTarget = getValue("Starfall Targets (0 for auto)")
         end
 
-        if race == "Troll" and isChecked("Racial") and useCDs() and ttd("target") >= 12 and ((buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13)) then
-            cast.racial("player")
-        end
+
 
         --trinkets
         local Trinket13 = GetInventoryItemID("player", 13)
@@ -672,58 +727,6 @@ local function runRotation()
 
 
 
-        --0
-        --[[
-                1, none, frX
-                2, battle, 163222
-                3, RisingDeath, 152559
-                4, Draenic, 109218
-                5, Prolonged, 142117
-                6, Empowered Proximity, 168529
-                7, Focused Resolve, 168506
-                8, Superior Battle, 168498
-                ]]
-        if isChecked("Auto use Pots") then
-            local pot_use = nil
-            if getValue("Auto use Pots") == 1
-                    or getValue("Auto use Pots") == 2 and inInstance
-                    or getValue("Auto use Pots") == 3 and inRaid
-                    or getValue("Auto use Pots") == 4 and solo
-            then
-                pot_use = true
-            end
-
-            if pot_use then
-                local auto_pot = nil
-                if #enemies.yards12t == 1 and isBoss("target") then
-                    auto_pot = getOptionValue("Pots - 1 target")
-                elseif #enemies.yards12t >= 2 and #enemies.yards12t <= 3 then
-                    auto_pot = getOptionValue("Pots - 2-3 targets")
-                elseif #enemies.yards12t >= 4 then
-                    auto_pot = getOptionValue("Pots - 4+ target")
-                end
-
-                if not auto_pot == 1 and (buff.incarnationChoseOfElune.exists() and buff.incarnationChoseOfElune.remain() > 16.5) or (buff.celestialAlignment.exists() and buff.celestialAlignment.remain() > 13) then
-                    if auto_pot == 2 and canUseItem(163222) then
-                        useItem(163222)
-                    elseif auto_pot == 3 and canUseItem(152559) then
-                        useItem(152559)
-                    elseif auto_pot == 4 and canUseItem(109218) then
-                        useItem(109218)
-                    elseif auto_pot == 5 and canUseItem(142117) then
-                        useItem(142117)
-                    elseif auto_pot == 6 and #enemies.yards12 > 3 and canUseItem(168529) then
-                        useItem(168529)
-                    elseif auto_pot == 7 and canUseItem(168506) then
-                        useItem(168506)
-                    elseif auto_pot == 8 and canUseItem(168498) then
-                        useItem(168498)
-                    elseif auto_pot == 9 and canUseItem(169299) then
-                        useItem(169299)
-                    end
-                end
-            end
-        end
         -- Warrior of Elune
         if useCDs() and isChecked("Warrior Of Elune") and talent.warriorOfElune and not buff.warriorOfElune.exists() then
             if cast.warriorOfElune() then
@@ -796,7 +799,7 @@ local function runRotation()
                 end
             elseif talent.incarnationChoseOfElune and groupTTD >= 30 then
                 if not pewbuff and (buff.memoryOfLucidDreams.exists() or ((cd.memoryOfLucidDreams.remains() > 20 or not essence.memoryOfLucidDreams.major) and astral_def > 40))
-                        and debuff.sunfire.remain("target") > 8 and debuff.moonfire.remains("target") > 12 and (debuff.stellar_flare.remains("target") > 6 or not talent.stellar_flare)
+                        and debuff.sunfire.remain("target") > 8 and debuff.moonfire.remains("target") > 12 and (debuff.stellarFlare.remains("target") > 6 or not talent.stellarFlare)
                         or hasBloodLust()
                 then
                     if cast.incarnationChoseOfElune() then
