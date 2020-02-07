@@ -2529,7 +2529,7 @@ local function runRotation()
                         end
                     end
                 elseif friendlydeadcount > 0 then
-                    if cast.Revitalize() then
+                    if cast.revitalize() then
                         return true
                     end
                 end
