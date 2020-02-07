@@ -547,9 +547,9 @@ actionList.Demonic = function()
     -- Eye Beam
     -- eye_beam,if=raid_event.adds.up|raid_event.adds.in>25
     if mode.eyeBeam == 1 and not isExplosive("target") and cast.able.eyeBeam() and not moving and enemies.yards20r > 0
-        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1 and enemies.yards20r > 0)
+        and ((getOptionValue("Eye Beam Usage") == 1 and mode.rotation == 1)
             or (getOptionValue("Eye Beam Usage") == 2 and mode.rotation == 1 and enemies.yards20r >= getOptionValue("Units To AoE"))
-            or (mode.rotation == 2 and enemies.yards20r > 0)) and (eyebeamTTD() or isDummy(units.dyn8))
+            or mode.rotation == 2) and (eyebeamTTD() or isDummy(units.dyn8))
     then
         if cast.eyeBeam(nil,"rect",1,20) then return end
     end
@@ -925,7 +925,7 @@ local function runRotation()
             if cast.felRush() then return end
         end
     end
-
+    
     ---------------------
     --- Begin Profile ---
     ---------------------

@@ -459,7 +459,7 @@ function getEnemiesInCone(angle,length,showLines,checkNoCombat)
     local playerX, playerY, playerZ = GetObjectPosition("player")
     local facing = ObjectFacing("player")
     local units = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
 
     for i = 1, #enemiesTable do
         local thisUnit = enemiesTable[i]
@@ -514,15 +514,27 @@ function getEnemiesInRect(width,length,showLines,checkNoCombat)
 	local checkNoCombat = checkNoCombat or false
 	local nlX, nlY, nrX, nrY, frX, frY = getRect(width,length,showLines)
 	local enemyCounter = 0
-	local enemiesTable = getEnemies("player",length,checkNoCombat)
+	local enemiesTable = getEnemies("player",length,checkNoCombat,true)
 	local enemiesInRect = enemiesInRect or {}
+	local inside = false
 	if #enemiesTable > 0 then
 		table.wipe(enemiesInRect)
 		for i = 1, #enemiesTable do
 			local thisUnit = enemiesTable[i]
+			local radius = UnitCombatReach(thisUnit)
 			local tX, tY = GetPositionBetweenObjects(thisUnit, "player", UnitCombatReach(thisUnit))
 			if tX and tY then
-				if isInside(tX,tY,nlX,nlY,nrX,nrY,frX,frY) then
+				for i = radius, 0, -0.1 do
+					local pX, pY 
+					if i > 0 then
+						pX, pY = GetPositionBetweenObjects(thisUnit, "player", i) 
+					else
+						pX, pY = GetObjectPosition(thisUnit)
+					end
+					if isInside(pX,pY,nlX,nlY,nrX,nrY,frX,frY) then inside = true break end
+				end
+				-- local inside = isInside(teX,teY,nlX,nlY,nrX,nrY,frX,frY) or isInside(tcX,tcY,nlX,nlY,nrX,nrY,frX,frY)
+				if inside then
 					if showLines then
 						LibDraw.Circle(tX, tY, playerZ, UnitBoundingRadius(thisUnit))
 					end
