@@ -168,7 +168,6 @@ local function createOptions()
         br.ui:createCheckbox(section, "Battle Shout", "Automatic Battle Shout for Party Memebers")
         -- Berserker Rage
         br.ui:createCheckbox(section, "Berserker Rage", "Check to use Berserker Rage")
-        br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
         br.ui:checkSectionState(section)
 		-- Essences
         section = br.ui:createSection(br.ui.window.profile, "Essences")
@@ -189,6 +188,13 @@ local function createOptions()
         -- br.ui:createSpinner(section, "Min HP deathwish", 20, 1, 100, 5)
         -- br.ui:createSpinnerWithout(section, "Deathwish Stacks", 7, 1, 10, 1)
         br.ui:checkSectionState(section)
+		------------------------
+		--- Mythicplus----------
+		------------------------
+		section = br.ui:createSection(br.ui.window.profile, "M+")
+		br.ui:createSpinner(section, "Dont kill your friends with bursting", 3, 1, 10, 1)
+		br.ui:createCheckbox(section, "Pig Catcher", "Catch the freehold Pig in the ring of booty")
+		br.ui:checkSectionState(section)
         ------------------------
         --- COOLDOWN OPTIONS ---
         ------------------------
@@ -237,7 +243,8 @@ local function createOptions()
         --- INTERRUPT OPTIONS ---
         -------------------------
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
-        -- Pummel
+        br.ui:createCheckbox(section, "Storm Bolt Logic", "Stun specific Spells and Mobs")
+		-- Pummel
         br.ui:createCheckbox(section, "Pummel")
         -- Intimidating Shout
         br.ui:createCheckbox(section, "Intimidating Shout - Int")
@@ -245,6 +252,12 @@ local function createOptions()
         br.ui:createCheckbox(section, "Storm Bolt - Int")
         -- Interrupt Percentage
         br.ui:createSpinner(section, "Interrupt At", 0, 0, 95, 5, "Cast Percentage to use at.")
+        br.ui:checkSectionState(section)
+		------------------------
+		--- CORRUPTION ---------
+		------------------------
+		section = br.ui:createSection(br.ui.window.profile, "Corruption")
+        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
         br.ui:checkSectionState(section)
     end
     optionTable = {
@@ -303,6 +316,7 @@ local function runRotation()
 	local ttd = getTTD
 
 
+
     --wipe timers table
     if timersTable then
         wipe(timersTable)
@@ -314,7 +328,13 @@ local function runRotation()
     enemies.get(8)
     enemies.get(15)
     enemies.get(20)
-
+	
+	local Storm_unitList = {
+            [131009] = "Spirit of Gold",
+            [134388] = "A Knot of Snakes",
+            [129758] = "Irontide Grenadier",
+			[161895] = "The Thing from beyond"
+    }
     --Keybindings
     local leapKey = false
     if getOptionValue("Heroic Leap Hotkey") ~= 1 then
@@ -422,6 +442,59 @@ local function runRotation()
 
     function interruptlist()
         if useInterrupts() then
+			if isChecked("Storm Bolt Logic") then
+                    if cast.able.stormBolt() then
+                        local Storm_list = {
+                            274400,
+                            274383,
+                            257756,
+                            276292,
+                            268273,
+                            256897,
+                            272542,
+                            272888,
+                            269266,
+                            258317,
+                            258864,
+                            259711,
+                            258917,
+                            264038,
+                            253239,
+                            269931,
+                            270084,
+                            270482,
+                            270506,
+                            270507,
+                            267433,
+                            267354,
+                            268702,
+                            268846,
+                            268865,
+                            258908,
+                            264574,
+                            272659,
+                            272655,
+                            267237,
+                            265568,
+                            277567,
+                            265540,
+                            268202,
+                            258058,
+                            257739
+                        }
+                        for i = 1, #enemies.yards20 do
+                            local thisUnit = enemies.yards20[i]
+                            local distance = getDistance(thisUnit)
+                            for k, v in pairs(Storm_list) do
+                                if (Storm_unitList[GetObjectID(thisUnit)] ~= nil or UnitCastingInfo(thisUnit) == GetSpellInfo(v) or UnitChannelInfo(thisUnit) == GetSpellInfo(v)) and getBuffRemain(thisUnit, 226510) == 0 and distance <= 20 then
+                                    if cast.stormBolt(thisUnit) then
+                                        return
+                                    end
+                                end
+                            end
+                        end
+					end
+            end
             for i = 1, #enemies.yards20 do
                 thisUnit = enemies.yards20[i]
                 distance = getDistance(thisUnit)
@@ -813,7 +886,15 @@ local function runRotation()
             if cast.bloodOfTheEnemy("player") then return end
         end
     end
-
+	if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
+            if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
+                    or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.exists("player")
+                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                if br.player.use.shroudOfResolve() then
+                    br.addonDebug("Using shroudOfResolve")
+                end
+            end
+        end
     if br.player.mode.lazyass == 1 and hastar and getDistance("target") > 5 then
         RunMacroText("/follow")
     end
@@ -833,6 +914,9 @@ local function runRotation()
         end
         if extralist() then
             return
+        end
+		if isChecked("Pig Catcher") then
+                    bossHelper()
         end
         if inCombat and profileStop == false and not (IsMounted() or IsFlying()) and #enemies.yards5 >= 1 then
             if getDistance(units.dyn5) < 6 then
