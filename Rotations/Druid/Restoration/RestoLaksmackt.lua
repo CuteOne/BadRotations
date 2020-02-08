@@ -2495,7 +2495,7 @@ local function runRotation()
     -- Print(tostring(mode.forms))
 
     -- Pause
-    if pause() or IsMounted() or flying or drinking or isCastingSpell(spell.tranquility) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) then
+    if pause() or IsMounted() or flying or drinking or isCastingSpell(spell.tranquility) or isCasting(293491) or hasBuff(250873) or hasBuff(115834) or hasBuff(58984) or hasBuff(185710) then
         --or stealthed (travel and not inCombat) or
         return true
     else
@@ -2535,8 +2535,9 @@ local function runRotation()
                 end
             end -- end auto mass rez
 
+            --br.addonDebug("mana = " .. tostring(mana))
 
-
+            --
             -- auto drinking
             if isChecked("Auto Drink") and mana <= getOptionValue("Auto Drink") and not moving and getDebuffStacks("player", 240443) == 0 and getDebuffStacks("player", 240443) == 0 then
                 --240443 == bursting
@@ -2565,24 +2566,26 @@ local function runRotation()
                     end
                 elseif isChecked("Sugar Crusted Fish Feast") and hasItem(126936) then
                     if EWT ~= nil then
+                        local x1, y1, z1 = ObjectPosition("player")
+                        br.addonDebug("scaninning -  fish thingy")
                         for i = 1, GetObjectCount() do
-                            local ID = ObjectID(GetObjectWithIndex(i))
                             local object = GetObjectWithIndex(i)
-                            local x1, y1, z1 = ObjectPosition("player")
+                            local ID = ObjectID(object)
                             local x2, y2, z2 = ObjectPosition(object)
                             local distance = math.sqrt(((x2 - x1) ^ 2) + ((y2 - y1) ^ 2) + ((z2 - z1) ^ 2))
                             if ID == 242405 and distance < 15 then
                                 --print(tostring(distance))
                                 InteractUnit(object)
                                 fishfeast = 1
+                                return true
                             else
-                                if hasItem(126936) and canUseItem(126936) and fishfeast == 0 and not hasBuff(185710) then
+                                if hasItem(126936) and canUseItem(126936) and fishfeast == 0 then
                                     useItem(126936)
                                     x1 = x1 + math.random(-2, 2)
                                     ClickPosition(x1, y1, z1)
                                     br.addonDebug("Placing fish thingy")
                                     fishfeast = 1
-                                    return
+                                    return true
                                 end
                             end
                         end
