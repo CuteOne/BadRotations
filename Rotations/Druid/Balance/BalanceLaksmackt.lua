@@ -122,7 +122,7 @@ local function createOptions()
         br.ui:createDropdownWithout(section, "Pots - 4+ target", { "None", "Battle", "RisingDeath", "Draenic", "Prolonged", "Empowered Proximity", "Focused Resolve", "Superior Battle", "Unbridled Fury" }, 1, "", "Use Pot when Incarnation/Celestial Alignment is up")
         br.ui:checkSectionState(section)
         section = br.ui:createSection(br.ui.window.profile, "Corruption")
-        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Never" }, 4, "", "")
+        br.ui:createDropdownWithout(section, "Use Cloak", { "snare", "Eye", "THING", "Everything", "never" }, 5, "", "")
         br.ui:createSpinnerWithout(section, "Eye Stacks", 3, 1, 10, 1, "How many stacks before using cloak")
         br.ui:checkSectionState(section)
 
@@ -604,11 +604,13 @@ local function runRotation()
             end
         end
         -- Corruption stuff
-        -- 1 = snare  2 = eye  3 = thing 4 = never   -- snare = 315176
+        -- 1 = snare  2 = eye  3 = thing 4 = reverything = 5 = never   -- snare = 315176
         if br.player.equiped.shroudOfResolve and canUseItem(br.player.items.shroudOfResolve) then
             if getValue("Use Cloak") == 1 and debuff.graspingTendrils.exists("player")
                     or getValue("Use Cloak") == 2 and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks")
-                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player") then
+                    or getValue("Use Cloak") == 3 and debuff.grandDelusions.exists("player")
+                    or getValue("Use Cloak") == 4 and (debuff.graspingTendrils.exists("player") and debuff.eyeOfCorruption.stack("player") >= getValue("Eye Stacks"))
+            then
                 if br.player.use.shroudOfResolve() then
                     br.addonDebug("Using shroudOfResolve")
                 end
