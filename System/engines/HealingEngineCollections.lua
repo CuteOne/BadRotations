@@ -109,6 +109,8 @@ novaEngineTables.DispelID = {
 	[294929] = {stacks = 0}, --https://www.wowhead.com/spell=294929/blazing-chomp
 	[294195] = {stacks = 0}, --https://www.wowhead.com/spell=294195/arcing-zap
 	[284219] = {stacks = 0}, --https://www.wowhead.com/spell=284219/shrink
+		-- Trash (Ny'alotha)
+	[307421] = {stacks = 5}, --https://www.wowhead.com/spell=307421/annihilation
 
 
 
@@ -271,6 +273,7 @@ novaEngineTables.SpecificHPDebuffs = {
 	[265773] = {value = 30}, --https://www.wowhead.com/spell=265773/spit-gold
 	-- Ra-Den (Ny'alotha)
 	[306184] = {value = 30}, --https://www.wowhead.com/spell=306184/unleashed-void
+
 
 }
 -- this table will assign role to any unit wearing the unit name
