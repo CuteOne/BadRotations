@@ -36,6 +36,15 @@ local function createToggles()
         [2] = { mode = "Off", value = 2 , overlay = "Cataclysm Disabled", tip = "Will Not Use Cataclysm in Rotation.", highlight = 0, icon = br.player.spell.cataclysm}
     };
     CreateButton("Cataclysm",5,0)
+    --Pet summon
+    PetSummonModes = {
+        [1] = { mode = "1", value = 1 , overlay = "Imp", tip = "Summon Imp", highlight = 1, icon = br.player.spell.summonImp },
+        [2] = { mode = "2", value = 2 ,overlay = "Voidwalker", tip = "Summon Voidwalker", highlight = 1, icon = br.player.spell.summonVoidwalker },
+        [3] = { mode = "3", value = 3 , overlay = "Felhunter", tip = "Summon Felhunter", highlight = 1, icon = br.player.spell.summonFelhunter },
+        [4] = { mode = "4", value = 4 , overlay = "Succubus", tip = "Summon Succubus", highlight = 1, icon = br.player.spell.summonSuccubus },
+        [5] = { mode = "None", value = 5 , overlay = "No pet", tip = "Dont Summon any Pet", highlight = 0, icon = br.player.spell.conflagrate }
+    };
+    CreateButton("PetSummon",6,0)
 end
 
 ---------------
@@ -58,8 +67,6 @@ local function createOptions()
         --     br.ui:createCheckbox(section,"Opener")
             -- Pet Management
             br.ui:createCheckbox(section, "Pet Management", "|cffFFFFFF Select to enable/disable auto pet management")
-            -- Summon Pet
-            br.ui:createDropdownWithout(section, "Summon Pet", {"Imp","Voidwalker","Felhunter","Succubus","Felguard","None"}, 1, "|cffFFFFFFSelect default pet to summon.")
             -- Pet - Auto Attack/Passive
             br.ui:createCheckbox(section, "Pet - Auto Attack/Passive")
         -- -- Grimoire of Service
@@ -120,6 +127,7 @@ local function createOptions()
         br.ui:checkSectionState(section)
         -- Interrupt Options
         section = br.ui:createSection(br.ui.window.profile, "Interrupts")
+            br.ui:createDropdown(section, "Shadowfury Key", br.dropOptions.Toggle, 6)
             -- Interrupt Percentage
             br.ui:createSpinner(section, "Interrupt At",  0,  0,  95,  5,  "|cffFFFFFFCast Percent to Cast At")
         br.ui:checkSectionState(section)
@@ -358,13 +366,13 @@ actionList.Defensive = function()
 end
 -- Action List - Interrupts
 actionList.Interrupts = function()
-    if useInterrupts() and (pet.active.id == 417 or pet.active.id == 78158) then
+    if useInterrupts() and (pet.active.id() == 417 or pet.active.id() == 78158) then
         for i=1, #enemies.yards30 do
             local thisUnit = enemies.yards30[i]
             if canInterrupt(thisUnit,option.value("Interrupt At")) then
-                if pet.active.id == 417 then
+                if pet.active.id() == 417 then
                     if cast.spellLock(thisUnit) then return true end
-                elseif pet.active.id == 78158 then
+                elseif pet.active.id() == 78158 then
                     if cast.shadowLock(thisUnit) then return true end
                 end
             end
@@ -812,19 +820,22 @@ actionList.PreCombat = function()
     -- Summon Pet
     -- summon_pet
     if option.checked("Pet Management") and not (IsFlying() or IsMounted()) and GetTime() - br.pauseTime > 0.5 and level >= 5
-        and br.timer:useTimer("summonPet", cast.time.summonVoidwalker() + petPadding) and not moving
+        and br.timer:useTimer("summonPet", 1)and not moving
     then
+        if mode.petSummon == 5 and pet.active.id() ~= 0 then
+            PetDismiss()
+        end
         if (pet.active.id() == 0 or pet.active.id() ~= summonId) and (lastSpell ~= castSummonId
             or pet.active.id() ~= summonId or pet.active.id() == 0)
         then
-            if summonPet == 1 and (lastSpell ~= spell.summonImp or pet.active.id() == 0) then
-              if cast.summonImp("player") then castSummonId = spell.summonImp return true end
-            elseif summonPet == 2 and (lastSpell ~= spell.summonVoidwalker or pet.active.id() == 0) then
-              if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
-            elseif summonPet == 3 and (lastSpell ~= spell.summonFelhunter or pet.active.id() == 0) then
-              if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
-            elseif summonPet == 4 and (lastSpell ~= spell.summonSuccubus or pet.active.id() == 0) then
-              if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
+            if mode.petSummon == 1 and (lastSpell ~= spell.summonImp or pet.active.id() == 0) then
+                if cast.summonImp("player") then castSummonId = spell.summonImp return true end
+            elseif mode.petSummon == 2 and (lastSpell ~= spell.summonVoidwalker or pet.active.id() == 0) then
+                if cast.summonVoidwalker("player") then castSummonId = spell.summonVoidwalker return true end
+            elseif mode.petSummon == 3 and (lastSpell ~= spell.summonFelhunter or pet.active.id() == 0) then
+                if cast.summonFelhunter("player") then castSummonId = spell.summonFelhunter return true end
+            elseif mode.petSummon == 4 and (lastSpell ~= spell.summonSuccubus or pet.active.id() == 0) then
+                if cast.summonSuccubus("player") then castSummonId = spell.summonSuccubus return true end
             end
         end
     end
@@ -944,12 +955,12 @@ local function runRotation()
             cd.summonInfernal.duration() > ttd(units.dyn40))
     
     -- Pet Data
-    if summonPet == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
-    elseif summonPet == 1 then summonId = 416
-    elseif summonPet == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
-    elseif summonPet == 2 then summonId = 1860
-    elseif summonPet == 3 then summonId = 417
-    elseif summonPet == 4 then summonId = 1863 end
+    if mode.petSummon == 1 and HasAttachedGlyph(spell.summonImp) then summonId = 58959
+    elseif mode.petSummon == 1 then summonId = 416
+    elseif mode.petSummon == 2 and HasAttachedGlyph(spell.summonVoidwalker) then summonId = 58960
+    elseif mode.petSummon == 2 then summonId = 1860
+    elseif mode.petSummon == 3 then summonId = 417
+    elseif mode.petSummon == 4 then summonId = 1863 end
     if talent.grimoireOfSacrifice then petPadding = 5 end
 
     infernalRemain = max(0,(infernalCast + 30) - GetTime())
@@ -1009,6 +1020,10 @@ local function runRotation()
         --- In Combat Rotation ---
         --------------------------
         if inCombat and isValidUnit(units.dyn40) then
+            if actionList.Interrupts() then return true end
+            if isChecked("Shadowfury Key") and SpecificToggle("Shadowfury Key") and not GetCurrentKeyBoardFocus() then
+                if CastSpellByName(GetSpellInfo(spell.shadowfury),"cursor") then br.addonDebug("Casting Shadow Fury") return end 
+            end
             -- Havoc
             -- call_action_list,name=havoc,if=havoc_active&active_enemies<5-talent.inferno.enabled+(talent.inferno.enabled&talent.internal_combustion.enabled)
             if debuff.havoc.count() > 0 and #enemies.yards40f < 5 - inferno + internalInferno then
