@@ -262,7 +262,7 @@ actionList.Defensive = function()
             end
         end
         -- Soulstone
-        if isChecked("Soulstone") and not moving then
+        if isChecked("Soulstone") and not moving and inCombat then
             if
                 getOptionValue("Soulstone") == 1 and -- Target
                     UnitIsPlayer("target") and
