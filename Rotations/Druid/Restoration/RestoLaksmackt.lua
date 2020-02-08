@@ -2376,7 +2376,7 @@ local function runRotation()
             local thisUnit = enemies.yards8[i]
 
             if talent.guardianAffinity and cd.thrashBear.remain() == 0 then
-                if cast.able.thrashBear() and (debuff.thrashBear.stack(thisUnit) < 3 or debuff.trashBear.remain(thisUnit) < 4.5 or cd.mangle.remain() > 0) then
+                if cast.able.thrashBear() and (debuff.thrashBear.stack(thisUnit) < 3 or debuff.thrashBear.remain(thisUnit) < 4.5 or cd.mangle.remain() > 0) then
                     if cast.thrashBear(thisUnit) then
                         br.addonDebug("[BEAR]trash - stacks[" .. debuff.thrashBear.stack(thisUnit) .. "]")
                         return true
