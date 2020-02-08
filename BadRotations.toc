@@ -2,7 +2,7 @@
 ## Title: |cffa330c9BadRotations
 ## Notes: |cffa330c9By CuteOne.
 ## Author: CuteOne
-## Version: 1.33.0
+## Version: 1.33.1
 ## SavedVariablesPerCharacter: brdata, brprofile
 
 BadRotations.lua
@@ -53,6 +53,7 @@ System\Lists\Pets.lua
 System\Lists\ShieldUnits.lua
 System\Lists\Specs.lua
 System\Lists\Spells.lua
+##System\Lists\Range.lua
 System\Lists\ThreatBypass.lua
 System\Lists\Tier.lua
 
