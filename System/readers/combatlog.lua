@@ -406,7 +406,7 @@ function cl:common(...)
         end
     end
     -- Big Raid Damage Tracker
-    if isInCombat("player") then
+    if UnitAffectingCombat("player") then
         if param == "SPELL_CAST_START" then
             if spell == 282107 then
                 pakuWrath = true
